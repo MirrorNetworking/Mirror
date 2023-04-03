@@ -11,8 +11,17 @@ namespace Mirror
         [Header("Sync Only If Changed")]
         [Tooltip("When true, changes are not sent unless greater than sensitivity values below.")]
         public bool onlySyncOnChange = true;
+
+        uint sendIntervalCounter = 0;
+        double lastSendIntervalTime = double.MinValue;
+
         [Tooltip("If we only sync on change, then we need to correct old snapshots if more time than sendInterval * multiplier has elapsed.\n\nOtherwise the first move will always start interpolating from the last move sequence's time, which will make it stutter when starting every time.")]
         public float onlySyncOnChangeCorrectionMultiplier = 2;
+
+        [Header("Send Interval Multiplier")]
+        [Tooltip("Check/Sync every multiple of Network Manager send interval (= 1 / NM Send Rate), instead of every send interval.")]
+        [Range(1, 120)]
+        public uint sendIntervalMultiplier = 3;
 
         [Header("Rotation")]
         [Tooltip("Sensitivity of changes needed before an updated state is sent over the network")]
@@ -31,31 +40,67 @@ namespace Mirror
         [Range(0.00_01f, 1f)]                   // disallow 0 division. 1mm to 1m precision is enough range.
         public float positionPrecision = 0.01f; // 1 cm
         [Range(0.00_01f, 1f)]                   // disallow 0 division. 1mm to 1m precision is enough range.
-        public float scalePrecision    = 0.01f; // 1 cm
+        public float scalePrecision = 0.01f; // 1 cm
+
+        [Header("Snapshot Interpolation")]
+        [Tooltip("Add a small timeline offset to account for decoupled arrival of NetworkTime and NetworkTransform snapshots.\nfixes: https://github.com/MirrorNetworking/Mirror/issues/3427")]
+        public bool timelineOffset = false;
+
+        // Ninja's Notes on offset & mulitplier:
+        // 
+        // In a no multiplier scenario:
+        // 1. Snapshots are sent every frame (frame being 1 NM send interval).
+        // 2. Time Interpolation is set to be 'behind' by 2 frames times.
+        // In theory where everything works, we probably have around 2 snapshots before we need to interpolate snapshots. From NT perspective, we should always have around 2 snapshots ready, so no stutter.
+        // 
+        // In a multiplier scenario:
+        // 1. Snapshots are sent every 10 frames.
+        // 2. Time Interpolation remains 'behind by 2 frames'.
+        // When everything works, we are receiving NT snapshots every 10 frames, but start interpolating after 2. 
+        // Even if I assume we had 2 snapshots to begin with to start interpolating (which we don't), by the time we reach 13th frame, we are out of snapshots, and have to wait 7 frames for next snapshot to come. This is the reason why we absolutely need the timestamp adjustment. We are starting way too early to interpolate. 
+        //
+        double timeStampAdjustment => NetworkServer.sendInterval * (sendIntervalMultiplier - 1);
+        double offset => timelineOffset ? NetworkServer.sendInterval * sendIntervalMultiplier : 0;
 
         // delta compression needs to remember 'last' to compress against
-        protected Vector3Long lastSerializedPosition   = Vector3Long.zero;
+        protected Vector3Long lastSerializedPosition = Vector3Long.zero;
         protected Vector3Long lastDeserializedPosition = Vector3Long.zero;
 
-        protected Vector3Long lastSerializedScale      = Vector3Long.zero;
-        protected Vector3Long lastDeserializedScale    = Vector3Long.zero;
+        protected Vector3Long lastSerializedScale = Vector3Long.zero;
+        protected Vector3Long lastDeserializedScale = Vector3Long.zero;
 
         // Used to store last sent snapshots
         protected TransformSnapshot last;
 
-        int lastClientCount = 0;
+        protected int lastClientCount = 1;
 
         // update //////////////////////////////////////////////////////////////
         void Update()
         {
             // if server then always sync to others.
-            if      (isServer) UpdateServer();
+            if (isServer) UpdateServer();
             // 'else if' because host mode shouldn't send anything to server.
             // it is the server. don't overwrite anything there.
             else if (isClient) UpdateClient();
         }
 
-        void UpdateServer()
+        void LateUpdate()
+        {
+            // set dirty to trigger OnSerialize. either always, or only if changed.
+            // It has to be checked in LateUpdate() for onlySyncOnChange to avoid
+            // the possibility of Update() running first before the object's movement
+            // script's Update(), which then causes NT to send every alternate frame
+            // instead.
+            if (isServer || (IsClientWithAuthority && NetworkClient.ready))
+            {
+                if (sendIntervalCounter == sendIntervalMultiplier && (!onlySyncOnChange || Changed(Construct())))
+                    SetDirty();
+
+                CheckLastSendTime();
+            }
+        }
+
+        protected virtual void UpdateServer()
         {
             // apply buffered snapshots IF client authority
             // -> in server authority, server moves the object
@@ -85,39 +130,16 @@ namespace Mirror
                     Apply(computed, to);
                 }
             }
-
-            // set dirty to trigger OnSerialize. either always, or only if changed.
-            // technically snapshot interpolation requires constant sending.
-            // however, with reliable it should be fine without constant sends.
-            //
-            // detect changes _after_ all changes were applied above.
-            if (!onlySyncOnChange || Changed(Construct()))
-                SetDirty();
         }
 
-        void UpdateClient()
+        protected virtual void UpdateClient()
         {
             // client authority, and local player (= allowed to move myself)?
-            if (IsClientWithAuthority)
+            if (!IsClientWithAuthority)
             {
-                // https://github.com/vis2k/Mirror/pull/2992/
-                if (!NetworkClient.ready) return;
-
-                // set dirty to trigger OnSerialize. either always, or only if changed.
-                // technically snapshot interpolation requires constant sending.
-                // however, with reliable it should be fine without constant sends.
-                if (!onlySyncOnChange || Changed(Construct()))
-                    SetDirty();
-            }
-            // for all other clients (and for local player if !authority),
-            // we need to apply snapshots from the buffer
-            else
-            {
-
                 // only while we have snapshots
                 if (clientSnapshots.Count > 0)
                 {
-
                     // step the interpolation without touching time.
                     // NetworkClient is responsible for time globally.
                     SnapshotInterpolation.StepInterpolation(
@@ -130,20 +152,20 @@ namespace Mirror
                     // interpolate & apply
                     TransformSnapshot computed = TransformSnapshot.Interpolate(from, to, t);
                     Apply(computed, to);
-
-                }
-
-                // 'only sync if moved'
-                // explain..
-                // from 1 snap to next snap..
-                // it'll be old...
-                if (lastClientCount > 1 && clientSnapshots.Count == 1)
-                {
-                    // this is it. snapshots are down to '1'.
-                    // does this cause stuck?
                 }
 
                 lastClientCount = clientSnapshots.Count;
+            }
+        }
+
+        protected virtual void CheckLastSendTime()
+        {
+            // timeAsDouble not available in older Unity versions.
+            if (AccurateInterval.Elapsed(NetworkTime.localTime, NetworkServer.sendInterval, ref lastSendIntervalTime))
+            {
+                if (sendIntervalCounter == sendIntervalMultiplier)
+                    sendIntervalCounter = 0;
+                sendIntervalCounter++;
             }
         }
 
@@ -191,6 +213,16 @@ namespace Mirror
             // initial
             if (initialState)
             {
+                // If there is a last serialized snapshot, we use it.
+                // This prevents the new client getting a snapshot that is different
+                // from what the older clients last got. If this happens, and on the next
+                // regular serialisation the delta compression will get wrong values.
+                // Notes:
+                // 1. Interestingly only the older clients have it wrong, because at the end
+                //    of this function, last = snapshot which is the initial state's snapshot
+                // 2. Regular NTR gets by this bug because it sends every frame anyway so initialstate
+                //    snapshot constructed would have been the same as the last anyway.
+                if (last.remoteTime > 0) snapshot = last;
                 if (syncPosition) writer.WriteVector3(snapshot.position);
                 if (syncRotation)
                 {
@@ -200,7 +232,7 @@ namespace Mirror
                     else
                         writer.WriteQuaternion(snapshot.rotation);
                 }
-                if (syncScale)    writer.WriteVector3(snapshot.scale);
+                if (syncScale) writer.WriteVector3(snapshot.scale);
             }
             // delta
             else
@@ -227,14 +259,11 @@ namespace Mirror
                     Compression.ScaleToLong(snapshot.scale, scalePrecision, out Vector3Long quantized);
                     DeltaCompression.Compress(writer, lastSerializedScale, quantized);
                 }
-
-                // int written = writer.Position - before;
-                // Debug.Log($"{name} compressed to {written} bytes");
             }
 
             // save serialized as 'last' for next delta compression
             if (syncPosition) Compression.ScaleToLong(snapshot.position, positionPrecision, out lastSerializedPosition);
-            if (syncScale)    Compression.ScaleToLong(snapshot.scale, scalePrecision,    out lastSerializedScale);
+            if (syncScale) Compression.ScaleToLong(snapshot.scale, scalePrecision, out lastSerializedScale);
 
             // set 'last'
             last = snapshot;
@@ -242,9 +271,9 @@ namespace Mirror
 
         public override void OnDeserialize(NetworkReader reader, bool initialState)
         {
-            Vector3?    position = null;
+            Vector3? position = null;
             Quaternion? rotation = null;
-            Vector3?    scale = null;
+            Vector3? scale = null;
 
             // initial
             if (initialState)
@@ -258,7 +287,7 @@ namespace Mirror
                     else
                         rotation = reader.ReadQuaternion();
                 }
-                if (syncScale)    scale    = reader.ReadVector3();
+                if (syncScale) scale = reader.ReadVector3();
             }
             // delta
             else
@@ -286,12 +315,12 @@ namespace Mirror
 
             // handle depending on server / client / host.
             // server has priority for host mode.
-            if      (isServer) OnClientToServerSync(position, rotation, scale);
+            if (isServer) OnClientToServerSync(position, rotation, scale);
             else if (isClient) OnServerToClientSync(position, rotation, scale);
 
             // save deserialized as 'last' for next delta compression
             if (syncPosition) Compression.ScaleToLong(position.Value, positionPrecision, out lastDeserializedPosition);
-            if (syncScale)    Compression.ScaleToLong(scale.Value,    scalePrecision,    out lastDeserializedScale);
+            if (syncScale) Compression.ScaleToLong(scale.Value, scalePrecision, out lastDeserializedScale);
         }
 
         // sync ////////////////////////////////////////////////////////////////
@@ -307,20 +336,24 @@ namespace Mirror
 
             // 'only sync on change' needs a correction on every new move sequence.
             if (onlySyncOnChange &&
-                NeedsCorrection(serverSnapshots, connectionToClient.remoteTimeStamp, NetworkServer.sendInterval, onlySyncOnChangeCorrectionMultiplier))
+                NeedsCorrection(serverSnapshots, connectionToClient.remoteTimeStamp, NetworkServer.sendInterval * sendIntervalMultiplier, onlySyncOnChangeCorrectionMultiplier))
             {
                 RewriteHistory(
                     serverSnapshots,
                     connectionToClient.remoteTimeStamp,
-                    NetworkTime.localTime,      // arrival remote timestamp. NOT remote timeline.
-                    NetworkServer.sendInterval, // Unity 2019 doesn't have timeAsDouble yet
+                    NetworkTime.localTime,                                  // arrival remote timestamp. NOT remote timeline.
+                    NetworkServer.sendInterval * sendIntervalMultiplier,    // Unity 2019 doesn't have timeAsDouble yet
                     target.localPosition,
                     target.localRotation,
                     target.localScale);
-                // Debug.Log($"{name}: corrected history on server to fix initial stutter after not sending for a while.");
             }
 
-            AddSnapshot(serverSnapshots, connectionToClient.remoteTimeStamp, position, rotation, scale);
+            // add a small timeline offset to account for decoupled arrival of
+            // NetworkTime and NetworkTransform snapshots.
+            // needs to be sendInterval. half sendInterval doesn't solve it.
+            // https://github.com/MirrorNetworking/Mirror/issues/3427
+            // remove this after LocalWorldState.
+            AddSnapshot(serverSnapshots, connectionToClient.remoteTimeStamp + timeStampAdjustment + offset, position, rotation, scale);
         }
 
         // server broadcasts sync message to all clients
@@ -331,20 +364,24 @@ namespace Mirror
 
             // 'only sync on change' needs a correction on every new move sequence.
             if (onlySyncOnChange &&
-                NeedsCorrection(clientSnapshots, NetworkClient.connection.remoteTimeStamp, NetworkClient.sendInterval, onlySyncOnChangeCorrectionMultiplier))
+                NeedsCorrection(clientSnapshots, NetworkClient.connection.remoteTimeStamp, NetworkClient.sendInterval * sendIntervalMultiplier, onlySyncOnChangeCorrectionMultiplier))
             {
                 RewriteHistory(
                     clientSnapshots,
-                    NetworkClient.connection.remoteTimeStamp, // arrival remote timestamp. NOT remote timeline.
-                    NetworkTime.localTime,                    // Unity 2019 doesn't have timeAsDouble yet
-                    NetworkClient.sendInterval,
+                    NetworkClient.connection.remoteTimeStamp,               // arrival remote timestamp. NOT remote timeline.
+                    NetworkTime.localTime,                                  // Unity 2019 doesn't have timeAsDouble yet
+                    NetworkClient.sendInterval * sendIntervalMultiplier,
                     target.localPosition,
                     target.localRotation,
                     target.localScale);
-                // Debug.Log($"{name}: corrected history on client to fix initial stutter after not sending for a while.");
             }
 
-            AddSnapshot(clientSnapshots, NetworkClient.connection.remoteTimeStamp, position, rotation, scale);
+            // add a small timeline offset to account for decoupled arrival of
+            // NetworkTime and NetworkTransform snapshots.
+            // needs to be sendInterval. half sendInterval doesn't solve it.
+            // https://github.com/MirrorNetworking/Mirror/issues/3427
+            // remove this after LocalWorldState.
+            AddSnapshot(clientSnapshots, NetworkClient.connection.remoteTimeStamp + timeStampAdjustment + offset, position, rotation, scale);
         }
 
         // only sync on change /////////////////////////////////////////////////
@@ -394,11 +431,14 @@ namespace Mirror
             base.Reset();
 
             // reset delta
-            lastSerializedPosition   = Vector3Long.zero;
+            lastSerializedPosition = Vector3Long.zero;
             lastDeserializedPosition = Vector3Long.zero;
 
-            lastSerializedScale   = Vector3Long.zero;
+            lastSerializedScale = Vector3Long.zero;
             lastDeserializedScale = Vector3Long.zero;
+
+            // reset 'last' for delta too
+            last = new TransformSnapshot(0, 0, Vector3.zero, Quaternion.identity, Vector3.zero);
         }
     }
 }

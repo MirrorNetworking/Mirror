@@ -36,9 +36,14 @@ namespace Mirror
         /// <summary>sync interval for OnSerialize (in seconds)</summary>
         // hidden because NetworkBehaviourInspector shows it only if has OnSerialize.
         // [0,2] should be enough. anything >2s is too laggy anyway.
+        //
+        // NetworkServer & NetworkClient broadcast() are behind a sendInterval timer now.
+        // it makes sense to keep every component's syncInterval setting at '0' by default.
+        // otherwise, the overlapping timers could introduce unexpected latency.
+        // careful: default of '0.1' may
         [Tooltip("Time in seconds until next change is synchronized to the client. '0' means send immediately if changed. '0.5' means only send changes every 500ms.\n(This is for state synchronization like SyncVars, SyncLists, OnSerialize. Not for Cmds, Rpcs, etc.)")]
         [Range(0, 2)]
-        [HideInInspector] public float syncInterval = 0.1f;
+        [HideInInspector] public float syncInterval = 0;
         internal double lastSyncTime;
 
         /// <summary>True if this object is on the server and has been spawned.</summary>
@@ -384,21 +389,21 @@ namespace Mirror
             // NetworkServer.SendToReadyObservers(netIdentity, message, includeOwner, channelId);
 
             // safety check used to be in SendToReadyObservers. keep it for now.
-            if (netIdentity.observers != null && netIdentity.observers.Count > 0)
-            {
-                // serialize the message only once
-                using (NetworkWriterPooled serialized = NetworkWriterPool.Get())
-                {
-                    serialized.Write(message);
+            if (netIdentity.observers == null || netIdentity.observers.Count == 0)
+                return;
 
-                    // add to every observer's connection's rpc buffer
-                    foreach (NetworkConnectionToClient conn in netIdentity.observers.Values)
+            // serialize the message only once
+            using (NetworkWriterPooled serialized = NetworkWriterPool.Get())
+            {
+                serialized.Write(message);
+
+                // add to every observer's connection's rpc buffer
+                foreach (NetworkConnectionToClient conn in netIdentity.observers.Values)
+                {
+                    bool isOwner = conn == netIdentity.connectionToClient;
+                    if ((!isOwner || includeOwner) && conn.isReady)
                     {
-                        bool isOwner = conn == netIdentity.connectionToClient;
-                        if ((!isOwner || includeOwner) && conn.isReady)
-                        {
-                            conn.BufferRpc(message, channelId);
-                        }
+                        conn.BufferRpc(message, channelId);
                     }
                 }
             }

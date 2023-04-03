@@ -37,7 +37,9 @@ namespace Mirror.SimpleWeb
             listener = TcpListener.Create(port);
             listener.Start();
 
-            Log.Info($"[SimpleWebTransport] Server has started on port {port}", false);
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine($"[SimpleWebTransport] Server Started on {port}!");
+            Console.ResetColor();
 
             acceptThread = new Thread(acceptLoop);
             acceptThread.IsBackground = true;
@@ -53,7 +55,8 @@ namespace Mirror.SimpleWeb
             listener?.Stop();
             acceptThread = null;
 
-            Log.Info("[SimpleWebTransport] Server stopped, Closing all connections...", false);
+            Console.WriteLine($"[SimpleWebTransport] Server stopped...closing all connections.");
+
             // make copy so that foreach doesn't break if values are removed
             Connection[] connectionsCopy = connections.Values.ToArray();
             foreach (Connection conn in connectionsCopy)
@@ -73,12 +76,11 @@ namespace Mirror.SimpleWeb
                         TcpClient client = listener.AcceptTcpClient();
                         tcpConfig.ApplyTo(client);
 
-
                         // TODO keep track of connections before they are in connections dictionary
                         //      this might not be a problem as HandshakeAndReceiveLoop checks for stop
                         //      and returns/disposes before sending message to queue
                         Connection conn = new Connection(client, AfterConnectionDisposed);
-                        Log.Info($"[SimpleWebTransport] A client connected {conn}", false);
+                        Console.WriteLine($"[SimpleWebTransport] A client connected {conn}", false);
 
                         // handshake needs its own thread as it needs to wait for message from client
                         Thread receiveThread = new Thread(() => HandshakeAndReceiveLoop(conn));
@@ -108,7 +110,9 @@ namespace Mirror.SimpleWeb
                 bool success = sslHelper.TryCreateStream(conn);
                 if (!success)
                 {
-                    Log.Error($"[SimpleWebTransport] Failed to create SSL Stream {conn}, false");
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine($"[SimpleWebTransport] Failed to create SSL Stream {conn}");
+                    Console.ResetColor();
                     conn.Dispose();
                     return;
                 }
@@ -116,12 +120,12 @@ namespace Mirror.SimpleWeb
                 success = handShake.TryHandshake(conn);
 
                 if (success)
-                {
-                    Log.Info($"[SimpleWebTransport] Sent Handshake {conn}, false");
-                }
+                    Console.WriteLine($"[SimpleWebTransport] Sent Handshake {conn}, false");
                 else
                 {
-                    Log.Error($"[SimpleWebTransport] Handshake Failed {conn}, false");
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine($"[SimpleWebTransport] Handshake Failed {conn}");
+                    Console.ResetColor();
                     conn.Dispose();
                     return;
                 }
@@ -129,7 +133,7 @@ namespace Mirror.SimpleWeb
                 // check if Stop has been called since accepting this client
                 if (serverStopped)
                 {
-                    Log.Info("[SimpleWebTransport] Server stops after successful handshake", false);
+                    Console.WriteLine("[SimpleWebTransport] Server stops after successful handshake", false);
                     return;
                 }
 
@@ -150,7 +154,7 @@ namespace Mirror.SimpleWeb
 
                 conn.sendThread = sendThread;
                 sendThread.IsBackground = true;
-                sendThread.Name = $"[SimpleWebTransport] SendLoop {conn.connId}, false";
+                sendThread.Name = $"SendThread {conn.connId}";
                 sendThread.Start();
 
                 ReceiveLoop.Config receiveConfig = new ReceiveLoop.Config(
@@ -162,9 +166,24 @@ namespace Mirror.SimpleWeb
 
                 ReceiveLoop.Loop(receiveConfig);
             }
-            catch (ThreadInterruptedException e) { Log.InfoException(e); }
-            catch (ThreadAbortException e) { Log.InfoException(e); }
-            catch (Exception e) { Log.Exception(e); }
+            catch (ThreadInterruptedException e)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"[SimpleWebTransport] Handshake ThreadInterruptedException {e.Message}");
+                Console.ResetColor();
+            }
+            catch (ThreadAbortException e)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"[SimpleWebTransport] Handshake ThreadAbortException {e.Message}");
+                Console.ResetColor();
+            }
+            catch (Exception e)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"[SimpleWebTransport] Handshake Exception {e.Message}");
+                Console.ResetColor();
+            }
             finally
             {
                 // close here in case connect fails
@@ -190,7 +209,9 @@ namespace Mirror.SimpleWeb
             }
             else
             {
-                Log.Warn($"[SimpleWebTransport] Cant send message to {id} because connection was not found in dictionary. Maybe it disconnected.", false);
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine($"[SimpleWebTransport] Cannot send message to {id} because connection was not found in dictionary. Maybe it disconnected.");
+                Console.ResetColor();
             }
         }
 
@@ -198,13 +219,17 @@ namespace Mirror.SimpleWeb
         {
             if (connections.TryGetValue(id, out Connection conn))
             {
-                Log.Info($"[SimpleWebTransport] Kicking connection {id}", false);
+                Console.ForegroundColor = ConsoleColor.Magenta;
+                Console.WriteLine($"[SimpleWebTransport] Kicking connection {id}");
+                Console.ResetColor();
                 conn.Dispose();
                 return true;
             }
             else
             {
-                Log.Warn($"[SimpleWebTransport] Failed to kick {id} because id not found", false);
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine($"[SimpleWebTransport] Failed to kick {id} because id not found.");
+                Console.ResetColor();
 
                 return false;
             }
@@ -213,12 +238,13 @@ namespace Mirror.SimpleWeb
         public string GetClientAddress(int id)
         {
             if (connections.TryGetValue(id, out Connection conn))
-            {
                 return conn.client.Client.RemoteEndPoint.ToString();
-            }
             else
             {
-                Log.Error($"[SimpleWebTransport] Cant get address of connection {id} because connection was not found in dictionary", false);
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine($"[SimpleWebTransport] Cannot get address of connection {id} because connection was not found in dictionary.");
+                Console.ResetColor();
+
                 return null;
             }
         }

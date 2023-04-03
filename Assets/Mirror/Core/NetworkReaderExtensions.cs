@@ -129,14 +129,17 @@ namespace Mirror
         public static Quaternion ReadQuaternion(this NetworkReader reader) => reader.ReadBlittable<Quaternion>();
         public static Quaternion? ReadQuaternionNullable(this NetworkReader reader) => reader.ReadBlittableNullable<Quaternion>();
 
-        public static Rect ReadRect(this NetworkReader reader) => reader.ReadBlittable<Rect>();
-        public static Rect? ReadRectNullable(this NetworkReader reader) => reader.ReadBlittableNullable<Rect>();
+        // Rect is a struct with properties instead of fields
+        public static Rect ReadRect(this NetworkReader reader) => new Rect(reader.ReadVector2(), reader.ReadVector2());
+        public static Rect? ReadRectNullable(this NetworkReader reader) => reader.ReadBool() ? ReadRect(reader) : default(Rect?);
 
-        public static Plane ReadPlane(this NetworkReader reader) => reader.ReadBlittable<Plane>();
-        public static Plane? ReadPlaneNullable(this NetworkReader reader) => reader.ReadBlittableNullable<Plane>();
+        // Plane is a struct with properties instead of fields
+        public static Plane ReadPlane(this NetworkReader reader) => new Plane(reader.ReadVector3(), reader.ReadFloat());
+        public static Plane? ReadPlaneNullable(this NetworkReader reader) => reader.ReadBool() ? ReadPlane(reader) : default(Plane?);
 
-        public static Ray ReadRay(this NetworkReader reader) => reader.ReadBlittable<Ray>();
-        public static Ray? ReadRayNullable(this NetworkReader reader) => reader.ReadBlittableNullable<Ray>();
+        // Ray is a struct with properties instead of fields
+        public static Ray ReadRay(this NetworkReader reader) => new Ray(reader.ReadVector3(), reader.ReadVector3());
+        public static Ray? ReadRayNullable(this NetworkReader reader) => reader.ReadBool() ? ReadRay(reader) : default(Ray?);
 
         public static Matrix4x4 ReadMatrix4x4(this NetworkReader reader) => reader.ReadBlittable<Matrix4x4>();
         public static Matrix4x4? ReadMatrix4x4Nullable(this NetworkReader reader) => reader.ReadBlittableNullable<Matrix4x4>();
@@ -335,11 +338,7 @@ namespace Mirror
             return Sprite.Create(texture, reader.ReadRect(), reader.ReadVector2());
         }
 
-        public static DateTime ReadDateTime(this NetworkReader reader)
-        {
-            return DateTime.FromOADate(reader.ReadDouble());
-        }
-
+        public static DateTime ReadDateTime(this NetworkReader reader) => DateTime.FromOADate(reader.ReadDouble());
         public static DateTime? ReadDateTimeNullable(this NetworkReader reader) => reader.ReadBool() ? ReadDateTime(reader) : default(DateTime?);
     }
 }

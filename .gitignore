@@ -42,6 +42,7 @@ Source/Source.sln
 Output/
 bin/
 .vs/
+.vscode/
 .idea/
 Mirror/packages
 .mfractor

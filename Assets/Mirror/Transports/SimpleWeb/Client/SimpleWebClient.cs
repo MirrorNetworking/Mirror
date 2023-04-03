@@ -11,6 +11,7 @@ namespace Mirror.SimpleWeb
         Connected = 2,
         Disconnecting = 3,
     }
+
     /// <summary>
     /// Client used to control websockets
     /// <para>Base class used by WebSocketClientWebGl and WebSocketClientStandAlone</para>
@@ -90,6 +91,8 @@ namespace Mirror.SimpleWeb
                         break;
                 }
             }
+            if (receiveQueue.Count > 0)
+                Debug.LogWarning($"SimpleWebClient ProcessMessageQueue has {receiveQueue.Count} remaining.");
         }
 
         public abstract void Connect(Uri serverAddress);

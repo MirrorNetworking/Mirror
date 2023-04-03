@@ -57,11 +57,7 @@ namespace Mirror.Weaver
                 }
             }
 
-#if UNITY_2019_3_OR_NEWER
             EditorUtility.RequestScriptReload();
-#else
-            UnityEditorInternal.InternalEditorUtility.RequestScriptReload();
-#endif
         }
 
         static Assembly FindCompilationPipelineAssembly(string assemblyName) =>

@@ -21,7 +21,7 @@ namespace Mirror
         [Header("Sensitivity"), Tooltip("Sensitivity of changes needed before an updated state is sent over the network")]
         public float positionSensitivity = 0.01f;
         public float rotationSensitivity = 0.01f;
-        public float scaleSensitivity    = 0.01f;
+        public float scaleSensitivity = 0.01f;
 
         protected bool positionChanged;
         protected bool rotationChanged;
@@ -29,24 +29,65 @@ namespace Mirror
 
         // Used to store last sent snapshots
         protected TransformSnapshot lastSnapshot;
-        protected bool              cachedSnapshotComparison;
-        protected bool              hasSentUnchangedPosition;
+        protected bool cachedSnapshotComparison;
+        protected bool hasSentUnchangedPosition;
 #endif
 
         double lastClientSendTime;
         double lastServerSendTime;
 
+        [Header("Send Interval Multiplier")]
+        [Tooltip("Check/Sync every multiple of Network Manager send interval (= 1 / NM Send Rate), instead of every send interval.")]
+        [Range(1, 120)]
+        const uint sendIntervalMultiplier = 1; // not implemented yet
+
+        [Header("Snapshot Interpolation")]
+        [Tooltip("Add a small timeline offset to account for decoupled arrival of NetworkTime and NetworkTransform snapshots.\nfixes: https://github.com/MirrorNetworking/Mirror/issues/3427")]
+        public bool timelineOffset = false;
+
+        // Ninja's Notes on offset & mulitplier:
+        // 
+        // In a no multiplier scenario:
+        // 1. Snapshots are sent every frame (frame being 1 NM send interval).
+        // 2. Time Interpolation is set to be 'behind' by 2 frames times.
+        // In theory where everything works, we probably have around 2 snapshots before we need to interpolate snapshots. From NT perspective, we should always have around 2 snapshots ready, so no stutter.
+        // 
+        // In a multiplier scenario:
+        // 1. Snapshots are sent every 10 frames.
+        // 2. Time Interpolation remains 'behind by 2 frames'.
+        // When everything works, we are receiving NT snapshots every 10 frames, but start interpolating after 2. 
+        // Even if I assume we had 2 snapshots to begin with to start interpolating (which we don't), by the time we reach 13th frame, we are out of snapshots, and have to wait 7 frames for next snapshot to come. This is the reason why we absolutely need the timestamp adjustment. We are starting way too early to interpolate. 
+        //
+        double timeStampAdjustment => NetworkServer.sendInterval * (sendIntervalMultiplier - 1);
+        double offset => timelineOffset ? NetworkServer.sendInterval * sendIntervalMultiplier : 0;
+
         // update //////////////////////////////////////////////////////////////
+        // Update applies interpolation
         void Update()
         {
-            // if server then always sync to others.
-            if      (isServer) UpdateServer();
-            // 'else if' because host mode shouldn't send anything to server.
-            // it is the server. don't overwrite anything there.
-            else if (isClient) UpdateClient();
+            if (isServer) UpdateServerInterpolation();
+            // for all other clients (and for local player if !authority),
+            // we need to apply snapshots from the buffer.
+            // 'else if' because host mode shouldn't interpolate client
+            else if (isClient && !IsClientWithAuthority) UpdateClientInterpolation();
         }
 
-        void UpdateServer()
+        // LateUpdate broadcasts.
+        // movement scripts may change positions in Update.
+        // use LateUpdate to ensure changes are detected in the same frame.
+        // otherwise this may run before user update, delaying detection until next frame.
+        // this could cause visible jitter.
+        void LateUpdate()
+        {
+            // if server then always sync to others.
+            if (isServer) UpdateServerBroadcast();
+            // client authority, and local player (= allowed to move myself)?
+            // 'else if' because host mode shouldn't send anything to server.
+            // it is the server. don't overwrite anything there.
+            else if (isClient && IsClientWithAuthority) UpdateClientBroadcast();
+        }
+
+        void UpdateServerBroadcast()
         {
             // broadcast to all clients each 'sendInterval'
             // (client with authority will drop the rpc)
@@ -118,7 +159,10 @@ namespace Mirror
                 }
 #endif
             }
+        }
 
+        void UpdateServerInterpolation()
+        {
             // apply buffered snapshots IF client authority
             // -> in server authority, server moves the object
             //    so no need to apply any snapshots there.
@@ -131,113 +175,106 @@ namespace Mirror
                 connectionToClient != null &&
                 !isOwned)
             {
-                if (serverSnapshots.Count > 0)
-                {
-                    // step the transform interpolation without touching time.
-                    // NetworkClient is responsible for time globally.
-                    SnapshotInterpolation.StepInterpolation(
-                        serverSnapshots,
-                        connectionToClient.remoteTimeline,
-                        out TransformSnapshot from,
-                        out TransformSnapshot to,
-                        out double t);
+                if (serverSnapshots.Count == 0) return;
 
-                    // interpolate & apply
-                    TransformSnapshot computed = TransformSnapshot.Interpolate(from, to, t);
-                    Apply(computed, to);
-                }
+                // step the transform interpolation without touching time.
+                // NetworkClient is responsible for time globally.
+                SnapshotInterpolation.StepInterpolation(
+                    serverSnapshots,
+                    connectionToClient.remoteTimeline,
+                    out TransformSnapshot from,
+                    out TransformSnapshot to,
+                    out double t);
+
+                // interpolate & apply
+                TransformSnapshot computed = TransformSnapshot.Interpolate(from, to, t);
+                Apply(computed, to);
             }
         }
 
-        void UpdateClient()
+        void UpdateClientBroadcast()
         {
-            // client authority, and local player (= allowed to move myself)?
-            if (IsClientWithAuthority)
-            {
-                // https://github.com/vis2k/Mirror/pull/2992/
-                if (!NetworkClient.ready) return;
+            // https://github.com/vis2k/Mirror/pull/2992/
+            if (!NetworkClient.ready) return;
 
-                // send to server each 'sendInterval'
-                // NetworkTime.localTime for double precision until Unity has it too
-                //
-                // IMPORTANT:
-                // snapshot interpolation requires constant sending.
-                // DO NOT only send if position changed. for example:
-                // ---
-                // * client sends first position at t=0
-                // * ... 10s later ...
-                // * client moves again, sends second position at t=10
-                // ---
-                // * server gets first position at t=0
-                // * server gets second position at t=10
-                // * server moves from first to second within a time of 10s
-                //   => would be a super slow move, instead of a wait & move.
-                //
-                // IMPORTANT:
-                // DO NOT send nulls if not changed 'since last send' either. we
-                // send unreliable and don't know which 'last send' the other end
-                // received successfully.
-                if (NetworkTime.localTime >= lastClientSendTime + NetworkClient.sendInterval) // same interval as time interpolation!
-                {
-                    // send snapshot without timestamp.
-                    // receiver gets it from batch timestamp to save bandwidth.
-                    TransformSnapshot snapshot = Construct();
+            // send to server each 'sendInterval'
+            // NetworkTime.localTime for double precision until Unity has it too
+            //
+            // IMPORTANT:
+            // snapshot interpolation requires constant sending.
+            // DO NOT only send if position changed. for example:
+            // ---
+            // * client sends first position at t=0
+            // * ... 10s later ...
+            // * client moves again, sends second position at t=10
+            // ---
+            // * server gets first position at t=0
+            // * server gets second position at t=10
+            // * server moves from first to second within a time of 10s
+            //   => would be a super slow move, instead of a wait & move.
+            //
+            // IMPORTANT:
+            // DO NOT send nulls if not changed 'since last send' either. we
+            // send unreliable and don't know which 'last send' the other end
+            // received successfully.
+            if (NetworkTime.localTime >= lastClientSendTime + NetworkClient.sendInterval) // same interval as time interpolation!
+            {
+                // send snapshot without timestamp.
+                // receiver gets it from batch timestamp to save bandwidth.
+                TransformSnapshot snapshot = Construct();
 #if onlySyncOnChange_BANDWIDTH_SAVING
-                    cachedSnapshotComparison = CompareSnapshots(snapshot);
-                    if (cachedSnapshotComparison && hasSentUnchangedPosition && onlySyncOnChange) { return; }
+                cachedSnapshotComparison = CompareSnapshots(snapshot);
+                if (cachedSnapshotComparison && hasSentUnchangedPosition && onlySyncOnChange) { return; }
 #endif
 
 #if onlySyncOnChange_BANDWIDTH_SAVING
-                    CmdClientToServerSync(
-                        // only sync what the user wants to sync
-                        syncPosition && positionChanged ? snapshot.position : default(Vector3?),
-                        syncRotation && rotationChanged ? snapshot.rotation : default(Quaternion?),
-                        syncScale && scaleChanged ? snapshot.scale : default(Vector3?)
-                    );
+                CmdClientToServerSync(
+                    // only sync what the user wants to sync
+                    syncPosition && positionChanged ? snapshot.position : default(Vector3?),
+                    syncRotation && rotationChanged ? snapshot.rotation : default(Quaternion?),
+                    syncScale && scaleChanged ? snapshot.scale : default(Vector3?)
+                );
 #else
-                    CmdClientToServerSync(
-                        // only sync what the user wants to sync
-                        syncPosition ? snapshot.position : default(Vector3?),
-                        syncRotation ? snapshot.rotation : default(Quaternion?),
-                        syncScale    ? snapshot.scale    : default(Vector3?)
-                    );
+                CmdClientToServerSync(
+                    // only sync what the user wants to sync
+                    syncPosition ? snapshot.position : default(Vector3?),
+                    syncRotation ? snapshot.rotation : default(Quaternion?),
+                    syncScale    ? snapshot.scale    : default(Vector3?)
+                );
 #endif
 
-                    lastClientSendTime = NetworkTime.localTime;
+                lastClientSendTime = NetworkTime.localTime;
 #if onlySyncOnChange_BANDWIDTH_SAVING
-                    if (cachedSnapshotComparison)
-                    {
-                        hasSentUnchangedPosition = true;
-                    }
-                    else
-                    {
-                        hasSentUnchangedPosition = false;
-                        lastSnapshot = snapshot;
-                    }
-#endif
-                }
-            }
-            // for all other clients (and for local player if !authority),
-            // we need to apply snapshots from the buffer
-            else
-            {
-                // only while we have snapshots
-                if (clientSnapshots.Count > 0)
+                if (cachedSnapshotComparison)
                 {
-                    // step the interpolation without touching time.
-                    // NetworkClient is responsible for time globally.
-                    SnapshotInterpolation.StepInterpolation(
-                        clientSnapshots,
-                        NetworkTime.time, // == NetworkClient.localTimeline from snapshot interpolation
-                        out TransformSnapshot from,
-                        out TransformSnapshot to,
-                        out double t);
-
-                    // interpolate & apply
-                    TransformSnapshot computed = TransformSnapshot.Interpolate(from, to, t);
-                    Apply(computed, to);
+                    hasSentUnchangedPosition = true;
                 }
+                else
+                {
+                    hasSentUnchangedPosition = false;
+                    lastSnapshot = snapshot;
+                }
+#endif
             }
+        }
+
+        void UpdateClientInterpolation()
+        {
+            // only while we have snapshots
+            if (clientSnapshots.Count == 0) return;
+
+            // step the interpolation without touching time.
+            // NetworkClient is responsible for time globally.
+            SnapshotInterpolation.StepInterpolation(
+                clientSnapshots,
+                NetworkTime.time, // == NetworkClient.localTimeline from snapshot interpolation
+                out TransformSnapshot from,
+                out TransformSnapshot to,
+                out double t);
+
+            // interpolate & apply
+            TransformSnapshot computed = TransformSnapshot.Interpolate(from, to, t);
+            Apply(computed, to);
         }
 
         public override void OnSerialize(NetworkWriter writer, bool initialState)
@@ -249,7 +286,7 @@ namespace Mirror
             {
                 if (syncPosition) writer.WriteVector3(target.localPosition);
                 if (syncRotation) writer.WriteQuaternion(target.localRotation);
-                if (syncScale)    writer.WriteVector3(target.localScale);
+                if (syncScale) writer.WriteVector3(target.localScale);
             }
         }
 
@@ -262,7 +299,7 @@ namespace Mirror
             {
                 if (syncPosition) target.localPosition = reader.ReadVector3();
                 if (syncRotation) target.localRotation = reader.ReadQuaternion();
-                if (syncScale)    target.localScale    = reader.ReadVector3();
+                if (syncScale) target.localScale = reader.ReadVector3();
             }
         }
 
@@ -314,7 +351,7 @@ namespace Mirror
                 }
             }
 #endif
-            AddSnapshot(serverSnapshots, timestamp, position, rotation, scale);
+            AddSnapshot(serverSnapshots, connectionToClient.remoteTimeStamp + timeStampAdjustment + offset, position, rotation, scale);
         }
 
         // rpc /////////////////////////////////////////////////////////////////
@@ -353,7 +390,7 @@ namespace Mirror
                 }
             }
 #endif
-            AddSnapshot(clientSnapshots, timestamp, position, rotation, scale);
+            AddSnapshot(clientSnapshots, NetworkClient.connection.remoteTimeStamp + timeStampAdjustment + offset, position, rotation, scale);
         }
     }
 }
