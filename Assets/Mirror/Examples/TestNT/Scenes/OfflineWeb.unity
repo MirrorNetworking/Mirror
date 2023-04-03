@@ -261,8 +261,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   dontDestroyOnLoad: 1
   runInBackground: 1
-  autoStartServerBuild: 0
-  autoConnectClientBuild: 1
+  autoStartServerBuild: 1
+  autoConnectClientBuild: 0
   sendRate: 30
   offlineScene: Assets/Mirror/Examples/TestNT/Scenes/OfflineWeb.unity
   onlineScene: Assets/Mirror/Examples/TestNT/Scenes/Online.unity
