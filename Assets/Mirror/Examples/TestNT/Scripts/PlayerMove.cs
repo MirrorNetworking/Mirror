@@ -183,21 +183,18 @@ namespace TestNT
         void HandleTurning()
         {
             // Q and E cancel each other out, reducing the turn to zero.
-            if (Input.GetKey(KeyCode.Q))
-                turnSpeed = Mathf.MoveTowards(turnSpeed, -maxTurnSpeed, turnDelta);
-            if (Input.GetKey(KeyCode.E))
-                turnSpeed = Mathf.MoveTowards(turnSpeed, maxTurnSpeed, turnDelta);
-
-            // If both pressed, reduce turning speed toward zero.
+            // If neither pressed, reduce turning speed toward zero.
             if (Input.GetKey(KeyCode.Q) && Input.GetKey(KeyCode.E))
                 turnSpeed = Mathf.MoveTowards(turnSpeed, 0, turnDelta);
-
-            // If neither pressed, reduce turning speed toward zero.
-            if (!Input.GetKey(KeyCode.Q) && !Input.GetKey(KeyCode.E))
+            else if (Input.GetKey(KeyCode.Q))
+                turnSpeed = Mathf.MoveTowards(turnSpeed, -maxTurnSpeed, turnDelta);
+            else if(Input.GetKey(KeyCode.E))
+                turnSpeed = Mathf.MoveTowards(turnSpeed, maxTurnSpeed, turnDelta);
+            else
                 turnSpeed = Mathf.MoveTowards(turnSpeed, 0, turnDelta);
 
-            if (moveState == MoveMode.Sneaking)
-                turnSpeed /= 3;
+            //if (moveState == MoveMode.Sneaking)
+            //    turnSpeed /= 3;
 
             transform.Rotate(0f, turnSpeed * Time.deltaTime, 0f);
         }
