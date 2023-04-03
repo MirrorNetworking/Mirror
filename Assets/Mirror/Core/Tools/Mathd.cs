@@ -17,12 +17,7 @@ namespace Mirror
 
         /// <summary>Clamps value between 0 and 1 and returns value.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static double Clamp01(double value)
-        {
-            if (value < 0.0)
-                return 0;
-            return value > 1 ? 1 : value;
-        }
+        public static double Clamp01(double value) => Clamp(value, 0, 1);
 
         /// <summary>Calculates the linear parameter t that produces the interpolant value within the range [a, b].</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

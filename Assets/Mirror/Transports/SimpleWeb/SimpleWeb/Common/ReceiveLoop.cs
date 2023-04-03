@@ -60,9 +60,7 @@ namespace Mirror.SimpleWeb
                     TcpClient client = conn.client;
 
                     while (client.Connected)
-                    {
                         ReadOneMessage(config, readBuffer);
-                    }
 
                     Log.Info($"[SimpleWebTransport] {conn} Not Connected");
                 }
@@ -105,7 +103,6 @@ namespace Mirror.SimpleWeb
             finally
             {
                 Profiler.EndThreadProfiling();
-
                 conn.Dispose();
             }
         }
@@ -183,22 +180,16 @@ namespace Mirror.SimpleWeb
             Log.Verbose($"[SimpleWebTransport] Message From {conn}");
 
             if (MessageProcessor.NeedToReadShortLength(buffer))
-            {
                 header.offset = ReadHelper.Read(stream, buffer, header.offset, Constants.ShortLength);
-            }
             if (MessageProcessor.NeedToReadLongLength(buffer))
-            {
                 header.offset = ReadHelper.Read(stream, buffer, header.offset, Constants.LongLength);
-            }
 
             Log.DumpBuffer($"[SimpleWebTransport] Raw Header", buffer, 0, header.offset);
 
             MessageProcessor.ValidateHeader(buffer, maxMessageSize, expectMask, opCodeContinuation);
 
             if (expectMask)
-            {
                 header.offset = ReadHelper.Read(stream, buffer, header.offset, Constants.MaskSize);
-            }
 
             header.opcode = MessageProcessor.GetOpcode(buffer);
             header.payloadLength = MessageProcessor.GetPayloadLength(buffer);
@@ -232,9 +223,7 @@ namespace Mirror.SimpleWeb
                 MessageProcessor.ToggleMask(buffer, msgOffset, arrayBuffer, payloadLength, buffer, maskOffset);
             }
             else
-            {
                 arrayBuffer.CopyFrom(buffer, msgOffset, payloadLength);
-            }
 
             return arrayBuffer;
         }
@@ -251,20 +240,15 @@ namespace Mirror.SimpleWeb
 
             // dump after mask off
             Log.DumpBuffer($"[SimpleWebTransport] Message", buffer, msgOffset, payloadLength);
-
             Log.Info($"[SimpleWebTransport] Close: {GetCloseCode(buffer, msgOffset)} message:{GetCloseMessage(buffer, msgOffset, payloadLength)}");
 
             conn.Dispose();
         }
 
         static string GetCloseMessage(byte[] buffer, int msgOffset, int payloadLength)
-        {
-            return Encoding.UTF8.GetString(buffer, msgOffset + 2, payloadLength - 2);
-        }
+            => Encoding.UTF8.GetString(buffer, msgOffset + 2, payloadLength - 2);
 
         static int GetCloseCode(byte[] buffer, int msgOffset)
-        {
-            return buffer[msgOffset + 0] << 8 | buffer[msgOffset + 1];
-        }
+            => buffer[msgOffset + 0] << 8 | buffer[msgOffset + 1];
     }
 }

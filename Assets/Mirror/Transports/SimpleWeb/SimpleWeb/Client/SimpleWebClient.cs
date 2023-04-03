@@ -11,6 +11,7 @@ namespace Mirror.SimpleWeb
         Connected = 2,
         Disconnecting = 3,
     }
+
     /// <summary>
     /// Client used to control websockets
     /// <para>Base class used by WebSocketClientWebGl and WebSocketClientStandAlone</para>

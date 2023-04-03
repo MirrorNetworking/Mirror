@@ -63,7 +63,8 @@ namespace Mirror.SimpleWeb
 
         public void CopyTo(byte[] target, int offset)
         {
-            if (count > (target.Length + offset)) throw new ArgumentException($"{nameof(count)} was greater than {nameof(target)}.length", nameof(target));
+            if (count > (target.Length + offset)) 
+                throw new ArgumentException($"{nameof(count)} was greater than {nameof(target)}.length", nameof(target));
 
             Buffer.BlockCopy(array, 0, target, offset, count);
         }
@@ -75,7 +76,8 @@ namespace Mirror.SimpleWeb
 
         public void CopyFrom(byte[] source, int offset, int length)
         {
-            if (length > array.Length) throw new ArgumentException($"{nameof(length)} was greater than {nameof(array)}.length", nameof(length));
+            if (length > array.Length) 
+                throw new ArgumentException($"{nameof(length)} was greater than {nameof(array)}.length", nameof(length));
 
             count = length;
             Buffer.BlockCopy(source, offset, array, 0, length);
@@ -83,24 +85,20 @@ namespace Mirror.SimpleWeb
 
         public void CopyFrom(IntPtr bufferPtr, int length)
         {
-            if (length > array.Length) throw new ArgumentException($"{nameof(length)} was greater than {nameof(array)}.length", nameof(length));
+            if (length > array.Length) 
+                throw new ArgumentException($"{nameof(length)} was greater than {nameof(array)}.length", nameof(length));
 
             count = length;
             Marshal.Copy(bufferPtr, array, 0, length);
         }
 
-        public ArraySegment<byte> ToSegment()
-        {
-            return new ArraySegment<byte>(array, 0, count);
-        }
+        public ArraySegment<byte> ToSegment() => new ArraySegment<byte>(array, 0, count);
 
         [Conditional("UNITY_ASSERTIONS")]
         internal void Validate(int arraySize)
         {
             if (array.Length != arraySize)
-            {
                 Log.Error("[SimpleWebTransport] Buffer that was returned had an array of the wrong size");
-            }
         }
     }
 
@@ -124,9 +122,7 @@ namespace Mirror.SimpleWeb
         {
             IncrementCreated();
             if (buffers.TryDequeue(out ArrayBuffer buffer))
-            {
                 return buffer;
-            }
             else
             {
                 Log.Verbose($"[SimpleWebTransport] BufferBucket({arraySize}) create new");
@@ -186,17 +182,13 @@ namespace Mirror.SimpleWeb
             if (smallest < 1) throw new ArgumentException("Smallest must be at least 1");
             if (largest < smallest) throw new ArgumentException("Largest must be greater than smallest");
 
-
             this.bucketCount = bucketCount;
             this.smallest = smallest;
             this.largest = largest;
 
-
             // split range over log scale (more buckets for smaller sizes)
-
             double minLog = Math.Log(this.smallest);
             double maxLog = Math.Log(this.largest);
-
             double range = maxLog - minLog;
             double each = range / (bucketCount - 1);
 
@@ -235,16 +227,12 @@ namespace Mirror.SimpleWeb
         void Validate()
         {
             if (buckets[0].arraySize != smallest)
-            {
                 Log.Error($"[SimpleWebTransport] BufferPool Failed to create bucket for smallest. bucket:{buckets[0].arraySize} smallest{smallest}");
-            }
 
             int largestBucket = buckets[bucketCount - 1].arraySize;
             // rounded using Ceiling, so allowed to be 1 more that largest
             if (largestBucket != largest && largestBucket != largest + 1)
-            {
                 Log.Error($"[SimpleWebTransport] BufferPool Failed to create bucket for largest. bucket:{largestBucket} smallest{largest}");
-            }
         }
 
         public ArrayBuffer Take(int size)
@@ -252,12 +240,8 @@ namespace Mirror.SimpleWeb
             if (size > largest) { throw new ArgumentException($"Size ({size}) is greatest that largest ({largest})"); }
 
             for (int i = 0; i < bucketCount; i++)
-            {
                 if (size <= buckets[i].arraySize)
-                {
                     return buckets[i].Take();
-                }
-            }
 
             throw new ArgumentException($"Size ({size}) is greatest that largest ({largest})");
         }

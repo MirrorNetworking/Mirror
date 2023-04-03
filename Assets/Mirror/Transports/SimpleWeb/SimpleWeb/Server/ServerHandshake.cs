@@ -128,7 +128,6 @@ namespace Mirror.SimpleWeb
         byte[] CreateHash(byte[] keyBuffer)
         {
             Log.Verbose($"[SimpleWebTransport] Handshake Hashing {Encoding.ASCII.GetString(keyBuffer, 0, MergedKeyLength)}", false);
-
             return sha1.ComputeHash(keyBuffer, 0, MergedKeyLength);
         }
 

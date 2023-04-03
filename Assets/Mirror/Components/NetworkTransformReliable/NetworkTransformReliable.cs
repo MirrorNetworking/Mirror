@@ -48,6 +48,22 @@ namespace Mirror
         double timeStampAdjustment => NetworkServer.sendInterval * (sendIntervalMultiplier - 1);
         double offset => timelineOffset ? NetworkServer.sendInterval * sendIntervalMultiplier : 0;
 
+        // Ninja's Notes on offset & mulitplier:
+        // 
+        // In a no multiplier scenario:
+        // 1. Snapshots are sent every frame (frame being 1 NM send interval).
+        // 2. Time Interpolation is set to be 'behind' by 2 frames times.
+        // In theory where everything works, we probably have around 2 snapshots before we need to interpolate snapshots. From NT perspective, we should always have around 2 snapshots ready, so no stutter.
+        // 
+        // In a multiplier scenario:
+        // 1. Snapshots are sent every 10 frames.
+        // 2. Time Interpolation remains 'behind by 2 frames'.
+        // When everything works, we are receiving NT snapshots every 10 frames, but start interpolating after 2. 
+        // Even if I assume we had 2 snapshots to begin with to start interpolating (which we don't), by the time we reach 13th frame, we are out of snapshots, and have to wait 7 frames for next snapshot to come. This is the reason why we absolutely need the timestamp adjustment. We are starting way too early to interpolate. 
+        //
+        double timeStampAdjustment => NetworkServer.sendInterval * (sendIntervalMultiplier - 1);
+        double offset => timelineOffset ? NetworkServer.sendInterval * sendIntervalMultiplier : 0;
+
         // delta compression needs to remember 'last' to compress against
         protected Vector3Long lastSerializedPosition = Vector3Long.zero;
         protected Vector3Long lastDeserializedPosition = Vector3Long.zero;

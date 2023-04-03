@@ -334,12 +334,12 @@ namespace Mirror
                         }
                     }
                 }
-                // an attacker may attempt to modify another connection's entity
+                // An attacker may attempt to modify another connection's entity
+                // This could also be a race condition of message in flight when
+                // RemoveClientAuthority is called, so not malicious.
+                // Don't disconnect, just log the warning.
                 else
-                {
-                    Debug.LogWarning($"Connection {connection.connectionId} attempted to modify {identity} which is not owned by the connection. Disconnecting the connection.");
-                    connection.Disconnect();
-                }
+                    Debug.LogWarning($"EntityStateMessage from {connection} for {identity} without authority.");
             }
             // no warning. don't spam server logs.
             // else Debug.LogWarning($"Did not find target for sync message for {message.netId} . Note: this can be completely normal because UDP messages may arrive out of order, so this message might have arrived after a Destroy message.");
