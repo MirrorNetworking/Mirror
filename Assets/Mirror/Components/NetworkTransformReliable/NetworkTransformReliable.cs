@@ -45,8 +45,6 @@ namespace Mirror
         [Header("Snapshot Interpolation")]
         [Tooltip("Add a small timeline offset to account for decoupled arrival of NetworkTime and NetworkTransform snapshots.\nfixes: https://github.com/MirrorNetworking/Mirror/issues/3427")]
         public bool timelineOffset = false;
-        double timeStampAdjustment => NetworkServer.sendInterval * (sendIntervalMultiplier - 1);
-        double offset => timelineOffset ? NetworkServer.sendInterval * sendIntervalMultiplier : 0;
 
         // Ninja's Notes on offset & mulitplier:
         // 
