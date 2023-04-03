@@ -83,10 +83,15 @@ namespace Mirror.SimpleWeb
             if (hasDisposed)
                 return $"[Conn:{connId}, Disposed]";
             else
-            {
-                System.Net.EndPoint endpoint = client?.Client?.RemoteEndPoint;
-                return $"[Conn:{connId}, endPoint:{endpoint}]";
-            }
+                try
+                {
+                    System.Net.EndPoint endpoint = client?.Client?.RemoteEndPoint;
+                    return $"[Conn:{connId}, endPoint:{endpoint}]";
+                }
+                catch (SocketException)
+                {
+                    return $"[Conn:{connId}, endPoint:n/a]";
+                }
         }
     }
 }
