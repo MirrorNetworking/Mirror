@@ -9,13 +9,14 @@ namespace Mirror
 {
     [HelpURL("https://github.com/vis2k/Telepathy/blob/master/README.md")]
     [DisallowMultipleComponent]
-    public class TelepathyTransport : Transport
+    public class TelepathyTransport : Transport, PortTransport
     {
         // scheme used by this transport
         // "tcp4" means tcp with 4 bytes header, network byte order
         public const string Scheme = "tcp4";
 
         public ushort port = 7777;
+        public ushort Port { get => port; set => port=value; }
 
         [Header("Common")]
         [Tooltip("Nagle Algorithm can be disabled by enabling NoDelay")]
