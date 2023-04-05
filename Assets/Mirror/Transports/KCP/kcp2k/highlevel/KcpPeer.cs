@@ -15,7 +15,9 @@ namespace kcp2k
         // kcp reliability algorithm
         internal Kcp kcp;
 
-        // security cookie to prevent UDP spoofing
+        // security cookie to prevent UDP spoofing.
+        // credits to IncludeSec for disclosing the issue.
+        //
         // server passes the expected cookie to the client's KcpPeer.
         // KcpPeer sends cookie to the connected client.
         // KcpPeer only accepts packets which contain the cookie.
