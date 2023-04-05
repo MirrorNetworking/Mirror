@@ -16,6 +16,12 @@ namespace Mirror.Examples.Chat
         // This is only set on client to the name of the local player
         internal static string localPlayerName;
 
+        // Server name, set from clicking Start Server on login screen
+        internal static string serverPlayerName;
+
+        // Reference to local players script for back n forth communication
+        public Player localPlayerScript;
+
         // Server-only cross-reference of connections to player names
         internal static readonly Dictionary<NetworkConnectionToClient, string> connNames = new Dictionary<NetworkConnectionToClient, string>();
 
@@ -29,6 +35,8 @@ namespace Mirror.Examples.Chat
             chatHistory.text = "";
         }
 
+        // legacy alternative shortcut way  to send commands without using authorised player connection
+        /*
         [Command(requiresAuthority = false)]
         void CmdSend(string message, NetworkConnectionToClient sender = null)
         {
@@ -38,13 +46,28 @@ namespace Mirror.Examples.Chat
             if (!string.IsNullOrWhiteSpace(message))
                 RpcReceive(connNames[sender], message.Trim());
         }
-
+        */
         [ClientRpc]
-        void RpcReceive(string playerName, string message)
+        public void RpcReceive(string playerName, string message)
         {
-            string prettyMessage = playerName == localPlayerName ?
+            Receive(playerName, message);
+        }
+
+        // Originally inside RpcReceive, splitting it allows Server Only Mode to also call the function
+        public void Receive(string playerName, string message)
+        {
+            string prettyMessage;
+
+            if (isServerOnly && serverPlayerName == playerName)
+            {
+                prettyMessage = $"<color=magenta>{playerName}:</color> {message}";
+            }
+            else
+            {
+                prettyMessage = playerName == localPlayerName ?
                 $"<color=red>{playerName}:</color> {message}" :
                 $"<color=blue>{playerName}:</color> {message}";
+            }
             AppendMessage(prettyMessage);
         }
 
@@ -91,7 +114,16 @@ namespace Mirror.Examples.Chat
         {
             if (!string.IsNullOrWhiteSpace(chatMessage.text))
             {
-                CmdSend(chatMessage.text.Trim());
+                if (isServerOnly)
+                {
+                    // server has no player object, and cant call cmd, so we do this:
+                    RpcReceive(serverPlayerName, chatMessage.text.Trim());
+                    Receive(serverPlayerName, chatMessage.text.Trim());
+                }
+                else
+                {
+                    localPlayerScript.CmdSend(chatMessage.text.Trim());
+                }
                 chatMessage.text = string.Empty;
                 chatMessage.ActivateInputField();
             }

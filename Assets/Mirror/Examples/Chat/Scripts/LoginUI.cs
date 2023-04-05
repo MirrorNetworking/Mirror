@@ -9,6 +9,7 @@ namespace Mirror.Examples.Chat
         [SerializeField] internal InputField usernameInput;
         [SerializeField] internal Button hostButton;
         [SerializeField] internal Button clientButton;
+        [SerializeField] internal Button serverButton;
         [SerializeField] internal Text errorText;
 
         public static LoginUI instance;
@@ -23,6 +24,13 @@ namespace Mirror.Examples.Chat
         {
             hostButton.interactable = !string.IsNullOrWhiteSpace(username);
             clientButton.interactable = !string.IsNullOrWhiteSpace(username);
+            serverButton.interactable = !string.IsNullOrWhiteSpace(username);
+        }
+
+        // Called by the Start Server UI button
+        public void SetServerName()
+        {
+            ChatUI.serverPlayerName = usernameInput.text;
         }
     }
 }
