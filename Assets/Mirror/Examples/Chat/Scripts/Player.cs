@@ -1,6 +1,3 @@
-using System.Collections.Generic;
-using UnityEngine;
-
 namespace Mirror.Examples.Chat
 {
     public class Player : NetworkBehaviour
