@@ -243,6 +243,7 @@ A lot of projects use Mirror in production. If you found a critical bug / exploi
 
 **Credits / past findings / fixes:**
 * 2020, fholm: fuzzing ConnectMessage to stop further connects [[#2397](https://github.com/vis2k/Mirror/pull/2397)]
+* 2023-04-05: IncludeSec: kcp2k UDP spoofing [[#3286](https://github.com/vis2k/Mirror/pull/2397)]
 
 ---
 # Credits & Thanks 🙏
