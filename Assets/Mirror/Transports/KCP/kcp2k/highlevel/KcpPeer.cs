@@ -660,7 +660,7 @@ namespace kcp2k
             Buffer.BlockCopy(data, 0, rawSendBuffer, 1+4, length);
 
             // IO send
-            ArraySegment<byte> segment = new ArraySegment<byte>(rawSendBuffer, 0, length + 1+4);
+            ArraySegment<byte> segment = new ArraySegment<byte>(rawSendBuffer, 0, length + 1 + 4);
             RawSend(segment);
         }
 
