@@ -1,3 +1,11 @@
+V1.35 [2023-04-05]
+- fix: KcpClients now need to validate with a secure cookie in order to protect against
+  UDP spoofing. fixes:
+  https://github.com/MirrorNetworking/Mirror/issues/3286
+  [disclosed by IncludeSec]
+- KcpClient/Server: change callbacks to protected so inheriting classes can use them too
+- KcpClient/Server: change config visibility to protected
+
 V1.34 [2023-03-15]
 - Send/SendTo/Receive/ReceiveFrom NonBlocking extensions.
   to encapsulate WouldBlock allocations, exceptions, etc.
