@@ -714,8 +714,6 @@ namespace kcp2k
             // from 5, with N bytes
             Buffer.BlockCopy(message.Array, message.Offset, rawSendBuffer, 1 + 4, message.Count);
 
-            Log.Warning($"KcpPeer: SendUnreliable with receivedCookie={BitConverter.ToUInt32(receivedCookie, 0)}");
-
             // IO send
             ArraySegment<byte> segment = new ArraySegment<byte>(rawSendBuffer, 0, message.Count + 1 + 4);
             RawSend(segment);
