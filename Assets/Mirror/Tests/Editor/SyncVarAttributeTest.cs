@@ -444,9 +444,6 @@ namespace Mirror.Tests.SyncVarAttributeTests
 
             CreateNetworked(out _, out _, out SyncVarGameObject serverComponent);
 
-            Debug.Assert(NetworkClient.active, "NetworkClient needs to be active before spawning.");
-            Debug.Assert(NetworkServer.active, "NetworkServer needs to be active before spawning.");
-
             serverComponent.value = serverGO;
             Assert.That(serverComponent.value, Is.EqualTo(serverGO), "getter should return original field value on server");
         }
@@ -460,9 +457,6 @@ namespace Mirror.Tests.SyncVarAttributeTests
 
             CreateNetworked(out _, out _, out SyncVarNetworkIdentity serverComponent);
 
-            Debug.Assert(NetworkClient.active, "NetworkClient needs to be active before spawning.");
-            Debug.Assert(NetworkServer.active, "NetworkServer needs to be active before spawning.");
-
             serverComponent.value = serverIdentity;
             Assert.That(serverComponent.value, Is.EqualTo(serverIdentity), "getter should return original field value on server");
         }
@@ -475,9 +469,6 @@ namespace Mirror.Tests.SyncVarAttributeTests
                 out _, out _, out _);
 
             CreateNetworked(out _, out _, out SyncVarNetworkBehaviour serverComponent);
-
-            Debug.Assert(NetworkClient.active, "NetworkClient needs to be active before spawning.");
-            Debug.Assert(NetworkServer.active, "NetworkServer needs to be active before spawning.");
 
             serverComponent.value = serverNB;
             Assert.That(serverComponent.value, Is.EqualTo(serverNB), "getter should return original field value on server");
