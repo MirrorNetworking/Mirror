@@ -420,5 +420,56 @@ namespace Mirror.Tests.SyncVarAttributeTests
             Assert.That(clientBehaviour.monster1, Is.EqualTo(serverBehaviour.monster1), "Data should be synchronized");
             Assert.That(clientBehaviour.monster2, Is.EqualTo(serverBehaviour.monster2), "Data should be synchronized");
         }
+
+        // Tests if getter for GameObject SyncVar field returns proper value on server before the containing object is spawned.
+        [Test]
+        public void SyncVarGameObjectGetterOnServerBeforeSpawn()
+        {
+            // The test should only need server objects, but at the same time this belongs in SyncVar tests,
+            // and objects in the tests defined here need client objects to spawn.
+            CreateNetworkedAndSpawn(
+                out GameObject serverGO, out NetworkIdentity serverIdentity, out SyncVarNetworkBehaviour serverNB,
+                out _, out _, out _);
+
+            CreateNetworked(out _, out _, out SyncVarGameObject serverComponent);
+
+            Debug.Assert(NetworkClient.active, "NetworkClient needs to be active before spawning.");
+            Debug.Assert(NetworkServer.active, "NetworkServer needs to be active before spawning.");
+
+            serverComponent.value = serverGO;
+            Assert.That(serverComponent.value, Is.EqualTo(serverGO), "getter should return original field value on server");
+        }
+
+        [Test]
+        public void SyncVarNetworkIdentityGetterOnServerBeforeSpawn()
+        {
+            CreateNetworkedAndSpawn(
+                out GameObject serverGO, out NetworkIdentity serverIdentity, out SyncVarNetworkBehaviour serverNB,
+                out _, out _, out _);
+
+            CreateNetworked(out _, out _, out SyncVarNetworkIdentity serverComponent);
+
+            Debug.Assert(NetworkClient.active, "NetworkClient needs to be active before spawning.");
+            Debug.Assert(NetworkServer.active, "NetworkServer needs to be active before spawning.");
+
+            serverComponent.value = serverIdentity;
+            Assert.That(serverComponent.value, Is.EqualTo(serverIdentity), "getter should return original field value on server");
+        }
+
+        [Test]
+        public void SyncVarNetworkBehaviourGetterOnServerBeforeSpawn()
+        {
+            CreateNetworkedAndSpawn(
+                out GameObject serverGO, out NetworkIdentity serverIdentity, out SyncVarNetworkBehaviour serverNB,
+                out _, out _, out _);
+
+            CreateNetworked(out _, out _, out SyncVarNetworkBehaviour serverComponent);
+
+            Debug.Assert(NetworkClient.active, "NetworkClient needs to be active before spawning.");
+            Debug.Assert(NetworkServer.active, "NetworkServer needs to be active before spawning.");
+
+            serverComponent.value = serverNB;
+            Assert.That(serverComponent.value, Is.EqualTo(serverNB), "getter should return original field value on server");
+        }
     }
 }
