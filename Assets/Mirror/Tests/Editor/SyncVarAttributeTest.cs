@@ -392,6 +392,7 @@ namespace Mirror.Tests.SyncVarAttributeTests
         {
             // set up a "server" object
             CreateNetworked(out _, out NetworkIdentity serverIdentity, out SyncVarAbstractNetworkBehaviour serverBehaviour);
+            serverIdentity.isServer = true;
 
             // spawn syncvar targets
             CreateNetworked(out _, out NetworkIdentity wolfIdentity, out SyncVarAbstractNetworkBehaviour.MockWolf wolf);
@@ -399,6 +400,10 @@ namespace Mirror.Tests.SyncVarAttributeTests
 
             wolfIdentity.netId = 135;
             zombieIdentity.netId = 246;
+
+            // add to spawned as if they were spawned on clients
+            NetworkClient.spawned.Add(wolfIdentity.netId, wolfIdentity);
+            NetworkClient.spawned.Add(zombieIdentity.netId, zombieIdentity);
 
             serverBehaviour.monster1 = wolf;
             serverBehaviour.monster2 = zombie;
@@ -411,14 +416,20 @@ namespace Mirror.Tests.SyncVarAttributeTests
 
             // set up a "client" object
             CreateNetworked(out _, out NetworkIdentity clientIdentity, out SyncVarAbstractNetworkBehaviour clientBehaviour);
+            clientIdentity.isClient = true;
 
             // apply all the data from the server object
             NetworkReader reader = new NetworkReader(ownerWriter.ToArray());
             clientIdentity.DeserializeClient(reader, true);
 
             // check that the syncvars got updated
+            Debug.Log($"{clientBehaviour.monster1} and {serverBehaviour.monster1}");
             Assert.That(clientBehaviour.monster1, Is.EqualTo(serverBehaviour.monster1), "Data should be synchronized");
             Assert.That(clientBehaviour.monster2, Is.EqualTo(serverBehaviour.monster2), "Data should be synchronized");
+
+            // remove spawned objects
+            NetworkClient.spawned.Remove(wolfIdentity.netId);
+            NetworkClient.spawned.Remove(zombieIdentity.netId);
         }
 
         // Tests if getter for GameObject SyncVar field returns proper value on server before the containing object is spawned.
