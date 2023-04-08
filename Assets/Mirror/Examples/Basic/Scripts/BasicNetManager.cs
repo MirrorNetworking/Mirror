@@ -17,14 +17,6 @@ namespace Mirror.Examples.Basic
             singleton = this;
         }
 
-#if UNITY_SERVER
-        public override void Start()
-        {
-            ((SimpleWeb.SimpleWebTransport)Transport.active).port = 27778;
-            base.Start();
-        }
-#endif
-
         /// <summary>
         /// Called on the server when a client adds a new player with NetworkClient.AddPlayer.
         /// <para>The default implementation for this function creates a new player object from the playerPrefab.</para>

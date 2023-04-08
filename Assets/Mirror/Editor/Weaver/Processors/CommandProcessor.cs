@@ -10,10 +10,11 @@ namespace Mirror.Weaver
             // generates code like:
             public void CmdThrust(float thrusting, int spin)
             {
-                NetworkWriter networkWriter = new NetworkWriter();
-                networkWriter.Write(thrusting);
-                networkWriter.WritePackedUInt32((uint)spin);
-                base.SendCommandInternal(cmdName, networkWriter, channel);
+                NetworkWriterPooled writer = NetworkWriterPool.Get();
+                writer.Write(thrusting);
+                writer.WritePackedUInt32((uint)spin);
+                base.SendCommandInternal(cmdName, cmdHash, writer, channel);
+                NetworkWriterPool.Return(writer);
             }
 
             public void CallCmdThrust(float thrusting, int spin)
@@ -54,7 +55,7 @@ namespace Mirror.Weaver
             worker.Emit(OpCodes.Ldstr, md.FullName);
             // pass the function hash so we don't have to compute it at runtime
             // otherwise each GetStableHash call requires O(N) complexity.
-            // noticeable for long function names: 
+            // noticeable for long function names:
             // https://github.com/MirrorNetworking/Mirror/issues/3375
             worker.Emit(OpCodes.Ldc_I4, md.FullName.GetStableHashCode());
             // writer
