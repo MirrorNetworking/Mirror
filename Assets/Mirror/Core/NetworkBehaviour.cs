@@ -1022,6 +1022,7 @@ namespace Mirror
         {
             // server always uses the field
             // if neither, fallback to original field
+            // fixes: https://github.com/MirrorNetworking/Mirror/issues/3447
             if (isServer || !isClient)
             {
                 return behaviourField;
