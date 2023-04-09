@@ -695,7 +695,7 @@ namespace Mirror
                 }
                 else
                 {
-                    Debug.LogError("No Transport assigned to Network Manager.");
+                    Debug.LogError("No Transport on Network Manager...add a transport and assign it.");
                     return false;
                 }
 
