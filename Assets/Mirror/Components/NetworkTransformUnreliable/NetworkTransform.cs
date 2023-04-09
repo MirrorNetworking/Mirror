@@ -36,9 +36,6 @@ namespace Mirror
         protected bool hasSentUnchangedPosition;
 #endif
 
-        double lastClientSendTime;
-        double lastServerSendTime;
-
         // update //////////////////////////////////////////////////////////////
         // Update applies interpolation
         void Update()

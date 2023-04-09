@@ -79,7 +79,8 @@ namespace kcp2k
             }
 
             // create fresh peer for each new session
-            peer = new KcpPeer(RawSend, OnAuthenticatedWrap, OnData, OnDisconnectedWrap, OnError, config);
+            // client doesn't need secure cookie.
+            peer = new KcpPeer(RawSend, OnAuthenticatedWrap, OnData, OnDisconnectedWrap, OnError, config, 0);
 
             // some callbacks need to wrapped with some extra logic
             void OnAuthenticatedWrap()
