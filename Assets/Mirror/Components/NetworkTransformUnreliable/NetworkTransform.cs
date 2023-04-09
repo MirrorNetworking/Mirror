@@ -108,6 +108,8 @@ namespace Mirror
             // authoritative movement done by the host will have to be broadcasted
             // here by checking IsClientWithAuthority.
             // TODO send same time that NetworkServer sends time snapshot?
+            CheckLastSendTime();   
+
             if (sendIntervalCounter == sendIntervalMultiplier && // same interval as time interpolation!
                 (syncDirection == SyncDirection.ServerToClient || IsClientWithAuthority))
             {
@@ -135,7 +137,6 @@ namespace Mirror
                 );
 #endif
 
-                CheckLastSendTime();
 #if onlySyncOnChange_BANDWIDTH_SAVING
                 if (cachedSnapshotComparison)
                 {
@@ -147,7 +148,7 @@ namespace Mirror
                     lastSnapshot = snapshot;
                 }
 #endif
-            }
+            }         
         }
 
         void UpdateServerInterpolation()
@@ -206,6 +207,7 @@ namespace Mirror
             // DO NOT send nulls if not changed 'since last send' either. we
             // send unreliable and don't know which 'last send' the other end
             // received successfully.
+            CheckLastSendTime();               
             if (sendIntervalCounter == sendIntervalMultiplier) // same interval as time interpolation!
             {
                 // send snapshot without timestamp.
@@ -232,7 +234,6 @@ namespace Mirror
                 );
 #endif
 
-                CheckLastSendTime();
 #if onlySyncOnChange_BANDWIDTH_SAVING
                 if (cachedSnapshotComparison)
                 {
@@ -244,7 +245,7 @@ namespace Mirror
                     lastSnapshot = snapshot;
                 }
 #endif
-            }
+            }        
         }
 
         void UpdateClientInterpolation()
