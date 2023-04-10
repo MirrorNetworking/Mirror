@@ -61,22 +61,18 @@ namespace Mirror.Tests.SyncVarAttributeTests
     class SyncVarDeepInheritanceDirtyBit_0 : NetworkBehaviourSyncVarDirtyBitsExposed
     {
         [SyncVar] public int int0;
-        public readonly SyncList<int> list0 = new SyncList<int>();
     }
     class SyncVarDeepInheritanceDirtyBit_1 : SyncVarDeepInheritanceDirtyBit_0
     {
         [SyncVar] public int int1;
-        public readonly SyncList<int> list1 = new SyncList<int>();
     }
     class SyncVarDeepInheritanceDirtyBit_2 : SyncVarDeepInheritanceDirtyBit_1
     {
         [SyncVar] public int int2;
-        public readonly SyncList<int> list2 = new SyncList<int>();
     }
     class SyncVarDeepInheritanceDirtyBit_3 : SyncVarDeepInheritanceDirtyBit_2
     {
         [SyncVar] public int int3;
-        public readonly SyncList<int> list3 = new SyncList<int>();
     }
 
     public class SyncVarAttributeTest : MirrorTest
