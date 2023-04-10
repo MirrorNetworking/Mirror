@@ -2,6 +2,32 @@ using NUnit.Framework;
 
 namespace Mirror.Tests.SyncVarAttributeTests
 {
+    class SyncVarDeepInheritanceHookGuard_0 : NetworkBehaviour
+    {
+        [SyncVar]
+        public int int0;
+    }
+    class SyncVarDeepInheritanceHookGuard_1 : SyncVarDeepInheritanceHookGuard_0
+    {
+        [SyncVar(hook = nameof(OnInt1Changed))]
+        public int int1;
+
+        private void OnInt1Changed(int oldValue, int newValue)
+        {
+            int0--;
+        }
+    }
+    class SyncVarDeepInheritanceHookGuard_2 : SyncVarDeepInheritanceHookGuard_1
+    {
+        [SyncVar(hook = nameof(OnInt2Changed))]
+        public int int2;
+
+        private void OnInt2Changed(int oldValue, int newValue)
+        {
+            int1--;
+        }
+    }
+
     public class SyncVarAttributeHook_HostModeTest : MirrorTest
     {
         [SetUp]
@@ -110,6 +136,26 @@ namespace Mirror.Tests.SyncVarAttributeTests
 
             Assert.That(overrideCallCount, Is.EqualTo(1));
             Assert.That(baseCallCount, Is.EqualTo(0));
+        }
+
+        // SyncVar hook guards are in place to prevent infinite hook loop in host mode.
+        // Because of #3457 this can throw false positive and block setters and hooks of other SyncVars.
+        [Test]
+        public void DeepInheritanceSyncVarHookGuardFalsePositive()
+        {
+            CreateNetworkedAndSpawn(out _, out _, out SyncVarDeepInheritanceHookGuard_2 comp);
+
+            // hooks setters are only called if activeHost
+            Assert.That(NetworkServer.activeHost, Is.True);
+
+            comp.int0 = 10;
+            comp.int1 = 20; // decrements int0 in hook.
+            comp.int2 = 30; // decrements int1 in hook. which then decrements int0.
+
+            // int0 should have been decremented twice.
+            Assert.That(comp.int0, Is.EqualTo(10 - 2), "hook guard should not block hook");
+            // int1 should have been decremented once.
+            Assert.That(comp.int1, Is.EqualTo(20 - 1), "hook guard should not block hook");
         }
     }
 }

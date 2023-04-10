@@ -58,6 +58,27 @@ namespace Mirror.Tests.SyncVarAttributeTests
         public MockMonsterBase monster2;
     }
 
+    class SyncVarDeepInheritanceDirtyBit_0 : NetworkBehaviourSyncVarDirtyBitsExposed
+    {
+        [SyncVar] public int int0;
+        public readonly SyncList<int> list0 = new SyncList<int>();
+    }
+    class SyncVarDeepInheritanceDirtyBit_1 : SyncVarDeepInheritanceDirtyBit_0
+    {
+        [SyncVar] public int int1;
+        public readonly SyncList<int> list1 = new SyncList<int>();
+    }
+    class SyncVarDeepInheritanceDirtyBit_2 : SyncVarDeepInheritanceDirtyBit_1
+    {
+        [SyncVar] public int int2;
+        public readonly SyncList<int> list2 = new SyncList<int>();
+    }
+    class SyncVarDeepInheritanceDirtyBit_3 : SyncVarDeepInheritanceDirtyBit_2
+    {
+        [SyncVar] public int int3;
+        public readonly SyncList<int> list3 = new SyncList<int>();
+    }
+
     public class SyncVarAttributeTest : MirrorTest
     {
         [SetUp]
@@ -472,6 +493,36 @@ namespace Mirror.Tests.SyncVarAttributeTests
 
             serverComponent.value = serverNB;
             Assert.That(serverComponent.value, Is.EqualTo(serverNB), "getter should return original field value on server");
+        }
+
+        [Test]
+        public void DeepInheritanceSyncVarDirtyBitUniqueness()
+        {
+            CreateNetworkedAndSpawn(
+                out _, out _, out SyncVarDeepInheritanceDirtyBit_3 serverObject,
+                out _, out _, out _);
+
+            // test SyncVar dirty bits
+
+            ulong lastSyncVarDirtyBits = serverObject.syncVarDirtyBitsExposed;
+            void AssertUniqueSyncVarDirtyBit()
+            {
+                // check if dirty mask has changed
+                Assert.That(lastSyncVarDirtyBits, Is.Not.EqualTo(serverObject.syncVarDirtyBitsExposed), "every SyncVar dirty bit should be unique");
+                lastSyncVarDirtyBits = serverObject.syncVarDirtyBitsExposed;
+            }
+
+            serverObject.int0 = 1234;
+            AssertUniqueSyncVarDirtyBit();
+
+            serverObject.int1 = 2345;
+            AssertUniqueSyncVarDirtyBit();
+
+            serverObject.int2 = 3456;
+            AssertUniqueSyncVarDirtyBit();
+
+            serverObject.int3 = 4567;
+            AssertUniqueSyncVarDirtyBit();
         }
     }
 }
