@@ -146,6 +146,7 @@ namespace Mirror.Tests
             Assert.That(NetworkClient.OnConnectedEvent, Is.Null);
             Assert.That(NetworkClient.OnDisconnectedEvent, Is.Null);
             Assert.That(NetworkClient.OnErrorEvent, Is.Null);
+            Assert.That(NetworkClient.OnTransportExceptionEvent, Is.Null);
         }
     }
 }

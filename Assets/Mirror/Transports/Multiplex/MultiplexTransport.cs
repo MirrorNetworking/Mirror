@@ -146,6 +146,7 @@ namespace Mirror
                     transport.OnClientConnected = OnClientConnected;
                     transport.OnClientDataReceived = OnClientDataReceived;
                     transport.OnClientError = OnClientError;
+                    transport.OnClientTransportException = OnClientTransportException;
                     transport.OnClientDisconnected = OnClientDisconnected;
                     transport.ClientConnect(address);
                     return;
@@ -166,6 +167,7 @@ namespace Mirror
                         transport.OnClientConnected = OnClientConnected;
                         transport.OnClientDataReceived = OnClientDataReceived;
                         transport.OnClientError = OnClientError;
+                        transport.OnClientTransportException = OnClientTransportException;
                         transport.OnClientDisconnected = OnClientDisconnected;
                         transport.ClientConnect(uri);
                         return;
@@ -227,6 +229,13 @@ namespace Mirror
                     // invoke Multiplex event with multiplexed connectionId
                     int multiplexedId = MultiplexId(originalConnectionId, transportIndex);
                     OnServerError.Invoke(multiplexedId, error, reason);
+                };
+
+                transport.OnServerTransportException = (originalConnectionId, exception) =>
+                {
+                    // invoke Multiplex event with multiplexed connectionId
+                    int multiplexedId = MultiplexId(originalConnectionId, transportIndex);
+                    OnServerTransportException.Invoke(multiplexedId, exception);
                 };
 
                 transport.OnServerDisconnected = originalConnectionId =>
