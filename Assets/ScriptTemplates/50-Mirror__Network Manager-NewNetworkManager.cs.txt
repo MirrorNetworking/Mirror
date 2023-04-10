@@ -164,7 +164,7 @@ public class #SCRIPTNAME# : NetworkManager
     }
 
     /// <summary>
-    /// Called on server when transport raises an exception.
+    /// Called on server when transport raises an error.
     /// <para>NetworkConnection may be null.</para>
     /// </summary>
     /// <param name="conn">Connection of the client...may be null</param>
@@ -198,7 +198,7 @@ public class #SCRIPTNAME# : NetworkManager
     public override void OnClientNotReady() { }
 
     /// <summary>
-    /// Called on client when transport raises an exception.</summary>
+    /// Called on client when transport raises an error.</summary>
     /// </summary>
     /// <param name="transportError">TransportError enum.</param>
     /// <param name="message">String message of the error.</param>
