@@ -478,7 +478,10 @@ namespace Mirror.Weaver
             {
                 td.Fields.Add(fd);
             }
-            syncVarAccessLists.SetNumSyncVars(td.FullName, syncVars.Count);
+
+            // include parent class syncvars
+            syncVarAccessLists.SetNumSyncVars(td.FullName,
+                syncVarAccessLists.GetSyncVarStart(td.BaseType.FullName) + syncVars.Count);
 
             return (syncVars, syncVarNetIds);
         }
