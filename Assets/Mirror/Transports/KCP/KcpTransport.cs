@@ -203,7 +203,11 @@ namespace kcp2k
         public override string ServerGetClientAddress(int connectionId)
         {
             IPEndPoint endPoint = server.GetClientEndPoint(connectionId);
-            return endPoint != null ? endPoint.Address.ToString() : "";
+            return endPoint != null
+                ? (endPoint.Address.IsIPv4MappedToIPv6
+                ? endPoint.Address.MapToIPv4().ToString()
+                : endPoint.Address.ToString())
+                : "";
         }
         public override void ServerStop() => server.Stop();
         public override void ServerEarlyUpdate()
