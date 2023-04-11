@@ -491,6 +491,7 @@ namespace Mirror.Tests.SyncVarAttributeTests
             Assert.That(serverComponent.value, Is.EqualTo(serverNB), "getter should return original field value on server");
         }
 
+        // test for https://github.com/MirrorNetworking/Mirror/issues/3457
         [Test]
         public void DeepInheritanceSyncVarDirtyBitUniqueness()
         {
