@@ -61,7 +61,8 @@ public class Player : NetworkBehaviour
 }
 ```
 
-There's also **NetworkServer** & **NetworkClient**. And that's about it 🤩.
+There's also **NetworkServer** & **NetworkClient**.</br>
+And that's about it 🤩
 
 ---
 ## Free, Open & Community Funded
