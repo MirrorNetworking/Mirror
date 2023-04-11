@@ -82,6 +82,9 @@ namespace Mirror
         protected double timeStampAdjustment => NetworkServer.sendInterval * (sendIntervalMultiplier - 1);
         protected double offset => timelineOffset ? NetworkServer.sendInterval * sendIntervalMultiplier : 0;
 
+        protected uint sendIntervalCounter = 0;
+        protected double lastSendIntervalTime = double.MinValue;
+
         // debugging ///////////////////////////////////////////////////////////
         [Header("Debug")]
         public bool showGizmos;
@@ -114,6 +117,17 @@ namespace Mirror
                 Debug.LogWarning($"{name}'s NetworkTransform component has obsolete .clientAuthority enabled. Please disable it and set SyncDirection to ClientToServer instead.");
             }
 #pragma warning restore CS0618
+        }
+
+        protected virtual void CheckLastSendTime()
+        {
+            // timeAsDouble not available in older Unity versions.
+            if (AccurateInterval.Elapsed(NetworkTime.localTime, NetworkServer.sendInterval, ref lastSendIntervalTime))
+            {
+                if (sendIntervalCounter == sendIntervalMultiplier)
+                    sendIntervalCounter = 0;
+                sendIntervalCounter++;
+            }
         }
 
         // snapshot functions //////////////////////////////////////////////////

@@ -12,9 +12,6 @@ namespace Mirror
         [Tooltip("When true, changes are not sent unless greater than sensitivity values below.")]
         public bool onlySyncOnChange = true;
 
-        uint sendIntervalCounter = 0;
-        double lastSendIntervalTime = double.MinValue;
-
         [Tooltip("If we only sync on change, then we need to correct old snapshots if more time than sendInterval * multiplier has elapsed.\n\nOtherwise the first move will always start interpolating from the last move sequence's time, which will make it stutter when starting every time.")]
         public float onlySyncOnChangeCorrectionMultiplier = 2;
 
@@ -130,17 +127,6 @@ namespace Mirror
                 }
 
                 lastClientCount = clientSnapshots.Count;
-            }
-        }
-
-        protected virtual void CheckLastSendTime()
-        {
-            // timeAsDouble not available in older Unity versions.
-            if (AccurateInterval.Elapsed(NetworkTime.localTime, NetworkServer.sendInterval, ref lastSendIntervalTime))
-            {
-                if (sendIntervalCounter == sendIntervalMultiplier)
-                    sendIntervalCounter = 0;
-                sendIntervalCounter++;
             }
         }
 

@@ -14,9 +14,6 @@ namespace Mirror
         [Tooltip("When true, changes are not sent unless greater than sensitivity values below.")]
         public bool onlySyncOnChange = true;
 
-        uint sendIntervalCounter = 0;
-        double lastSendIntervalTime = double.MinValue;
-
         // 3 was original, but testing under really bad network conditions, 2%-5% packet loss and 250-1200ms ping, 5 proved to eliminate any twitching.
         [Tooltip("How much time, as a multiple of send interval, has passed before clearing buffers.")]
         public float bufferResetMultiplier = 5;
@@ -60,17 +57,6 @@ namespace Mirror
             // 'else if' because host mode shouldn't send anything to server.
             // it is the server. don't overwrite anything there.
             else if (isClient && IsClientWithAuthority) UpdateClientBroadcast();
-        }
-
-        protected virtual void CheckLastSendTime()
-        {
-            // timeAsDouble not available in older Unity versions.
-            if (AccurateInterval.Elapsed(NetworkTime.localTime, NetworkServer.sendInterval, ref lastSendIntervalTime))
-            {
-                if (sendIntervalCounter == sendIntervalMultiplier)
-                    sendIntervalCounter = 0;
-                sendIntervalCounter++;
-            }
         }
 
         void UpdateServerBroadcast()
