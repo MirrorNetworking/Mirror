@@ -14,6 +14,9 @@ namespace Mirror
         [Tooltip("When true, changes are not sent unless greater than sensitivity values below.")]
         public bool onlySyncOnChange = true;
 
+        uint sendIntervalCounter = 0;
+        double lastSendIntervalTime = double.MinValue;
+
         // 3 was original, but testing under really bad network conditions, 2%-5% packet loss and 250-1200ms ping, 5 proved to eliminate any twitching.
         [Tooltip("How much time, as a multiple of send interval, has passed before clearing buffers.")]
         public float bufferResetMultiplier = 5;
@@ -32,9 +35,6 @@ namespace Mirror
         protected bool cachedSnapshotComparison;
         protected bool hasSentUnchangedPosition;
 #endif
-
-        double lastClientSendTime;
-        double lastServerSendTime;
 
         [Header("Send Interval Multiplier")]
         [Tooltip("Check/Sync every multiple of Network Manager send interval (= 1 / NM Send Rate), instead of every send interval.")]
@@ -87,6 +87,17 @@ namespace Mirror
             else if (isClient && IsClientWithAuthority) UpdateClientBroadcast();
         }
 
+        protected virtual void CheckLastSendTime()
+        {
+            // timeAsDouble not available in older Unity versions.
+            if (AccurateInterval.Elapsed(NetworkTime.localTime, NetworkServer.sendInterval, ref lastSendIntervalTime))
+            {
+                if (sendIntervalCounter == sendIntervalMultiplier)
+                    sendIntervalCounter = 0;
+                sendIntervalCounter++;
+            }
+        }
+
         void UpdateServerBroadcast()
         {
             // broadcast to all clients each 'sendInterval'
@@ -119,7 +130,9 @@ namespace Mirror
             // authoritative movement done by the host will have to be broadcasted
             // here by checking IsClientWithAuthority.
             // TODO send same time that NetworkServer sends time snapshot?
-            if (NetworkTime.localTime >= lastServerSendTime + NetworkServer.sendInterval && // same interval as time interpolation!
+            CheckLastSendTime();
+
+            if (sendIntervalCounter == sendIntervalMultiplier && // same interval as time interpolation!
                 (syncDirection == SyncDirection.ServerToClient || IsClientWithAuthority))
             {
                 // send snapshot without timestamp.
@@ -146,7 +159,6 @@ namespace Mirror
                 );
 #endif
 
-                lastServerSendTime = NetworkTime.localTime;
 #if onlySyncOnChange_BANDWIDTH_SAVING
                 if (cachedSnapshotComparison)
                 {
@@ -217,7 +229,8 @@ namespace Mirror
             // DO NOT send nulls if not changed 'since last send' either. we
             // send unreliable and don't know which 'last send' the other end
             // received successfully.
-            if (NetworkTime.localTime >= lastClientSendTime + NetworkClient.sendInterval) // same interval as time interpolation!
+            CheckLastSendTime();
+            if (sendIntervalCounter == sendIntervalMultiplier) // same interval as time interpolation!
             {
                 // send snapshot without timestamp.
                 // receiver gets it from batch timestamp to save bandwidth.
@@ -243,7 +256,6 @@ namespace Mirror
                 );
 #endif
 
-                lastClientSendTime = NetworkTime.localTime;
 #if onlySyncOnChange_BANDWIDTH_SAVING
                 if (cachedSnapshotComparison)
                 {
@@ -343,7 +355,7 @@ namespace Mirror
 #if onlySyncOnChange_BANDWIDTH_SAVING
             if (onlySyncOnChange)
             {
-                double timeIntervalCheck = bufferResetMultiplier * NetworkClient.sendInterval;
+                double timeIntervalCheck = bufferResetMultiplier * sendIntervalMultiplier * NetworkClient.sendInterval;
 
                 if (serverSnapshots.Count > 0 && serverSnapshots.Values[serverSnapshots.Count - 1].remoteTime + timeIntervalCheck < timestamp)
                 {
@@ -382,7 +394,7 @@ namespace Mirror
 #if onlySyncOnChange_BANDWIDTH_SAVING
             if (onlySyncOnChange)
             {
-                double timeIntervalCheck = bufferResetMultiplier * NetworkServer.sendInterval;
+                double timeIntervalCheck = bufferResetMultiplier * sendIntervalMultiplier * NetworkServer.sendInterval;
 
                 if (clientSnapshots.Count > 0 && clientSnapshots.Values[clientSnapshots.Count - 1].remoteTime + timeIntervalCheck < timestamp)
                 {
