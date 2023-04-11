@@ -124,12 +124,14 @@ MonoBehaviour:
   syncRotation: 0
   syncScale: 0
   interpolatePosition: 1
-  interpolateRotation: 1
-  interpolateScale: 1
+  interpolateRotation: 0
+  interpolateScale: 0
+  sendIntervalMultiplier: 3
+  timelineOffset: 1
   showGizmos: 0
   showOverlay: 0
   overlayColor: {r: 0, g: 0, b: 0, a: 0.5}
-  onlySyncOnChange: 0
+  onlySyncOnChange: 1
   bufferResetMultiplier: 5
   positionSensitivity: 0.01
   rotationSensitivity: 0.01

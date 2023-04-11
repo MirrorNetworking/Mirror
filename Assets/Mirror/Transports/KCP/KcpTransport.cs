@@ -11,14 +11,16 @@ namespace kcp2k
 {
     [HelpURL("https://mirror-networking.gitbook.io/docs/transports/kcp-transport")]
     [DisallowMultipleComponent]
-    public class KcpTransport : Transport
+    public class KcpTransport : Transport, PortTransport
     {
         // scheme used by this transport
         public const string Scheme = "kcp";
 
         // common
         [Header("Transport Configuration")]
-        public ushort Port = 7777;
+        [FormerlySerializedAs("Port")]
+        public ushort port = 7777;
+        public ushort Port { get => port; set => port=value; }
         [Tooltip("DualMode listens to IPv6 and IPv4 simultaneously. Disable if the platform only supports IPv4.")]
         public bool DualMode = true;
         [Tooltip("NoDelay is recommended to reduce latency. This also scales better without buffers getting full.")]
@@ -201,7 +203,13 @@ namespace kcp2k
         public override string ServerGetClientAddress(int connectionId)
         {
             IPEndPoint endPoint = server.GetClientEndPoint(connectionId);
-            return endPoint != null ? endPoint.Address.ToString() : "";
+            return endPoint != null
+                // Map to IPv4 if "IsIPv4MappedToIPv6"
+                // "::ffff:127.0.0.1" -> "127.0.0.1"
+                ? (endPoint.Address.IsIPv4MappedToIPv6
+                ? endPoint.Address.MapToIPv4().ToString()
+                : endPoint.Address.ToString())
+                : "";
         }
         public override void ServerStop() => server.Stop();
         public override void ServerEarlyUpdate()

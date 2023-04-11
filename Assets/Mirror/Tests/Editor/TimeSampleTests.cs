@@ -1,5 +1,4 @@
 using NUnit.Framework;
-using System.Diagnostics;
 using System.Threading;
 
 namespace Mirror.Tests.Editor

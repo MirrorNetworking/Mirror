@@ -40,15 +40,15 @@ namespace Mirror.SimpleWeb
             Log.Verbose($"[SimpleWebTransport] Dispose {ToString()}");
 
             // check hasDisposed first to stop ThreadInterruptedException on lock
-            if (hasDisposed) { return; }
+            if (hasDisposed) return;
 
             Log.Info($"[SimpleWebTransport] Connection Close: {ToString()}");
-
 
             lock (disposedLock)
             {
                 // check hasDisposed again inside lock to make sure no other object has called this
-                if (hasDisposed) { return; }
+                if (hasDisposed) return;
+
                 hasDisposed = true;
 
                 // stop threads first so they don't try to use disposed objects
@@ -72,9 +72,7 @@ namespace Mirror.SimpleWeb
 
                 // release all buffers in send queue
                 while (sendQueue.TryDequeue(out ArrayBuffer buffer))
-                {
                     buffer.Release();
-                }
 
                 onDispose.Invoke(this);
             }
@@ -83,14 +81,17 @@ namespace Mirror.SimpleWeb
         public override string ToString()
         {
             if (hasDisposed)
-            {
                 return $"[Conn:{connId}, Disposed]";
-            }
             else
-            {
-                System.Net.EndPoint endpoint = client?.Client?.RemoteEndPoint;
-                return $"[Conn:{connId}, endPoint:{endpoint}]";
-            }
+                try
+                {
+                    System.Net.EndPoint endpoint = client?.Client?.RemoteEndPoint;
+                    return $"[Conn:{connId}, endPoint:{endpoint}]";
+                }
+                catch (SocketException)
+                {
+                    return $"[Conn:{connId}, endPoint:n/a]";
+                }
         }
     }
 }

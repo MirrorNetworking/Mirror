@@ -42,16 +42,25 @@ namespace Mirror.Weaver
             // NetworkConnection parameter is optional
             if (HasNetworkConnectionParameter(md))
             {
-                // on server, the NetworkConnection parameter is a connection to client.
-                // when the rpc is invoked on the client, it still has the same
-                // function signature. we pass in the connection to server,
-                // which is cleaner than just passing null)
-                //NetworkClient.readyconnection
+                // TargetRpcs are sent from server to client.
+                // on server, we currently support two types:
+                //   TargetRpc(NetworkConnection)
+                //   TargetRpc(NetworkConnectionToClient)
+                // however, it's always a connection to client.
+                // in the future, only NetworkConnectionToClient will be supported.
+                // explicit typing helps catch issues at compile time.
                 //
-                // TODO
-                // a) .connectionToServer = best solution. no doubt.
-                // b) NetworkClient.connection for now. add TODO to not use static later.
-                worker.Emit(OpCodes.Call, weaverTypes.NetworkClientConnectionReference);
+                // on client, InvokeTargetRpc calls the original code.
+                // we need to fill in the NetworkConnection parameter.
+                // NetworkClient.connection is always a connection to server.
+                //
+                // we used to pass NetworkClient.connection as the TargetRpc parameter.
+                // which caused: https://github.com/MirrorNetworking/Mirror/issues/3455
+                // when the parameter is defined as a NetworkConnectionToClient.
+                //
+                // a client's connection never fits into a NetworkConnectionToClient.
+                // we need to always pass null here.
+                worker.Emit(OpCodes.Ldnull);
             }
 
             // process reader parameters and skip first one if first one is NetworkConnection
@@ -132,7 +141,7 @@ namespace Mirror.Weaver
             worker.Emit(OpCodes.Ldstr, md.FullName);
             // pass the function hash so we don't have to compute it at runtime
             // otherwise each GetStableHash call requires O(N) complexity.
-            // noticeable for long function names: 
+            // noticeable for long function names:
             // https://github.com/MirrorNetworking/Mirror/issues/3375
             worker.Emit(OpCodes.Ldc_I4, md.FullName.GetStableHashCode());
             // writer

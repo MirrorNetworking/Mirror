@@ -209,7 +209,7 @@ namespace Mirror
                         key = reader.Read<TKey>();
                         if (apply)
                         {
-                            if (objects.ContainsKey(key))
+                            if (objects.TryGetValue(key, out item))
                             {
                                 // add dirty + changes.
                                 // ClientToServer needs to set dirty in server OnDeserialize.

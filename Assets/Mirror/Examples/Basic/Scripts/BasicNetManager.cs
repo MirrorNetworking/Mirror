@@ -1,4 +1,3 @@
-using Mirror.Examples.AdditiveScenes;
 using UnityEngine;
 
 namespace Mirror.Examples.Basic

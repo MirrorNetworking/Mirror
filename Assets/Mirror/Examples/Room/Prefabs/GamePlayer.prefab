@@ -163,7 +163,9 @@ MonoBehaviour:
   syncScale: 0
   interpolatePosition: 1
   interpolateRotation: 1
-  interpolateScale: 1
+  interpolateScale: 0
+  sendIntervalMultiplier: 3
+  timelineOffset: 1
   showGizmos: 0
   showOverlay: 0
   overlayColor: {r: 0, g: 0, b: 0, a: 0.5}

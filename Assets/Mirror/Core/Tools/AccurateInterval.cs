@@ -34,53 +34,53 @@ namespace Mirror
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool Elapsed(double time, double interval, ref double lastTime)
         {
-            if (time >= lastTime + interval)
-            {
-                // naive implementation:
-                //lastTime = time;
+            // enough time elapsed?
+            if (time < lastTime + interval)
+                return false;
 
-                // accurate but doesn't handle heavy load situations:
-                //lastTime += interval;
+            // naive implementation:
+            //lastTime = time;
 
-                // heavy load edge case:
-                // * interval is 100ms
-                // * server is under heavy load, Updates slow down to 1/s
-                // * Elapsed(1.000) returns true.
-                //   technically 10 intervals have elapsed.
-                // * server recovers to normal, Updates are every 10ms again
-                // * Elapsed(1.010) should return false again until 1.100.
-                //
-                // increasing lastTime by interval would require 10 more calls
-                // to ever catch up again:
-                //   lastTime += interval
-                //
-                // as result, the next 10 calls to Elapsed would return true.
-                //   Elapsed(1.001) => true
-                //   Elapsed(1.002) => true
-                //   Elapsed(1.003) => true
-                //   ...
-                // even though technically the delta was not >= interval.
-                //
-                // this would keep the server under heavy load, and it may never
-                // catch-up. this is not ideal for large virtual worlds.
-                //
-                // instead, we want to skip multiples of 'interval' and only
-                // keep the remainder.
-                //
-                // see also: AccurateIntervalTests.Slowdown()
+            // accurate but doesn't handle heavy load situations:
+            //lastTime += interval;
 
-                // easy to understand:
-                //double elapsed = time - lastTime;
-                //double remainder = elapsed % interval;
-                //lastTime = time - remainder;
+            // heavy load edge case:
+            // * interval is 100ms
+            // * server is under heavy load, Updates slow down to 1/s
+            // * Elapsed(1.000) returns true.
+            //   technically 10 intervals have elapsed.
+            // * server recovers to normal, Updates are every 10ms again
+            // * Elapsed(1.010) should return false again until 1.100.
+            //
+            // increasing lastTime by interval would require 10 more calls
+            // to ever catch up again:
+            //   lastTime += interval
+            //
+            // as result, the next 10 calls to Elapsed would return true.
+            //   Elapsed(1.001) => true
+            //   Elapsed(1.002) => true
+            //   Elapsed(1.003) => true
+            //   ...
+            // even though technically the delta was not >= interval.
+            //
+            // this would keep the server under heavy load, and it may never
+            // catch-up. this is not ideal for large virtual worlds.
+            //
+            // instead, we want to skip multiples of 'interval' and only
+            // keep the remainder.
+            //
+            // see also: AccurateIntervalTests.Slowdown()
 
-                // easier: set to rounded multiples of interval (fholm).
-                // long to match double time.
-                long multiplier = (long)(time / interval);
-                lastTime = multiplier * interval;
-                return true;
-            }
-            return false;
+            // easy to understand:
+            //double elapsed = time - lastTime;
+            //double remainder = elapsed % interval;
+            //lastTime = time - remainder;
+
+            // easier: set to rounded multiples of interval (fholm).
+            // long to match double time.
+            long multiplier = (long)(time / interval);
+            lastTime = multiplier * interval;
+            return true;
         }
     }
 }
