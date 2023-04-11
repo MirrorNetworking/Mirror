@@ -942,7 +942,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b0fecffa3f624585964b0d0eb21b18e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Port: 7777
+  port: 7777
   DualMode: 1
   NoDelay: 1
   Interval: 10
@@ -954,8 +954,8 @@ MonoBehaviour:
   SendWindowSize: 4096
   MaxRetransmit: 40
   MaximizeSocketBuffers: 1
-  ReliableMaxMessageSize: 298449
-  UnreliableMaxMessageSize: 1199
+  ReliableMaxMessageSize: 297433
+  UnreliableMaxMessageSize: 1195
   debugLog: 0
   statisticsGUI: 0
   statisticsLog: 0
@@ -1084,11 +1084,13 @@ MonoBehaviour:
   target: {fileID: 670337646}
   clientAuthority: 0
   syncPosition: 1
-  syncRotation: 1
+  syncRotation: 0
   syncScale: 0
   interpolatePosition: 1
-  interpolateRotation: 1
-  interpolateScale: 1
+  interpolateRotation: 0
+  interpolateScale: 0
+  sendIntervalMultiplier: 1
+  timelineOffset: 1
   showGizmos: 0
   showOverlay: 0
   overlayColor: {r: 0, g: 0, b: 0, a: 0.5}
@@ -1329,11 +1331,13 @@ MonoBehaviour:
   target: {fileID: 1019217383}
   clientAuthority: 0
   syncPosition: 1
-  syncRotation: 1
+  syncRotation: 0
   syncScale: 0
   interpolatePosition: 1
-  interpolateRotation: 1
-  interpolateScale: 1
+  interpolateRotation: 0
+  interpolateScale: 0
+  sendIntervalMultiplier: 1
+  timelineOffset: 1
   showGizmos: 0
   showOverlay: 0
   overlayColor: {r: 0, g: 0, b: 0, a: 0.5}
@@ -1629,11 +1633,13 @@ MonoBehaviour:
   target: {fileID: 1200292999}
   clientAuthority: 0
   syncPosition: 1
-  syncRotation: 1
+  syncRotation: 0
   syncScale: 0
   interpolatePosition: 1
-  interpolateRotation: 1
-  interpolateScale: 1
+  interpolateRotation: 0
+  interpolateScale: 0
+  sendIntervalMultiplier: 1
+  timelineOffset: 1
   showGizmos: 0
   showOverlay: 0
   overlayColor: {r: 0, g: 0, b: 0, a: 0.5}
