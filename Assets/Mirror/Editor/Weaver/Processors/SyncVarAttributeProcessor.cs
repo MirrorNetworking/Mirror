@@ -478,7 +478,11 @@ namespace Mirror.Weaver
             {
                 td.Fields.Add(fd);
             }
-            syncVarAccessLists.SetNumSyncVars(td.FullName, syncVars.Count);
+
+            // include parent class syncvars
+            // fixes: https://github.com/MirrorNetworking/Mirror/issues/3457
+            int parentSyncVarCount = syncVarAccessLists.GetSyncVarStart(td.BaseType.FullName);
+            syncVarAccessLists.SetNumSyncVars(td.FullName, parentSyncVarCount + syncVars.Count);
 
             return (syncVars, syncVarNetIds);
         }

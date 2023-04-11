@@ -14,6 +14,9 @@ namespace Mirror
         [Tooltip("When true, changes are not sent unless greater than sensitivity values below.")]
         public bool onlySyncOnChange = true;
 
+        uint sendIntervalCounter = 0;
+        double lastSendIntervalTime = double.MinValue;
+
         // 3 was original, but testing under really bad network conditions, 2%-5% packet loss and 250-1200ms ping, 5 proved to eliminate any twitching.
         [Tooltip("How much time, as a multiple of send interval, has passed before clearing buffers.")]
         public float bufferResetMultiplier = 5;
@@ -32,34 +35,6 @@ namespace Mirror
         protected bool cachedSnapshotComparison;
         protected bool hasSentUnchangedPosition;
 #endif
-
-        double lastClientSendTime;
-        double lastServerSendTime;
-
-        [Header("Send Interval Multiplier")]
-        [Tooltip("Check/Sync every multiple of Network Manager send interval (= 1 / NM Send Rate), instead of every send interval.")]
-        [Range(1, 120)]
-        const uint sendIntervalMultiplier = 1; // not implemented yet
-
-        [Header("Snapshot Interpolation")]
-        [Tooltip("Add a small timeline offset to account for decoupled arrival of NetworkTime and NetworkTransform snapshots.\nfixes: https://github.com/MirrorNetworking/Mirror/issues/3427")]
-        public bool timelineOffset = false;
-
-        // Ninja's Notes on offset & mulitplier:
-        // 
-        // In a no multiplier scenario:
-        // 1. Snapshots are sent every frame (frame being 1 NM send interval).
-        // 2. Time Interpolation is set to be 'behind' by 2 frames times.
-        // In theory where everything works, we probably have around 2 snapshots before we need to interpolate snapshots. From NT perspective, we should always have around 2 snapshots ready, so no stutter.
-        // 
-        // In a multiplier scenario:
-        // 1. Snapshots are sent every 10 frames.
-        // 2. Time Interpolation remains 'behind by 2 frames'.
-        // When everything works, we are receiving NT snapshots every 10 frames, but start interpolating after 2. 
-        // Even if I assume we had 2 snapshots to begin with to start interpolating (which we don't), by the time we reach 13th frame, we are out of snapshots, and have to wait 7 frames for next snapshot to come. This is the reason why we absolutely need the timestamp adjustment. We are starting way too early to interpolate. 
-        //
-        double timeStampAdjustment => NetworkServer.sendInterval * (sendIntervalMultiplier - 1);
-        double offset => timelineOffset ? NetworkServer.sendInterval * sendIntervalMultiplier : 0;
 
         // update //////////////////////////////////////////////////////////////
         // Update applies interpolation
@@ -85,6 +60,17 @@ namespace Mirror
             // 'else if' because host mode shouldn't send anything to server.
             // it is the server. don't overwrite anything there.
             else if (isClient && IsClientWithAuthority) UpdateClientBroadcast();
+        }
+
+        protected virtual void CheckLastSendTime()
+        {
+            // timeAsDouble not available in older Unity versions.
+            if (AccurateInterval.Elapsed(NetworkTime.localTime, NetworkServer.sendInterval, ref lastSendIntervalTime))
+            {
+                if (sendIntervalCounter == sendIntervalMultiplier)
+                    sendIntervalCounter = 0;
+                sendIntervalCounter++;
+            }
         }
 
         void UpdateServerBroadcast()
@@ -119,7 +105,9 @@ namespace Mirror
             // authoritative movement done by the host will have to be broadcasted
             // here by checking IsClientWithAuthority.
             // TODO send same time that NetworkServer sends time snapshot?
-            if (NetworkTime.localTime >= lastServerSendTime + NetworkServer.sendInterval && // same interval as time interpolation!
+            CheckLastSendTime();
+
+            if (sendIntervalCounter == sendIntervalMultiplier && // same interval as time interpolation!
                 (syncDirection == SyncDirection.ServerToClient || IsClientWithAuthority))
             {
                 // send snapshot without timestamp.
@@ -146,7 +134,6 @@ namespace Mirror
                 );
 #endif
 
-                lastServerSendTime = NetworkTime.localTime;
 #if onlySyncOnChange_BANDWIDTH_SAVING
                 if (cachedSnapshotComparison)
                 {
@@ -217,7 +204,8 @@ namespace Mirror
             // DO NOT send nulls if not changed 'since last send' either. we
             // send unreliable and don't know which 'last send' the other end
             // received successfully.
-            if (NetworkTime.localTime >= lastClientSendTime + NetworkClient.sendInterval) // same interval as time interpolation!
+            CheckLastSendTime();
+            if (sendIntervalCounter == sendIntervalMultiplier) // same interval as time interpolation!
             {
                 // send snapshot without timestamp.
                 // receiver gets it from batch timestamp to save bandwidth.
@@ -243,7 +231,6 @@ namespace Mirror
                 );
 #endif
 
-                lastClientSendTime = NetworkTime.localTime;
 #if onlySyncOnChange_BANDWIDTH_SAVING
                 if (cachedSnapshotComparison)
                 {
@@ -343,7 +330,7 @@ namespace Mirror
 #if onlySyncOnChange_BANDWIDTH_SAVING
             if (onlySyncOnChange)
             {
-                double timeIntervalCheck = bufferResetMultiplier * NetworkClient.sendInterval;
+                double timeIntervalCheck = bufferResetMultiplier * sendIntervalMultiplier * NetworkClient.sendInterval;
 
                 if (serverSnapshots.Count > 0 && serverSnapshots.Values[serverSnapshots.Count - 1].remoteTime + timeIntervalCheck < timestamp)
                 {
@@ -382,7 +369,7 @@ namespace Mirror
 #if onlySyncOnChange_BANDWIDTH_SAVING
             if (onlySyncOnChange)
             {
-                double timeIntervalCheck = bufferResetMultiplier * NetworkServer.sendInterval;
+                double timeIntervalCheck = bufferResetMultiplier * sendIntervalMultiplier * NetworkServer.sendInterval;
 
                 if (clientSnapshots.Count > 0 && clientSnapshots.Values[clientSnapshots.Count - 1].remoteTime + timeIntervalCheck < timestamp)
                 {

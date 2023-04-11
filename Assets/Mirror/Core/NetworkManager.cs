@@ -685,6 +685,20 @@ namespace Mirror
 
             // set active transport AFTER setting singleton.
             // so only if we didn't destroy ourselves.
+
+            // This tries to avoid missing transport errors and more clearly tells user what to fix.
+            if (transport == null)
+                if (TryGetComponent(out Transport newTransport))
+                {
+                    Debug.LogWarning($"No Transport assigned to Network Manager - Using {newTransport} found on same object.");
+                    transport = newTransport;
+                }
+                else
+                {
+                    Debug.LogError("No Transport on Network Manager...add a transport and assign it.");
+                    return false;
+                }
+
             Transport.active = transport;
             return true;
         }
