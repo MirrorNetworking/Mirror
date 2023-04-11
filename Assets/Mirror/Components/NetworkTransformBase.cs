@@ -57,6 +57,31 @@ namespace Mirror
         [Tooltip("Set to false to remove scale smoothing. Example use-case: Instant flipping of sprites that use -X and +X for direction.")]
         public bool interpolateScale = true;
 
+        [Header("Send Interval Multiplier")]
+        [Tooltip("Check/Sync every multiple of Network Manager send interval (= 1 / NM Send Rate), instead of every send interval.")]
+        [Range(1, 120)]
+        public uint sendIntervalMultiplier = 1; // not implemented yet
+
+        [Header("Timeline Offset")]
+        [Tooltip("Add a small timeline offset to account for decoupled arrival of NetworkTime and NetworkTransform snapshots.\nfixes: https://github.com/MirrorNetworking/Mirror/issues/3427")]
+        public bool timelineOffset = false;
+
+        // Ninja's Notes on offset & mulitplier:
+        // 
+        // In a no multiplier scenario:
+        // 1. Snapshots are sent every frame (frame being 1 NM send interval).
+        // 2. Time Interpolation is set to be 'behind' by 2 frames times.
+        // In theory where everything works, we probably have around 2 snapshots before we need to interpolate snapshots. From NT perspective, we should always have around 2 snapshots ready, so no stutter.
+        // 
+        // In a multiplier scenario:
+        // 1. Snapshots are sent every 10 frames.
+        // 2. Time Interpolation remains 'behind by 2 frames'.
+        // When everything works, we are receiving NT snapshots every 10 frames, but start interpolating after 2. 
+        // Even if I assume we had 2 snapshots to begin with to start interpolating (which we don't), by the time we reach 13th frame, we are out of snapshots, and have to wait 7 frames for next snapshot to come. This is the reason why we absolutely need the timestamp adjustment. We are starting way too early to interpolate. 
+        //
+        protected double timeStampAdjustment => NetworkServer.sendInterval * (sendIntervalMultiplier - 1);
+        protected double offset => timelineOffset ? NetworkServer.sendInterval * sendIntervalMultiplier : 0;
+
         // debugging ///////////////////////////////////////////////////////////
         [Header("Debug")]
         public bool showGizmos;
