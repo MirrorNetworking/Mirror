@@ -317,7 +317,8 @@ namespace Mirror
                 return;
             }
 
-            // local players can always send commands, regardless of authority, other objects must have authority.
+            // local players can always send commands, regardless of authority,
+            // other objects must have authority.
             if (!(!requiresAuthority || isLocalPlayer || isOwned))
             {
                 Debug.LogWarning($"Command Function {functionFullName} called on {name} without authority.", gameObject);
@@ -648,7 +649,9 @@ namespace Mirror
         protected GameObject GetSyncVarGameObject(uint netId, ref GameObject gameObjectField)
         {
             // server always uses the field
-            if (isServer)
+            // if neither, fallback to original field
+            // fixes: https://github.com/MirrorNetworking/Mirror/issues/3447
+            if (isServer || !isClient)
             {
                 return gameObjectField;
             }
@@ -956,7 +959,9 @@ namespace Mirror
         protected NetworkIdentity GetSyncVarNetworkIdentity(uint netId, ref NetworkIdentity identityField)
         {
             // server always uses the field
-            if (isServer)
+            // if neither, fallback to original field
+            // fixes: https://github.com/MirrorNetworking/Mirror/issues/3447
+            if (isServer || !isClient)
             {
                 return identityField;
             }
@@ -1019,7 +1024,9 @@ namespace Mirror
         protected T GetSyncVarNetworkBehaviour<T>(NetworkBehaviourSyncVar syncNetBehaviour, ref T behaviourField) where T : NetworkBehaviour
         {
             // server always uses the field
-            if (isServer)
+            // if neither, fallback to original field
+            // fixes: https://github.com/MirrorNetworking/Mirror/issues/3447
+            if (isServer || !isClient)
             {
                 return behaviourField;
             }

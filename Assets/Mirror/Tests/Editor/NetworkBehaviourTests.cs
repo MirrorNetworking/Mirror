@@ -597,14 +597,12 @@ namespace Mirror.Tests
             NetworkServer.Listen(1);
             ConnectClientBlockingAuthenticatedAndReady(out _);
 
-            CreateNetworked(out GameObject _, out NetworkIdentity identity);
+            // create a networked object with test component
+            CreateNetworked(out GameObject _, out NetworkIdentity identity, out NetworkBehaviourGetSyncVarGameObjectComponent comp);
 
             // are we on client and not on server?
             identity.isClient = true;
             Assert.That(identity.isServer, Is.False);
-
-            // create a networked object with test component
-            CreateNetworked(out GameObject _, out NetworkIdentity _, out NetworkBehaviourGetSyncVarGameObjectComponent comp);
 
             // create a spawned, syncable GameObject
             // (client tries to look up via netid, so needs to be spawned)

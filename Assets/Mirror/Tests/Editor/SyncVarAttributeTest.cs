@@ -58,6 +58,23 @@ namespace Mirror.Tests.SyncVarAttributeTests
         public MockMonsterBase monster2;
     }
 
+    class SyncVarDeepInheritanceDirtyBit_0 : NetworkBehaviourSyncVarDirtyBitsExposed
+    {
+        [SyncVar] public int int0;
+    }
+    class SyncVarDeepInheritanceDirtyBit_1 : SyncVarDeepInheritanceDirtyBit_0
+    {
+        [SyncVar] public int int1;
+    }
+    class SyncVarDeepInheritanceDirtyBit_2 : SyncVarDeepInheritanceDirtyBit_1
+    {
+        [SyncVar] public int int2;
+    }
+    class SyncVarDeepInheritanceDirtyBit_3 : SyncVarDeepInheritanceDirtyBit_2
+    {
+        [SyncVar] public int int3;
+    }
+
     public class SyncVarAttributeTest : MirrorTest
     {
         [SetUp]
@@ -392,6 +409,7 @@ namespace Mirror.Tests.SyncVarAttributeTests
         {
             // set up a "server" object
             CreateNetworked(out _, out NetworkIdentity serverIdentity, out SyncVarAbstractNetworkBehaviour serverBehaviour);
+            serverIdentity.isServer = true;
 
             // spawn syncvar targets
             CreateNetworked(out _, out NetworkIdentity wolfIdentity, out SyncVarAbstractNetworkBehaviour.MockWolf wolf);
@@ -399,6 +417,10 @@ namespace Mirror.Tests.SyncVarAttributeTests
 
             wolfIdentity.netId = 135;
             zombieIdentity.netId = 246;
+
+            // add to spawned as if they were spawned on clients
+            NetworkClient.spawned.Add(wolfIdentity.netId, wolfIdentity);
+            NetworkClient.spawned.Add(zombieIdentity.netId, zombieIdentity);
 
             serverBehaviour.monster1 = wolf;
             serverBehaviour.monster2 = zombie;
@@ -411,14 +433,93 @@ namespace Mirror.Tests.SyncVarAttributeTests
 
             // set up a "client" object
             CreateNetworked(out _, out NetworkIdentity clientIdentity, out SyncVarAbstractNetworkBehaviour clientBehaviour);
+            clientIdentity.isClient = true;
 
             // apply all the data from the server object
             NetworkReader reader = new NetworkReader(ownerWriter.ToArray());
             clientIdentity.DeserializeClient(reader, true);
 
             // check that the syncvars got updated
+            Debug.Log($"{clientBehaviour.monster1} and {serverBehaviour.monster1}");
             Assert.That(clientBehaviour.monster1, Is.EqualTo(serverBehaviour.monster1), "Data should be synchronized");
             Assert.That(clientBehaviour.monster2, Is.EqualTo(serverBehaviour.monster2), "Data should be synchronized");
+
+            // remove spawned objects
+            NetworkClient.spawned.Remove(wolfIdentity.netId);
+            NetworkClient.spawned.Remove(zombieIdentity.netId);
+        }
+
+        // Tests if getter for GameObject SyncVar field returns proper value on server before the containing object is spawned.
+        [Test]
+        public void SyncVarGameObjectGetterOnServerBeforeSpawn()
+        {
+            // The test should only need server objects, but at the same time this belongs in SyncVar tests,
+            // and objects in the tests defined here need client objects to spawn.
+            CreateNetworkedAndSpawn(
+                out GameObject serverGO, out NetworkIdentity serverIdentity, out SyncVarNetworkBehaviour serverNB,
+                out _, out _, out _);
+
+            CreateNetworked(out _, out _, out SyncVarGameObject serverComponent);
+
+            serverComponent.value = serverGO;
+            Assert.That(serverComponent.value, Is.EqualTo(serverGO), "getter should return original field value on server");
+        }
+
+        [Test]
+        public void SyncVarNetworkIdentityGetterOnServerBeforeSpawn()
+        {
+            CreateNetworkedAndSpawn(
+                out GameObject serverGO, out NetworkIdentity serverIdentity, out SyncVarNetworkBehaviour serverNB,
+                out _, out _, out _);
+
+            CreateNetworked(out _, out _, out SyncVarNetworkIdentity serverComponent);
+
+            serverComponent.value = serverIdentity;
+            Assert.That(serverComponent.value, Is.EqualTo(serverIdentity), "getter should return original field value on server");
+        }
+
+        [Test]
+        public void SyncVarNetworkBehaviourGetterOnServerBeforeSpawn()
+        {
+            CreateNetworkedAndSpawn(
+                out GameObject serverGO, out NetworkIdentity serverIdentity, out SyncVarNetworkBehaviour serverNB,
+                out _, out _, out _);
+
+            CreateNetworked(out _, out _, out SyncVarNetworkBehaviour serverComponent);
+
+            serverComponent.value = serverNB;
+            Assert.That(serverComponent.value, Is.EqualTo(serverNB), "getter should return original field value on server");
+        }
+
+        // test for https://github.com/MirrorNetworking/Mirror/issues/3457
+        [Test]
+        public void DeepInheritanceSyncVarDirtyBitUniqueness()
+        {
+            CreateNetworkedAndSpawn(
+                out _, out _, out SyncVarDeepInheritanceDirtyBit_3 serverObject,
+                out _, out _, out _);
+
+            // test SyncVar dirty bits
+
+            ulong lastSyncVarDirtyBits = serverObject.syncVarDirtyBitsExposed;
+            void AssertUniqueSyncVarDirtyBit()
+            {
+                // check if dirty mask has changed
+                Assert.That(lastSyncVarDirtyBits, Is.Not.EqualTo(serverObject.syncVarDirtyBitsExposed), "every SyncVar dirty bit should be unique");
+                lastSyncVarDirtyBits = serverObject.syncVarDirtyBitsExposed;
+            }
+
+            serverObject.int0 = 1234;
+            AssertUniqueSyncVarDirtyBit();
+
+            serverObject.int1 = 2345;
+            AssertUniqueSyncVarDirtyBit();
+
+            serverObject.int2 = 3456;
+            AssertUniqueSyncVarDirtyBit();
+
+            serverObject.int3 = 4567;
+            AssertUniqueSyncVarDirtyBit();
         }
     }
 }

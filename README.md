@@ -16,7 +16,7 @@
 <img src="https://user-images.githubusercontent.com/16416509/119117854-3e4e2b80-ba5c-11eb-8236-ce6cfd2b6b07.png" title="Original Concept Art for Games that made us dream. Copyright Blizzard, Blizzard, Riot Games, Joymax in that order."/>
 
 ## Mirror Networking 
-The **#1** free **open source** game networking library for **Unity 2019 / 2020 / 2021**.
+The **#1** free **open source** game networking library for **Unity 2019 / 2020 / 2021 / 2022**.
 
 Used **in production** by major hits like [**Population: ONE**](https://www.populationonevr.com/) and many [more](#made-with-mirror).
 
@@ -61,7 +61,8 @@ public class Player : NetworkBehaviour
 }
 ```
 
-There's also **NetworkServer** & **NetworkClient**. And that's about it 🤩.
+There's also **NetworkServer** & **NetworkClient**.</br>
+And that's about it 🤩
 
 ---
 ## Free, Open & Community Funded
@@ -243,6 +244,7 @@ A lot of projects use Mirror in production. If you found a critical bug / exploi
 
 **Credits / past findings / fixes:**
 * 2020, fholm: fuzzing ConnectMessage to stop further connects [[#2397](https://github.com/vis2k/Mirror/pull/2397)]
+* 2023-04-05: IncludeSec: [kcp2k UDP spoofing](http://blog.includesecurity.com/?p=1407) [[#3286](https://github.com/vis2k/Mirror/pull/2397)]
 
 ---
 # Credits & Thanks 🙏

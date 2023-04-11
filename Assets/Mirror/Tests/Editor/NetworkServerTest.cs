@@ -1234,7 +1234,7 @@ namespace Mirror.Tests
             NetworkServer.Listen(1);
 
             // add a connection that is observed by a null entity
-            NetworkServer.connections[42] = new FakeNetworkConnection{isReady=true};
+            NetworkServer.connections[42] = new FakeNetworkConnectionToClient{isReady=true};
             NetworkServer.connections[42].observing.Add(null);
 
             // update
@@ -1255,7 +1255,7 @@ namespace Mirror.Tests
 
             // add a connection that is observed by a destroyed entity
             CreateNetworked(out GameObject go, out NetworkIdentity ni);
-            NetworkServer.connections[42] = new FakeNetworkConnection{isReady=true};
+            NetworkServer.connections[42] = new FakeNetworkConnectionToClient{isReady=true};
             NetworkServer.connections[42].observing.Add(ni);
             GameObject.DestroyImmediate(go);
 
