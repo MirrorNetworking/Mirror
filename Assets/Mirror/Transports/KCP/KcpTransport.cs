@@ -204,6 +204,8 @@ namespace kcp2k
         {
             IPEndPoint endPoint = server.GetClientEndPoint(connectionId);
             return endPoint != null
+                // Map to IPv4 if "IsIPv4MappedToIPv6"
+                // "::ffff:127.0.0.1" -> "127.0.0.1"
                 ? (endPoint.Address.IsIPv4MappedToIPv6
                 ? endPoint.Address.MapToIPv4().ToString()
                 : endPoint.Address.ToString())
