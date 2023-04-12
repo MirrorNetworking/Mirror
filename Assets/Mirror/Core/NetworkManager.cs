@@ -60,8 +60,11 @@ namespace Mirror
         // [Tooltip("Client broadcasts 'sendRate' times per second. Use around 60Hz for fast paced games like Counter-Strike to minimize latency. Use around 30Hz for games like WoW to minimize computations. Use around 1-10Hz for slow paced games like EVE.")]
         // public int clientSendRate = 30; // 33 ms
 
-        /// <summary>Automatically switch to this scene upon going offline (on start / on disconnect / on shutdown).</summary>
         [Header("Scene Management")]
+        [Tooltip("To avoid collision and let a new Network Manager to be created when switching to the offline scene.\n\n[!] Use if your Network Manager is located in the offline scene.")]
+        public bool leaveInOnlineScene = true;
+        
+        /// <summary>Automatically switch to this scene upon going offline (on start / on disconnect / on shutdown).</summary>
         [Scene]
         [FormerlySerializedAs("m_OfflineScene")]
         [Tooltip("Scene that Mirror will switch to when the client or server is stopped")]
@@ -543,6 +546,23 @@ namespace Mirror
             StopClient();
             StopServer();
         }
+        
+        /// <summary>
+        /// Get Network Manager out of DDOL before going to offline scene
+        /// to avoid collision and let a fresh Network Manager be created.
+        /// <para>
+        /// IMPORTANT: .gameObject can be null if StopClient is called from
+        /// OnApplicationQuit or from tests!
+        /// </para>
+        /// </summary>
+        private void GetOutOfDDOL() {
+            if (leaveInOnlineScene
+                && gameObject != null
+                && gameObject.scene.name == "DontDestroyOnLoad"
+                && !string.IsNullOrWhiteSpace(offlineScene)
+                && SceneManager.GetActiveScene().path != offlineScene)
+                SceneManager.MoveGameObjectToScene(gameObject, SceneManager.GetActiveScene());
+        }
 
         /// <summary>Stops the server from listening and simulating the game.</summary>
         public void StopServer()
@@ -557,15 +577,8 @@ namespace Mirror
                 authenticator.OnStopServer();
             }
 
-            // Get Network Manager out of DDOL before going to offline scene
-            // to avoid collision and let a fresh Network Manager be created.
-            // IMPORTANT: .gameObject can be null if StopClient is called from
-            //            OnApplicationQuit or from tests!
-            if (gameObject != null
-                && gameObject.scene.name == "DontDestroyOnLoad"
-                && !string.IsNullOrWhiteSpace(offlineScene)
-                && SceneManager.GetActiveScene().path != offlineScene)
-                SceneManager.MoveGameObjectToScene(gameObject, SceneManager.GetActiveScene());
+            // Get Network Manager out of DDOL (see summary).
+            GetOutOfDDOL();
 
             OnStopServer();
 
@@ -1241,15 +1254,8 @@ namespace Mirror
             // Exit here if we're now in ServerOnly mode (StopClient called in Host mode).
             if (mode == NetworkManagerMode.ServerOnly) return;
 
-            // Get Network Manager out of DDOL before going to offline scene
-            // to avoid collision and let a fresh Network Manager be created.
-            // IMPORTANT: .gameObject can be null if StopClient is called from
-            //            OnApplicationQuit or from tests!
-            if (gameObject != null
-                && gameObject.scene.name == "DontDestroyOnLoad"
-                && !string.IsNullOrWhiteSpace(offlineScene)
-                && SceneManager.GetActiveScene().path != offlineScene)
-                SceneManager.MoveGameObjectToScene(gameObject, SceneManager.GetActiveScene());
+            // Get Network Manager out of DDOL (see summary).
+            GetOutOfDDOL();
 
             // If StopHost called in Host mode, StopServer will change scenes after this.
             // Check loadingSceneAsync to ensure we don't double-invoke the scene change.
