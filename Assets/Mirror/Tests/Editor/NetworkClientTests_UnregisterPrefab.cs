@@ -2,9 +2,9 @@
 using UnityEngine;
 using UnityEngine.TestTools;
 
-namespace Mirror.Tests.ClientSceneTests
+namespace Mirror.Tests.NetworkClientSceneTests
 {
-    public class ClientSceneTests_UnregisterPrefab : ClientSceneTestsBase
+    public class NetworkClientTests_UnregisterPrefab : NetworkClientTestsBase
     {
         [Test]
         public void RemovesPrefabFromDictionary()

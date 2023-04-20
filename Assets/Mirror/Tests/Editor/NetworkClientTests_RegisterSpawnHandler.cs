@@ -2,9 +2,9 @@
 using UnityEngine;
 using UnityEngine.TestTools;
 
-namespace Mirror.Tests.ClientSceneTests
+namespace Mirror.Tests.NetworkClientSceneTests
 {
-    public class ClientSceneTests_RegisterSpawnHandler : ClientSceneTestsBase
+    public class NetworkClientTests_RegisterSpawnHandler : NetworkClientTestsBase
     {
         [Test]
         public void SpawnDelegate_AddsHandlerToSpawnHandlers()

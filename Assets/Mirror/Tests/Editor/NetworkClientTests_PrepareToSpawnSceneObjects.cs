@@ -1,9 +1,9 @@
 using NUnit.Framework;
 using UnityEngine;
 
-namespace Mirror.Tests.ClientSceneTests
+namespace Mirror.Tests.NetworkClientSceneTests
 {
-    public class ClientSceneTests_PrepareToSpawnSceneObjects : ClientSceneTestsBase
+    public class NetworkClientTests_PrepareToSpawnSceneObjects : NetworkClientTestsBase
     {
         NetworkIdentity CreateSceneObject(ulong sceneId)
         {

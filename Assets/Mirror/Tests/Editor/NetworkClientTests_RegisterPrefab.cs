@@ -3,9 +3,9 @@ using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
 
-namespace Mirror.Tests.ClientSceneTests
+namespace Mirror.Tests.NetworkClientSceneTests
 {
-    public class ClientSceneTests_RegisterPrefab : ClientSceneTests_RegisterPrefabBase
+    public class NetworkClientTests_RegisterPrefab : ClientSceneTests_RegisterPrefabBase
     {
         [Test]
         [TestCase(RegisterPrefabOverload.Prefab)]

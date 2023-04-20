@@ -4,7 +4,7 @@ using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
 
-namespace Mirror.Tests.ClientSceneTests
+namespace Mirror.Tests.NetworkClientSceneTests
 {
     public class PayloadTestBehaviour : NetworkBehaviour
     {
@@ -54,7 +54,7 @@ namespace Mirror.Tests.ClientSceneTests
         }
     }
 
-    public class ClientSceneTests_OnSpawn : ClientSceneTestsBase
+    public class NetworkClientTests_OnSpawn : NetworkClientTestsBase
     {
         Dictionary<uint, NetworkIdentity> spawned => NetworkClient.spawned;
 

@@ -1,8 +1,8 @@
 ﻿using NUnit.Framework;
 
-namespace Mirror.Tests.ClientSceneTests
+namespace Mirror.Tests.NetworkClientSceneTests
 {
-    public class ClientSceneTests_UnregisterSpawnHandler : ClientSceneTestsBase
+    public class NetworkClientTests_UnregisterSpawnHandler : NetworkClientTestsBase
     {
         [Test]
         public void RemovesSpawnHandlersFromDictionary()

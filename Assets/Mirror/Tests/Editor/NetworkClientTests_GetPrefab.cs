@@ -1,9 +1,9 @@
 ﻿using NUnit.Framework;
 using UnityEngine;
 
-namespace Mirror.Tests.ClientSceneTests
+namespace Mirror.Tests.NetworkClientSceneTests
 {
-    public class ClientSceneTests_GetPrefab : ClientSceneTestsBase
+    public class NetworkClientTests_GetPrefab : NetworkClientTestsBase
     {
         [Test]
         public void ReturnsFalseForEmptyGuid()

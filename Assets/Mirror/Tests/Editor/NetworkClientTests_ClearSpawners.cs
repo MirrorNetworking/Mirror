@@ -1,8 +1,8 @@
 ﻿using NUnit.Framework;
 
-namespace Mirror.Tests.ClientSceneTests
+namespace Mirror.Tests.NetworkClientSceneTests
 {
-    public class ClientSceneTests_ClearSpawners : ClientSceneTestsBase
+    public class NetworkClientTests_ClearSpawners : NetworkClientTestsBase
     {
         [Test]
         public void RemovesAllPrefabsFromDictionary()
