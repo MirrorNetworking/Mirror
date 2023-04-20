@@ -1,5 +1,4 @@
 using System;
-using Mirror.Tests.RemoteAttrributeTest;
 using NUnit.Framework;
 using UnityEngine;
 
@@ -25,8 +24,16 @@ namespace Mirror.Tests.GeneratedWriterTests
         }
     }
 
-    public class FieldsInBaseClasses : RemoteTestBase
+    public class FieldsInBaseClasses : MirrorEditModeTest
     {
+        [SetUp]
+        public void Setup()
+        {
+            // start server/client
+            NetworkServer.Listen(1);
+            ConnectHostClientBlockingAuthenticatedAndReady();
+        }
+
         [Test, Ignore("Destroy is needed for the code. Can't be called in Edit mode.")]
         public void WriterShouldIncludeFieldsInBaseClass()
         {
