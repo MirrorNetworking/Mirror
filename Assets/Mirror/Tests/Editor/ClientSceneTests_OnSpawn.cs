@@ -534,7 +534,7 @@ namespace Mirror.Tests.ClientSceneTests
                 payload = default,
             };
 
-            NetworkClient.connection = new FakeNetworkConnectionToClient();
+            NetworkClient.connection = new FakeNetworkConnectionToServer();
             NetworkClient.ready = true;
             NetworkClient.ApplySpawnPayload(identity, msg);
 
