@@ -9,10 +9,15 @@ namespace Mirror.Tests.RemoteAttrributeTest
     class AuthorityBehaviour : NetworkBehaviour
     {
         public event Action<int> onSendInt;
+        public event Action<int, string, bool> onSendMulti;
 
         [Command]
         public void SendInt(int someInt) =>
             onSendInt?.Invoke(someInt);
+
+        [Command]
+        public void SendMulti(int someInt, string someString, bool someBool) =>
+            onSendMulti?.Invoke(someInt, someString, someBool);
     }
 
     class IgnoreAuthorityBehaviour : NetworkBehaviour
@@ -275,6 +280,50 @@ namespace Mirror.Tests.RemoteAttrributeTest
             Assert.That(comp.connectionToServer, Is.Null);
             comp.CmdSendInt(0);
             Assert.That(called, Is.EqualTo(1));
+        }
+    }
+
+    // need server-only mode for some test
+    public class CommandTest_ServerOnly : MirrorTest
+    {
+        [SetUp]
+        public override void SetUp()
+        {
+            base.SetUp();
+            // start server without client
+            NetworkServer.Listen(1);
+        }
+
+        [TearDown]
+        public override void TearDown() => base.TearDown();
+
+        // [Command] functions should be callable on server-only for convenience.
+        // https://github.com/MirrorNetworking/Mirror/issues/3450
+        [Test]
+        public void CommandCalledWhenServerOnly()
+        {
+            // spawn
+            CreateNetworked(out _, out _, out AuthorityBehaviour serverComponent);
+
+            // set up a callback and check
+            int callCount = 0;
+            serverComponent.onSendMulti += (a, b, c) =>
+            {
+                callCount++;
+                Assert.That(a, Is.EqualTo(42));
+                Assert.That(b, Is.EqualTo("test"));
+                Assert.That(c, Is.EqualTo(true));
+            };
+
+            // call [Command] on server.
+            // test multiple parameters to ensure weaver properly injects all
+            // LdArg0,1,2, etc. instructions.
+            //
+            // this should call the function immediately,
+            // without processing messages.
+            serverComponent.SendMulti(42, "test", true);
+            // ProcessMessages();
+            Assert.That(callCount, Is.EqualTo(1));
         }
     }
 }
