@@ -1,3 +1,4 @@
+// Test weaver generated Reader/Writer<T>
 using NUnit.Framework;
 
 namespace Mirror.Tests
