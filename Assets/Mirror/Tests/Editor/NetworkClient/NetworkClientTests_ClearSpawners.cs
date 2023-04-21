@@ -1,6 +1,6 @@
 ﻿using NUnit.Framework;
 
-namespace Mirror.Tests.NetworkClientSceneTests
+namespace Mirror.Tests.NetworkClients
 {
     public class NetworkClientTests_ClearSpawners : NetworkClientTestsBase
     {

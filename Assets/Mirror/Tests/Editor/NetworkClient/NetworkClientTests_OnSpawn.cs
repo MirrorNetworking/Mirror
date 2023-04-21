@@ -4,7 +4,7 @@ using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
 
-namespace Mirror.Tests.NetworkClientSceneTests
+namespace Mirror.Tests.NetworkClients
 {
     public class PayloadTestBehaviour : NetworkBehaviour
     {

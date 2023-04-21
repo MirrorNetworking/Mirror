@@ -1,7 +1,7 @@
 using NUnit.Framework;
 using UnityEngine;
 
-namespace Mirror.Tests.NetworkClientSceneTests
+namespace Mirror.Tests.NetworkClients
 {
     public class NetworkClientTests_PrepareToSpawnSceneObjects : NetworkClientTestsBase
     {
