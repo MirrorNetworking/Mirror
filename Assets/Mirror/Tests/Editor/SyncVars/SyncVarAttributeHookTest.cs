@@ -2,7 +2,7 @@ using System;
 using NUnit.Framework;
 using UnityEngine;
 
-namespace Mirror.Tests.SyncVarAttributeTests
+namespace Mirror.Tests.SyncVars
 {
     class HookBehaviour : NetworkBehaviour
     {

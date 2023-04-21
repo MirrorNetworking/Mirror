@@ -1,6 +1,6 @@
 using NUnit.Framework;
 
-namespace Mirror.Tests.SyncVarAttributeTests
+namespace Mirror.Tests.SyncVars
 {
     public class SyncVarAttributeHook_HostModeTest : MirrorTest
     {
