@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using NUnit.Framework;
 
-namespace Mirror.Tests
+namespace Mirror.Tests.SyncCollections
 {
     [TestFixture]
     public class SyncDictionaryTest

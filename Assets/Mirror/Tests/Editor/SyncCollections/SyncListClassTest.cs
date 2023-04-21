@@ -1,7 +1,7 @@
 using System.Linq;
 using NUnit.Framework;
 
-namespace Mirror.Tests
+namespace Mirror.Tests.SyncCollections
 {
     class TestObjectBehaviour : NetworkBehaviour
     {
