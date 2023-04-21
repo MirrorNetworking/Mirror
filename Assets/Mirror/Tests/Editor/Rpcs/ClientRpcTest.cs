@@ -1,6 +1,4 @@
 using System;
-using Mirror;
-using Mirror.Tests;
 using NUnit.Framework;
 
 namespace Mirror.Tests.Rpcs

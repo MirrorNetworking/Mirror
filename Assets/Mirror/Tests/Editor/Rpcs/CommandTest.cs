@@ -1,7 +1,5 @@
 using System;
 using System.Text.RegularExpressions;
-using Mirror;
-using Mirror.Tests;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
