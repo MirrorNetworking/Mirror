@@ -1,7 +1,7 @@
 using NUnit.Framework;
 using System.Threading;
 
-namespace Mirror.Tests.Editor
+namespace Mirror.Tests.Tools
 {
     public class TimeSampleTests
     {

@@ -1,7 +1,7 @@
 using NUnit.Framework;
 using UnityEngine;
 
-namespace Mirror.Tests
+namespace Mirror.Tests.Tools
 {
     public class UtilsTests
     {

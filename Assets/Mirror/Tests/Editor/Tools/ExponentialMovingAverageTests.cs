@@ -1,7 +1,7 @@
 // tests from Mirror
 using NUnit.Framework;
 
-namespace Mirror.Tests
+namespace Mirror.Tests.Tools
 {
     [TestFixture]
     public class ExponentialMovingAverageTest
