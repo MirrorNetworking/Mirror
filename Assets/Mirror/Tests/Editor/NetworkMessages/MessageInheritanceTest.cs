@@ -3,7 +3,7 @@
 // Keep the old class inheritance tests in case we ever go back to classes.
 using NUnit.Framework;
 
-namespace Mirror.Tests.MessageTests
+namespace Mirror.Tests.NetworkMessagesTests
 {
     class ParentMessage : NetworkMessage
     {

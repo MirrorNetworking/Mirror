@@ -1,6 +1,6 @@
 using NUnit.Framework;
 
-namespace Mirror.Tests.MessageTests
+namespace Mirror.Tests.NetworkMessagesTests
 {
     struct NoArgMethodMessage : NetworkMessage
     {

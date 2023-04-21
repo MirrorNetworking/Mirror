@@ -1,6 +1,6 @@
 using NUnit.Framework;
 
-namespace Mirror.Tests.StructMessages
+namespace Mirror.Tests.NetworkMessagesTests
 {
     public struct SomeStructMessage : NetworkMessage
     {

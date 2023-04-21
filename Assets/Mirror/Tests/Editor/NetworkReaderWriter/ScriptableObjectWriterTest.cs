@@ -1,3 +1,4 @@
+using Mirror.Tests.NetworkMessagesTests;
 using NUnit.Framework;
 using UnityEngine;
 

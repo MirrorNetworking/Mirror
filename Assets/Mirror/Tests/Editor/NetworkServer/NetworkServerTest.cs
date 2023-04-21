@@ -4,6 +4,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using Mirror.Tests.NetworkBehaviours;
 using Mirror.Tests.NetworkIdentities;
+using Mirror.Tests.NetworkMessagesTests;
 using Mirror.Tests.SyncCollections;
 using NUnit.Framework;
 using UnityEngine;

@@ -1,9 +1,8 @@
 using System;
-using Mirror.Tests.MessageTests;
 using NUnit.Framework;
 using UnityEngine;
 
-namespace Mirror.Tests
+namespace Mirror.Tests.NetworkMessagesTests
 {
     [TestFixture]
     public class NetworkMessagesTest
@@ -46,7 +45,7 @@ namespace Mirror.Tests
         {
             // "Mirror.Tests.MessageTests.TestMessage"
             Debug.Log(typeof(TestMessage).FullName);
-            Assert.That(NetworkMessageId<TestMessage>.Id, Is.EqualTo(0x8706));
+            Assert.That(NetworkMessageId<TestMessage>.Id, Is.EqualTo(22739));
         }
 
         [Test]
