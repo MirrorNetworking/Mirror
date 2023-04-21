@@ -2,7 +2,7 @@
 // add some tests to guarantee correct behaviour.
 using NUnit.Framework;
 
-namespace Mirror.Tests
+namespace Mirror.Tests.NetworkBehaviours
 {
     class NetworkBehaviourWithSyncVarsAndCollections : NetworkBehaviour
     {

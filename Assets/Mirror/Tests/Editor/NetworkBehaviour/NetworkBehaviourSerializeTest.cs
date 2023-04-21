@@ -2,7 +2,7 @@ using NUnit.Framework;
 using UnityEngine;
 
 // Note: Weaver doesn't run on nested class so use namespace to group classes instead
-namespace Mirror.Tests.NetworkBehaviourSerialize
+namespace Mirror.Tests.NetworkBehaviours
 {
     #region No OnSerialize/OnDeserialize override
     abstract class AbstractBehaviour : NetworkBehaviour
