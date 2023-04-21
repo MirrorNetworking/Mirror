@@ -3,7 +3,7 @@ using NSubstitute;
 using NUnit.Framework;
 using UnityEngine;
 
-namespace Mirror.Tests
+namespace Mirror.Tests.Transports
 {
     public class MyMiddleware : MiddlewareTransport {}
 

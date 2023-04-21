@@ -2,7 +2,7 @@ using System;
 using NSubstitute;
 using NUnit.Framework;
 
-namespace Mirror.Tests
+namespace Mirror.Tests.Transports
 {
     public class MultiplexTransportTest : MirrorTest
     {
