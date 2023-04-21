@@ -60,7 +60,6 @@ namespace Mirror.Tests.Attributes
         }
     }
 
-
     public class AttributeTest_NetworkBehaviour
     {
         AttributeBehaviour_NetworkBehaviour behaviour;

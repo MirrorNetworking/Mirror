@@ -158,7 +158,6 @@ namespace Mirror.Tests.Attributes
         }
     }
 
-
     public class AttributeTest_MonoBehaviour
     {
         AttributeBehaviour_MonoBehaviour behaviour;
