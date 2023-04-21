@@ -9,7 +9,7 @@ using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
 
-namespace Mirror.Tests
+namespace Mirror.Tests.NetworkServers
 {
     struct TestMessage1 : NetworkMessage {}
 

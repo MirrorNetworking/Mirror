@@ -1,4 +1,5 @@
 using System;
+using Mirror.Tests.NetworkServers;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
