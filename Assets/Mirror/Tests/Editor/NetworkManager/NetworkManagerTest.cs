@@ -2,7 +2,7 @@ using System;
 using NUnit.Framework;
 using UnityEngine;
 
-namespace Mirror.Tests
+namespace Mirror.Tests.NetworkManagers
 {
     [TestFixture]
     public class NetworkManagerTest : MirrorEditModeTest
