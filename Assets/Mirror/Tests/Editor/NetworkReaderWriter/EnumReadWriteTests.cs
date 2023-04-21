@@ -21,6 +21,7 @@ namespace Mirror.Tests
             return (EnumReadWriteTests.MyCustomEnum)networkReader.ReadInt();
         }
     }
+
     public class EnumReadWriteTests
     {
         public struct ByteMessage : NetworkMessage { public MyByteEnum byteEnum; }
@@ -36,12 +37,10 @@ namespace Mirror.Tests
         }
 
         public struct CustomMessage : NetworkMessage { public MyCustomEnum customEnum; }
-
         public enum MyCustomEnum
         {
             M, N, O, P
         }
-
 
         [Test]
         public void ByteIsSentForByteEnum()
@@ -76,15 +75,13 @@ namespace Mirror.Tests
             // custom writer should write N if it sees O
             Assert.That(clientMsg.customEnum, Is.EqualTo(MyCustomEnum.N));
         }
+
         T SerializeAndDeserializeMessage<T>(T msg)
             where T : struct, NetworkMessage
         {
             NetworkWriter writer = new NetworkWriter();
-
             writer.Write(msg);
-
             NetworkReader reader = new NetworkReader(writer.ToArraySegment());
-
             return reader.Read<T>();
         }
     }
