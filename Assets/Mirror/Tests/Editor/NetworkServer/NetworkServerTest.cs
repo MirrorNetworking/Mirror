@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading;
+using Mirror.Tests.SyncCollections;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
