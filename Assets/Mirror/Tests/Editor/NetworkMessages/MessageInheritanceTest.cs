@@ -1,4 +1,6 @@
-// TODO Send only supports structs. Consider removing those tests.
+// NetworkMessage interface can be used from structs & classes.
+// NetworkServer/Client only allow sending structs at the moment.
+// Keep the old class inheritance tests in case we ever go back to classes.
 using NUnit.Framework;
 
 namespace Mirror.Tests.MessageTests
