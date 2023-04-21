@@ -30,7 +30,7 @@ namespace Mirror.Tests
     }
 
     [TestFixture]
-    public class CustomRWTest
+    public class CustomReaderWriterTests
     {
         public struct QuestMessage : NetworkMessage
         {
