@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using NUnit.Framework;
 
-namespace Mirror.Tests
+namespace Mirror.Tests.NetworkConnections
 {
     public class NetworkConnectionToClientTests : MirrorEditModeTest
     {
