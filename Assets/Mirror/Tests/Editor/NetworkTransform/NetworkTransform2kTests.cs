@@ -4,7 +4,7 @@
 using NUnit.Framework;
 using UnityEngine;
 
-namespace Mirror.Tests.NetworkTransform2k
+namespace Mirror.Tests.NetworkTransformTests
 {
     // helper class to expose some of the protected methods
     public class NetworkTransformExposed : NetworkTransform
