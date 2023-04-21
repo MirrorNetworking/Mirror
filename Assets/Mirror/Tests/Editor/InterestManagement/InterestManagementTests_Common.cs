@@ -2,7 +2,7 @@
 using NUnit.Framework;
 using UnityEngine;
 
-namespace Mirror.Tests
+namespace Mirror.Tests.InterestManagement
 {
     public abstract class InterestManagementTests_Common : MirrorEditModeTest
     {

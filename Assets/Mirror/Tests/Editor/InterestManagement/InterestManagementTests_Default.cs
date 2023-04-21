@@ -1,7 +1,7 @@
 // default = no component = everyone sees everyone
 using NUnit.Framework;
 
-namespace Mirror.Tests
+namespace Mirror.Tests.InterestManagement
 {
     public class InterestManagementTests_Default : InterestManagementTests_Common
     {

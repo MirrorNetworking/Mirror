@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
 
-namespace Mirror.Tests
+namespace Mirror.Tests.InterestManagement
 {
     public class Grid2DTests
     {
