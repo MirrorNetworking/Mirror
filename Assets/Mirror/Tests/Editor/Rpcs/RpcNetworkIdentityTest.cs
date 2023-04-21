@@ -1,8 +1,10 @@
 using System;
+using Mirror;
+using Mirror.Tests;
 using NUnit.Framework;
 using UnityEngine;
 
-namespace Mirror.Tests.RemoteAttrributeTest
+namespace Rpcs
 {
     class RpcNetworkIdentityBehaviour : NetworkBehaviour
     {

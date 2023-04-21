@@ -1,5 +1,5 @@
 using System;
-using Mirror.Tests.RemoteAttrributeTest;
+using Rpcs;
 using NUnit.Framework;
 
 namespace Mirror.Tests

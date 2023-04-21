@@ -1,7 +1,9 @@
 using System;
+using Mirror;
+using Mirror.Tests;
 using NUnit.Framework;
 
-namespace Mirror.Tests.RemoteAttrributeTest
+namespace Rpcs
 {
     class VirtualTargetRpc : NetworkBehaviour
     {
