@@ -1,7 +1,7 @@
 using System;
 using NUnit.Framework;
 
-namespace Mirror.Tests
+namespace Mirror.Tests.NetworkClientSceneTests
 {
     public class NetworkClientTests : MirrorEditModeTest
     {
