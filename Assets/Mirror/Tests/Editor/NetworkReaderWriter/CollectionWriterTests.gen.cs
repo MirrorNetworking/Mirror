@@ -5,7 +5,7 @@ using Mirror.Tests.NetworkMessagesTests;
 using NUnit.Framework;
 using UnityEngine;
 
-namespace Mirror.Tests.Generated.CollectionWriters
+namespace Mirror.Tests.NetworkReaderWriter.Collections
 {
     public struct FloatStringStruct
     {

@@ -2,7 +2,7 @@ using System;
 using Mirror.Tests.Rpcs;
 using NUnit.Framework;
 
-namespace Mirror.Tests
+namespace Mirror.Tests.NetworkReaderWriter
 {
     public class NetworkWriterCollectionTest
     {

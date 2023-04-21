@@ -1,7 +1,7 @@
 using Mirror.Tests.NetworkMessagesTests;
 using NUnit.Framework;
 
-namespace Mirror.Tests
+namespace Mirror.Tests.NetworkReaderWriter
 {
     public class MockQuest
     {

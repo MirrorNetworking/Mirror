@@ -2,7 +2,7 @@ using Mirror.Tests.NetworkMessagesTests;
 using NUnit.Framework;
 using UnityEngine;
 
-namespace Mirror.Tests
+namespace Mirror.Tests.NetworkReaderWriter
 {
     public class MyScriptableObject : ScriptableObject
     {

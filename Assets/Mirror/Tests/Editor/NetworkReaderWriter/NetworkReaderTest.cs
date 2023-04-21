@@ -3,7 +3,7 @@ using System.IO;
 using System.Text;
 using NUnit.Framework;
 
-namespace Mirror.Tests
+namespace Mirror.Tests.NetworkReaderWriter
 {
     // NetworkWriterTest already covers most cases for NetworkReader.
     // only a few are left

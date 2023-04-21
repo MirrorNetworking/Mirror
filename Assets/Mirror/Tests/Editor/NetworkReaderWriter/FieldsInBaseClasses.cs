@@ -2,7 +2,7 @@ using System;
 using NUnit.Framework;
 using UnityEngine;
 
-namespace Mirror.Tests.GeneratedWriterTests
+namespace Mirror.Tests.NetworkReaderWriter
 {
     public class BaseData
     {

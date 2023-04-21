@@ -8,7 +8,7 @@ using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
 
-namespace Mirror.Tests
+namespace Mirror.Tests.NetworkReaderWriter
 {
     [TestFixture]
     public class NetworkWriterTest : MirrorEditModeTest
