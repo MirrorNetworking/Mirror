@@ -6,7 +6,7 @@ using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
 
-namespace Rpcs
+namespace Mirror.Tests.Rpcs
 {
     class AuthorityBehaviour : NetworkBehaviour
     {

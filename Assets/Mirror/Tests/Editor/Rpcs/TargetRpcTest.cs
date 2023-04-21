@@ -1,12 +1,10 @@
 using System;
 using System.Text.RegularExpressions;
-using Mirror;
-using Mirror.Tests;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
 
-namespace Rpcs
+namespace Mirror.Tests.Rpcs
 {
     class TargetRpcBehaviour : NetworkBehaviour
     {
@@ -181,7 +179,7 @@ namespace Rpcs
             {
                 Assert.Fail("Event should not be invoked with error");
             };
-            LogAssert.Expect(LogType.Warning, $"TargetRpc System.Void Mirror.Tests.RemoteAttrributeTest.TargetRpcBehaviour::SendInt(System.Int32) called on {component.name} but that object has not been spawned or has been unspawned.");
+            LogAssert.Expect(LogType.Warning, $"TargetRpc System.Void Mirror.Tests.Rpcs.TargetRpcBehaviour::SendInt(System.Int32) called on {component.name} but that object has not been spawned or has been unspawned.");
             component.SendInt(someInt);
         }
 

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-using Rpcs;
+using Mirror.Tests.Rpcs;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;

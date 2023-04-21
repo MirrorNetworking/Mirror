@@ -4,7 +4,7 @@ using Mirror.Tests;
 using NUnit.Framework;
 using UnityEngine;
 
-namespace Rpcs
+namespace Mirror.Tests.Rpcs
 {
     class RpcNetworkIdentityBehaviour : NetworkBehaviour
     {

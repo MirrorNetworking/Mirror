@@ -3,7 +3,7 @@ using Mirror;
 using Mirror.Tests;
 using NUnit.Framework;
 
-namespace Rpcs
+namespace Mirror.Tests.Rpcs
 {
     class ClientRpcBehaviour : NetworkBehaviour
     {
