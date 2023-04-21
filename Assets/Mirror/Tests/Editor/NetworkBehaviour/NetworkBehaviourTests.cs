@@ -66,34 +66,6 @@ namespace Mirror.Tests.NetworkBehaviours
             GetSyncVarNetworkIdentity(testNetId, ref test);
     }
 
-    // we need to inherit from networkbehaviour to test protected functions
-    public class OnStopClientComponent : NetworkBehaviour
-    {
-        public int called;
-        public override void OnStopClient() => ++called;
-    }
-
-    // we need to inherit from networkbehaviour to test protected functions
-    public class OnStartClientComponent : NetworkBehaviour
-    {
-        public int called;
-        public override void OnStartClient() => ++called;
-    }
-
-    // we need to inherit from networkbehaviour to test protected functions
-    public class OnStartLocalPlayerComponent : NetworkBehaviour
-    {
-        public int called;
-        public override void OnStartLocalPlayer() => ++called;
-    }
-
-    // we need to inherit from networkbehaviour to test protected functions
-    public class OnStopLocalPlayerComponent : NetworkBehaviour
-    {
-        public int called;
-        public override void OnStopLocalPlayer() => ++called;
-    }
-
     public class NetworkBehaviourTests : MirrorEditModeTest
     {
         [TearDown]
@@ -851,36 +823,36 @@ namespace Mirror.Tests.NetworkBehaviours
         }
 
         [Test]
-        public void OnStopClient()
+        public void OnStartClient()
         {
-            CreateNetworked(out GameObject _, out NetworkIdentity identity, out OnStopClientComponent comp);
+            CreateNetworked(out GameObject _, out NetworkIdentity identity, out NetworkBehaviourMock comp);
             identity.OnStartClient();
-            identity.OnStopClient();
-            Assert.That(comp.called, Is.EqualTo(1));
+            Assert.That(comp.onStartClientCalled, Is.EqualTo(1));
         }
 
         [Test]
-        public void OnStartClient()
+        public void OnStopClient()
         {
-            CreateNetworked(out GameObject _, out NetworkIdentity identity, out OnStartClientComponent comp);
+            CreateNetworked(out GameObject _, out NetworkIdentity identity, out NetworkBehaviourMock comp);
             identity.OnStartClient();
-            Assert.That(comp.called, Is.EqualTo(1));
+            identity.OnStopClient();
+            Assert.That(comp.onStopClientCalled, Is.EqualTo(1));
         }
 
         [Test]
         public void OnStartLocalPlayer()
         {
-            CreateNetworked(out GameObject _, out NetworkIdentity identity, out OnStartLocalPlayerComponent comp);
+            CreateNetworked(out GameObject _, out NetworkIdentity identity, out NetworkBehaviourMock comp);
             identity.OnStartLocalPlayer();
-            Assert.That(comp.called, Is.EqualTo(1));
+            Assert.That(comp.onStartLocalPlayerCalled, Is.EqualTo(1));
         }
 
         [Test]
         public void OnStopLocalPlayer()
         {
-            CreateNetworked(out GameObject _, out NetworkIdentity identity, out OnStopLocalPlayerComponent comp);
+            CreateNetworked(out GameObject _, out NetworkIdentity identity, out NetworkBehaviourMock comp);
             identity.OnStopLocalPlayer();
-            Assert.That(comp.called, Is.EqualTo(1));
+            Assert.That(comp.onStopLocalPlayerCalled, Is.EqualTo(1));
         }
     }
 

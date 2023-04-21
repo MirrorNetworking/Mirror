@@ -2,12 +2,6 @@ using System;
 
 namespace Mirror.Tests.NetworkIdentities
 {
-    class StartServerNetworkBehaviour : NetworkBehaviour
-    {
-        internal bool onStartServerInvoked;
-        public override void OnStartServer() => onStartServerInvoked = true;
-    }
-
     class StartServerExceptionNetworkBehaviour : NetworkBehaviour
     {
         public int called;
@@ -38,12 +32,6 @@ namespace Mirror.Tests.NetworkIdentities
         }
     }
 
-    class StartAuthorityCalledNetworkBehaviour : NetworkBehaviour
-    {
-        public int called;
-        public override void OnStartAuthority() => ++called;
-    }
-
     class StopAuthorityExceptionNetworkBehaviour : NetworkBehaviour
     {
         public int called;
@@ -52,12 +40,6 @@ namespace Mirror.Tests.NetworkIdentities
             ++called;
             throw new Exception("some exception");
         }
-    }
-
-    class StopAuthorityCalledNetworkBehaviour : NetworkBehaviour
-    {
-        public int called;
-        public override void OnStopAuthority() => ++called;
     }
 
     class StartLocalPlayerExceptionNetworkBehaviour : NetworkBehaviour
@@ -70,12 +52,6 @@ namespace Mirror.Tests.NetworkIdentities
         }
     }
 
-    class StartLocalPlayerCalledNetworkBehaviour : NetworkBehaviour
-    {
-        public int called;
-        public override void OnStartLocalPlayer() => ++called;
-    }
-
     class StopClientExceptionNetworkBehaviour : NetworkBehaviour
     {
         public int called;
@@ -86,18 +62,6 @@ namespace Mirror.Tests.NetworkIdentities
         }
     }
 
-    class StopClientCalledNetworkBehaviour : NetworkBehaviour
-    {
-        public int called;
-        public override void OnStopClient() => ++called;
-    }
-
-    class StopLocalPlayerCalledNetworkBehaviour : NetworkBehaviour
-    {
-        public int called;
-        public override void OnStopLocalPlayer() => ++called;
-    }
-
     class StopLocalPlayerExceptionNetworkBehaviour : NetworkBehaviour
     {
         public int called;
@@ -106,12 +70,6 @@ namespace Mirror.Tests.NetworkIdentities
             ++called;
             throw new Exception("some exception");
         }
-    }
-
-    class StopServerCalledNetworkBehaviour : NetworkBehaviour
-    {
-        public int called;
-        public override void OnStopServer() => ++called;
     }
 
     class StopServerExceptionNetworkBehaviour : NetworkBehaviour

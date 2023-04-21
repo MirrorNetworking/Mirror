@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading;
 using Mirror.Tests.NetworkBehaviours;
-using Mirror.Tests.NetworkIdentities;
 using Mirror.Tests.NetworkMessagesTests;
 using Mirror.Tests.SyncCollections;
 using NUnit.Framework;
@@ -45,20 +44,6 @@ namespace Mirror.Tests.NetworkServers
         {
             ++((RpcTestNetworkBehaviour)comp).called;
         }
-    }
-
-    public class OnStartClientTestNetworkBehaviour : NetworkBehaviour
-    {
-        // counter to make sure that it's called exactly once
-        public int called;
-        public override void OnStartClient() => ++called;
-    }
-
-    public class OnStopClientTestNetworkBehaviour : NetworkBehaviour
-    {
-        // counter to make sure that it's called exactly once
-        public int called;
-        public override void OnStopClient() => ++called;
     }
 
     [TestFixture]
@@ -335,7 +320,7 @@ namespace Mirror.Tests.NetworkServers
             // spawn a player(!) object
             // otherwise client wouldn't receive spawn / authority messages
             CreateNetworkedAndSpawnPlayer(out _, out NetworkIdentity player,
-                out StopAuthorityCalledNetworkBehaviour comp,
+                out NetworkBehaviourMock comp,
                 NetworkServer.localConnection);
 
             // need to have authority for this test
@@ -347,7 +332,7 @@ namespace Mirror.Tests.NetworkServers
             LogAssert.ignoreFailingMessages = false;
 
             // destroy should call OnStopAuthority
-            Assert.That(comp.called, Is.EqualTo(1));
+            Assert.That(comp.onStopAuthorityCalled, Is.EqualTo(1));
         }
 
         // send a message all the way from client to server
@@ -1079,7 +1064,7 @@ namespace Mirror.Tests.NetworkServers
         public void UnSpawnAndClearAuthority()
         {
             // create scene object with valid netid and set active
-            CreateNetworked(out GameObject go, out NetworkIdentity identity, out StartAuthorityCalledNetworkBehaviour compStart, out StopAuthorityCalledNetworkBehaviour compStop);
+            CreateNetworked(out GameObject go, out NetworkIdentity identity, out NetworkBehaviourMock comp);
             identity.sceneId = 42;
             identity.netId = 123;
             go.SetActive(true);
@@ -1091,9 +1076,9 @@ namespace Mirror.Tests.NetworkServers
             // shouldn't be touched
             Assert.That(identity.isOwned, Is.True);
             // start should be called
-            Assert.That(compStart.called, Is.EqualTo(1));
+            Assert.That(comp.onStartAuthorityCalled, Is.EqualTo(1));
             // stop shouldn't
-            Assert.That(compStop.called, Is.EqualTo(0));
+            Assert.That(comp.onStopAuthorityCalled, Is.EqualTo(0));
 
             // unspawn should reset netid and remove authority
             NetworkServer.UnSpawn(go);
@@ -1102,9 +1087,9 @@ namespace Mirror.Tests.NetworkServers
             // should be changed
             Assert.That(identity.isOwned, Is.False);
             // same as before
-            Assert.That(compStart.called, Is.EqualTo(1));
+            Assert.That(comp.onStartAuthorityCalled, Is.EqualTo(1));
             // stop should be called
-            Assert.That(compStop.called, Is.EqualTo(1));
+            Assert.That(comp.onStopAuthorityCalled, Is.EqualTo(1));
         }
 
         // test to reproduce a bug where stopping the server would not call
@@ -1119,7 +1104,7 @@ namespace Mirror.Tests.NetworkServers
 
             // create & spawn an object
             CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity identity,
-                out StopServerCalledNetworkBehaviour comp);
+                out NetworkBehaviourMock comp);
 
             // make sure it was spawned as a scene object.
             // they don't come from prefabs, so they always are.
@@ -1127,7 +1112,7 @@ namespace Mirror.Tests.NetworkServers
 
             // shutdown should call OnStopServer etc.
             NetworkServer.Shutdown();
-            Assert.That(comp.called, Is.EqualTo(1));
+            Assert.That(comp.onStopServerCalled, Is.EqualTo(1));
         }
 
         [Test]
@@ -1305,8 +1290,8 @@ namespace Mirror.Tests.NetworkServers
 
             // spawn owned object
             CreateNetworkedAndSpawnPlayer(
-                out _, out NetworkIdentity serverIdentity, out StopLocalPlayerCalledNetworkBehaviour serverComp,
-                out _, out NetworkIdentity clientIdentity, out StopLocalPlayerCalledNetworkBehaviour clientComp,
+                out _, out NetworkIdentity serverIdentity, out NetworkBehaviourMock serverComp,
+                out _, out NetworkIdentity clientIdentity, out NetworkBehaviourMock clientComp,
                 connectionToClient);
 
             // set it to not be owned by this connection anymore
@@ -1314,7 +1299,7 @@ namespace Mirror.Tests.NetworkServers
             ProcessMessages();
 
             // should call OnStopLocalPlayer on client
-            Assert.That(clientComp.called, Is.EqualTo(1));
+            Assert.That(clientComp.onStopLocalPlayerCalled, Is.EqualTo(1));
         }
 
         // test for https://github.com/vis2k/Mirror/issues/3106
@@ -1327,16 +1312,16 @@ namespace Mirror.Tests.NetworkServers
 
             // spawn owned object
             CreateNetworkedAndSpawnPlayer(
-                out _, out NetworkIdentity serverPreviousIdentity, out StartLocalPlayerCalledNetworkBehaviour serverPreviousComp,
-                out _, out NetworkIdentity clientPreviousIdentity, out StartLocalPlayerCalledNetworkBehaviour clientPreviousComp,
+                out _, out NetworkIdentity serverPreviousIdentity, out NetworkBehaviourMock serverPreviousComp,
+                out _, out NetworkIdentity clientPreviousIdentity, out NetworkBehaviourMock clientPreviousComp,
                 connectionToClient);
             serverPreviousIdentity.name = nameof(serverPreviousIdentity);
             clientPreviousIdentity.name = nameof(clientPreviousIdentity);
 
             // spawn not owned object
             CreateNetworkedAndSpawn(
-                out _, out NetworkIdentity serverNextIdentity, out StartLocalPlayerCalledNetworkBehaviour serverNextComp,
-                out _, out NetworkIdentity clientNextIdentity, out StartLocalPlayerCalledNetworkBehaviour clientNextComp);
+                out _, out NetworkIdentity serverNextIdentity, out NetworkBehaviourMock serverNextComp,
+                out _, out NetworkIdentity clientNextIdentity, out NetworkBehaviourMock clientNextComp);
             serverNextIdentity.name = nameof(serverNextIdentity);
             clientNextIdentity.name = nameof(clientNextIdentity);
 
@@ -1345,7 +1330,7 @@ namespace Mirror.Tests.NetworkServers
             ProcessMessages();
 
             // should call OnStartLocalPlayer on 'next' since it became the new local player.
-            Assert.That(clientNextComp.called, Is.EqualTo(1));
+            Assert.That(clientNextComp.onStartLocalPlayerCalled, Is.EqualTo(1));
         }
 
         // test for https://github.com/vis2k/Mirror/issues/3106
@@ -1357,16 +1342,16 @@ namespace Mirror.Tests.NetworkServers
 
             // spawn owned object
             CreateNetworkedAndSpawnPlayer(
-                out _, out NetworkIdentity serverPreviousIdentity, out StopLocalPlayerCalledNetworkBehaviour serverPreviousComp,
-                out _, out NetworkIdentity clientPreviousIdentity, out StopLocalPlayerCalledNetworkBehaviour clientPreviousComp,
+                out _, out NetworkIdentity serverPreviousIdentity, out NetworkBehaviourMock serverPreviousComp,
+                out _, out NetworkIdentity clientPreviousIdentity, out NetworkBehaviourMock clientPreviousComp,
                 connectionToClient);
             serverPreviousIdentity.name = nameof(serverPreviousIdentity);
             clientPreviousIdentity.name = nameof(clientPreviousIdentity);
 
             // spawn not owned object
             CreateNetworkedAndSpawn(
-                out _, out NetworkIdentity serverNextIdentity, out StopLocalPlayerCalledNetworkBehaviour serverNextComp,
-                out _, out NetworkIdentity clientNextIdentity, out StopLocalPlayerCalledNetworkBehaviour clientNextComp);
+                out _, out NetworkIdentity serverNextIdentity, out NetworkBehaviourMock serverNextComp,
+                out _, out NetworkIdentity clientNextIdentity, out NetworkBehaviourMock clientNextComp);
             serverNextIdentity.name = nameof(serverNextIdentity);
             clientNextIdentity.name = nameof(clientNextIdentity);
 
@@ -1376,8 +1361,8 @@ namespace Mirror.Tests.NetworkServers
 
             // should call OnStopLocalPlayer on 'previous' since it's not owned anymore now.
             // should NOT call OnStopLocalPlayer on 'next' since it just became the local player.
-            Assert.That(clientPreviousComp.called, Is.EqualTo(1));
-            Assert.That(clientNextComp.called, Is.EqualTo(0));
+            Assert.That(clientPreviousComp.onStopLocalPlayerCalled, Is.EqualTo(1));
+            Assert.That(clientNextComp.onStopLocalPlayerCalled, Is.EqualTo(0));
         }
     }
 }

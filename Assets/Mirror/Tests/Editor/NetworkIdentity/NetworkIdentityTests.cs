@@ -1,4 +1,3 @@
-using Mirror.Tests.NetworkServers;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -10,11 +9,11 @@ namespace Mirror.Tests.NetworkIdentities
         [Test]
         public void OnStartServerTest()
         {
-            CreateNetworked(out GameObject _, out NetworkIdentity identity, out StartServerNetworkBehaviour component1, out StartServerNetworkBehaviour component2);
+            CreateNetworked(out GameObject _, out NetworkIdentity identity, out NetworkBehaviourMock component1, out NetworkBehaviourMock component2);
             identity.OnStartServer();
 
-            Assert.That(component1.onStartServerInvoked);
-            Assert.That(component2.onStartServerInvoked);
+            Assert.That(component1.onStartServerCalled, Is.EqualTo(1));
+            Assert.That(component2.onStartServerCalled, Is.EqualTo(1));
         }
 
         // check isClient/isServer/isLocalPlayer in server-only mode
@@ -376,7 +375,7 @@ namespace Mirror.Tests.NetworkIdentities
         [Test]
         public void NotifyAuthorityCallsOnStartStopAuthority()
         {
-            CreateNetworked(out GameObject _, out NetworkIdentity identity, out StartAuthorityCalledNetworkBehaviour compStart, out StopAuthorityCalledNetworkBehaviour compStop);
+            CreateNetworked(out GameObject _, out NetworkIdentity identity, out NetworkBehaviourMock comp);
 
             // set authority from false to true, which should call OnStartAuthority
             identity.isOwned = true;
@@ -384,9 +383,9 @@ namespace Mirror.Tests.NetworkIdentities
             // shouldn't be touched
             Assert.That(identity.isOwned, Is.True);
             // start should be called
-            Assert.That(compStart.called, Is.EqualTo(1));
+            Assert.That(comp.onStartAuthorityCalled, Is.EqualTo(1));
             // stop shouldn't
-            Assert.That(compStop.called, Is.EqualTo(0));
+            Assert.That(comp.onStopAuthorityCalled, Is.EqualTo(0));
 
             // set it to true again, should do nothing because already true
             identity.isOwned = true;
@@ -394,9 +393,9 @@ namespace Mirror.Tests.NetworkIdentities
             // shouldn't be touched
             Assert.That(identity.isOwned, Is.True);
             // same as before
-            Assert.That(compStart.called, Is.EqualTo(1));
+            Assert.That(comp.onStartAuthorityCalled, Is.EqualTo(1));
             // same as before
-            Assert.That(compStop.called, Is.EqualTo(0));
+            Assert.That(comp.onStopAuthorityCalled, Is.EqualTo(0));
 
             // set it to false, should call OnStopAuthority
             identity.isOwned = false;
@@ -404,9 +403,9 @@ namespace Mirror.Tests.NetworkIdentities
             // should be changed
             Assert.That(identity.isOwned, Is.False);
             // same as before
-            Assert.That(compStart.called, Is.EqualTo(1));
+            Assert.That(comp.onStartAuthorityCalled, Is.EqualTo(1));
             // stop should be called
-            Assert.That(compStop.called, Is.EqualTo(1));
+            Assert.That(comp.onStopAuthorityCalled, Is.EqualTo(1));
 
             // set it to false again, should do nothing because already false
             identity.isOwned = false;
@@ -414,9 +413,9 @@ namespace Mirror.Tests.NetworkIdentities
             // shouldn't be touched
             Assert.That(identity.isOwned, Is.False);
             // same as before
-            Assert.That(compStart.called, Is.EqualTo(1));
+            Assert.That(comp.onStartAuthorityCalled, Is.EqualTo(1));
             // same as before
-            Assert.That(compStop.called, Is.EqualTo(1));
+            Assert.That(comp.onStopAuthorityCalled, Is.EqualTo(1));
         }
 
         [Test]
@@ -433,11 +432,11 @@ namespace Mirror.Tests.NetworkIdentities
         {
             CreateNetworked(out GameObject _, out NetworkIdentity identity,
                 out StartLocalPlayerExceptionNetworkBehaviour compEx,
-                out StartLocalPlayerCalledNetworkBehaviour comp);
+                out NetworkBehaviourMock comp);
 
             // make sure our test values are set to 0
             Assert.That(compEx.called, Is.EqualTo(0));
-            Assert.That(comp.called, Is.EqualTo(0));
+            Assert.That(comp.onStartLocalPlayerCalled, Is.EqualTo(0));
 
             // call OnStartLocalPlayer in identity
             // one component will throw an exception, but that shouldn't stop
@@ -447,7 +446,7 @@ namespace Mirror.Tests.NetworkIdentities
             identity.OnStartLocalPlayer();
             LogAssert.ignoreFailingMessages = false;
             Assert.That(compEx.called, Is.EqualTo(1));
-            Assert.That(comp.called, Is.EqualTo(1));
+            Assert.That(comp.onStartLocalPlayerCalled, Is.EqualTo(1));
 
             // we have checks to make sure that it's only called once.
             // let's see if they work.
@@ -455,18 +454,18 @@ namespace Mirror.Tests.NetworkIdentities
             // same as before?
             Assert.That(compEx.called, Is.EqualTo(1));
             // same as before?
-            Assert.That(comp.called, Is.EqualTo(1));
+            Assert.That(comp.onStartLocalPlayerCalled, Is.EqualTo(1));
         }
 
         [Test]
         public void OnStopLocalPlayer()
         {
             CreateNetworked(out GameObject _, out NetworkIdentity identity,
-                out StopLocalPlayerCalledNetworkBehaviour comp);
+                out NetworkBehaviourMock comp);
 
             // call OnStopLocalPlayer in identity
             identity.OnStopLocalPlayer();
-            Assert.That(comp.called, Is.EqualTo(1));
+            Assert.That(comp.onStopLocalPlayerCalled, Is.EqualTo(1));
         }
 
         [Test]
@@ -474,7 +473,7 @@ namespace Mirror.Tests.NetworkIdentities
         {
             CreateNetworked(out GameObject _, out NetworkIdentity identity,
                 out StopLocalPlayerExceptionNetworkBehaviour compEx,
-                out StopLocalPlayerCalledNetworkBehaviour comp);
+                out NetworkBehaviourMock comp);
 
             // call OnStopLocalPlayer in identity
             // one component will throw an exception, but that shouldn't stop
@@ -484,19 +483,19 @@ namespace Mirror.Tests.NetworkIdentities
             identity.OnStopLocalPlayer();
             LogAssert.ignoreFailingMessages = false;
             Assert.That(compEx.called, Is.EqualTo(1));
-            Assert.That(comp.called, Is.EqualTo(1));
+            Assert.That(comp.onStopLocalPlayerCalled, Is.EqualTo(1));
         }
 
         [Test]
         public void OnStopClient()
         {
             CreateNetworked(out GameObject _, out NetworkIdentity identity,
-                out StopClientCalledNetworkBehaviour comp);
+                out NetworkBehaviourMock comp);
 
             // call OnStopClient in identity
             identity.OnStartClient();
             identity.OnStopClient();
-            Assert.That(comp.called, Is.EqualTo(1));
+            Assert.That(comp.onStopClientCalled, Is.EqualTo(1));
         }
 
         [Test]
@@ -504,7 +503,7 @@ namespace Mirror.Tests.NetworkIdentities
         {
             CreateNetworked(out GameObject _, out NetworkIdentity identity,
                 out StopClientExceptionNetworkBehaviour compEx,
-                out StopClientCalledNetworkBehaviour comp);
+                out NetworkBehaviourMock comp);
 
             // call OnStopClient in identity
             // one component will throw an exception, but that shouldn't stop
@@ -515,17 +514,17 @@ namespace Mirror.Tests.NetworkIdentities
             identity.OnStopClient();
             LogAssert.ignoreFailingMessages = false;
             Assert.That(compEx.called, Is.EqualTo(1));
-            Assert.That(comp.called, Is.EqualTo(1));
+            Assert.That(comp.onStopClientCalled, Is.EqualTo(1));
         }
 
         [Test]
         public void OnStopServer()
         {
             CreateNetworked(out GameObject _, out NetworkIdentity identity,
-                out StopServerCalledNetworkBehaviour comp);
+                out NetworkBehaviourMock comp);
 
             identity.OnStopServer();
-            Assert.That(comp.called, Is.EqualTo(1));
+            Assert.That(comp.onStopServerCalled, Is.EqualTo(1));
         }
 
         [Test]
@@ -595,8 +594,8 @@ namespace Mirror.Tests.NetworkIdentities
         public void ClearDirtyComponentsDirtyBits()
         {
             CreateNetworked(out GameObject _, out NetworkIdentity identity,
-                out OnStartClientTestNetworkBehaviour compA,
-                out OnStartClientTestNetworkBehaviour compB);
+                out NetworkBehaviourMock compA,
+                out NetworkBehaviourMock compB);
 
             // set syncintervals so one is always dirty, one is never dirty
             compA.syncInterval = 0;
@@ -627,8 +626,8 @@ namespace Mirror.Tests.NetworkIdentities
         public void ClearAllComponentsDirtyBits()
         {
             CreateNetworked(out GameObject _, out NetworkIdentity identity,
-                out OnStartClientTestNetworkBehaviour compA,
-                out OnStartClientTestNetworkBehaviour compB);
+                out NetworkBehaviourMock compA,
+                out NetworkBehaviourMock compB);
 
             // set syncintervals so one is always dirty, one is never dirty
             compA.syncInterval = 0;
