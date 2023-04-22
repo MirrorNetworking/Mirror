@@ -360,6 +360,10 @@ namespace Mirror
             // for now, this is only used for client authority movement.
 
             // Unity 2019 doesn't have Time.timeAsDouble yet
+            //
+            // NetworkTime uses unscaled time and ignores Time.timeScale.
+            // fixes Time.timeScale getting server & client time out of sync:
+            // https://github.com/MirrorNetworking/Mirror/issues/3409
             connection.OnTimeSnapshot(new TimeSnapshot(connection.remoteTimeStamp, NetworkTime.localTime));
         }
 
