@@ -301,7 +301,7 @@ namespace Mirror
             //       to avoid Wrapper functions. a lot of people requested this.
             if (!NetworkClient.active)
             {
-                Debug.LogError($"Command Function {functionFullName} called on {name} without an active client.", gameObject);
+                Debug.LogError($"Command {functionFullName} called on {name} without an active client.", gameObject);
                 return;
             }
 
@@ -313,7 +313,7 @@ namespace Mirror
                 // or client may have been set NotReady intentionally, so
                 // only warn if on the reliable channel.
                 if (channelId == Channels.Reliable)
-                    Debug.LogWarning($"Command Function {functionFullName} called on {name} while NetworkClient is not ready.\nThis may be ignored if client intentionally set NotReady.", gameObject);
+                    Debug.LogWarning($"Command {functionFullName} called on {name} while NetworkClient is not ready.\nThis may be ignored if client intentionally set NotReady.", gameObject);
                 return;
             }
 
@@ -321,7 +321,7 @@ namespace Mirror
             // other objects must have authority.
             if (!(!requiresAuthority || isLocalPlayer || isOwned))
             {
-                Debug.LogWarning($"Command Function {functionFullName} called on {name} without authority.", gameObject);
+                Debug.LogWarning($"Command {functionFullName} called on {name} without authority.", gameObject);
                 return;
             }
 
@@ -332,7 +332,7 @@ namespace Mirror
             // => see also: https://github.com/vis2k/Mirror/issues/2629
             if (NetworkClient.connection == null)
             {
-                Debug.LogError($"Command Function {functionFullName} called on {name} with no client running.", gameObject);
+                Debug.LogError($"Command {functionFullName} called on {name} with no client running.", gameObject);
                 return;
             }
 
