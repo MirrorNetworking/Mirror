@@ -126,6 +126,7 @@ namespace Mirror.SimpleWeb
                 Scheme = GetClientScheme(),
                 Host = hostname,
             };
+            // https://github.com/MirrorNetworking/Mirror/pull/3477
             if (!ClientUseDefaultPort)
                 builder.Port = Port;
 
