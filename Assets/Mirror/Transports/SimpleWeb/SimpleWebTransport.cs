@@ -16,6 +16,9 @@ namespace Mirror.SimpleWeb
         public ushort port = 7778;
         public ushort Port { get => port; set => port=value; }
 
+        [Tooltip("Tells the client to use the default port. This is useful when connecting to reverse proxy rather than directly to websocket server")]
+        public bool ClientUseDefaultPort = 7778;
+
         [Tooltip("Protect against allocation attacks by keeping the max message size small. Otherwise an attacker might send multiple fake packets with 2GB headers, causing the server to run out of memory after allocating multiple large packets.")]
         public int maxMessageSize = 16 * 1024;
 
@@ -122,8 +125,10 @@ namespace Mirror.SimpleWeb
             {
                 Scheme = GetClientScheme(),
                 Host = hostname,
-                Port = port
             };
+            // https://github.com/MirrorNetworking/Mirror/pull/3477
+            if (!ClientUseDefaultPort)
+                builder.Port = Port;
 
             ClientConnect(builder.Uri);
         }
