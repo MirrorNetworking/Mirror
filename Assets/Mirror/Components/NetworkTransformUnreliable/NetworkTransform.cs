@@ -14,9 +14,6 @@ namespace Mirror
         [Tooltip("When true, changes are not sent unless greater than sensitivity values below.")]
         public bool onlySyncOnChange = true;
 
-        uint sendIntervalCounter = 0;
-        double lastSendIntervalTime = double.MinValue;
-
         // 3 was original, but testing under really bad network conditions, 2%-5% packet loss and 250-1200ms ping, 5 proved to eliminate any twitching.
         [Tooltip("How much time, as a multiple of send interval, has passed before clearing buffers.")]
         public float bufferResetMultiplier = 5;
@@ -36,41 +33,17 @@ namespace Mirror
         protected bool hasSentUnchangedPosition;
 #endif
 
+        double lastClientSendTime;
+        double lastServerSendTime;
+
         // update //////////////////////////////////////////////////////////////
-        // Update applies interpolation
         void Update()
         {
-            if (isServer) UpdateServerInterpolation();
-            // for all other clients (and for local player if !authority),
-            // we need to apply snapshots from the buffer.
-            // 'else if' because host mode shouldn't interpolate client
-            else if (isClient && !IsClientWithAuthority) UpdateClientInterpolation();
-        }
-
-        // LateUpdate broadcasts.
-        // movement scripts may change positions in Update.
-        // use LateUpdate to ensure changes are detected in the same frame.
-        // otherwise this may run before user update, delaying detection until next frame.
-        // this could cause visible jitter.
-        void LateUpdate()
-        {
             // if server then always sync to others.
-            if (isServer) UpdateServerBroadcast();
-            // client authority, and local player (= allowed to move myself)?
+            if (isServer) UpdateServer();
             // 'else if' because host mode shouldn't send anything to server.
             // it is the server. don't overwrite anything there.
-            else if (isClient && IsClientWithAuthority) UpdateClientBroadcast();
-        }
-
-        protected virtual void CheckLastSendTime()
-        {
-            // timeAsDouble not available in older Unity versions.
-            if (AccurateInterval.Elapsed(NetworkTime.localTime, NetworkServer.sendInterval, ref lastSendIntervalTime))
-            {
-                if (sendIntervalCounter == sendIntervalMultiplier)
-                    sendIntervalCounter = 0;
-                sendIntervalCounter++;
-            }
+            else if (isClient) UpdateClient();
         }
 
         void UpdateServerBroadcast()
@@ -105,9 +78,7 @@ namespace Mirror
             // authoritative movement done by the host will have to be broadcasted
             // here by checking IsClientWithAuthority.
             // TODO send same time that NetworkServer sends time snapshot?
-            CheckLastSendTime();
-
-            if (sendIntervalCounter == sendIntervalMultiplier && // same interval as time interpolation!
+            if (NetworkTime.localTime >= lastServerSendTime + NetworkServer.sendInterval && // same interval as time interpolation!
                 (syncDirection == SyncDirection.ServerToClient || IsClientWithAuthority))
             {
                 // send snapshot without timestamp.
@@ -134,6 +105,7 @@ namespace Mirror
                 );
 #endif
 
+                lastServerSendTime = NetworkTime.localTime;
 #if onlySyncOnChange_BANDWIDTH_SAVING
                 if (cachedSnapshotComparison)
                 {
@@ -179,6 +151,15 @@ namespace Mirror
             }
         }
 
+        void UpdateServer()
+        {
+            // broadcast to all clients each 'sendInterval'
+            UpdateServerBroadcast();
+
+            // apply buffered snapshots IF client authority
+            UpdateServerInterpolation();
+        }
+
         void UpdateClientBroadcast()
         {
             // https://github.com/vis2k/Mirror/pull/2992/
@@ -204,8 +185,7 @@ namespace Mirror
             // DO NOT send nulls if not changed 'since last send' either. we
             // send unreliable and don't know which 'last send' the other end
             // received successfully.
-            CheckLastSendTime();
-            if (sendIntervalCounter == sendIntervalMultiplier) // same interval as time interpolation!
+            if (NetworkTime.localTime >= lastClientSendTime + NetworkClient.sendInterval) // same interval as time interpolation!
             {
                 // send snapshot without timestamp.
                 // receiver gets it from batch timestamp to save bandwidth.
@@ -231,6 +211,7 @@ namespace Mirror
                 );
 #endif
 
+                lastClientSendTime = NetworkTime.localTime;
 #if onlySyncOnChange_BANDWIDTH_SAVING
                 if (cachedSnapshotComparison)
                 {
@@ -262,6 +243,21 @@ namespace Mirror
             // interpolate & apply
             TransformSnapshot computed = TransformSnapshot.Interpolate(from, to, t);
             Apply(computed, to);
+        }
+
+        void UpdateClient()
+        {
+            // client authority, and local player (= allowed to move myself)?
+            if (IsClientWithAuthority)
+            {
+                UpdateClientBroadcast();
+            }
+            // for all other clients (and for local player if !authority),
+            // we need to apply snapshots from the buffer
+            else
+            {
+                UpdateClientInterpolation();
+            }
         }
 
         public override void OnSerialize(NetworkWriter writer, bool initialState)
@@ -330,7 +326,7 @@ namespace Mirror
 #if onlySyncOnChange_BANDWIDTH_SAVING
             if (onlySyncOnChange)
             {
-                double timeIntervalCheck = bufferResetMultiplier * sendIntervalMultiplier * NetworkClient.sendInterval;
+                double timeIntervalCheck = bufferResetMultiplier * NetworkClient.sendInterval;
 
                 if (serverSnapshots.Count > 0 && serverSnapshots.Values[serverSnapshots.Count - 1].remoteTime + timeIntervalCheck < timestamp)
                 {
@@ -338,7 +334,7 @@ namespace Mirror
                 }
             }
 #endif
-            AddSnapshot(serverSnapshots, connectionToClient.remoteTimeStamp + timeStampAdjustment + offset, position, rotation, scale);
+            AddSnapshot(serverSnapshots, timestamp, position, rotation, scale);
         }
 
         // rpc /////////////////////////////////////////////////////////////////
@@ -369,7 +365,7 @@ namespace Mirror
 #if onlySyncOnChange_BANDWIDTH_SAVING
             if (onlySyncOnChange)
             {
-                double timeIntervalCheck = bufferResetMultiplier * sendIntervalMultiplier * NetworkServer.sendInterval;
+                double timeIntervalCheck = bufferResetMultiplier * NetworkServer.sendInterval;
 
                 if (clientSnapshots.Count > 0 && clientSnapshots.Values[clientSnapshots.Count - 1].remoteTime + timeIntervalCheck < timestamp)
                 {
@@ -377,7 +373,7 @@ namespace Mirror
                 }
             }
 #endif
-            AddSnapshot(clientSnapshots, NetworkClient.connection.remoteTimeStamp + timeStampAdjustment + offset, position, rotation, scale);
+            AddSnapshot(clientSnapshots, timestamp, position, rotation, scale);
         }
     }
 }
