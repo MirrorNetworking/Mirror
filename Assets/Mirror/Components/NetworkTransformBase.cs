@@ -29,7 +29,6 @@ namespace Mirror
         [Tooltip("The Transform component to sync. May be on on this GameObject, or on a child.")]
         public Transform target;
 
-        // TODO SyncDirection { ClientToServer, ServerToClient } is easier?
         // Deprecated 2022-10-25
         [Obsolete("NetworkTransform clientAuthority was replaced with syncDirection. To enable client authority, set SyncDirection to ClientToServer in the Inspector.")]
         [Header("[Obsolete]")] // Unity doesn't show obsolete warning for fields. do it manually.
