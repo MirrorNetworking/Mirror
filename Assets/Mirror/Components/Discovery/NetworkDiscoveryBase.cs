@@ -40,12 +40,12 @@ namespace Mirror.Discovery
         [Tooltip("Time in seconds between multi-cast messages")]
         [Range(1, 60)]
         float ActiveDiscoveryInterval = 3;
-        
+
         [Tooltip("Transport to be advertised during discovery")]
         public Transport transport;
 
         [Tooltip("Invoked when a server is found")]
-        public ServerFoundUnityEvent OnServerFound;
+        public ServerFoundUnityEvent<Response> OnServerFound;
 
         // Each game should have a random unique handshake,
         // this way you can tell if this is the same game or not
@@ -271,7 +271,7 @@ namespace Mirror.Discovery
 		{
 #if UNITY_ANDROID
             if (hasMulticastLock) return;
-                
+
             if (Application.platform == RuntimePlatform.Android)
             {
                 using (AndroidJavaObject activity = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity"))
@@ -291,7 +291,7 @@ namespace Mirror.Discovery
         {
 #if UNITY_ANDROID
             if (!hasMulticastLock) return;
-            
+
             multicastLock?.Call("release");
             hasMulticastLock = false;
 #endif
@@ -348,16 +348,16 @@ namespace Mirror.Discovery
         /// <returns>ClientListenAsync Task</returns>
         public async Task ClientListenAsync()
         {
-            // while clientUpdClient to fix: 
+            // while clientUpdClient to fix:
             // https://github.com/vis2k/Mirror/pull/2908
             //
             // If, you cancel discovery the clientUdpClient is set to null.
             // However, nothing cancels ClientListenAsync. If we change the if(true)
-            // to check if the client is null. You can properly cancel the discovery, 
+            // to check if the client is null. You can properly cancel the discovery,
             // and kill the listen thread.
             //
-            // Prior to this fix, if you cancel the discovery search. It crashes the 
-            // thread, and is super noisy in the output. As well as causes issues on 
+            // Prior to this fix, if you cancel the discovery search. It crashes the
+            // thread, and is super noisy in the output. As well as causes issues on
             // the quest.
             while (clientUdpClient != null)
             {
@@ -392,7 +392,7 @@ namespace Mirror.Discovery
             }
 
             IPEndPoint endPoint = new IPEndPoint(IPAddress.Broadcast, serverBroadcastListenPort);
-            
+
             if (!string.IsNullOrWhiteSpace(BroadcastAddress))
             {
                 try
