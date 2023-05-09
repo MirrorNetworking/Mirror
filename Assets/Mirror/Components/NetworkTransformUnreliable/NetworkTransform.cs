@@ -315,9 +315,7 @@ namespace Mirror
             //For client authority, immediately pass on the client snapshot to all other
             //clients instead of waiting for server to send its snapshots.
             if (syncDirection == SyncDirection.ClientToServer)
-            {
                 RpcServerToClientSync(position, rotation, scale);
-            }
         }
 
         // local authority client sends sync message to server for broadcasting
@@ -338,9 +336,7 @@ namespace Mirror
                 double timeIntervalCheck = bufferResetMultiplier * sendIntervalMultiplier * NetworkClient.sendInterval;
 
                 if (serverSnapshots.Count > 0 && serverSnapshots.Values[serverSnapshots.Count - 1].remoteTime + timeIntervalCheck < timestamp)
-                {
                     Reset();
-                }
             }
 #endif
             AddSnapshot(serverSnapshots, connectionToClient.remoteTimeStamp + timeStampAdjustment + offset, position, rotation, scale);
@@ -377,9 +373,7 @@ namespace Mirror
                 double timeIntervalCheck = bufferResetMultiplier * sendIntervalMultiplier * NetworkServer.sendInterval;
 
                 if (clientSnapshots.Count > 0 && clientSnapshots.Values[clientSnapshots.Count - 1].remoteTime + timeIntervalCheck < timestamp)
-                {
                     Reset();
-                }
             }
 #endif
             AddSnapshot(clientSnapshots, NetworkClient.connection.remoteTimeStamp + timeStampAdjustment + offset, position, rotation, scale);
