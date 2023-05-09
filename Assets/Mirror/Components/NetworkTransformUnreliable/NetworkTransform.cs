@@ -75,9 +75,7 @@ namespace Mirror
 				
 			// timeAsDouble not available in older Unity versions.
 			if (AccurateInterval.Elapsed(NetworkTime.localTime, NetworkServer.sendInterval, ref lastSendIntervalTime))
-			{
-				sendIntervalCounter++;
-			}
+                sendIntervalCounter++;
         }
 
         void UpdateServerBroadcast()
