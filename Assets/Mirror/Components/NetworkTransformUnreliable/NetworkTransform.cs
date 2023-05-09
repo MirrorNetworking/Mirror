@@ -64,13 +64,20 @@ namespace Mirror
 
         protected virtual void CheckLastSendTime()
         {
-            // timeAsDouble not available in older Unity versions.
-            if (AccurateInterval.Elapsed(NetworkTime.localTime, NetworkServer.sendInterval, ref lastSendIntervalTime))
-            {
-                if (sendIntervalCounter == sendIntervalMultiplier)
-                    sendIntervalCounter = 0;
-                sendIntervalCounter++;
-            }
+			// We check interval every frame, and then send if interval is reached.
+			// So by the time sendIntervalCounter == sendIntervalMultiplier, data is sent,
+			// thus we reset the counter here.
+			// This fixes previous issue of, if sendIntervalMultiplier = 1, we send every frame,
+			// because intervalCounter is always = 1 in the previous version.
+			
+			if (sendIntervalCounter == sendIntervalMultiplier)
+				sendIntervalCounter = 0;
+				
+			// timeAsDouble not available in older Unity versions.
+			if (AccurateInterval.Elapsed(NetworkTime.localTime, NetworkServer.sendInterval, ref lastSendIntervalTime))
+			{
+				sendIntervalCounter++;
+			}
         }
 
         void UpdateServerBroadcast()
