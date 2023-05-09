@@ -60,7 +60,7 @@ namespace Mirror
         [Header("Send Interval Multiplier")]
         [Tooltip("Check/Sync every multiple of Network Manager send interval (= 1 / NM Send Rate), instead of every send interval.")]
         [Range(1, 120)]
-        public uint sendIntervalMultiplier = 1; // not implemented yet
+        public uint sendIntervalMultiplier = 1;
 
         [Header("Timeline Offset")]
         [Tooltip("Add a small timeline offset to account for decoupled arrival of NetworkTime and NetworkTransform snapshots.\nfixes: https://github.com/MirrorNetworking/Mirror/issues/3427")]
