@@ -64,13 +64,11 @@ namespace Mirror
             if (size == 0)
                 return null;
 
-            int realSize = size - 1;
+            ushort realSize = (ushort)(size - 1);
 
             // make sure it's within limits to avoid allocation attacks etc.
-            if (realSize >= NetworkWriter.MaxStringLength)
-            {
-                throw new EndOfStreamException($"ReadString too long: {realSize}. Limit is: {NetworkWriter.MaxStringLength}");
-            }
+            if (realSize > NetworkWriter.MaxStringLength)
+                throw new EndOfStreamException($"NetworkReader.ReadString - Value too long: {realSize} bytes. Limit is: {NetworkWriter.MaxStringLength} bytes");
 
             ArraySegment<byte> data = reader.ReadBytesSegment(realSize);
 
@@ -131,14 +129,17 @@ namespace Mirror
         public static Quaternion ReadQuaternion(this NetworkReader reader) => reader.ReadBlittable<Quaternion>();
         public static Quaternion? ReadQuaternionNullable(this NetworkReader reader) => reader.ReadBlittableNullable<Quaternion>();
 
-        public static Rect ReadRect(this NetworkReader reader) => reader.ReadBlittable<Rect>();
-        public static Rect? ReadRectNullable(this NetworkReader reader) => reader.ReadBlittableNullable<Rect>();
+        // Rect is a struct with properties instead of fields
+        public static Rect ReadRect(this NetworkReader reader) => new Rect(reader.ReadVector2(), reader.ReadVector2());
+        public static Rect? ReadRectNullable(this NetworkReader reader) => reader.ReadBool() ? ReadRect(reader) : default(Rect?);
 
-        public static Plane ReadPlane(this NetworkReader reader) => reader.ReadBlittable<Plane>();
-        public static Plane? ReadPlaneNullable(this NetworkReader reader) => reader.ReadBlittableNullable<Plane>();
+        // Plane is a struct with properties instead of fields
+        public static Plane ReadPlane(this NetworkReader reader) => new Plane(reader.ReadVector3(), reader.ReadFloat());
+        public static Plane? ReadPlaneNullable(this NetworkReader reader) => reader.ReadBool() ? ReadPlane(reader) : default(Plane?);
 
-        public static Ray ReadRay(this NetworkReader reader) => reader.ReadBlittable<Ray>();
-        public static Ray? ReadRayNullable(this NetworkReader reader) => reader.ReadBlittableNullable<Ray>();
+        // Ray is a struct with properties instead of fields
+        public static Ray ReadRay(this NetworkReader reader) => new Ray(reader.ReadVector3(), reader.ReadVector3());
+        public static Ray? ReadRayNullable(this NetworkReader reader) => reader.ReadBool() ? ReadRay(reader) : default(Ray?);
 
         public static Matrix4x4 ReadMatrix4x4(this NetworkReader reader) => reader.ReadBlittable<Matrix4x4>();
         public static Matrix4x4? ReadMatrix4x4Nullable(this NetworkReader reader) => reader.ReadBlittableNullable<Matrix4x4>();
@@ -236,6 +237,10 @@ namespace Mirror
             return networkIdentity != null ? networkIdentity.gameObject : null;
         }
 
+        // while SyncList<T> is recommended for NetworkBehaviours,
+        // structs may have .List<T> members which weaver needs to be able to
+        // fully serialize for NetworkMessages etc.
+        // note that Weaver/Readers/GenerateReader() handles this manually.
         public static List<T> ReadList<T>(this NetworkReader reader)
         {
             int length = reader.ReadInt();
@@ -248,6 +253,26 @@ namespace Mirror
             }
             return result;
         }
+
+        // while SyncSet<T> is recommended for NetworkBehaviours,
+        // structs may have .Set<T> members which weaver needs to be able to
+        // fully serialize for NetworkMessages etc.
+        // note that Weaver/Readers/GenerateReader() handles this manually.
+        // TODO writer not found. need to adjust weaver first. see tests.
+        /*
+        public static HashSet<T> ReadHashSet<T>(this NetworkReader reader)
+        {
+            int length = reader.ReadInt();
+            if (length < 0)
+                return null;
+            HashSet<T> result = new HashSet<T>();
+            for (int i = 0; i < length; i++)
+            {
+                result.Add(reader.Read<T>());
+            }
+            return result;
+        }
+        */
 
         public static T[] ReadArray<T>(this NetworkReader reader)
         {
@@ -312,5 +337,8 @@ namespace Mirror
             // otherwise create a valid sprite
             return Sprite.Create(texture, reader.ReadRect(), reader.ReadVector2());
         }
+
+        public static DateTime ReadDateTime(this NetworkReader reader) => DateTime.FromOADate(reader.ReadDouble());
+        public static DateTime? ReadDateTimeNullable(this NetworkReader reader) => reader.ReadBool() ? ReadDateTime(reader) : default(DateTime?);
     }
 }

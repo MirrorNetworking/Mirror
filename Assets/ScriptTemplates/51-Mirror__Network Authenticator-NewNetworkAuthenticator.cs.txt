@@ -45,11 +45,19 @@ public class #SCRIPTNAME# : NetworkAuthenticator
     public void OnAuthRequestMessage(NetworkConnectionToClient conn, AuthRequestMessage msg)
     {
         AuthResponseMessage authResponseMessage = new AuthResponseMessage();
-
         conn.Send(authResponseMessage);
 
         // Accept the successful authentication
         ServerAccept(conn);
+    }
+
+    /// <summary>
+    /// Called when server stops, used to unregister message handlers if needed.
+    /// </summary>
+    public override void OnStopServer()
+    {
+        // Unregister the handler for the authentication request
+        NetworkServer.UnregisterHandler<AuthRequestMessage>();
     }
 
     #endregion
@@ -72,7 +80,6 @@ public class #SCRIPTNAME# : NetworkAuthenticator
     public override void OnClientAuthenticate()
     {
         AuthRequestMessage authRequestMessage = new AuthRequestMessage();
-
         NetworkClient.Send(authRequestMessage);
     }
 
@@ -84,6 +91,15 @@ public class #SCRIPTNAME# : NetworkAuthenticator
     {
         // Authentication has been accepted
         ClientAccept();
+    }
+
+    /// <summary>
+    /// Called when client stops, used to unregister message handlers if needed.
+    /// </summary>
+    public override void OnStopClient()
+    {
+        // Unregister the handler for the authentication response
+        NetworkClient.UnregisterHandler<AuthResponseMessage>();
     }
 
     #endregion

@@ -4,25 +4,19 @@ using UnityEngine;
 
 namespace Mirror
 {
-    [Obsolete("MessagePacking.* was renamed to NetworkMessages.*")] // 2022-09-25
-    public static class MessagePacking
+
+    // for performance, we (ab)use c# generics to cache the message id in a static field
+    // this is significantly faster than doing the computation at runtime or looking up cached results via Dictionary
+    // generic classes have separate static fields per type specification
+    public static class NetworkMessageId<T> where T : struct, NetworkMessage
     {
-        public static int HeaderSize => IdSize;
-        public static int IdSize => NetworkMessages.IdSize;
-        public static int MaxContentSize => NetworkMessages.MaxContentSize;
-        public static ushort GetId<T>() where T : struct, NetworkMessage => NetworkMessages.GetId<T>();
-        public static void Pack<T>(T message, NetworkWriter writer)
-            where T : struct, NetworkMessage =>
-            NetworkMessages.Pack(message, writer);
-        public static bool Unpack(NetworkReader reader, out ushort messageId) => NetworkMessages.UnpackId(reader, out messageId);
-        public static bool UnpackId(NetworkReader reader, out ushort messageId) => NetworkMessages.UnpackId(reader, out messageId);
-        internal static NetworkMessageDelegate WrapHandler<T, C>(Action<C, T, int> handler, bool requireAuthentication)
-            where T : struct, NetworkMessage
-            where C : NetworkConnection
-            => (conn, reader, channelId) => NetworkMessages.WrapHandler(handler, requireAuthentication);
-        internal static NetworkMessageDelegate WrapHandler<T, C>(Action<C, T> handler, bool requireAuthentication)
-            where T : struct, NetworkMessage
-            where C : NetworkConnection => NetworkMessages.WrapHandler(handler, requireAuthentication);
+        // automated message id from type hash.
+        // platform independent via stable hashcode.
+        // => convenient so we don't need to track messageIds across projects
+        // => addons can work with each other without knowing their ids before
+        // => 2 bytes is enough to avoid collisions.
+        //    registering a messageId twice will log a warning anyway.
+        public static readonly ushort Id = (ushort)(typeof(T).FullName.GetStableHashCode());
     }
 
     // message packing all in one place, instead of constructing headers in all
@@ -32,9 +26,6 @@ namespace Mirror
     //   Content     (ContentSize bytes)
     public static class NetworkMessages
     {
-        [Obsolete("HeaderSize was renamed to IdSize")] // 2022-09-25
-        public static int HeaderSize => IdSize;
-
         // size of message id header in bytes
         public const int IdSize = sizeof(ushort);
 
@@ -56,9 +47,11 @@ namespace Mirror
         // => addons can work with each other without knowing their ids before
         // => 2 bytes is enough to avoid collisions.
         //    registering a messageId twice will log a warning anyway.
+        // Deprecated 2023-02-15
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [Obsolete("Use NetworkMessageId<T>.Id instead")]
         public static ushort GetId<T>() where T : struct, NetworkMessage =>
-            (ushort)(typeof(T).FullName.GetStableHashCode());
+            NetworkMessageId<T>.Id;
 
         // pack message before sending
         // -> NetworkWriter passed as arg so that we can use .ToArraySegment
@@ -67,13 +60,9 @@ namespace Mirror
         public static void Pack<T>(T message, NetworkWriter writer)
             where T : struct, NetworkMessage
         {
-            writer.WriteUShort(GetId<T>());
+            writer.WriteUShort(NetworkMessageId<T>.Id);
             writer.Write(message);
         }
-
-        [Obsolete("Unpack was renamed to UnpackId for consistency with GetId etc.")] // 2022-09-25
-        public static bool Unpack(NetworkReader reader, out ushort messageId) =>
-            UnpackId(reader, out messageId);
 
         // read only the message id.
         // common function in case we ever change the header size.

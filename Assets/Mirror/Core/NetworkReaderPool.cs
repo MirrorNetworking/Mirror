@@ -17,10 +17,6 @@ namespace Mirror
             1000
         );
 
-        // DEPRECATED 2022-03-10
-        [Obsolete("GetReader() was renamed to Get()")]
-        public static NetworkReaderPooled GetReader(byte[] bytes) => Get(bytes);
-
         /// <summary>Get the next reader in the pool. If pool is empty, creates a new Reader</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static NetworkReaderPooled Get(byte[] bytes)
@@ -31,10 +27,6 @@ namespace Mirror
             return reader;
         }
 
-        // DEPRECATED 2022-03-10
-        [Obsolete("GetReader() was renamed to Get()")]
-        public static NetworkReaderPooled GetReader(ArraySegment<byte> segment) => Get(segment);
-
         /// <summary>Get the next reader in the pool. If pool is empty, creates a new Reader</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static NetworkReaderPooled Get(ArraySegment<byte> segment)
@@ -44,10 +36,6 @@ namespace Mirror
             reader.SetBuffer(segment);
             return reader;
         }
-
-        // DEPRECATED 2022-03-10
-        [Obsolete("Recycle() was renamed to Return()")]
-        public static void Recycle(NetworkReaderPooled reader) => Return(reader);
 
         /// <summary>Returns a reader to the pool.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

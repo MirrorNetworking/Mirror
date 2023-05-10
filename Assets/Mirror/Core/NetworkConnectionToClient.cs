@@ -14,15 +14,15 @@ namespace Mirror
         readonly NetworkWriter reliableRpcs = new NetworkWriter();
         readonly NetworkWriter unreliableRpcs = new NetworkWriter();
 
-        public override string address =>
-            Transport.active.ServerGetClientAddress(connectionId);
+        public virtual string address => Transport.active.ServerGetClientAddress(connectionId);
 
         /// <summary>NetworkIdentities that this connection can see</summary>
         // TODO move to server's NetworkConnectionToClient?
-        public new readonly HashSet<NetworkIdentity> observing = new HashSet<NetworkIdentity>();
+        public readonly HashSet<NetworkIdentity> observing = new HashSet<NetworkIdentity>();
 
-        [Obsolete(".clientOwnedObjects was renamed to .owned :)")] // 2022-10-13
-        public new HashSet<NetworkIdentity> clientOwnedObjects => owned;
+        // Deprecated 2022-10-13
+        [Obsolete(".clientOwnedObjects was renamed to .owned :)")]
+        public HashSet<NetworkIdentity> clientOwnedObjects => owned;
 
         // unbatcher
         public Unbatcher unbatcher = new Unbatcher();
@@ -52,11 +52,11 @@ namespace Mirror
             // initialize EMA with 'emaDuration' seconds worth of history.
             // 1 second holds 'sendRate' worth of values.
             // multiplied by emaDuration gives n-seconds.
-            driftEma        = new ExponentialMovingAverage(NetworkServer.sendRate * NetworkClient.driftEmaDuration);
-            deliveryTimeEma = new ExponentialMovingAverage(NetworkServer.sendRate * NetworkClient.deliveryTimeEmaDuration);
+            driftEma = new ExponentialMovingAverage(NetworkServer.sendRate * NetworkClient.snapshotSettings.driftEmaDuration);
+            deliveryTimeEma = new ExponentialMovingAverage(NetworkServer.sendRate * NetworkClient.snapshotSettings.deliveryTimeEmaDuration);
 
             // buffer limit should be at least multiplier to have enough in there
-            snapshotBufferSizeLimit = Mathf.Max((int)NetworkClient.bufferTimeMultiplier, snapshotBufferSizeLimit);
+            snapshotBufferSizeLimit = Mathf.Max((int)NetworkClient.snapshotSettings.bufferTimeMultiplier, snapshotBufferSizeLimit);
         }
 
         public void OnTimeSnapshot(TimeSnapshot snapshot)
@@ -65,14 +65,14 @@ namespace Mirror
             if (snapshots.Count >= snapshotBufferSizeLimit) return;
 
             // (optional) dynamic adjustment
-            if (NetworkClient.dynamicAdjustment)
+            if (NetworkClient.snapshotSettings.dynamicAdjustment)
             {
                 // set bufferTime on the fly.
                 // shows in inspector for easier debugging :)
                 bufferTimeMultiplier = SnapshotInterpolation.DynamicAdjustment(
                     NetworkServer.sendInterval,
                     deliveryTimeEma.StandardDeviation,
-                    NetworkClient.dynamicAdjustmentTolerance
+                    NetworkClient.snapshotSettings.dynamicAdjustmentTolerance
                 );
                 // Debug.Log($"[Server]: {name} delivery std={serverDeliveryTimeEma.StandardDeviation} bufferTimeMult := {bufferTimeMultiplier} ");
             }
@@ -85,11 +85,11 @@ namespace Mirror
                 ref remoteTimescale,
                 NetworkServer.sendInterval,
                 bufferTime,
-                NetworkClient.catchupSpeed,
-                NetworkClient.slowdownSpeed,
+                NetworkClient.snapshotSettings.catchupSpeed,
+                NetworkClient.snapshotSettings.slowdownSpeed,
                 ref driftEma,
-                NetworkClient.catchupNegativeThreshold,
-                NetworkClient.catchupPositiveThreshold,
+                NetworkClient.snapshotSettings.catchupNegativeThreshold,
+                NetworkClient.snapshotSettings.catchupPositiveThreshold,
                 ref deliveryTimeEma
             );
         }
@@ -119,7 +119,7 @@ namespace Mirror
         {
             if (buffer.Position > 0)
             {
-                Send(new RpcBufferMessage{ payload = buffer }, channelId);
+                Send(new RpcBufferMessage { payload = buffer }, channelId);
                 buffer.Position = 0;
             }
         }

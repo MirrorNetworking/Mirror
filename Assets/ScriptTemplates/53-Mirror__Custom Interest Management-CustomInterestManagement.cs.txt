@@ -32,9 +32,8 @@ public class #SCRIPTNAME# : InterestManagement
     /// </summary>
     /// <param name="identity">Object to be observed (or not) by clients</param>
     /// <param name="newObservers">cached hashset to put the result into</param>
-    /// <param name="initialize">true if being rebuilt for the first time</param>
     [ServerCallback]
-    public override void OnRebuildObservers(NetworkIdentity identity, HashSet<NetworkConnectionToClient> newObservers, bool initialize)
+    public override void OnRebuildObservers(NetworkIdentity identity, HashSet<NetworkConnectionToClient> newObservers)
     {
         // Default behaviour of making the identity object visible to all clients.
         // Replace this code with your own logic as appropriate.

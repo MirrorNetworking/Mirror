@@ -20,7 +20,7 @@ namespace kcp2k
         // we need an auto scaling byte[] with a WriteBytes function.
         // MemoryStream does that perfectly, no need to reinvent the wheel.
         // note: no need to pool it, because Segment is already pooled.
-        // -> MTU as initial capacity to avoid most runtime resizing/allocations
+        // -> default MTU as initial capacity to avoid most runtime resizing/allocations
         internal MemoryStream data = new MemoryStream(Kcp.MTU_DEF);
 
         // ikcp_encode_seg

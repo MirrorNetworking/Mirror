@@ -16,11 +16,11 @@
 <img src="https://user-images.githubusercontent.com/16416509/119117854-3e4e2b80-ba5c-11eb-8236-ce6cfd2b6b07.png" title="Original Concept Art for Games that made us dream. Copyright Blizzard, Blizzard, Riot Games, Joymax in that order."/>
 
 ## Mirror Networking 
-The **#1** free **open source** game networking library for **Unity 2019 / 2020 / 2021**.
+The **#1** free **open source** game networking library for **Unity 2019 / 2020 / 2021 / 2022**.
 
 Used **in production** by major hits like [**Population: ONE**](https://www.populationonevr.com/) and many [more](#made-with-mirror).
 
-Originally based on [**UNET**](https://blog.unity.com/technology/announcing-unet-new-unity-multiplayer-technology): battle tested **since 2014** for 8 years and counting!
+Originally based on [**UNET**](https://blog.unity.com/technology/announcing-unet-new-unity-multiplayer-technology): battle tested **since 2014** for 9 years and counting!
 
 Mirror is **[stable](https://mirror-networking.gitbook.io/docs/general/tests)**, [**modular**](#low-level-transports) & **[easy to use](https://mirror-networking.gitbook.io/)** for all types of games, even small [MMORPGs](#made-with-mirror) 🎮.
 
@@ -56,12 +56,13 @@ public class Player : NetworkBehaviour
     
     // zero overhead remote calls
     [Command]   void CmdUseItem(int slot) {} // client to server
-    [Rpc]       void RpcRespawn() {}         // server to all clients
+    [ClientRpc] void RpcRespawn() {}         // server to all clients
     [TargetRpc] void Hello() {}              // server to one client
 }
 ```
 
-There's also **NetworkServer** & **NetworkClient**. And that's about it 🤩.
+There's also **NetworkServer** & **NetworkClient**.</br>
+And that's about it 🤩
 
 ---
 ## Free, Open & Community Funded
@@ -87,6 +88,18 @@ Check out our [Documentation](https://mirror-networking.gitbook.io/) to learn ho
 If you are migrating from UNET, then please check out our [Migration Guide](https://mirror-networking.gitbook.io/docs/general/migration-guide).
 
 ---
+## Mirror LTS (Long Term Support)
+Mirror LTS is available on the [Asset Store](https://assetstore.unity.com/packages/tools/network/mirror-lts-102631).
+
+Mirror LTS gives you peace of mind to run your game in production.
+Without any breaking changes, ever!
+
+* **Bug fixes** only. 
+* **Consistent API**: update any time, without any breaking features.
+* Lives along side **Unity 2019/2020/2021** LTS.
+* Supported for two years at a time.
+
+---
 ## Made with Mirror
 ### [Population: ONE](https://www.populationonevr.com/)
 [![Population: ONE](https://user-images.githubusercontent.com/16416509/178141286-9494c3a8-a4a5-4b06-af2b-b05b66162201.png)](https://www.populationonevr.com/)
@@ -94,7 +107,15 @@ The [BigBoxVR](https://www.bigboxvr.com/) team started using Mirror in February 
 
 In addition to [24/7 support](https://github.com/sponsors/vis2k) from the Mirror team, BigBoxVR also hired one of our engineers.
 
-**Population: ONE** was recently [acquired by Facebook](https://uploadvr.com/population-one-facebook-bigbox-acquire/).
+**Population: ONE** was [acquired by Meta](https://uploadvr.com/population-one-facebook-bigbox-acquire/) in June 2021, and they've just released a new [Sandbox](https://www.youtube.com/watch?v=jcI0h8dn9tA) addon in 2022!
+
+### [Swarm VR](https://www.swarmvrgame.com/)
+[![swarmvr_compressed](https://user-images.githubusercontent.com/16416509/222610677-fa38f173-f76b-422f-b39d-8e0ef0cee798.jpg)](https://www.swarmvrgame.com/)
+SPIDER-MAN WITH GUNS! 
+
+SWARM is a fast-paced, arcade-style grapple shooter, with quick sessions, bright colorful worlds and globally competitive leaderboards that will take you back to the glory days of Arcade Games.
+
+Available for the [Meta Quest](https://www.oculus.com/experiences/quest/2236053486488156/), made with Mirror.
 
 ### [Nimoyd](https://www.nimoyd.com/)
 [![nimoyd_smaller](https://user-images.githubusercontent.com/16416509/178142672-340bac2c-628a-4610-bbf1-8f718cb5b033.jpg)](https://www.nimoyd.com/)
@@ -119,6 +140,12 @@ Made with Mirror by two brothers with [no prior game development](https://www.yo
 [Sun Haven](https://store.steampowered.com/app/1432860/Sun_Haven/) - A beautiful human town, a hidden elven village, and a monster city filled with farming, magic, dragons, and adventure.
 
 After their successful [Kickstarter](https://www.kickstarter.com/projects/sunhaven/sunhaven/description), Sun Haven was released on Steam in 2021 and later on ported to Mirror in 2022.
+
+### [A Township Tale](https://townshiptale.com/)
+[![A Township Tale](https://user-images.githubusercontent.com/16416509/212850393-1abdce51-1abe-4745-8a7d-67e9ebae96a7.png)](https://townshiptale.com/)
+A Township Tale is an immersive VR experience, where you can build towns and explore worlds with your friends.
+
+Made with our KCP transport, available on the [Meta Quest Store](https://www.oculus.com/experiences/quest/2913958855307200/) with over 6000+ ratings.
 
 ### [Inferna](https://inferna.net/)
 [![Inferna MMORPG](https://user-images.githubusercontent.com/16416509/178148768-5ba9ea5b-bcf1-4ace-ad7e-591f2185cbd5.jpg)](https://inferna.net/)
@@ -145,8 +172,8 @@ After their successful [Kickstarter](https://www.kickstarter.com/projects/untame
 The game has over **50 million** downloads on [Google Play](https://play.google.com/store/apps/details?id=com.wildlife.games.battle.royale.free.zooba&gl=US), with Wildlife Studios as one of the top 10 largest mobile gaming companies in the world.
 
 ### [Portals](https://theportal.to/)
-[![Portals](https://user-images.githubusercontent.com/16416509/190314078-294c3cac-e9dc-4d73-85b4-0e21e9767242.png)](https://theportal.to/)
-A browser-based metaverse, Portals is an immersive social space where you can explore, make your own, and gather with others.
+[![Portals](https://user-images.githubusercontent.com/9826063/209373815-8e6288ba-22fc-4cee-8867-19f587188827.png)](https://theportal.to/)
+Animal Crossing meets Yakuza meets Minecraft — a city builder with a multiplayer central hub. Gather, trade and build — all in the browser!
 
 ### [SCP: Secret Laboratory](https://scpslgame.com/)
 [![scp - secret laboratory_smaller](https://user-images.githubusercontent.com/16416509/178142224-413b3455-cdff-472e-b918-4246631af12f.jpg)](https://scpslgame.com/)
@@ -164,6 +191,16 @@ The [France based team](https://naicaonline.com/en/news/view/1) was one of Mirro
 [![Laurum Online](https://user-images.githubusercontent.com/16416509/178149616-3852d198-6fc9-44d5-9f63-da4e52f5546a.jpg)](https://laurum.online/)
 [Laurum Online](https://play.google.com/store/apps/details?id=com.project7.project7beta) - a 2D retro mobile MMORPG with over 500,000 downloads on Google Play.
 
+### [Empires Mobile](https://knightempire.online/)
+[![Empires Mobile](https://user-images.githubusercontent.com/16416509/207028553-c646f12c-c164-47d3-a1fc-ff79409c04fa.jpg)](https://knightempire.online/)
+[Empires Mobile](https://knightempire.online/) - Retro mobile MMORPG for Android and iOS, reaching 5000 CCU at times. Check out their [video](https://www.youtube.com/watch?v=v69lW9aWb-w) for some _early MMORPG_ nostalgia.
+
+### [Castaways](https://www.castaways.com/)
+[![Castaways](https://user-images.githubusercontent.com/16416509/207313082-e6b95590-80c6-4685-b0d1-f1c39c236316.png)](https://www.castaways.com/)
+[Castaways](https://www.castaways.com/) is a sandbox game where you are castaway to a small remote island where you must work with others to survive and build a thriving new civilization. 
+
+Castaway runs in the Browser, thanks to Mirror's WebGL support.
+
 ### And many more...
 <a href="https://store.steampowered.com/app/719200/The_Wall/"><img src="https://cdn.akamai.steamstatic.com/steam/apps/719200/header.jpg?t=1588105839" height="100" title="The wall"/></a>
 <a href="https://store.steampowered.com/app/535630/One_More_Night/"><img src="https://cdn.akamai.steamstatic.com/steam/apps/535630/header.jpg?t=1584831320" height="100" title="One more night"/></a>
@@ -174,18 +211,6 @@ The [France based team](https://naicaonline.com/en/news/view/1) was one of Mirro
 <a href="https://www.adversator.com/"><img src="https://user-images.githubusercontent.com/16416509/178641128-37dc270c-bedf-4891-8284-33573d1776b9.jpg" title="Adversator" height="100"/></a>
 <a href="https://store.steampowered.com/app/670260/Solace_Crafting/"><img src="https://user-images.githubusercontent.com/16416509/197175819-1c2720b6-97e6-4844-80b5-2197a7f22839.png" title="Solace Crafting" height="100"/></a>
 <a href="https://www.unitystation.org"><img src="https://user-images.githubusercontent.com/57072365/204021428-0c621067-d580-4c88-b551-3ac70f9da39d.jpg" title="UnityStation" height="100"/></a>
-
-## Mirror LTS (Long Term Support)
-
-If you use Mirror in production, consider Mirror LTS!
-* **Bug fixes** only. 
-* **Consistent API**: update any time, without any breaking features.
-* Lives along side **Unity 2019** LTS.
-* Supported from Sept. 2021 to Sept 2022, depending on feedback.
-
-**Mirror V46 LTS** is available to all [GitHub Sponsors](https://github.com/sponsors/vis2k).
-
-All sponsors are invited to the [Mirror V46 LTS Repository](https://github.com/MirrorNetworking/Mirror-46-LTS) automatically.
 
 ## Modular Transports
 Mirror uses **KCP** (reliable UDP) by default, but you may use any of our community transports for low level packet sending:
@@ -214,26 +239,16 @@ We prefer to work slow & thoroughly in order to not break everyone's games 🐌.
 Therefore, we need to [KISS](https://en.wikipedia.org/wiki/KISS_principle) 😗.
 
 ---
-# Bug Bounty
-<img src="https://user-images.githubusercontent.com/16416509/110572995-718b5900-8195-11eb-802c-235c82a03bf7.png">
-
-A lot of projects use Mirror in production. If you found a critical bug / exploit in Mirror core, please reach out to us in private.
-Depending on the severity of the exploit, we offer $50 - $500 for now.
-Rewards based on Mirror's [donations](https://github.com/sponsors/vis2k), capped at amount of donations we received that month.
-
-**Specifically we are looking for:**
-* Ways to crash a Mirror server
-* Ways to exploit a Mirror server
-* Ways to leave a Mirror server in undefined state
-
-We are **not** looking for DOS/DDOS attacks. The exploit should be possible with just a couple of network packets, and it should be reproducible.
+# Incident Response & Bug Bounty
+A lot of projects use Mirror in production. If you found a critical bug / exploit in Mirror core, please follow the steps outlined in our [Security Policy](SECURITY.md).
 
 **Credits / past findings / fixes:**
 * 2020, fholm: fuzzing ConnectMessage to stop further connects [[#2397](https://github.com/vis2k/Mirror/pull/2397)]
+* 2023-04-05: IncludeSec: [kcp2k UDP spoofing](http://blog.includesecurity.com/?p=1407) [[#3286](https://github.com/vis2k/Mirror/pull/2397)]
 
 ---
 # Credits & Thanks 🙏
-🪞 **Alexey Abramychev (UNET)**<br/>
+🪞 **Alexey Abramychev** (UNET)<br/>
 🪞 **Alan**<br/>
 🪞 **c6burns** <br/>
 🪞 **Coburn** <br/>

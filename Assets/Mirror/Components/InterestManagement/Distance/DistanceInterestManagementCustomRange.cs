@@ -10,6 +10,6 @@ namespace Mirror
     public class DistanceInterestManagementCustomRange : NetworkBehaviour
     {
         [Tooltip("The maximum range that objects will be visible at.")]
-        public int visRange = 20;
+        public int visRange = 100;
     }
 }

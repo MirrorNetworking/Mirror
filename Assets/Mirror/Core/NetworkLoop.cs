@@ -99,6 +99,15 @@ namespace Mirror
                 //foreach (PlayerLoopSystem sys in playerLoop.subSystemList)
                 //    Debug.Log($"  ->{sys.type}");
 
+                // make sure the function wasn't added yet.
+                // with domain reload disabled, it would otherwise be added twice:
+                // fixes: https://github.com/MirrorNetworking/Mirror/issues/3392
+                if (Array.FindIndex(playerLoop.subSystemList, (s => s.updateDelegate == function)) != -1)
+                {
+                    // loop contains the function, so return true.
+                    return true;
+                }
+
                 // resize & expand subSystemList to fit one more entry
                 int oldListLength = (playerLoop.subSystemList != null) ? playerLoop.subSystemList.Length : 0;
                 Array.Resize(ref playerLoop.subSystemList, oldListLength + 1);
@@ -174,6 +183,10 @@ namespace Mirror
 
         static void NetworkEarlyUpdate()
         {
+            // loop functions run in edit mode and in play mode.
+            // however, we only want to call NetworkServer/Client in play mode.
+            if (!Application.isPlaying) return;
+
             //Debug.Log($"NetworkEarlyUpdate {Time.time}");
             NetworkServer.NetworkEarlyUpdate();
             NetworkClient.NetworkEarlyUpdate();
@@ -183,6 +196,10 @@ namespace Mirror
 
         static void NetworkLateUpdate()
         {
+            // loop functions run in edit mode and in play mode.
+            // however, we only want to call NetworkServer/Client in play mode.
+            if (!Application.isPlaying) return;
+
             //Debug.Log($"NetworkLateUpdate {Time.time}");
             // invoke event before mirror does its final late updating.
             OnLateUpdate?.Invoke();

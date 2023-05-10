@@ -1,14 +1,16 @@
 {
     "name": "Mirror.Authenticators",
+    "rootNamespace": "",
     "references": [
-        "Mirror"
+        "GUID:30817c1a0e6d646d99c048fc403f5979"
     ],
-    "optionalUnityReferences": [],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,
     "precompiledReferences": [],
     "autoReferenced": true,
-    "defineConstraints": []
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
 }

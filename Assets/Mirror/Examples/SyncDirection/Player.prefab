@@ -119,6 +119,7 @@ MonoBehaviour:
   syncMode: 0
   syncInterval: 0.1
   textMesh: {fileID: 5045126741796351903}
+  localColor: {r: 1, g: 1, b: 1, a: 1}
   health: 0
 --- !u!1 &3382624280860738034
 GameObject:

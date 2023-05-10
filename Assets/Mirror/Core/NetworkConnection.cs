@@ -10,11 +10,6 @@ namespace Mirror
     {
         public const int LocalConnectionId = 0;
 
-        /// <summary>NetworkIdentities that this connection can see</summary>
-        // DEPRECATED 2022-02-05
-        [Obsolete("Cast to NetworkConnectionToClient to access .observing")]
-        public HashSet<NetworkIdentity> observing => ((NetworkConnectionToClient)this).observing;
-
         /// <summary>Unique identifier for this connection that is assigned by the transport layer.</summary>
         // assigned by transport, this id is unique for every connection on server.
         // clients don't know their own id and they don't know other client's ids.
@@ -32,18 +27,11 @@ namespace Mirror
         // state.
         public bool isReady;
 
-        /// <summary>IP address of the connection. Can be useful for game master IP bans etc.</summary>
-        public abstract string address { get; }
-
         /// <summary>Last time a message was received for this connection. Includes system and user messages.</summary>
         public float lastMessageTime;
 
         /// <summary>This connection's main object (usually the player object).</summary>
         public NetworkIdentity identity { get; internal set; }
-
-        // DEPRECATED 2022-02-05
-        [Obsolete("Cast to NetworkConnectionToClient to access .owned")]
-        public HashSet<NetworkIdentity> clientOwnedObjects => owned;
 
         /// <summary>All NetworkIdentities owned by this connection. Can be main player, pets, etc.</summary>
         // .owned is now valid both on server and on client.

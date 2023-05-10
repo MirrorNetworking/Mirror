@@ -59,11 +59,11 @@ namespace kcp2k
         internal uint cwnd;          // congestion window
         internal uint probe;
         internal uint interval;
-        internal uint ts_flush;
+        internal uint ts_flush;      // last flush timestamp in milliseconds
         internal uint xmit;
         internal uint nodelay;       // not a bool. original Kcp has '<2 else' check.
         internal bool updated;
-        internal uint ts_probe;      // timestamp probe
+        internal uint ts_probe;      // probe timestamp
         internal uint probe_wait;
         internal uint dead_link;     // maximum amount of 'xmit' retransmissions until a segment is considered lost
         internal uint incr;
@@ -71,7 +71,7 @@ namespace kcp2k
 
         internal int fastresend;
         internal int fastlimit;
-        internal bool nocwnd;        // no congestion window
+        internal bool nocwnd;        // congestion control, negated. heavily restricts send/recv window sizes.
         internal readonly Queue<Segment> snd_queue = new Queue<Segment>(16); // send queue
         internal readonly Queue<Segment> rcv_queue = new Queue<Segment>(16); // receive queue
         // snd_buffer needs index removals.
@@ -248,7 +248,7 @@ namespace kcp2k
         }
 
         // ikcp_send
-        // sends byte[] to the other end.
+        // splits message into MTU sized fragments, adds them to snd_queue.
         public int Send(byte[] buffer, int offset, int len)
         {
             // fragment count
@@ -663,27 +663,32 @@ namespace kcp2k
         }
 
         // ikcp_flush
-        // flush remain ack segments
+        // flush remain ack segments.
+        // flush may output multiple <= MTU messages from MakeSpace / FlushBuffer.
+        // the amount of messages depends on the sliding window.
+        // configured by send/receive window sizes + congestion control.
+        // with congestion control, the window will be extremely small(!).
         public void Flush()
         {
-            int offset = 0;    // buffer ptr in original C
+            int size  = 0;     // amount of bytes to flush. 'buffer ptr' in C.
             bool lost = false; // lost segments
 
             // helper functions
             void MakeSpace(int space)
             {
-                if (offset + space > mtu)
+                if (size + space > mtu)
                 {
-                    output(buffer, offset);
-                    offset = 0;
+                    output(buffer, size);
+                    size = 0;
                 }
             }
 
             void FlushBuffer()
             {
-                if (offset > 0)
+                // flush buffer up to 'offset' (<= MTU)
+                if (size > 0)
                 {
-                    output(buffer, offset);
+                    output(buffer, size);
                 }
             }
 
@@ -708,7 +713,7 @@ namespace kcp2k
                 // ikcp_ack_get assigns ack[i] to seg.sn, seg.ts
                 seg.sn = ack.serialNumber;
                 seg.ts = ack.timestamp;
-                offset += seg.Encode(buffer, offset);
+                size += seg.Encode(buffer, size);
             }
 
             acklist.Clear();
@@ -746,7 +751,7 @@ namespace kcp2k
             {
                 seg.cmd = CMD_WASK;
                 MakeSpace(OVERHEAD);
-                offset += seg.Encode(buffer, offset);
+                size += seg.Encode(buffer, size);
             }
 
             // flush window probing commands
@@ -754,22 +759,28 @@ namespace kcp2k
             {
                 seg.cmd = CMD_WINS;
                 MakeSpace(OVERHEAD);
-                offset += seg.Encode(buffer, offset);
+                size += seg.Encode(buffer, size);
             }
 
             probe = 0;
 
-            // calculate window size
+            // calculate the window size which is currently safe to send.
+            // it's send window, or remote window, whatever is smaller.
+            // for our max
             uint cwnd_ = Math.Min(snd_wnd, rmt_wnd);
-            // if congestion window:
+
+            // double negative: if congestion window is enabled:
+            // limit window size to cwnd.
+            //
+            // note this may heavily limit window sizes.
+            // for our max message size test with super large windows of 32k,
+            // 'congestion window' limits it down from 32.000 to 2.
             if (!nocwnd) cwnd_ = Math.Min(cwnd, cwnd_);
 
-            // move data from snd_queue to snd_buf
-            // sliding window, controlled by snd_nxt && sna_una+cwnd
-            //
-            // ELI5: 'snd_nxt' is what we want to send.
-            //       'snd_una' is what hasn't been acked yet.
-            //       copy up to 'cwnd_' difference between them (sliding window)
+            // move cwnd_ 'window size' messages from snd_queue to snd_buf
+            //   'snd_nxt' is what we want to send.
+            //   'snd_una' is what hasn't been acked yet.
+            //   copy up to 'cwnd_' difference between them (sliding window)
             while (Utils.TimeDiff(snd_nxt, snd_una + cwnd_) < 0)
             {
                 if (snd_queue.Count == 0) break;
@@ -846,12 +857,12 @@ namespace kcp2k
                     int need = OVERHEAD + (int)segment.data.Position;
                     MakeSpace(need);
 
-                    offset += segment.Encode(buffer, offset);
+                    size += segment.Encode(buffer, size);
 
                     if (segment.data.Position > 0)
                     {
-                        Buffer.BlockCopy(segment.data.GetBuffer(), 0, buffer, offset, (int)segment.data.Position);
-                        offset += (int)segment.data.Position;
+                        Buffer.BlockCopy(segment.data.GetBuffer(), 0, buffer, size, (int)segment.data.Position);
+                        size += (int)segment.data.Position;
                     }
 
                     // dead link happens if a message was resent N times, but an
@@ -907,6 +918,9 @@ namespace kcp2k
         //
         // 'current' - current timestamp in millisec. pass it to Kcp so that
         // Kcp doesn't have to do any stopwatch/deltaTime/etc. code
+        //
+        // time as uint, likely to minimize bandwidth.
+        // uint.max = 4294967295 ms = 1193 hours = 49 days
         public void Update(uint currentTimeMilliSeconds)
         {
             current = currentTimeMilliSeconds;
@@ -917,18 +931,26 @@ namespace kcp2k
                 ts_flush = current;
             }
 
+            // slap is time since last flush in milliseconds
             int slap = Utils.TimeDiff(current, ts_flush);
 
+            // hard limit: if 10s elapsed, always flush no matter what
             if (slap >= 10000 || slap < -10000)
             {
                 ts_flush = current;
                 slap = 0;
             }
 
+            // last flush is increased by 'interval' each time.
+            // so slap >= is a strange way to check if interval has elapsed yet.
             if (slap >= 0)
             {
+                // increase last flush time by one interval
                 ts_flush += interval;
-                if (Utils.TimeDiff(current, ts_flush) >= 0)
+
+                // if last flush is still behind, increase it to current + interval
+                // if (Utils.TimeDiff(current, ts_flush) >= 0) // original kcp.c
+                if (current >= ts_flush)                       // less confusing
                 {
                     ts_flush = current + interval;
                 }

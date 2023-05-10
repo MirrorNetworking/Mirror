@@ -8,8 +8,10 @@ namespace Mirror.Experimental
     {
         [Header("Settings")]
         [SerializeField] internal Rigidbody target = null;
+
         [Tooltip("How quickly current velocity approaches target velocity")]
         [SerializeField] float lerpVelocityAmount = 0.5f;
+
         [Tooltip("How quickly current position approaches target position")]
         [SerializeField] float lerpPositionAmount = 0.5f;
 
@@ -17,7 +19,6 @@ namespace Mirror.Experimental
         [SerializeField] bool clientAuthority = false;
 
         double nextSyncTime;
-
 
         [SyncVar()]
         Vector3 targetVelocity;
@@ -28,7 +29,6 @@ namespace Mirror.Experimental
         /// <summary>
         /// Ignore value if is host or client with Authority
         /// </summary>
-        /// <returns></returns>
         bool IgnoreSync => isServer || ClientWithAuthority;
 
         bool ClientWithAuthority => clientAuthority && isOwned;
@@ -36,21 +36,15 @@ namespace Mirror.Experimental
         void OnValidate()
         {
             if (target == null)
-            {
                 target = GetComponent<Rigidbody>();
-            }
         }
 
         void Update()
         {
             if (isServer)
-            {
                 SyncToClients();
-            }
             else if (ClientWithAuthority)
-            {
                 SendToServer();
-            }
         }
 
         void SyncToClients()

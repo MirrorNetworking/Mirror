@@ -7,54 +7,65 @@ namespace Mirror.Examples.AdditiveLevels
     public class FadeInOut : MonoBehaviour
     {
         // set these in the inspector
-        [Range(1, 100), Tooltip("Speed of fade in / out: lower is slower")]
-        public byte speed = 1;
-
         [Tooltip("Reference to Image component on child panel")]
         public Image fadeImage;
 
         [Tooltip("Color to use during scene transition")]
         public Color fadeColor = Color.black;
 
-        WaitForSeconds waitForSeconds;
+        [Range(1, 100), Tooltip("Rate of fade in / out: higher is faster")]
+        public byte stepRate = 2;
 
-        void Awake()
+        float step;
+
+        void OnValidate()
         {
-            waitForSeconds = new WaitForSeconds(speed * 0.01f);
+            if (fadeImage == null)
+                fadeImage = GetComponentInChildren<Image>();
+        }
+
+        void Start()
+        {
+            // Convert user-friendly setting value to working value
+            step = stepRate * 0.001f;
+        }
+
+        /// <summary>
+        /// Calculates FadeIn / FadeOut time.
+        /// </summary>
+        /// <returns>Duration in seconds</returns>
+        public float GetDuration()
+        {
+            float frames = 1 / step;
+            float frameRate = Time.deltaTime;
+            float duration = frames * frameRate * 0.1f;
+            return duration;
         }
 
         public IEnumerator FadeIn()
         {
-            //Debug.Log($"{System.DateTime.Now:HH:mm:ss:fff} FadeIn - fading image in {fadeImage.color.a}");
-
             float alpha = fadeImage.color.a;
 
             while (alpha < 1)
             {
-                yield return waitForSeconds;
-                alpha += 0.01f;
+                yield return null;
+                alpha += step;
                 fadeColor.a = alpha;
                 fadeImage.color = fadeColor;
             }
-
-            //Debug.Log($"{System.DateTime.Now:HH:mm:ss:fff} FadeIn - done fading");
         }
 
         public IEnumerator FadeOut()
         {
-            //Debug.Log($"{System.DateTime.Now:HH:mm:ss:fff} FadeOut - fading image out {fadeImage.color.a}");
-
             float alpha = fadeImage.color.a;
 
             while (alpha > 0)
             {
-                yield return waitForSeconds;
-                alpha -= 0.01f;
+                yield return null;
+                alpha -= step;
                 fadeColor.a = alpha;
                 fadeImage.color = fadeColor;
             }
-
-            //Debug.Log($"{System.DateTime.Now:HH:mm:ss:fff} FadeOut - done fading");
         }
     }
 }

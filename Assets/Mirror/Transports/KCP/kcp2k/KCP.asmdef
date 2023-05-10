@@ -1,7 +1,8 @@
 {
     "name": "kcp2k",
+    "rootNamespace": "",
     "references": [
-        "GUID:63c380d6dae6946209ed0832388a657c"
+        "GUID:30817c1a0e6d646d99c048fc403f5979"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

@@ -346,17 +346,25 @@ MonoBehaviour:
   networkAddress: localhost
   maxConnections: 1000
   authenticator: {fileID: 0}
-  playerPrefab: {fileID: 449802645721213856, guid: 614e28b6213c14195b8661c153bf4ee4,
-    type: 3}
+  playerPrefab: {fileID: 449802645721213856, guid: 614e28b6213c14195b8661c153bf4ee4, type: 3}
   autoCreatePlayer: 1
   playerSpawnMethod: 1
   spawnPrefabs:
   - {fileID: 449802645721213856, guid: d0f3b049f6bef4cc6930c57a2146ca52, type: 3}
+  snapshotSettings:
+    bufferTimeMultiplier: 2
+    catchupNegativeThreshold: -1
+    catchupPositiveThreshold: 1
+    catchupSpeed: 0.019999999552965164
+    slowdownSpeed: 0.03999999910593033
+    driftEmaDuration: 1
+    dynamicAdjustment: 1
+    dynamicAdjustmentTolerance: 1
+    deliveryTimeEmaDuration: 2
   timeInterpolationGui: 0
   spawnAmount: 10000
   interleave: 10
-  spawnPrefab: {fileID: 449802645721213856, guid: d0f3b049f6bef4cc6930c57a2146ca52,
-    type: 3}
+  spawnPrefab: {fileID: 449802645721213856, guid: d0f3b049f6bef4cc6930c57a2146ca52, type: 3}
   spawnPositionRatio: 0.01
 --- !u!114 &1282001521
 MonoBehaviour:
@@ -375,13 +383,13 @@ MonoBehaviour:
   NoDelay: 1
   Interval: 10
   Timeout: 10000
+  RecvBufferSize: 7361536
+  SendBufferSize: 7361536
   FastResend: 2
-  CongestionWindow: 0
-  SendWindowSize: 4096
   ReceiveWindowSize: 4096
+  SendWindowSize: 4096
   MaxRetransmit: 40
-  NonAlloc: 1
-  MaximizeSendReceiveBuffersToOSLimit: 1
+  MaximizeSocketBuffers: 1
   ReliableMaxMessageSize: 298449
   UnreliableMaxMessageSize: 1199
   debugLog: 0

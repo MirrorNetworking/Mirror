@@ -5,14 +5,19 @@ namespace Mirror
 {
     public static class Mathd
     {
+        // Unity 2020 doesn't have Math.Clamp yet.
         /// <summary>Clamps value between 0 and 1 and returns value.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static double Clamp01(double value)
+        public static double Clamp(double value, double min, double max)
         {
-            if (value < 0.0)
-                return 0;
-            return value > 1 ? 1 : value;
+            if (value < min) return min;
+            if (value > max) return max;
+            return value;
         }
+
+        /// <summary>Clamps value between 0 and 1 and returns value.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static double Clamp01(double value) => Clamp(value, 0, 1);
 
         /// <summary>Calculates the linear parameter t that produces the interpolant value within the range [a, b].</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -7,14 +7,17 @@ using UnityEngine.Serialization;
 namespace Mirror.SimpleWeb
 {
     [DisallowMultipleComponent]
-    public class SimpleWebTransport : Transport
+    public class SimpleWebTransport : Transport, PortTransport
     {
         public const string NormalScheme = "ws";
         public const string SecureScheme = "wss";
 
         [Tooltip("Port to use for server and client")]
         public ushort port = 7778;
+        public ushort Port { get => port; set => port=value; }
 
+        [Tooltip("Tells the client to use the default port. This is useful when connecting to reverse proxy rather than directly to websocket server")]
+        public bool ClientUseDefaultPort;
 
         [Tooltip("Protect against allocation attacks by keeping the max message size small. Otherwise an attacker might send multiple fake packets with 2GB headers, causing the server to run out of memory after allocating multiple large packets.")]
         public int maxMessageSize = 16 * 1024;
@@ -42,25 +45,28 @@ namespace Mirror.SimpleWeb
         [Tooltip("Groups messages in queue before calling Stream.Send")]
         public bool batchSend = true;
 
-        [Tooltip("Waits for 1ms before grouping and sending messages. " +
-            "This gives time for mirror to finish adding message to queue so that less groups need to be made. " +
+        [Tooltip("Waits for 1ms before grouping and sending messages.\n" +
+            "This gives time for mirror to finish adding message to queue so that less groups need to be made.\n" +
             "If WaitBeforeSend is true then BatchSend Will also be set to true")]
-        public bool waitBeforeSend = false;
-
+        public bool waitBeforeSend = true;
 
         [Header("Ssl Settings")]
-        [Tooltip("Sets connect scheme to wss. Useful when client needs to connect using wss when TLS is outside of transport, NOTE: if sslEnabled is true clientUseWss is also true")]
+        [Tooltip("Sets connect scheme to wss. Useful when client needs to connect using wss when TLS is outside of transport.\nNOTE: if sslEnabled is true clientUseWss is also true")]
         public bool clientUseWss;
 
+        [Tooltip("Requires wss connections on server, only to be used with SSL cert.json, never with reverse proxy.\nNOTE: if sslEnabled is true clientUseWss is also true")]
         public bool sslEnabled;
-        [Tooltip("Path to json file that contains path to cert and its password\n\nUse Json file so that cert password is not included in client builds\n\nSee cert.example.Json")]
+
+        [Tooltip("Path to json file that contains path to cert and its password\nUse Json file so that cert password is not included in client builds\nSee Assets/Mirror/Transports/.cert.example.Json")]
         public string sslCertJson = "./cert.json";
+
+        [Tooltip("Protocols that SSL certificate is created to support.")]
         public SslProtocols sslProtocols = SslProtocols.Tls12;
 
         [Header("Debug")]
         [Tooltip("Log functions uses ConditionalAttribute which will effect which log methods are allowed. DEBUG allows warn/error, SIMPLEWEB_LOG_ENABLED allows all")]
         [FormerlySerializedAs("logLevels")]
-        [SerializeField] Log.Levels _logLevels = Log.Levels.none;
+        [SerializeField] Log.Levels _logLevels = Log.Levels.info;
 
         /// <summary>
         /// <para>Gets _logLevels field</para>
@@ -76,29 +82,25 @@ namespace Mirror.SimpleWeb
             }
         }
 
-        void OnValidate()
-        {
-            Log.level = _logLevels;
-        }
-
         SimpleWebClient client;
         SimpleWebServer server;
 
         TcpConfig TcpConfig => new TcpConfig(noDelay, sendTimeout, receiveTimeout);
 
-        public override bool Available()
-        {
-            return true;
-        }
-        public override int GetMaxPacketSize(int channelId = 0)
-        {
-            return maxMessageSize;
-        }
-
         void Awake()
         {
             Log.level = _logLevels;
         }
+
+        void OnValidate()
+        {
+            Log.level = _logLevels;
+        }
+
+        public override bool Available() => true;
+
+        public override int GetMaxPacketSize(int channelId = 0) => maxMessageSize;
+
         public override void Shutdown()
         {
             client?.Disconnect();
@@ -108,8 +110,9 @@ namespace Mirror.SimpleWeb
         }
 
         #region Client
+
         string GetClientScheme() => (sslEnabled || clientUseWss) ? SecureScheme : NormalScheme;
-        string GetServerScheme() => sslEnabled ? SecureScheme : NormalScheme;
+
         public override bool ClientConnected()
         {
             // not null and not NotConnected (we want to return true if connecting or disconnecting)
@@ -118,25 +121,33 @@ namespace Mirror.SimpleWeb
 
         public override void ClientConnect(string hostname)
         {
-            // connecting or connected
-            if (ClientConnected())
-            {
-                Debug.LogError("Already Connected");
-                return;
-            }
-
             UriBuilder builder = new UriBuilder
             {
                 Scheme = GetClientScheme(),
                 Host = hostname,
-                Port = port
             };
+            // https://github.com/MirrorNetworking/Mirror/pull/3477
+            if (!ClientUseDefaultPort)
+                builder.Port = Port;
 
+            ClientConnect(builder.Uri);
+        }
+
+        public override void ClientConnect(Uri uri)
+        {
+            // connecting or connected
+            if (ClientConnected())
+            {
+                Debug.LogError("[SimpleWebTransport] Already Connected");
+                return;
+            }
 
             client = SimpleWebClient.Create(maxMessageSize, clientMaxMessagesPerTick, TcpConfig);
-            if (client == null) { return; }
+            if (client == null)
+                return;
 
             client.onConnect += OnClientConnected.Invoke;
+
             client.onDisconnect += () =>
             {
                 OnClientDisconnected.Invoke();
@@ -144,14 +155,16 @@ namespace Mirror.SimpleWeb
                 // there should be no more messages after disconnect
                 client = null;
             };
+
             client.onData += (ArraySegment<byte> data) => OnClientDataReceived.Invoke(data, Channels.Reliable);
+
             client.onError += (Exception e) =>
             {
                 OnClientError.Invoke(TransportError.Unexpected, e.ToString());
                 ClientDisconnect();
             };
 
-            client.Connect(builder.Uri);
+            client.Connect(uri);
         }
 
         public override void ClientDisconnect()
@@ -164,19 +177,19 @@ namespace Mirror.SimpleWeb
         {
             if (!ClientConnected())
             {
-                Debug.LogError("Not Connected");
+                Debug.LogError("[SimpleWebTransport] Not Connected");
                 return;
             }
 
             if (segment.Count > maxMessageSize)
             {
-                Log.Error("Message greater than max size");
+                Log.Error("[SimpleWebTransport] Message greater than max size");
                 return;
             }
 
             if (segment.Count == 0)
             {
-                Log.Error("Message count was zero");
+                Log.Error("[SimpleWebTransport] Message count was zero");
                 return;
             }
 
@@ -191,9 +204,24 @@ namespace Mirror.SimpleWeb
         {
             client?.ProcessMessageQueue(this);
         }
+
         #endregion
 
         #region Server
+
+        string GetServerScheme() => sslEnabled ? SecureScheme : NormalScheme;
+
+        public override Uri ServerUri()
+        {
+            UriBuilder builder = new UriBuilder
+            {
+                Scheme = GetServerScheme(),
+                Host = Dns.GetHostName(),
+                Port = port
+            };
+            return builder.Uri;
+        }
+
         public override bool ServerActive()
         {
             return server != null && server.Active;
@@ -202,9 +230,7 @@ namespace Mirror.SimpleWeb
         public override void ServerStart()
         {
             if (ServerActive())
-            {
-                Debug.LogError("SimpleWebServer Already Started");
-            }
+                Debug.LogError("[SimpleWebTransport] Server Already Started");
 
             SslConfig config = SslConfigLoader.Load(sslEnabled, sslCertJson, sslProtocols);
             server = new SimpleWebServer(serverMaxMessagesPerTick, TcpConfig, maxMessageSize, handshakeMaxSize, config);
@@ -223,9 +249,7 @@ namespace Mirror.SimpleWeb
         public override void ServerStop()
         {
             if (!ServerActive())
-            {
-                Debug.LogError("SimpleWebServer Not Active");
-            }
+                Debug.LogError("[SimpleWebTransport] Server Not Active");
 
             server.Stop();
             server = null;
@@ -234,9 +258,7 @@ namespace Mirror.SimpleWeb
         public override void ServerDisconnect(int connectionId)
         {
             if (!ServerActive())
-            {
-                Debug.LogError("SimpleWebServer Not Active");
-            }
+                Debug.LogError("[SimpleWebTransport] Server Not Active");
 
             server.KickClient(connectionId);
         }
@@ -245,19 +267,19 @@ namespace Mirror.SimpleWeb
         {
             if (!ServerActive())
             {
-                Debug.LogError("SimpleWebServer Not Active");
+                Log.Error("[SimpleWebTransport] Server Not Active", false);
                 return;
             }
 
             if (segment.Count > maxMessageSize)
             {
-                Log.Error("Message greater than max size");
+                Log.Error("[SimpleWebTransport] Message greater than max size", false);
                 return;
             }
 
             if (segment.Count == 0)
             {
-                Log.Error("Message count was zero");
+                Log.Error("[SimpleWebTransport] Message count was zero", false);
                 return;
             }
 
@@ -267,27 +289,14 @@ namespace Mirror.SimpleWeb
             OnServerDataSent?.Invoke(connectionId, segment, Channels.Reliable);
         }
 
-        public override string ServerGetClientAddress(int connectionId)
-        {
-            return server.GetClientAddress(connectionId);
-        }
-
-        public override Uri ServerUri()
-        {
-            UriBuilder builder = new UriBuilder
-            {
-                Scheme = GetServerScheme(),
-                Host = Dns.GetHostName(),
-                Port = port
-            };
-            return builder.Uri;
-        }
+        public override string ServerGetClientAddress(int connectionId) => server.GetClientAddress(connectionId);
 
         // messages should always be processed in early update
         public override void ServerEarlyUpdate()
         {
             server?.ProcessMessageQueue(this);
         }
+
         #endregion
     }
 }

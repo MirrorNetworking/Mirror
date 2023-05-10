@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 1098173225717622924}
   - component: {fileID: 3141292696673982546}
   - component: {fileID: 5948271423698091598}
-  m_Layer: 9
+  m_Layer: 0
   m_Name: Portal
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -130,6 +130,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0e680878006965146a8f9d85834c4d1c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  syncDirection: 0
   syncMode: 0
   syncInterval: 0.1
   destinationScene: 
@@ -224,7 +225,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5961932215084527574}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cc58300ee45438a418d9e32957fdc0c0, type: 3}
   m_Name: 

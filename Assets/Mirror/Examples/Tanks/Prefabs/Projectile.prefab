@@ -132,9 +132,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sceneId: 0
+  _assetId: 570694820
   serverOnly: 0
   visible: 0
-  m_AssetId: b7dd46dbf38c643f09e206f9fa4be008
   hasSpawned: 0
 --- !u!114 &7082621516996595528
 MonoBehaviour:
@@ -148,6 +148,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8f49b83f111a64bc7a5275af4f6f930b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  syncDirection: 0
   syncMode: 0
   syncInterval: 0.1
   destroyAfter: 2

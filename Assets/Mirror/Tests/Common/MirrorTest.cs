@@ -608,7 +608,7 @@ namespace Mirror.Tests
         protected void ConnectHostClientBlocking()
         {
             NetworkClient.ConnectHost();
-            NetworkClient.ConnectLocalServer();
+            HostMode.InvokeOnConnected();
             UpdateTransport();
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(1));
 
@@ -653,15 +653,6 @@ namespace Mirror.Tests
 
             // update transport so sent messages are received
             UpdateTransport();
-        }
-
-        // helper function to create local connection pair
-        protected void CreateLocalConnectionPair(out LocalConnectionToClient connectionToClient, out LocalConnectionToServer connectionToServer)
-        {
-            connectionToClient = new LocalConnectionToClient();
-            connectionToServer = new LocalConnectionToServer();
-            connectionToClient.connectionToServer = connectionToServer;
-            connectionToServer.connectionToClient = connectionToClient;
         }
     }
 }

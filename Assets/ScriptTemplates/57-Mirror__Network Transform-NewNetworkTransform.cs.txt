@@ -118,9 +118,9 @@ public class #SCRIPTNAME# : NetworkTransformBase
     /// interpolated values are used if interpolation is enabled.
     /// goal values are used if interpolation is disabled.
     /// </summary>
-    protected override void ApplySnapshot(NTSnapshot start, NTSnapshot goal, NTSnapshot interpolated)
+    protected override void Apply(TransformSnapshot interpolated, TransformSnapshot endGoal)
     {
-        base.ApplySnapshot(start, goal, interpolated);
+        base.Apply(interpolated, endGoal);
     }
 
 #if onlySyncOnChange_BANDWIDTH_SAVING

@@ -7,19 +7,17 @@ namespace Mirror
 {
     public struct ExponentialMovingAverage
     {
-        readonly float alpha;
+        readonly double alpha;
         bool initialized;
 
         public double Value;
         public double Variance;
-        [Obsolete("Var was renamed to Variance")] // 2022-06-17
-        public double Var => Variance;
         public double StandardDeviation; // absolute value, see test
 
         public ExponentialMovingAverage(int n)
         {
             // standard N-day EMA alpha calculation
-            alpha = 2.0f / (n + 1);
+            alpha = 2.0 / (n + 1);
             initialized = false;
             Value = 0;
             Variance = 0;
@@ -42,6 +40,14 @@ namespace Mirror
                 Value = newValue;
                 initialized = true;
             }
+        }
+
+        public void Reset()
+        {
+            initialized = false;
+            Value = 0;
+            Variance = 0;
+            StandardDeviation = 0;
         }
     }
 }

@@ -2,7 +2,6 @@ using UnityEngine;
 
 namespace Mirror.Examples.AdditiveScenes
 {
-    // This script is attached to a prefab called Zone that is on the Player layer
     // AdditiveNetworkManager, in OnStartServer, instantiates the prefab only on the server.
     // It never exists for clients (other than host client if there is one).
     // The prefab has a Sphere Collider with isTrigger = true.
@@ -17,21 +16,27 @@ namespace Mirror.Examples.AdditiveScenes
         [ServerCallback]
         void OnTriggerEnter(Collider other)
         {
-            // Debug.Log($"Loading {subScene}");
+            // ignore collisions with non-Player objects
+            if (!other.CompareTag("Player")) return;
 
-            NetworkIdentity networkIdentity = other.gameObject.GetComponent<NetworkIdentity>();
-            SceneMessage message = new SceneMessage{ sceneName = subScene, sceneOperation = SceneOperation.LoadAdditive };
-            networkIdentity.connectionToClient.Send(message);
+            if (other.TryGetComponent(out NetworkIdentity networkIdentity))
+            {
+                SceneMessage message = new SceneMessage { sceneName = subScene, sceneOperation = SceneOperation.LoadAdditive };
+                networkIdentity.connectionToClient.Send(message);
+            }
         }
 
         [ServerCallback]
         void OnTriggerExit(Collider other)
         {
-            // Debug.Log($"Unloading {subScene}");
+            // ignore collisions with non-Player objects
+            if (!other.CompareTag("Player")) return;
 
-            NetworkIdentity networkIdentity = other.gameObject.GetComponent<NetworkIdentity>();
-            SceneMessage message = new SceneMessage{ sceneName = subScene, sceneOperation = SceneOperation.UnloadAdditive };
-            networkIdentity.connectionToClient.Send(message);
+            if (other.TryGetComponent(out NetworkIdentity networkIdentity))
+            {
+                SceneMessage message = new SceneMessage { sceneName = subScene, sceneOperation = SceneOperation.UnloadAdditive };
+                networkIdentity.connectionToClient.Send(message);
+            }
         }
     }
 }

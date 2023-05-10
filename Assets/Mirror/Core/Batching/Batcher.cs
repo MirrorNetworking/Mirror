@@ -38,7 +38,7 @@ namespace Mirror
         //        it would allocate too many writers.
         //        https://github.com/vis2k/Mirror/pull/3127
         // => best to build batches on the fly.
-        Queue<NetworkWriterPooled> batches = new Queue<NetworkWriterPooled>();
+        readonly Queue<NetworkWriterPooled> batches = new Queue<NetworkWriterPooled>();
 
         // current batch in progress
         NetworkWriterPooled batch;

@@ -1,0 +1,49 @@
+name: Semantic Release
+
+on:
+  workflow_dispatch:
+  workflow_call:
+
+jobs:
+  SemanticRelease:
+    name: Semantic Release
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Delete Tests
+        run: |
+          Remove-Item -Recurse -Force Assets\Mirror\Tests
+          Remove-Item -Recurse -Force Assets\Mirror\Tests.meta
+        
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '3.1.100'
+  
+      # Installs nuget package from https://www.nuget.org/packages/unity-packer
+      - name: Install unity-packer
+        run: dotnet tool install -g unity-packer
+  
+      - name: Package
+        run: unity-packer pack Mirror.unitypackage Assets/Mirror Assets/Mirror Assets/ScriptTemplates Assets/ScriptTemplates LICENSE Assets/Mirror/LICENSE
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Mirror.unitypackage
+          path: Mirror.unitypackage
+
+      - name: Release
+        uses: cycjimmy/semantic-release-action@v3
+        with:
+          extra_plugins: |
+            @semantic-release/exec
+            @semantic-release/changelog
+            @semantic-release/git
+          branch: master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

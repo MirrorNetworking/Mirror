@@ -4,13 +4,6 @@ using System;
 
 namespace Mirror
 {
-    [Obsolete("PooledNetworkReader was renamed to NetworkReaderPooled. It's cleaner & slightly easier to use.")]
-    public sealed class PooledNetworkReader : NetworkReaderPooled
-    {
-        internal PooledNetworkReader(byte[] bytes) : base(bytes) {}
-        internal PooledNetworkReader(ArraySegment<byte> segment) : base(segment) {}
-    }
-
     /// <summary>Pooled NetworkReader, automatically returned to pool when using 'using'</summary>
     // TODO make sealed again after removing obsolete NetworkReaderPooled!
     public class NetworkReaderPooled : NetworkReader, IDisposable

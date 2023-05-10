@@ -1,0 +1,37 @@
+name: SonarQube Analysis
+
+on:
+  workflow_dispatch:
+  workflow_call:
+
+jobs:
+  SonarQube:
+    name: SonarQube
+    runs-on: ubuntu-latest
+
+    # available list of containers here:
+    # https://hub.docker.com/r/unityci/editor/tags?page=1&ordering=last_updated&name=ubuntu-2020.1.17f1-base
+    container: unityci/editor:ubuntu-2021.3.16f1-base-1.0.1
+
+    steps:
+      - name: SonarQube analysis
+        uses: MirrorNetworking/unity-runner@2.0.0
+        with:
+          entrypoint: /sonar-scanner.sh
+          projectKey: vis2k_Mirror
+          projectName: Mirror
+          sonarOrganisation: vis2k
+          beginArguments: >-
+              /d:sonar.verbose="true" 
+              /d:sonar.cs.nunit.reportsPaths=Tests/editmode-results.xml,Tests/playimode-results.xml 
+              /d:sonar.cs.opencover.reportsPaths=Tests/workspace-opencov/EditMode/TestCoverageResults_0000.xml,Tests/workspace-opencov/PlayMode/TestCoverageResults_0000.xml
+              /d:sonar.coverage.exclusions=Assets/Mirror/Transports/**,Assets/Mirror/Examples/**,Assets/Mirror/Tests/**
+              /d:sonar.exclusions=Assets/Mirror/Runtime/Transport/SimpleWebTransport/**
+          # files ignored in code coverage:
+          # Assets/Mirror/Transports/**  - Transports have their own tests and Sonar coverage
+          # Assets/Mirror/Examples/**    - Examples don't need test coverage
+          # Assets/Mirror/Tests/**       - Tests don't need test coverage
+        env:
+          FrameworkPathOverride: /opt/Unity/Editor/Data/MonoBleedingEdge/
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

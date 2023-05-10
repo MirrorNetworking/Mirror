@@ -6,34 +6,13 @@ using UnityEngine.Events;
 namespace Mirror.Discovery
 {
     [Serializable]
-    public class ServerFoundUnityEvent : UnityEvent<ServerResponse> {};
+    public class ServerFoundUnityEvent<TResponseType> : UnityEvent<TResponseType> {};
 
     [DisallowMultipleComponent]
     [AddComponentMenu("Network/Network Discovery")]
     public class NetworkDiscovery : NetworkDiscoveryBase<ServerRequest, ServerResponse>
     {
         #region Server
-
-        public long ServerId { get; private set; }
-
-        [Tooltip("Transport to be advertised during discovery")]
-        public Transport transport;
-
-        [Tooltip("Invoked when a server is found")]
-        public ServerFoundUnityEvent OnServerFound;
-
-        public override void Start()
-        {
-            ServerId = RandomLong();
-
-            // active transport gets initialized in awake
-            // so make sure we set it here in Start()  (after awakes)
-            // Or just let the user assign it in the inspector
-            if (transport == null)
-                transport = Transport.active;
-
-            base.Start();
-        }
 
         /// <summary>
         /// Process the request from a client
@@ -68,9 +47,11 @@ namespace Mirror.Discovery
                 throw;
             }
         }
+
         #endregion
 
         #region Client
+
         /// <summary>
         /// Create a message that will be broadcasted on the network to discover servers
         /// </summary>
@@ -106,6 +87,7 @@ namespace Mirror.Discovery
 
             OnServerFound.Invoke(response);
         }
+
         #endregion
     }
 }

@@ -139,7 +139,7 @@ namespace Mirror
                 if (!room.showRoomGUI)
                     return;
 
-                if (!NetworkManager.IsSceneActive(room.RoomScene))
+                if (!Utils.IsSceneActive(room.RoomScene))
                     return;
 
                 DrawPlayerReadyState();

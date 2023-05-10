@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -5,16 +6,28 @@ namespace Mirror
 {
     public static partial class NetworkClient
     {
+        // snapshot interpolation settings /////////////////////////////////////
         // TODO expose the settings to the user later.
         // via NetMan or NetworkClientConfig or NetworkClient as component etc.
+        public static SnapshotInterpolationSettings snapshotSettings = new SnapshotInterpolationSettings();
 
-        // decrease bufferTime at runtime to see the catchup effect.
-        // increase to see slowdown.
-        // 'double' so we can have very precise dynamic adjustment without rounding
-        [Header("Snapshot Interpolation: Buffering")]
-        [Tooltip("Local simulation is behind by sendInterval * multiplier seconds.\n\nThis guarantees that we always have enough snapshots in the buffer to mitigate lags & jitter.\n\nIncrease this if the simulation isn't smooth. By default, it should be around 2.")]
-        public static double bufferTimeMultiplier = 2;
-        public static double bufferTime => NetworkServer.sendInterval * bufferTimeMultiplier;
+        // obsolete snapshot settings access
+        // DEPRECATED 2023-03-11
+        [Obsolete("NetworkClient snapshot interpolation settings were moved to NetworkClient.snapshotSettings.*")]
+        public static double bufferTimeMultiplier => snapshotSettings.bufferTimeMultiplier;
+        [Obsolete("NetworkClient snapshot interpolation settings were moved to NetworkClient.snapshotSettings.*")]
+        public static float catchupNegativeThreshold => snapshotSettings.catchupNegativeThreshold;
+        [Obsolete("NetworkClient snapshot interpolation settings were moved to NetworkClient.snapshotSettings.*")]
+        public static float catchupPositiveThreshold => snapshotSettings.catchupPositiveThreshold;
+        [Obsolete("NetworkClient snapshot interpolation settings were moved to NetworkClient.snapshotSettings.*")]
+        public static double catchupSpeed => snapshotSettings.catchupSpeed;
+        [Obsolete("NetworkClient snapshot interpolation settings were moved to NetworkClient.snapshotSettings.*")]
+        public static double slowdownSpeed => snapshotSettings.slowdownSpeed;
+        [Obsolete("NetworkClient snapshot interpolation settings were moved to NetworkClient.snapshotSettings.*")]
+        public static int driftEmaDuration => snapshotSettings.driftEmaDuration;
+
+        // snapshot interpolation runtime data /////////////////////////////////
+        public static double bufferTime => NetworkServer.sendInterval * snapshotSettings.bufferTimeMultiplier;
 
         // <servertime, snaps>
         public static SortedList<double, TimeSnapshot> snapshots = new SortedList<double, TimeSnapshot>();
@@ -33,25 +46,7 @@ namespace Mirror
         internal static double localTimescale = 1;
 
         // catchup /////////////////////////////////////////////////////////////
-        // catchup thresholds in 'frames'.
-        // half a frame might be too aggressive.
-        [Header("Snapshot Interpolation: Catchup / Slowdown")]
-        [Tooltip("Slowdown begins when the local timeline is moving too fast towards remote time. Threshold is in frames worth of snapshots.\n\nThis needs to be negative.\n\nDon't modify unless you know what you are doing.")]
-        public static float catchupNegativeThreshold = -1; // careful, don't want to run out of snapshots
 
-        [Tooltip("Catchup begins when the local timeline is moving too slow and getting too far away from remote time. Threshold is in frames worth of snapshots.\n\nThis needs to be positive.\n\nDon't modify unless you know what you are doing.")]
-        public static float catchupPositiveThreshold =  1;
-
-        [Tooltip("Local timeline acceleration in % while catching up.")]
-        [Range(0, 1)]
-        public static double catchupSpeed = 0.01f; // 1%
-
-        [Tooltip("Local timeline slowdown in % while slowing down.")]
-        [Range(0, 1)]
-        public static double slowdownSpeed = 0.01f; // 1%
-
-        [Tooltip("Catchup/Slowdown is adjusted over n-second exponential moving average.")]
-        public static int driftEmaDuration = 1; // shouldn't need to modify this, but expose it anyway
 
         // we use EMA to average the last second worth of snapshot time diffs.
         // manually averaging the last second worth of values with a for loop
@@ -93,15 +88,18 @@ namespace Mirror
         // initialization called from Awake
         static void InitTimeInterpolation()
         {
-            // reset timeline & snapshots from last session (if any)
+            // reset timeline, localTimescale & snapshots from last session (if any)
+            // Don't reset bufferTimeMultiplier here - whatever their network condition
+            // was when they disconnected, it won't have changed on immediate reconnect.
             localTimeline = 0;
+            localTimescale = 1;
             snapshots.Clear();
 
             // initialize EMA with 'emaDuration' seconds worth of history.
             // 1 second holds 'sendRate' worth of values.
             // multiplied by emaDuration gives n-seconds.
-            driftEma        = new ExponentialMovingAverage(NetworkServer.sendRate * driftEmaDuration);
-            deliveryTimeEma = new ExponentialMovingAverage(NetworkServer.sendRate * deliveryTimeEmaDuration);
+            driftEma = new ExponentialMovingAverage(NetworkServer.sendRate * snapshotSettings.driftEmaDuration);
+            deliveryTimeEma = new ExponentialMovingAverage(NetworkServer.sendRate * snapshotSettings.deliveryTimeEmaDuration);
         }
 
         // server sends TimeSnapshotMessage every sendInterval.
@@ -114,12 +112,8 @@ namespace Mirror
             // before calling OnDeserialize so components can use
             // NetworkTime.time and NetworkTime.timeStamp.
 
-#if !UNITY_2020_3_OR_NEWER
             // Unity 2019 doesn't have Time.timeAsDouble yet
             OnTimeSnapshot(new TimeSnapshot(connection.remoteTimeStamp, NetworkTime.localTime));
-#else
-            OnTimeSnapshot(new TimeSnapshot(connection.remoteTimeStamp, Time.timeAsDouble));
-#endif
         }
 
         // see comments at the top of this file
@@ -128,14 +122,14 @@ namespace Mirror
             // Debug.Log($"NetworkClient: OnTimeSnapshot @ {snap.remoteTime:F3}");
 
             // (optional) dynamic adjustment
-            if (dynamicAdjustment)
+            if (snapshotSettings.dynamicAdjustment)
             {
                 // set bufferTime on the fly.
                 // shows in inspector for easier debugging :)
-                bufferTimeMultiplier = SnapshotInterpolation.DynamicAdjustment(
+                snapshotSettings.bufferTimeMultiplier = SnapshotInterpolation.DynamicAdjustment(
                     NetworkServer.sendInterval,
                     deliveryTimeEma.StandardDeviation,
-                    dynamicAdjustmentTolerance
+                    snapshotSettings.dynamicAdjustmentTolerance
                 );
             }
 
@@ -147,11 +141,11 @@ namespace Mirror
                 ref localTimescale,
                 NetworkServer.sendInterval,
                 bufferTime,
-                catchupSpeed,
-                slowdownSpeed,
+                snapshotSettings.catchupSpeed,
+                snapshotSettings.slowdownSpeed,
                 ref driftEma,
-                catchupNegativeThreshold,
-                catchupPositiveThreshold,
+                snapshotSettings.catchupNegativeThreshold,
+                snapshotSettings.catchupPositiveThreshold,
                 ref deliveryTimeEma);
 
             // Debug.Log($"inserted TimeSnapshot remote={snap.remoteTime:F2} local={snap.localTime:F2} total={snapshots.Count}");
@@ -165,6 +159,9 @@ namespace Mirror
             if (snapshots.Count > 0)
             {
                 // progress local timeline.
+                // NetworkTime uses unscaled time and ignores Time.timeScale.
+                // fixes Time.timeScale getting server & client time out of sync:
+                // https://github.com/MirrorNetworking/Mirror/issues/3409
                 SnapshotInterpolation.StepTime(Time.unscaledDeltaTime, ref localTimeline, localTimescale);
 
                 // progress local interpolation.

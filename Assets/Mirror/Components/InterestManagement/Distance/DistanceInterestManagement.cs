@@ -8,22 +8,38 @@ namespace Mirror
     public class DistanceInterestManagement : InterestManagement
     {
         [Tooltip("The maximum range that objects will be visible at. Add DistanceInterestManagementCustomRange onto NetworkIdentities for custom ranges.")]
-        public int visRange = 10;
+        public int visRange = 500;
 
         [Tooltip("Rebuild all every 'rebuildInterval' seconds.")]
         public float rebuildInterval = 1;
         double lastRebuildTime;
 
+        // cache custom ranges to avoid runtime TryGetComponent lookups
+        readonly Dictionary<NetworkIdentity, DistanceInterestManagementCustomRange> CustomRanges = new Dictionary<NetworkIdentity, DistanceInterestManagementCustomRange>();
+
         // helper function to get vis range for a given object, or default.
+        [ServerCallback]
         int GetVisRange(NetworkIdentity identity)
         {
-            return identity.TryGetComponent(out DistanceInterestManagementCustomRange custom) ? custom.visRange : visRange;
+            return CustomRanges.TryGetValue(identity, out DistanceInterestManagementCustomRange custom) ? custom.visRange : visRange;
         }
 
         [ServerCallback]
         public override void Reset()
         {
             lastRebuildTime = 0D;
+            CustomRanges.Clear();
+        }
+
+        public override void OnSpawned(NetworkIdentity identity)
+        {
+            if (identity.TryGetComponent(out DistanceInterestManagementCustomRange custom))
+                CustomRanges[identity] = custom;
+        }
+
+        public override void OnDestroyed(NetworkIdentity identity)
+        {
+            CustomRanges.Remove(identity);
         }
 
         public override bool OnCheckObserver(NetworkIdentity identity, NetworkConnectionToClient newObserver)

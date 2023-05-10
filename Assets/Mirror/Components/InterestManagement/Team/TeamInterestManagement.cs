@@ -13,7 +13,7 @@ namespace Mirror
         [ServerCallback]
         public override void OnSpawned(NetworkIdentity identity)
         {
-            if (!identity.TryGetComponent<NetworkTeam>(out NetworkTeam identityNetworkTeam))
+            if (!identity.TryGetComponent(out NetworkTeam identityNetworkTeam))
                 return;
 
             string networkTeamId = identityNetworkTeam.teamId;
@@ -35,17 +35,22 @@ namespace Mirror
 
             // Team ID could have been set in NetworkBehaviour::OnStartServer on this object.
             // Since that's after OnCheckObserver is called it would be missed, so force Rebuild here.
-            RebuildTeamObservers(networkTeamId);
+            // Add the current team to dirtyTeams for Update to rebuild it.
+            dirtyTeams.Add(networkTeamId);
         }
 
         [ServerCallback]
         public override void OnDestroyed(NetworkIdentity identity)
         {
+            // Don't RebuildSceneObservers here - that will happen in Update.
+            // Multiple objects could be destroyed in same frame and we don't
+            // want to rebuild for each one...let Update do it once.
+            // We must add the current team to dirtyTeams for Update to rebuild it.
             if (lastObjectTeam.TryGetValue(identity, out string currentTeam))
             {
                 lastObjectTeam.Remove(identity);
                 if (!string.IsNullOrWhiteSpace(currentTeam) && teamObjects.TryGetValue(currentTeam, out HashSet<NetworkIdentity> objects) && objects.Remove(identity))
-                    RebuildTeamObservers(currentTeam);
+                    dirtyTeams.Add(currentTeam);
             }
         }
 
@@ -60,7 +65,7 @@ namespace Mirror
             foreach (NetworkIdentity netIdentity in NetworkServer.spawned.Values)
             {
                 // Ignore objects that don't have a NetworkTeam component
-                if (!netIdentity.TryGetComponent<NetworkTeam>(out NetworkTeam identityNetworkTeam))
+                if (!netIdentity.TryGetComponent(out NetworkTeam identityNetworkTeam))
                     continue;
 
                 string networkTeamId = identityNetworkTeam.teamId;
@@ -124,7 +129,7 @@ namespace Mirror
         public override bool OnCheckObserver(NetworkIdentity identity, NetworkConnectionToClient newObserver)
         {
             // Always observed if no NetworkTeam component
-            if (!identity.TryGetComponent<NetworkTeam>(out NetworkTeam identityNetworkTeam))
+            if (!identity.TryGetComponent(out NetworkTeam identityNetworkTeam))
                 return true;
 
             if (identityNetworkTeam.forceShown)
@@ -135,7 +140,7 @@ namespace Mirror
                 return false;
 
             // Always observed if no NetworkTeam component
-            if (!newObserver.identity.TryGetComponent<NetworkTeam>(out NetworkTeam newObserverNetworkTeam))
+            if (!newObserver.identity.TryGetComponent(out NetworkTeam newObserverNetworkTeam))
                 return true;
 
             // Null / Empty string is never a valid teamId
@@ -151,7 +156,7 @@ namespace Mirror
         public override void OnRebuildObservers(NetworkIdentity identity, HashSet<NetworkConnectionToClient> newObservers)
         {
             // If this object doesn't have a NetworkTeam then it's visible to all clients
-            if (!identity.TryGetComponent<NetworkTeam>(out NetworkTeam networkTeam))
+            if (!identity.TryGetComponent(out NetworkTeam networkTeam))
             {
                 AddAllConnections(newObservers);
                 return;

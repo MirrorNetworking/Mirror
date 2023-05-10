@@ -50,7 +50,7 @@ namespace Mirror.Authenticators
 
         /// <summary>
         /// Called on server from StopServer to reset the Authenticator
-        /// <para>Server message handlers should be registered in this method.</para>
+        /// <para>Server message handlers should be unregistered in this method.</para>
         /// </summary>
         public override void OnStopServer()
         {
@@ -162,7 +162,7 @@ namespace Mirror.Authenticators
                 authPassword = password
             };
 
-            NetworkClient.connection.Send(authRequestMessage);
+            NetworkClient.Send(authRequestMessage);
         }
 
         /// <summary>

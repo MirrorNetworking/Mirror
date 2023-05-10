@@ -19,18 +19,21 @@ namespace Mirror
         public static float PingFrequency = 2;
 
         /// <summary>Average out the last few results from Ping</summary>
-        public static int PingWindowSize = 10;
+        public static int PingWindowSize = 6;
 
         static double lastPingTime;
 
-        static ExponentialMovingAverage _rtt = new ExponentialMovingAverage(10);
+        static ExponentialMovingAverage _rtt = new ExponentialMovingAverage(PingWindowSize);
 
         /// <summary>Returns double precision clock time _in this system_, unaffected by the network.</summary>
 #if UNITY_2020_3_OR_NEWER
         public static double localTime
         {
+            // NetworkTime uses unscaled time and ignores Time.timeScale.
+            // fixes Time.timeScale getting server & client time out of sync:
+            // https://github.com/MirrorNetworking/Mirror/issues/3409
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => Time.timeAsDouble;
+            get => Time.unscaledTimeAsDouble;
         }
 #else
         // need stopwatch for older Unity versions, but it's quite slow.
@@ -74,7 +77,7 @@ namespace Mirror
         public static void ResetStatics()
         {
             PingFrequency = 2;
-            PingWindowSize = 10;
+            PingWindowSize = 6;
             lastPingTime = 0;
             _rtt = new ExponentialMovingAverage(PingWindowSize);
 #if !UNITY_2020_3_OR_NEWER
@@ -102,7 +105,6 @@ namespace Mirror
             NetworkPongMessage pongMessage = new NetworkPongMessage
             {
                 clientTime = message.clientTime,
-                serverTime = localTime
             };
             conn.Send(pongMessage, Channels.Unreliable);
         }

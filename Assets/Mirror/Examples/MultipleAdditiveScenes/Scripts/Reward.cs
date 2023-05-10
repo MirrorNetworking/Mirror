@@ -23,6 +23,7 @@ namespace Mirror.Examples.MultipleAdditiveScenes
 
         // This is called from PlayerController.CmdClaimPrize which is invoked by PlayerController.OnControllerColliderHit
         // This only runs on the server
+        [ServerCallback]
         public void ClaimPrize(GameObject player)
         {
             if (available)
@@ -36,7 +37,6 @@ namespace Mirror.Examples.MultipleAdditiveScenes
                 // calculate the points from the color ... lighter scores higher as the average approaches 255
                 // UnityEngine.Color RGB values are float fractions of 255
                 uint points = (uint)(((color.r) + (color.g) + (color.b)) / 3);
-                //Debug.Log($"Scored {points} points R:{color.r} G:{color.g} B:{color.b}");
 
                 // award the points via SyncVar on the PlayerController
                 player.GetComponent<PlayerScore>().score += points;
