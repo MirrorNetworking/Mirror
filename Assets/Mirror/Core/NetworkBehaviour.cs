@@ -19,8 +19,8 @@ namespace Mirror
     public enum SyncDirection { ServerToClient, ClientToServer }
 
     /// <summary>Base class for networked components.</summary>
+    // [RequireComponent(typeof(NetworkIdentity))] disabled to allow child NetworkBehaviours
     [AddComponentMenu("")]
-    [RequireComponent(typeof(NetworkIdentity))]
     [HelpURL("https://mirror-networking.gitbook.io/docs/guides/networkbehaviour")]
     public abstract class NetworkBehaviour : MonoBehaviour
     {

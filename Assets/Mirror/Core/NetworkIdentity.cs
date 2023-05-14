@@ -292,9 +292,12 @@ namespace Mirror
         // BUT internal so tests can add them after creating the NetworkIdentity
         internal void InitializeNetworkBehaviours()
         {
-            // Get all NetworkBehaviours
-            // (never null. GetComponents returns [] if none found)
-            NetworkBehaviours = GetComponents<NetworkBehaviour>();
+            // Get all NetworkBehaviour components, including children.
+            // Some users need NetworkTransform on child bones, etc.
+            // => Deterministic: https://forum.unity.com/threads/getcomponentsinchildren.4582/#post-33983
+            // => Never null. GetComponents returns [] if none found.
+            // => Include inactive. We need all child components.
+            NetworkBehaviours = GetComponentsInChildren<NetworkBehaviour>(true);
             ValidateComponents();
 
             // initialize each one
