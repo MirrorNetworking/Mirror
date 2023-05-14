@@ -25,6 +25,7 @@ namespace Mirror
     public abstract class NetworkTransformBase : NetworkBehaviour
     {
         // target transform to sync. can be on a child.
+        // TODO this field is kind of unnecessary since we now support child NetworkBehaviours
         [Header("Target")]
         [Tooltip("The Transform component to sync. May be on on this GameObject, or on a child.")]
         public Transform target;
