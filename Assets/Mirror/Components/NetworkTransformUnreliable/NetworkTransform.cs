@@ -18,7 +18,7 @@ namespace Mirror
         double lastSendIntervalTime = double.MinValue;
 
         // 3 was original, but testing under really bad network conditions, 2%-5% packet loss and 250-1200ms ping, 5 proved to eliminate any twitching.
-        [Tooltip("How much time, as a multiple of send interval, has passed before clearing buffers.")]
+        [Tooltip("How much time, as a multiple of send interval, has passed before clearing buffers.\nA larger buffer means more delay, but results in smoother movement.\n3 is recommended for faster responses, with minor smoothing. ")]
         public float bufferResetMultiplier = 5;
 
         [Header("Sensitivity"), Tooltip("Sensitivity of changes needed before an updated state is sent over the network")]
