@@ -293,6 +293,22 @@ namespace Mirror
             };
         }
 
+        protected virtual void OnValidate()
+        {
+            // we now allow child NetworkBehaviours.
+            // we can not [RequireComponent(typeof(NetworkIdentity))] anymore.
+            // instead, we need to ensure a NetworkIdentity is somewhere in the
+            // parents.
+            // only run this in Editor. don't add more runtime overhead.
+#if UNITY_EDITOR
+            if (GetComponent<NetworkIdentity>() == null &&
+                GetComponentInParent<NetworkIdentity>() == null)
+            {
+                Debug.LogError($"{GetType()} on {name} requires a NetworkIdentity. Please add a NetworkIdentity component to {name} or it's parents.");
+            }
+#endif
+        }
+
         // pass full function name to avoid ClassA.Func <-> ClassB.Func collisions
         protected void SendCommandInternal(string functionFullName, int functionHashCode, NetworkWriter writer, int channelId, bool requiresAuthority = true)
         {
