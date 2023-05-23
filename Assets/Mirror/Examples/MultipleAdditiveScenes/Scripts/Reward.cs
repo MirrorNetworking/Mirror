@@ -8,8 +8,10 @@ namespace Mirror.Examples.MultipleAdditiveScenes
         public bool available = true;
         public RandomColor randomColor;
 
-        void OnValidate()
+        protected override void OnValidate()
         {
+            base.OnValidate();
+
             if (randomColor == null)
                 randomColor = GetComponent<RandomColor>();
         }

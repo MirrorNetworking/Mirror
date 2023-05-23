@@ -37,8 +37,9 @@ namespace Mirror.Experimental
         /// </summary>
         readonly ClientSyncState previousValue = new ClientSyncState();
 
-        void OnValidate()
+        protected override void OnValidate()
         {
+            base.OnValidate();
             if (target == null)
                 target = GetComponent<Rigidbody>();
         }
