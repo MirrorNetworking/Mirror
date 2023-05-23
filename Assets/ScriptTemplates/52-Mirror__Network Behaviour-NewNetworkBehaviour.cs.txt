@@ -11,6 +11,18 @@ using Mirror;
 
 public class #SCRIPTNAME# : NetworkBehaviour
 {
+    #region Unity Callbacks
+
+    /// <summary>
+    /// Add your validation code here after the base.OnValidate(); call.
+    /// </summary>
+    protected override void OnValidate()
+    {
+        base.OnValidate();
+    }
+
+    #endregion
+
     #region Start & Stop Callbacks
 
     /// <summary>
