@@ -123,7 +123,7 @@ namespace Mirror.Tests.NetworkBehaviours
 
     public class NetworkBehaviourSerializeTest : MirrorEditModeTest
     {
-        static void SyncNetworkBehaviour(NetworkBehaviour source, NetworkBehaviour target, bool initialState)
+        public static void SyncNetworkBehaviour(NetworkBehaviour source, NetworkBehaviour target, bool initialState)
         {
             using (NetworkWriterPooled writer = NetworkWriterPool.Get())
             {
