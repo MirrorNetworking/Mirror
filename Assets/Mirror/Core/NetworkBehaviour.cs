@@ -363,7 +363,7 @@ namespace Mirror
             // this was in Weaver before
             if (!NetworkServer.active)
             {
-                Debug.LogError($"RPC Function {functionFullName} called on Client.", gameObject);
+                Debug.LogError($"RPC Function {functionFullName} called without an active server.", gameObject);
                 return;
             }
 
