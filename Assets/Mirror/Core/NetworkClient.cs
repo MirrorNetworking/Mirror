@@ -534,6 +534,9 @@ namespace Mirror
                 return;
             }
 
+            // disallow child NetworkIdentities.
+            // TODO likely not necessary anymore due to the new check in
+            // NetworkIdentity.OnValidate.
             NetworkIdentity[] identities = prefab.GetComponentsInChildren<NetworkIdentity>();
             if (identities.Length > 1)
             {
