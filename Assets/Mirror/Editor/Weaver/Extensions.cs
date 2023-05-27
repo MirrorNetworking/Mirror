@@ -242,14 +242,10 @@ namespace Mirror.Weaver
             {
                 foreach (FieldDefinition field in typeDefinition.Fields)
                 {
-                    // ignore static fields
-                    if (field.IsStatic)
-                        continue;
-
-                    // fix: ignore private and protected fields
-                    // https://github.com/MirrorNetworking/Mirror/issues/3485
+                    // ignore static, private, protected fields
+                    // fixes: https://github.com/MirrorNetworking/Mirror/issues/3485
                     // credit: James Frowen
-                    if (field.IsPrivate || field.IsFamily)
+                    if (field.IsStatic || field.IsPrivate || field.IsFamily)
                         continue;
 
                     // also ignore internal fields
