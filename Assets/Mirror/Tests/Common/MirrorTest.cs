@@ -98,6 +98,28 @@ namespace Mirror.Tests
             instantiated.Add(go);
         }
 
+        // create GameObject + NetworkIdentity + NetworkBehaviour<T> in children
+        // add to tracker list if needed (useful for cleanups afterwards)
+        protected void CreateNetworkedChild<T>(out GameObject parent, out GameObject child, out NetworkIdentity identity, out T component)
+            where T : NetworkBehaviour
+        {
+            // create a GameObject with child
+            parent = new GameObject("parent");
+            child = new GameObject("child");
+            child.transform.SetParent(parent.transform);
+
+            // setup NetworkIdentity + NetworkBehaviour in child
+            identity = parent.AddComponent<NetworkIdentity>();
+            component = child.AddComponent<T>();
+            // always set syncinterval = 0 for immediate testing
+            component.syncInterval = 0;
+            // Awake is only called in play mode.
+            // call manually for initialization.
+            identity.Awake();
+            // track
+            instantiated.Add(parent);
+        }
+
         // create GameObject + NetworkIdentity + 2x NetworkBehaviour<T>
         // add to tracker list if needed (useful for cleanups afterwards)
         protected void CreateNetworked<T, U>(out GameObject go, out NetworkIdentity identity, out T componentA, out U componentB)
@@ -116,6 +138,31 @@ namespace Mirror.Tests
             identity.Awake();
             // track
             instantiated.Add(go);
+        }
+
+        // create GameObject + NetworkIdentity + NetworkBehaviour<T> in children
+        // add to tracker list if needed (useful for cleanups afterwards)
+        protected void CreateNetworkedChild<T, U>(out GameObject parent, out GameObject child, out NetworkIdentity identity, out T componentA, out U componentB)
+            where T : NetworkBehaviour
+            where U : NetworkBehaviour
+        {
+            // create a GameObject with child
+            parent = new GameObject("parent");
+            child = new GameObject("child");
+            child.transform.SetParent(parent.transform);
+
+            // setup NetworkIdentity + NetworkBehaviour in child
+            identity = parent.AddComponent<NetworkIdentity>();
+            componentA = child.AddComponent<T>();
+            componentB = child.AddComponent<U>();
+            // always set syncinterval = 0 for immediate testing
+            componentA.syncInterval = 0;
+            componentB.syncInterval = 0;
+            // Awake is only called in play mode.
+            // call manually for initialization.
+            identity.Awake();
+            // track
+            instantiated.Add(parent);
         }
 
         // create GameObject + NetworkIdentity + 2x NetworkBehaviour<T>
@@ -139,6 +186,34 @@ namespace Mirror.Tests
             identity.Awake();
             // track
             instantiated.Add(go);
+        }
+
+        // create GameObject + NetworkIdentity + NetworkBehaviour<T> in children
+        // add to tracker list if needed (useful for cleanups afterwards)
+        protected void CreateNetworkedChild<T, U, V>(out GameObject parent, out GameObject child, out NetworkIdentity identity, out T componentA, out U componentB, out V componentC)
+            where T : NetworkBehaviour
+            where U : NetworkBehaviour
+            where V : NetworkBehaviour
+        {
+            // create a GameObject with child
+            parent = new GameObject("parent");
+            child = new GameObject("child");
+            child.transform.SetParent(parent.transform);
+
+            // setup NetworkIdentity + NetworkBehaviour in child
+            identity = parent.AddComponent<NetworkIdentity>();
+            componentA = child.AddComponent<T>();
+            componentB = child.AddComponent<U>();
+            componentC = child.AddComponent<V>();
+            // always set syncinterval = 0 for immediate testing
+            componentA.syncInterval = 0;
+            componentB.syncInterval = 0;
+            componentC.syncInterval = 0;
+            // Awake is only called in play mode.
+            // call manually for initialization.
+            identity.Awake();
+            // track
+            instantiated.Add(parent);
         }
 
         // create GameObject + NetworkIdentity + NetworkBehaviour & SPAWN
@@ -214,6 +289,26 @@ namespace Mirror.Tests
                 Debug.Assert(component.isOwned == true, $"Behaviour Had Wrong Authority when spawned, This means that the test is broken and will give the wrong results");
         }
 
+        // create GameObject + NetworkIdentity + NetworkBehaviour in children & SPAWN
+        // => ownerConnection can be NetworkServer.localConnection if needed.
+        protected void CreateNetworkedChildAndSpawn<T>(out GameObject parent, out GameObject child, out NetworkIdentity identity, out T component, NetworkConnectionToClient ownerConnection = null)
+            where T : NetworkBehaviour
+        {
+            // server & client need to be active before spawning
+            Debug.Assert(NetworkClient.active, "NetworkClient needs to be active before spawning.");
+            Debug.Assert(NetworkServer.active, "NetworkServer needs to be active before spawning.");
+
+            CreateNetworkedChild(out parent, out child, out identity, out component);
+
+            // spawn
+            NetworkServer.Spawn(parent, ownerConnection);
+            ProcessMessages();
+
+            // double check that we have authority if we passed an owner connection
+            if (ownerConnection != null)
+                Debug.Assert(component.isOwned == true, $"Behaviour Had Wrong Authority when spawned, This means that the test is broken and will give the wrong results");
+        }
+
         // create GameObject + NetworkIdentity + NetworkBehaviour & SPAWN
         // => ownerConnection can be NetworkServer.localConnection if needed.
         // => returns objects from client and from server.
@@ -253,6 +348,45 @@ namespace Mirror.Tests
             Assert.That(NetworkClient.spawned.ContainsKey(serverIdentity.netId));
         }
 
+        // create GameObject + NetworkIdentity + NetworkBehaviour in children & SPAWN
+        // => ownerConnection can be NetworkServer.localConnection if needed.
+        // => returns objects from client and from server.
+        //    will be same in host mode.
+        protected void CreateNetworkedChildAndSpawn<T>(
+            out GameObject serverParent, out GameObject serverChild, out NetworkIdentity serverIdentity, out T serverComponent,
+            out GameObject clientParent, out GameObject clientChild, out NetworkIdentity clientIdentity, out T clientComponent,
+            NetworkConnectionToClient ownerConnection = null)
+            where T : NetworkBehaviour
+        {
+            // server & client need to be active before spawning
+            Debug.Assert(NetworkClient.active, "NetworkClient needs to be active before spawning.");
+            Debug.Assert(NetworkServer.active, "NetworkServer needs to be active before spawning.");
+
+            // create one on server, one on client
+            // (spawning has to find it on client, it doesn't create it)
+            CreateNetworkedChild(out serverParent, out serverChild, out serverIdentity, out serverComponent);
+            CreateNetworkedChild(out clientParent, out clientChild, out clientIdentity, out clientComponent);
+
+            // give both a scene id and register it on client for spawnables
+            clientIdentity.sceneId = serverIdentity.sceneId = (ulong)serverParent.GetHashCode();
+            NetworkClient.spawnableObjects[clientIdentity.sceneId] = clientIdentity;
+
+            // spawn
+            NetworkServer.Spawn(serverParent, ownerConnection);
+            ProcessMessages();
+
+            // double check isServer/isClient. avoids debugging headaches.
+            Assert.That(serverIdentity.isServer, Is.True);
+            Assert.That(clientIdentity.isClient, Is.True);
+
+            // double check that we have authority if we passed an owner connection
+            if (ownerConnection != null)
+                Debug.Assert(clientComponent.isOwned == true, $"Behaviour Had Wrong Authority when spawned, This means that the test is broken and will give the wrong results");
+
+            // make sure the client really spawned it.
+            Assert.That(NetworkClient.spawned.ContainsKey(serverIdentity.netId));
+        }
+
         // create GameObject + NetworkIdentity + NetworkBehaviour & SPAWN
         // => ownerConnection can be NetworkServer.localConnection if needed.
         protected void CreateNetworkedAndSpawn<T, U>(out GameObject go, out NetworkIdentity identity, out T componentA, out U componentB, NetworkConnectionToClient ownerConnection = null)
@@ -267,6 +401,30 @@ namespace Mirror.Tests
 
             // spawn
             NetworkServer.Spawn(go, ownerConnection);
+            ProcessMessages();
+
+            // double check that we have authority if we passed an owner connection
+            if (ownerConnection != null)
+            {
+                Debug.Assert(componentA.isOwned == true, $"Behaviour Had Wrong Authority when spawned, This means that the test is broken and will give the wrong results");
+                Debug.Assert(componentB.isOwned == true, $"Behaviour Had Wrong Authority when spawned, This means that the test is broken and will give the wrong results");
+            }
+        }
+
+        // create GameObject + NetworkIdentity + NetworkBehaviour & SPAWN
+        // => ownerConnection can be NetworkServer.localConnection if needed.
+        protected void CreateNetworkedChildAndSpawn<T, U>(out GameObject parent, out GameObject child, out NetworkIdentity identity, out T componentA, out U componentB, NetworkConnectionToClient ownerConnection = null)
+            where T : NetworkBehaviour
+            where U : NetworkBehaviour
+        {
+            // server & client need to be active before spawning
+            Debug.Assert(NetworkClient.active, "NetworkClient needs to be active before spawning.");
+            Debug.Assert(NetworkServer.active, "NetworkServer needs to be active before spawning.");
+
+            CreateNetworkedChild(out parent, out child, out identity, out componentA, out componentB);
+
+            // spawn
+            NetworkServer.Spawn(parent, ownerConnection);
             ProcessMessages();
 
             // double check that we have authority if we passed an owner connection
@@ -320,6 +478,49 @@ namespace Mirror.Tests
             Assert.That(NetworkClient.spawned.ContainsKey(serverIdentity.netId));
         }
 
+        // create GameObject + NetworkIdentity + NetworkBehaviour in children & SPAWN
+        // => ownerConnection can be NetworkServer.localConnection if needed.
+        // => returns objects from client and from server.
+        //    will be same in host mode.
+        protected void CreateNetworkedChildAndSpawn<T, U>(
+            out GameObject serverParent, out GameObject serverChild, out NetworkIdentity serverIdentity, out T serverComponentA, out U serverComponentB,
+            out GameObject clientParent, out GameObject clientChild, out NetworkIdentity clientIdentity, out T clientComponentA, out U clientComponentB,
+            NetworkConnectionToClient ownerConnection = null)
+            where T : NetworkBehaviour
+            where U : NetworkBehaviour
+        {
+            // server & client need to be active before spawning
+            Debug.Assert(NetworkClient.active, "NetworkClient needs to be active before spawning.");
+            Debug.Assert(NetworkServer.active, "NetworkServer needs to be active before spawning.");
+
+            // create one on server, one on client
+            // (spawning has to find it on client, it doesn't create it)
+            CreateNetworkedChild(out serverParent, out serverChild, out serverIdentity, out serverComponentA, out serverComponentB);
+            CreateNetworkedChild(out clientParent, out clientChild, out clientIdentity, out clientComponentA, out clientComponentB);
+
+            // give both a scene id and register it on client for spawnables
+            clientIdentity.sceneId = serverIdentity.sceneId = (ulong)serverParent.GetHashCode();
+            NetworkClient.spawnableObjects[clientIdentity.sceneId] = clientIdentity;
+
+            // spawn
+            NetworkServer.Spawn(serverParent, ownerConnection);
+            ProcessMessages();
+
+            // double check isServer/isClient. avoids debugging headaches.
+            Assert.That(serverIdentity.isServer, Is.True);
+            Assert.That(clientIdentity.isClient, Is.True);
+
+            // double check that we have authority if we passed an owner connection
+            if (ownerConnection != null)
+            {
+                Debug.Assert(clientComponentA.isOwned == true, $"Behaviour Had Wrong Authority when spawned, This means that the test is broken and will give the wrong results");
+                Debug.Assert(clientComponentB.isOwned == true, $"Behaviour Had Wrong Authority when spawned, This means that the test is broken and will give the wrong results");
+            }
+
+            // make sure the client really spawned it.
+            Assert.That(NetworkClient.spawned.ContainsKey(serverIdentity.netId));
+        }
+
         // create GameObject + NetworkIdentity + NetworkBehaviour & SPAWN
         // => ownerConnection can be NetworkServer.localConnection if needed.
         protected void CreateNetworkedAndSpawn<T, U, V>(out GameObject go, out NetworkIdentity identity, out T componentA, out U componentB, out V componentC, NetworkConnectionToClient ownerConnection = null)
@@ -348,6 +549,32 @@ namespace Mirror.Tests
 
         // create GameObject + NetworkIdentity + NetworkBehaviour & SPAWN
         // => ownerConnection can be NetworkServer.localConnection if needed.
+        protected void CreateNetworkedChildAndSpawn<T, U, V>(out GameObject parent, out GameObject child, out NetworkIdentity identity, out T componentA, out U componentB, out V componentC, NetworkConnectionToClient ownerConnection = null)
+            where T : NetworkBehaviour
+            where U : NetworkBehaviour
+            where V : NetworkBehaviour
+        {
+            // server & client need to be active before spawning
+            Debug.Assert(NetworkClient.active, "NetworkClient needs to be active before spawning.");
+            Debug.Assert(NetworkServer.active, "NetworkServer needs to be active before spawning.");
+
+            CreateNetworkedChild(out parent, out child, out identity, out componentA, out componentB, out componentC);
+
+            // spawn
+            NetworkServer.Spawn(parent, ownerConnection);
+            ProcessMessages();
+
+            // double check that we have authority if we passed an owner connection
+            if (ownerConnection != null)
+            {
+                Debug.Assert(componentA.isOwned == true, $"Behaviour Had Wrong Authority when spawned, This means that the test is broken and will give the wrong results");
+                Debug.Assert(componentB.isOwned == true, $"Behaviour Had Wrong Authority when spawned, This means that the test is broken and will give the wrong results");
+                Debug.Assert(componentC.isOwned == true, $"Behaviour Had Wrong Authority when spawned, This means that the test is broken and will give the wrong results");
+            }
+        }
+
+        // create GameObject + NetworkIdentity + NetworkBehaviour in children & SPAWN
+        // => ownerConnection can be NetworkServer.localConnection if needed.
         // => returns objects from client and from server.
         //    will be same in host mode.
         protected void CreateNetworkedAndSpawn<T, U, V>(
@@ -373,6 +600,51 @@ namespace Mirror.Tests
 
             // spawn
             NetworkServer.Spawn(serverGO, ownerConnection);
+            ProcessMessages();
+
+            // double check isServer/isClient. avoids debugging headaches.
+            Assert.That(serverIdentity.isServer, Is.True);
+            Assert.That(clientIdentity.isClient, Is.True);
+
+            // double check that we have authority if we passed an owner connection
+            if (ownerConnection != null)
+            {
+                Debug.Assert(clientComponentA.isOwned == true, $"Behaviour Had Wrong Authority when spawned, This means that the test is broken and will give the wrong results");
+                Debug.Assert(clientComponentB.isOwned == true, $"Behaviour Had Wrong Authority when spawned, This means that the test is broken and will give the wrong results");
+                Debug.Assert(clientComponentC.isOwned == true, $"Behaviour Had Wrong Authority when spawned, This means that the test is broken and will give the wrong results");
+            }
+
+            // make sure the client really spawned it.
+            Assert.That(NetworkClient.spawned.ContainsKey(serverIdentity.netId));
+        }
+
+        // create GameObject + NetworkIdentity + NetworkBehaviour in children & SPAWN
+        // => ownerConnection can be NetworkServer.localConnection if needed.
+        // => returns objects from client and from server.
+        //    will be same in host mode.
+        protected void CreateNetworkedChildAndSpawn<T, U, V>(
+            out GameObject serverParent, out GameObject serverChild, out NetworkIdentity serverIdentity, out T serverComponentA, out U serverComponentB, out V serverComponentC,
+            out GameObject clientParent, out GameObject clientChild, out NetworkIdentity clientIdentity, out T clientComponentA, out U clientComponentB, out V clientComponentC,
+            NetworkConnectionToClient ownerConnection = null)
+            where T : NetworkBehaviour
+            where U : NetworkBehaviour
+            where V : NetworkBehaviour
+        {
+            // server & client need to be active before spawning
+            Debug.Assert(NetworkClient.active, "NetworkClient needs to be active before spawning.");
+            Debug.Assert(NetworkServer.active, "NetworkServer needs to be active before spawning.");
+
+            // create one on server, one on client
+            // (spawning has to find it on client, it doesn't create it)
+            CreateNetworkedChild(out serverParent, out serverChild, out serverIdentity, out serverComponentA, out serverComponentB, out serverComponentC);
+            CreateNetworkedChild(out clientParent, out clientChild, out clientIdentity, out clientComponentA, out clientComponentB, out clientComponentC);
+
+            // give both a scene id and register it on client for spawnables
+            clientIdentity.sceneId = serverIdentity.sceneId = (ulong)serverParent.GetHashCode();
+            NetworkClient.spawnableObjects[clientIdentity.sceneId] = clientIdentity;
+
+            // spawn
+            NetworkServer.Spawn(serverParent, ownerConnection);
             ProcessMessages();
 
             // double check isServer/isClient. avoids debugging headaches.

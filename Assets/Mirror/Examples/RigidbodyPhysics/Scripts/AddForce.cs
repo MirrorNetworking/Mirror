@@ -8,8 +8,10 @@ namespace Mirror.Examples.RigidbodyPhysics
         public Rigidbody rigidbody3d;
         public float force = 500f;
 
-        void OnValidate()
+        protected override void OnValidate()
         {
+            base.OnValidate();
+
             rigidbody3d = GetComponent<Rigidbody>();
             rigidbody3d.isKinematic = true;
         }

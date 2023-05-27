@@ -33,8 +33,9 @@ namespace Mirror.Experimental
 
         bool ClientWithAuthority => clientAuthority && isOwned;
 
-        void OnValidate()
+        protected override void OnValidate()
         {
+            base.OnValidate();
             if (target == null)
                 target = GetComponent<Rigidbody>();
         }

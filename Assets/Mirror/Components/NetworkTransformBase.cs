@@ -25,6 +25,7 @@ namespace Mirror
     public abstract class NetworkTransformBase : NetworkBehaviour
     {
         // target transform to sync. can be on a child.
+        // TODO this field is kind of unnecessary since we now support child NetworkBehaviours
         [Header("Target")]
         [Tooltip("The Transform component to sync. May be on on this GameObject, or on a child.")]
         public Transform target;
@@ -67,17 +68,17 @@ namespace Mirror
         public bool timelineOffset = false;
 
         // Ninja's Notes on offset & mulitplier:
-        // 
+        //
         // In a no multiplier scenario:
         // 1. Snapshots are sent every frame (frame being 1 NM send interval).
         // 2. Time Interpolation is set to be 'behind' by 2 frames times.
         // In theory where everything works, we probably have around 2 snapshots before we need to interpolate snapshots. From NT perspective, we should always have around 2 snapshots ready, so no stutter.
-        // 
+        //
         // In a multiplier scenario:
         // 1. Snapshots are sent every 10 frames.
         // 2. Time Interpolation remains 'behind by 2 frames'.
-        // When everything works, we are receiving NT snapshots every 10 frames, but start interpolating after 2. 
-        // Even if I assume we had 2 snapshots to begin with to start interpolating (which we don't), by the time we reach 13th frame, we are out of snapshots, and have to wait 7 frames for next snapshot to come. This is the reason why we absolutely need the timestamp adjustment. We are starting way too early to interpolate. 
+        // When everything works, we are receiving NT snapshots every 10 frames, but start interpolating after 2.
+        // Even if I assume we had 2 snapshots to begin with to start interpolating (which we don't), by the time we reach 13th frame, we are out of snapshots, and have to wait 7 frames for next snapshot to come. This is the reason why we absolutely need the timestamp adjustment. We are starting way too early to interpolate.
         //
         protected double timeStampAdjustment => NetworkServer.sendInterval * (sendIntervalMultiplier - 1);
         protected double offset => timelineOffset ? NetworkServer.sendInterval * sendIntervalMultiplier : 0;
@@ -92,8 +93,10 @@ namespace Mirror
         // make sure to call this when inheriting too!
         protected virtual void Awake() { }
 
-        protected virtual void OnValidate()
+        protected override void OnValidate()
         {
+            base.OnValidate();
+
             // set target to self if none yet
             if (target == null) target = transform;
 

@@ -54,8 +54,10 @@ namespace Mirror.Examples.AdditiveLevels
         public Vector3Int velocity;
         public Vector3 direction;
 
-        void OnValidate()
+        protected override void OnValidate()
         {
+            base.OnValidate();
+
             if (characterController == null)
                 characterController = GetComponent<CharacterController>();
 
