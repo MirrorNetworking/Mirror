@@ -369,7 +369,9 @@ namespace Mirror
 #endif
             if (identities.Length > 1)
             {
-                Debug.LogError($"'{name}' has {identities.Length} NetworkIdentity components. There should only be one NetworkIdentity, and it must be on the root object.");
+                // always log the next child component so it's easy to fix.
+                // if there are multiple, then after removing it'll log the next.
+                Debug.LogError($"'{name}' has another NetworkIdentity component on '{identities[1].name}'. There should only be one NetworkIdentity, and it must be on the root object. Please remove the other one.");
             }
         }
 
