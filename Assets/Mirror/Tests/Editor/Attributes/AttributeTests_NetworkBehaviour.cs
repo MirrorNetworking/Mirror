@@ -69,6 +69,7 @@ namespace Mirror.Tests.Attributes
         public void SetUp()
         {
             go = new GameObject();
+            go.AddComponent<NetworkIdentity>();
             behaviour = go.AddComponent<AttributeBehaviour_NetworkBehaviour>();
         }
 
