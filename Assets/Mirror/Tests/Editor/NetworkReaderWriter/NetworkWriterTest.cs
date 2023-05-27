@@ -1633,5 +1633,35 @@ namespace Mirror.Tests.NetworkReaderWriter
             Sprite sprite = reader.ReadSprite();
             Assert.That(sprite, Is.Null);
         }
+
+        // test for https://github.com/MirrorNetworking/Mirror/pull/3492/
+        // we have the same test once in Editor tests and once in Runtime tests.
+        // editor always passes, even before the fix.
+        // runtime gets the FieldAccessException.
+        public class ClassWithProtected
+        {
+            // should serialize
+            public int field1;
+
+            // should NOT serialize
+            protected int field2;
+            private int field3;
+        }
+        public struct MyMessage : NetworkMessage
+        {
+            public ClassWithProtected field;
+        }
+        [Test]
+        public void WriteProtected()
+        {
+            NetworkWriter writer = new NetworkWriter();
+            MyMessage message = new MyMessage();
+            message.field = new ClassWithProtected { field1 = 42 };
+            writer.Write(message);
+
+            NetworkReader reader = new NetworkReader(writer);
+            MyMessage read = reader.Read<MyMessage>();
+            Assert.That(read.field.field1, Is.EqualTo(42));
+        }
     }
 }

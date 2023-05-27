@@ -242,7 +242,16 @@ namespace Mirror.Weaver
             {
                 foreach (FieldDefinition field in typeDefinition.Fields)
                 {
-                    if (field.IsStatic || field.IsPrivate)
+                    // ignore static, private, protected fields
+                    // fixes: https://github.com/MirrorNetworking/Mirror/issues/3485
+                    // credit: James Frowen
+                    if (field.IsStatic || field.IsPrivate || field.IsFamily)
+                        continue;
+
+                    // also ignore internal fields
+                    // we dont want to create different writers for this type if they are in current dll or another dll
+                    // so we have to ignore internal in all cases
+                    if (field.IsAssembly)
                         continue;
 
                     if (field.IsNotSerialized)
