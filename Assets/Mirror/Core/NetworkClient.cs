@@ -481,7 +481,7 @@ namespace Mirror
             // These handlers are the same for host and remote clients
             RegisterHandler<TimeSnapshotMessage>(OnTimeSnapshotMessage);
             RegisterHandler<ChangeOwnerMessage>(OnChangeOwner);
-            RegisterHandler<RpcBufferMessage>(OnRPCBufferMessage);
+            RegisterHandler<RpcMessage>(OnRPCMessage);
         }
 
         /// <summary>Register a handler for a message type T. Most should require authentication.</summary>
@@ -1307,21 +1307,6 @@ namespace Mirror
                     identity.HandleRemoteCall(message.componentIndex, message.functionHash, RemoteCallType.ClientRpc, reader);
             }
             // Rpcs often can't be applied if interest management unspawned them
-        }
-
-        static void OnRPCBufferMessage(RpcBufferMessage message)
-        {
-            // Debug.Log($"NetworkClient.OnRPCBufferMessage of {message.payload.Count} bytes");
-            // parse all rpc messages from the buffer
-            using (NetworkReaderPooled reader = NetworkReaderPool.Get(message.payload))
-            {
-                while (reader.Remaining > 0)
-                {
-                    // read message without header
-                    RpcMessage rpcMessage = reader.Read<RpcMessage>();
-                    OnRPCMessage(rpcMessage);
-                }
-            }
         }
 
         static void OnObjectHide(ObjectHideMessage message) => DestroyObject(message.netId);

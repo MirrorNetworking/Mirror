@@ -426,13 +426,14 @@ namespace Mirror
             {
                 serialized.Write(message);
 
-                // add to every observer's connection's rpc buffer
+                // send to every observer.
+                // batching buffers this automatically.
                 foreach (NetworkConnectionToClient conn in netIdentity.observers.Values)
                 {
                     bool isOwner = conn == netIdentity.connectionToClient;
                     if ((!isOwner || includeOwner) && conn.isReady)
                     {
-                        conn.BufferRpc(message, channelId);
+                        conn.Send(message, channelId);
                     }
                 }
             }
@@ -484,10 +485,9 @@ namespace Mirror
                 payload = writer.ToArraySegment()
             };
 
-            // serialize it to the connection's rpc buffer.
-            // send them all at once, instead of sending one message per rpc.
-            // conn.Send(message, channelId);
-            connToClient.BufferRpc(message, channelId);
+            // send it to the connection.
+            // batching buffers this automatically.
+            conn.Send(message, channelId);
         }
 
         // move the [SyncVar] generated property's .set into C# to avoid much IL
