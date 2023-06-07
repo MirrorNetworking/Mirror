@@ -1,34 +1,26 @@
 {
-    "name": "Mirror.Tests",
+    "name": "Mirror.Tests.EditorBehaviours",
     "rootNamespace": "",
     "references": [
         "GUID:30817c1a0e6d646d99c048fc403f5979",
-        "GUID:1c7c33eb5480dd24c9e29a8250c1a775",
         "GUID:72872094b21c16e48b631b2224833d49",
         "GUID:4e9aca8a359ab48de906aedbfa1ffe21",
         "GUID:27619889b8ba8c24980f49ee34dbb44a",
-        "GUID:0acc523941302664db1f4e527237feb3",
-        "GUID:1d0b9d21c3ff546a4aa32399dfd33474",
-        "GUID:4887344a35d890449b35f8b1b0a3355a",
-        "GUID:627104647b9c04b4ebb8978a92ecac63",
-        "GUID:91ea2f53178f0594483565c76fd4f272"
+        "GUID:0acc523941302664db1f4e527237feb3"
     ],
-    "includePlatforms": [
-        "Editor"
-    ],
+    "includePlatforms": [],
     "excludePlatforms": [],
-    "allowUnsafeCode": true,
+    "allowUnsafeCode": false,
     "overrideReferences": true,
     "precompiledReferences": [
         "NSubstitute.dll",
         "Castle.Core.dll",
         "System.Threading.Tasks.Extensions.dll",
-        "Mono.CecilX.dll",
         "nunit.framework.dll"
     ],
     "autoReferenced": false,
     "defineConstraints": [
-        "UNITY_INCLUDE_TESTS"
+        "UNITY_EDITOR"
     ],
     "versionDefines": [],
     "noEngineReferences": false
