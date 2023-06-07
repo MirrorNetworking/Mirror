@@ -2,6 +2,7 @@ using System;
 using NUnit.Framework;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.TestTools;
 
 namespace Mirror.Tests
 {
@@ -36,6 +37,7 @@ namespace Mirror.Tests
         {
             validPrefab = LoadPrefab(ValidPrefabAssetGuid);
             validPrefabNetworkIdentity = validPrefab.GetComponent<NetworkIdentity>();
+            LogAssert.Expect(LogType.Error, "'PrefabWithChildrenForClientScene' has another NetworkIdentity component on 'Child Network Identity'. There should only be one NetworkIdentity, and it must be on the root object. Please remove the other one.");
             prefabWithChildren = LoadPrefab(PrefabWithChildrenAssetGuid);
             invalidPrefab = LoadPrefab(InvalidPrefabAssetGuid);
             validPrefabAssetId = (uint)(new Guid(ValidPrefabAssetGuid).GetHashCode());
