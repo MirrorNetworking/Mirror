@@ -1,5 +1,6 @@
 // OnDe/SerializeSafely tests.
 using System.Text.RegularExpressions;
+using Mirror.Tests.EditorBehaviours.NetworkIdentities;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;

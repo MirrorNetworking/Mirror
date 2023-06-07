@@ -1,3 +1,4 @@
+using Mirror.Tests.EditorBehaviours.NetworkIdentities;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;

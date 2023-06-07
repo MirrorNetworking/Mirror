@@ -1,6 +1,6 @@
 using System;
 
-namespace Mirror.Tests.NetworkIdentities
+namespace Mirror.Tests.EditorBehaviours.NetworkIdentities
 {
     public class StartServerExceptionNetworkBehaviour : NetworkBehaviour
     {
