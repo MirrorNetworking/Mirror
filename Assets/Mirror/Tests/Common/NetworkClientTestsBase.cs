@@ -37,8 +37,19 @@ namespace Mirror.Tests
         {
             validPrefab = LoadPrefab(ValidPrefabAssetGuid);
             validPrefabNetworkIdentity = validPrefab.GetComponent<NetworkIdentity>();
-            LogAssert.Expect(LogType.Error, "'PrefabWithChildrenForClientScene' has another NetworkIdentity component on 'Child Network Identity'. There should only be one NetworkIdentity, and it must be on the root object. Please remove the other one.");
-            prefabWithChildren = LoadPrefab(PrefabWithChildrenAssetGuid);
+            
+            // loading the prefab with multiple children *may* trigger OnValidate which will cause an error log
+            // but also may not, so we can't use LogAssert.Expect here
+            try
+            {
+                LogAssert.ignoreFailingMessages = true;
+                prefabWithChildren = LoadPrefab(PrefabWithChildrenAssetGuid);
+            }
+            finally
+            {
+                LogAssert.ignoreFailingMessages = false;
+            }
+            
             invalidPrefab = LoadPrefab(InvalidPrefabAssetGuid);
             validPrefabAssetId = (uint)(new Guid(ValidPrefabAssetGuid).GetHashCode());
             anotherAssetId = (uint)(new Guid(AnotherGuidString).GetHashCode());
