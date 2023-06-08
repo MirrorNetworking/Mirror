@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.IO;
+using System.Linq;
 using System.Net.Sockets;
 using System.Threading;
 
@@ -117,11 +118,9 @@ namespace Mirror.SimpleWeb
             var headers = request.Headers;
             if (headers.TryGetValue("X-Forwarded-For", out var forwardFor))
             {
-                var ips = forwardFor.ToString().Split(',');
-                var actualClientIP = ips[0];
+                var actualClientIP = forwardFor.ToString().Split(',').First();
                 // Remove the port number from the address
-                string addressWithoutPort = remoteAddress.Split(':')[0];
-                return addressWithoutPort;
+                return actualClientIP.Split(':').First();
             }
 
             return client.Client.RemoteEndPoint.ToString();
