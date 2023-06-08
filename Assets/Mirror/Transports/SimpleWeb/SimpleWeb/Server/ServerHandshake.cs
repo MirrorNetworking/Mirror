@@ -89,7 +89,7 @@ namespace Mirror.SimpleWeb
                 string msg = Encoding.ASCII.GetString(readBuffer.array, 0, readCount);
                 // GET isn't in the bytes we read here, so we need to add it back
                 msg = $"GET{msg}";
-                Log.Info(msg, false);
+                Log.Info($"Client Handshake Message:\r\n{msg}", false);
 
                 return msg;
             }
