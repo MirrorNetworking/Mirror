@@ -87,7 +87,7 @@ namespace Mirror.SimpleWeb
                 int readCount = readCountOrFail.Value;
 
                 string msg = Encoding.ASCII.GetString(readBuffer.array, 0, readCount);
-                Log.Verbose(msg, false);
+                Log.Info($"GET{msg}", false);
 
                 return msg;
             }
