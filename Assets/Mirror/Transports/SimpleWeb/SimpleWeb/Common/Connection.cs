@@ -115,10 +115,9 @@ namespace Mirror.SimpleWeb
         /// <exception cref="NotImplementedException"></exception>
         internal string CalculateAddress()
         {
-            var headers = request.Headers;
-            if (headers.TryGetValue("X-Forwarded-For", out var forwardFor))
+            if (request.Headers.TryGetValue("X-Forwarded-For", out string forwardFor))
             {
-                var actualClientIP = forwardFor.ToString().Split(',').First();
+                string actualClientIP = forwardFor.ToString().Split(',').First();
                 // Remove the port number from the address
                 return actualClientIP.Split(':').First();
             }
