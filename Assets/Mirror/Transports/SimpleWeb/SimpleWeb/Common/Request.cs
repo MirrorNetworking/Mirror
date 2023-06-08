@@ -17,7 +17,7 @@ namespace Mirror.SimpleWeb
         {
             string[] all = message.Split(lineSplitChars, StringSplitOptions.RemoveEmptyEntries);
             // we need to add GET back in because ServerHandshake doesn't include it
-            RequestLine = "GET" + all[0];
+            RequestLine = $"GET{all[0]}";
             Headers = all.Skip(1)
                          .Select(header => header.Split(':'))
                          .Where(split => split.Length == 2)
