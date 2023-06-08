@@ -21,6 +21,12 @@ namespace Mirror.SimpleWeb
         /// <para>Only valid on server</para>
         /// </summary>
         public Request request;
+        /// <summary>
+        /// RemoteEndpoint address or address from request header
+        /// <para>Only valid on server</para>
+        /// </summary>
+        public string remoteAddress;
+
 
         public Stream stream;
         public Thread receiveThread;
@@ -99,6 +105,26 @@ namespace Mirror.SimpleWeb
                 {
                     return $"[Conn:{connId}, endPoint:n/a]";
                 }
+        }
+
+        /// <summary>
+        /// Gets the address based on the <see cref="request"/> and RemoteEndPoint
+        /// <para>Called after ServerHandShake is accepted</para>
+        /// </summary>
+        /// <exception cref="NotImplementedException"></exception>
+        internal string CalculateAddress()
+        {
+            var headers = request.Headers;
+            if (headers.TryGetValue("X-Forwarded-For", out var forwardFor))
+            {
+                var ips = forwardFor.ToString().Split(',');
+                var actualClientIP = ips[0];
+                // Remove the port number from the address
+                string addressWithoutPort = remoteAddress.Split(':')[0];
+                return addressWithoutPort;
+            }
+
+            return client.Client.RemoteEndPoint.ToString();
         }
     }
 }

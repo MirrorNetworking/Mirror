@@ -245,15 +245,7 @@ namespace Mirror.SimpleWeb
                 return null;
             }
 
-            var headers = conn.request.Headers;
-            if (headers.TryGetValue("X-Forwarded-For", out var forwardFor))
-            {
-                var ips = forwardFor.ToString().Split(',');
-                var actualClientIP = ips[0];
-                return actualClientIP;
-            }
-
-            return conn.client.Client.RemoteEndPoint.ToString();
+            return conn.remoteAddress;
         }
 
         public Request GetClientRequest(int id)

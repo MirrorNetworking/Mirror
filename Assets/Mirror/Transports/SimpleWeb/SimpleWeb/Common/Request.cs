@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Mirror.SimpleWeb
 {
@@ -17,14 +18,10 @@ namespace Mirror.SimpleWeb
             string[] all = message.Split(lineSplitChars, StringSplitOptions.RemoveEmptyEntries);
             // we need to add GET back in because ServerHandshake doesn't include it
             RequestLine = "GET" + all[0];
-            for (int i = 1; i < all.Length; i++)
-            {
-                string[] split = all[i].Split(':');
-                if (split.Length == 2)
-                {
-                    Headers.Add(split[0].Trim(), split[1].Trim());
-                }
-            }
+            Headers = all.Skip(1)
+                         .Select(header => header.Split(':'))
+                         .Where(split => split.Length == 2)
+                         .ToDictionary(split => split[0].Trim(), split => split[1].Trim());
         }
     }
 }
