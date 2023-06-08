@@ -60,6 +60,8 @@ namespace Mirror.SimpleWeb
 
         public string GetClientAddress(int connectionId) => server.GetClientAddress(connectionId);
 
+        public Request GetClientRequest(int connectionId) => server.GetClientRequest(connectionId);
+
         /// <summary>
         /// Processes all new messages
         /// </summary>

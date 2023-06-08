@@ -237,16 +237,36 @@ namespace Mirror.SimpleWeb
 
         public string GetClientAddress(int id)
         {
-            if (connections.TryGetValue(id, out Connection conn))
-                return conn.client.Client.RemoteEndPoint.ToString();
-            else
+            if (!connections.TryGetValue(id, out Connection conn))
             {
                 Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.WriteLine($"[SimpleWebTransport] Cannot get address of connection {id} because connection was not found in dictionary.");
                 Console.ResetColor();
-
                 return null;
             }
+
+            var headers = conn.request.Headers;
+            if (headers.TryGetValue("X-Forwarded-For", out var forwardFor))
+            {
+                var ips = forwardFor.ToString().Split(',');
+                var actualClientIP = ips[0];
+                return actualClientIP;
+            }
+
+            return conn.client.Client.RemoteEndPoint.ToString();
+        }
+
+        public Request GetClientRequest(int id)
+        {
+            if (!connections.TryGetValue(id, out Connection conn))
+            {
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine($"[SimpleWebTransport] Cant get request of connection {id} because connection was not found in dictionary.");
+                Console.ResetColor();
+                return null;
+            }
+
+            return conn.request;
         }
     }
 }

@@ -63,6 +63,9 @@ namespace Mirror.SimpleWeb
             try
             {
                 AcceptHandshake(stream, msg);
+
+                conn.request = new Request(msg);
+
                 return true;
             }
             catch (ArgumentException e)

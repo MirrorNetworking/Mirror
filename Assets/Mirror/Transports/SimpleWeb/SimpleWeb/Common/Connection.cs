@@ -15,6 +15,13 @@ namespace Mirror.SimpleWeb
         public TcpClient client;
 
         public int connId = IdNotSet;
+
+        /// <summary>
+        /// Connect request, sent from client to start handshake
+        /// <para>Only valid on server</para>
+        /// </summary>
+        public Request request;
+
         public Stream stream;
         public Thread receiveThread;
         public Thread sendThread;
