@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
-using UnityEngine;
 
 namespace kcp2k
 {
@@ -181,7 +180,7 @@ namespace kcp2k
             // get the connection's endpoint
             if (!connections.TryGetValue(connectionId, out KcpServerConnection connection))
             {
-                Debug.LogWarning($"KcpServer: RawSend invalid connectionId={connectionId}");
+                Log.Warning($"KcpServer: RawSend invalid connectionId={connectionId}");
                 return;
             }
 
