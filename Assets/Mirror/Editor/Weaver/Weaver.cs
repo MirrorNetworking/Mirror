@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Mono.CecilX;
+using Mono.CecilX.Cil;
 
 namespace Mirror.Weaver
 {
@@ -142,6 +143,24 @@ namespace Mirror.Weaver
                 weaverTypes.Import<object>());
         }
 
+        void ToggleWeaverFuse(ModuleDefinition moduleDefinition)
+        {
+            Log.Warning("Weaver: toggled Fuse!");
+
+            // weaverTypes.WeaverFuseState.Resolve();
+
+            // find WeaverFuse class
+            TypeDefinition weaverFuse = moduleDefinition.GetType(GeneratedCodeNamespace, "WeaverFuse");
+
+            // find Weaved() function
+            MethodDefinition func = weaverFuse.GetMethod("Weaved");
+            Log.Warning($"Fuse: {weaverFuse} : {func}");
+
+            // change return 0 to return 1
+            ILProcessor worker = func.Body.GetILProcessor();
+            func.Body.Instructions[0] = worker.Create(OpCodes.Ldc_I4_1);
+        }
+
         // Weave takes an AssemblyDefinition to be compatible with both old and
         // new weavers:
         // * old takes a filepath, new takes a in-memory byte[]
@@ -226,6 +245,15 @@ namespace Mirror.Weaver
                     // ILPostProcessor writes to in-memory assembly.
                     // it depends on the caller.
                     //CurrentAssembly.Write(new WriterParameters{ WriteSymbols = true });
+                }
+
+                // finally, switch on the WeaverFuse for runtime check.
+                // TODO is this the Mirror assembly?
+
+                // switch the Weaver Fuse in Mirror.dll
+                if (CurrentAssembly.Name.Name == MirrorAssemblyName)
+                {
+                    ToggleWeaverFuse(moduleDefinition);
                 }
 
                 return true;

@@ -6,6 +6,6 @@ namespace Mirror
 {
     public static class WeaverFuse
     {
-        public static bool State => false;
+        public static bool Weaved() => false;
     }
 }

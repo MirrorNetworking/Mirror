@@ -102,7 +102,7 @@ namespace Mirror
             // safety: ensure Weaving succeded.
             // if it silently failed, we would get lots of 'writer not found'
             // and other random errors at runtime instead. this is cleaner.
-            if (!WeaverFuse.State)
+            if (!WeaverFuse.Weaved())
             {
                 Debug.LogError("NetworkServer won't start because Weaving failed.");
                 return;

@@ -9,7 +9,7 @@ namespace Mirror.Weaver.Tests
         {
             // .State returns false by default.
             // Weaver overwrites this to true.
-            Assert.That(WeaverFuse.State, Is.True);
+            Assert.That(WeaverFuse.Weaved(), Is.True);
         }
     }
 }
