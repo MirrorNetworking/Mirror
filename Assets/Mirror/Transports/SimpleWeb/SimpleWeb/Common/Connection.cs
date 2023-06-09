@@ -125,7 +125,7 @@ namespace Mirror.SimpleWeb
                 IPEndPoint ipEndPoint = (IPEndPoint)client.Client.RemoteEndPoint;
                 IPAddress ipAddress = ipEndPoint.Address;
                 if (ipAddress.IsIPv4MappedToIPv6)
-                    ipAddress.MapToIPv4();
+                    ipAddress = ipAddress.MapToIPv4();
 
                 return ipAddress.ToString();
             }
