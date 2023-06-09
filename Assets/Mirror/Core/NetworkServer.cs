@@ -99,6 +99,15 @@ namespace Mirror
         /// <summary>Starts server and listens to incoming connections with max connections limit.</summary>
         public static void Listen(int maxConns)
         {
+            // safety: ensure Weaving succeded.
+            // if it silently failed, we would get lots of 'writer not found'
+            // and other random errors at runtime instead. this is cleaner.
+            if (!WeaverFuse.State)
+            {
+                Debug.LogError("NetworkServer won't start because Weaving failed.");
+                return;
+            }
+
             Initialize();
             maxConnections = maxConns;
 

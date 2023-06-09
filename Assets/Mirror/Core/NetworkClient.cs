@@ -159,6 +159,15 @@ namespace Mirror
         /// <summary>Connect client to a NetworkServer by address.</summary>
         public static void Connect(string address)
         {
+            // safety: ensure Weaving succeded.
+            // if it silently failed, we would get lots of 'writer not found'
+            // and other random errors at runtime instead. this is cleaner.
+            if (!WeaverFuse.State)
+            {
+                Debug.LogError("NetworkClient won't start because Weaving failed.");
+                return;
+            }
+
             Initialize(false);
 
             AddTransportHandlers();
@@ -170,6 +179,15 @@ namespace Mirror
         /// <summary>Connect client to a NetworkServer by Uri.</summary>
         public static void Connect(Uri uri)
         {
+            // safety: ensure Weaving succeded.
+            // if it silently failed, we would get lots of 'writer not found'
+            // and other random errors at runtime instead. this is cleaner.
+            if (!WeaverFuse.State)
+            {
+                Debug.LogError("NetworkClient won't start because Weaving failed.");
+                return;
+            }
+
             Initialize(false);
 
             AddTransportHandlers();
