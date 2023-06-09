@@ -150,7 +150,6 @@ namespace Mirror.Weaver
 
             // find Weaved() function
             MethodDefinition func = weaverFuse.GetMethod("Weaved");
-            Log.Warning($"Fuse: {weaverFuse} : {func}");
 
             // change return 0 to return 1
             ILProcessor worker = func.Body.GetILProcessor();
