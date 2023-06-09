@@ -63,6 +63,10 @@ namespace Mirror.SimpleWeb
             try
             {
                 AcceptHandshake(stream, msg);
+
+                conn.request = new Request(msg);
+                conn.remoteAddress = conn.CalculateAddress();
+
                 return true;
             }
             catch (ArgumentException e)
@@ -83,7 +87,9 @@ namespace Mirror.SimpleWeb
                 int readCount = readCountOrFail.Value;
 
                 string msg = Encoding.ASCII.GetString(readBuffer.array, 0, readCount);
-                Log.Verbose(msg, false);
+                // GET isn't in the bytes we read here, so we need to add it back
+                msg = $"GET{msg}";
+                Log.Info($"Client Handshake Message:\r\n{msg}", false);
 
                 return msg;
             }

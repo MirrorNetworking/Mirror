@@ -291,6 +291,8 @@ namespace Mirror.SimpleWeb
 
         public override string ServerGetClientAddress(int connectionId) => server.GetClientAddress(connectionId);
 
+        public Request ServerGetClientRequest(int connectionId) => server.GetClientRequest(connectionId);
+
         // messages should always be processed in early update
         public override void ServerEarlyUpdate()
         {
