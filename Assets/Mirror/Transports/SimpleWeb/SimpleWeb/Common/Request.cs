@@ -18,8 +18,7 @@ namespace Mirror.SimpleWeb
             string[] all = message.Split(lineSplitChars, StringSplitOptions.RemoveEmptyEntries);
             RequestLine = all.First();
             Headers = all.Skip(1)
-                         .Select(header => header.Split(':'))
-                         .Where(split => split.Length == 2)
+                         .Select(header => header.Split(':', 2, StringSplitOptions.RemoveEmptyEntries))
                          .ToDictionary(split => split[0].Trim(), split => split[1].Trim());
         }
     }
