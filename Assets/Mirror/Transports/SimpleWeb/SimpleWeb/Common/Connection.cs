@@ -10,8 +10,7 @@ namespace Mirror.SimpleWeb
     internal sealed class Connection : IDisposable
     {
         public const int IdNotSet = -1;
-
-        readonly object disposedLock = new object();
+        private readonly object disposedLock = new object();
 
         public TcpClient client;
 
@@ -37,8 +36,7 @@ namespace Mirror.SimpleWeb
         public ConcurrentQueue<ArrayBuffer> sendQueue = new ConcurrentQueue<ArrayBuffer>();
 
         public Action<Connection> onDispose;
-
-        volatile bool hasDisposed;
+        private volatile bool hasDisposed;
 
         public Connection(TcpClient client, Action<Connection> onDispose)
         {
@@ -124,7 +122,10 @@ namespace Mirror.SimpleWeb
             else
             {
                 System.Net.IPEndPoint ipEndPoint = (System.Net.IPEndPoint)client.Client.RemoteEndPoint;
-                System.Net.IPAddress ipAddress = ipEndPoint.Address.MapToIPv4();
+                System.Net.IPAddress ipAddress = ipEndPoint.Address;
+                if (ipAddress.IsIPv4MappedToIPv6)
+                    ipAddress.MapToIPv4();
+
                 return ipAddress.ToString();
             }
         }
