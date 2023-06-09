@@ -121,8 +121,12 @@ namespace Mirror.SimpleWeb
                 // Remove the port number from the address
                 return actualClientIP.Split(':').First();
             }
-
-            return client.Client.RemoteEndPoint.ToString();
+            else
+            {
+                System.Net.IPEndPoint ipEndPoint = (System.Net.IPEndPoint)client.Client.RemoteEndPoint;
+                System.Net.IPAddress ipAddress = ipEndPoint.Address.MapToIPv4();
+                return ipAddress.ToString();
+            }
         }
     }
 }
