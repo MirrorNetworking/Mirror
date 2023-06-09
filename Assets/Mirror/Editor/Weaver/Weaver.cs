@@ -145,10 +145,6 @@ namespace Mirror.Weaver
 
         void ToggleWeaverFuse(ModuleDefinition moduleDefinition)
         {
-            Log.Warning("Weaver: toggled Fuse!");
-
-            // weaverTypes.WeaverFuseState.Resolve();
-
             // find WeaverFuse class
             TypeDefinition weaverFuse = moduleDefinition.GetType(GeneratedCodeNamespace, "WeaverFuse");
 
