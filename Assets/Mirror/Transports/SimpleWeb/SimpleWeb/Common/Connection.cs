@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 
@@ -121,8 +122,8 @@ namespace Mirror.SimpleWeb
             }
             else
             {
-                System.Net.IPEndPoint ipEndPoint = (System.Net.IPEndPoint)client.Client.RemoteEndPoint;
-                System.Net.IPAddress ipAddress = ipEndPoint.Address;
+                IPEndPoint ipEndPoint = (IPEndPoint)client.Client.RemoteEndPoint;
+                IPAddress ipAddress = ipEndPoint.Address;
                 if (ipAddress.IsIPv4MappedToIPv6)
                     ipAddress.MapToIPv4();
 
