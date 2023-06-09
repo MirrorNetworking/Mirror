@@ -111,7 +111,6 @@ namespace Mirror.SimpleWeb
         /// Gets the address based on the <see cref="request"/> and RemoteEndPoint
         /// <para>Called after ServerHandShake is accepted</para>
         /// </summary>
-        /// <exception cref="NotImplementedException"></exception>
         internal string CalculateAddress()
         {
             if (request.Headers.TryGetValue("X-Forwarded-For", out string forwardFor))
