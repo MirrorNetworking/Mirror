@@ -143,15 +143,12 @@ namespace Mirror.Weaver
                 weaverTypes.Import<object>());
         }
 
-        void ToggleWeaverFuse(ModuleDefinition moduleDefinition)
+        void ToggleWeaverFuse()
         {
-            // find WeaverFuse class
-            TypeDefinition weaverFuse = moduleDefinition.GetType(GeneratedCodeNamespace, "WeaverFuse");
+            // // find Weaved() function
+            MethodDefinition func = weaverTypes.weaverFuseMethod.Resolve();
+            // // change return 0 to return 1
 
-            // find Weaved() function
-            MethodDefinition func = weaverFuse.GetMethod("Weaved");
-
-            // change return 0 to return 1
             ILProcessor worker = func.Body.GetILProcessor();
             func.Body.Instructions[0] = worker.Create(OpCodes.Ldc_I4_1);
         }
@@ -245,7 +242,7 @@ namespace Mirror.Weaver
                 // if weaving succeeded, switch on the Weaver Fuse in Mirror.dll
                 if (CurrentAssembly.Name.Name == MirrorAssemblyName)
                 {
-                    ToggleWeaverFuse(moduleDefinition);
+                    ToggleWeaverFuse();
                 }
 
                 return true;
