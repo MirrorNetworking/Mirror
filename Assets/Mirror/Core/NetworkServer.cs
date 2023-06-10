@@ -125,7 +125,7 @@ namespace Mirror
             if (!WeaverFuse.Weaved())
             {
                 // if it failed, throw an exception to early exit all Listen calls.
-                throw new Exception("NetworkServer won't start because Weaver either failed or didn't run.");
+                throw new Exception("NetworkServer won't start because Weaving failed or didn't run.");
             }
 
             // Debug.Log($"NetworkServer Created version {Version.Current}");

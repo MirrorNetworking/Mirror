@@ -151,7 +151,7 @@ namespace Mirror
             if (!WeaverFuse.Weaved())
             {
                 // if it failed, throw an exception to early exit all Connect calls.
-                throw new Exception("NetworkClient won't start because Weaving failed.");
+                throw new Exception("NetworkClient won't start because Weaving failed or didn't run.");
             }
 
             // Debug.Log($"Client Connect: {address}");
