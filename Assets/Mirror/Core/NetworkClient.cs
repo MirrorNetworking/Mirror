@@ -164,7 +164,7 @@ namespace Mirror
             // and other random errors at runtime instead. this is cleaner.
             if (!WeaverFuse.Weaved())
             {
-                Debug.LogError("NetworkClient won't start because Weaving failed.");
+                Debug.LogError("NetworkClient won't start because Weaver either failed or didn't run.");
                 return;
             }
 
