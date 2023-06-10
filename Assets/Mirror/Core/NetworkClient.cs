@@ -200,6 +200,15 @@ namespace Mirror
         // called from NetworkManager.FinishStartHost()
         public static void ConnectHost()
         {
+            // safety: ensure Weaving succeded.
+            // if it silently failed, we would get lots of 'writer not found'
+            // and other random errors at runtime instead. this is cleaner.
+            if (!WeaverFuse.Weaved())
+            {
+                Debug.LogError("NetworkClient won't start because Weaving failed.");
+                return;
+            }
+
             Initialize(true);
             connectState = ConnectState.Connected;
             HostMode.SetupConnections();
