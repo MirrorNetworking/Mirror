@@ -242,10 +242,7 @@ namespace Mirror.Weaver
                     //CurrentAssembly.Write(new WriterParameters{ WriteSymbols = true });
                 }
 
-                // finally, switch on the WeaverFuse for runtime check.
-                // TODO is this the Mirror assembly?
-
-                // switch the Weaver Fuse in Mirror.dll
+                // if weaving succeeded, switch on the Weaver Fuse in Mirror.dll
                 if (CurrentAssembly.Name.Name == MirrorAssemblyName)
                 {
                     ToggleWeaverFuse(moduleDefinition);
