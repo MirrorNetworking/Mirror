@@ -107,7 +107,7 @@ namespace Mirror
         internal static readonly Dictionary<ulong, NetworkIdentity> spawnableObjects =
             new Dictionary<ulong, NetworkIdentity>();
 
-        static Unbatcher unbatcher = new Unbatcher();
+        internal static Unbatcher unbatcher = new Unbatcher();
 
         // interest management component (optional)
         // only needed for SetHostVisibility
@@ -147,6 +147,12 @@ namespace Mirror
         {
             // Debug.Log($"Client Connect: {address}");
             Debug.Assert(Transport.active != null, "There was no active transport when calling NetworkClient.Connect, If you are calling Connect manually then make sure to set 'Transport.active' first");
+
+            // reset unbatcher in case any batches from last session remain.
+            // need to do this in Initialize() so it runs for the host as well.
+            // fixes host mode scene transition receiving data from previous scene.
+            // credits: BigBoxVR
+            unbatcher = new Unbatcher();
 
             // reset time interpolation on every new connect.
             // ensures last sessions' state is cleared before starting again.
@@ -226,9 +232,6 @@ namespace Mirror
             {
                 // reset network time stats
                 NetworkTime.ResetStatics();
-
-                // reset unbatcher in case any batches from last session remain.
-                unbatcher = new Unbatcher();
 
                 // the handler may want to send messages to the client
                 // thus we should set the connected state before calling the handler
