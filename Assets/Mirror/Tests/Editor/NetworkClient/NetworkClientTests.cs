@@ -160,7 +160,8 @@ namespace Mirror.Tests.NetworkClients
             // add some data to unbatcher, disconnect.
             // need at least batcher.HeaderSize for it to be counted as batch
             NetworkClient.isLoadingScene = true;
-            NetworkClient.OnTransportData(new byte[]{1,2,3,4,5,6,7,8}, Channels.Reliable);
+            byte[] data = new byte[]{1,2,3,4,5,6,7,8};
+            NetworkClient.OnTransportData(new ArraySegment<byte>(data), Channels.Reliable);
             NetworkClient.Disconnect();
             NetworkServer.DisconnectAll();
             Assert.That(NetworkClient.unbatcher.BatchesCount, Is.EqualTo(1));
