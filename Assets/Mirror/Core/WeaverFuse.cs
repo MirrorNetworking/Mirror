@@ -10,6 +10,13 @@ namespace Mirror
 {
     public static class WeaverFuse
     {
-        public static bool Weaved() => false;
+        // this trick only works for ILPostProcessor.
+        // CompilationFinishedHook can't weaver Mirror.dll.
+        public static bool Weaved() =>
+#if UNITY_2020_3_OR_NEWER
+            false;
+#else
+            true;
+#endif
     }
 }
