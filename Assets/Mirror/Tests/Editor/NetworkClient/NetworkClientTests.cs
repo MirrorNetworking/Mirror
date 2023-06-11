@@ -147,5 +147,28 @@ namespace Mirror.Tests.NetworkClients
             Assert.That(NetworkClient.OnDisconnectedEvent, Is.Null);
             Assert.That(NetworkClient.OnErrorEvent, Is.Null);
         }
+
+        // test to prevent a bug where host mode scene transitions would
+        // still receive a previous scene's data.
+        [Test]
+        public void ConnectHostResetsUnbatcher()
+        {
+            // listen & connect host
+            NetworkServer.Listen(1);
+            ConnectHostClientBlockingAuthenticatedAndReady();
+
+            // add some data to unbatcher, disconnect.
+            // need at least batcher.HeaderSize for it to be counted as batch
+            NetworkClient.isLoadingScene = true;
+            NetworkClient.OnTransportData(new byte[]{1,2,3,4,5,6,7,8}, Channels.Reliable);
+            NetworkClient.Disconnect();
+            NetworkServer.DisconnectAll();
+            Assert.That(NetworkClient.unbatcher.BatchesCount, Is.EqualTo(1));
+
+            // batches should be cleared when connecting again.
+            // otherwise we would get invalid messages from last time.
+            ConnectHostClientBlockingAuthenticatedAndReady();
+            Assert.That(NetworkClient.unbatcher.BatchesCount, Is.EqualTo(0));
+        }
     }
 }
