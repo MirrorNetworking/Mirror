@@ -168,7 +168,7 @@ namespace Mirror.Examples.LagCompensationDemo
             // client simulation buttons on the bottom of the screen
             float areaHeight = 150;
             GUILayout.BeginArea(new Rect(0, Screen.height - areaHeight, Screen.width, areaHeight));
-            GUILayout.Label("Click the white cube. Lag compensation will attempt to roll back.");
+            GUILayout.Label("Click the black cube. Lag compensation will correct the latency.");
             GUILayout.BeginHorizontal();
             GUILayout.Label("Client Simulation:");
             if (GUILayout.Button((lowFpsMode ? "Disable" : "Enable") + " 1 FPS"))
