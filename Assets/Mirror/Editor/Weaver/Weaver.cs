@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Mono.CecilX;
+using Mono.CecilX.Cil;
 
 namespace Mirror.Weaver
 {
@@ -142,6 +143,16 @@ namespace Mirror.Weaver
                 weaverTypes.Import<object>());
         }
 
+        void ToggleWeaverFuse()
+        {
+            // // find Weaved() function
+            MethodDefinition func = weaverTypes.weaverFuseMethod.Resolve();
+            // // change return 0 to return 1
+
+            ILProcessor worker = func.Body.GetILProcessor();
+            func.Body.Instructions[0] = worker.Create(OpCodes.Ldc_I4_1);
+        }
+
         // Weave takes an AssemblyDefinition to be compatible with both old and
         // new weavers:
         // * old takes a filepath, new takes a in-memory byte[]
@@ -226,6 +237,12 @@ namespace Mirror.Weaver
                     // ILPostProcessor writes to in-memory assembly.
                     // it depends on the caller.
                     //CurrentAssembly.Write(new WriterParameters{ WriteSymbols = true });
+                }
+
+                // if weaving succeeded, switch on the Weaver Fuse in Mirror.dll
+                if (CurrentAssembly.Name.Name == MirrorAssemblyName)
+                {
+                    ToggleWeaverFuse();
                 }
 
                 return true;

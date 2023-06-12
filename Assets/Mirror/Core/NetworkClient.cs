@@ -145,6 +145,15 @@ namespace Mirror
         // initialize is called before every connect
         static void Initialize(bool hostMode)
         {
+            // safety: ensure Weaving succeded.
+            // if it silently failed, we would get lots of 'writer not found'
+            // and other random errors at runtime instead. this is cleaner.
+            if (!WeaverFuse.Weaved())
+            {
+                // if it failed, throw an exception to early exit all Connect calls.
+                throw new Exception("NetworkClient won't start because Weaving failed or didn't run.");
+            }
+
             // Debug.Log($"Client Connect: {address}");
             Debug.Assert(Transport.active != null, "There was no active transport when calling NetworkClient.Connect, If you are calling Connect manually then make sure to set 'Transport.active' first");
 
