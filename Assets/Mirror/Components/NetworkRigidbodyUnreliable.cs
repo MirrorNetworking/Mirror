@@ -5,6 +5,8 @@ namespace Mirror
     [RequireComponent(typeof(Rigidbody))]
     public class NetworkRigidbodyUnreliable : NetworkTransform
     {
+        new bool clientAuthority => syncDirection == SyncDirection.ClientToServer;
+
         // cache the Rigidbody component
         Rigidbody rb;
         protected override void Awake()
