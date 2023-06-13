@@ -1,7 +1,8 @@
 // a simple snapshot with timestamp & interpolation
+using Mirror;
 using UnityEngine;
 
-namespace Mirror.Examples.LagCompensationDemo
+namespace RollbackDemo
 {
     public struct Snapshot3D : Snapshot
     {
