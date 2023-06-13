@@ -233,6 +233,7 @@ GameObject:
   - component: {fileID: 492096635}
   - component: {fileID: 492096637}
   - component: {fileID: 492096634}
+  - component: {fileID: 492096638}
   m_Layer: 0
   m_Name: NetworkManager
   m_TagString: Untagged
@@ -288,7 +289,7 @@ MonoBehaviour:
   sendRate: 30
   offlineScene: 
   onlineScene: 
-  transport: {fileID: 492096634}
+  transport: {fileID: 492096638}
   networkAddress: localhost
   maxConnections: 100
   authenticator: {fileID: 0}
@@ -337,6 +338,25 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   offsetX: 0
   offsetY: 0
+--- !u!114 &492096638
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 492096633}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 96b149f511061407fb54895c057b7736, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  wrap: {fileID: 492096634}
+  jitter: 0.1
+  jitterSpeed: 1
+  reliableLatency: 75
+  unreliableLoss: 1
+  unreliableLatency: 75
+  unreliableScramble: 1
 --- !u!1 &670337638
 GameObject:
   m_ObjectHideFlags: 0
@@ -386,7 +406,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 670337638}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8ff3ba0becae47b8b9381191598957c8, type: 3}
+  m_Script: {fileID: 11500000, guid: cb803efbe62c34d7baece46c9ffebad9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   syncDirection: 0
@@ -402,8 +422,8 @@ MonoBehaviour:
   interpolateScale: 0
   sendIntervalMultiplier: 1
   timelineOffset: 1
-  showGizmos: 0
-  showOverlay: 0
+  showGizmos: 1
+  showOverlay: 1
   overlayColor: {r: 0, g: 0, b: 0, a: 0.5}
   onlySyncOnChange: 1
   onlySyncOnChangeCorrectionMultiplier: 2
@@ -633,7 +653,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1019217375}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2f74aedd71d9a4f55b3ce499326d45fb, type: 3}
+  m_Script: {fileID: 11500000, guid: 3b20dc110904e47f8a154cdcf6433eae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   syncDirection: 0
@@ -649,8 +669,8 @@ MonoBehaviour:
   interpolateScale: 0
   sendIntervalMultiplier: 1
   timelineOffset: 1
-  showGizmos: 0
-  showOverlay: 0
+  showGizmos: 1
+  showOverlay: 1
   overlayColor: {r: 0, g: 0, b: 0, a: 0.5}
   onlySyncOnChange: 1
   bufferResetMultiplier: 5
