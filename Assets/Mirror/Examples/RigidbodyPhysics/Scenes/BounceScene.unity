@@ -314,7 +314,7 @@ TextMesh:
   m_Alignment: 1
   m_TabSize: 4
   m_FontSize: 80
-  m_FontStyle: 0
+  m_FontStyle: 1
   m_RichText: 1
   m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
   m_Color:
@@ -411,7 +411,7 @@ TextMesh:
   m_Alignment: 1
   m_TabSize: 4
   m_FontSize: 80
-  m_FontStyle: 0
+  m_FontStyle: 1
   m_RichText: 1
   m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
   m_Color:
@@ -779,7 +779,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 9095a4dceda11a647a2a09eb02873cf2, type: 2}
+  - {fileID: 2100000, guid: 84335f003ad8f42408d13787e76d4f94, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -970,7 +970,7 @@ TextMesh:
   m_Alignment: 1
   m_TabSize: 4
   m_FontSize: 80
-  m_FontStyle: 0
+  m_FontStyle: 1
   m_RichText: 1
   m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
   m_Color:
@@ -1240,7 +1240,7 @@ Light:
     m_Type: 2
     m_Resolution: -1
     m_CustomResolution: -1
-    m_Strength: 1
+    m_Strength: 0.63
     m_Bias: 0.05
     m_NormalBias: 0.4
     m_NearPlane: 0.2
@@ -1345,7 +1345,7 @@ TextMesh:
   m_Alignment: 1
   m_TabSize: 4
   m_FontSize: 80
-  m_FontStyle: 0
+  m_FontStyle: 1
   m_RichText: 1
   m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
   m_Color:
