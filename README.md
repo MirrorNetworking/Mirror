@@ -240,6 +240,8 @@ Therefore, we need to [KISS](https://en.wikipedia.org/wiki/KISS_principle) 😗.
 
 ---
 # Information Security
+![Mirror alternative Logo](https://github.com/MirrorNetworking/Mirror/assets/16416509/ca26e97c-2f26-487d-a48e-e23ec762bc79)
+
 Mirror-Networking follows common information security industry standards & best practices.
 
 Mirror is free open source software (MIT Licensed), with the company located in Germany. We do not collect any other user data, impose no restrictions on users & developers, or rely on any closed source dependencies other than Unity.
