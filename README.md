@@ -244,7 +244,7 @@ Therefore, we need to [KISS](https://en.wikipedia.org/wiki/KISS_principle) 😗.
 
 Mirror-Networking follows common information security industry standards & best practices.
 
-Mirror is free open source software (MIT Licensed), with the company located in Germany. We do not collect any other user data, impose no restrictions on users & developers, or rely on any closed source dependencies other than Unity.
+Mirror is free open source software (MIT Licensed), with the company located in Germany. We do not collect any user data, impose no restrictions on users & developers, or rely on any closed source dependencies other than Unity.
 
 This makes Mirror an attractive choice for government agencies and large corporations with strict information security guidelines.
 
