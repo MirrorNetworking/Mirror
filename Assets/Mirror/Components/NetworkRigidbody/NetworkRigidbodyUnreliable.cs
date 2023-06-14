@@ -8,13 +8,24 @@ namespace Mirror
         new bool clientAuthority =>
             syncDirection == SyncDirection.ClientToServer;
 
-        // cache the Rigidbody component
         Rigidbody rb;
+        bool wasKinematic;
+
+        // cach Rigidbody and original isKinematic setting
         protected override void Awake()
         {
             rb = GetComponent<Rigidbody>();
+            wasKinematic = rb.isKinematic;
             base.Awake();
         }
+
+        // reset forced isKinematic flag to original.
+        // otherwise the overwritten value would remain between sessions forever.
+        // for example, a game may run as client, set rigidbody.iskinematic=true,
+        // then run as server, where .iskinematic isn't touched and remains at
+        // the overwritten=true, even though the user set it to false originally.
+        public override void OnStopServer() => rb.isKinematic = wasKinematic;
+        public override void OnStopClient() => rb.isKinematic = wasKinematic;
 
         // FixedUpdate for physics
         void FixedUpdate()
