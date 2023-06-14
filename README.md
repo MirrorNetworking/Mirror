@@ -259,7 +259,9 @@ Feel free to reach out to business [**at**] mirror-networking.com if you have an
 * **[Security Policy](https://github.com/MirrorNetworking/Mirror/blob/master/SECURITY.md)**
 * **Vulnerability Management Policy**.pdf
 
-Please notify us about your Mirror projects. We are excited to see what you built, and happy to help if needed!
+Please reach out if you decide to use Mirror.
+
+We are excited to hear about your project, and happy to help if needed!
 
 ---
 # Incident Response & Bug Bounty
