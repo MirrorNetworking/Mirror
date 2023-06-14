@@ -239,6 +239,27 @@ We prefer to work slow & thoroughly in order to not break everyone's games 🐌.
 Therefore, we need to [KISS](https://en.wikipedia.org/wiki/KISS_principle) 😗.
 
 ---
+# Information Security
+Mirror-Networking follows common information security industry standards & best practices.
+
+Mirror is free open source software (MIT Licensed), with the company located in Germany. We do not collect any other user data, impose no restrictions on users & developers, or rely on any closed source dependencies other than Unity.
+
+This makes Mirror an attractive choice for government agencies and large corporations with strict information security guidelines.
+
+Feel free to reach out to business [**at**] mirror-networking.com if you have any questions, or need to review any of our policies:
+
+* **Development best Practices and SDLC**.pdf
+* **Disaster Recovery Procedure**.pdf
+* **Document Retention and Destruction Policy**.pdf
+* **Encryption Policy**.pdf
+* **Information Security Guidelines**.pdf
+* **[Privacy Policy](https://mirror-networking.com/privacy-policy/)**
+* **[Security Policy](https://github.com/MirrorNetworking/Mirror/blob/master/SECURITY.md)**
+* **Vulnerability Management Policy**.pdf
+
+Please notify us about your Mirror projects. We are excited to see what you built, and happy to help if needed!
+
+---
 # Incident Response & Bug Bounty
 A lot of projects use Mirror in production. If you found a critical bug / exploit in Mirror core, please follow the steps outlined in our [Security Policy](SECURITY.md).
 
