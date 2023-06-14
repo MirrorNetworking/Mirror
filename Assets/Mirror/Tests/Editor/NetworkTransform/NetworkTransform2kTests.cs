@@ -7,7 +7,7 @@ using UnityEngine;
 namespace Mirror.Tests.NetworkTransformTests
 {
     // helper class to expose some of the protected methods
-    public class NetworkTransformExposed : NetworkTransform
+    public class NetworkTransformExposed : NetworkTransformUnreliable
     {
         public new TransformSnapshot Construct() => base.Construct();
         public void Apply(TransformSnapshot interpolated) =>

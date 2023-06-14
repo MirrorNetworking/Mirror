@@ -3,7 +3,7 @@ using UnityEngine;
 namespace Mirror
 {
     [RequireComponent(typeof(Rigidbody))]
-    public class NetworkRigidbodyUnreliable2D : NetworkTransform
+    public class NetworkRigidbodyUnreliable2D : NetworkTransformUnreliable
     {
         new bool clientAuthority =>
             syncDirection == SyncDirection.ClientToServer;

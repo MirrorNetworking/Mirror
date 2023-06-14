@@ -1,12 +1,18 @@
 // NetworkTransform V2 by mischa (2021-07)
 // comment out the below line to quickly revert the onlySyncOnChange feature
 #define onlySyncOnChange_BANDWIDTH_SAVING
+using System;
 using UnityEngine;
 
 namespace Mirror
 {
+    // obsolete old NetworkTransform naming, which is now NetworkTransformUnreliable.
+    // DEPRECATED 2023-06-14
+    [Obsolete("NetworkTransform was renamed to NetworkTransformUnreliable for consistency.")]
+    public class NetworkTransform : NetworkTransformUnreliable {}
+
     [AddComponentMenu("Network/Network Transform (Unreliable)")]
-    public class NetworkTransform : NetworkTransformBase
+    public class NetworkTransformUnreliable : NetworkTransformBase
     {
         // only sync when changed hack /////////////////////////////////////////
 #if onlySyncOnChange_BANDWIDTH_SAVING
@@ -69,10 +75,10 @@ namespace Mirror
 			// thus we reset the counter here.
 			// This fixes previous issue of, if sendIntervalMultiplier = 1, we send every frame,
 			// because intervalCounter is always = 1 in the previous version.
-			
+
 			if (sendIntervalCounter == sendIntervalMultiplier)
 				sendIntervalCounter = 0;
-				
+
 			// timeAsDouble not available in older Unity versions.
 			if (AccurateInterval.Elapsed(NetworkTime.localTime, NetworkServer.sendInterval, ref lastSendIntervalTime))
                 sendIntervalCounter++;
