@@ -4,7 +4,7 @@ namespace Mirror.Examples.MultipleAdditiveScenes
 {
     [RequireComponent(typeof(CapsuleCollider))]
     [RequireComponent(typeof(CharacterController))]
-    [RequireComponent(typeof(NetworkTransform))]
+    [RequireComponent(typeof(NetworkTransformUnreliable))]
     [RequireComponent(typeof(Rigidbody))]
     public class PlayerController : NetworkBehaviour
     {
