@@ -90,22 +90,17 @@ namespace Mirror
             //       ProcessMessage(message);
             //
             message = null;
+            remoteTimeStamp = 0;
 
             // do nothing if we don't have any batches.
             // otherwise the below queue.Dequeue() would throw an
             // InvalidOperationException if operating on empty queue.
             if (batches.Count == 0)
-            {
-                remoteTimeStamp = 0;
                 return false;
-            }
 
             // was our reader pointed to anything yet?
             if (reader.Capacity == 0)
-            {
-                remoteTimeStamp = 0;
                 return false;
-            }
 
             // no more data to read?
             if (reader.Remaining == 0)
@@ -123,11 +118,7 @@ namespace Mirror
                     StartReadingBatch(next);
                 }
                 // otherwise there's nothing more to read
-                else
-                {
-                    remoteTimeStamp = 0;
-                    return false;
-                }
+                else return false;
             }
 
             // use the current batch's remote timestamp
