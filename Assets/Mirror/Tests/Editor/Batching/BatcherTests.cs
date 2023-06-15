@@ -226,5 +226,39 @@ namespace Mirror.Tests.Batching
             Assert.That(result, Is.EqualTo(true));
             Assert.That(writer.ToArray().SequenceEqual(ConcatTimestamp(TimeStamp + 2, new byte[]{0x03, 0x04})));
         }
+
+        // if a batch contains ABC,
+        // and unbatching only deserializes half of B,
+        // then C will end up corrupted,
+        // and nothing will indicate which message caused it.
+        // days & weeks were lost on this.
+        [Test]
+        public void MessageSerializationMismatch()
+        {
+            // batch with correct size
+            batcher.AddMessage(new ArraySegment<byte>(new byte[]{1}), TimeStamp);
+            batcher.AddMessage(new ArraySegment<byte>(new byte[]{2}), TimeStamp);
+            batcher.AddMessage(new ArraySegment<byte>(new byte[]{3}), TimeStamp);
+            Assert.That(batcher.GetBatch(writer), Is.True);
+
+            // feed batch to unbatcher
+            Unbatcher unbatcher = new Unbatcher();
+            unbatcher.AddBatch(writer);
+
+            // read A correctly
+            Assert.That(unbatcher.GetNextMessage(out NetworkReader reader, out _), Is.True);
+            Assert.That(reader.ReadByte(), Is.EqualTo(1));
+
+            // read B only partially.
+            // this can happen if a NetworkMessage does custom serialization,
+            // and does early return in Deserialize.
+            // for example, SmoothSync.
+            Assert.That(unbatcher.GetNextMessage(out reader, out _), Is.True);
+            // Assert.That(reader.ReadByte(), Is.EqualTo(2));
+
+            // read C. this will be corrupted
+            Assert.That(unbatcher.GetNextMessage(out reader, out _), Is.True);
+            Assert.That(reader.ReadByte(), Is.EqualTo(3));
+        }
     }
 }
