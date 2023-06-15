@@ -109,6 +109,10 @@ namespace Mirror
             // AFTER potentially moving to the next batch ABOVE!
             remoteTimeStamp = readerRemoteTimeStamp;
 
+            // enough data to read the size prefix?
+            if (reader.Remaining == 0)
+                return false;
+
             // read the size prefix as varint
             // see Batcher.AddMessage comments for explanation.
             int size = (int)Compression.DecompressVarUInt(reader);
