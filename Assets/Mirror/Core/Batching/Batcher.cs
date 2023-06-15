@@ -29,8 +29,12 @@ namespace Mirror
         //    they would not contain a timestamp
         readonly int threshold;
 
-        // TimeStamp header size for those who need it
-        public const int HeaderSize = sizeof(double);
+        // TimeStamp header size. each batch has one.
+        public const int TimestampSize = sizeof(double);
+
+        // Message header size. each message has one.
+        public static int MessageHeaderSize(int messageSize) =>
+            Compression.VarUIntSize((ulong)messageSize);
 
         // full batches ready to be sent.
         // DO NOT queue NetworkMessage, it would box.

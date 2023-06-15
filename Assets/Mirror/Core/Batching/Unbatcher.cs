@@ -48,7 +48,7 @@ namespace Mirror
             //       don't need to check against that.
 
             // make sure we have at least 8 bytes to read for tick timestamp
-            if (batch.Count < Batcher.HeaderSize)
+            if (batch.Count < Batcher.TimestampSize)
                 return false;
 
             // put into a (pooled) writer
