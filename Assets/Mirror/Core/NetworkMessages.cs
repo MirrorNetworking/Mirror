@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Text;
 using UnityEngine;
 
 namespace Mirror
@@ -28,6 +30,23 @@ namespace Mirror
     {
         // size of message id header in bytes
         public const int IdSize = sizeof(ushort);
+
+        // Id <> Type lookup for debugging, profiler, etc.
+        // important when debugging messageId errors!
+        public static readonly Dictionary<ushort, Type> Lookup =
+            new Dictionary<ushort, Type>();
+
+        // dump all types for debugging
+        public static void LogTypes()
+        {
+            StringBuilder builder = new StringBuilder();
+            builder.AppendLine("NetworkMessageIds:");
+            foreach (KeyValuePair<ushort, Type> kvp in Lookup)
+            {
+                builder.AppendLine($"  Id={kvp.Key} = {kvp.Value}");
+            }
+            Debug.Log(builder.ToString());
+        }
 
         // max message content size (without header) calculation for convenience
         // -> Transport.GetMaxPacketSize is the raw maximum
@@ -87,7 +106,14 @@ namespace Mirror
         internal static NetworkMessageDelegate WrapHandler<T, C>(Action<C, T, int> handler, bool requireAuthentication)
             where T : struct, NetworkMessage
             where C : NetworkConnection
-            => (conn, reader, channelId) =>
+        {
+            // register Id <> Type in lookup for debugging.
+            // WrapHandler is the most convenient place to do this.
+            // this is called from NetworkServer & Client.
+            Lookup[GetId<T>()] = typeof(T);
+
+            // return the wrapped function
+            return (conn, reader, channelId) =>
             {
                 // protect against DOS attacks if attackers try to send invalid
                 // data packets to crash the server/client. there are a thousand
@@ -145,6 +171,7 @@ namespace Mirror
                     conn.Disconnect();
                 }
             };
+        }
 
         // version for handlers without channelId
         // TODO obsolete this some day to always use the channelId version.
