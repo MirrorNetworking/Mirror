@@ -46,9 +46,8 @@ namespace Mirror
         // => addons can work with each other without knowing their ids before
         // => 2 bytes is enough to avoid collisions.
         //    registering a messageId twice will log a warning anyway.
-        // Deprecated 2023-02-15
+        // keep this for convenience. easier to use than NetworkMessageId<T>.Id.
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        [Obsolete("Use NetworkMessageId<T>.Id instead")]
         public static ushort GetId<T>() where T : struct, NetworkMessage =>
             NetworkMessageId<T>.Id;
 
