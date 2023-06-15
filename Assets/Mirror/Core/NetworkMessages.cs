@@ -15,7 +15,8 @@ namespace Mirror
         // => addons can work with each other without knowing their ids before
         // => 2 bytes is enough to avoid collisions.
         //    registering a messageId twice will log a warning anyway.
-        public static readonly ushort Id = (ushort)(typeof(T).FullName.GetStableHashCode());
+        public static readonly ushort Id =
+            (ushort)(typeof(T).FullName.GetStableHashCode());
     }
 
     // message packing all in one place, instead of constructing headers in all
