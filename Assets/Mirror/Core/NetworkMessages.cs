@@ -106,14 +106,7 @@ namespace Mirror
         internal static NetworkMessageDelegate WrapHandler<T, C>(Action<C, T, int> handler, bool requireAuthentication)
             where T : struct, NetworkMessage
             where C : NetworkConnection
-        {
-            // register Id <> Type in lookup for debugging.
-            // WrapHandler is the most convenient place to do this.
-            // this is called from NetworkServer & Client.
-            Lookup[GetId<T>()] = typeof(T);
-
-            // return the wrapped function
-            return (conn, reader, channelId) =>
+            => (conn, reader, channelId) =>
             {
                 // protect against DOS attacks if attackers try to send invalid
                 // data packets to crash the server/client. there are a thousand
@@ -171,7 +164,6 @@ namespace Mirror
                     conn.Disconnect();
                 }
             };
-        }
 
         // version for handlers without channelId
         // TODO obsolete this some day to always use the channelId version.
