@@ -4,7 +4,6 @@ using UnityEngine;
 
 namespace Mirror
 {
-
     // for performance, we (ab)use c# generics to cache the message id in a static field
     // this is significantly faster than doing the computation at runtime or looking up cached results via Dictionary
     // generic classes have separate static fields per type specification
