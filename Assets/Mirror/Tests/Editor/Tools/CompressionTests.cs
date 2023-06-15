@@ -386,5 +386,53 @@ namespace Mirror.Tests.Tools
             Assert.That(Compression.DecompressVarUInt(reader), Is.EqualTo(72057594037927935));
             Assert.That(Compression.DecompressVarUInt(reader), Is.EqualTo(ulong.MaxValue));
         }
+
+        [Test]
+        [TestCase(0ul)]
+        [TestCase(234ul)]
+        [TestCase(2284ul)]
+        [TestCase(67821ul)]
+        [TestCase(16777210ul)]
+        [TestCase(16777219ul)]
+        [TestCase(4294967295ul)]
+        [TestCase(1099511627775ul)]
+        [TestCase(281474976710655ul)]
+        [TestCase(72057594037927935ul)]
+        [TestCase(ulong.MaxValue)]
+        public void VarUIntSize(ulong number)
+        {
+            NetworkWriter writer = new NetworkWriter();
+            Compression.CompressVarUInt(writer, number);
+            Assert.That(writer.Position, Is.EqualTo(Compression.VarUIntSize(number)));
+        }
+
+        [Test]
+        [TestCase(long.MinValue)]
+        [TestCase(-72057594037927935)]
+        [TestCase(-281474976710655)]
+        [TestCase(-1099511627775)]
+        [TestCase(-4294967295)]
+        [TestCase(-16777219)]
+        [TestCase(-16777210)]
+        [TestCase(-67821)]
+        [TestCase(-2284)]
+        [TestCase(-234)]
+        [TestCase(0)]
+        [TestCase(234)]
+        [TestCase(2284)]
+        [TestCase(67821)]
+        [TestCase(16777210)]
+        [TestCase(16777219)]
+        [TestCase(4294967295)]
+        [TestCase(1099511627775)]
+        [TestCase(281474976710655)]
+        [TestCase(72057594037927935)]
+        [TestCase(long.MaxValue)]
+        public void VarIntSize(long number)
+        {
+            NetworkWriter writer = new NetworkWriter();
+            Compression.CompressVarInt(writer, number);
+            Assert.That(writer.Position, Is.EqualTo(Compression.VarIntSize(number)));
+        }
     }
 }
