@@ -61,19 +61,8 @@ namespace Mirror
             get
             {
                 // calculate the max possible size that can fit in a batch
-                int max = Transport.active.GetMaxPacketSize()
-                    - IdSize
-                    - Batcher.TimestampSize;
-
-                // in theory we could subtract MessageHeaderSize(int.max),
-                // but depending on Transport.GetMax it might be less than that.
-                //
-                // let's calculate the exact limit instead.
-                // each message in a batch contains a size header.
-                // calculate the max possible size of the varint size header,
-                // for the above max size based on transport.
-                int maxSizeHeader = Batcher.MessageHeaderSize(max);
-                return max - maxSizeHeader;
+                int transportMax = Transport.active.GetMaxPacketSize();
+                return transportMax - IdSize - Batcher.MaxMessageOverhead(transportMax);
             }
         }
 

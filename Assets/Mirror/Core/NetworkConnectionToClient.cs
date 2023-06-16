@@ -132,8 +132,7 @@ namespace Mirror
             int bufferLimit = maxMessageSize
                               - NetworkMessages.IdSize
                               - sizeof(int)
-                              - Batcher.TimestampSize
-                              - Batcher.MessageHeaderSize(maxMessageSize);
+                              - Batcher.MaxMessageOverhead(maxMessageSize);
 
             // remember previous valid position
             int before = buffer.Position;

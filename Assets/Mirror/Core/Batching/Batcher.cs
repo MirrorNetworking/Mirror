@@ -36,6 +36,11 @@ namespace Mirror
         public static int MessageHeaderSize(int messageSize) =>
             Compression.VarUIntSize((ulong)messageSize);
 
+        // maximum overhead for a single message.
+        // useful for the outside to calculate max message sizes.
+        public static int MaxMessageOverhead(int messageSize) =>
+            TimestampSize + MessageHeaderSize(messageSize);
+
         // full batches ready to be sent.
         // DO NOT queue NetworkMessage, it would box.
         // DO NOT queue each serialization separately.
