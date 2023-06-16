@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Mirror
 {
-    [RequireComponent(typeof(Rigidbody))]
+    // [RequireComponent(typeof(Rigidbody))] <- OnValidate ensures this is on .target
     public class NetworkRigidbodyReliable2D : NetworkTransformReliable
     {
         new bool clientAuthority =>
@@ -14,7 +14,14 @@ namespace Mirror
         // cach Rigidbody and original isKinematic setting
         protected override void Awake()
         {
-            rb = GetComponent<Rigidbody2D>();
+            // we can't overwrite .target to be a Rigidbody.
+            // but we can use its Rigidbody component.
+            rb = target.GetComponent<Rigidbody2D>();
+            if (rb == null)
+            {
+                Debug.LogError($"{name}'s NetworkRigidbody2D.target {target.name} is missing a Rigidbody2D", this);
+                return;
+            }
             wasKinematic = rb.isKinematic;
             base.Awake();
         }
@@ -72,6 +79,18 @@ namespace Mirror
                 // otherwise don't touch isKinematic.
                 // the authority owner might use it either way.
                 if (!owned) rb.isKinematic = true;
+            }
+        }
+
+        protected override void OnValidate()
+        {
+            base.OnValidate();
+
+            // we can't overwrite .target to be a Rigidbody.
+            // but we can ensure that .target has a Rigidbody, and use it.
+            if (target.GetComponent<Rigidbody2D>() == null)
+            {
+                Debug.LogWarning($"{name}'s NetworkRigidbody2D.target {target.name} is missing a Rigidbody2D", this);
             }
         }
     }
