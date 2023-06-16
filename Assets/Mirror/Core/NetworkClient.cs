@@ -307,9 +307,6 @@ namespace Mirror
                     return;
                 }
 
-                // grab a pooled reader only once.
-                // reset buffer for each message in the batch.
-
                 // process all messages in the batch.
                 // only while NOT loading a scene.
                 // if we get a scene change message, then we need to stop
