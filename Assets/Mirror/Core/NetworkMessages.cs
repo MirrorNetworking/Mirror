@@ -51,13 +51,19 @@ namespace Mirror
         // max message content size (without header) calculation for convenience
         // -> Transport.GetMaxPacketSize is the raw maximum
         // -> Every message gets serialized into <<id, content>>
-        // -> Every serialized message get put into a batch with a header
+        // -> Every serialized message get put into a batch with one timestamp per batch
+        // -> Every message in a batch has a varuint size header.
+        //    use the worst case VarUInt size for the largest possible
+        //    message size = int.max.
         public static int MaxContentSize
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => Transport.active.GetMaxPacketSize()
-                - IdSize
-                - Batcher.HeaderSize;
+            get
+            {
+                // calculate the max possible size that can fit in a batch
+                int transportMax = Transport.active.GetMaxPacketSize();
+                return transportMax - IdSize - Batcher.MaxMessageOverhead(transportMax);
+            }
         }
 
         // automated message id from type hash.

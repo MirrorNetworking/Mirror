@@ -66,25 +66,27 @@ namespace Mirror.Tests.NetworkConnections
 
             // send and update big message
             byte[] message = {0x01, 0x02};
+            int sizeHeader = Compression.VarUIntSize((ulong)message.Length);
             connection.Send(new ArraySegment<byte>(message));
             connection.Update();
             UpdateTransport();
             Assert.That(clientReceived.Count, Is.EqualTo(1));
-            Assert.That(clientReceived[0].Length, Is.EqualTo(BatchHeader + 2));
-            Assert.That(clientReceived[0][BatchHeader + 0], Is.EqualTo(0x01));
-            Assert.That(clientReceived[0][BatchHeader + 1], Is.EqualTo(0x02));
+            Assert.That(clientReceived[0].Length, Is.EqualTo(BatchHeader + sizeHeader + message.Length));
+            Assert.That(clientReceived[0][BatchHeader + sizeHeader + 0], Is.EqualTo(0x01));
+            Assert.That(clientReceived[0][BatchHeader + sizeHeader + 1], Is.EqualTo(0x02));
 
             // clear previous
             clientReceived.Clear();
 
             // send a smaller message
             message = new byte[]{0xFF};
+            sizeHeader = Compression.VarUIntSize((ulong)message.Length);
             connection.Send(new ArraySegment<byte>(message));
             connection.Update();
             UpdateTransport();
             Assert.That(clientReceived.Count, Is.EqualTo(1));
-            Assert.That(clientReceived[0].Length, Is.EqualTo(BatchHeader + 1));
-            Assert.That(clientReceived[0][BatchHeader + 0], Is.EqualTo(0xFF));
+            Assert.That(clientReceived[0].Length, Is.EqualTo(BatchHeader + sizeHeader + message.Length));
+            Assert.That(clientReceived[0][BatchHeader + sizeHeader + 0], Is.EqualTo(0xFF));
         }
     }
 }
