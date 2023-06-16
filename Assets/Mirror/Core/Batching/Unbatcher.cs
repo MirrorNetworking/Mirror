@@ -73,7 +73,7 @@ namespace Mirror
         // timestamp is the REMOTE time when the batch was created remotely.
         public bool GetNextMessage(out ArraySegment<byte> message, out double remoteTimeStamp)
         {
-            message = null;
+            message = default;
             remoteTimeStamp = 0;
 
             // do nothing if we don't have any batches.
