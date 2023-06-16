@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Text;
 using UnityEngine;
 
 namespace Mirror
@@ -28,6 +30,23 @@ namespace Mirror
     {
         // size of message id header in bytes
         public const int IdSize = sizeof(ushort);
+
+        // Id <> Type lookup for debugging, profiler, etc.
+        // important when debugging messageId errors!
+        public static readonly Dictionary<ushort, Type> Lookup =
+            new Dictionary<ushort, Type>();
+
+        // dump all types for debugging
+        public static void LogTypes()
+        {
+            StringBuilder builder = new StringBuilder();
+            builder.AppendLine("NetworkMessageIds:");
+            foreach (KeyValuePair<ushort, Type> kvp in Lookup)
+            {
+                builder.AppendLine($"  Id={kvp.Key} = {kvp.Value}");
+            }
+            Debug.Log(builder.ToString());
+        }
 
         // max message content size (without header) calculation for convenience
         // -> Transport.GetMaxPacketSize is the raw maximum

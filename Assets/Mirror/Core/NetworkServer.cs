@@ -785,6 +785,10 @@ namespace Mirror
             {
                 Debug.LogWarning($"NetworkServer.RegisterHandler replacing handler for {typeof(T).FullName}, id={msgType}. If replacement is intentional, use ReplaceHandler instead to avoid this warning.");
             }
+
+            // register Id <> Type in lookup for debugging.
+            NetworkMessages.Lookup[msgType] = typeof(T);
+
             handlers[msgType] = NetworkMessages.WrapHandler(handler, requireAuthentication);
         }
 
@@ -798,6 +802,10 @@ namespace Mirror
             {
                 Debug.LogWarning($"NetworkServer.RegisterHandler replacing handler for {typeof(T).FullName}, id={msgType}. If replacement is intentional, use ReplaceHandler instead to avoid this warning.");
             }
+
+            // register Id <> Type in lookup for debugging.
+            NetworkMessages.Lookup[msgType] = typeof(T);
+
             handlers[msgType] = NetworkMessages.WrapHandler(handler, requireAuthentication);
         }
 
