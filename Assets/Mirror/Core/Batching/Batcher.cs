@@ -64,7 +64,7 @@ namespace Mirror
         {
             // predict the needed size, which is varint(size) + content
             int headerSize = Compression.VarUIntSize((ulong)message.Count);
-            int totalSize = headerSize + message.Count;
+            int neededSize = headerSize + message.Count;
 
             // when appending to a batch in progress, check final size.
             // if it expands beyond threshold, then we should finalize it first.
@@ -72,7 +72,7 @@ namespace Mirror
             //    GetBatch() will finalize it.
             // => see unit tests.
             if (batch != null &&
-                batch.Position + totalSize > threshold)
+                batch.Position + neededSize > threshold)
             {
                 batches.Enqueue(batch);
                 batch = null;
