@@ -27,6 +27,9 @@ namespace Mirror
         public override void OnStopServer() => rb.isKinematic = wasKinematic;
         public override void OnStopClient() => rb.isKinematic = wasKinematic;
 
+        // overwriting Construct() and Apply() to set Rigidbody.MovePosition
+        // would give more jittery movement.
+
         // FixedUpdate for physics
         void FixedUpdate()
         {
