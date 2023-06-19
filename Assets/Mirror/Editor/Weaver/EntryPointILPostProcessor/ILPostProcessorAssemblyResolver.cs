@@ -98,12 +98,18 @@ namespace Mirror.Weaver
         // find assemblyname in assembly's references
         string FindFile(string name)
         {
-            string fileName = assemblyReferences.FirstOrDefault(r => Path.GetFileName(r) == name + ".dll");
+            // this is called thousands(!) of times.
+            // constructing strings only once saves ~0.1ms per call for mscorlib.
+            string dllName = name + ".dll";
+            string exeName = name + ".exe";
+
+            // perhaps the type comes from a dll
+            string fileName = assemblyReferences.FirstOrDefault(r => Path.GetFileName(r) == dllName);
             if (fileName != null)
                 return fileName;
 
             // perhaps the type comes from an exe instead
-            fileName = assemblyReferences.FirstOrDefault(r => Path.GetFileName(r) == name + ".exe");
+            fileName = assemblyReferences.FirstOrDefault(r => Path.GetFileName(r) == exeName);
             if (fileName != null)
                 return fileName;
 
@@ -116,7 +122,7 @@ namespace Mirror.Weaver
             // got passed, and if we find the file in there, we resolve to it.
             foreach (string parentDir in assemblyReferences.Select(Path.GetDirectoryName).Distinct())
             {
-                string candidate = Path.Combine(parentDir, name + ".dll");
+                string candidate = Path.Combine(parentDir, dllName);
                 if (File.Exists(candidate))
                     return candidate;
             }
