@@ -131,11 +131,15 @@ namespace Mirror.Weaver
             string exeName = name + ".exe";
 
             // perhaps the type comes from a dll
+            // caching assemblyReferences.Select(Path.GetFileName) in constructor
+            // would throw FileNotFoundExceptions in some large projects!
             string fileName = assemblyReferences.FirstOrDefault(r => Path.GetFileName(r) == dllName);
             if (fileName != null)
                 return fileName;
 
             // perhaps the type comes from an exe instead
+            // caching assemblyReferences.Select(Path.GetFileName) in constructor
+            // would throw FileNotFoundExceptions in some large projects!
             fileName = assemblyReferences.FirstOrDefault(r => Path.GetFileName(r) == exeName);
             if (fileName != null)
                 return fileName;
