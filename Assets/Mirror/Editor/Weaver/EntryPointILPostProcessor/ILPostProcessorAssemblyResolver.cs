@@ -33,6 +33,12 @@ namespace Mirror.Weaver
         readonly ConcurrentDictionary<string, AssemblyDefinition> assemblyCache =
             new ConcurrentDictionary<string, AssemblyDefinition>();
 
+        // Resolve() calls FindFile() every time.
+        // thousands of times for String => mscorlib alone in large projects.
+        // cache the results! ILPostProcessor is multithreaded, so use a ConcurrentDictionary here.
+        private readonly ConcurrentDictionary<string, string> fileCache =
+            new ConcurrentDictionary<string, string>();
+
         readonly ICompiledAssembly compiledAssembly;
         AssemblyDefinition selfAssembly;
 
@@ -59,12 +65,33 @@ namespace Mirror.Weaver
         public AssemblyDefinition Resolve(AssemblyNameReference name) =>
             Resolve(name, new ReaderParameters(ReadingMode.Deferred));
 
+        // here is an example on when this is called:
+        //   Player : NetworkBehaviour has a [SyncVar] of type String.
+        //     Weaver's SyncObjectInitializer checks if ImplementsSyncObject()
+        //       which needs to resolve the type 'String' from mscorlib.
+        //         Resolve() lives in CecilX.MetadataResolver.Resolve()
+        //           which calls assembly_resolver.Resolve().
+        //             which uses our ILPostProcessorAssemblyResolver here.
+        //
+        // for large projects, this is called thousands of times for mscorlib alone.
+        // initially ILPostProcessorAssemblyResolver took 30x longer than with CompilationFinishedHook.
+        // we need to cache and speed up everything we can here!
         public AssemblyDefinition Resolve(AssemblyNameReference name, ReaderParameters parameters)
         {
             if (name.Name == compiledAssembly.Name)
                 return selfAssembly;
 
-            string fileName = FindFile(name.Name);
+            // cache FindFile.
+            // in large projects, this is called thousands(!) of times for String=>mscorlib alone.
+            // reduces a single String=>mscorlib resolve from 0.771ms to 0.015ms.
+            // => 50x improvement in TypeReference.Resolve() speed!
+            // => 22x improvement in Weaver speed!
+            if (!fileCache.TryGetValue(name.Name, out string fileName))
+            {
+                fileName = FindFile(name.Name);
+                fileCache.TryAdd(name.Name, fileName);
+            }
+
             if (fileName == null)
             {
                 // returning null will throw exceptions in our weaver where.
