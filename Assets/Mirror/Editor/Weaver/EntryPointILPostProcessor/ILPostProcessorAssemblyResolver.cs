@@ -14,7 +14,7 @@
 // we need a custom resolver for ILPostProcessor.
 #if UNITY_2020_3_OR_NEWER
 using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -26,8 +26,13 @@ namespace Mirror.Weaver
     class ILPostProcessorAssemblyResolver : IAssemblyResolver
     {
         readonly string[] assemblyReferences;
-        readonly Dictionary<string, AssemblyDefinition> assemblyCache =
-            new Dictionary<string, AssemblyDefinition>();
+
+        // originally we used Dictionary + lock.
+        // Resolve() is called thousands of times for large projects.
+        // ILPostProcessor is multithreaded, so best to use ConcurrentDictionary without the lock here.
+        readonly ConcurrentDictionary<string, AssemblyDefinition> assemblyCache =
+            new ConcurrentDictionary<string, AssemblyDefinition>();
+
         readonly ICompiledAssembly compiledAssembly;
         AssemblyDefinition selfAssembly;
 
@@ -56,41 +61,38 @@ namespace Mirror.Weaver
 
         public AssemblyDefinition Resolve(AssemblyNameReference name, ReaderParameters parameters)
         {
-            lock (assemblyCache)
+            if (name.Name == compiledAssembly.Name)
+                return selfAssembly;
+
+            string fileName = FindFile(name);
+            if (fileName == null)
             {
-                if (name.Name == compiledAssembly.Name)
-                    return selfAssembly;
-
-                string fileName = FindFile(name);
-                if (fileName == null)
-                {
-                    // returning null will throw exceptions in our weaver where.
-                    // let's make it obvious why we returned null for easier debugging.
-                    // NOTE: if this fails for "System.Private.CoreLib":
-                    //       ILPostProcessorReflectionImporter fixes it!
-                    Log.Warning($"ILPostProcessorAssemblyResolver.Resolve: Failed to find file for {name}");
-                    return null;
-                }
-
-                DateTime lastWriteTime = File.GetLastWriteTime(fileName);
-
-                string cacheKey = fileName + lastWriteTime;
-
-                if (assemblyCache.TryGetValue(cacheKey, out AssemblyDefinition result))
-                    return result;
-
-                parameters.AssemblyResolver = this;
-
-                MemoryStream ms = MemoryStreamFor(fileName);
-
-                string pdb = fileName + ".pdb";
-                if (File.Exists(pdb))
-                    parameters.SymbolStream = MemoryStreamFor(pdb);
-
-                AssemblyDefinition assemblyDefinition = AssemblyDefinition.ReadAssembly(ms, parameters);
-                assemblyCache.Add(cacheKey, assemblyDefinition);
-                return assemblyDefinition;
+                // returning null will throw exceptions in our weaver where.
+                // let's make it obvious why we returned null for easier debugging.
+                // NOTE: if this fails for "System.Private.CoreLib":
+                //       ILPostProcessorReflectionImporter fixes it!
+                Log.Warning($"ILPostProcessorAssemblyResolver.Resolve: Failed to find file for {name}");
+                return null;
             }
+
+            DateTime lastWriteTime = File.GetLastWriteTime(fileName);
+
+            string cacheKey = fileName + lastWriteTime;
+
+            if (assemblyCache.TryGetValue(cacheKey, out AssemblyDefinition result))
+                return result;
+
+            parameters.AssemblyResolver = this;
+
+            MemoryStream ms = MemoryStreamFor(fileName);
+
+            string pdb = fileName + ".pdb";
+            if (File.Exists(pdb))
+                parameters.SymbolStream = MemoryStreamFor(pdb);
+
+            AssemblyDefinition assemblyDefinition = AssemblyDefinition.ReadAssembly(ms, parameters);
+            assemblyCache.TryAdd(cacheKey, assemblyDefinition);
+            return assemblyDefinition;
         }
 
         // find assemblyname in assembly's references
