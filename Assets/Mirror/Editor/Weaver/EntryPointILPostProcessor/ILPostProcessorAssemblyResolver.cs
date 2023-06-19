@@ -113,6 +113,15 @@ namespace Mirror.Weaver
             if (fileName != null)
                 return fileName;
 
+            // check both in one call without Linq instead of iterating twice like originally
+            // this throws exceptions for some reason:
+            //   foreach (string r in assemblyReferences)
+            //   {
+            //       string fileName = Path.GetFileName(r);
+            //       if (fileName == dllName || fileName == exeName)
+            //           return fileName;
+            //   }
+
             // Unfortunately the current ICompiledAssembly API only provides direct references.
             // It is very much possible that a postprocessor ends up investigating a type in a directly
             // referenced assembly, that contains a field that is not in a directly referenced assembly.
