@@ -130,28 +130,14 @@ namespace Mirror.Weaver
             string dllName = name + ".dll";
             string exeName = name + ".exe";
 
-            // perhaps the type comes from a dll
-            // caching assemblyReferences.Select(Path.GetFileName) in constructor
-            // would throw FileNotFoundExceptions in some large projects!
-            string fileName = assemblyReferences.FirstOrDefault(r => Path.GetFileName(r) == dllName);
-            if (fileName != null)
-                return fileName;
-
-            // perhaps the type comes from an exe instead
-            // caching assemblyReferences.Select(Path.GetFileName) in constructor
-            // would throw FileNotFoundExceptions in some large projects!
-            fileName = assemblyReferences.FirstOrDefault(r => Path.GetFileName(r) == exeName);
-            if (fileName != null)
-                return fileName;
-
+            // perhaps the type comes from a dll or exe
             // check both in one call without Linq instead of iterating twice like originally
-            // this throws exceptions for some reason:
-            //   foreach (string r in assemblyReferences)
-            //   {
-            //       string fileName = Path.GetFileName(r);
-            //       if (fileName == dllName || fileName == exeName)
-            //           return fileName;
-            //   }
+            foreach (string r in assemblyReferences)
+            {
+                string fileName = Path.GetFileName(r);
+                if (fileName == dllName || fileName == exeName)
+                    return r;
+            }
 
             // Unfortunately the current ICompiledAssembly API only provides direct references.
             // It is very much possible that a postprocessor ends up investigating a type in a directly
