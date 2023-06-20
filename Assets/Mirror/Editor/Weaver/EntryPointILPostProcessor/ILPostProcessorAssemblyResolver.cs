@@ -102,15 +102,14 @@ namespace Mirror.Weaver
                 return null;
             }
 
+            // try to get cached assembly by filename + writetime
             DateTime lastWriteTime = File.GetLastWriteTime(fileName);
-
             string cacheKey = fileName + lastWriteTime;
-
             if (assemblyCache.TryGetValue(cacheKey, out AssemblyDefinition result))
                 return result;
 
+            // otherwise resolve and cache a new assembly
             parameters.AssemblyResolver = this;
-
             MemoryStream ms = MemoryStreamFor(fileName);
 
             string pdb = fileName + ".pdb";
