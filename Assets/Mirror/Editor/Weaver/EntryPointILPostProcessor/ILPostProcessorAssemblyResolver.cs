@@ -36,7 +36,7 @@ namespace Mirror.Weaver
         // Resolve() calls FindFile() every time.
         // thousands of times for String => mscorlib alone in large projects.
         // cache the results! ILPostProcessor is multithreaded, so use a ConcurrentDictionary here.
-        readonly ConcurrentDictionary<string, string> fileCache =
+        readonly ConcurrentDictionary<string, string> fileNameCache =
             new ConcurrentDictionary<string, string>();
 
         readonly ICompiledAssembly compiledAssembly;
@@ -86,10 +86,10 @@ namespace Mirror.Weaver
             // reduces a single String=>mscorlib resolve from 0.771ms to 0.015ms.
             // => 50x improvement in TypeReference.Resolve() speed!
             // => 22x improvement in Weaver speed!
-            if (!fileCache.TryGetValue(name.Name, out string fileName))
+            if (!fileNameCache.TryGetValue(name.Name, out string fileName))
             {
                 fileName = FindFile(name.Name);
-                fileCache.TryAdd(name.Name, fileName);
+                fileNameCache.TryAdd(name.Name, fileName);
             }
 
             if (fileName == null)
