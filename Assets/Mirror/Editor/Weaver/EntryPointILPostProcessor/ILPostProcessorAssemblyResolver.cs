@@ -124,19 +124,17 @@ namespace Mirror.Weaver
         // find assemblyname in assembly's references
         string FindFile(string name)
         {
-            // this is called thousands(!) of times.
-            // constructing strings only once saves ~0.1ms per call for mscorlib.
-            string dllName = name + ".dll";
-            string exeName = name + ".exe";
-
-            // perhaps the type comes from a dll or exe
+            // perhaps the type comes from a .dll or .exe
             // check both in one call without Linq instead of iterating twice like originally
             foreach (string r in assemblyReferences)
             {
-                string fileName = Path.GetFileName(r);
-                if (fileName == dllName || fileName == exeName)
+                if (Path.GetFileNameWithoutExtension(r) == name)
                     return r;
             }
+
+            // this is called thousands(!) of times.
+            // constructing strings only once saves ~0.1ms per call for mscorlib.
+            string dllName = name + ".dll";
 
             // Unfortunately the current ICompiledAssembly API only provides direct references.
             // It is very much possible that a postprocessor ends up investigating a type in a directly
