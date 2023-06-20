@@ -153,8 +153,9 @@ namespace Mirror.Weaver
             return null;
         }
 
-        // open file as MemoryStream
-        // attempts multiple times, not sure why..
+        // open file as MemoryStream.
+        // ILPostProcessor is multithreaded.
+        // retry a few times in case another thread is still accessing the file.
         static MemoryStream MemoryStreamFor(string fileName)
         {
             return Retry(10, TimeSpan.FromSeconds(1), () =>
