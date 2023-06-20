@@ -42,7 +42,7 @@ namespace Mirror.Weaver
         readonly ICompiledAssembly compiledAssembly;
         AssemblyDefinition selfAssembly;
 
-        Logger Log;
+        readonly Logger Log;
 
         public ILPostProcessorAssemblyResolver(ICompiledAssembly compiledAssembly, Logger Log)
         {
