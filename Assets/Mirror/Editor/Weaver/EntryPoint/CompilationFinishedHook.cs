@@ -81,7 +81,9 @@ namespace Mirror.Weaver
                 return;
             }
 
-            // don't weave mirror files
+            // skip Mirror.dll because CompilationFinishedHook can't weave itself.
+            // this would cause a sharing violation.
+            // skip Mirror.Weaver.dll too.
             string assemblyName = Path.GetFileNameWithoutExtension(assemblyPath);
             if (assemblyName == MirrorRuntimeAssemblyName || assemblyName == MirrorWeaverAssemblyName)
             {

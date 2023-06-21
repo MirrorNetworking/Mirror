@@ -293,6 +293,38 @@ namespace Mirror
         }
 
         // varint compression //////////////////////////////////////////////////
+        // helper function to predict varint size for a given number.
+        // useful when checking if a message + size header will fit, etc.
+        public static int VarUIntSize(ulong value)
+        {
+            if (value <= 240)
+                return 1;
+            if (value <= 2287)
+                return 2;
+            if (value <= 67823)
+                return 3;
+            if (value <= 16777215)
+                return 4;
+            if (value <= 4294967295)
+                return 5;
+            if (value <= 1099511627775)
+                return 6;
+            if (value <= 281474976710655)
+                return 7;
+            if (value <= 72057594037927935)
+                return 8;
+            return 9;
+        }
+
+        // helper function to predict varint size for a given number.
+        // useful when checking if a message + size header will fit, etc.
+        public static int VarIntSize(long value)
+        {
+            // CompressVarInt zigzags it first
+            ulong zigzagged = (ulong)((value >> 63) ^ (value << 1));
+            return VarUIntSize(zigzagged);
+        }
+
         // compress ulong varint.
         // same result for ulong, uint, ushort and byte. only need one function.
         // NOT an extension. otherwise weaver might accidentally use it.

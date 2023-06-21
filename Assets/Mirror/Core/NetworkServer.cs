@@ -119,6 +119,15 @@ namespace Mirror
             if (initialized)
                 return;
 
+            // safety: ensure Weaving succeded.
+            // if it silently failed, we would get lots of 'writer not found'
+            // and other random errors at runtime instead. this is cleaner.
+            if (!WeaverFuse.Weaved())
+            {
+                // if it failed, throw an exception to early exit all Listen calls.
+                throw new Exception("NetworkServer won't start because Weaving failed or didn't run.");
+            }
+
             // Debug.Log($"NetworkServer Created version {Version.Current}");
 
             //Make sure connections are cleared in case any old connections references exist from previous sessions
@@ -650,37 +659,40 @@ namespace Mirror
                 //       the next time.
                 //       => consider moving processing to NetworkEarlyUpdate.
                 while (!isLoadingScene &&
-                       connection.unbatcher.GetNextMessage(out NetworkReader reader, out double remoteTimestamp))
+                       connection.unbatcher.GetNextMessage(out ArraySegment<byte> message, out double remoteTimestamp))
                 {
-                    // enough to read at least header size?
-                    if (reader.Remaining >= NetworkMessages.IdSize)
+                    using (NetworkReaderPooled reader = NetworkReaderPool.Get(message))
                     {
-                        // make remoteTimeStamp available to the user
-                        connection.remoteTimeStamp = remoteTimestamp;
-
-                        // handle message
-                        if (!UnpackAndInvoke(connection, reader, channelId))
+                        // enough to read at least header size?
+                        if (reader.Remaining >= NetworkMessages.IdSize)
                         {
-                            // warn, disconnect and return if failed
-                            // -> warning because attackers might send random data
-                            // -> messages in a batch aren't length prefixed.
-                            //    failing to read one would cause undefined
-                            //    behaviour for every message afterwards.
-                            //    so we need to disconnect.
-                            // -> return to avoid the below unbatches.count error.
-                            //    we already disconnected and handled it.
-                            Debug.LogWarning($"NetworkServer: failed to unpack and invoke message. Disconnecting {connectionId}.");
+                            // make remoteTimeStamp available to the user
+                            connection.remoteTimeStamp = remoteTimestamp;
+
+                            // handle message
+                            if (!UnpackAndInvoke(connection, reader, channelId))
+                            {
+                                // warn, disconnect and return if failed
+                                // -> warning because attackers might send random data
+                                // -> messages in a batch aren't length prefixed.
+                                //    failing to read one would cause undefined
+                                //    behaviour for every message afterwards.
+                                //    so we need to disconnect.
+                                // -> return to avoid the below unbatches.count error.
+                                //    we already disconnected and handled it.
+                                Debug.LogWarning($"NetworkServer: failed to unpack and invoke message. Disconnecting {connectionId}.");
+                                connection.Disconnect();
+                                return;
+                            }
+                        }
+                        // otherwise disconnect
+                        else
+                        {
+                            // WARNING, not error. can happen if attacker sends random data.
+                            Debug.LogWarning($"NetworkServer: received Message was too short (messages should start with message id). Disconnecting {connectionId}");
                             connection.Disconnect();
                             return;
                         }
-                    }
-                    // otherwise disconnect
-                    else
-                    {
-                        // WARNING, not error. can happen if attacker sends random data.
-                        Debug.LogWarning($"NetworkServer: received Message was too short (messages should start with message id). Disconnecting {connectionId}");
-                        connection.Disconnect();
-                        return;
                     }
                 }
 
@@ -776,6 +788,10 @@ namespace Mirror
             {
                 Debug.LogWarning($"NetworkServer.RegisterHandler replacing handler for {typeof(T).FullName}, id={msgType}. If replacement is intentional, use ReplaceHandler instead to avoid this warning.");
             }
+
+            // register Id <> Type in lookup for debugging.
+            NetworkMessages.Lookup[msgType] = typeof(T);
+
             handlers[msgType] = NetworkMessages.WrapHandler(handler, requireAuthentication);
         }
 
@@ -789,6 +805,10 @@ namespace Mirror
             {
                 Debug.LogWarning($"NetworkServer.RegisterHandler replacing handler for {typeof(T).FullName}, id={msgType}. If replacement is intentional, use ReplaceHandler instead to avoid this warning.");
             }
+
+            // register Id <> Type in lookup for debugging.
+            NetworkMessages.Lookup[msgType] = typeof(T);
+
             handlers[msgType] = NetworkMessages.WrapHandler(handler, requireAuthentication);
         }
 

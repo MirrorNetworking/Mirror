@@ -1,9 +1,11 @@
+using System;
 using UnityEngine;
 
 namespace Mirror.Experimental
 {
     [AddComponentMenu("Network/ Experimental/Network Rigidbody")]
     [HelpURL("https://mirror-networking.gitbook.io/docs/components/network-rigidbody")]
+    [Obsolete("Use the new NetworkRigidbodyReliable/Unreliable component with Snapshot Interpolation instead.")]
     public class NetworkRigidbody : NetworkBehaviour
     {
         [Header("Settings")]

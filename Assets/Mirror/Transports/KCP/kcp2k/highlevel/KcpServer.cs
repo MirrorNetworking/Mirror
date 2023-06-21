@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
-using UnityEngine;
 
 namespace kcp2k
 {
@@ -181,7 +180,7 @@ namespace kcp2k
             // get the connection's endpoint
             if (!connections.TryGetValue(connectionId, out KcpServerConnection connection))
             {
-                Debug.LogWarning($"KcpServer: RawSend invalid connectionId={connectionId}");
+                Log.Warning($"KcpServer: RawSend invalid connectionId={connectionId}");
                 return;
             }
 
@@ -368,6 +367,9 @@ namespace kcp2k
 
         public virtual void Stop()
         {
+            // need to clear connections, otherwise they are in next session.
+            // fixes https://github.com/vis2k/kcp2k/pull/47
+            connections.Clear();
             socket?.Close();
             socket = null;
         }

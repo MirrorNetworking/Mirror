@@ -129,7 +129,10 @@ namespace Mirror
         {
             // calculate buffer limit. we can only fit so much into a message.
             // max - message header - WriteArraySegment size header - batch header
-            int bufferLimit = maxMessageSize - NetworkMessages.IdSize - sizeof(int) - Batcher.HeaderSize;
+            int bufferLimit = maxMessageSize
+                              - NetworkMessages.IdSize
+                              - sizeof(int)
+                              - Batcher.MaxMessageOverhead(maxMessageSize);
 
             // remember previous valid position
             int before = buffer.Position;

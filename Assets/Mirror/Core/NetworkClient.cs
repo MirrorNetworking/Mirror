@@ -107,7 +107,7 @@ namespace Mirror
         internal static readonly Dictionary<ulong, NetworkIdentity> spawnableObjects =
             new Dictionary<ulong, NetworkIdentity>();
 
-        static Unbatcher unbatcher = new Unbatcher();
+        internal static Unbatcher unbatcher = new Unbatcher();
 
         // interest management component (optional)
         // only needed for SetHostVisibility
@@ -145,8 +145,23 @@ namespace Mirror
         // initialize is called before every connect
         static void Initialize(bool hostMode)
         {
+            // safety: ensure Weaving succeded.
+            // if it silently failed, we would get lots of 'writer not found'
+            // and other random errors at runtime instead. this is cleaner.
+            if (!WeaverFuse.Weaved())
+            {
+                // if it failed, throw an exception to early exit all Connect calls.
+                throw new Exception("NetworkClient won't start because Weaving failed or didn't run.");
+            }
+
             // Debug.Log($"Client Connect: {address}");
             Debug.Assert(Transport.active != null, "There was no active transport when calling NetworkClient.Connect, If you are calling Connect manually then make sure to set 'Transport.active' first");
+
+            // reset unbatcher in case any batches from last session remain.
+            // need to do this in Initialize() so it runs for the host as well.
+            // fixes host mode scene transition receiving data from previous scene.
+            // credits: BigBoxVR
+            unbatcher = new Unbatcher();
 
             // reset time interpolation on every new connect.
             // ensures last sessions' state is cleared before starting again.
@@ -227,9 +242,6 @@ namespace Mirror
                 // reset network time stats
                 NetworkTime.ResetStatics();
 
-                // reset unbatcher in case any batches from last session remain.
-                unbatcher = new Unbatcher();
-
                 // the handler may want to send messages to the client
                 // thus we should set the connected state before calling the handler
                 connectState = ConnectState.Connected;
@@ -306,37 +318,40 @@ namespace Mirror
                 //       the next time.
                 //       => consider moving processing to NetworkEarlyUpdate.
                 while (!isLoadingScene &&
-                       unbatcher.GetNextMessage(out NetworkReader reader, out double remoteTimestamp))
+                       unbatcher.GetNextMessage(out ArraySegment<byte> message, out double remoteTimestamp))
                 {
-                    // enough to read at least header size?
-                    if (reader.Remaining >= NetworkMessages.IdSize)
+                    using (NetworkReaderPooled reader = NetworkReaderPool.Get(message))
                     {
-                        // make remoteTimeStamp available to the user
-                        connection.remoteTimeStamp = remoteTimestamp;
-
-                        // handle message
-                        if (!UnpackAndInvoke(reader, channelId))
+                        // enough to read at least header size?
+                        if (reader.Remaining >= NetworkMessages.IdSize)
                         {
-                            // warn, disconnect and return if failed
-                            // -> warning because attackers might send random data
-                            // -> messages in a batch aren't length prefixed.
-                            //    failing to read one would cause undefined
-                            //    behaviour for every message afterwards.
-                            //    so we need to disconnect.
-                            // -> return to avoid the below unbatches.count error.
-                            //    we already disconnected and handled it.
-                            Debug.LogWarning($"NetworkClient: failed to unpack and invoke message. Disconnecting.");
+                            // make remoteTimeStamp available to the user
+                            connection.remoteTimeStamp = remoteTimestamp;
+
+                            // handle message
+                            if (!UnpackAndInvoke(reader, channelId))
+                            {
+                                // warn, disconnect and return if failed
+                                // -> warning because attackers might send random data
+                                // -> messages in a batch aren't length prefixed.
+                                //    failing to read one would cause undefined
+                                //    behaviour for every message afterwards.
+                                //    so we need to disconnect.
+                                // -> return to avoid the below unbatches.count error.
+                                //    we already disconnected and handled it.
+                                Debug.LogWarning($"NetworkClient: failed to unpack and invoke message. Disconnecting.");
+                                connection.Disconnect();
+                                return;
+                            }
+                        }
+                        // otherwise disconnect
+                        else
+                        {
+                            // WARNING, not error. can happen if attacker sends random data.
+                            Debug.LogWarning($"NetworkClient: received Message was too short (messages should start with message id)");
                             connection.Disconnect();
                             return;
                         }
-                    }
-                    // otherwise disconnect
-                    else
-                    {
-                        // WARNING, not error. can happen if attacker sends random data.
-                        Debug.LogWarning($"NetworkClient: received Message was too short (messages should start with message id)");
-                        connection.Disconnect();
-                        return;
                     }
                 }
 
@@ -472,6 +487,9 @@ namespace Mirror
             {
                 Debug.LogWarning($"NetworkClient.RegisterHandler replacing handler for {typeof(T).FullName}, id={msgType}. If replacement is intentional, use ReplaceHandler instead to avoid this warning.");
             }
+
+            // register Id <> Type in lookup for debugging.
+            NetworkMessages.Lookup[msgType] = typeof(T);
 
             // we use the same WrapHandler function for server and client.
             // so let's wrap it to ignore the NetworkConnection parameter.

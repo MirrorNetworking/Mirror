@@ -239,12 +239,37 @@ We prefer to work slow & thoroughly in order to not break everyone's games 🐌.
 Therefore, we need to [KISS](https://en.wikipedia.org/wiki/KISS_principle) 😗.
 
 ---
+# Information Security
+![Mirror alternative Logo](https://github.com/MirrorNetworking/Mirror/assets/16416509/ca26e97c-2f26-487d-a48e-e23ec762bc79)
+
+**Mirror-Networking** follows common information security industry standards & best practices.
+
+Mirror is free open source software (**MIT Licensed**), with over 80% test coverage. The company located in Germany. We do not collect any user data, impose no restrictions on users & developers, or rely on any closed source dependencies other than Unity.
+
+This makes Mirror an attractive choice for government agencies and large corporations with strict information security requirements.
+
+Feel free to reach out to business [**at**] mirror-networking.com if you have any questions, or need to review any of our policies:
+
+* **Development best Practices and SDLC**.pdf
+* **Disaster Recovery Procedure**.pdf
+* **Document Retention and Destruction Policy**.pdf
+* **Encryption Policy**.pdf
+* **Information Security Guidelines**.pdf
+* **[Privacy Policy](https://mirror-networking.com/privacy-policy/)**
+* **[Security Policy](https://github.com/MirrorNetworking/Mirror/blob/master/SECURITY.md)**
+* **Vulnerability Management Policy**.pdf
+
+Please reach out if you decide to use Mirror.
+
+We are excited to hear about your project, and happy to help if needed!
+
+---
 # Incident Response & Bug Bounty
 A lot of projects use Mirror in production. If you found a critical bug / exploit in Mirror core, please follow the steps outlined in our [Security Policy](SECURITY.md).
 
 **Credits / past findings / fixes:**
 * 2020, fholm: fuzzing ConnectMessage to stop further connects [[#2397](https://github.com/vis2k/Mirror/pull/2397)]
-* 2023-04-05: IncludeSec: [kcp2k UDP spoofing](http://blog.includesecurity.com/?p=1407) [[#3286](https://github.com/vis2k/Mirror/pull/2397)]
+* 2023-04-05: IncludeSec: [kcp2k UDP spoofing](http://blog.includesecurity.com/?p=1407) [[#3286](https://github.com/vis2k/Mirror/pull/3286)]
 
 ---
 # Credits & Thanks 🙏

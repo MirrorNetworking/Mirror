@@ -396,7 +396,7 @@ namespace Mirror
                 TransformSnapshot entry = buffer.Values[i];
                 bool oldEnough = entry.localTime <= threshold;
                 Gizmos.color = oldEnough ? oldEnoughColor : notOldEnoughColor;
-                Gizmos.DrawCube(entry.position, Vector3.one);
+                Gizmos.DrawWireCube(entry.position, Vector3.one);
             }
 
             // extra: lines between start<->position<->goal
