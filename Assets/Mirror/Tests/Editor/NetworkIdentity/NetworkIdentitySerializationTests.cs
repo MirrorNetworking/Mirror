@@ -1,5 +1,6 @@
 // OnDe/SerializeSafely tests.
 using System.Text.RegularExpressions;
+using Mirror.Tests.EditorBehaviours.NetworkIdentities;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -301,6 +302,8 @@ namespace Mirror.Tests.NetworkIdentities
             Assert.That(observersWriter.Position, Is.EqualTo(0));
         }
 
+        // TODO this started failing after we moved SyncVarTest1NetworkBehaviour
+        // into it's own asmdef.
         // server should still broadcast ClientToServer components to everyone
         // except the owner.
         [Test]

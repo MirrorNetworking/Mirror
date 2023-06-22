@@ -1,4 +1,4 @@
-namespace Mirror.Tests.Attributes
+namespace Mirror.Tests.EditorBehaviours.Attributes
 {
     public class ClassWithNoConstructor
     {

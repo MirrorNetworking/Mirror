@@ -1,8 +1,8 @@
 using System;
 
-namespace Mirror.Tests.NetworkIdentities
+namespace Mirror.Tests.EditorBehaviours.NetworkIdentities
 {
-    class StartServerExceptionNetworkBehaviour : NetworkBehaviour
+    public class StartServerExceptionNetworkBehaviour : NetworkBehaviour
     {
         public int called;
         public override void OnStartServer()
@@ -12,7 +12,7 @@ namespace Mirror.Tests.NetworkIdentities
         }
     }
 
-    class StartClientExceptionNetworkBehaviour : NetworkBehaviour
+    public class StartClientExceptionNetworkBehaviour : NetworkBehaviour
     {
         public int called;
         public override void OnStartClient()
@@ -22,7 +22,7 @@ namespace Mirror.Tests.NetworkIdentities
         }
     }
 
-    class StartAuthorityExceptionNetworkBehaviour : NetworkBehaviour
+    public class StartAuthorityExceptionNetworkBehaviour : NetworkBehaviour
     {
         public int called;
         public override void OnStartAuthority()
@@ -32,7 +32,7 @@ namespace Mirror.Tests.NetworkIdentities
         }
     }
 
-    class StopAuthorityExceptionNetworkBehaviour : NetworkBehaviour
+    public class StopAuthorityExceptionNetworkBehaviour : NetworkBehaviour
     {
         public int called;
         public override void OnStopAuthority()
@@ -42,7 +42,7 @@ namespace Mirror.Tests.NetworkIdentities
         }
     }
 
-    class StartLocalPlayerExceptionNetworkBehaviour : NetworkBehaviour
+    public class StartLocalPlayerExceptionNetworkBehaviour : NetworkBehaviour
     {
         public int called;
         public override void OnStartLocalPlayer()
@@ -52,7 +52,7 @@ namespace Mirror.Tests.NetworkIdentities
         }
     }
 
-    class StopClientExceptionNetworkBehaviour : NetworkBehaviour
+    public class StopClientExceptionNetworkBehaviour : NetworkBehaviour
     {
         public int called;
         public override void OnStopClient()
@@ -62,7 +62,7 @@ namespace Mirror.Tests.NetworkIdentities
         }
     }
 
-    class StopLocalPlayerExceptionNetworkBehaviour : NetworkBehaviour
+    public class StopLocalPlayerExceptionNetworkBehaviour : NetworkBehaviour
     {
         public int called;
         public override void OnStopLocalPlayer()
@@ -72,7 +72,7 @@ namespace Mirror.Tests.NetworkIdentities
         }
     }
 
-    class StopServerExceptionNetworkBehaviour : NetworkBehaviour
+    public class StopServerExceptionNetworkBehaviour : NetworkBehaviour
     {
         public int called;
         public override void OnStopServer()
@@ -82,7 +82,7 @@ namespace Mirror.Tests.NetworkIdentities
         }
     }
 
-    class SerializeTest1NetworkBehaviour : NetworkBehaviour
+    public class SerializeTest1NetworkBehaviour : NetworkBehaviour
     {
         public int value;
         public override void OnSerialize(NetworkWriter writer, bool initialState)
@@ -95,7 +95,7 @@ namespace Mirror.Tests.NetworkIdentities
         }
     }
 
-    class SerializeTest2NetworkBehaviour : NetworkBehaviour
+    public class SerializeTest2NetworkBehaviour : NetworkBehaviour
     {
         public string value;
         public override void OnSerialize(NetworkWriter writer, bool initialState)
@@ -108,17 +108,17 @@ namespace Mirror.Tests.NetworkIdentities
         }
     }
 
-    class SyncVarTest1NetworkBehaviour : NetworkBehaviour
+    public class SyncVarTest1NetworkBehaviour : NetworkBehaviour
     {
         [SyncVar] public int value;
     }
 
-    class SyncVarTest2NetworkBehaviour : NetworkBehaviour
+    public class SyncVarTest2NetworkBehaviour : NetworkBehaviour
     {
         [SyncVar] public string value;
     }
 
-    class SerializeExceptionNetworkBehaviour : NetworkBehaviour
+    public class SerializeExceptionNetworkBehaviour : NetworkBehaviour
     {
         public override void OnSerialize(NetworkWriter writer, bool initialState)
         {
@@ -130,7 +130,7 @@ namespace Mirror.Tests.NetworkIdentities
         }
     }
 
-    class SerializeMismatchNetworkBehaviour : NetworkBehaviour
+    public class SerializeMismatchNetworkBehaviour : NetworkBehaviour
     {
         public int value;
         public override void OnSerialize(NetworkWriter writer, bool initialState)
@@ -145,7 +145,7 @@ namespace Mirror.Tests.NetworkIdentities
         }
     }
 
-    class IsClientServerCheckComponent : NetworkBehaviour
+    public class IsClientServerCheckComponent : NetworkBehaviour
     {
         // OnStartClient
         internal bool OnStartClient_isClient;
@@ -159,9 +159,9 @@ namespace Mirror.Tests.NetworkIdentities
         }
 
         // OnStartServer
-        internal bool OnStartServer_isClient;
-        internal bool OnStartServer_isServer;
-        internal bool OnStartServer_isLocalPlayer;
+        public bool OnStartServer_isClient;
+        public bool OnStartServer_isServer;
+        public bool OnStartServer_isLocalPlayer;
         public override void OnStartServer()
         {
             OnStartServer_isClient = isClient;
