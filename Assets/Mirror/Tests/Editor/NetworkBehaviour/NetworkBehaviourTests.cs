@@ -854,6 +854,31 @@ namespace Mirror.Tests.NetworkBehaviours
             identity.OnStopLocalPlayer();
             Assert.That(comp.onStopLocalPlayerCalled, Is.EqualTo(1));
         }
+
+        // test for an issue where nested classes wouldn't be weaved.
+        // previously Weaver.Weave() would only check ModuleDefinition.Types,
+        // which would only get the base types.
+        //
+        // to test this, we need to define a class, in a class, in a class.
+        // note this is not about inheritance.
+        // it's about definitions in parents.
+        public static class Parent {
+           public static class Child {
+              public class GrandChild : NetworkBehaviour
+              {
+                  // add one SyncVar so we can easily double check with ILSpy
+                  [SyncVar] public int value;
+              }
+           }
+        }
+        [Test]
+        public void DeeplyNested()
+        {
+            GameObject go = new GameObject("Nesting");
+            go.AddComponent<NetworkIdentity>();
+            Parent.Child.GrandChild comp = go.AddComponent<Parent.Child.GrandChild>();
+            Assert.That(comp.Weaved(), Is.True);
+        }
     }
 
     // we need to inherit from networkbehaviour to test protected functions
