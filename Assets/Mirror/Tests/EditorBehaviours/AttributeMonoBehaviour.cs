@@ -1,4 +1,3 @@
-using Mirror;
 using UnityEngine;
 
 namespace Mirror.Tests.EditorBehaviours.Attributes
