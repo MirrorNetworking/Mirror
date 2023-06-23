@@ -121,11 +121,18 @@ namespace Mirror.Weaver
 
             foreach (TypeDefinition td in moduleDefinition.Types)
             {
+                // weave base type:
                 Log.Warning($"WEAVER CONSIDERING: {td.FullName}");
                 if (td.IsClass && td.BaseType.CanBeResolved())
                 {
                     modified |= WeaveNetworkBehavior(td);
                     modified |= ServerClientAttributeProcessor.Process(weaverTypes, Log, td, ref WeavingFailed);
+                }
+
+                // TODO weave nested types recursively
+                foreach (TypeDefinition nestedTd in td.NestedTypes)
+                {
+                    Log.Warning($"  NESTED: {nestedTd.FullName}");
                 }
             }
 
