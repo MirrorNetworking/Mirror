@@ -207,12 +207,14 @@ namespace Mirror.Weaver
         #region mark / check type as processed
         public const string ProcessedFunctionName = "Weaved";
 
-        // by adding an empty MirrorProcessed() function
+        // check if the type has a "Weaved" function already
         public static bool WasProcessed(TypeDefinition td)
         {
             return td.GetMethod(ProcessedFunctionName) != null;
         }
 
+        // add the Weaved() function which returns true.
+        // can be called at runtime and from tests to check if weaving succeeded.
         public void MarkAsProcessed(TypeDefinition td)
         {
             if (!WasProcessed(td))
