@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Mono.CecilX;
 using Mono.CecilX.Cil;
+using Mono.CecilX.Rocks;
 
 namespace Mirror.Weaver
 {
@@ -119,7 +120,17 @@ namespace Mirror.Weaver
             Stopwatch watch = Stopwatch.StartNew();
             watch.Start();
 
-            foreach (TypeDefinition td in moduleDefinition.Types)
+            // ModuleDefinition.Types only finds top level types.
+            // GetAllTypes recursively finds all nested types as well.
+            // fixes nested types not being weaved, for example:
+            //     class Parent {              // ModuleDefinition.Types finds this
+            //         class Child {           // .Types.NestedTypes finds this
+            //             class GrandChild {} // only GetAllTypes finds this too
+            //         }
+            //     }
+            // note this is not about inheritance, only about type definitions.
+            // see test: NetworkBehaviourTests.DeeplyNested()
+            foreach (TypeDefinition td in moduleDefinition.GetAllTypes())
             {
                 if (td.IsClass && td.BaseType.CanBeResolved())
                 {
