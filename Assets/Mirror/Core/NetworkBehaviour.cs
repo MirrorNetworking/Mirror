@@ -1355,6 +1355,6 @@ namespace Mirror
         // Weaver injects this into inheriting classes to return true.
         // allows runtime & tests to check if a type was weaved.
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public virtual bool MirrorProcessed() => false;
+        public virtual bool Weaved() => false;
     }
 }
