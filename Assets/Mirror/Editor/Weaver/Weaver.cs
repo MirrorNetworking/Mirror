@@ -121,6 +121,7 @@ namespace Mirror.Weaver
 
             foreach (TypeDefinition td in moduleDefinition.Types)
             {
+                Log.Warning($"WEAVER CONSIDERING: {td.FullName}");
                 if (td.IsClass && td.BaseType.CanBeResolved())
                 {
                     modified |= WeaveNetworkBehavior(td);
