@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Mono.CecilX;
 using Mono.CecilX.Cil;
+using Mono.CecilX.Rocks;
 
 namespace Mirror.Weaver
 {
@@ -119,22 +120,23 @@ namespace Mirror.Weaver
             Stopwatch watch = Stopwatch.StartNew();
             watch.Start();
 
-            foreach (TypeDefinition td in moduleDefinition.Types)
+            // ModuleDefinition.Types only finds top level types.
+            // GetAllTypes recursively finds all nested types as well.
+            // fixes nested types not being weaved, for example:
+            // class Foo {            // ModuleDefinition.Types finds this
+            //   class Nested {       // .Types.NestedTypes finds this
+            //     class DeepNested { // only GetAllTypes finds this too
+            //     }
+            //   }
+            // }
+            foreach (TypeDefinition td in moduleDefinition.GetAllTypes())
             {
                 // weave base type:
-                Log.Warning($"WEAVER CONSIDERING: {td.FullName}");
+                Log.Warning($"GETALL: {td.FullName}");
                 if (td.IsClass && td.BaseType.CanBeResolved())
                 {
                     modified |= WeaveNetworkBehavior(td);
                     modified |= ServerClientAttributeProcessor.Process(weaverTypes, Log, td, ref WeavingFailed);
-                }
-
-                // TODO weave nested types recursively
-                foreach (TypeDefinition nestedTd in td.NestedTypes)
-                {
-                    Log.Warning($"  NESTED: {nestedTd.FullName}");
-                    modified |= WeaveNetworkBehavior(nestedTd);
-                    modified |= ServerClientAttributeProcessor.Process(weaverTypes, Log, nestedTd, ref WeavingFailed);
                 }
             }
 
