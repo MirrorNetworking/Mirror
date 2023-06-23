@@ -29,9 +29,12 @@ namespace Mirror.Tests.NetworkIdentities
             base.TearDown();
         }
 
-        class SyncVarTest1NetworkBehaviour : NetworkBehaviour
+        class ParentNesting
         {
-            [SyncVar] public int value;
+            public class SyncVarTest1NetworkBehaviour : NetworkBehaviour
+            {
+                [SyncVar] public int value;
+            }
         }
 
         // server should still broadcast ClientToServer components to everyone
@@ -40,7 +43,7 @@ namespace Mirror.Tests.NetworkIdentities
         public void SerializeServer_ObserversMode_ClientToServer()
         {
             CreateNetworked(out GameObject _, out NetworkIdentity identity,
-                out SyncVarTest1NetworkBehaviour comp);
+                out ParentNesting.SyncVarTest1NetworkBehaviour comp);
 
             // pretend to be owned
             identity.isOwned = true;
