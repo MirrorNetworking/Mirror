@@ -1351,5 +1351,10 @@ namespace Mirror
 
         /// <summary>Stop event, only called for objects the client has authority over.</summary>
         public virtual void OnStopAuthority() {}
+
+        // Weaver injects this into inheriting classes to return true.
+        // allows runtime & tests to check if a type was weaved.
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public virtual bool Weaved() => false;
     }
 }

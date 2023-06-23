@@ -205,20 +205,29 @@ namespace Mirror.Weaver
         }
 
         #region mark / check type as processed
-        public const string ProcessedFunctionName = "MirrorProcessed";
+        public const string ProcessedFunctionName = "Weaved";
 
-        // by adding an empty MirrorProcessed() function
+        // check if the type has a "Weaved" function already
         public static bool WasProcessed(TypeDefinition td)
         {
             return td.GetMethod(ProcessedFunctionName) != null;
         }
 
+        // add the Weaved() function which returns true.
+        // can be called at runtime and from tests to check if weaving succeeded.
         public void MarkAsProcessed(TypeDefinition td)
         {
             if (!WasProcessed(td))
             {
-                MethodDefinition versionMethod = new MethodDefinition(ProcessedFunctionName, MethodAttributes.Private, weaverTypes.Import(typeof(void)));
+                // add a function:
+                //   public override bool MirrorProcessed() { return true; }
+                // ReuseSlot means 'override'.
+                MethodDefinition versionMethod = new MethodDefinition(
+                    ProcessedFunctionName,
+                    MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.ReuseSlot,
+                    weaverTypes.Import(typeof(bool)));
                 ILProcessor worker = versionMethod.Body.GetILProcessor();
+                worker.Emit(OpCodes.Ldc_I4_1);
                 worker.Emit(OpCodes.Ret);
                 td.Methods.Add(versionMethod);
             }
@@ -531,7 +540,7 @@ namespace Mirror.Weaver
                 {
                     writeFunc = writers.GetWriteFunc(syncVar.FieldType, ref WeavingFailed);
                 }
-                
+
                 if (writeFunc != null)
                 {
                     worker.Emit(OpCodes.Call, writeFunc);
