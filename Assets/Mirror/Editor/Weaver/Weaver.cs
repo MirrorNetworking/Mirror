@@ -133,6 +133,8 @@ namespace Mirror.Weaver
                 foreach (TypeDefinition nestedTd in td.NestedTypes)
                 {
                     Log.Warning($"  NESTED: {nestedTd.FullName}");
+                    modified |= WeaveNetworkBehavior(nestedTd);
+                    modified |= ServerClientAttributeProcessor.Process(weaverTypes, Log, nestedTd, ref WeavingFailed);
                 }
             }
 
