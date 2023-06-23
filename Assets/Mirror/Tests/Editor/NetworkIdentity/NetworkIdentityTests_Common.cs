@@ -108,11 +108,6 @@ namespace Mirror.Tests.NetworkIdentities
         }
     }
 
-    class SyncVarTest1NetworkBehaviour : NetworkBehaviour
-    {
-        [SyncVar] public int value;
-    }
-
     class SyncVarTest2NetworkBehaviour : NetworkBehaviour
     {
         [SyncVar] public string value;

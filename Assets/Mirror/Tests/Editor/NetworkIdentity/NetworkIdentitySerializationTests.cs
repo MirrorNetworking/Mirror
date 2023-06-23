@@ -301,6 +301,12 @@ namespace Mirror.Tests.NetworkIdentities
             Assert.That(observersWriter.Position, Is.EqualTo(0));
         }
 
+
+    class SyncVarTest1NetworkBehaviour : NetworkBehaviour
+    {
+        [SyncVar] public int value;
+    }
+
         // server should still broadcast ClientToServer components to everyone
         // except the owner.
         [Test]
