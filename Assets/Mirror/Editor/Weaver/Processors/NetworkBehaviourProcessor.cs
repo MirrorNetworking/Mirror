@@ -218,8 +218,12 @@ namespace Mirror.Weaver
             if (!WasProcessed(td))
             {
                 // add a function:
-                // public bool MirrorProcessed() { return true; }
-                MethodDefinition versionMethod = new MethodDefinition(ProcessedFunctionName, MethodAttributes.Public, weaverTypes.Import(typeof(bool)));
+                //   public override bool MirrorProcessed() { return true; }
+                // ReuseSlot means 'override'.
+                MethodDefinition versionMethod = new MethodDefinition(
+                    ProcessedFunctionName,
+                    MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.ReuseSlot,
+                    weaverTypes.Import(typeof(bool)));
                 ILProcessor worker = versionMethod.Body.GetILProcessor();
                 worker.Emit(OpCodes.Ldc_I4_1);
                 worker.Emit(OpCodes.Ret);
