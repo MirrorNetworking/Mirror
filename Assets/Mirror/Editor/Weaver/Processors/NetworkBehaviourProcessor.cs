@@ -217,8 +217,11 @@ namespace Mirror.Weaver
         {
             if (!WasProcessed(td))
             {
-                MethodDefinition versionMethod = new MethodDefinition(ProcessedFunctionName, MethodAttributes.Private, weaverTypes.Import(typeof(void)));
+                // add a function:
+                // public bool MirrorProcessed() { return true; }
+                MethodDefinition versionMethod = new MethodDefinition(ProcessedFunctionName, MethodAttributes.Public, weaverTypes.Import(typeof(bool)));
                 ILProcessor worker = versionMethod.Body.GetILProcessor();
+                worker.Emit(OpCodes.Ldc_I4_1);
                 worker.Emit(OpCodes.Ret);
                 td.Methods.Add(versionMethod);
             }
@@ -531,7 +534,7 @@ namespace Mirror.Weaver
                 {
                     writeFunc = writers.GetWriteFunc(syncVar.FieldType, ref WeavingFailed);
                 }
-                
+
                 if (writeFunc != null)
                 {
                     worker.Emit(OpCodes.Call, writeFunc);
