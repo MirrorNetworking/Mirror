@@ -82,6 +82,20 @@ namespace Mirror.Weaver
                 {
                     ProcessSetInstruction(syncVarAccessLists, md, instr, opFieldst);
                 }
+                // operand is a FieldReference in another assembly?
+                // this is not supported just yet.
+                // compilation error is better than silently failing SyncVar serialization at runtime.
+                // https://github.com/MirrorNetworking/Mirror/issues/3525
+                else if (instr.Operand is FieldReference opFieldstRef)
+                {
+                    // [SyncVar]?
+                    FieldDefinition field = opFieldstRef.Resolve();
+                    if (field.HasCustomAttribute<SyncVarAttribute>())
+                    {
+                        // TODO support this: accessList needs refs; and need two passes?
+                        Log.Error($"'{md.FullName}' in {md.Module.Name} modifies '[SyncVar] {opFieldstRef.Name}' in another assembly: {field.Module.Name}. This is not supported yet, and would silently fail serialization at runtime. Please move the [SyncVar]'s type into the same Assembly.");
+                    }
+                }
             }
 
             // ldfld (load value of a field)?
