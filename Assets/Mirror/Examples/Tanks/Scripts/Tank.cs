@@ -6,6 +6,7 @@ namespace Mirror.Examples.Tanks
     public class Tank : NetworkBehaviour
     {
         [Header("Components")]
+        public TankHealth health;
         public NavMeshAgent agent;
         public Animator  animator;
         public TextMesh  healthBar;
@@ -19,17 +20,19 @@ namespace Mirror.Examples.Tanks
         public GameObject projectilePrefab;
         public Transform  projectileMount;
 
-        [Header("Stats")]
-        [SyncVar] public int health = 4;
+        void Awake()
+        {
+            health = GetComponent<TankHealth>();
+        }
 
         void Update()
         {
             // always update health bar.
             // (SyncVar hook would only update on clients, not on server)
-            healthBar.text = new string('-', health);
-            
+            healthBar.text = new string('-', health.health);
+
             // take input from focused window only
-            if(!Application.isFocused) return; 
+            if(!Application.isFocused) return;
 
             // movement for local player
             if (isLocalPlayer)
@@ -75,8 +78,8 @@ namespace Mirror.Examples.Tanks
         {
             if (other.GetComponent<Projectile>() != null)
             {
-                --health;
-                if (health == 0)
+                --health.health;
+                if (health.health == 0)
                     NetworkServer.Destroy(gameObject);
             }
         }

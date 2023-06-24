@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 2240606817507776182}
   - component: {fileID: 6900008319038825817}
   - component: {fileID: 5194388907919410155}
+  - component: {fileID: -5494089070105204198}
   m_Layer: 0
   m_Name: Tank
   m_TagString: Untagged
@@ -104,6 +105,7 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0.1
+  health: {fileID: 0}
   agent: {fileID: 6900008319038825817}
   animator: {fileID: 2240606817507776182}
   healthBar: {fileID: 1985504562751981867}
@@ -113,7 +115,6 @@ MonoBehaviour:
   projectilePrefab: {fileID: 5890560936853567077, guid: b7dd46dbf38c643f09e206f9fa4be008,
     type: 3}
   projectileMount: {fileID: 5718089106632469514}
-  health: 4
 --- !u!95 &2240606817507776182
 Animator:
   serializedVersion: 5
@@ -170,6 +171,22 @@ SphereCollider:
   serializedVersion: 2
   m_Radius: 0.5
   m_Center: {x: 0, y: 0.25, z: 0}
+--- !u!114 &-5494089070105204198
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1916082411674582}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2db741795dbf4445fbe6324b0e2b7597, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+  health: 4
 --- !u!1 &4730779867780281009
 GameObject:
   m_ObjectHideFlags: 0
