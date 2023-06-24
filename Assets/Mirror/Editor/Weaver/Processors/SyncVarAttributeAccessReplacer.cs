@@ -75,24 +75,36 @@ namespace Mirror.Weaver
         static int ProcessInstruction(SyncVarAccessLists syncVarAccessLists, MethodDefinition md, Instruction instr, int iCount)
         {
             // stfld (sets value of a field)?
-            if (instr.OpCode == OpCodes.Stfld && instr.Operand is FieldDefinition opFieldst)
+            if (instr.OpCode == OpCodes.Stfld)
             {
-                ProcessSetInstruction(syncVarAccessLists, md, instr, opFieldst);
+                // operand is a FieldDefinition in the same assembly?
+                if (instr.Operand is FieldDefinition opFieldst)
+                {
+                    ProcessSetInstruction(syncVarAccessLists, md, instr, opFieldst);
+                }
             }
 
             // ldfld (load value of a field)?
-            if (instr.OpCode == OpCodes.Ldfld && instr.Operand is FieldDefinition opFieldld)
+            if (instr.OpCode == OpCodes.Ldfld)
             {
-                // this instruction gets the value of a field. cache the field reference.
-                ProcessGetInstruction(syncVarAccessLists, md, instr, opFieldld);
+                // operand is a FieldDefinition in the same assembly?
+                if (instr.Operand is FieldDefinition opFieldld)
+                {
+                    // this instruction gets the value of a field. cache the field reference.
+                    ProcessGetInstruction(syncVarAccessLists, md, instr, opFieldld);
+                }
             }
 
             // ldflda (load field address aka reference)
-            if (instr.OpCode == OpCodes.Ldflda && instr.Operand is FieldDefinition opFieldlda)
+            if (instr.OpCode == OpCodes.Ldflda)
             {
-                // watch out for initobj instruction
-                // see https://github.com/vis2k/Mirror/issues/696
-                return ProcessLoadAddressInstruction(syncVarAccessLists, md, instr, opFieldlda, iCount);
+                // operand is a FieldDefinition in the same assembly?
+                if (instr.Operand is FieldDefinition opFieldlda)
+                {
+                    // watch out for initobj instruction
+                    // see https://github.com/vis2k/Mirror/issues/696
+                    return ProcessLoadAddressInstruction(syncVarAccessLists, md, instr, opFieldlda, iCount);
+                }
             }
 
             // we processed one instruction (instr)
