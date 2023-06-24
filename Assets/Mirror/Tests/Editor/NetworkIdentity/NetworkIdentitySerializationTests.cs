@@ -271,6 +271,7 @@ namespace Mirror.Tests.NetworkIdentities
         [Test]
         public void SerializeServer_OwnerMode_ClientToServer()
         {
+            Assert.Fail("Enable this test again after fixing #3525");/*
             CreateNetworked(out GameObject _, out NetworkIdentity identity,
                 out SyncVarTest1NetworkBehaviour comp);
 
@@ -299,7 +300,7 @@ namespace Mirror.Tests.NetworkIdentities
             Debug.Log("delta ownerWriter: " + ownerWriter);
             Debug.Log("delta observersWriter: " + observersWriter);
             Assert.That(ownerWriter.Position, Is.EqualTo(0));
-            Assert.That(observersWriter.Position, Is.EqualTo(0));
+            Assert.That(observersWriter.Position, Is.EqualTo(0));*/
         }
 
         // TODO this started failing after we moved SyncVarTest1NetworkBehaviour
@@ -309,6 +310,7 @@ namespace Mirror.Tests.NetworkIdentities
         [Test]
         public void SerializeServer_ObserversMode_ClientToServer()
         {
+            Assert.Fail("Enable this test again after fixing #3525"); /*
             CreateNetworked(out GameObject _, out NetworkIdentity identity,
                 out SyncVarTest1NetworkBehaviour comp);
 
@@ -337,7 +339,7 @@ namespace Mirror.Tests.NetworkIdentities
             Debug.Log("delta ownerWriter: " + ownerWriter);
             Debug.Log("delta observersWriter: " + observersWriter);
             Assert.That(ownerWriter.Position, Is.EqualTo(0));
-            Assert.That(observersWriter.Position, Is.GreaterThan(0));
+            Assert.That(observersWriter.Position, Is.GreaterThan(0));*/
         }
     }
 }
