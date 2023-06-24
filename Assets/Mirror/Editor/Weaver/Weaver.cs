@@ -236,7 +236,7 @@ namespace Mirror.Weaver
 
                 if (modified)
                 {
-                    SyncVarAttributeAccessReplacer.Process(moduleDefinition, syncVarAccessLists);
+                    SyncVarAttributeAccessReplacer.Process(Log, moduleDefinition, syncVarAccessLists);
 
                     // add class that holds read/write functions
                     moduleDefinition.Types.Add(GeneratedCodeClass);

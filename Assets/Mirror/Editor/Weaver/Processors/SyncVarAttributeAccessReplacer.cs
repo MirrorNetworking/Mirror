@@ -11,7 +11,7 @@ namespace Mirror.Weaver
     public static class SyncVarAttributeAccessReplacer
     {
         // process the module
-        public static void Process(ModuleDefinition moduleDef, SyncVarAccessLists syncVarAccessLists)
+        public static void Process(Logger Log, ModuleDefinition moduleDef, SyncVarAccessLists syncVarAccessLists)
         {
             DateTime startTime = DateTime.Now;
 
@@ -20,31 +20,31 @@ namespace Mirror.Weaver
             {
                 if (td.IsClass)
                 {
-                    ProcessClass(syncVarAccessLists, td);
+                    ProcessClass(Log, syncVarAccessLists, td);
                 }
             }
 
             Console.WriteLine($"  ProcessSitesModule {moduleDef.Name} elapsed time:{(DateTime.Now - startTime)}");
         }
 
-        static void ProcessClass(SyncVarAccessLists syncVarAccessLists, TypeDefinition td)
+        static void ProcessClass(Logger Log, SyncVarAccessLists syncVarAccessLists, TypeDefinition td)
         {
             //Console.WriteLine($"    ProcessClass {td}");
 
             // process all methods in this class
             foreach (MethodDefinition md in td.Methods)
             {
-                ProcessMethod(syncVarAccessLists, md);
+                ProcessMethod(Log, syncVarAccessLists, md);
             }
 
             // processes all nested classes in this class recursively
             foreach (TypeDefinition nested in td.NestedTypes)
             {
-                ProcessClass(syncVarAccessLists, nested);
+                ProcessClass(Log, syncVarAccessLists, nested);
             }
         }
 
-        static void ProcessMethod(SyncVarAccessLists syncVarAccessLists, MethodDefinition md)
+        static void ProcessMethod(Logger Log, SyncVarAccessLists syncVarAccessLists, MethodDefinition md)
         {
             // process all references to replaced members with properties
             //Log.Warning($"      ProcessSiteMethod {md}");
@@ -67,12 +67,12 @@ namespace Mirror.Weaver
                 for (int i = 0; i < md.Body.Instructions.Count;)
                 {
                     Instruction instr = md.Body.Instructions[i];
-                    i += ProcessInstruction(syncVarAccessLists, md, instr, i);
+                    i += ProcessInstruction(Log, syncVarAccessLists, md, instr, i);
                 }
             }
         }
 
-        static int ProcessInstruction(SyncVarAccessLists syncVarAccessLists, MethodDefinition md, Instruction instr, int iCount)
+        static int ProcessInstruction(Logger Log, SyncVarAccessLists syncVarAccessLists, MethodDefinition md, Instruction instr, int iCount)
         {
             // stfld (sets value of a field)?
             if (instr.OpCode == OpCodes.Stfld)
