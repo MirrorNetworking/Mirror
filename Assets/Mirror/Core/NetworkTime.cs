@@ -72,6 +72,9 @@ namespace Mirror
         /// <summary>Round trip time (in seconds) that it takes a message to go client->server->client.</summary>
         public static double rtt => _rtt.Value;
 
+        /// <Summary>Round trip time variance aka jitter, in seconds.</Summary>
+        public static double rttVar => _rtt.Variance;
+
         // RuntimeInitializeOnLoadMethod -> fast playmode without domain reload
         [RuntimeInitializeOnLoadMethod]
         public static void ResetStatics()
