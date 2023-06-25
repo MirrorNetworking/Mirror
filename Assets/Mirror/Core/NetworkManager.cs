@@ -242,6 +242,9 @@ namespace Mirror
             UpdateConnectionQuality();
         }
 
+        // Connection Quality //////////////////////////////////////////////////
+        ConnectionQuality previousConnectionQuality = ConnectionQuality.ESTIMATING;
+
         // uses 'pragmatic' version based on snapshot interpolation by default.
         void UpdateConnectionQuality()
         {
@@ -249,6 +252,13 @@ namespace Mirror
 
             // recaclulate connection quality
             CalculateConnectionQuality();
+
+            // call event if changed
+            if (NetworkClient.connectionQuality != previousConnectionQuality)
+            {
+                OnConnectionQualityChanged(previousConnectionQuality, NetworkClient.connectionQuality);
+                previousConnectionQuality = NetworkClient.connectionQuality;
+            }
         }
 
         // users can overwrite this to run their own connection quality estimation.
@@ -257,6 +267,14 @@ namespace Mirror
             // NetworkClient.connectionQuality = ConnectionQualityHeuristics.Pragmatic(NetworkClient.initialBufferTime, NetworkClient.bufferTime);
             NetworkClient.connectionQuality = ConnectionQualityHeuristics.Simple(NetworkTime.rtt, NetworkTime.rttVar);
         }
+
+        // users can overwrite this to display connection quality warnings, etc.
+        protected virtual void OnConnectionQualityChanged(ConnectionQuality previous, ConnectionQuality current)
+        {
+            // Debug.Log($"ConnectionQuality changed from {previous} to {current}");
+        }
+
+        ////////////////////////////////////////////////////////////////////////
 
         // keep the online scene change check in a separate function.
         // only change scene if the requested online scene is not blank, and is not already loaded.
