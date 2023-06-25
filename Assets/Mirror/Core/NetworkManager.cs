@@ -242,12 +242,18 @@ namespace Mirror
             UpdateConnectionQuality();
         }
 
-        // users can overwrite this to run their own connection quality estimation.
         // uses 'pragmatic' version based on snapshot interpolation by default.
-        protected virtual void UpdateConnectionQuality()
+        void UpdateConnectionQuality()
         {
             if (!NetworkClient.active) return;
 
+            // recaclulate connection quality
+            CalculateConnectionQuality();
+        }
+
+        // users can overwrite this to run their own connection quality estimation.
+        protected virtual void CalculateConnectionQuality()
+        {
             // NetworkClient.connectionQuality = ConnectionQualityHeuristics.Pragmatic(NetworkClient.initialBufferTime, NetworkClient.bufferTime);
             NetworkClient.connectionQuality = ConnectionQualityHeuristics.Simple(NetworkTime.rtt, NetworkTime.rttVar);
         }
