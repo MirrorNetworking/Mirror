@@ -239,6 +239,16 @@ namespace Mirror
         public virtual void LateUpdate()
         {
             UpdateScene();
+            UpdateConnectionQuality();
+        }
+
+        // users can overwrite this to run their own connection quality estimation.
+        // uses 'pragmatic' version based on snapshot interpolation by default.
+        protected virtual void UpdateConnectionQuality()
+        {
+            if (!NetworkClient.active) return;
+
+            NetworkClient.connectionQuality = ConnectionQualityHeuristics.Pragmatic(NetworkClient.initialBufferTime, NetworkClient.bufferTime);
         }
 
         // keep the online scene change check in a separate function.
