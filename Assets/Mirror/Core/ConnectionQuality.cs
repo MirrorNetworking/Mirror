@@ -1,5 +1,7 @@
 // standalone, Unity-independent connection-quality algorithm & enum.
 // don't need to use this directly, it's built into Mirror's NetworkClient.
+using UnityEngine;
+
 namespace Mirror
 {
     public enum ConnectionQuality : byte
@@ -16,6 +18,19 @@ namespace Mirror
     // this will be iterated on over time based on user feedback.
     public static class ConnectionQualityHeuristics
     {
+        // convenience function to color code Connection Quality
+        public static Color ColorCode(this ConnectionQuality quality)
+        {
+            switch (quality)
+            {
+                case ConnectionQuality.EXCELLENT:  return Color.green;
+                case ConnectionQuality.GOOD:       return Color.yellow;
+                case ConnectionQuality.FAIR:       return Color.magenta;
+                case ConnectionQuality.POOR:       return Color.red;
+                default:                           return Color.gray;
+            }
+        }
+
         // straight forward estimation
         //   rtt: average round trip time in seconds.
         //   jitter: average latency variance.
