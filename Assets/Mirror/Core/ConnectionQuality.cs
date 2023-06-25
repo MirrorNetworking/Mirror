@@ -18,7 +18,7 @@ namespace Mirror
     // this will be iterated on over time based on user feedback.
     public static class ConnectionQualityHeuristics
     {
-        // convenience function to color code Connection Quality
+        // convenience extension to color code Connection Quality
         public static Color ColorCode(this ConnectionQuality quality)
         {
             switch (quality)

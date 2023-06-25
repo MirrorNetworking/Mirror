@@ -29,7 +29,7 @@ namespace Mirror
             style.alignment = TextAnchor.MiddleRight;
             GUILayout.BeginHorizontal(style);
                 GUILayout.Label($"RTT: {Math.Round(NetworkTime.rtt * 1000)}ms");
-                GUI.color = ConnectionQualityHeuristics.ColorCode(NetworkClient.connectionQuality);
+                GUI.color = NetworkClient.connectionQuality.ColorCode();
                 GUILayout.Label($"Q: {NetworkClient.connectionQuality}");
             GUILayout.EndHorizontal();
             GUILayout.EndArea();
