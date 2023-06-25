@@ -32,8 +32,10 @@ namespace Mirror
         // this way we can easily reset to or compare with original where needed.
         public static double bufferTimeMultiplier;
 
-        // current buffer time based on dynamically adjusted multiplier
-        public static double bufferTime => NetworkServer.sendInterval * bufferTimeMultiplier;
+        // original buffer time based on the settings
+        // dynamically adjusted buffer time based on dynamically adjusted multiplier
+        public static double initialBufferTime => NetworkServer.sendInterval * snapshotSettings.bufferTimeMultiplier;
+        public static double bufferTime        => NetworkServer.sendInterval * bufferTimeMultiplier;
 
         // <servertime, snaps>
         public static SortedList<double, TimeSnapshot> snapshots = new SortedList<double, TimeSnapshot>();
