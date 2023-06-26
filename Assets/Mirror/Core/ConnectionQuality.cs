@@ -36,7 +36,6 @@ namespace Mirror
         //   jitter: average latency variance.
         public static ConnectionQuality Simple(double rtt, double jitter)
         {
-            // estimations use round trip time, which is roughly 2x ping.
             if (rtt <= 0.100 && jitter <= 0.10) return ConnectionQuality.EXCELLENT;
             if (rtt <= 0.200 && jitter <= 0.20) return ConnectionQuality.GOOD;
             if (rtt <= 0.400 && jitter <= 0.50) return ConnectionQuality.FAIR;
