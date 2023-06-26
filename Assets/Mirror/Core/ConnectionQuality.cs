@@ -4,14 +4,13 @@ using UnityEngine;
 
 namespace Mirror
 {
-    // Empirical values, based on Tanks demo + LatencySimulation.
     public enum ConnectionQuality : byte
     {
-        EXCELLENT,
-        GOOD,
-        FAIR,
-        POOR,
-        ESTIMATING,
+        EXCELLENT,  // ideal experience for high level competitors
+        GOOD,       // very playable for everyone but high level competitors
+        FAIR,       // very noticeable latency, not very enjoyable anymore
+        POOR,       // unplayable
+        ESTIMATING, // still estimating
     }
 
     // provide different heuristics for users to choose from.
