@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace Mirror
 {
+    // Empirical values, based on Tanks demo + LatencySimulation.
     public enum ConnectionQuality : byte
     {
         EXCELLENT,
