@@ -16,7 +16,7 @@
 <img src="https://user-images.githubusercontent.com/16416509/119117854-3e4e2b80-ba5c-11eb-8236-ce6cfd2b6b07.png" title="Original Concept Art for Games that made us dream. Copyright Blizzard, Blizzard, Riot Games, Joymax in that order."/>
 
 ## Mirror Networking 
-The **#1** free **open source** game networking library for **Unity 2019 / 2020 / 2021 / 2022**.
+The **#1** free **open source** game networking library for **Unity 2019 / 2020 / 2021 / 2022 LTS**.
 
 Used **in production** by major hits like [**Population: ONE**](https://www.populationonevr.com/) and many [**more**](#made-with-mirror).
 
@@ -66,12 +66,13 @@ And that's about it 🤩
 
 ---
 ## Free, Open Source & Community Focused
-Mirror is **free & open source** (MIT Licensed).
+**Mirror** is **free & open source** (MIT Licensed).
 
-"Free" as in free beer, and freedom to use it any way you like.
+🍺 "**Free**" as in free beer, and freedom to use it any way you like.
  
-- Run [Dedicated Servers](https://mirror-networking.gitbook.io/docs/guides/server-hosting) anywhere.
-- Free player hosted games thanks to [Epic Relay](https://github.com/FakeByte/EpicOnlineTransport)!
+- Host Game [Servers](https://mirror-networking.gitbook.io/docs/hosting/the-pragmatic-hosting-guide) anywhere!
+- Customize anything freely!
+- No paywalls, no CCU costs, no strings attached!
 
 🤝 We are a team of **professional** game developers, who are paid to **use Mirror in production**. Our incentives will always align with the community, because we are Mirror users just like you! 
 
@@ -83,7 +84,7 @@ _The top quote is from Fitzcarraldo, which is quite reminiscent of this project.
 
 ---
 ## Getting Started
-Get **Unity 2019 / 2020 / 2021 LTS**, [Download Mirror](https://assetstore.unity.com/packages/tools/network/mirror-129321), open one of the examples & press Play!
+Get **Unity 2019 / 2020 / 2021 / 2022 LTS**, [Download Mirror](https://assetstore.unity.com/packages/tools/network/mirror-129321), open one of the examples & press Play!
 
 Check out our [Documentation](https://mirror-networking.gitbook.io/) to learn how it all works.
 
