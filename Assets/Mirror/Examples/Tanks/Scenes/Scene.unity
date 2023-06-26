@@ -531,7 +531,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   color: {r: 1, g: 1, b: 1, a: 1}
   padding: 2
-  width: 150
+  width: 180
   height: 25
 --- !u!1 &1458789072
 GameObject:

@@ -116,6 +116,11 @@ namespace Mirror
         // scene loading
         public static bool isLoadingScene;
 
+        // connection quality
+        // this is set by a virtual function in NetworkManager,
+        // which allows users to overwrite it with their own estimations.
+        public static ConnectionQuality connectionQuality = ConnectionQuality.ESTIMATING;
+
         // initialization //////////////////////////////////////////////////////
         static void AddTransportHandlers()
         {

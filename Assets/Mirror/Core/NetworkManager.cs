@@ -121,6 +121,11 @@ namespace Mirror
         [Header("Snapshot Interpolation")]
         public SnapshotInterpolationSettings snapshotSettings = new SnapshotInterpolationSettings();
 
+        [Header("Connection Quality")]
+        public float connectionQualityInterval = 3;
+        double lastConnectionQualityUpdate;
+        ConnectionQuality lastConnectionQuality = ConnectionQuality.ESTIMATING;
+
         [Header("Debug")]
         public bool timeInterpolationGui = false;
 
@@ -239,7 +244,45 @@ namespace Mirror
         public virtual void LateUpdate()
         {
             UpdateScene();
+            UpdateConnectionQuality();
         }
+
+        // Connection Quality //////////////////////////////////////////////////
+        // uses 'pragmatic' version based on snapshot interpolation by default.
+        void UpdateConnectionQuality()
+        {
+            if (!NetworkClient.active) return;
+
+            // only recalculate every few seconds
+            // we don't want to fire Good->Bad->Good->Bad hundreds of times per second.
+            if (NetworkTime.time < lastConnectionQualityUpdate + connectionQualityInterval) return;
+            lastConnectionQualityUpdate = NetworkTime.time;
+
+            // recaclulate connection quality
+            CalculateConnectionQuality();
+
+            // call event if changed
+            if (NetworkClient.connectionQuality != lastConnectionQuality)
+            {
+                OnConnectionQualityChanged(lastConnectionQuality, NetworkClient.connectionQuality);
+                lastConnectionQuality = NetworkClient.connectionQuality;
+            }
+        }
+
+        // users can overwrite this to run their own connection quality estimation.
+        protected virtual void CalculateConnectionQuality()
+        {
+            // NetworkClient.connectionQuality = ConnectionQualityHeuristics.Pragmatic(NetworkClient.initialBufferTime, NetworkClient.bufferTime);
+            NetworkClient.connectionQuality = ConnectionQualityHeuristics.Simple(NetworkTime.rtt, NetworkTime.rttVar);
+        }
+
+        // users can overwrite this to display connection quality warnings, etc.
+        protected virtual void OnConnectionQualityChanged(ConnectionQuality previous, ConnectionQuality current)
+        {
+            Debug.Log($"[Mirror] Connection Quality changed from {previous} to {current}");
+        }
+
+        ////////////////////////////////////////////////////////////////////////
 
         // keep the online scene change check in a separate function.
         // only change scene if the requested online scene is not blank, and is not already loaded.
