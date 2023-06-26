@@ -243,7 +243,7 @@ namespace Mirror
         }
 
         // Connection Quality //////////////////////////////////////////////////
-        ConnectionQuality previousConnectionQuality = ConnectionQuality.ESTIMATING;
+        ConnectionQuality lastConnectionQuality = ConnectionQuality.ESTIMATING;
 
         // uses 'pragmatic' version based on snapshot interpolation by default.
         void UpdateConnectionQuality()
@@ -254,10 +254,10 @@ namespace Mirror
             CalculateConnectionQuality();
 
             // call event if changed
-            if (NetworkClient.connectionQuality != previousConnectionQuality)
+            if (NetworkClient.connectionQuality != lastConnectionQuality)
             {
-                OnConnectionQualityChanged(previousConnectionQuality, NetworkClient.connectionQuality);
-                previousConnectionQuality = NetworkClient.connectionQuality;
+                OnConnectionQualityChanged(lastConnectionQuality, NetworkClient.connectionQuality);
+                lastConnectionQuality = NetworkClient.connectionQuality;
             }
         }
 
