@@ -55,14 +55,11 @@ namespace Mirror
             // have poor connection if the multiplier is >10.
             double multiplier = currentBufferTime / targetBufferTime;
 
-            // 20% off multiplier is still great
-            if (multiplier <= 1.2) return ConnectionQuality.EXCELLENT;
-
-            // 75% off multiplier is still good
-            if (multiplier <= 1.75) return ConnectionQuality.GOOD;
-
-            // 100% off multiplier is still fair
-            if (multiplier <= 2.0) return ConnectionQuality.FAIR;
+            // empirically measured with Tanks demo + LatencySimulation.
+            // it's not obvious to estimate on paper.
+            if (multiplier <= 1.15) return ConnectionQuality.EXCELLENT;
+            if (multiplier <= 1.25) return ConnectionQuality.GOOD;
+            if (multiplier <= 1.50) return ConnectionQuality.FAIR;
 
             // anything else is poor
             return ConnectionQuality.POOR;
