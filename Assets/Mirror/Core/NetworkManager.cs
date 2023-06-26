@@ -121,6 +121,11 @@ namespace Mirror
         [Header("Snapshot Interpolation")]
         public SnapshotInterpolationSettings snapshotSettings = new SnapshotInterpolationSettings();
 
+        [Header("Connection Quality")]
+        public float connectionQualityUpdateInterval = 3;
+        double lastConnectionQualityUpdate;
+        ConnectionQuality lastConnectionQuality = ConnectionQuality.ESTIMATING;
+
         [Header("Debug")]
         public bool timeInterpolationGui = false;
 
@@ -243,12 +248,15 @@ namespace Mirror
         }
 
         // Connection Quality //////////////////////////////////////////////////
-        ConnectionQuality lastConnectionQuality = ConnectionQuality.ESTIMATING;
-
         // uses 'pragmatic' version based on snapshot interpolation by default.
         void UpdateConnectionQuality()
         {
             if (!NetworkClient.active) return;
+
+            // only recalculate every few seconds
+            // we don't want to fire Good->Bad->Good->Bad hundreds of times per second.
+            if (NetworkTime.time < lastConnectionQualityUpdate + connectionQualityUpdateInterval) return;
+            lastConnectionQualityUpdate = NetworkTime.time;
 
             // recaclulate connection quality
             CalculateConnectionQuality();
