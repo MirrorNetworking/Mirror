@@ -18,11 +18,11 @@
 ## Mirror Networking 
 The **#1** free **open source** game networking library for **Unity 2019 / 2020 / 2021 / 2022**.
 
-Used **in production** by major hits like [**Population: ONE**](https://www.populationonevr.com/) and many [more](#made-with-mirror).
+Used **in production** by major hits like [**Population: ONE**](https://www.populationonevr.com/) and many [**more**](#made-with-mirror).
 
 Originally based on [**UNET**](https://blog.unity.com/technology/announcing-unet-new-unity-multiplayer-technology): battle tested **since 2014** for 9 years and counting!
 
-Mirror is **[stable](https://mirror-networking.gitbook.io/docs/general/tests)**, [**modular**](#low-level-transports) & **[easy to use](https://mirror-networking.gitbook.io/)** for all types of games, even small [MMORPGs](#made-with-mirror) 🎮.
+Mirror is **[stable](https://mirror-networking.gitbook.io/docs/general/tests)**, [**modular**](#low-level-transports) & **[easy to use](https://mirror-networking.gitbook.io/)** for all types of games, even small [**MMORPGs**](#made-with-mirror) 🎮.
 
 **Made in 🇩🇪🇺🇸🇬🇧🇸🇬🇹🇼 with ❤️**.
 
@@ -37,13 +37,13 @@ Making multiplayer games this way is fun & easy:
 ```cs
 public class Player : NetworkBehaviour
 {
-    // synced automatically
+    // Synced automatically
     [SyncVar] public int health = 100;
     
-    // lists, dictionaries, sets too
+    // Lists, Dictionaries, Sets too
     SyncList<Item> inventory = new SyncList<Item>();
     
-    // server/client-only code
+    // Server/Client-only code
     [Server] void LevelUp() {}
     [Client] void Animate() {}
     
@@ -54,10 +54,10 @@ public class Player : NetworkBehaviour
         if (isClient) Move();
     }
     
-    // zero overhead remote calls
-    [Command]   void CmdUseItem(int slot) {} // client to server
-    [ClientRpc] void RpcRespawn() {}         // server to all clients
-    [TargetRpc] void Hello() {}              // server to one client
+    // Zero overhead remote calls
+    [Command]   void CmdUseItem(int slot) {} // Client to Server
+    [ClientRpc] void RpcRespawn() {}         // Server to all Clients
+    [TargetRpc] void Hello() {}              // Server to one Client
 }
 ```
 
@@ -65,7 +65,7 @@ There's also **NetworkServer** & **NetworkClient**.</br>
 And that's about it 🤩
 
 ---
-## Free, Open & Community Funded
+## Free, Open Source & Community Focused
 Mirror is **free & open source** (MIT Licensed).
 
 "Free" as in free beer, and freedom to use it any way you like.
@@ -73,7 +73,9 @@ Mirror is **free & open source** (MIT Licensed).
 - Run [Dedicated Servers](https://mirror-networking.gitbook.io/docs/guides/server-hosting) anywhere.
 - Free player hosted games thanks to [Epic Relay](https://github.com/FakeByte/EpicOnlineTransport)!
 
-Mirror is funded by [**Donations**](https://github.com/sponsors/vis2k) from our [fantastic community](https://discordapp.com/invite/N9QVxbM) of over 14,000 users!
+🤝 We are a team of **professional** game developers, who are paid to **use Mirror in production**. Our incentives will always align with the community, because we are Mirror users just like you! 
+
+❤️ Our [**fantastic community**](https://discordapp.com/invite/N9QVxbM) of over **14,000** users contributes feedback & improvements every day. Please join us on our journey, help others, and consider a [**Donation**](https://github.com/sponsors/vis2k) if you love our work!
 
 <img src="https://user-images.githubusercontent.com/16416509/195067704-5577b581-b829-4c9f-80d0-b6270a3a59e7.png" title="Fitzcarraldo"/>
 
@@ -247,7 +249,7 @@ Therefore, we need to [KISS](https://en.wikipedia.org/wiki/KISS_principle) 😗.
 
 **Mirror-Networking** follows common information security industry standards & best practices.
 
-Mirror is free open source software (**MIT Licensed**), with over 80% test coverage. The company located in Germany. We do not collect any user data, impose no restrictions on users & developers, or rely on any closed source dependencies other than Unity.
+Mirror is free open source software (**MIT Licensed**), with over 80% test coverage. The company is located in Germany. We do not collect any user data, impose no restrictions on users & developers, or rely on any closed source dependencies other than Unity.
 
 This makes Mirror an attractive choice for government agencies and large corporations with strict information security requirements.
 
