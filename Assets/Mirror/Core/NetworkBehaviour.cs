@@ -85,9 +85,12 @@ namespace Mirror
         // also note that this is a per-NetworkBehaviour flag.
         // another component may not be client authoritative, etc.
         public bool authority =>
-            isClient
-                ? syncDirection == SyncDirection.ClientToServer && isOwned
-                : syncDirection == SyncDirection.ServerToClient;
+            // check isServer instead of isClient, which covers host mode too.
+            // otherwise host mode would only have authority if ClientToServer.
+            // fixes: https://github.com/MirrorNetworking/Mirror/issues/3529
+            isServer
+                ? syncDirection == SyncDirection.ServerToClient
+                : syncDirection == SyncDirection.ClientToServer && isOwned;
 
         /// <summary>The unique network Id of this object (unique at runtime).</summary>
         public uint netId => netIdentity.netId;
