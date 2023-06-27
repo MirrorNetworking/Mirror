@@ -273,7 +273,7 @@ namespace Mirror
         protected virtual void CalculateConnectionQuality()
         {
             // NetworkClient.connectionQuality = ConnectionQualityHeuristics.Pragmatic(NetworkClient.initialBufferTime, NetworkClient.bufferTime);
-            NetworkClient.connectionQuality = ConnectionQualityHeuristics.Simple(NetworkTime.rtt, NetworkTime.rttVar);
+            NetworkClient.connectionQuality = ConnectionQualityHeuristics.Simple(NetworkTime.rtt, NetworkTime.rttVariance);
         }
 
         // users can overwrite this to display connection quality warnings, etc.

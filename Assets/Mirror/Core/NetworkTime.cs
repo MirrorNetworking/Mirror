@@ -73,7 +73,8 @@ namespace Mirror
         public static double rtt => _rtt.Value;
 
         /// <Summary>Round trip time variance aka jitter, in seconds.</Summary>
-        public static double rttVar => _rtt.Variance;
+        // "rttVariance" instead of "rttVar" for consistency with older versions.
+        public static double rttVariance => _rtt.Variance;
 
         // RuntimeInitializeOnLoadMethod -> fast playmode without domain reload
         [RuntimeInitializeOnLoadMethod]
