@@ -153,13 +153,17 @@ namespace Mirror
             if (!scale.HasValue) scale = snapshots.Count > 0 ? snapshots.Values[snapshots.Count - 1].scale : target.localScale;
 
             // insert transform snapshot
-            SnapshotInterpolation.InsertIfNotExists(snapshots, new TransformSnapshot(
-                timeStamp, // arrival remote timestamp. NOT remote time.
-                NetworkTime.localTime, // Unity 2019 doesn't have timeAsDouble yet
-                position.Value,
-                rotation.Value,
-                scale.Value
-            ));
+            SnapshotInterpolation.InsertIfNotExists(
+                snapshots,
+                NetworkClient.snapshotSettings.bufferLimit,
+                new TransformSnapshot(
+                    timeStamp, // arrival remote timestamp. NOT remote time.
+                    NetworkTime.localTime, // Unity 2019 doesn't have timeAsDouble yet
+                    position.Value,
+                    rotation.Value,
+                    scale.Value
+                )
+            );
         }
 
         // apply a snapshot to the Transform.

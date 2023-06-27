@@ -80,6 +80,7 @@ namespace Mirror
             // insert into the server buffer & initialize / adjust / catchup
             SnapshotInterpolation.InsertAndAdjust(
                 snapshots,
+                NetworkClient.snapshotSettings.bufferLimit,
                 snapshot,
                 ref remoteTimeline,
                 ref remoteTimescale,

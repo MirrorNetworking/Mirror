@@ -392,13 +392,17 @@ namespace Mirror
 
             // insert a fake one at where we used to be,
             // 'sendInterval' behind the new one.
-            SnapshotInterpolation.InsertIfNotExists(snapshots, new TransformSnapshot(
-                remoteTimeStamp - sendInterval, // arrival remote timestamp. NOT remote time.
-                localTime - sendInterval,       // Unity 2019 doesn't have timeAsDouble yet
-                position,
-                rotation,
-                scale
-            ));
+            SnapshotInterpolation.InsertIfNotExists(
+                snapshots,
+                NetworkClient.snapshotSettings.bufferLimit,
+                new TransformSnapshot(
+                    remoteTimeStamp - sendInterval, // arrival remote timestamp. NOT remote time.
+                    localTime - sendInterval,       // Unity 2019 doesn't have timeAsDouble yet
+                    position,
+                    rotation,
+                    scale
+                )
+            );
         }
 
         public override void Reset()
