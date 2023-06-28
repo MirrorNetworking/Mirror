@@ -252,7 +252,7 @@ namespace Mirror.Tests.NetworkIdentities
 
             // set to CLIENT with some unique values
             // and set connection to server to pretend we are the owner.
-            identity.isOwned = false;
+            identity.isClientOwned = false;
             identity.connectionToServer = null; // NOT OWNED
             comp1.syncDirection = SyncDirection.ServerToClient;
             comp1.value = 12345;

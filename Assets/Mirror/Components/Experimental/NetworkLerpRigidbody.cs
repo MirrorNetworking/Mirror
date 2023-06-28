@@ -33,7 +33,7 @@ namespace Mirror.Experimental
         /// </summary>
         bool IgnoreSync => isServer || ClientWithAuthority;
 
-        bool ClientWithAuthority => clientAuthority && isOwned;
+        bool ClientWithAuthority => clientAuthority && isClientOwned;
 
         protected override void OnValidate()
         {

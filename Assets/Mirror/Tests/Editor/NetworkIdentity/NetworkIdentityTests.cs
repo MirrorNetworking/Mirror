@@ -379,40 +379,40 @@ namespace Mirror.Tests.NetworkIdentities
             CreateNetworked(out GameObject _, out NetworkIdentity identity, out NetworkBehaviourMock comp);
 
             // set authority from false to true, which should call OnStartAuthority
-            identity.isOwned = true;
+            identity.isClientOwned = true;
             identity.NotifyAuthority();
             // shouldn't be touched
-            Assert.That(identity.isOwned, Is.True);
+            Assert.That(identity.isClientOwned, Is.True);
             // start should be called
             Assert.That(comp.onStartAuthorityCalled, Is.EqualTo(1));
             // stop shouldn't
             Assert.That(comp.onStopAuthorityCalled, Is.EqualTo(0));
 
             // set it to true again, should do nothing because already true
-            identity.isOwned = true;
+            identity.isClientOwned = true;
             identity.NotifyAuthority();
             // shouldn't be touched
-            Assert.That(identity.isOwned, Is.True);
+            Assert.That(identity.isClientOwned, Is.True);
             // same as before
             Assert.That(comp.onStartAuthorityCalled, Is.EqualTo(1));
             // same as before
             Assert.That(comp.onStopAuthorityCalled, Is.EqualTo(0));
 
             // set it to false, should call OnStopAuthority
-            identity.isOwned = false;
+            identity.isClientOwned = false;
             identity.NotifyAuthority();
             // should be changed
-            Assert.That(identity.isOwned, Is.False);
+            Assert.That(identity.isClientOwned, Is.False);
             // same as before
             Assert.That(comp.onStartAuthorityCalled, Is.EqualTo(1));
             // stop should be called
             Assert.That(comp.onStopAuthorityCalled, Is.EqualTo(1));
 
             // set it to false again, should do nothing because already false
-            identity.isOwned = false;
+            identity.isClientOwned = false;
             identity.NotifyAuthority();
             // shouldn't be touched
-            Assert.That(identity.isOwned, Is.False);
+            Assert.That(identity.isClientOwned, Is.False);
             // same as before
             Assert.That(comp.onStartAuthorityCalled, Is.EqualTo(1));
             // same as before
@@ -676,7 +676,7 @@ namespace Mirror.Tests.NetworkIdentities
             Assert.That(identity.netId, Is.EqualTo(0));
             Assert.That(identity.connectionToClient, Is.Null);
             Assert.That(identity.connectionToServer, Is.Null);
-            Assert.That(identity.isOwned, Is.False);
+            Assert.That(identity.isClientOwned, Is.False);
             Assert.That(identity.observers, Is.Empty);
         }
 

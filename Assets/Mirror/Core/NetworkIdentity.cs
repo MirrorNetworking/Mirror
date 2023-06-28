@@ -91,11 +91,15 @@ namespace Mirror
 
         /// <summary>isOwned is true on the client if this NetworkIdentity is one of the .owned entities of our connection on the server.</summary>
         // for example: main player & pets are owned. monsters & npcs aren't.
-        public bool isOwned { get; internal set; }
+        // this flag is client-only, not for the server.
+        public bool isClientOwned { get; internal set; }
+
+        [Obsolete(".isOwned was renamed to .isClientOwned to reflect that it's a client-only flag.")]
+        public bool isOwned => isClientOwned;
 
         // Deprecated 2022-10-13
-        [Obsolete(".hasAuthority was renamed to .isOwned. This is easier to understand and prepares for SyncDirection, where there is a difference betwen isOwned and authority.")]
-        public bool hasAuthority => isOwned;
+        [Obsolete(".hasAuthority was renamed to .isClientOwned. This is easier to understand and prepares for SyncDirection, where there is a difference betwen isOwned and authority.")]
+        public bool hasAuthority => isClientOwned;
 
         /// <summary>The set of network connections (players) that can see this object.</summary>
         public readonly Dictionary<int, NetworkConnectionToClient> observers =
@@ -864,7 +868,7 @@ namespace Mirror
 
                 // on client, only consider owned components with SyncDirection to server
                 NetworkBehaviour component = components[i];
-                if (isOwned && component.syncDirection == SyncDirection.ClientToServer)
+                if (isClientOwned && component.syncDirection == SyncDirection.ClientToServer)
                 {
                     // set the n-th bit if dirty
                     // shifting from small to large numbers is varint-efficient.
@@ -1296,7 +1300,7 @@ namespace Mirror
             //isLocalPlayer = false; <- cleared AFTER ClearLocalPlayer below!
 
             // remove authority flag. This object may be unspawned, not destroyed, on client.
-            isOwned = false;
+            isClientOwned = false;
             NotifyAuthority();
 
             netId = 0;
@@ -1323,11 +1327,11 @@ namespace Mirror
         bool hadAuthority;
         internal void NotifyAuthority()
         {
-            if (!hadAuthority && isOwned)
+            if (!hadAuthority && isClientOwned)
                 OnStartAuthority();
-            if (hadAuthority && !isOwned)
+            if (hadAuthority && !isClientOwned)
                 OnStopAuthority();
-            hadAuthority = isOwned;
+            hadAuthority = isClientOwned;
         }
 
         internal void OnStartAuthority()

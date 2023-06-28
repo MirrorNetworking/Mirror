@@ -324,7 +324,7 @@ namespace Mirror.Tests.NetworkServers
                 NetworkServer.localConnection);
 
             // need to have authority for this test
-            Assert.That(player.isOwned, Is.True);
+            Assert.That(player.isClientOwned, Is.True);
 
             // destroy and ignore 'Destroy called in Edit mode' error
             LogAssert.ignoreFailingMessages = true;
@@ -1070,11 +1070,11 @@ namespace Mirror.Tests.NetworkServers
             go.SetActive(true);
 
             // set authority from false to true, which should call OnStartAuthority
-            identity.isOwned = true;
+            identity.isClientOwned = true;
             identity.NotifyAuthority();
 
             // shouldn't be touched
-            Assert.That(identity.isOwned, Is.True);
+            Assert.That(identity.isClientOwned, Is.True);
             // start should be called
             Assert.That(comp.onStartAuthorityCalled, Is.EqualTo(1));
             // stop shouldn't
@@ -1085,7 +1085,7 @@ namespace Mirror.Tests.NetworkServers
             Assert.That(identity.netId, Is.Zero);
 
             // should be changed
-            Assert.That(identity.isOwned, Is.False);
+            Assert.That(identity.isClientOwned, Is.False);
             // same as before
             Assert.That(comp.onStartAuthorityCalled, Is.EqualTo(1));
             // stop should be called

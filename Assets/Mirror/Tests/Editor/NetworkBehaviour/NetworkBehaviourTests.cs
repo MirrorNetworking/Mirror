@@ -106,7 +106,7 @@ namespace Mirror.Tests.NetworkBehaviours
         {
             // no authority by default
             CreateNetworked(out _, out _, out EmptyBehaviour emptyBehaviour);
-            Assert.That(emptyBehaviour.isOwned, Is.False);
+            Assert.That(emptyBehaviour.isClientOwned, Is.False);
         }
 
         [Test]

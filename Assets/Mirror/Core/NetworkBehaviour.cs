@@ -65,11 +65,14 @@ namespace Mirror
 
         /// <summary>isOwned is true on the client if this NetworkIdentity is one of the .owned entities of our connection on the server.</summary>
         // for example: main player & pets are owned. monsters & npcs aren't.
-        public bool isOwned => netIdentity.isOwned;
+        public bool isClientOwned => netIdentity.isClientOwned;
+
+        [Obsolete(".isOwned was renamed to .isClientOwned to reflect that it's a client-only flag.")]
+        public bool isOwned => isClientOwned;
 
         // Deprecated 2022-10-13
-        [Obsolete(".hasAuthority was renamed to .isOwned. This is easier to understand and prepares for SyncDirection, where there is a difference betwen isOwned and authority.")]
-        public bool hasAuthority => isOwned;
+        [Obsolete(".hasAuthority was renamed to .isClientOwned. This is easier to understand and prepares for SyncDirection, where there is a difference betwen isOwned and authority.")]
+        public bool hasAuthority => isClientOwned;
 
         /// <summary>authority is true if we are allowed to modify this component's state. On server, it's true if SyncDirection is ServerToClient. On client, it's true if SyncDirection is ClientToServer and(!) if this object is owned by the client.</summary>
         // on the client: if owned and if clientAuthority sync direction
@@ -86,7 +89,7 @@ namespace Mirror
         // another component may not be client authoritative, etc.
         public bool authority =>
             isClient
-                ? syncDirection == SyncDirection.ClientToServer && isOwned
+                ? syncDirection == SyncDirection.ClientToServer && isClientOwned
                 : syncDirection == SyncDirection.ServerToClient;
 
         /// <summary>The unique network Id of this object (unique at runtime).</summary>
@@ -244,7 +247,7 @@ namespace Mirror
 
                 // host mode: any ServerToClient and any local client owned
                 if (NetworkServer.active && NetworkClient.active)
-                    return syncDirection == SyncDirection.ServerToClient || isOwned;
+                    return syncDirection == SyncDirection.ServerToClient || isClientOwned;
 
                 // server only: any ServerToClient
                 if (NetworkServer.active)
@@ -254,7 +257,7 @@ namespace Mirror
                 if (NetworkClient.active)
                 {
                     // spawned: only ClientToServer and owned
-                    if (netId != 0) return syncDirection == SyncDirection.ClientToServer && isOwned;
+                    if (netId != 0) return syncDirection == SyncDirection.ClientToServer && isClientOwned;
 
                     // not spawned (character selection previews, etc.): always allow
                     // fixes https://github.com/MirrorNetworking/Mirror/issues/3343
@@ -284,7 +287,7 @@ namespace Mirror
                 if (isServer) return netIdentity.observers.Count > 0;
 
                 // client only: only ClientToServer and owned
-                if (isClient) return syncDirection == SyncDirection.ClientToServer && isOwned;
+                if (isClient) return syncDirection == SyncDirection.ClientToServer && isClientOwned;
 
                 // users may add to SyncLists before the object was spawned.
                 // isServer / isClient would still be false.
@@ -340,7 +343,7 @@ namespace Mirror
 
             // local players can always send commands, regardless of authority,
             // other objects must have authority.
-            if (!(!requiresAuthority || isLocalPlayer || isOwned))
+            if (!(!requiresAuthority || isLocalPlayer || isClientOwned))
             {
                 Debug.LogWarning($"Command {functionFullName} called on {name} without authority.", gameObject);
                 return;

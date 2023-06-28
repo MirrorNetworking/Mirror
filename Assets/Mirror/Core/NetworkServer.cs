@@ -940,7 +940,7 @@ namespace Mirror
             // special case,  we are in host mode,  set hasAuthority to true so that all overrides see it
             if (conn is LocalConnectionToClient)
             {
-                identity.isOwned = true;
+                identity.isClientOwned = true;
                 NetworkClient.InternalAddPlayer(identity);
             }
 
@@ -983,7 +983,7 @@ namespace Mirror
             // special case,  we are in host mode,  set hasAuthority to true so that all overrides see it
             if (conn is LocalConnectionToClient)
             {
-                identity.isOwned = true;
+                identity.isClientOwned = true;
                 NetworkClient.InternalAddPlayer(identity);
             }
 
@@ -1397,7 +1397,7 @@ namespace Mirror
             // special case to make sure hasAuthority is set
             // on start server in host mode
             if (ownerConnection is LocalConnectionToClient)
-                identity.isOwned = true;
+                identity.isClientOwned = true;
 
             // only call OnStartServer if not spawned yet.
             // check used to be in NetworkIdentity. may not be necessary anymore.
@@ -1515,7 +1515,7 @@ namespace Mirror
                 // The object may have been spawned with host client ownership,
                 // e.g. a pet so we need to clear hasAuthority and call
                 // NotifyAuthority which invokes OnStopAuthority if hasAuthority.
-                identity.isOwned = false;
+                identity.isClientOwned = false;
                 identity.NotifyAuthority();
 
                 // remove from NetworkClient dictionary
