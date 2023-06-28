@@ -149,7 +149,7 @@ namespace Mirror.Examples.LagCompensation
         {
             // send the command with the client's time.
             // only x coordinate matters for this simple example.
-            if (server.CmdClicked(localTimeline, new Vector2(transform.position.x, transform.position.y)))
+            if (server.CmdClicked(localTimeline, transform.position))
             {
                 Debug.Log($"Click hit!");
                 FlashColor(hitColor);
