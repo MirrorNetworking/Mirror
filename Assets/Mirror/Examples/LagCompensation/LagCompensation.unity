@@ -133,6 +133,7 @@ GameObject:
   m_Component:
   - component: {fileID: 89338755}
   - component: {fileID: 89338756}
+  - component: {fileID: 89338757}
   m_Layer: 0
   m_Name: Client Cube
   m_TagString: Untagged
@@ -173,6 +174,7 @@ MonoBehaviour:
   interpolate: 1
   snapshotSettings:
     bufferTimeMultiplier: 8
+    bufferLimit: 32
     catchupNegativeThreshold: -1
     catchupPositiveThreshold: 1
     catchupSpeed: 0.019999999552965164
@@ -183,6 +185,19 @@ MonoBehaviour:
     deliveryTimeEmaDuration: 2
   catchupColor: {r: 1, g: 0, b: 0, a: 1}
   slowdownColor: {r: 0, g: 0, b: 1, a: 1}
+--- !u!65 &89338757
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 89338751}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: -1, z: 0}
 --- !u!1 &474480117
 GameObject:
   m_ObjectHideFlags: 0

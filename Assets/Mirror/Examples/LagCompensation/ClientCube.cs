@@ -156,6 +156,11 @@ namespace Mirror.Examples.LagCompensation
                 render.material.color = defaultColor;
         }
 
+        void OnMouseDown()
+        {
+            Debug.Log($"ClientCube clicked @ Position.X={transform.position.x:F2}.");
+        }
+
         void OnGUI()
         {
             // display buffer size as number for easier debugging.
