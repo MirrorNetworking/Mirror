@@ -127,6 +127,7 @@ namespace Mirror.Examples.LagCompensation
 
         // client says: "I was clicked here, at this time."
         // server needs to rollback to validate.
+        // timestamp is the client's snapshot interpolated timeline!
         public bool CmdClicked(double timestamp, Vector2 position)
         {
             Debug.Log($"Server lag compensation: timestamp={timestamp:F3} position={position}");
