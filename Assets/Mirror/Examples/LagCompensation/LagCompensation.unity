@@ -297,6 +297,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   client: {fileID: 89338756}
+  collider: {fileID: 474480123}
   distance: 10
   speed: 3
   sendRate: 30
@@ -304,6 +305,7 @@ MonoBehaviour:
     historyLimit: 4
     captureInterval: 0.4
   historyColor: {r: 1, g: 1, b: 1, a: 1}
+  resultDuration: 0.5
   latency: 0.05
   jitter: 0.05
   loss: 0.05

@@ -8,6 +8,7 @@ namespace Mirror.Examples.LagCompensationDemo
     {
         [Header("Components")]
         public ClientCube client;
+        public new BoxCollider collider;
 
         [Header("Movement")]
         public float distance = 10;
@@ -29,6 +30,14 @@ namespace Mirror.Examples.LagCompensationDemo
         List<KeyValuePair<double, Capture2D>> history = new List<KeyValuePair<double, Capture2D>>();
 
         public Color historyColor = Color.white;
+
+        // store latest lag compensation result to show a visual indicator
+        [Header("Debug")]
+        public double resultDuration = 0.5;
+        double resultTime;
+        Capture2D resultBefore;
+        Capture2D resultAfter;
+        Capture2D resultInterpolated;
 
         [Header("Latency Simulation")]
         [Tooltip("Latency in seconds")]
@@ -148,11 +157,20 @@ namespace Mirror.Examples.LagCompensationDemo
         void OnDrawGizmos()
         {
             // draw mesh cubes of the history, with the current collider's size
-            BoxCollider collider = GetComponent<BoxCollider>();
             foreach (KeyValuePair<double, Capture2D> kvp in history)
             {
                 Gizmos.color = historyColor;
                 Gizmos.DrawWireCube(kvp.Value.position, collider.size);
+            }
+
+            // draw latest result
+            if (NetworkTime.localTime <= resultTime + resultDuration)
+            {
+                Gizmos.color = Color.cyan;
+                Gizmos.DrawCube(resultBefore.position, collider.size);
+                Gizmos.DrawCube(resultAfter.position, collider.size);
+                Gizmos.color = Color.magenta;
+                Gizmos.DrawCube(resultInterpolated.position, collider.size);
             }
         }
     }
