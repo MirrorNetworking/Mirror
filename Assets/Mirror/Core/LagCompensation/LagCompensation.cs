@@ -9,7 +9,7 @@ namespace Mirror
     {
         // TODO ringbuffer
         // history is of <timestamp, capture>
-        public static void InsertCapture<T>(
+        public static void Insert<T>(
             List<KeyValuePair<double, T>> history,
             int historyLimit,
             double timestamp,

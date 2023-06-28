@@ -137,7 +137,7 @@ namespace Mirror.Examples.LagCompensationDemo
             };
 
             // insert into history
-            LagCompensation.InsertCapture(history, lagCompensationSettings.historyLimit, NetworkTime.localTime, capture);
+            LagCompensation.Insert(history, lagCompensationSettings.historyLimit, NetworkTime.localTime, capture);
         }
 
         // client says: "I was clicked here, at this time."
