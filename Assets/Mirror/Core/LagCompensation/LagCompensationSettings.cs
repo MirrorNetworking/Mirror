@@ -11,7 +11,7 @@ namespace Mirror
     {
         [Header("Buffering")]
         [Tooltip("Keep this many past snapshots in the buffer. The larger this is, the further we can rewind into the past.\nMaximum rewind time := historyAmount * captureInterval")]
-        public int historyAmount = 32;
+        public int historyLimit = 32;
 
         [Tooltip("Capture state every 'captureInterval' seconds. Larger values will space out the captures more, which gives a longer history but with possible gaps inbetween.\nSmaller values will have fewer gaps, with shorter history.")]
         public float captureInterval = 0.050f; // 50 ms
