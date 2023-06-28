@@ -165,7 +165,9 @@ namespace Mirror.Examples.LagCompensationDemo
                 {
                     return true;
                 }
+                else Debug.Log($"CmdClicked: interpolated={resultInterpolated} doesn't contain {position}");
             }
+            else Debug.Log($"CmdClicked: history doesn't contain {timestamp:F3}");
 
             return false;
         }
