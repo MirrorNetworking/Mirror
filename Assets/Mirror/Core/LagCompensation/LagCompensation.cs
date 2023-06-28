@@ -8,10 +8,20 @@ namespace Mirror
     public static class LagCompensation
     {
         // TODO ringbuffer
-        public static void InsertCapture<T>(List<T> history, T capture)
+        // history is of <timestamp, capture>
+        public static void InsertCapture<T>(
+            List<KeyValuePair<double, T>> history,
+            int historyLimit,
+            double timestamp,
+            T capture)
             where T : Capture
         {
-            // TODO
+            // insert
+            history.Add(new KeyValuePair<double, T>(timestamp, capture));
+
+            // make space according to history limit
+            if (history.Count > historyLimit)
+                history.RemoveAt(0);
         }
     }
 }

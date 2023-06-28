@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace Mirror.Examples.LagCompensationDemo
 {
@@ -23,9 +25,11 @@ namespace Mirror.Examples.LagCompensationDemo
         public LagCompensationSettings lagCompensationSettings = new LagCompensationSettings();
         double lastCaptureTime;
 
-        // lag compensation history
+        // lag compensation history of <timestamp, capture>
         // TODO ringbuffer with time key
-        List<Capture2D> history = new List<Capture2D>();
+        List<KeyValuePair<double, Capture2D>> history = new List<KeyValuePair<double, Capture2D>>();
+
+        public Color historyColor = Color.white;
 
         [Header("Latency Simulation")]
         [Tooltip("Latency in seconds")]
@@ -136,7 +140,7 @@ namespace Mirror.Examples.LagCompensationDemo
             };
 
             // insert into history
-            LagCompensation.InsertCapture(history, capture);
+            LagCompensation.InsertCapture(history, lagCompensationSettings.historyLimit, NetworkTime.localTime, capture);
         }
 
         // client says: "I was clicked here, at this time."
@@ -146,6 +150,17 @@ namespace Mirror.Examples.LagCompensationDemo
         {
             Debug.Log($"Server lag compensation: timestamp={timestamp:F3} position={position}");
             return false;
+        }
+
+        void OnDrawGizmos()
+        {
+            // draw mesh cubes of the history, with the current collider's size
+            BoxCollider collider = GetComponent<BoxCollider>();
+            foreach (KeyValuePair<double, Capture2D> kvp in history)
+            {
+                Gizmos.color = historyColor;
+                Gizmos.DrawWireCube(kvp.Value.position, collider.size);
+            }
         }
     }
 }

@@ -211,6 +211,7 @@ GameObject:
   - component: {fileID: 474480120}
   - component: {fileID: 474480119}
   - component: {fileID: 474480122}
+  - component: {fileID: 474480123}
   m_Layer: 0
   m_Name: Server Cube
   m_TagString: Untagged
@@ -300,11 +301,26 @@ MonoBehaviour:
   speed: 3
   sendRate: 30
   lagCompensationSettings:
-    historyAmount: 32
+    historyLimit: 4
+    captureInterval: 0.3
+  historyColor: {r: 1, g: 1, b: 1, a: 1}
   latency: 0.05
   jitter: 0.05
   loss: 0.05
   scramble: 0.05
+--- !u!65 &474480123
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 474480117}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &1292704307
 GameObject:
   m_ObjectHideFlags: 0
