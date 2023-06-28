@@ -31,11 +31,13 @@ namespace Mirror
             List<KeyValuePair<double, T>> history,
             double timestamp,
             out T before,
-            out T after)
+            out T after,
+            out double t) // interpolation factor
             where T : Capture
         {
             before = default;
             after  = default;
+            t = 0;
 
             // can't sample an empty history
             if(history.Count == 0) {
@@ -53,6 +55,7 @@ namespace Mirror
                 if (timestamp == history[i].Key) {
                     before = history[i].Value;
                     after = history[i].Value;
+                    t = Mathd.InverseLerp(before.timestamp, after.timestamp, timestamp);
                     return true;
                 }
 
@@ -60,6 +63,7 @@ namespace Mirror
                 if (history[i].Key > timestamp) {
                     before = history[i-1].Value;
                     after = history[i].Value;
+                    t = Mathd.InverseLerp(before.timestamp, after.timestamp, timestamp);
                     return true;
                 }
             }

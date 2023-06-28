@@ -130,11 +130,7 @@ namespace Mirror.Examples.LagCompensationDemo
         void Capture()
         {
             // capture current state
-            Capture2D capture = new Capture2D
-            {
-                time = NetworkTime.localTime,
-                position = transform.position,
-            };
+            Capture2D capture = new Capture2D{ position = transform.position };
 
             // insert into history
             LagCompensation.Insert(history, lagCompensationSettings.historyLimit, NetworkTime.localTime, capture);

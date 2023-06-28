@@ -6,10 +6,12 @@ namespace Mirror.Tests
     // a simple snapshot with timestamp & interpolation
     struct SimpleCapture : Capture
     {
+        public double timestamp { get; set; }
         public int value;
 
-        public SimpleCapture(int value)
+        public SimpleCapture(double timestamp, int value)
         {
+            this.timestamp = timestamp;
             this.value = value;
         }
     }
@@ -32,9 +34,9 @@ namespace Mirror.Tests
         public void Insert()
         {
             // insert a few
-            LagCompensation.Insert(history, HistoryLimit, 1, new SimpleCapture(10));
-            LagCompensation.Insert(history, HistoryLimit, 2, new SimpleCapture(20));
-            LagCompensation.Insert(history, HistoryLimit, 3, new SimpleCapture(30));
+            LagCompensation.Insert(history, HistoryLimit, 1, new SimpleCapture(1, 10));
+            LagCompensation.Insert(history, HistoryLimit, 2, new SimpleCapture(2, 20));
+            LagCompensation.Insert(history, HistoryLimit, 3, new SimpleCapture(3, 30));
 
             Assert.That(history.Count, Is.EqualTo(3));
             Assert.That(history[0].Key, Is.EqualTo(1));
@@ -45,8 +47,8 @@ namespace Mirror.Tests
             Assert.That(history[2].Value.value, Is.EqualTo(30));
 
             // inserting more than limit, should evict the oldest one
-            LagCompensation.Insert(history, HistoryLimit, 4, new SimpleCapture(40));
-            LagCompensation.Insert(history, HistoryLimit, 5, new SimpleCapture(50));
+            LagCompensation.Insert(history, HistoryLimit, 4, new SimpleCapture(4, 40));
+            LagCompensation.Insert(history, HistoryLimit, 5, new SimpleCapture(5, 50));
 
             Assert.That(history.Count, Is.EqualTo(4));
             Assert.That(history[0].Key, Is.EqualTo(2));
@@ -62,65 +64,71 @@ namespace Mirror.Tests
         [Test]
         public void Sample_Empty()
         {
-            Assert.That(LagCompensation.Sample(history, 0, out _, out _), Is.False);
+            Assert.That(LagCompensation.Sample(history, 0, out _, out _, out _), Is.False);
         }
 
         [Test]
         public void Sample_Single()
         {
             // insert a few
-            LagCompensation.Insert(history, HistoryLimit, 1, new SimpleCapture(10));
+            LagCompensation.Insert(history, HistoryLimit, 1, new SimpleCapture(1, 10));
 
             // sample older than first
-            Assert.That(LagCompensation.Sample(history, 0, out SimpleCapture before, out SimpleCapture after), Is.False);
+            Assert.That(LagCompensation.Sample(history, 0, out SimpleCapture before, out SimpleCapture after, out double t), Is.False);
 
             // sample exactly first
-            Assert.That(LagCompensation.Sample(history, 1, out before, out after), Is.True);
+            Assert.That(LagCompensation.Sample(history, 1, out before, out after, out t), Is.True);
             Assert.That(before.value, Is.EqualTo(10));
             Assert.That(after.value, Is.EqualTo(10));
+            Assert.That(t, Is.EqualTo(0.0));
 
             // sample older than first
-            Assert.That(LagCompensation.Sample(history, 2, out before, out after), Is.False);
+            Assert.That(LagCompensation.Sample(history, 2, out before, out after, out t), Is.False);
         }
 
         [Test]
         public void Sample()
         {
             // insert a few
-            LagCompensation.Insert(history, HistoryLimit, 1, new SimpleCapture(10));
-            LagCompensation.Insert(history, HistoryLimit, 2, new SimpleCapture(20));
-            LagCompensation.Insert(history, HistoryLimit, 3, new SimpleCapture(30));
+            LagCompensation.Insert(history, HistoryLimit, 1, new SimpleCapture(1, 10));
+            LagCompensation.Insert(history, HistoryLimit, 2, new SimpleCapture(2, 20));
+            LagCompensation.Insert(history, HistoryLimit, 3, new SimpleCapture(3, 30));
 
             // sample older than first
-            Assert.That(LagCompensation.Sample(history, 0, out SimpleCapture before, out SimpleCapture after), Is.False);
+            Assert.That(LagCompensation.Sample(history, 0, out SimpleCapture before, out SimpleCapture after, out double t), Is.False);
 
             // sample exactly first
-            Assert.That(LagCompensation.Sample(history, 1, out before, out after), Is.True);
+            Assert.That(LagCompensation.Sample(history, 1, out before, out after, out t), Is.True);
             Assert.That(before.value, Is.EqualTo(10));
             Assert.That(after.value, Is.EqualTo(10));
+            Assert.That(t, Is.EqualTo(0.0));
 
             // sample between first and second
-            Assert.That(LagCompensation.Sample(history, 1.5, out before, out after), Is.True);
+            Assert.That(LagCompensation.Sample(history, 1.5, out before, out after, out t), Is.True);
             Assert.That(before.value, Is.EqualTo(10));
             Assert.That(after.value, Is.EqualTo(20));
+            Assert.That(t, Is.EqualTo(0.5));
 
             // sample exactly second
-            Assert.That(LagCompensation.Sample(history, 2, out before, out after), Is.True);
+            Assert.That(LagCompensation.Sample(history, 2, out before, out after, out t), Is.True);
             Assert.That(before.value, Is.EqualTo(20));
             Assert.That(after.value, Is.EqualTo(20));
+            Assert.That(t, Is.EqualTo(0.0));
 
             // sample between second and third
-            Assert.That(LagCompensation.Sample(history, 2.5, out before, out after), Is.True);
+            Assert.That(LagCompensation.Sample(history, 2.5, out before, out after, out t), Is.True);
             Assert.That(before.value, Is.EqualTo(20));
             Assert.That(after.value, Is.EqualTo(30));
+            Assert.That(t, Is.EqualTo(0.5));
 
             // sample exactly third
-            Assert.That(LagCompensation.Sample(history, 3, out before, out after), Is.True);
+            Assert.That(LagCompensation.Sample(history, 3, out before, out after, out t), Is.True);
             Assert.That(before.value, Is.EqualTo(30));
             Assert.That(after.value, Is.EqualTo(30));
+            Assert.That(t, Is.EqualTo(0.0));
 
             // sample older than third
-            Assert.That(LagCompensation.Sample(history, 4, out before, out after), Is.False);
+            Assert.That(LagCompensation.Sample(history, 4, out before, out after, out t), Is.False);
         }
     }
 }
