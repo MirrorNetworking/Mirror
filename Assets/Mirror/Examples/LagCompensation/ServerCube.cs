@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Mirror.Examples.LagCompensation
+namespace Mirror.Examples.LagCompensationDemo
 {
     public class ServerCube : MonoBehaviour
     {

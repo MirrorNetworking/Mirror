@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Mirror.Examples.LagCompensation
+namespace Mirror.Examples.LagCompensationDemo
 {
     public class ClientCube : MonoBehaviour
     {
