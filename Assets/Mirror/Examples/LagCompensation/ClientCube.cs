@@ -158,7 +158,16 @@ namespace Mirror.Examples.LagCompensation
 
         void OnMouseDown()
         {
-            Debug.Log($"ClientCube clicked @ Position.X={transform.position.x:F2}.");
+            // send the command with the client's time.
+            // only x coordinate matters for this simple example.
+            if (server.CmdClicked(localTimeline, new Vector2(transform.position.x, transform.position.y)))
+            {
+                Debug.Log($"Click hit!");
+            }
+            else
+            {
+                Debug.Log($"Click missed!");
+            }
         }
 
         void OnGUI()

@@ -104,5 +104,13 @@ namespace Mirror.Examples.LagCompensation
                 }
             }
         }
+
+        // client says: "I was clicked here, at this time."
+        // server needs to rollback to validate.
+        public bool CmdClicked(double timestamp, Vector2 position)
+        {
+            Debug.Log($"Server rollback: timestamp={timestamp:F3} position={position}");
+            return false;
+        }
     }
 }
