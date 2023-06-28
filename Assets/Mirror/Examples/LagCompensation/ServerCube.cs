@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -130,8 +129,6 @@ namespace Mirror.Examples.LagCompensationDemo
 
         void Capture()
         {
-            Debug.Log($"Server lag compensation: capturing @ {NetworkTime.localTime:F3}");
-
             // capture current state
             Capture2D capture = new Capture2D
             {
