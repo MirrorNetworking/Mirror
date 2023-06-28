@@ -123,6 +123,15 @@ namespace Mirror.Examples.LagCompensation
         void Capture()
         {
             Debug.Log($"Server lag compensation: capturing @ {NetworkTime.localTime:F3}");
+
+            // capture current state
+            Capture2D capture = new Capture2D
+            {
+                time=NetworkTime.localTime,
+                position=transform.position,
+            };
+
+            // insert into history
         }
 
         // client says: "I was clicked here, at this time."
