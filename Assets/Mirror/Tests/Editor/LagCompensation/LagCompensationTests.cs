@@ -60,5 +60,69 @@ namespace Mirror.Tests
             Assert.That(history[2].Value.value, Is.EqualTo(40));
             Assert.That(history[3].Value.value, Is.EqualTo(50));
         }
+
+        [Test]
+        public void Sample_Empty()
+        {
+            Assert.That(LagCompensation.Sample(history, 0, out SimpleCapture before, out SimpleCapture after), Is.False);
+        }
+
+        [Test]
+        public void Sample_Single()
+        {
+            // insert a few
+            LagCompensation.Insert(history, HistoryLimit, 1, new SimpleCapture(1, 10));
+
+            // sample older than first
+            Assert.That(LagCompensation.Sample(history, 0, out SimpleCapture before, out SimpleCapture after), Is.False);
+
+            // sample exactly first
+            Assert.That(LagCompensation.Sample(history, 1, out before, out after), Is.True);
+            Assert.That(before.value, Is.EqualTo(10));
+            Assert.That(after.value, Is.EqualTo(10));
+
+            // sample older than first
+            Assert.That(LagCompensation.Sample(history, 2, out before, out after), Is.False);
+        }
+
+        [Test]
+        public void Sample()
+        {
+            // insert a few
+            LagCompensation.Insert(history, HistoryLimit, 1, new SimpleCapture(1, 10));
+            LagCompensation.Insert(history, HistoryLimit, 2, new SimpleCapture(2, 20));
+            LagCompensation.Insert(history, HistoryLimit, 3, new SimpleCapture(3, 30));
+
+            // sample older than first
+            Assert.That(LagCompensation.Sample(history, 0, out SimpleCapture before, out SimpleCapture after), Is.False);
+
+            // sample exactly first
+            Assert.That(LagCompensation.Sample(history, 1, out before, out after), Is.True);
+            Assert.That(before.value, Is.EqualTo(10));
+            Assert.That(after.value, Is.EqualTo(10));
+
+            // sample between first and second
+            Assert.That(LagCompensation.Sample(history, 1.5, out before, out after), Is.True);
+            Assert.That(before.value, Is.EqualTo(10));
+            Assert.That(after.value, Is.EqualTo(20));
+
+            // sample exactly second
+            Assert.That(LagCompensation.Sample(history, 2, out before, out after), Is.True);
+            Assert.That(before.value, Is.EqualTo(20));
+            Assert.That(after.value, Is.EqualTo(20));
+
+            // sample between second and third
+            Assert.That(LagCompensation.Sample(history, 2.5, out before, out after), Is.True);
+            Assert.That(before.value, Is.EqualTo(20));
+            Assert.That(after.value, Is.EqualTo(30));
+
+            // sample exactly third
+            Assert.That(LagCompensation.Sample(history, 3, out before, out after), Is.True);
+            Assert.That(before.value, Is.EqualTo(30));
+            Assert.That(after.value, Is.EqualTo(30));
+
+            // sample older than third
+            Assert.That(LagCompensation.Sample(history, 4, out before, out after), Is.False);
+        }
     }
 }
