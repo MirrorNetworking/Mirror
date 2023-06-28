@@ -23,6 +23,10 @@ namespace Mirror.Examples.LagCompensationDemo
         public LagCompensationSettings lagCompensationSettings = new LagCompensationSettings();
         double lastCaptureTime;
 
+        // lag compensation history
+        // TODO ringbuffer with time key
+        List<Capture2D> history = new List<Capture2D>();
+
         [Header("Latency Simulation")]
         [Tooltip("Latency in seconds")]
         public float latency = 0.05f; // 50 ms
@@ -127,11 +131,12 @@ namespace Mirror.Examples.LagCompensationDemo
             // capture current state
             Capture2D capture = new Capture2D
             {
-                time=NetworkTime.localTime,
-                position=transform.position,
+                time = NetworkTime.localTime,
+                position = transform.position,
             };
 
             // insert into history
+            LagCompensation.InsertCapture(history, capture);
         }
 
         // client says: "I was clicked here, at this time."
