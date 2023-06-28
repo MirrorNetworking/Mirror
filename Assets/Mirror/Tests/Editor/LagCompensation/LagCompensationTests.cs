@@ -6,12 +6,10 @@ namespace Mirror.Tests
     // a simple snapshot with timestamp & interpolation
     struct SimpleCapture : Capture
     {
-        public double timestamp;
         public int value;
 
-        public SimpleCapture(double timestamp, int value)
+        public SimpleCapture(int value)
         {
-            this.timestamp = timestamp;
             this.value = value;
         }
     }
@@ -34,9 +32,9 @@ namespace Mirror.Tests
         public void Insert()
         {
             // insert a few
-            LagCompensation.Insert(history, HistoryLimit, 1, new SimpleCapture(1, 10));
-            LagCompensation.Insert(history, HistoryLimit, 2, new SimpleCapture(2, 20));
-            LagCompensation.Insert(history, HistoryLimit, 3, new SimpleCapture(3, 30));
+            LagCompensation.Insert(history, HistoryLimit, 1, new SimpleCapture(10));
+            LagCompensation.Insert(history, HistoryLimit, 2, new SimpleCapture(20));
+            LagCompensation.Insert(history, HistoryLimit, 3, new SimpleCapture(30));
 
             Assert.That(history.Count, Is.EqualTo(3));
             Assert.That(history[0].Key, Is.EqualTo(1));
@@ -47,8 +45,8 @@ namespace Mirror.Tests
             Assert.That(history[2].Value.value, Is.EqualTo(30));
 
             // inserting more than limit, should evict the oldest one
-            LagCompensation.Insert(history, HistoryLimit, 4, new SimpleCapture(4, 40));
-            LagCompensation.Insert(history, HistoryLimit, 5, new SimpleCapture(5, 50));
+            LagCompensation.Insert(history, HistoryLimit, 4, new SimpleCapture(40));
+            LagCompensation.Insert(history, HistoryLimit, 5, new SimpleCapture(50));
 
             Assert.That(history.Count, Is.EqualTo(4));
             Assert.That(history[0].Key, Is.EqualTo(2));
@@ -64,14 +62,14 @@ namespace Mirror.Tests
         [Test]
         public void Sample_Empty()
         {
-            Assert.That(LagCompensation.Sample(history, 0, out SimpleCapture before, out SimpleCapture after), Is.False);
+            Assert.That(LagCompensation.Sample(history, 0, out _, out _), Is.False);
         }
 
         [Test]
         public void Sample_Single()
         {
             // insert a few
-            LagCompensation.Insert(history, HistoryLimit, 1, new SimpleCapture(1, 10));
+            LagCompensation.Insert(history, HistoryLimit, 1, new SimpleCapture(10));
 
             // sample older than first
             Assert.That(LagCompensation.Sample(history, 0, out SimpleCapture before, out SimpleCapture after), Is.False);
@@ -89,9 +87,9 @@ namespace Mirror.Tests
         public void Sample()
         {
             // insert a few
-            LagCompensation.Insert(history, HistoryLimit, 1, new SimpleCapture(1, 10));
-            LagCompensation.Insert(history, HistoryLimit, 2, new SimpleCapture(2, 20));
-            LagCompensation.Insert(history, HistoryLimit, 3, new SimpleCapture(3, 30));
+            LagCompensation.Insert(history, HistoryLimit, 1, new SimpleCapture(10));
+            LagCompensation.Insert(history, HistoryLimit, 2, new SimpleCapture(20));
+            LagCompensation.Insert(history, HistoryLimit, 3, new SimpleCapture(30));
 
             // sample older than first
             Assert.That(LagCompensation.Sample(history, 0, out SimpleCapture before, out SimpleCapture after), Is.False);
