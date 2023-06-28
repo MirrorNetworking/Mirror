@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -42,9 +43,9 @@ namespace Mirror.Examples.LagCompensation
 
         // debugging ///////////////////////////////////////////////////////////
         [Header("Debug")]
-        public Color catchupColor = Color.green; // green traffic light = go fast
-        public Color slowdownColor = Color.red;  // red traffic light = go slow
-        Color defaultColor;
+        public Color hitColor      = Color.blue;
+        public Color missedColor   = Color.magenta;
+        public Color originalColor = Color.black;
 
         [Header("Simulation")]
         bool lowFpsMode;
@@ -56,7 +57,7 @@ namespace Mirror.Examples.LagCompensation
             Debug.Log("Reminder: Snapshot interpolation is smoothest & easiest to debug with Vsync off.");
 
 
-            defaultColor = render.sharedMaterial.color;
+            // defaultColor = render.sharedMaterial.color;
 
             // initialize EMA with 'emaDuration' seconds worth of history.
             // 1 second holds 'sendRate' worth of values.
@@ -146,14 +147,6 @@ namespace Mirror.Examples.LagCompensation
 
             // reset simulation helpers
             accumulatedDeltaTime = 0;
-
-            // color material while catching up / slowing down
-            if (localTimescale < 1)
-                render.material.color = slowdownColor;
-            else if (localTimescale > 1)
-                render.material.color = catchupColor;
-            else
-                render.material.color = defaultColor;
         }
 
         void OnMouseDown()
@@ -163,11 +156,26 @@ namespace Mirror.Examples.LagCompensation
             if (server.CmdClicked(localTimeline, new Vector2(transform.position.x, transform.position.y)))
             {
                 Debug.Log($"Click hit!");
+                FlashColor(hitColor);
             }
             else
             {
                 Debug.Log($"Click missed!");
+                FlashColor(missedColor);
             }
+        }
+
+        // simple visual indicator for better feedback.
+        // changes the cube's color for a short time.
+        void FlashColor(Color color) =>
+            StartCoroutine(TemporarilyChangeColorToGreen(color));
+
+        IEnumerator TemporarilyChangeColorToGreen(Color color)
+        {
+            Renderer r = GetComponentInChildren<Renderer>();
+            r.material.color = color;
+            yield return new WaitForSeconds(0.2f);
+            r.material.color = originalColor;
         }
 
         void OnGUI()
