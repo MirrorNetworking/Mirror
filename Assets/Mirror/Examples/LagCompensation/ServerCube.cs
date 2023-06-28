@@ -139,7 +139,7 @@ namespace Mirror.Examples.LagCompensationDemo
         void Capture()
         {
             // capture current state
-            Capture2D capture = new Capture2D{ position = transform.position };
+            Capture2D capture = new Capture2D(NetworkTime.localTime, transform.position);
 
             // insert into history
             LagCompensation.Insert(history, lagCompensationSettings.historyLimit, NetworkTime.localTime, capture);
@@ -151,6 +151,19 @@ namespace Mirror.Examples.LagCompensationDemo
         public bool CmdClicked(double timestamp, Vector2 position)
         {
             Debug.Log($"Server lag compensation: timestamp={timestamp:F3} position={position}");
+
+            // sample the history to get the nearest snapshots around 'timestamp'
+            if (LagCompensation.Sample(history, timestamp, out resultBefore, out resultAfter, out double t))
+            {
+                // interpolate to get a decent estimation at exactly 'timestamp'
+                resultInterpolated = Capture2D.Interpolate(resultBefore, resultAfter, t);
+                resultTime = NetworkTime.localTime;
+
+                Debug.LogWarning($"Sampled: before={resultBefore} after={resultAfter} t={t} interpolated={resultInterpolated} ");
+
+                // TODO check
+            }
+
             return false;
         }
 
@@ -167,8 +180,8 @@ namespace Mirror.Examples.LagCompensationDemo
             if (NetworkTime.localTime <= resultTime + resultDuration)
             {
                 Gizmos.color = Color.cyan;
-                Gizmos.DrawCube(resultBefore.position, collider.size);
-                Gizmos.DrawCube(resultAfter.position, collider.size);
+                Gizmos.DrawWireCube(resultBefore.position, collider.size);
+                Gizmos.DrawWireCube(resultAfter.position, collider.size);
                 Gizmos.color = Color.magenta;
                 Gizmos.DrawCube(resultInterpolated.position, collider.size);
             }

@@ -7,6 +7,12 @@ namespace Mirror.Examples.LagCompensationDemo
         public double timestamp { get; set; }
         public Vector2 position;
 
+        public Capture2D(double timestamp, Vector2 position)
+        {
+            this.timestamp = timestamp;
+            this.position = position;
+        }
+
         public static Capture2D Interpolate(Capture2D from, Capture2D to, double t) =>
                 // interpolated snapshot is applied directly. don't need timestamps.
             new Capture2D{position=Vector3.LerpUnclamped(from.position, to.position, (float)t)};
