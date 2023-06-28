@@ -150,7 +150,7 @@ namespace Mirror.Examples.LagCompensationDemo
         // timestamp is the client's snapshot interpolated timeline!
         public bool CmdClicked(double timestamp, Vector2 position)
         {
-            Debug.Log($"Server lag compensation: timestamp={timestamp:F3} position={position}");
+            Debug.Log($"CmdClicked: timestamp={timestamp:F3} position={position}");
 
             // sample the history to get the nearest snapshots around 'timestamp'
             if (LagCompensation.Sample(history, timestamp, out resultBefore, out resultAfter, out double t))
@@ -159,9 +159,12 @@ namespace Mirror.Examples.LagCompensationDemo
                 resultInterpolated = Capture2D.Interpolate(resultBefore, resultAfter, t);
                 resultTime = NetworkTime.localTime;
 
-                Debug.LogWarning($"Sampled: before={resultBefore} after={resultAfter} t={t} interpolated={resultInterpolated} ");
-
-                // TODO check
+                // check if there really was a cube at that time and position
+                Bounds bounds = new Bounds(resultInterpolated.position, collider.size);
+                if (bounds.Contains(position))
+                {
+                    return true;
+                }
             }
 
             return false;
@@ -182,7 +185,6 @@ namespace Mirror.Examples.LagCompensationDemo
                 Gizmos.color = Color.cyan;
                 Gizmos.DrawWireCube(resultBefore.position, collider.size);
                 Gizmos.DrawWireCube(resultAfter.position, collider.size);
-                Gizmos.color = Color.magenta;
                 Gizmos.DrawCube(resultInterpolated.position, collider.size);
             }
         }
