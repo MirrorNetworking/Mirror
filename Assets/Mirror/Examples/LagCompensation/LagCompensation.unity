@@ -302,7 +302,7 @@ MonoBehaviour:
   sendRate: 30
   lagCompensationSettings:
     historyLimit: 4
-    captureInterval: 0.3
+    captureInterval: 0.4
   historyColor: {r: 1, g: 1, b: 1, a: 1}
   latency: 0.05
   jitter: 0.05
