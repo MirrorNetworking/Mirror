@@ -1,9 +1,8 @@
 using System;
 using System.Collections.Generic;
-using Mirror;
 using UnityEngine;
 
-namespace RollbackDemo
+namespace Mirror.Examples.LagCompensation
 {
     public class ClientCube : MonoBehaviour
     {
