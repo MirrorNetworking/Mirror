@@ -139,7 +139,7 @@ namespace Mirror.Examples.LagCompensationDemo
         void Capture()
         {
             // capture current state
-            Capture2D capture = new Capture2D(NetworkTime.localTime, transform.position);
+            Capture2D capture = new Capture2D(NetworkTime.localTime, transform.position, collider.size);
 
             // insert into history
             LagCompensation.Insert(history, lagCompensationSettings.historyLimit, NetworkTime.localTime, capture);
@@ -160,7 +160,7 @@ namespace Mirror.Examples.LagCompensationDemo
                 resultTime = NetworkTime.localTime;
 
                 // check if there really was a cube at that time and position
-                Bounds bounds = new Bounds(resultInterpolated.position, collider.size);
+                Bounds bounds = new Bounds(resultInterpolated.position, resultInterpolated.size);
                 if (bounds.Contains(position))
                 {
                     return true;
@@ -182,18 +182,17 @@ namespace Mirror.Examples.LagCompensationDemo
             if (showResult)
             {
                 Gizmos.color = Color.black;
-                Gizmos.DrawCube(resultInterpolated.position, collider.size);
+                Gizmos.DrawCube(resultInterpolated.position, resultInterpolated.size);
             }
 
             // draw mesh cubes of the history, with the current collider's size
             foreach (KeyValuePair<double, Capture2D> kvp in history)
             {
                 // is this the latest result?
-                bool isResult = showResult &&
-                                (kvp.Key == resultBefore.timestamp || kvp.Key == resultAfter.timestamp);
+                bool isResult = showResult && (kvp.Key == resultBefore.timestamp || kvp.Key == resultAfter.timestamp);
 
                 Gizmos.color = isResult ? Color.cyan : historyColor;
-                Gizmos.DrawWireCube(kvp.Value.position, collider.size);
+                Gizmos.DrawWireCube(kvp.Value.position, kvp.Value.size);
             }
         }
     }
