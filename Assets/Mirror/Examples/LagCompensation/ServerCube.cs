@@ -21,6 +21,7 @@ namespace Mirror.Examples.LagCompensation
 
         [Header("Lag Compensation")]
         public LagCompensationSettings lagCompensationSettings = new LagCompensationSettings();
+        double lastCaptureTime;
 
         [Header("Latency Simulation")]
         [Tooltip("Latency in seconds")]
@@ -69,6 +70,14 @@ namespace Mirror.Examples.LagCompensation
             }
 
             Flush();
+
+            // capture lag compensation snapshots every interval.
+            // NetworkTime.localTime because Unity 2019 doesn't have 'double' time yet.
+            if (NetworkTime.localTime >= lastCaptureTime + lagCompensationSettings.captureInterval)
+            {
+                lastCaptureTime = NetworkTime.localTime;
+                Capture();
+            }
         }
 
         void Send(Vector3 position)
@@ -111,11 +120,16 @@ namespace Mirror.Examples.LagCompensation
             }
         }
 
+        void Capture()
+        {
+            Debug.Log($"Server lag compensation: capturing @ {NetworkTime.localTime:F3}");
+        }
+
         // client says: "I was clicked here, at this time."
         // server needs to rollback to validate.
         public bool CmdClicked(double timestamp, Vector2 position)
         {
-            Debug.Log($"Server rollback: timestamp={timestamp:F3} position={position}");
+            Debug.Log($"Server lag compensation: timestamp={timestamp:F3} position={position}");
             return false;
         }
     }
