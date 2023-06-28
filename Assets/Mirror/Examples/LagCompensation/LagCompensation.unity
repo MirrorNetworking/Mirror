@@ -183,8 +183,9 @@ MonoBehaviour:
     dynamicAdjustment: 0
     dynamicAdjustmentTolerance: 1
     deliveryTimeEmaDuration: 2
-  catchupColor: {r: 1, g: 0, b: 0, a: 1}
-  slowdownColor: {r: 0, g: 0, b: 1, a: 1}
+  hitColor: {r: 0, g: 0, b: 1, a: 1}
+  missedColor: {r: 1, g: 0, b: 1, a: 1}
+  originalColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!65 &89338757
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -298,6 +299,8 @@ MonoBehaviour:
   distance: 10
   speed: 3
   sendRate: 30
+  lagCompensationSettings:
+    historyAmount: 32
   latency: 0.05
   jitter: 0.05
   loss: 0.05

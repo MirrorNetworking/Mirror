@@ -19,6 +19,9 @@ namespace Mirror.Examples.LagCompensation
         public float sendInterval => 1f / sendRate;
         float lastSendTime;
 
+        [Header("Lag Compensation")]
+        public LagCompensationSettings lagCompensationSettings = new LagCompensationSettings();
+
         [Header("Latency Simulation")]
         [Tooltip("Latency in seconds")]
         public float latency = 0.05f; // 50 ms
@@ -28,6 +31,9 @@ namespace Mirror.Examples.LagCompensation
         [Range(0, 1)] public float loss = 0.1f;
         [Tooltip("Scramble % of unreliable messages, just like over the real network. Mirror unreliable is unordered.")]
         [Range(0, 1)] public float scramble = 0.1f;
+
+        // [Header("Lag Compensation")]
+
 
         // random
         // UnityEngine.Random.value is [0, 1] with both upper and lower bounds inclusive
