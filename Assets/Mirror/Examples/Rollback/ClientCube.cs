@@ -88,6 +88,7 @@ namespace RollbackDemo
             // insert into the buffer & initialize / adjust / catchup
             SnapshotInterpolation.InsertAndAdjust(
                 snapshots,
+                snapshotSettings.bufferLimit,
                 snap,
                 ref localTimeline,
                 ref localTimescale,
