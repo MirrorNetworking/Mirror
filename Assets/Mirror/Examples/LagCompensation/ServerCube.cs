@@ -174,20 +174,26 @@ namespace Mirror.Examples.LagCompensationDemo
 
         void OnDrawGizmos()
         {
+            // should we apply special colors to an active result?
+            bool showResult = NetworkTime.localTime <= resultTime + resultDuration;
+
+            // draw interpoalted result first.
+            // history meshcubes should write over it for better visibility.
+            if (showResult)
+            {
+                Gizmos.color = Color.black;
+                Gizmos.DrawCube(resultInterpolated.position, collider.size);
+            }
+
             // draw mesh cubes of the history, with the current collider's size
             foreach (KeyValuePair<double, Capture2D> kvp in history)
             {
-                Gizmos.color = historyColor;
-                Gizmos.DrawWireCube(kvp.Value.position, collider.size);
-            }
+                // is this the latest result?
+                bool isResult = showResult &&
+                                (kvp.Key == resultBefore.timestamp || kvp.Key == resultAfter.timestamp);
 
-            // draw latest result
-            if (NetworkTime.localTime <= resultTime + resultDuration)
-            {
-                Gizmos.color = Color.cyan;
-                Gizmos.DrawWireCube(resultBefore.position, collider.size);
-                Gizmos.DrawWireCube(resultAfter.position, collider.size);
-                Gizmos.DrawCube(resultInterpolated.position, collider.size);
+                Gizmos.color = isResult ? Color.cyan : historyColor;
+                Gizmos.DrawWireCube(kvp.Value.position, collider.size);
             }
         }
     }
