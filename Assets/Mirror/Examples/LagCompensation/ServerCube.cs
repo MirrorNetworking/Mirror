@@ -49,9 +49,6 @@ namespace Mirror.Examples.LagCompensationDemo
         [Tooltip("Scramble % of unreliable messages, just like over the real network. Mirror unreliable is unordered.")]
         [Range(0, 1)] public float scramble = 0.1f;
 
-        // [Header("Lag Compensation")]
-
-
         // random
         // UnityEngine.Random.value is [0, 1] with both upper and lower bounds inclusive
         // but we need the upper bound to be exclusive, so using System.Random instead.
