@@ -75,8 +75,9 @@ namespace Mirror
         // never trust the client.
         // we estimate when a message was sent.
         // don't trust the client to tell us the time.
-        // https://developer.valvesoftware.com/wiki/Source_Multiplayer_Networking
-        // Command Execution Time = Current Server Time - Packet Latency - Client View Interpolation
+        //   https://developer.valvesoftware.com/wiki/Source_Multiplayer_Networking
+        //   Command Execution Time = Current Server Time - Packet Latency - Client View Interpolation
+        // => lag compensation demo estimation is off by only ~6ms
         public static double EstimateTime(double serverTime, double rtt, double bufferTime)
         {
             // packet latency is one trip from client to server, so rtt / 2

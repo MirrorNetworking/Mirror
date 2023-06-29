@@ -153,7 +153,9 @@ namespace Mirror.Examples.LagCompensationDemo
         {
             // never trust the client: estimate client time instead.
             // https://developer.valvesoftware.com/wiki/Source_Multiplayer_Networking
-            double rtt = latency * 2;
+            // the estimation is very good. the error is as low as ~6ms for the demo.
+            double avgLatency = latency + jitter * 0.5; // Send() simulates latency + jitter * rand. on average, that's 0.5.
+            double rtt = avgLatency * 2;                // the function needs rtt, which is latency * 2
             double estimatedTime = LagCompensation.EstimateTime(NetworkTime.localTime, rtt, client.bufferTime);
 
             // compare estimated time with actual client time for debugging
