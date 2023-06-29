@@ -33,10 +33,11 @@ namespace Mirror
         // those can be used to interpolate the exact snapshot at that time.
         public static bool Sample<T>(
             Queue<KeyValuePair<double, T>> history,
-            double timestamp,
+            double timestamp, // current server time
+            double interval,  // capture interval
             out T before,
             out T after,
-            out double t) // interpolation factor
+            out double t)     // interpolation factor
             where T : Capture
         {
             before = default;
@@ -75,7 +76,27 @@ namespace Mirror
                 prev = entry;
             }
 
-            // newer than newest
+            // newer than newest: extrapolate up to one interval.
+            // let's say we capture every 100 ms:
+            // 100, 200, 300, 400
+            // and the server is at 499
+            // if a client sends CmdFire at time 480, then there's no history entry.
+            // => adding the current entry every time would be too expensive.
+            //    worst case we would capture at 401, 402, 403, 404, ... 100 times
+            // => not extrapolating isn't great. low latency clients would be
+            //    punished by missing their targets since no entry at 'time' was found.
+            // => extrapolation is the best solution. make sure this works as
+            //    expected and within limits.
+            if (prev.Key < timestamp && timestamp <= prev.Key + interval) {
+                before = prev.Value;
+                after = prev.Value;
+                // InverseLerp will give [after, after+interval].
+                // but we return [before, after, t].
+                // so add +1 for the distance from before->after
+                t = 1 + Mathd.InverseLerp(after.timestamp, after.timestamp + interval, timestamp);
+                return true;
+            }
+
             return false;
         }
 

@@ -26,6 +26,7 @@ namespace Mirror.Tests
 
         // some defaults
         const int HistoryLimit = 4;
+        const double Interval = 1;
 
         [SetUp]
         public void SetUp()
@@ -74,26 +75,36 @@ namespace Mirror.Tests
         [Test]
         public void Sample_Empty()
         {
-            Assert.That(LagCompensation.Sample(history, 0, out _, out _, out _), Is.False);
+            Assert.That(LagCompensation.Sample(history, 0, Interval, out _, out _, out _), Is.False);
         }
 
         [Test]
-        public void Sample_Single()
+        public void Sample_Single_Interpolate()
         {
             // insert a few
             LagCompensation.Insert(history, HistoryLimit, 1, new SimpleCapture(1, 10));
 
             // sample older than first
-            Assert.That(LagCompensation.Sample(history, 0, out SimpleCapture before, out SimpleCapture after, out double t), Is.False);
+            Assert.That(LagCompensation.Sample(history, 0, Interval, out SimpleCapture before, out SimpleCapture after, out double t), Is.False);
 
             // sample exactly first
-            Assert.That(LagCompensation.Sample(history, 1, out before, out after, out t), Is.True);
+            Assert.That(LagCompensation.Sample(history, 1, Interval, out before, out after, out t), Is.True);
             Assert.That(before.value, Is.EqualTo(10));
             Assert.That(after.value, Is.EqualTo(10));
             Assert.That(t, Is.EqualTo(0.0));
+        }
 
-            // sample older than first
-            Assert.That(LagCompensation.Sample(history, 2, out before, out after, out t), Is.False);
+        [Test]
+        public void Sample_Single_Extrapolate()
+        {
+            // insert a few
+            LagCompensation.Insert(history, HistoryLimit, 1, new SimpleCapture(1, 10));
+
+            // sample newer than newest: should extrapolate even if we only have one entry
+            Assert.That(LagCompensation.Sample(history, 2, Interval, out SimpleCapture before, out SimpleCapture after, out double t), Is.True);
+            Assert.That(before.value, Is.EqualTo(10));
+            Assert.That(after.value, Is.EqualTo(10));
+            Assert.That(t, Is.EqualTo(2.0));
         }
 
         [Test]
@@ -105,40 +116,37 @@ namespace Mirror.Tests
             LagCompensation.Insert(history, HistoryLimit, 3, new SimpleCapture(3, 30));
 
             // sample older than first
-            Assert.That(LagCompensation.Sample(history, 0, out SimpleCapture before, out SimpleCapture after, out double t), Is.False);
+            Assert.That(LagCompensation.Sample(history, 0, Interval, out SimpleCapture before, out SimpleCapture after, out double t), Is.False);
 
             // sample exactly first
-            Assert.That(LagCompensation.Sample(history, 1, out before, out after, out t), Is.True);
+            Assert.That(LagCompensation.Sample(history, 1, Interval, out before, out after, out t), Is.True);
             Assert.That(before.value, Is.EqualTo(10));
             Assert.That(after.value, Is.EqualTo(10));
             Assert.That(t, Is.EqualTo(0.0));
 
             // sample between first and second
-            Assert.That(LagCompensation.Sample(history, 1.5, out before, out after, out t), Is.True);
+            Assert.That(LagCompensation.Sample(history, 1.5, Interval, out before, out after, out t), Is.True);
             Assert.That(before.value, Is.EqualTo(10));
             Assert.That(after.value, Is.EqualTo(20));
             Assert.That(t, Is.EqualTo(0.5));
 
             // sample exactly second
-            Assert.That(LagCompensation.Sample(history, 2, out before, out after, out t), Is.True);
+            Assert.That(LagCompensation.Sample(history, 2, Interval, out before, out after, out t), Is.True);
             Assert.That(before.value, Is.EqualTo(20));
             Assert.That(after.value, Is.EqualTo(20));
             Assert.That(t, Is.EqualTo(0.0));
 
             // sample between second and third
-            Assert.That(LagCompensation.Sample(history, 2.5, out before, out after, out t), Is.True);
+            Assert.That(LagCompensation.Sample(history, 2.5, Interval, out before, out after, out t), Is.True);
             Assert.That(before.value, Is.EqualTo(20));
             Assert.That(after.value, Is.EqualTo(30));
             Assert.That(t, Is.EqualTo(0.5));
 
             // sample exactly third
-            Assert.That(LagCompensation.Sample(history, 3, out before, out after, out t), Is.True);
+            Assert.That(LagCompensation.Sample(history, 3, Interval, out before, out after, out t), Is.True);
             Assert.That(before.value, Is.EqualTo(30));
             Assert.That(after.value, Is.EqualTo(30));
             Assert.That(t, Is.EqualTo(0.0));
-
-            // sample older than third
-            Assert.That(LagCompensation.Sample(history, 4, out before, out after, out t), Is.False);
         }
 
         [Test]
@@ -163,16 +171,19 @@ namespace Mirror.Tests
             // sample at 3.9, just before we capture the next one.
             // this should return before=after=3, with t=1.9.
             // the user can then extrapolate manually.
-            Assert.That(LagCompensation.Sample(history, 3.9, out SimpleCapture before, out SimpleCapture after, out double t), Is.True);
+            Assert.That(LagCompensation.Sample(history, 3.9, Interval, out SimpleCapture before, out SimpleCapture after, out double t), Is.True);
             Assert.That(before.value, Is.EqualTo(30));
             Assert.That(after.value, Is.EqualTo(30));
             Assert.That(t, Is.EqualTo(1.9));
 
-            // it should never extrapolate furter than one interval.
-            Assert.That(LagCompensation.Sample(history, 4.5, out before, out after, out t), Is.True);
+            // exactly interval is still fine
+            Assert.That(LagCompensation.Sample(history, 4, Interval, out before, out after, out t), Is.True);
             Assert.That(before.value, Is.EqualTo(30));
             Assert.That(after.value, Is.EqualTo(30));
-            Assert.That(t, Is.EqualTo(2.0)); // limit at one interval worth
+            Assert.That(t, Is.EqualTo(2.0));
+
+            // it should never extrapolate further than one interval.
+            Assert.That(LagCompensation.Sample(history, 4.01, Interval, out before, out after, out t), Is.False);
         }
 
         [Test]

@@ -162,7 +162,7 @@ namespace Mirror.Examples.LagCompensationDemo
             Debug.Log($"CmdClicked: serverTime={NetworkTime.localTime:F3} clientTime={client.localTimeline:F3} estimatedTime={estimatedTime:F3} estimationError={error:F3} position={position}");
 
             // sample the history to get the nearest snapshots around 'timestamp'
-            if (LagCompensation.Sample(history, estimatedTime, out resultBefore, out resultAfter, out double t))
+            if (LagCompensation.Sample(history, estimatedTime, lagCompensationSettings.captureInterval, out resultBefore, out resultAfter, out double t))
             {
                 // interpolate to get a decent estimation at exactly 'timestamp'
                 resultInterpolated = Capture2D.Interpolate(resultBefore, resultAfter, t);
