@@ -67,6 +67,10 @@ namespace Mirror.Examples.LagCompensationDemo
         // always a fixed value + some jitter.
         float SimulateLatency() => latency + Random.value * jitter;
 
+        // this is the average without randomness. for lag compensation math.
+        // in a real game, use rtt instead.
+        float AverageLatency() => latency + 0.5f * jitter;
+
         void Start()
         {
             start = transform.position;
@@ -153,8 +157,7 @@ namespace Mirror.Examples.LagCompensationDemo
             // never trust the client: estimate client time instead.
             // https://developer.valvesoftware.com/wiki/Source_Multiplayer_Networking
             // the estimation is very good. the error is as low as ~6ms for the demo.
-            double avgLatency = latency + jitter * 0.5; // Send() simulates latency + jitter * rand. on average, that's 0.5.
-            double rtt = avgLatency * 2;                // the function needs rtt, which is latency * 2
+            double rtt = AverageLatency() * 2; // the function needs rtt, which is latency * 2
             double estimatedTime = LagCompensation.EstimateTime(NetworkTime.localTime, rtt, client.bufferTime);
 
             // compare estimated time with actual client time for debugging
