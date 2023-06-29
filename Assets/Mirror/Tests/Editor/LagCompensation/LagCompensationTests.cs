@@ -130,5 +130,15 @@ namespace Mirror.Tests
             // sample older than third
             Assert.That(LagCompensation.Sample(history, 4, out before, out after, out t), Is.False);
         }
+
+        [Test]
+        public void EstimateTime()
+        {
+            // server is at  t=100
+            // client has an rtt of 80ms
+            // snapshot interpolation buffer time is 30ms
+            // 100 - 0.080/2 - 0.030 = 99.93
+            Assert.That(LagCompensation.EstimateTime(100, 0.080, 0.030), Is.EqualTo(99.93).Within(0.001));
+        }
     }
 }
