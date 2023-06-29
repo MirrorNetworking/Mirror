@@ -62,6 +62,8 @@ namespace Mirror
             }
 
             // iterate through the history
+            // TODO in the future, we could do this in O(1) by estimating
+            // the index from how many multiples of interval we are behind.
             KeyValuePair<double, T> prev = new KeyValuePair<double, T>();
             KeyValuePair<double, T> prevPrev = new KeyValuePair<double, T>();
             foreach(KeyValuePair<double, T> entry in history) {
