@@ -198,13 +198,16 @@ namespace Mirror.Examples.LagCompensationDemo
             }
 
             // draw mesh cubes of the history, with the current collider's size
+            Gizmos.color = historyColor;
             foreach (KeyValuePair<double, Capture2D> kvp in history)
-            {
-                // is this the latest result?
-                bool isResult = showResult && (kvp.Key == resultBefore.timestamp || kvp.Key == resultAfter.timestamp);
-
-                Gizmos.color = isResult ? Color.cyan : historyColor;
                 Gizmos.DrawWireCube(kvp.Value.position, kvp.Value.size);
+
+            // draw result samples after. useful to see the selection process.
+            if (showResult)
+            {
+                Gizmos.color = Color.cyan;
+                Gizmos.DrawWireCube(resultBefore.position, resultBefore.size);
+                Gizmos.DrawWireCube(resultAfter.position, resultAfter.size);
             }
         }
     }
