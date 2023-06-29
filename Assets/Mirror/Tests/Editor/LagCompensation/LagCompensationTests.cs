@@ -46,7 +46,11 @@ namespace Mirror.Tests
             Assert.That(history.ElementAt(0).Value.value, Is.EqualTo(10));
             Assert.That(history.ElementAt(1).Value.value, Is.EqualTo(20));
             Assert.That(history.ElementAt(2).Value.value, Is.EqualTo(30));
+        }
 
+        [Test]
+        public void InsertAboveLimit()
+        {
             // inserting more than limit, should evict the oldest one
             LagCompensation.Insert(history, HistoryLimit, 4, new SimpleCapture(4, 40));
             LagCompensation.Insert(history, HistoryLimit, 5, new SimpleCapture(5, 50));
