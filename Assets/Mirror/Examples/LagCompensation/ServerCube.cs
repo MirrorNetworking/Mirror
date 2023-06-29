@@ -197,12 +197,9 @@ namespace Mirror.Examples.LagCompensationDemo
                 Gizmos.DrawCube(resultInterpolated.position, resultInterpolated.size);
             }
 
-            // draw mesh cubes of the history, with the current collider's size
+            // draw history
             Gizmos.color = historyColor;
-            foreach (KeyValuePair<double, Capture2D> kvp in history)
-            {
-                Gizmos.DrawWireCube(kvp.Value.position, kvp.Value.size);
-            }
+            LagCompensation.DrawGizmos(history);
 
             // draw result samples after. useful to see the selection process.
             if (showResult)

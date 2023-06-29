@@ -15,6 +15,8 @@ namespace Mirror.Tests
             this.timestamp = timestamp;
             this.value = value;
         }
+
+        public void DrawGizmo() {}
     }
 
     public class LagCompensationTests

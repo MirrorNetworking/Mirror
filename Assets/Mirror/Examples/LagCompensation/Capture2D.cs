@@ -15,6 +15,11 @@ namespace Mirror.Examples.LagCompensationDemo
             this.size = size;
         }
 
+        public void DrawGizmo()
+        {
+            Gizmos.DrawWireCube(position, size);
+        }
+
         public static Capture2D Interpolate(Capture2D from, Capture2D to, double t) =>
             new Capture2D(
                 0, // interpolated snapshot is applied directly. don't need timestamps.

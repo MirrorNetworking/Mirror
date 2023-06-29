@@ -92,5 +92,14 @@ namespace Mirror
             double latency = rtt / 2;
             return serverTime - latency - bufferTime;
         }
+
+        // convenience function to draw all history gizmos.
+        // this should be called from OnDrawGizmos.
+        public static void DrawGizmos<T>(Queue<KeyValuePair<double, T>> history)
+            where T : Capture
+        {
+            foreach (KeyValuePair<double, T> entry in history)
+                entry.Value.DrawGizmo();
+        }
     }
 }
