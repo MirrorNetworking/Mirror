@@ -45,7 +45,10 @@ namespace Mirror
             t = 0;
 
             // can't sample an empty history
-            if(history.Count == 0) {
+            // interpolation needs at least one entry.
+            // extrapolation needs at least two entries.
+            //   can't Lerp(A, A, 1.5). dist(A, A) * 1.5 is always 0.
+            if(history.Count < 2) {
                 return false;
             }
 
@@ -56,6 +59,7 @@ namespace Mirror
 
             // iterate through the history
             KeyValuePair<double, T> prev = new KeyValuePair<double, T>();
+            KeyValuePair<double, T> prevPrev = new KeyValuePair<double, T>();
             foreach(KeyValuePair<double, T> entry in history) {
                 // exact match?
                 if (timestamp == entry.Key) {
@@ -73,6 +77,9 @@ namespace Mirror
                     return true;
                 }
 
+                // remember the last two for extrapolation.
+                // Queue doesn't have access to .Last.
+                prevPrev = prev;
                 prev = entry;
             }
 
@@ -88,8 +95,12 @@ namespace Mirror
             // => extrapolation is the best solution. make sure this works as
             //    expected and within limits.
             if (prev.Key < timestamp && timestamp <= prev.Key + interval) {
-                before = prev.Value;
+                // return the last two valid snapshots.
+                // can't just return (after, after) because we can't extrapolate
+                // if their distance is 0.
+                before = prevPrev.Value;
                 after = prev.Value;
+
                 // InverseLerp will give [after, after+interval].
                 // but we return [before, after, t].
                 // so add +1 for the distance from before->after

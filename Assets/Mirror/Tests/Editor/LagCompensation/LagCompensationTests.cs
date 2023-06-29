@@ -81,8 +81,25 @@ namespace Mirror.Tests
         [Test]
         public void Sample_Single_Interpolate()
         {
+            // always need at least two values
+            LagCompensation.Insert(history, HistoryLimit, 1, new SimpleCapture(1, 10));
+            Assert.That(LagCompensation.Sample(history, 0.5, Interval, out _, out _, out _), Is.False);
+        }
+
+        [Test]
+        public void Sample_Single_Extrapolate()
+        {
             // insert a few
             LagCompensation.Insert(history, HistoryLimit, 1, new SimpleCapture(1, 10));
+            Assert.That(LagCompensation.Sample(history, 1.5, Interval, out _, out _, out _), Is.False);
+        }
+
+        [Test]
+        public void Sample_Double_Interpolate()
+        {
+            // always need at least two values
+            LagCompensation.Insert(history, HistoryLimit, 1, new SimpleCapture(1, 10));
+            LagCompensation.Insert(history, HistoryLimit, 2, new SimpleCapture(2, 20));
 
             // sample older than first
             Assert.That(LagCompensation.Sample(history, 0, Interval, out SimpleCapture before, out SimpleCapture after, out double t), Is.False);
@@ -92,23 +109,30 @@ namespace Mirror.Tests
             Assert.That(before.value, Is.EqualTo(10));
             Assert.That(after.value, Is.EqualTo(10));
             Assert.That(t, Is.EqualTo(0.0));
+
+            // sample between first and second
+            Assert.That(LagCompensation.Sample(history, 1.5, Interval, out before, out after, out t), Is.True);
+            Assert.That(before.value, Is.EqualTo(10));
+            Assert.That(after.value, Is.EqualTo(20));
+            Assert.That(t, Is.EqualTo(0.5));
         }
 
         [Test]
-        public void Sample_Single_Extrapolate()
+        public void Sample_Double_Extrapolate()
         {
             // insert a few
             LagCompensation.Insert(history, HistoryLimit, 1, new SimpleCapture(1, 10));
+            LagCompensation.Insert(history, HistoryLimit, 2, new SimpleCapture(2, 20));
 
             // sample newer than newest: should extrapolate even if we only have one entry
-            Assert.That(LagCompensation.Sample(history, 2, Interval, out SimpleCapture before, out SimpleCapture after, out double t), Is.True);
+            Assert.That(LagCompensation.Sample(history, 2.5, Interval, out SimpleCapture before, out SimpleCapture after, out double t), Is.True);
             Assert.That(before.value, Is.EqualTo(10));
-            Assert.That(after.value, Is.EqualTo(10));
-            Assert.That(t, Is.EqualTo(2.0));
+            Assert.That(after.value, Is.EqualTo(20));
+            Assert.That(t, Is.EqualTo(1.5));
         }
 
         [Test]
-        public void Sample_Interpolate()
+        public void Sample_Triple_Interpolate()
         {
             // insert a few
             LagCompensation.Insert(history, HistoryLimit, 1, new SimpleCapture(1, 10));
@@ -150,7 +174,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void Sample_Extrapolate()
+        public void Sample_Triple_Extrapolate()
         {
             // let's say we capture every 100 ms:
             // 100, 200, 300, 400
@@ -172,13 +196,13 @@ namespace Mirror.Tests
             // this should return before=after=3, with t=1.9.
             // the user can then extrapolate manually.
             Assert.That(LagCompensation.Sample(history, 3.9, Interval, out SimpleCapture before, out SimpleCapture after, out double t), Is.True);
-            Assert.That(before.value, Is.EqualTo(30));
+            Assert.That(before.value, Is.EqualTo(20));
             Assert.That(after.value, Is.EqualTo(30));
             Assert.That(t, Is.EqualTo(1.9));
 
             // exactly interval is still fine
             Assert.That(LagCompensation.Sample(history, 4, Interval, out before, out after, out t), Is.True);
-            Assert.That(before.value, Is.EqualTo(30));
+            Assert.That(before.value, Is.EqualTo(20));
             Assert.That(after.value, Is.EqualTo(30));
             Assert.That(t, Is.EqualTo(2.0));
 
