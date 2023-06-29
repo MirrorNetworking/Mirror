@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -148,12 +149,19 @@ namespace Mirror.Examples.LagCompensationDemo
         // client says: "I was clicked here, at this time."
         // server needs to rollback to validate.
         // timestamp is the client's snapshot interpolated timeline!
-        public bool CmdClicked(double timestamp, Vector2 position)
+        public bool CmdClicked(Vector2 position)
         {
-            Debug.Log($"CmdClicked: timestamp={timestamp:F3} position={position}");
+            // never trust the client: estimate client time instead.
+            // https://developer.valvesoftware.com/wiki/Source_Multiplayer_Networking
+            double rtt = latency * 2;
+            double estimatedTime = LagCompensation.EstimateTime(NetworkTime.localTime, rtt, client.bufferTime);
+
+            // compare estimated time with actual client time for debugging
+            double error = Math.Abs(estimatedTime - client.localTimeline);
+            Debug.Log($"CmdClicked: serverTime={NetworkTime.localTime:F3} clientTime={client.localTimeline:F3} estimatedTime={estimatedTime:F3} estimationError={error:F3} position={position}");
 
             // sample the history to get the nearest snapshots around 'timestamp'
-            if (LagCompensation.Sample(history, timestamp, out resultBefore, out resultAfter, out double t))
+            if (LagCompensation.Sample(history, estimatedTime, out resultBefore, out resultAfter, out double t))
             {
                 // interpolate to get a decent estimation at exactly 'timestamp'
                 resultInterpolated = Capture2D.Interpolate(resultBefore, resultAfter, t);
@@ -167,7 +175,7 @@ namespace Mirror.Examples.LagCompensationDemo
                 }
                 else Debug.Log($"CmdClicked: interpolated={resultInterpolated} doesn't contain {position}");
             }
-            else Debug.Log($"CmdClicked: history doesn't contain {timestamp:F3}");
+            else Debug.Log($"CmdClicked: history doesn't contain {estimatedTime:F3}");
 
             return false;
         }

@@ -28,7 +28,7 @@ namespace Mirror.Examples.LagCompensationDemo
         // for smooth interpolation, we need to interpolate along server time.
         // any other time (arrival on client, client local time, etc.) is not
         // going to give smooth results.
-        double localTimeline;
+        internal double localTimeline;
 
         // catchup / slowdown adjustments are applied to timescale,
         // to be adjusted in every update instead of when receiving messages.
@@ -147,9 +147,9 @@ namespace Mirror.Examples.LagCompensationDemo
 
         void OnMouseDown()
         {
-            // send the command with the client's time.
+            // send the command.
             // only x coordinate matters for this simple example.
-            if (server.CmdClicked(localTimeline, transform.position))
+            if (server.CmdClicked(transform.position))
             {
                 Debug.Log($"Click hit!");
                 FlashColor(hitColor);
