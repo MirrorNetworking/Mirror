@@ -54,6 +54,9 @@ namespace Mirror.Tests
         public void InsertAboveLimit()
         {
             // inserting more than limit, should evict the oldest one
+            LagCompensation.Insert(history, HistoryLimit, 1, new SimpleCapture(1, 10));
+            LagCompensation.Insert(history, HistoryLimit, 2, new SimpleCapture(2, 20));
+            LagCompensation.Insert(history, HistoryLimit, 3, new SimpleCapture(3, 30));
             LagCompensation.Insert(history, HistoryLimit, 4, new SimpleCapture(4, 40));
             LagCompensation.Insert(history, HistoryLimit, 5, new SimpleCapture(5, 50));
 

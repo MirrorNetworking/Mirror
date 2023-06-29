@@ -22,7 +22,7 @@ namespace Mirror
         {
             // make space according to history limit.
             // do this before inserting, to avoid resizing past capacity.
-            if (history.Count > historyLimit)
+            if (history.Count >= historyLimit)
                 history.Dequeue();
 
             // insert
