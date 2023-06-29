@@ -31,6 +31,10 @@ namespace Mirror
 
         // get the two snapshots closest to a given timestamp.
         // those can be used to interpolate the exact snapshot at that time.
+        // if timestamp is newer than the newest history entry, then we extrapolate.
+        //   't' will be between 1 and 2, before is second last, after is last.
+        //   callers should Lerp(before, after, t=1.5) to extrapolate the hit.
+        //   see comments below for extrapolation.
         public static bool Sample<T>(
             Queue<KeyValuePair<double, T>> history,
             double timestamp, // current server time
