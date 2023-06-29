@@ -874,7 +874,7 @@ namespace Mirror.Tests.NetworkBehaviours
         [Test]
         public void DeeplyNested()
         {
-            GameObject go = new GameObject("Nesting");
+            CreateGameObject(out GameObject go);
             go.AddComponent<NetworkIdentity>();
             Parent.Child.GrandChild comp = go.AddComponent<Parent.Child.GrandChild>();
             Assert.That(comp.Weaved(), Is.True);
