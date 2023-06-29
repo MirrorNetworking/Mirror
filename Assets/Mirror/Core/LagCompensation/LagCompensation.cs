@@ -7,28 +7,28 @@ namespace Mirror
 {
     public static class LagCompensation
     {
-        // TODO ringbuffer
-        // history is of <timestamp, capture>
+        // history is of <timestamp, capture>.
+        // Queue allows for fast 'remove first' and 'append last'.
         public static void Insert<T>(
-            List<KeyValuePair<double, T>> history,
+            Queue<KeyValuePair<double, T>> history,
             int historyLimit,
             double timestamp,
             T capture)
             where T : Capture
         {
-            // insert
-            history.Add(new KeyValuePair<double, T>(timestamp, capture));
-
-            // make space according to history limit
+            // make space according to history limit.
+            // do this before inserting, to avoid resizing past capacity.
             if (history.Count > historyLimit)
-                history.RemoveAt(0);
+                history.Dequeue();
+
+            // insert
+            history.Enqueue(new KeyValuePair<double, T>(timestamp, capture));
         }
 
         // get the two snapshots closest to a given timestamp.
         // those can be used to interpolate the exact snapshot at that time.
-        // TODO better data structure for faster lookup
         public static bool Sample<T>(
-            List<KeyValuePair<double, T>> history,
+            Queue<KeyValuePair<double, T>> history,
             double timestamp,
             out T before,
             out T after,
@@ -45,27 +45,30 @@ namespace Mirror
             }
 
             // older than oldest
-            if (timestamp < history[0].Key) {
+            if (timestamp < history.Peek().Key) {
                 return false;
             }
 
             // iterate through the history
-            for (int i = 0; i < history.Count; i++) {
+            KeyValuePair<double, T> prev = new KeyValuePair<double, T>();
+            foreach(KeyValuePair<double, T> entry in history) {
                 // exact match?
-                if (timestamp == history[i].Key) {
-                    before = history[i].Value;
-                    after = history[i].Value;
+                if (timestamp == entry.Key) {
+                    before = entry.Value;
+                    after = entry.Value;
                     t = Mathd.InverseLerp(before.timestamp, after.timestamp, timestamp);
                     return true;
                 }
 
                 // did we check beyond timestamp? then return the previous two.
-                if (history[i].Key > timestamp) {
-                    before = history[i-1].Value;
-                    after = history[i].Value;
+                if (entry.Key > timestamp) {
+                    before = prev.Value;
+                    after = entry.Value;
                     t = Mathd.InverseLerp(before.timestamp, after.timestamp, timestamp);
                     return true;
                 }
+
+                prev = entry;
             }
 
             // newer than newest

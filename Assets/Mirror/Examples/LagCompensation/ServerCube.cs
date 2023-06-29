@@ -27,8 +27,7 @@ namespace Mirror.Examples.LagCompensationDemo
         double lastCaptureTime;
 
         // lag compensation history of <timestamp, capture>
-        // TODO ringbuffer with time key
-        List<KeyValuePair<double, Capture2D>> history = new List<KeyValuePair<double, Capture2D>>();
+        Queue<KeyValuePair<double, Capture2D>> history = new Queue<KeyValuePair<double, Capture2D>>();
 
         public Color historyColor = Color.white;
 
