@@ -94,7 +94,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void Sample()
+        public void Sample_Interpolate()
         {
             // insert a few
             LagCompensation.Insert(history, HistoryLimit, 1, new SimpleCapture(1, 10));
@@ -136,6 +136,40 @@ namespace Mirror.Tests
 
             // sample older than third
             Assert.That(LagCompensation.Sample(history, 4, out before, out after, out t), Is.False);
+        }
+
+        [Test]
+        public void Sample_Extrapolate()
+        {
+            // let's say we capture every 100 ms:
+            // 100, 200, 300, 400
+            // and the server is at 499
+            // if a client sends CmdFire at time 480, then there's no history entry.
+            // => adding the current entry every time would be too expensive.
+            //    worst case we would capture at 401, 402, 403, 404, ... 100 times
+            // => not extrapolating isn't great. low latency clients would be
+            //    punished by missing their targets since no entry at 'time' was found.
+            // => extrapolation is the best solution. make sure this works as
+            //    expected and within limits.
+
+            // insert a few
+            LagCompensation.Insert(history, HistoryLimit, 1, new SimpleCapture(1, 10));
+            LagCompensation.Insert(history, HistoryLimit, 2, new SimpleCapture(2, 20));
+            LagCompensation.Insert(history, HistoryLimit, 3, new SimpleCapture(3, 30));
+
+            // sample at 3.9, just before we capture the next one.
+            // this should return before=after=3, with t=1.9.
+            // the user can then extrapolate manually.
+            Assert.That(LagCompensation.Sample(history, 3.9, out SimpleCapture before, out SimpleCapture after, out double t), Is.True);
+            Assert.That(before.value, Is.EqualTo(30));
+            Assert.That(after.value, Is.EqualTo(30));
+            Assert.That(t, Is.EqualTo(1.9));
+
+            // it should never extrapolate furter than one interval.
+            Assert.That(LagCompensation.Sample(history, 4.5, out before, out after, out t), Is.True);
+            Assert.That(before.value, Is.EqualTo(30));
+            Assert.That(after.value, Is.EqualTo(30));
+            Assert.That(t, Is.EqualTo(2.0)); // limit at one interval worth
         }
 
         [Test]
