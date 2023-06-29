@@ -9,6 +9,10 @@ namespace Mirror
     {
         // history is of <timestamp, capture>.
         // Queue allows for fast 'remove first' and 'append last'.
+        //
+        // make sure to always insert in order.
+        // inserting out of order like [1,2,4,3] would cause issues.
+        // can't safeguard this because Queue doesn't have .Last access.
         public static void Insert<T>(
             Queue<KeyValuePair<double, T>> history,
             int historyLimit,
