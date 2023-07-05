@@ -292,6 +292,10 @@ namespace Mirror
         // BUT internal so tests can add them after creating the NetworkIdentity
         internal void InitializeNetworkBehaviours()
         {
+            // already setup
+            if (NetworkBehaviours != null)
+                return;
+            
             // Get all NetworkBehaviour components, including children.
             // Some users need NetworkTransform on child bones, etc.
             // => Deterministic: https://forum.unity.com/threads/getcomponentsinchildren.4582/#post-33983
@@ -1043,6 +1047,11 @@ namespace Mirror
         // deserialize components from server on the client.
         internal void DeserializeClient(NetworkReader reader, bool initialState)
         {
+            // If this object is disabled then Awake will not have been called yet so we need to Init here
+            // This might happen if this is a scene object that is a child of a disabled object
+            if (NetworkBehaviours == null)
+                InitializeNetworkBehaviours();
+            
             // ensure NetworkBehaviours are valid before usage
             ValidateComponents();
             NetworkBehaviour[] components = NetworkBehaviours;
