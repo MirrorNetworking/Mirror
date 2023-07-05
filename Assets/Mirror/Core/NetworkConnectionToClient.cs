@@ -248,7 +248,11 @@ namespace Mirror
             {
                 if (netIdentity != null)
                 {
-                    NetworkServer.Destroy(netIdentity.gameObject);
+                    // dont destroy scene objects
+                    if (netIdentity.sceneId != 0) 
+                        NetworkServer.UnSpawn(netIdentity.gameObject);
+                    else
+                        NetworkServer.Destroy(netIdentity.gameObject);
                 }
             }
 
