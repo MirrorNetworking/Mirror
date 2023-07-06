@@ -183,7 +183,7 @@ namespace Mirror
             }
         }
 
-        void UpdatePing()
+        protected virtual void UpdatePing()
         {
             // localTime (double) instead of Time.time for accuracy over days
             if (NetworkTime.localTime >= lastPingTime + NetworkTime.PingInterval)
