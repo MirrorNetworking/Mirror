@@ -1193,11 +1193,12 @@ namespace Mirror
             foreach (NetworkIdentity identity in allIdentities)
             {
                 // add all unspawned NetworkIdentities to spawnable objects
-                // need to ensure it's not active yet because
+                // need to check netId to make sure object is not spawned
+                // fixes: https://github.com/MirrorNetworking/Mirror/issues/3541
                 // PrepareToSpawnSceneObjects may be called multiple times in case
                 // the ObjectSpawnStarted message is received multiple times.
                 if (Utils.IsSceneObject(identity) &&
-                    !identity.gameObject.activeSelf)
+                    identity.netId == 0)
                 {
                     if (spawnableObjects.TryGetValue(identity.sceneId, out NetworkIdentity existingIdentity))
                     {
