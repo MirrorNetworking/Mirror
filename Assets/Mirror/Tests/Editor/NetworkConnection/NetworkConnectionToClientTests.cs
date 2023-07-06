@@ -35,6 +35,7 @@ namespace Mirror.Tests.NetworkConnections
         {
             // create connection and send
             NetworkConnectionToClient connection = new NetworkConnectionToClient(42);
+            NetworkTime.PingInterval = float.MaxValue; // disable ping for this test
             byte[] message = {0x01, 0x02};
             connection.Send(new ArraySegment<byte>(message));
 
@@ -63,6 +64,7 @@ namespace Mirror.Tests.NetworkConnections
 
             // create connection
             NetworkConnectionToClient connection = new NetworkConnectionToClient(42);
+            NetworkTime.PingInterval = float.MaxValue; // disable ping for this test
 
             // send and update big message
             byte[] message = {0x01, 0x02};
