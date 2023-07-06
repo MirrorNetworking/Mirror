@@ -4,6 +4,7 @@
 //
 // however, some of the old NetworkTime code remains for ping time (rtt).
 // some users may still be using that.
+using System;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 #if !UNITY_2020_3_OR_NEWER
@@ -15,8 +16,16 @@ namespace Mirror
     /// <summary>Synchronizes server time to clients.</summary>
     public static class NetworkTime
     {
-        /// <summary>Ping message frequency, used to calculate network time and RTT</summary>
-        public static float PingFrequency = 2;
+        /// <summary>Ping message interval, used to calculate network time and RTT</summary>
+        public static float PingInterval = 2;
+
+        // DEPRECATED 2023-07-06
+        [Obsolete("NetworkTime.PingFrequency was renamed to PingInterval, because we use it as seconds, not as Hz. Please rename all usages, but keep using it just as before.")]
+        public static float PingFrequency
+        {
+            get => PingInterval;
+            set => PingInterval = value;
+        }
 
         /// <summary>Average out the last few results from Ping</summary>
         public static int PingWindowSize = 6;
@@ -80,7 +89,7 @@ namespace Mirror
         [RuntimeInitializeOnLoadMethod]
         public static void ResetStatics()
         {
-            PingFrequency = 2;
+            PingInterval = 2;
             PingWindowSize = 6;
             lastPingTime = 0;
             _rtt = new ExponentialMovingAverage(PingWindowSize);
@@ -92,7 +101,7 @@ namespace Mirror
         internal static void UpdateClient()
         {
             // localTime (double) instead of Time.time for accuracy over days
-            if (localTime >= lastPingTime + PingFrequency)
+            if (localTime >= lastPingTime + PingInterval)
             {
                 NetworkPingMessage pingMessage = new NetworkPingMessage(localTime);
                 NetworkClient.Send(pingMessage, Channels.Unreliable);
