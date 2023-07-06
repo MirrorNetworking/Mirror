@@ -99,7 +99,7 @@ namespace Mirror.Weaver
                         // we can not control the order.
                         // instead, Log an error to suggest adding a SetSyncVar(value) function.
                         // this is a very easy solution for a very rare edge case.
-                        Log.Error($"'[SyncVar] {opFieldstRef.Name}' in '{md.Module.Name}' is modified by '{md.FullName}' in '{field.Module.Name}'. Modifying a [SyncVar] from another assembly is not supported. Please add a: 'public void Set{opFieldstRef.Name}(value) {{ {opFieldstRef.Name} = value; }}' function in '{opFieldstRef.DeclaringType.Name}' and call this function from '{md.FullName}' instead.");
+                        Log.Error($"'[SyncVar] {opFieldstRef.Name}' in '{md.Module.Name}' is modified by '{md.FullName}' in '{field.Module.Name}'. Modifying a [SyncVar] from another assembly is not supported. Please add a: 'public void Set{opFieldstRef.Name}(value) {{ this.{opFieldstRef.Name} = value; }}' function in '{opFieldstRef.DeclaringType.Name}' and call this function from '{md.FullName}' instead.");
                     }
                 }
             }
