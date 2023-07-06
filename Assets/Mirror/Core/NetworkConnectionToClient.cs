@@ -49,6 +49,10 @@ namespace Mirror
         // ping for rtt (round trip time)
         // useful for statistics, lag compensation, etc.
         double lastPingTime = 0;
+        internal ExponentialMovingAverage _rtt = new ExponentialMovingAverage(NetworkTime.PingWindowSize);
+
+        /// <summary>Round trip time (in seconds) that it takes a message to go server->client->server.</summary>
+        public double rtt => _rtt.Value;
 
         public NetworkConnectionToClient(int networkConnectionId)
             : base(networkConnectionId)
