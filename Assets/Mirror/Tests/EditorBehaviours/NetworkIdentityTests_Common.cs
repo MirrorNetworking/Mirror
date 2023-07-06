@@ -111,6 +111,10 @@ namespace Mirror.Tests.EditorBehaviours.NetworkIdentities
     public class SyncVarTest1NetworkBehaviour : NetworkBehaviour
     {
         [SyncVar] public int value;
+
+        // function to modify the [SyncVar] from other assemblies.
+        // workaround for https://github.com/MirrorNetworking/Mirror/issues/3525
+        public void SetValue(int n) => value = n;
     }
 
     public class SyncVarTest2NetworkBehaviour : NetworkBehaviour
