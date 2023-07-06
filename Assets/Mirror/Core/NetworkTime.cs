@@ -114,10 +114,10 @@ namespace Mirror
         // and time from the server
         internal static void OnServerPing(NetworkConnectionToClient conn, NetworkPingMessage message)
         {
-            // Debug.Log($"OnPingServerMessage conn:{conn}");
+            // Debug.Log($"OnServerPing conn:{conn}");
             NetworkPongMessage pongMessage = new NetworkPongMessage
             {
-                clientTime = message.clientTime,
+                localTime = message.localTime,
             };
             conn.Send(pongMessage, Channels.Unreliable);
         }
@@ -128,7 +128,7 @@ namespace Mirror
         internal static void OnClientPong(NetworkPongMessage message)
         {
             // how long did this message take to come back
-            double newRtt = localTime - message.clientTime;
+            double newRtt = localTime - message.localTime;
             _rtt.Add(newRtt);
         }
     }
