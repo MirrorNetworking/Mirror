@@ -88,12 +88,18 @@ namespace Mirror.Weaver
                 // https://github.com/MirrorNetworking/Mirror/issues/3525
                 else if (instr.Operand is FieldReference opFieldstRef)
                 {
-                    // [SyncVar]?
+                    // resolve it from the other assembly
                     FieldDefinition field = opFieldstRef.Resolve();
+
+                    // [SyncVar]?
                     if (field.HasCustomAttribute<SyncVarAttribute>())
                     {
-                        // TODO support this: accessList needs refs; and need two passes?
-                        Log.Error($"'{md.FullName}' in {md.Module.Name} modifies '[SyncVar] {opFieldstRef.Name}' in another assembly: {field.Module.Name}. This is not supported yet, and would silently fail serialization at runtime. Please move the [SyncVar]'s type into the same Assembly.");
+                        // ILPostProcessor would need to Process() the assembly's
+                        // references before processing this one.
+                        // we can not control the order.
+                        // instead, Log an error to suggest adding a SetSyncVar(value) function.
+                        // this is a very easy solution for a very rare edge case.
+                        Log.Error($"'[SyncVar] {opFieldstRef.Name}' in '{md.Module.Name}' is modified by '{md.FullName}' in '{field.Module.Name}'. Modifying a [SyncVar] from another assembly is not supported. Please add a: 'public void Set{opFieldstRef.Name}(value) {{ {opFieldstRef.Name} = value; }}' function in '{opFieldstRef.DeclaringType.Name}' and call this function from '{md.FullName}' instead.");
                     }
                 }
             }
