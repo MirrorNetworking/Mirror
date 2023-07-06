@@ -1194,6 +1194,7 @@ namespace Mirror
             {
                 // add all unspawned NetworkIdentities to spawnable objects
                 // need to check netId to make sure object is not spawned
+                // fixes: https://github.com/MirrorNetworking/Mirror/issues/3541
                 // PrepareToSpawnSceneObjects may be called multiple times in case
                 // the ObjectSpawnStarted message is received multiple times.
                 if (Utils.IsSceneObject(identity) &&
