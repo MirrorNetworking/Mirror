@@ -303,7 +303,7 @@ namespace Mirror
 
 #if UNITY_EDITOR
             if (GetComponent<NetworkIdentity>() == null &&
-#if UNITY_2020_3_OR_NEWER
+#if UNITY_2021_OR_NEWER
                 GetComponentInParent<NetworkIdentity>(true) == null)
 #else
                 GetComponentInParent<NetworkIdentity>() == null)
