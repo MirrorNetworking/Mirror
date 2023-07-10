@@ -375,13 +375,17 @@ namespace Mirror
             }
         }
 
+        // expose our AssetId Guid to uint mapping code in case projects need to map Guids to uint as well.
+        // this way their projects won't break if we change our mapping algorithm.
+        public static uint AssetGuidToUint(Guid guid) => (uint)guid.GetHashCode(); // deterministic
+
         void AssignAssetID(string path)
         {
             // only set if not empty. fixes https://github.com/vis2k/Mirror/issues/2765
             if (!string.IsNullOrWhiteSpace(path))
             {
                 Guid guid = new Guid(AssetDatabase.AssetPathToGUID(path));
-                assetId = (uint)guid.GetHashCode(); // deterministic
+                assetId = AssetGuidToUint(guid);
             }
         }
 
