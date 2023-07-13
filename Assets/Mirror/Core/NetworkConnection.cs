@@ -49,7 +49,14 @@ namespace Mirror
         //
         // depending on the transport, this can give 10x performance.
         //
-        // Dictionary<channelId, batch> because we have multiple channels.
+        // define batchers for the two default channels explicitly.
+        // Mirror only ever uses reliable and unreliable unless users specify their own channels in the few transports
+        // that support them
+        // this is faster than a Dict<channel, batcher>:
+        // https://github.com/MirrorNetworking/Mirror/pull/3382
+        protected Batcher reliableBatcher;
+        protected Batcher unreliableBatcher;
+        // Any batchers for custom channels (not Reliable or Unreliable) are in here:
         protected Dictionary<int, Batcher> batches = new Dictionary<int, Batcher>();
 
         /// <summary>last batch's remote timestamp. not interpolated. useful for NetworkTransform etc.</summary>
@@ -73,20 +80,43 @@ namespace Mirror
             connectionId = networkConnectionId;
         }
 
-        // TODO if we only have Reliable/Unreliable, then we could initialize
-        // two batches and avoid this code
+        private Batcher CreateBatcher(int channelId)
+        {
+            // get max batch size for this channel
+            int threshold = Transport.active.GetBatchThreshold(channelId);
+
+            // create batcher
+            return new Batcher(threshold);
+        }
+
         protected Batcher GetBatchForChannelId(int channelId)
         {
+            // having hard-coded lookups for the most common channels is unfortunately worth it, performance wise
+            // on busy servers this can save 5%-10% main thread cpu usage depending on how message heavy they are
+            if (channelId == Channels.Reliable)
+            {
+                if (reliableBatcher == null)
+                {
+                    reliableBatcher = CreateBatcher(channelId);
+                }
+                return reliableBatcher;
+            }
+
+            if (channelId == Channels.Unreliable)
+            {
+                if (unreliableBatcher == null)
+                {
+                    unreliableBatcher = CreateBatcher(channelId);
+                }
+                return unreliableBatcher;
+            }
+
+            // handle custom (not Reliable or Unreliable) channels
             // get existing or create new writer for the channelId
             Batcher batch;
             if (!batches.TryGetValue(channelId, out batch))
             {
-                // get max batch size for this channel
-                int threshold = Transport.active.GetBatchThreshold(channelId);
-
-                // create batcher
-                batch = new Batcher(threshold);
-                batches[channelId] = batch;
+                batches[channelId] = batch = CreateBatcher(channelId);
             }
             return batch;
         }
@@ -162,37 +192,55 @@ namespace Mirror
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected abstract void SendToTransport(ArraySegment<byte> segment, int channelId = Channels.Reliable);
 
+        internal void UpdateBatcher(int channelId, Batcher batcher)
+        {
+            // make and send as many batches as necessary from the stored
+            // messages.
+            using (NetworkWriterPooled writer = NetworkWriterPool.Get())
+            {
+                // make a batch with our local time (double precision)
+                while (batcher.GetBatch(writer))
+                {
+                    // validate packet before handing the batch to the
+                    // transport. this guarantees that we always stay
+                    // within transport's max message size limit.
+                    // => just in case transport forgets to check it
+                    // => just in case mirror miscalulated it etc.
+                    ArraySegment<byte> segment = writer.ToArraySegment();
+                    if (ValidatePacketSize(segment, channelId))
+                    {
+                        // send to transport
+                        SendToTransport(segment, channelId);
+                        //UnityEngine.Debug.Log($"sending batch of {writer.Position} bytes for channel={kvp.Key} connId={connectionId}");
+
+                        // reset writer for each new batch
+                        writer.Position = 0;
+                    }
+                }
+            }
+        }
+
         // flush batched messages at the end of every Update.
         internal virtual void Update()
         {
             // go through batches for all channels
+            
+            // mirror default ones (Reliable/Unreliable)
+            if (reliableBatcher != null)
+            {
+                UpdateBatcher(Channels.Reliable, reliableBatcher);
+            }
+
+            if (unreliableBatcher != null)
+            {
+                UpdateBatcher(Channels.Unreliable, unreliableBatcher);
+            }
+
+            // update custom (non-Reliable/Unreliable) channels
             // foreach ((int key, Batcher batcher) in batches) // Unity 2020 doesn't support deconstruct yet
             foreach (KeyValuePair<int, Batcher> kvp in batches)
             {
-                // make and send as many batches as necessary from the stored
-                // messages.
-                using (NetworkWriterPooled writer = NetworkWriterPool.Get())
-                {
-                    // make a batch with our local time (double precision)
-                    while (kvp.Value.GetBatch(writer))
-                    {
-                        // validate packet before handing the batch to the
-                        // transport. this guarantees that we always stay
-                        // within transport's max message size limit.
-                        // => just in case transport forgets to check it
-                        // => just in case mirror miscalulated it etc.
-                        ArraySegment<byte> segment = writer.ToArraySegment();
-                        if (ValidatePacketSize(segment, kvp.Key))
-                        {
-                            // send to transport
-                            SendToTransport(segment, kvp.Key);
-                            //UnityEngine.Debug.Log($"sending batch of {writer.Position} bytes for channel={kvp.Key} connId={connectionId}");
-
-                            // reset writer for each new batch
-                            writer.Position = 0;
-                        }
-                    }
-                }
+                UpdateBatcher(kvp.Key, kvp.Value);
             }
         }
 
