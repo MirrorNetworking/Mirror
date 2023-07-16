@@ -302,8 +302,7 @@ namespace Mirror
             // only run this in Editor. don't add more runtime overhead.
 
 #if UNITY_EDITOR
-            if (GetComponent<NetworkIdentity>() == null &&
-                GetComponentInParent<NetworkIdentity>(true) == null)
+            if(!NetworkServer.GetNetworkIdentity(gameObject, out _))
             {
                 Debug.LogError($"{GetType()} on {name} requires a NetworkIdentity. Please add a NetworkIdentity component to {name} or it's parents.");
             }

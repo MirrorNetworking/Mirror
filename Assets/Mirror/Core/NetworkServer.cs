@@ -840,12 +840,16 @@ namespace Mirror
 
         internal static bool GetNetworkIdentity(GameObject go, out NetworkIdentity identity)
         {
-            if (!go.TryGetComponent(out identity))
-            {
-                Debug.LogError($"GameObject {go.name} doesn't have NetworkIdentity.");
-                return false;
-            }
-            return true;
+            identity = go.GetComponent<NetworkIdentity>();
+            if (identity != null)
+                return true;
+
+            identity = go.GetComponentInParent<NetworkIdentity>(true);
+            if (identity != null)
+                return true;
+
+            Debug.LogError($"GameObject {go.name} doesn't have NetworkIdentity.");
+            return false;
         }
 
         // disconnect //////////////////////////////////////////////////////////
