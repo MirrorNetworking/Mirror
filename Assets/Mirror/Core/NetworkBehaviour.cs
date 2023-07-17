@@ -296,17 +296,18 @@ namespace Mirror
         protected virtual void OnValidate()
         {
             // we now allow child NetworkBehaviours.
-            // we can not [RequireComponent(typeof(NetworkIdentity))] anymore.
-            // instead, we need to ensure a NetworkIdentity is somewhere in the
-            // parents.
-            // only run this in Editor. don't add more runtime overhead.
+            // we cannot [RequireComponent(typeof(NetworkIdentity))] anymore.
+            // NetworkBehaviour is dependable from NetworkIdentity, so
+            // if any NetworkIdentity validation is required it should be done in NetworkIdentity class
+            // And if any other class needs NetworkBehaviour, it should not get it directly,
+            // but ask for it from NetworkIdentity
 
-#if UNITY_EDITOR
-            if(!NetworkServer.GetNetworkIdentity(gameObject, out _))
-            {
-                Debug.LogError($"{GetType()} on {name} requires a NetworkIdentity. Please add a NetworkIdentity component to {name} or it's parents.");
-            }
-#endif
+            //#if UNITY_EDITOR
+            //if(!NetworkServer.GetNetworkIdentity(gameObject, out _))
+            //{
+            //    Debug.LogError($"{GetType()} on {name} requires a NetworkIdentity. Please add a NetworkIdentity component to {name} or it's parents.");
+            //}
+            //#endif
         }
 
         // pass full function name to avoid ClassA.Func <-> ClassB.Func collisions
