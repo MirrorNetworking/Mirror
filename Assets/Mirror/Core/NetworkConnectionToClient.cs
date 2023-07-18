@@ -46,6 +46,14 @@ namespace Mirror
         // Snapshot Buffer size limit to avoid ever growing list memory consumption attacks from clients.
         public int snapshotBufferSizeLimit = 64;
 
+        // ping for rtt (round trip time)
+        // useful for statistics, lag compensation, etc.
+        double lastPingTime = 0;
+        internal ExponentialMovingAverage _rtt = new ExponentialMovingAverage(NetworkTime.PingWindowSize);
+
+        /// <summary>Round trip time (in seconds) that it takes a message to go server->client->server.</summary>
+        public double rtt => _rtt.Value;
+
         public NetworkConnectionToClient(int networkConnectionId)
             : base(networkConnectionId)
         {
@@ -175,11 +183,28 @@ namespace Mirror
             }
         }
 
+        protected virtual void UpdatePing()
+        {
+            // localTime (double) instead of Time.time for accuracy over days
+            if (NetworkTime.localTime >= lastPingTime + NetworkTime.PingInterval)
+            {
+                // TODO it would be safer for the server to store the last N
+                // messages' timestamp and only send a message number.
+                // This way client's can't just modify the timestamp.
+                NetworkPingMessage pingMessage = new NetworkPingMessage(NetworkTime.localTime);
+                Send(pingMessage, Channels.Unreliable);
+                lastPingTime = NetworkTime.localTime;
+            }
+        }
+
         internal override void Update()
         {
             // send rpc buffers
             FlushRpcs(reliableRpcs, Channels.Reliable);
             FlushRpcs(unreliableRpcs, Channels.Unreliable);
+
+            // ping client for rtt
+            UpdatePing();
 
             // call base update to flush out batched messages
             base.Update();
@@ -250,7 +275,7 @@ namespace Mirror
                 {
                     // unspawn scene objects, destroy instantiated objects.
                     // fixes: https://github.com/MirrorNetworking/Mirror/issues/3538
-                    if (netIdentity.sceneId != 0) 
+                    if (netIdentity.sceneId != 0)
                         NetworkServer.UnSpawn(netIdentity.gameObject);
                     else
                         NetworkServer.Destroy(netIdentity.gameObject);

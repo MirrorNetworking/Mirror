@@ -109,15 +109,16 @@ namespace Mirror
             }
         }
 
+        // client rtt calculation //////////////////////////////////////////////
         // executed at the server when we receive a ping message
         // reply with a pong containing the time from the client
         // and time from the server
         internal static void OnServerPing(NetworkConnectionToClient conn, NetworkPingMessage message)
         {
-            // Debug.Log($"OnPingServerMessage conn:{conn}");
+            // Debug.Log($"OnServerPing conn:{conn}");
             NetworkPongMessage pongMessage = new NetworkPongMessage
             {
-                clientTime = message.clientTime,
+                localTime = message.localTime,
             };
             conn.Send(pongMessage, Channels.Unreliable);
         }
@@ -128,8 +129,32 @@ namespace Mirror
         internal static void OnClientPong(NetworkPongMessage message)
         {
             // how long did this message take to come back
-            double newRtt = localTime - message.clientTime;
+            double newRtt = localTime - message.localTime;
             _rtt.Add(newRtt);
+        }
+
+        // server rtt calculation //////////////////////////////////////////////
+        // Executed at the client when we receive a ping message from the server.
+        // in other words, this is for server sided ping + rtt calculation.
+        // reply with a pong containing the time from the server
+        internal static void OnClientPing(NetworkPingMessage message)
+        {
+            // Debug.Log($"OnClientPing conn:{conn}");
+            NetworkPongMessage pongMessage = new NetworkPongMessage
+            {
+                localTime = message.localTime,
+            };
+            NetworkClient.Send(pongMessage, Channels.Unreliable);
+        }
+
+        // Executed at the server when we receive a Pong message back.
+        // find out how long it took since we sent the Ping
+        // and update time offset
+        internal static void OnServerPong(NetworkConnectionToClient conn, NetworkPongMessage message)
+        {
+            // how long did this message take to come back
+            double newRtt = localTime - message.localTime;
+            conn._rtt.Add(newRtt);
         }
     }
 }

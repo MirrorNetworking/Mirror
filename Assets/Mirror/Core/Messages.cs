@@ -111,22 +111,21 @@ namespace Mirror
         public ArraySegment<byte> payload;
     }
 
-    // A client sends this message to the server
-    // to calculate RTT and synchronize time
+    // whoever wants to measure rtt, sends this to the other end.
     public struct NetworkPingMessage : NetworkMessage
     {
-        public double clientTime;
+        public double localTime;
 
         public NetworkPingMessage(double value)
         {
-            clientTime = value;
+            localTime = value;
         }
     }
 
-    // The server responds with this message
-    // The client can use this to calculate RTT and sync time
+    // the other end responds with this message.
+    // we can use this to calculate rtt.
     public struct NetworkPongMessage : NetworkMessage
     {
-        public double clientTime;
+        public double localTime;
     }
 }

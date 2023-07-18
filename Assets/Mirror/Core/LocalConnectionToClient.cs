@@ -29,6 +29,9 @@ namespace Mirror
         // true because local connections never timeout
         internal override bool IsAlive(float timeout) => true;
 
+        // don't ping host client in host mode
+        protected override void UpdatePing() {}
+
         internal void DisconnectInternal()
         {
             // set not ready and handle clientscene disconnect in any case
