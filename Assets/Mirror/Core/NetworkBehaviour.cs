@@ -301,13 +301,10 @@ namespace Mirror
             // parents.
             // only run this in Editor. don't add more runtime overhead.
 
-#if UNITY_EDITOR
+#if UNITY_EDITOR && UNITY_2021_3_OR_NEWER // UNITY_2021_OR_NEWER is broken, use 2021_3_OR_NEWER
             if (GetComponent<NetworkIdentity>() == null &&
-#if UNITY_2021_OR_NEWER
-                GetComponentInParent<NetworkIdentity>(true) == null)
-#else
-                GetComponentInParent<NetworkIdentity>() == null)
-#endif
+                GetComponentInParent<NetworkIdentity>(true) == null) // only available in 2021+
+                // GetComponentInParent<NetworkIdentity>() == null)  // available in 2020, but broken (IN-48166)
             {
                 Debug.LogError($"{GetType()} on {name} requires a NetworkIdentity. Please add a NetworkIdentity component to {name} or it's parents.");
             }
