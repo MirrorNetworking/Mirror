@@ -301,7 +301,7 @@ namespace Mirror
             // parents.
             // only run this in Editor. don't add more runtime overhead.
 
-            // GetComponentInParent(includeInactive) is needed and only available in 2023+
+            // GetComponentInParent(includeInactive) is needed and only available in 2021+
             // Prefabs are not considered active, so this check requires to scan inactive.
 #if UNITY_EDITOR && UNITY_2021_3_OR_NEWER
             if (GetComponent<NetworkIdentity>() == null &&
