@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
 namespace Mirror.Examples.LagCompensationDemo
@@ -9,7 +10,8 @@ namespace Mirror.Examples.LagCompensationDemo
     {
         [Header("Components")]
         public ClientCube client;
-        public new BoxCollider collider;
+        [FormerlySerializedAs("collider")]
+        public BoxCollider col;
 
         [Header("Movement")]
         public float distance = 10;
@@ -140,7 +142,7 @@ namespace Mirror.Examples.LagCompensationDemo
         void Capture()
         {
             // capture current state
-            Capture2D capture = new Capture2D(NetworkTime.localTime, transform.position, collider.size);
+            Capture2D capture = new Capture2D(NetworkTime.localTime, transform.position, col.size);
 
             // insert into history
             LagCompensation.Insert(history, lagCompensationSettings.historyLimit, NetworkTime.localTime, capture);
