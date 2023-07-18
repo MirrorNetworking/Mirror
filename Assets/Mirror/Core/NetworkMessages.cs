@@ -90,7 +90,6 @@ namespace Mirror
 
         // read only the message id.
         // common function in case we ever change the header size.
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool UnpackId(NetworkReader reader, out ushort messageId)
         {
             // read message type
@@ -108,7 +107,6 @@ namespace Mirror
 
         // version for handlers with channelId
         // inline! only exists for 20-30 messages and they call it all the time.
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static NetworkMessageDelegate WrapHandler<T, C>(Action<C, T, int> handler, bool requireAuthentication)
             where T : struct, NetworkMessage
             where C : NetworkConnection

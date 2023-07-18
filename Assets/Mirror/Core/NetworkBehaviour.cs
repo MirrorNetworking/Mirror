@@ -748,7 +748,6 @@ namespace Mirror
         //          GeneratedSyncVarDeserialize(reader, ref health, null, reader.ReadInt());
         //      }
         //  }
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void GeneratedSyncVarDeserialize<T>(ref T field, Action<T, T> OnChanged, T value)
         {
             T previous = field;
@@ -806,7 +805,6 @@ namespace Mirror
         //           GeneratedSyncVarDeserialize_GameObject(reader, ref target, OnChangedNB, ref ___targetNetId);
         //       }
         //   }
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void GeneratedSyncVarDeserialize_GameObject(ref GameObject field, Action<GameObject, GameObject> OnChanged, NetworkReader reader, ref uint netIdField)
         {
             uint previousNetId = netIdField;
@@ -869,7 +867,6 @@ namespace Mirror
         //           GeneratedSyncVarDeserialize_NetworkIdentity(reader, ref target, OnChangedNI, ref ___targetNetId);
         //       }
         //   }
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void GeneratedSyncVarDeserialize_NetworkIdentity(ref NetworkIdentity field, Action<NetworkIdentity, NetworkIdentity> OnChanged, NetworkReader reader, ref uint netIdField)
         {
             uint previousNetId = netIdField;
@@ -933,7 +930,6 @@ namespace Mirror
         //           GeneratedSyncVarDeserialize_NetworkBehaviour(reader, ref target, OnChangedNB, ref ___targetNetId);
         //       }
         //   }
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void GeneratedSyncVarDeserialize_NetworkBehaviour<T>(ref T field, Action<T, T> OnChanged, NetworkReader reader, ref NetworkBehaviourSyncVar netIdField)
             where T : NetworkBehaviour
         {
@@ -1099,7 +1095,6 @@ namespace Mirror
             DeserializeSyncVars(reader, initialState);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         void SerializeSyncObjects(NetworkWriter writer, bool initialState)
         {
             // if initialState: write all SyncVars.
@@ -1110,7 +1105,6 @@ namespace Mirror
                 SerializeObjectsDelta(writer);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         void DeserializeSyncObjects(NetworkReader reader, bool initialState)
         {
             if (initialState)

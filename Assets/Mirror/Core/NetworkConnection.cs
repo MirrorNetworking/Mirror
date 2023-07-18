@@ -118,7 +118,6 @@ namespace Mirror
 
         // Send stage one: NetworkMessage<T>
         /// <summary>Send a NetworkMessage to this connection over the given channel.</summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Send<T>(T message, int channelId = Channels.Reliable)
             where T : struct, NetworkMessage
         {
@@ -159,7 +158,6 @@ namespace Mirror
         }
 
         // Send stage three: hand off to transport
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected abstract void SendToTransport(ArraySegment<byte> segment, int channelId = Channels.Reliable);
 
         // flush batched messages at the end of every Update.

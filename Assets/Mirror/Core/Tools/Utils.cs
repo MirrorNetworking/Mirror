@@ -131,7 +131,6 @@ namespace Mirror
         }
 
         // universal .spawned function
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static NetworkIdentity GetSpawnedInServerOrClient(uint netId)
         {
             // server / host mode: use the one from server.

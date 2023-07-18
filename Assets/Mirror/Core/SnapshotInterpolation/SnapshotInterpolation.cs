@@ -88,7 +88,6 @@ namespace Mirror
         // extra function so we can use it for both cases:
         //   NetworkClient global timeline insertions & adjustments via Insert<T>.
         //   NetworkBehaviour local insertion without any time adjustments.
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool InsertIfNotExists<T>(
             SortedList<double, T> buffer, // snapshot buffer
             int bufferLimit,              // don't grow infinitely
