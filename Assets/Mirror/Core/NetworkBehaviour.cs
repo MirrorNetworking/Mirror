@@ -301,10 +301,11 @@ namespace Mirror
             // parents.
             // only run this in Editor. don't add more runtime overhead.
 
-#if UNITY_EDITOR && UNITY_2021_3_OR_NEWER // UNITY_2021_OR_NEWER is broken, use 2021_3_OR_NEWER
+            // GetComponentInParent(includeInactive) is needed and only available in 2023+
+            // Prefabs are not considered active, so this check requires to scan inactive.
+#if UNITY_EDITOR && UNITY_2021_3_OR_NEWER
             if (GetComponent<NetworkIdentity>() == null &&
-                GetComponentInParent<NetworkIdentity>(true) == null) // only available in 2021+
-                // GetComponentInParent<NetworkIdentity>() == null)  // available in 2020, but broken (IN-48166)
+                GetComponentInParent<NetworkIdentity>(true) == null)
             {
                 Debug.LogError($"{GetType()} on {name} requires a NetworkIdentity. Please add a NetworkIdentity component to {name} or it's parents.");
             }
