@@ -14,7 +14,7 @@ namespace Mirror
 
         /// <summary>Server Update frequency, per second. Use around 60Hz for fast paced games like Counter-Strike to minimize latency. Use around 30Hz for games like WoW to minimize computations. Use around 1-10Hz for slow paced games like EVE.</summary>
         // overwritten by NetworkManager (if any)
-        public static int tickRate = 30;
+        public static int tickRate = 60;
 
         // tick rate is in Hz.
         // convert to interval in seconds for convenience where needed.
