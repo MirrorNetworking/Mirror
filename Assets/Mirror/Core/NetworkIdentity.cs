@@ -355,6 +355,11 @@ namespace Mirror
 #endif
         }
 
+        // expose our AssetId Guid to uint mapping code in case projects need to map Guids to uint as well.
+        // this way their projects won't break if we change our mapping algorithm.
+        // needs to be available at runtime / builds, don't wrap in #if UNITY_EDITOR
+        public static uint AssetGuidToUint(Guid guid) => (uint)guid.GetHashCode(); // deterministic
+
 #if UNITY_EDITOR
         // child NetworkIdentities are not supported.
         // Disallow them and show an error for the user to fix.
@@ -374,10 +379,6 @@ namespace Mirror
                 Debug.LogError($"'{name}' has another NetworkIdentity component on '{identities[1].name}'. There should only be one NetworkIdentity, and it must be on the root object. Please remove the other one.");
             }
         }
-
-        // expose our AssetId Guid to uint mapping code in case projects need to map Guids to uint as well.
-        // this way their projects won't break if we change our mapping algorithm.
-        public static uint AssetGuidToUint(Guid guid) => (uint)guid.GetHashCode(); // deterministic
 
         void AssignAssetID(string path)
         {
