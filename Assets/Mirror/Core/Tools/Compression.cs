@@ -174,7 +174,7 @@ namespace Mirror
 
         const float QuaternionMinRange = -0.707107f;
         const float QuaternionMaxRange =  0.707107f;
-        const ushort TenBitsMax = 0x3FF;
+        const ushort TenBitsMax = 0b11_1111_1111;
 
         // helper function to access 'nth' component of quaternion
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
