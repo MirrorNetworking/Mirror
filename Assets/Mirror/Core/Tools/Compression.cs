@@ -176,20 +176,6 @@ namespace Mirror
         const float QuaternionMaxRange =  0.707107f;
         const ushort TenBitsMax = 0b11_1111_1111;
 
-        // helper function to access 'nth' component of quaternion
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static float QuaternionElement(Quaternion q, int element)
-        {
-            switch (element)
-            {
-                case 0: return q.x;
-                case 1: return q.y;
-                case 2: return q.z;
-                case 3: return q.w;
-                default: return 0;
-            }
-        }
-
         // note: assumes normalized quaternions
         public static uint CompressQuaternion(Quaternion q)
         {
@@ -206,7 +192,7 @@ namespace Mirror
             // [largest] always positive by negating the entire quaternion if
             // [largest] is negative. in quaternion space (x,y,z,w) and
             // (-x,-y,-z,-w) represent the same rotation."
-            if (QuaternionElement(q, largestIndex) < 0)
+            if (q[largestIndex] < 0)
                 withoutLargest = -withoutLargest;
 
             // put index & three floats into one integer.
