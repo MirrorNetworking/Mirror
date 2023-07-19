@@ -128,6 +128,9 @@ namespace Mirror
         // and update time offset
         internal static void OnClientPong(NetworkPongMessage message)
         {
+            // prevent attackers from sending timestamps which are in the future
+            if (message.localTime > localTime) return;
+
             // how long did this message take to come back
             double newRtt = localTime - message.localTime;
             _rtt.Add(newRtt);
@@ -152,6 +155,9 @@ namespace Mirror
         // and update time offset
         internal static void OnServerPong(NetworkConnectionToClient conn, NetworkPongMessage message)
         {
+            // prevent attackers from sending timestamps which are in the future
+            if (message.localTime > localTime) return;
+
             // how long did this message take to come back
             double newRtt = localTime - message.localTime;
             conn._rtt.Add(newRtt);
