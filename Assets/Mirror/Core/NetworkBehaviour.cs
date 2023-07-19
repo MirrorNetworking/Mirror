@@ -308,16 +308,31 @@ namespace Mirror
             if (GetComponent<NetworkIdentity>() == null &&
                 GetComponentInParent<NetworkIdentity>(true) == null)
             {
-                Debug.LogError($"{GetType()} on {name} requires a NetworkIdentity. Please add a NetworkIdentity component to {name} or it's parents.");
+                LogErrorIfNotNested();
             }
 #elif UNITY_2020_3_OR_NEWER // 2020 only has GetComponentsInParents(active), we can use this too
             NetworkIdentity[] parentsIds = GetComponentsInParent<NetworkIdentity>(true);
             int parentIdsCount = parentsIds != null ? parentsIds.Length : 0;
             if (GetComponent<NetworkIdentity>() == null && parentIdsCount == 0)
             {
-                Debug.LogError($"{GetType()} on {name} requires a NetworkIdentity. Please add a NetworkIdentity component to {name} or it's parents.");
+                LogErrorIfNotNested();
             }
 #endif
+            void LogErrorIfNotNested()
+            {
+                string rootName = GetRoot(transform).name;
+                if (rootName.Contains("_Nested_", StringComparison.InvariantCultureIgnoreCase) )
+                    return;
+                Debug.LogError($"{GetType()} on {name} requires a NetworkIdentity. Please add a NetworkIdentity component to {name} or it's parents." +
+                    "\nIf it is intended for use as part of nested prefab, then the root object name of such prefab should contain _Nested_");
+            }
+            Transform GetRoot(Transform transform)
+            {
+                var root = transform;
+                while (root.parent != null)
+                    root = root.parent;
+                return root;
+            }
 #endif
         }
 
