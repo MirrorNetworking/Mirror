@@ -70,6 +70,12 @@ namespace Mirror
         // by default, everyone observes everyone
         public static InterestManagementBase aoi;
 
+        // Mirror global disconnect inactive option, independent of Transport.
+        // not all Transports do this properly, and it's easiest to configure this just once.
+        // this is very useful for some projects, keep it.
+        public static bool disconnectInactiveConnections;
+        public static float disconnectInactiveTimeout = 60;
+
         // OnConnected / OnDisconnected used to be NetworkMessages that were
         // invoked. this introduced a bug where external clients could send
         // Connected/Disconnected messages over the network causing undefined
@@ -1682,6 +1688,21 @@ namespace Mirror
             }
         }
 
+        // helper function to check a connection for inactivity and disconnect if necessary
+        // returns true if disconnected
+        static bool DisconnectIfInactive(NetworkConnectionToClient connection)
+        {
+            // check for inactivity
+            if (disconnectInactiveConnections &&
+                !connection.IsAlive(disconnectInactiveTimeout))
+            {
+                Debug.LogWarning($"Disconnecting {connection} for inactivity!");
+                connection.Disconnect();
+                return true;
+            }
+            return false;
+        }
+
         // NetworkLateUpdate called after any Update/FixedUpdate/LateUpdate
         // (we add this to the UnityEngine in NetworkLoop)
         // internal for tests
@@ -1704,6 +1725,10 @@ namespace Mirror
             // go through all connections
             foreach (NetworkConnectionToClient connection in connectionsCopy)
             {
+                // check for inactivity. disconnects if necessary.
+                if (DisconnectIfInactive(connection))
+                    continue;
+
                 // has this connection joined the world yet?
                 // for each READY connection:
                 //   pull in UpdateVarsMessage for each entity it observes
