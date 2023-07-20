@@ -385,8 +385,21 @@ namespace Mirror
             // only set if not empty. fixes https://github.com/vis2k/Mirror/issues/2765
             if (!string.IsNullOrWhiteSpace(path))
             {
+                // if we generate the assetId then we MUST be sure to set dirty
+                // in order to save the prefab object properly. otherwise it
+                // would be regenerated every time we reopen the prefab.
+                // -> Undo.RecordObject is the new EditorUtility.SetDirty!
+                // -> we need to call it before changing.
+                //
+                // to verify this, duplicate a prefab and double click to open it.
+                // add a log message if "_assetId != before_".
+                // without RecordObject, it'll log every time because it's not saved.
+                Undo.RecordObject(this, "Assigned AssetId");
+
+                // uint before = _assetId;
                 Guid guid = new Guid(AssetDatabase.AssetPathToGUID(path));
                 assetId = AssetGuidToUint(guid);
+                // if (_assetId != before) Debug.Log($"Assigned assetId={assetId} to {name}");
             }
         }
 
