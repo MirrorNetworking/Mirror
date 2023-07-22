@@ -55,15 +55,11 @@ namespace Mirror
         // -> Every message in a batch has a varuint size header.
         //    use the worst case VarUInt size for the largest possible
         //    message size = int.max.
-        public static int MaxContentSize
+        public static int MaxContentSize(int channelId)
         {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get
-            {
-                // calculate the max possible size that can fit in a batch
-                int transportMax = Transport.active.GetMaxPacketSize();
-                return transportMax - IdSize - Batcher.MaxMessageOverhead(transportMax);
-            }
+            // calculate the max possible size that can fit in a batch
+            int transportMax = Transport.active.GetMaxPacketSize(channelId);
+            return transportMax - IdSize - Batcher.MaxMessageOverhead(transportMax);
         }
 
         // automated message id from type hash.
