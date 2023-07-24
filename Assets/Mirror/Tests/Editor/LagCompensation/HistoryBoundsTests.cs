@@ -120,6 +120,41 @@ namespace Mirror.Tests.LagCompensationTests
             Assert.That(history.total, Is.EqualTo(MinMax(-1, 2)));
         }
 
+        // by default, HistoryBounds.total is new Bounds() which is (0,0).
+        // make sure this isn't included in results by default.
+        [Test]
+        public void InsertFar()
+        {
+            const int limit = 3;
+            HistoryBounds history = new HistoryBounds(limit);
+
+            // insert initial [2, 3].
+            // should calculate new bounds == initial.
+            history.Insert(MinMax(2, 3));
+            Assert.That(history.Count, Is.EqualTo(1));
+            Assert.That(history.total, Is.EqualTo(MinMax(2, 3)));
+
+            // insert [3, 4]
+            // should calculate new bounds == [2, 4].
+            history.Insert(MinMax(3, 4));
+            Assert.That(history.Count, Is.EqualTo(2));
+            Assert.That(history.total, Is.EqualTo(MinMax(2, 4)));
+
+            // insert one that's smaller than current bounds [0.5, 1]
+            // history needs to contain it even if smaller, because once the oldest
+            // largest one gets removed, this one matters too.
+            history.Insert(MinMax(0.5f, 1));
+            Assert.That(history.Count, Is.EqualTo(3));
+            Assert.That(history.total, Is.EqualTo(MinMax(0.5f, 4)));
+
+            // insert more than 'limit'
+            // the oldest one [-1, 1] should be discarded.
+            // new bounds should be [-0.5, 2]
+            history.Insert(MinMax(2, 2));
+            Assert.That(history.Count, Is.EqualTo(3));
+            Assert.That(history.total, Is.EqualTo(MinMax(0.5f, 4)));
+        }
+
         [Test]
         public void Reset()
         {
