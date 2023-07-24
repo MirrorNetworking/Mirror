@@ -12,8 +12,13 @@ namespace Mirror
     {
         // insert current bounds into history. returns new total bounds.
         // Queue.Dequeue() always has the oldest bounds.
-        public static Bounds Insert(Queue<Bounds> history, int limit, Bounds bounds)
+        public static Bounds Insert(
+            Queue<Bounds> history,
+            int limit,
+            Bounds bounds)
         {
+            // optimization: only insert if
+
             // remove oldest if limit reached
             if (history.Count >= limit)
                 history.Dequeue();
@@ -31,15 +36,5 @@ namespace Mirror
 
             return total;
         }
-
-
-        // TODO .bounds that wraps past N bounds
-        // TODO fast data structure to always .encapsulate latest and .remove oldest
-
-        // TODO update:
-        // - capture bounds every few seconds
-        // - build new totalBounds only when capturing, not every .totalBounds call
-
-        // TODO runtime debug gizmo
     }
 }
