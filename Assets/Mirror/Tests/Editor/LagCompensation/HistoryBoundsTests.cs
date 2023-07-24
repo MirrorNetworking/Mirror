@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
 
@@ -45,7 +44,7 @@ namespace Mirror.Tests.LagCompensationTests
                     float min = Random.Range(-1, 1);
                     float max = Random.Range(min, 1);
                     Bounds bounds = MinMax(min, max);
-                    Bounds total = HistoryBoundsAlgo.Insert(history, bounds);
+                    Bounds total = history.Insert(bounds);
                 }
             }
         }
@@ -59,27 +58,27 @@ namespace Mirror.Tests.LagCompensationTests
 
             // insert initial [-1, 1].
             // should calculate new bounds == initial.
-            Bounds total = HistoryBoundsAlgo.Insert(history, MinMax(-1, 1));
+            Bounds total = history.Insert(MinMax(-1, 1));
             Assert.That(history.Count, Is.EqualTo(1));
             Assert.That(total, Is.EqualTo(MinMax(-1, 1)));
 
             // insert [0, 2]
             // should calculate new bounds == [-1, 2].
-            total = HistoryBoundsAlgo.Insert(history, MinMax(0, 2));
+            total = history.Insert(MinMax(0, 2));
             Assert.That(history.Count, Is.EqualTo(2));
             Assert.That(total, Is.EqualTo(MinMax(-1, 2)));
 
             // insert one that's smaller than current bounds [-.5, 0]
             // history needs to contain it even if smaller, because once the oldest
             // largest one gets removed, this one matters too.
-            total = HistoryBoundsAlgo.Insert(history, MinMax(-0.5f, 0));
+            total = history.Insert(MinMax(-0.5f, 0));
             Assert.That(history.Count, Is.EqualTo(3));
             Assert.That(total, Is.EqualTo(MinMax(-1, 2)));
 
             // insert more than 'limit': [0, 0]
             // the oldest one [-1, 1] should be discarded.
             // new bounds should be [-0.5, 2]
-            total = HistoryBoundsAlgo.Insert(history, MinMax(0, 0));
+            total = history.Insert(MinMax(0, 0));
             Assert.That(history.Count, Is.EqualTo(3));
             Assert.That(total, Is.EqualTo(MinMax(-0.5f, 2)));
         }
@@ -94,25 +93,25 @@ namespace Mirror.Tests.LagCompensationTests
 
             // insert initial [-1, 1].
             // should calculate new bounds == initial.
-            Bounds total = HistoryBoundsAlgo.Insert(history, MinMax(-1, 1));
+            Bounds total = history.Insert(MinMax(-1, 1));
             Assert.That(history.Count, Is.EqualTo(1));
             Assert.That(total, Is.EqualTo(MinMax(-1, 1)));
 
             // insert [0, 2]
             // should calculate new bounds == [-1, 2].
-            total = HistoryBoundsAlgo.Insert(history, MinMax(0, 2));
+            total = history.Insert(MinMax(0, 2));
             Assert.That(history.Count, Is.EqualTo(2));
             Assert.That(total, Is.EqualTo(MinMax(-1, 2)));
 
             // visit [-1, 1] again
-            total = HistoryBoundsAlgo.Insert(history, MinMax(-1, 1));
+            total = history.Insert(MinMax(-1, 1));
             Assert.That(history.Count, Is.EqualTo(3));
             Assert.That(total, Is.EqualTo(MinMax(-1, 2)));
 
             // insert beyond limit.
             // oldest one [-1, 1] should be removed.
             // total should still include it because we revisited [1, 1].
-            total = HistoryBoundsAlgo.Insert(history, MinMax(0, 0));
+            total = history.Insert(MinMax(0, 0));
             Assert.That(history.Count, Is.EqualTo(3));
             Assert.That(total, Is.EqualTo(MinMax(-1, 2)));
         }
@@ -121,9 +120,9 @@ namespace Mirror.Tests.LagCompensationTests
         public void Reset()
         {
             HistoryBounds history = new HistoryBounds(3);
-            HistoryBoundsAlgo.Insert(history, MinMax(1, 2));
-            HistoryBoundsAlgo.Insert(history, MinMax(2, 3));
-            HistoryBoundsAlgo.Insert(history, MinMax(3, 4));
+            history.Insert(MinMax(1, 2));
+            history.Insert(MinMax(2, 3));
+            history.Insert(MinMax(3, 4));
 
             history.Reset();
             Assert.That(history.Count, Is.EqualTo(0));
