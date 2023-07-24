@@ -22,6 +22,9 @@ namespace Mirror.Tests.Prediction
             return bounds;
         }
 
+        public static Bounds MinMax(float min, float max) =>
+            MinMax(new Vector3(min, min, min), new Vector3(max, max, max));
+
         [Test]
         public void Insert()
         {
@@ -29,29 +32,29 @@ namespace Mirror.Tests.Prediction
 
             // insert initial [-1, 1].
             // should calculate new bounds == initial.
-            Bounds total = HistoryBounds.Insert(history, limit, MinMax(-Vector3.one, Vector3.one));
+            Bounds total = HistoryBounds.Insert(history, limit, MinMax(-1, 1));
             Assert.That(history.Count, Is.EqualTo(1));
-            Assert.That(total, Is.EqualTo(MinMax(-Vector3.one, Vector3.one)));
+            Assert.That(total, Is.EqualTo(MinMax(-1, 1)));
 
             // insert [0, 2]
             // should calculate new bounds == [-1, 2].
-            total = HistoryBounds.Insert(history, limit, MinMax(Vector3.zero, Vector3.one * 2));
+            total = HistoryBounds.Insert(history, limit, MinMax(0, 2));
             Assert.That(history.Count, Is.EqualTo(2));
-            Assert.That(total, Is.EqualTo(MinMax(-Vector3.one, Vector3.one * 2)));
+            Assert.That(total, Is.EqualTo(MinMax(-1, 2)));
 
             // insert one that's smaller than current bounds [-.5, 0]
             // history needs to contain it even if smaller, because once the oldest
             // largest one gets removed, this one matters too.
-            total = HistoryBounds.Insert(history, limit, MinMax(-Vector3.one / 2, Vector3.zero));
+            total = HistoryBounds.Insert(history, limit, MinMax(-0.5f, 0));
             Assert.That(history.Count, Is.EqualTo(3));
-            Assert.That(total, Is.EqualTo(MinMax(-Vector3.one, Vector3.one * 2)));
+            Assert.That(total, Is.EqualTo(MinMax(-1, 2)));
 
             // insert more than 'limit': [0, 0]
             // the oldest one [-1, 1] should be discarded.
             // new bounds should be [-0.5, 2]
-            total = HistoryBounds.Insert(history, limit, MinMax(Vector3.zero, Vector3.zero));
+            total = HistoryBounds.Insert(history, limit, MinMax(0, 0));
             Assert.That(history.Count, Is.EqualTo(3));
-            Assert.That(total, Is.EqualTo(MinMax(-Vector3.one / 2, Vector3.one * 2)));
+            Assert.That(total, Is.EqualTo(MinMax(-0.5f, 2)));
         }
     }
 }
