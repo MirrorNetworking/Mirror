@@ -8,30 +8,50 @@ using UnityEngine;
 
 namespace Mirror
 {
-    public static class HistoryBounds
+    public class HistoryBounds
+    {
+        public readonly Queue<Bounds> history; // TODO not public
+        public int Count => history.Count;
+
+        public readonly int limit;
+
+        public HistoryBounds(int limit)
+        {
+            // initialize queue with maximum capacity to avoid runtime resizing
+            this.limit = limit;
+            history = new Queue<Bounds>(limit);
+        }
+
+        public void Reset()
+        {
+            history.Clear();
+            // TODO reset total etc.
+        }
+    }
+
+    public static class HistoryBoundsAlgo
     {
         // insert current bounds into history. returns new total bounds.
         // Queue.Dequeue() always has the oldest bounds.
         public static Bounds Insert(
-            Queue<Bounds> history,
-            int limit,
+            HistoryBounds history,
             Bounds bounds)
         {
             // optimization: only insert if
 
             // remove oldest if limit reached
-            if (history.Count >= limit)
-                history.Dequeue();
+            if (history.Count >= history.limit)
+                history.history.Dequeue();
 
             // insert the new bounds
-            history.Enqueue(bounds);
+            history.history.Enqueue(bounds);
 
             // summarize total bounds.
             // starting at latest bounds, not at 'new Bounds' because that would
             // encapsulate (0,0) too.
             // TODO make this not be O(N)
             Bounds total = bounds;
-            foreach (Bounds b in history)
+            foreach (Bounds b in history.history)
                 total.Encapsulate(b);
 
             return total;
