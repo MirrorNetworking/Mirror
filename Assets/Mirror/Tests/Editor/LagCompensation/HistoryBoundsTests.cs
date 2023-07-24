@@ -44,7 +44,11 @@ namespace Mirror.Tests.LagCompensationTests
                     float min = Random.Range(-1, 1);
                     float max = Random.Range(min, 1);
                     Bounds bounds = MinMax(min, max);
-                    Bounds total = history.Insert(bounds);
+                    history.Insert(bounds);
+
+                    // always call .total to include any getter calculations in
+                    // the benchmark here.
+                    Bounds total = history.total;
                 }
             }
         }
@@ -58,29 +62,29 @@ namespace Mirror.Tests.LagCompensationTests
 
             // insert initial [-1, 1].
             // should calculate new bounds == initial.
-            Bounds total = history.Insert(MinMax(-1, 1));
+            history.Insert(MinMax(-1, 1));
             Assert.That(history.Count, Is.EqualTo(1));
-            Assert.That(total, Is.EqualTo(MinMax(-1, 1)));
+            Assert.That(history.total, Is.EqualTo(MinMax(-1, 1)));
 
             // insert [0, 2]
             // should calculate new bounds == [-1, 2].
-            total = history.Insert(MinMax(0, 2));
+            history.Insert(MinMax(0, 2));
             Assert.That(history.Count, Is.EqualTo(2));
-            Assert.That(total, Is.EqualTo(MinMax(-1, 2)));
+            Assert.That(history.total, Is.EqualTo(MinMax(-1, 2)));
 
             // insert one that's smaller than current bounds [-.5, 0]
             // history needs to contain it even if smaller, because once the oldest
             // largest one gets removed, this one matters too.
-            total = history.Insert(MinMax(-0.5f, 0));
+            history.Insert(MinMax(-0.5f, 0));
             Assert.That(history.Count, Is.EqualTo(3));
-            Assert.That(total, Is.EqualTo(MinMax(-1, 2)));
+            Assert.That(history.total, Is.EqualTo(MinMax(-1, 2)));
 
             // insert more than 'limit': [0, 0]
             // the oldest one [-1, 1] should be discarded.
             // new bounds should be [-0.5, 2]
-            total = history.Insert(MinMax(0, 0));
+            history.Insert(MinMax(0, 0));
             Assert.That(history.Count, Is.EqualTo(3));
-            Assert.That(total, Is.EqualTo(MinMax(-0.5f, 2)));
+            Assert.That(history.total, Is.EqualTo(MinMax(-0.5f, 2)));
         }
 
         // player runs in a circles and visits the same areas again.
@@ -93,27 +97,27 @@ namespace Mirror.Tests.LagCompensationTests
 
             // insert initial [-1, 1].
             // should calculate new bounds == initial.
-            Bounds total = history.Insert(MinMax(-1, 1));
+            history.Insert(MinMax(-1, 1));
             Assert.That(history.Count, Is.EqualTo(1));
-            Assert.That(total, Is.EqualTo(MinMax(-1, 1)));
+            Assert.That(history.total, Is.EqualTo(MinMax(-1, 1)));
 
             // insert [0, 2]
             // should calculate new bounds == [-1, 2].
-            total = history.Insert(MinMax(0, 2));
+            history.Insert(MinMax(0, 2));
             Assert.That(history.Count, Is.EqualTo(2));
-            Assert.That(total, Is.EqualTo(MinMax(-1, 2)));
+            Assert.That(history.total, Is.EqualTo(MinMax(-1, 2)));
 
             // visit [-1, 1] again
-            total = history.Insert(MinMax(-1, 1));
+            history.Insert(MinMax(-1, 1));
             Assert.That(history.Count, Is.EqualTo(3));
-            Assert.That(total, Is.EqualTo(MinMax(-1, 2)));
+            Assert.That(history.total, Is.EqualTo(MinMax(-1, 2)));
 
             // insert beyond limit.
             // oldest one [-1, 1] should be removed.
             // total should still include it because we revisited [1, 1].
-            total = history.Insert(MinMax(0, 0));
+            history.Insert(MinMax(0, 0));
             Assert.That(history.Count, Is.EqualTo(3));
-            Assert.That(total, Is.EqualTo(MinMax(-1, 2)));
+            Assert.That(history.total, Is.EqualTo(MinMax(-1, 2)));
         }
 
         [Test]
