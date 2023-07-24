@@ -22,37 +22,31 @@ namespace Mirror
             history = new Queue<Bounds>(limit);
         }
 
-        public void Reset()
-        {
-            history.Clear();
-            // TODO reset total etc.
-        }
-    }
-
-    public static class HistoryBoundsAlgo
-    {
-        // insert current bounds into history. returns new total bounds.
+        // insert new bounds into history. returns new total bounds.
         // Queue.Dequeue() always has the oldest bounds.
-        public static Bounds Insert(
-            HistoryBounds history,
-            Bounds bounds)
+        public Bounds Insert(Bounds bounds)
         {
             // remove oldest if limit reached
-            if (history.Count >= history.limit)
-                history.history.Dequeue();
+            if (history.Count >= limit)
+                history.Dequeue();
 
             // insert the new bounds
-            history.history.Enqueue(bounds);
+            history.Enqueue(bounds);
 
             // summarize total bounds.
             // starting at latest bounds, not at 'new Bounds' because that would
             // encapsulate (0,0) too.
             // TODO make this not be O(N)
             Bounds total = bounds;
-            foreach (Bounds b in history.history)
+            foreach (Bounds b in history)
                 total.Encapsulate(b);
 
             return total;
+        }
+
+        public void Reset()
+        {
+            history.Clear();
         }
     }
 }
