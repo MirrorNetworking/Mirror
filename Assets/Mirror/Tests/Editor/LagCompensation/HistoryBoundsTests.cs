@@ -34,6 +34,9 @@ namespace Mirror.Tests.LagCompensationTests
         [TestCase(10_000, 64, 8)]
         public void Benchmark(int iterations, int insertions, int limit)
         {
+            // always use the same seed so we get the same test.
+            Random.InitState(0);
+
             // repeat the test 'iterations' x times
             for (int iteration = 0; iteration < iterations; ++iteration)
             {
