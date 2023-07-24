@@ -23,7 +23,7 @@ namespace Mirror.Tests.LagCompensationTests
         // 64 entries are much more than we would usually use.
         //
         // Unity 2021.3 LTS, release mode: 10x000 x 65; limit=8
-        //   native O(N) Queue<Bounds> implementation: 1045 ms
+        //   O(N) Queue<Bounds> implementation: 1045 ms
         [Test]
         [TestCase(10_000, 64, 8)]
         public void Benchmark(int iterations, int insertions, int limit)
