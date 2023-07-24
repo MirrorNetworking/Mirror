@@ -11,12 +11,25 @@ namespace Mirror
     public static class HistoryBounds
     {
         // insert current bounds into history. returns new total bounds.
-        public static Bounds Insert(Queue<Bounds> history, Bounds bounds)
+        // Queue.Dequeue() always has the oldest bounds.
+        public static Bounds Insert(Queue<Bounds> history, int limit, Bounds bounds)
         {
-            // TODO insert new
-            // TODO remove old based on history limit
+            // remove oldest if limit reached
+            if (history.Count >= limit)
+                history.Dequeue();
 
-            return bounds;
+            // insert the new bounds
+            history.Enqueue(bounds);
+
+            // summarize total bounds.
+            // starting at latest bounds, not at 'new Bounds' because that would
+            // encapsulate (0,0) too.
+            // TODO make this not be O(N)
+            Bounds total = bounds;
+            foreach (Bounds b in history)
+                total.Encapsulate(b);
+
+            return total;
         }
 
 
