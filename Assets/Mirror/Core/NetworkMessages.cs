@@ -62,6 +62,10 @@ namespace Mirror
             return transportMax - IdSize - Batcher.MaxMessageOverhead(transportMax);
         }
 
+        // max message size which includes header + content.
+        public static int MaxMessageSize(int channelId) =>
+            MaxContentSize(channelId) + IdSize;
+
         // automated message id from type hash.
         // platform independent via stable hashcode.
         // => convenient so we don't need to track messageIds across projects
