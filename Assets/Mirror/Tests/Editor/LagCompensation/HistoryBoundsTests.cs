@@ -53,8 +53,9 @@ namespace Mirror.Tests.LagCompensationTests
             }
         }
 
+        // straight forward test
         [Test]
-        public void Insert()
+        public void Insert_Basic()
         {
             const int limit = 3;
 
@@ -83,6 +84,38 @@ namespace Mirror.Tests.LagCompensationTests
             total = HistoryBounds.Insert(history, limit, MinMax(0, 0));
             Assert.That(history.Count, Is.EqualTo(3));
             Assert.That(total, Is.EqualTo(MinMax(-0.5f, 2)));
+        }
+
+        // player runs in a circles and visits the same areas again.
+        // removing oldest should not remove a newer area that's still relevant.
+        [Test]
+        public void Insert_Revisit()
+        {
+            const int limit = 3;
+
+            // insert initial [-1, 1].
+            // should calculate new bounds == initial.
+            Bounds total = HistoryBounds.Insert(history, limit, MinMax(-1, 1));
+            Assert.That(history.Count, Is.EqualTo(1));
+            Assert.That(total, Is.EqualTo(MinMax(-1, 1)));
+
+            // insert [0, 2]
+            // should calculate new bounds == [-1, 2].
+            total = HistoryBounds.Insert(history, limit, MinMax(0, 2));
+            Assert.That(history.Count, Is.EqualTo(2));
+            Assert.That(total, Is.EqualTo(MinMax(-1, 2)));
+
+            // visit [-1, 1] again
+            total = HistoryBounds.Insert(history, limit, MinMax(-1, 1));
+            Assert.That(history.Count, Is.EqualTo(3));
+            Assert.That(total, Is.EqualTo(MinMax(-1, 2)));
+
+            // insert beyond limit.
+            // oldest one [-1, 1] should be removed.
+            // total should still include it because we revisited [1, 1].
+            total = HistoryBounds.Insert(history, limit, MinMax(0, 0));
+            Assert.That(history.Count, Is.EqualTo(3));
+            Assert.That(total, Is.EqualTo(MinMax(-1, 2)));
         }
     }
 }
