@@ -23,28 +23,36 @@ namespace Mirror
         public HistoryBounds(int limit)
         {
             // initialize queue with maximum capacity to avoid runtime resizing
+            // +1 because it makes the code easier if we insert first, and then remove.
             this.limit = limit;
-            history = new Queue<Bounds>(limit);
+            history = new Queue<Bounds>(limit + 1);
         }
 
         // insert new bounds into history. calculates new total bounds.
         // Queue.Dequeue() always has the oldest bounds.
         public void Insert(Bounds bounds)
         {
-            // remove oldest if limit reached
-            if (history.Count >= limit)
+            // initialize 'total' if not initialized yet.
+            // we don't want to call (0,0).Encapsulate(bounds).
+            if (history.Count == 0)
+                total = bounds;
+
+            // insert and encapsulate the new bounds
+            history.Enqueue(bounds);
+            total.Encapsulate(bounds);
+
+            // ensure history stays within limit
+            if (history.Count > limit)
+            {
+                // remove oldest
                 history.Dequeue();
 
-            // insert the new bounds
-            history.Enqueue(bounds);
-
-            // summarize total bounds.
-            // starting at latest bounds, not at 'new Bounds' because that would
-            // encapsulate (0,0) too.
-            // TODO make this not be O(N)
-            total = bounds;
-            foreach (Bounds b in history)
-                total.Encapsulate(b);
+                // recalculate total bounds
+                // (only needed after removing the oldest)
+                total = bounds;
+                foreach (Bounds b in history)
+                    total.Encapsulate(b);
+            }
         }
 
         public void Reset()

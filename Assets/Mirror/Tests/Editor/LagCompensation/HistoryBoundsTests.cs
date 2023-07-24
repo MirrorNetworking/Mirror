@@ -22,8 +22,8 @@ namespace Mirror.Tests.LagCompensationTests
         // simple benchmark to compare some optimizations later.
         // 64 entries are much more than we would usually use.
         //
-        // Unity 2021.3 LTS, release mode, 10_000 x 64 x 8:
-        //   native O(N) Queue<Bounds> implementation: 1005 ms
+        // Unity 2021.3 LTS, release mode: 10x000 x 65; limit=8
+        //   native O(N) Queue<Bounds> implementation: 1045 ms
         [Test]
         [TestCase(10_000, 64, 8)]
         public void Benchmark(int iterations, int insertions, int limit)
@@ -158,7 +158,9 @@ namespace Mirror.Tests.LagCompensationTests
         [Test]
         public void Reset()
         {
-            HistoryBounds history = new HistoryBounds(3);
+            const int limit = 3;
+            HistoryBounds history = new HistoryBounds(limit);
+
             history.Insert(MinMax(1, 2));
             history.Insert(MinMax(2, 3));
             history.Insert(MinMax(3, 4));
