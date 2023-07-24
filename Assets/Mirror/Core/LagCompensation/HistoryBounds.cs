@@ -1,5 +1,5 @@
 // HistoryBounds keeps a bounding box of all the object's bounds in the past N seconds.
-// useful to decide which objects we should rollback & raycast against.
+// useful to decide which objects to rollback, instead of rolling back all of them.
 // https://www.youtube.com/watch?v=zrIY0eIyqmI (37:00)
 // standalone C# implementation to be engine (and language) agnostic.
 
