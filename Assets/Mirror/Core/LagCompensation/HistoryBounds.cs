@@ -17,14 +17,21 @@ namespace Mirror
         // history limit. oldest bounds will be removed.
         public readonly int limit;
 
+        // only remove old entries every n-th insertion.
+        // new entries are still encapsulated on every insertion.
+        // for example, every 2nd insertion is enough, and 2x as fast.
+        public readonly int recalculateEveryNth;
+        int recalculateCounter = 0;
+
         // total bounds encapsulating all of the bounds history
         public Bounds total;
 
-        public HistoryBounds(int limit)
+        public HistoryBounds(int limit, int recalculateEveryNth)
         {
             // initialize queue with maximum capacity to avoid runtime resizing
             // +1 because it makes the code easier if we insert first, and then remove.
             this.limit = limit;
+            this.recalculateEveryNth = recalculateEveryNth;
             history = new Queue<Bounds>(limit + 1);
         }
 
@@ -46,6 +53,14 @@ namespace Mirror
             {
                 // remove oldest
                 history.Dequeue();
+
+                // optimization: only recalculate every n-th removal.
+                // accurate enough, and N times faster.
+                if (++recalculateCounter < recalculateEveryNth)
+                    return;
+
+                // reset counter
+                recalculateCounter = 0;
 
                 // recalculate total bounds
                 // (only needed after removing the oldest)
