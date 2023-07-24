@@ -37,8 +37,6 @@ namespace Mirror
             HistoryBounds history,
             Bounds bounds)
         {
-            // optimization: only insert if
-
             // remove oldest if limit reached
             if (history.Count >= history.limit)
                 history.history.Dequeue();
