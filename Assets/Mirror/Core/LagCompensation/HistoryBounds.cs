@@ -10,11 +10,14 @@ namespace Mirror
 {
     public class HistoryBounds
     {
-        public readonly Queue<Bounds> history; // TODO not public
+        // history of bounds
+        readonly Queue<Bounds> history;
         public int Count => history.Count;
 
+        // history limit. oldest bounds will be removed.
         public readonly int limit;
 
+        // total bounds encapsulating all of the bounds history
         public Bounds total;
 
         public HistoryBounds(int limit)
