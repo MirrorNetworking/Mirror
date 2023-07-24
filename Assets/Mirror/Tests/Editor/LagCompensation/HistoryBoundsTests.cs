@@ -130,7 +130,7 @@ namespace Mirror.Tests.LagCompensationTests
 
             history.Reset();
             Assert.That(history.Count, Is.EqualTo(0));
-            // TODO check .total
+            Assert.That(history.total, Is.EqualTo(MinMax(0, 0)));
         }
     }
 }
