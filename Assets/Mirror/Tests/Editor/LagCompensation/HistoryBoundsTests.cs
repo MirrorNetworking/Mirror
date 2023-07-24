@@ -116,5 +116,18 @@ namespace Mirror.Tests.LagCompensationTests
             Assert.That(history.Count, Is.EqualTo(3));
             Assert.That(total, Is.EqualTo(MinMax(-1, 2)));
         }
+
+        [Test]
+        public void Reset()
+        {
+            HistoryBounds history = new HistoryBounds(3);
+            HistoryBoundsAlgo.Insert(history, MinMax(1, 2));
+            HistoryBoundsAlgo.Insert(history, MinMax(2, 3));
+            HistoryBoundsAlgo.Insert(history, MinMax(3, 4));
+
+            history.Reset();
+            Assert.That(history.Count, Is.EqualTo(0));
+            // TODO check .total
+        }
     }
 }
