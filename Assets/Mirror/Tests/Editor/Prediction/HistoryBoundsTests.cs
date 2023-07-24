@@ -25,6 +25,29 @@ namespace Mirror.Tests.Prediction
         public static Bounds MinMax(float min, float max) =>
             MinMax(new Vector3(min, min, min), new Vector3(max, max, max));
 
+        // simple benchmark to compare some optimizations later.
+        // 64 entries are much more than we would usually use.
+        //
+        // Unity 2021.3 LTS, release mode, 10_000 x 64:
+        //   native O(N) implementation: 4067 ms
+        [Test]
+        [TestCase(10_000, 64)]
+        public void Benchmark(int iterations, int entriesPerIteration)
+        {
+            // insert 'entriesPerIteration' bounds 'iterations' times
+            for (int i = 0; i < iterations; ++i)
+            {
+                history.Clear();
+                for (int j = 0; j < entriesPerIteration; ++j)
+                {
+                    float min = Random.Range(-1, 1);
+                    float max = Random.Range(min, 1);
+                    Bounds bounds = MinMax(min, max);
+                    Bounds total = HistoryBounds.Insert(history, entriesPerIteration, bounds);
+                }
+            }
+        }
+
         [Test]
         public void Insert()
         {
