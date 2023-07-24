@@ -15,6 +15,8 @@ namespace Mirror
 
         public readonly int limit;
 
+        public Bounds total;
+
         public HistoryBounds(int limit)
         {
             // initialize queue with maximum capacity to avoid runtime resizing
@@ -22,9 +24,9 @@ namespace Mirror
             history = new Queue<Bounds>(limit);
         }
 
-        // insert new bounds into history. returns new total bounds.
+        // insert new bounds into history. calculates new total bounds.
         // Queue.Dequeue() always has the oldest bounds.
-        public Bounds Insert(Bounds bounds)
+        public void Insert(Bounds bounds)
         {
             // remove oldest if limit reached
             if (history.Count >= limit)
@@ -37,16 +39,15 @@ namespace Mirror
             // starting at latest bounds, not at 'new Bounds' because that would
             // encapsulate (0,0) too.
             // TODO make this not be O(N)
-            Bounds total = bounds;
+            total = bounds;
             foreach (Bounds b in history)
                 total.Encapsulate(b);
-
-            return total;
         }
 
         public void Reset()
         {
             history.Clear();
+            total = new Bounds();
         }
     }
 }
