@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
 
-namespace Mirror.Tests.Prediction
+namespace Mirror.Tests.LagCompensationTests
 {
     public class HistoryBoundsTests
     {

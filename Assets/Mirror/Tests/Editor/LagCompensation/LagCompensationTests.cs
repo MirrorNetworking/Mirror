@@ -2,7 +2,7 @@ using NUnit.Framework;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Mirror.Tests
+namespace Mirror.Tests.LagCompensationTests
 {
     // a simple snapshot with timestamp & interpolation
     struct SimpleCapture : Capture
