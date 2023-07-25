@@ -1,4 +1,7 @@
-// Queue<T> copied from C#'s implementation, but with direct access to _array[T].
+// Queue<T> copied from C#'s implementation, but:
+//   => with direct access to _array[T].
+//   => with fixed size without runtime resizing to allow for fast iteration of
+//      all elements.
 // we need this for Lag Compensation's HistoryBounds to be able to calculate
 // the total bounds quickly, without enumerators and extra checks.
 //
@@ -18,18 +21,10 @@ namespace Mirror
         int _size;       // Number of elements.
         int _version;
 
-        const int MinimumGrow = 4;
-        const int GrowFactor = 200;  // double each time
-
-        // Creates a queue with room for capacity objects. The default initial
-        // capacity and grow factor are used.
-        public OpenQueue() {
-            _array = Array.Empty<T>();
-        }
-
-        // Creates a queue with room for capacity objects. The default grow factor
-        // is used.
-        public OpenQueue(int capacity) {
+        // Creates a queue with room for capacity objects.
+        // does not resize at runtime.
+        public OpenQueue(int capacity)
+        {
             if (capacity < 0) throw new Exception("Queue capacity cannot be negative");
 
             _array = new T[capacity];
@@ -41,10 +36,14 @@ namespace Mirror
         public int Count => _size;
 
         // Removes all Objects from the queue.
-        public void Clear() {
+        public void Clear()
+        {
             if (_head < _tail)
+            {
                 Array.Clear(_array, _head, _size);
-            else {
+            }
+            else
+            {
                 Array.Clear(_array, _head, _array.Length - _head);
                 Array.Clear(_array, 0, _tail);
             }
@@ -57,13 +56,8 @@ namespace Mirror
 
         // Adds item to the tail of the queue.
         public void Enqueue(T item) {
-            if (_size == _array.Length) {
-                int newcapacity = (int)((long)_array.Length * (long)GrowFactor / 100);
-                if (newcapacity < _array.Length + MinimumGrow) {
-                    newcapacity = _array.Length + MinimumGrow;
-                }
-                SetCapacity(newcapacity);
-            }
+            if (_size == _array.Length)
+                throw new InvalidOperationException("Queue is full.");
 
             _array[_tail] = item;
             _tail = (_tail + 1) % _array.Length;
@@ -93,79 +87,9 @@ namespace Mirror
             return _array[_head];
         }
 
-        // Returns true if the queue contains at least one object equal to item.
-        // Equality is determined using item.Equals().
-        //
-        // Exceptions: ArgumentNullException if item == null.
-       public bool Contains(T item) {
-            int index = _head;
-            int count = _size;
-
-            EqualityComparer<T> c = EqualityComparer<T>.Default;
-            while (count-- > 0) {
-                if (((Object) item) == null) {
-                    if (((Object) _array[index]) == null)
-                        return true;
-                }
-                else if (_array[index] != null && c.Equals(_array[index], item)) {
-                    return true;
-                }
-                index = (index + 1) % _array.Length;
-            }
-
-            return false;
-        }
-
         internal T GetElement(int i)
         {
             return _array[(_head + i) % _array.Length];
-        }
-
-        // Iterates over the objects in the queue, returning an array of the
-        // objects in the Queue, or an empty array if the queue is empty.
-        // The order of elements in the array is first in to last in, the same
-        // order produced by successive calls to Dequeue.
-        public T[] ToArray()
-        {
-            T[] arr = new T[_size];
-            if (_size==0)
-                return arr;
-
-            if (_head < _tail) {
-                Array.Copy(_array, _head, arr, 0, _size);
-            } else {
-                Array.Copy(_array, _head, arr, 0, _array.Length - _head);
-                Array.Copy(_array, 0, arr, _array.Length - _head, _tail);
-            }
-
-            return arr;
-        }
-
-
-        // PRIVATE Grows or shrinks the buffer to hold capacity objects. Capacity
-        // must be >= _size.
-        void SetCapacity(int capacity) {
-            T[] newarray = new T[capacity];
-            if (_size > 0) {
-                if (_head < _tail) {
-                    Array.Copy(_array, _head, newarray, 0, _size);
-                } else {
-                    Array.Copy(_array, _head, newarray, 0, _array.Length - _head);
-                    Array.Copy(_array, 0, newarray, _array.Length - _head, _tail);
-                }
-            }
-
-            _array = newarray;
-            _head = 0;
-            _tail = (_size == capacity) ? 0 : _size;
-            _version++;
-        }
-
-        public void TrimExcess() {
-            int threshold = (int)(((double)_array.Length) * 0.9);
-            if( _size < threshold ) {
-                SetCapacity(_size);
-            }
         }
 
         // GetEnumerator returns an IEnumerator over this Queue.  This
