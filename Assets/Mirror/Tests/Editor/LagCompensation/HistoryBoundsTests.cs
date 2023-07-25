@@ -25,6 +25,7 @@ namespace Mirror.Tests.LagCompensationTests
         // Unity 2021.3 LTS, release mode: 100k; limit=8
         //   O(N) Queue<Bounds> implementation:     183 ms
         //   O(N) Queue and recalculate every 2nd:  108 ms
+        //   sorted coords variant:                1275 ms
         [Test]
         [TestCase(100_000, 8, 1)]
         [TestCase(100_000, 8, 2)]
