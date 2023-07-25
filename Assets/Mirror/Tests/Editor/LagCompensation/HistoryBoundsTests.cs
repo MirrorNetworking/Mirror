@@ -28,6 +28,7 @@ namespace Mirror.Tests.LagCompensationTests
         [Test]
         [TestCase(100_000, 8, 1)]
         [TestCase(100_000, 8, 2)]
+        [TestCase(100_000, 8, 4)]
         public void Benchmark(int iterations, int limit, int recalculate)
         {
             // always use the same seed so we get the same test.
