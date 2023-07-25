@@ -92,6 +92,40 @@ namespace Mirror
             return array[(head + i) % array.Length];
         }
 
+        // raw array access for HistoryBounds to encapsulate all quickly.
+        // elements are not in queue order.
+        // returns true if there is an element at the given index.
+        public bool GetRaw(int i, out T element)
+        {
+            // obvious implementation with branching:
+            // if (IsValid(i))
+            // {
+            //     element = array[i];
+            //     return true;
+            // }
+            // element = default;
+            // return false;
+
+            // fast implementation without branching:
+            element = array[i]; // might be invalid but still safe to assign
+            return IsValidRaw(i);
+        }
+
+        // check if the item at array[index] contains a valid value.
+        public bool IsValidRaw(int i)
+        {
+            if (head <= tail)
+            {
+                // in a non-wrapped state, valid if index is between head and tail
+                return i >= head && i < tail;
+            }
+            else
+            {
+                // in a wrapped state, valid if index is not between tail and head
+                return i >= head || i < tail;
+            }
+        }
+
         // GetEnumerator returns an IEnumerator over this Queue.  This
         // Enumerator will support removing.
         public Enumerator GetEnumerator()
