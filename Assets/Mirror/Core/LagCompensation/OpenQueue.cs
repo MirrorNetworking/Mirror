@@ -18,13 +18,13 @@ namespace Mirror
         int _size;       // Number of elements.
         int _version;
 
-        const int _MinimumGrow = 4;
-        const int _GrowFactor = 200;  // double each time
+        const int MinimumGrow = 4;
+        const int GrowFactor = 200;  // double each time
 
         // Creates a queue with room for capacity objects. The default initial
         // capacity and grow factor are used.
         public OpenQueue() {
-            _array = new T[0];
+            _array = Array.Empty<T>();
         }
 
         // Creates a queue with room for capacity objects. The default grow factor
@@ -58,9 +58,9 @@ namespace Mirror
         // Adds item to the tail of the queue.
         public void Enqueue(T item) {
             if (_size == _array.Length) {
-                int newcapacity = (int)((long)_array.Length * (long)_GrowFactor / 100);
-                if (newcapacity < _array.Length + _MinimumGrow) {
-                    newcapacity = _array.Length + _MinimumGrow;
+                int newcapacity = (int)((long)_array.Length * (long)GrowFactor / 100);
+                if (newcapacity < _array.Length + MinimumGrow) {
+                    newcapacity = _array.Length + MinimumGrow;
                 }
                 SetCapacity(newcapacity);
             }
