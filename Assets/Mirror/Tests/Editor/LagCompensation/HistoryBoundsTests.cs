@@ -22,36 +22,29 @@ namespace Mirror.Tests.LagCompensationTests
         // simple benchmark to compare some optimizations later.
         // 64 entries are much more than we would usually use.
         //
-        // Unity 2021.3 LTS, release mode: 10x000 x 65; limit=8
-        //   O(N) Queue<Bounds> implementation:    1045 ms
-        //   O(N) Queue and recalculate every 2nd:  640 ms
-        //   O(N) OpenQueue cache friendly:         564 ms
+        // Unity 2021.3 LTS, release mode: 100k; limit=8
+        //   O(N) Queue<Bounds> implementation:     183 ms
+        //   O(N) Queue and recalculate every 2nd:  108 ms
+        //   O(N) OpenQueue cache friendly:          98 ms
         [Test]
-        [TestCase(10_000, 64, 8, 2)]
-        public void Benchmark(int iterations, int insertions, int limit, int recalculate)
+        [TestCase(100_000, 8, 1)]
+        [TestCase(100_000, 8, 2)]
+        public void Benchmark(int iterations, int limit, int recalculate)
         {
-            HistoryBounds history = new HistoryBounds(limit, recalculate);
-
             // always use the same seed so we get the same test.
             Random.InitState(0);
 
-            // repeat the test 'iterations' x times
-            for (int iteration = 0; iteration < iterations; ++iteration)
+            HistoryBounds history = new HistoryBounds(limit, recalculate);
+            for (int i = 0; i < iterations; ++i)
             {
-                // each test captures 'insertions' bounds,
-                // with a history of 'limit' bounds.
-                history.Reset();
-                for (int i = 0; i < insertions; ++i)
-                {
-                    float min = Random.Range(-1, 1);
-                    float max = Random.Range(min, 1);
-                    Bounds bounds = MinMax(min, max);
-                    history.Insert(bounds);
+                float min = Random.Range(-1, 1);
+                float max = Random.Range(min, 1);
+                Bounds bounds = MinMax(min, max);
+                history.Insert(bounds);
 
-                    // always call .total to include any getter calculations in
-                    // the benchmark here.
-                    Bounds total = history.total;
-                }
+                // always call .total to include any getter calculations in
+                // the benchmark here.
+                Bounds total = history.total;
             }
         }
 
