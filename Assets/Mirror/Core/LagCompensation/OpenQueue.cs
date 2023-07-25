@@ -15,11 +15,11 @@ namespace Mirror
 {
     public sealed class OpenQueue<T>  : IReadOnlyCollection<T>
     {
-        T[] _array;
-        int _head;       // First valid element in the queue
-        int _tail;       // Last valid element in the queue
-        int _size;       // Number of elements.
-        int _version;
+        readonly T[] array;
+        int head;       // First valid element in the queue
+        int tail;       // Last valid element in the queue
+        int size;       // Number of elements
+        int version;    // To detect modifications while iterating
 
         // Creates a queue with room for capacity objects.
         // does not resize at runtime.
@@ -27,54 +27,54 @@ namespace Mirror
         {
             if (capacity < 0) throw new Exception("Queue capacity cannot be negative");
 
-            _array = new T[capacity];
-            _head = 0;
-            _tail = 0;
-            _size = 0;
+            array = new T[capacity];
+            head = 0;
+            tail = 0;
+            size = 0;
         }
 
-        public int Count => _size;
+        public int Count => size;
 
         // Removes all Objects from the queue.
         public void Clear()
         {
-            if (_head < _tail)
+            if (head < tail)
             {
-                Array.Clear(_array, _head, _size);
+                Array.Clear(array, head, size);
             }
             else
             {
-                Array.Clear(_array, _head, _array.Length - _head);
-                Array.Clear(_array, 0, _tail);
+                Array.Clear(array, head, array.Length - head);
+                Array.Clear(array, 0, tail);
             }
 
-            _head = 0;
-            _tail = 0;
-            _size = 0;
-            _version++;
+            head = 0;
+            tail = 0;
+            size = 0;
+            version++;
         }
 
         // Adds item to the tail of the queue.
         public void Enqueue(T item) {
-            if (_size == _array.Length)
+            if (size == array.Length)
                 throw new InvalidOperationException("Queue is full.");
 
-            _array[_tail] = item;
-            _tail = (_tail + 1) % _array.Length;
-            _size++;
-            _version++;
+            array[tail] = item;
+            tail = (tail + 1) % array.Length;
+            size++;
+            version++;
         }
 
         // Removes the object at the head of the queue and returns it. If the queue
         // is empty, this method simply returns null.
         public T Dequeue() {
-            if (_size == 0) throw new InvalidOperationException("Can't Dequeue from empty queue.");
+            if (size == 0) throw new InvalidOperationException("Can't Dequeue from empty queue.");
 
-            T removed = _array[_head];
-            _array[_head] = default(T);
-            _head = (_head + 1) % _array.Length;
-            _size--;
-            _version++;
+            T removed = array[head];
+            array[head] = default(T);
+            head = (head + 1) % array.Length;
+            size--;
+            version++;
             return removed;
         }
 
@@ -82,14 +82,14 @@ namespace Mirror
         // queue. If the queue is empty, this method throws an
         // InvalidOperationException.
         public T Peek() {
-            if (_size == 0) throw new InvalidOperationException("Can't Peek into empty queue.");
+            if (size == 0) throw new InvalidOperationException("Can't Peek into empty queue.");
 
-            return _array[_head];
+            return array[head];
         }
 
         internal T GetElement(int i)
         {
-            return _array[(_head + i) % _array.Length];
+            return array[(head + i) % array.Length];
         }
 
         // GetEnumerator returns an IEnumerator over this Queue.  This
@@ -122,7 +122,7 @@ namespace Mirror
 
             internal Enumerator(OpenQueue<T> q) {
                 _q = q;
-                _version = _q._version;
+                _version = _q.version;
                 _index = -1;
                 _currentElement = default(T);
             }
@@ -134,7 +134,7 @@ namespace Mirror
             }
 
             public bool MoveNext() {
-                if (_version != _q._version)
+                if (_version != _q.version)
                     throw new InvalidOperationException("Collection was modified; enumeration operation may not execute.");
 
                 if (_index == -2)
@@ -142,7 +142,7 @@ namespace Mirror
 
                 _index++;
 
-                if (_index == _q._size) {
+                if (_index == _q.size) {
                     _index = -2;
                     _currentElement = default(T);
                     return false;
@@ -179,7 +179,7 @@ namespace Mirror
             }
 
             void System.Collections.IEnumerator.Reset() {
-                if (_version != _q._version) throw new InvalidOperationException("Collection was modified; enumeration operation may not execute.");
+                if (_version != _q.version) throw new InvalidOperationException("Collection was modified; enumeration operation may not execute.");
                 _index = -1;
                 _currentElement = default(T);
             }
