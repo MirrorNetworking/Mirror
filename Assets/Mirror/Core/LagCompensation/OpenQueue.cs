@@ -189,11 +189,11 @@ namespace Mirror
         // internal version number of the list to ensure that no modifications are
         // made to the list while an enumeration is in progress.
         [SuppressMessage("Microsoft.Performance", "CA1815:OverrideEqualsAndOperatorEqualsOnValueTypes", Justification = "not an expected scenario")]
-        public struct Enumerator : IEnumerator<T>, System.Collections.IEnumerator
+        public struct Enumerator : IEnumerator<T>
         {
-            OpenQueue<T> _q;
+            readonly OpenQueue<T> _q;
             int _index;   // -1 = not started, -2 = ended/disposed
-            int _version;
+            readonly int _version;
             T _currentElement;
 
             internal Enumerator(OpenQueue<T> q) {
