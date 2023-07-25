@@ -3,7 +3,6 @@
 // https://www.youtube.com/watch?v=zrIY0eIyqmI (37:00)
 // standalone C# implementation to be engine (and language) agnostic.
 
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace Mirror
@@ -11,7 +10,7 @@ namespace Mirror
     public class HistoryBounds
     {
         // history of bounds
-        readonly Queue<Bounds> history;
+        readonly OpenQueue<Bounds> history;
         public int Count => history.Count;
 
         // history limit. oldest bounds will be removed.
@@ -32,7 +31,7 @@ namespace Mirror
             // +1 because it makes the code easier if we insert first, and then remove.
             this.limit = limit;
             this.recalculateEveryNth = recalculateEveryNth;
-            history = new Queue<Bounds>(limit + 1);
+            history = new OpenQueue<Bounds>(limit + 1);
         }
 
         // insert new bounds into history. calculates new total bounds.
