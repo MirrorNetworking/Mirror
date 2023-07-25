@@ -20,12 +20,11 @@ namespace Mirror
 
         const int _MinimumGrow = 4;
         const int _GrowFactor = 200;  // double each time
-        static T[]  _emptyArray = new T[0];
 
         // Creates a queue with room for capacity objects. The default initial
         // capacity and grow factor are used.
         public OpenQueue() {
-            _array = _emptyArray;
+            _array = new T[0];
         }
 
         // Creates a queue with room for capacity objects. The default grow factor
