@@ -71,23 +71,6 @@ namespace Mirror
             _version++;
         }
 
-        // GetEnumerator returns an IEnumerator over this Queue.  This
-        // Enumerator will support removing.
-        public Enumerator GetEnumerator()
-        {
-            return new Enumerator(this);
-        }
-
-        IEnumerator<T> IEnumerable<T>.GetEnumerator()
-        {
-            return new Enumerator(this);
-        }
-
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-        {
-            return new Enumerator(this);
-        }
-
         // Removes the object at the head of the queue and returns it. If the queue
         // is empty, this method simply returns null.
         public T Dequeue() {
@@ -183,6 +166,23 @@ namespace Mirror
             if( _size < threshold ) {
                 SetCapacity(_size);
             }
+        }
+
+        // GetEnumerator returns an IEnumerator over this Queue.  This
+        // Enumerator will support removing.
+        public Enumerator GetEnumerator()
+        {
+            return new Enumerator(this);
+        }
+
+        IEnumerator<T> IEnumerable<T>.GetEnumerator()
+        {
+            return new Enumerator(this);
+        }
+
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+        {
+            return new Enumerator(this);
         }
 
         // Implements an enumerator for a Queue.  The enumerator uses the
