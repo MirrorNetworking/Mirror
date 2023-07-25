@@ -63,9 +63,22 @@ namespace Mirror
 
                 // recalculate total bounds
                 // (only needed after removing the oldest)
+                //
+                // slow in-order version with enumerator:
+                //   total = bounds;
+                //   foreach (Bounds b in history)
+                //       total.Encapsulate(b);
+                //
+                // OpenQueue allows fast, cache friendly access to the queue's array.
+                // simply encapsulate all of the valid array items together.
+                // they aren't in order, but the order does not matter here.
+                // => we want the CPU to run through it fast and cache friendly.
                 total = bounds;
-                foreach (Bounds b in history)
-                    total.Encapsulate(b);
+                for (int i = 0; i < history.Count; ++i)
+                {
+                    if (history.GetRaw(i, out Bounds element))
+                        total.Encapsulate(element);
+                }
             }
         }
 

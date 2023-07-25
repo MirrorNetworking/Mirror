@@ -25,6 +25,7 @@ namespace Mirror.Tests.LagCompensationTests
         // Unity 2021.3 LTS, release mode: 10x000 x 65; limit=8
         //   O(N) Queue<Bounds> implementation:    1045 ms
         //   O(N) Queue and recalculate every 2nd:  640 ms
+        //   O(N) OpenQueue cache friendly:         564 ms
         [Test]
         [TestCase(10_000, 64, 8, 2)]
         public void Benchmark(int iterations, int insertions, int limit, int recalculate)
