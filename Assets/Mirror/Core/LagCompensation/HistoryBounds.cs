@@ -8,31 +8,31 @@ using UnityEngine;
 
 namespace Mirror
 {
+    // FakeByte: gather bounds in smaller buckets.
+    // for example, bucket(t0,t1,t2), bucket(t3,t4,t5), ...
+    // instead of removing old bounds t0, t1, ...
+    // we remove a whole bucket every 3 times: bucket(t0,t1,t2)
+    // and when building total bounds, we encapsulate a few larger buckets
+    // instead of many smaller bounds.
+    //
+    // => a bucket is encapsulate(bounds0, bounds1, bounds2) so we don't
+    //    need a custom struct, simply reuse bounds but remember that each
+    //    entry includes N timestamps.
+    //
+    // => note that simply reducing capture interval is _not_ the same.
+    //    we want to capture in detail in case players run in zig-zag.
+    //    but still grow larger buckets internally.
     public class HistoryBounds
     {
-        // FakeByte: gather bounds in smaller buckets.
-        // for example, bucket(t0,t1,t2), bucket(t3,t4,t5), ...
-        // instead of removing old bounds t0, t1, ...
-        // we remove a whole bucket every 3 times: bucket(t0,t1,t2)
-        // and when building total bounds, we encapsulate a few larger buckets
-        // instead of many smaller bounds.
-        //
-        // => a bucket is encapsulate(bounds0, bounds1, bounds2) so we don't
-        //    need a custom struct, simply reuse bounds but remember that each
-        //    entry includes N timestamps.
-        //
-        // => note that simply reducing capture interval is _not_ the same.
-        //    we want to capture in detail in case players run in zig-zag.
-        //    but still grow larger buckets internally.
         readonly int boundsPerBucket;
         readonly Queue<Bounds> fullBuckets;
 
-        Bounds? currentBucket;
-        int currentBucketSize; // 0..boundsPerBucket
-
-        // history limit. oldest bounds will be removed.
-        public readonly int boundsLimit;
+        // full bucket limit. older ones will be removed.
         readonly int bucketLimit;
+
+        // bucket in progress, contains 0..boundsPerBucket bounds encapsulated.
+        Bounds? currentBucket;
+        int currentBucketSize;
 
         // amount of total bounds, including bounds in full buckets + current
         public int boundsCount { get; private set; }
@@ -44,7 +44,6 @@ namespace Mirror
         {
             // initialize queue with maximum capacity to avoid runtime resizing
             this.boundsPerBucket = boundsPerBucket;
-            this.boundsLimit = boundsLimit;
             this.bucketLimit = (boundsLimit / boundsPerBucket);
 
             // capacity +1 because it makes the code easier if we insert first, and then remove.
