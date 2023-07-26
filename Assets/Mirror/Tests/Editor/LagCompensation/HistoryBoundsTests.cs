@@ -30,6 +30,7 @@ namespace Mirror.Tests.LagCompensationTests
         //   O(N) cache friendly OpenQueue:          98 ms
         //   Buckets of 2:                           79 ms
         //   Buckets of 4:                           54 ms
+        //   MinMaxBounds + Bucket of 4:             35 ms
         [Test]
         [TestCase(100_000, 8, 1)]
         [TestCase(100_000, 8, 2)]

@@ -24,21 +24,33 @@ namespace Mirror
     //    but still grow larger buckets internally.
     public class HistoryBounds
     {
+        // mischa: use MinMaxBounds to avoid Unity Bounds.Encapsulate conversions.
         readonly int boundsPerBucket;
-        readonly Queue<Bounds> fullBuckets;
+        readonly Queue<MinMaxBounds> fullBuckets;
 
         // full bucket limit. older ones will be removed.
         readonly int bucketLimit;
 
         // bucket in progress, contains 0..boundsPerBucket bounds encapsulated.
-        Bounds? currentBucket;
+        MinMaxBounds? currentBucket;
         int currentBucketSize;
 
         // amount of total bounds, including bounds in full buckets + current
         public int boundsCount { get; private set; }
 
-        // total bounds encapsulating all of the bounds history
-        public Bounds total;
+        // total bounds encapsulating all of the bounds history.
+        // totalMinMax is used for internal calculations.
+        // public total is used for Unity representation.
+        MinMaxBounds totalMinMax;
+        public Bounds total
+        {
+            get
+            {
+                Bounds bounds = new Bounds();
+                bounds.SetMinMax(totalMinMax.min, totalMinMax.max);
+                return bounds;
+            }
+        }
 
         public HistoryBounds(int boundsLimit, int boundsPerBucket)
         {
@@ -49,29 +61,36 @@ namespace Mirror
 
             // initialize queue with maximum capacity to avoid runtime resizing
             // capacity +1 because it makes the code easier if we insert first, and then remove.
-            fullBuckets = new Queue<Bounds>(bucketLimit + 1);
+            fullBuckets = new Queue<MinMaxBounds>(bucketLimit + 1);
         }
 
         // insert new bounds into history. calculates new total bounds.
         // Queue.Dequeue() always has the oldest bounds.
         public void Insert(Bounds bounds)
         {
+            // convert to MinMax representation for faster .Encapsulate()
+            MinMaxBounds minmax = new MinMaxBounds
+            {
+                min = bounds.min,
+                max = bounds.max
+            };
+
             // initialize 'total' if not initialized yet.
             // we don't want to call (0,0).Encapsulate(bounds).
             if (boundsCount == 0)
             {
-                total = bounds;
+                totalMinMax = minmax;
             }
 
             // add to current bucket:
             // either initialize new one, or encapsulate into existing one
             if (currentBucket == null)
             {
-                currentBucket = bounds;
+                currentBucket = minmax;
             }
             else
             {
-                currentBucket.Value.Encapsulate(bounds);
+                currentBucket.Value.Encapsulate(minmax);
             }
 
             // current bucket has one more bounds.
@@ -81,7 +100,7 @@ namespace Mirror
 
             // always encapsulate into total immediately.
             // this is free.
-            total.Encapsulate(bounds);
+            totalMinMax.Encapsulate(minmax);
 
             // current bucket full?
             if (currentBucketSize == boundsPerBucket)
@@ -101,9 +120,9 @@ namespace Mirror
                     // recompute total bounds
                     // instead of iterating N buckets, we iterate N / boundsPerBucket buckets.
                     // TODO technically we could reuse 'currentBucket' before clearing instead of encapsulating again
-                    total = bounds;
-                    foreach (Bounds bucket in fullBuckets)
-                        total.Encapsulate(bucket);
+                    totalMinMax = minmax;
+                    foreach (MinMaxBounds bucket in fullBuckets)
+                        totalMinMax.Encapsulate(bucket);
                 }
             }
         }
@@ -114,7 +133,7 @@ namespace Mirror
             currentBucket = null;
             currentBucketSize = 0;
             boundsCount = 0;
-            total = new Bounds();
+            totalMinMax = new MinMaxBounds();
         }
     }
 }
