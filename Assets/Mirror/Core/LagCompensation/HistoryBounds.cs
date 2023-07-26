@@ -8,31 +8,48 @@ using UnityEngine;
 
 namespace Mirror
 {
+    // FakeByte: gather bounds in smaller buckets.
+    // for example, bucket(t0,t1,t2), bucket(t3,t4,t5), ...
+    // instead of removing old bounds t0, t1, ...
+    // we remove a whole bucket every 3 times: bucket(t0,t1,t2)
+    // and when building total bounds, we encapsulate a few larger buckets
+    // instead of many smaller bounds.
+    //
+    // => a bucket is encapsulate(bounds0, bounds1, bounds2) so we don't
+    //    need a custom struct, simply reuse bounds but remember that each
+    //    entry includes N timestamps.
+    //
+    // => note that simply reducing capture interval is _not_ the same.
+    //    we want to capture in detail in case players run in zig-zag.
+    //    but still grow larger buckets internally.
     public class HistoryBounds
     {
-        // history of bounds
-        readonly Queue<Bounds> history;
-        public int Count => history.Count;
+        readonly int boundsPerBucket;
+        readonly Queue<Bounds> fullBuckets;
 
-        // history limit. oldest bounds will be removed.
-        public readonly int limit;
+        // full bucket limit. older ones will be removed.
+        readonly int bucketLimit;
 
-        // only remove old entries every n-th insertion.
-        // new entries are still encapsulated on every insertion.
-        // for example, every 2nd insertion is enough, and 2x as fast.
-        public readonly int recalculateEveryNth;
-        int recalculateCounter = 0;
+        // bucket in progress, contains 0..boundsPerBucket bounds encapsulated.
+        Bounds? currentBucket;
+        int currentBucketSize;
+
+        // amount of total bounds, including bounds in full buckets + current
+        public int boundsCount { get; private set; }
 
         // total bounds encapsulating all of the bounds history
         public Bounds total;
 
-        public HistoryBounds(int limit, int recalculateEveryNth)
+        public HistoryBounds(int boundsLimit, int boundsPerBucket)
         {
+            // bucketLimit via '/' cuts off remainder.
+            // that's what we want, since we always have a 'currentBucket'.
+            this.boundsPerBucket = boundsPerBucket;
+            this.bucketLimit = (boundsLimit / boundsPerBucket);
+
             // initialize queue with maximum capacity to avoid runtime resizing
-            // +1 because it makes the code easier if we insert first, and then remove.
-            this.limit = limit;
-            this.recalculateEveryNth = recalculateEveryNth;
-            history = new Queue<Bounds>(limit + 1);
+            // capacity +1 because it makes the code easier if we insert first, and then remove.
+            fullBuckets = new Queue<Bounds>(bucketLimit + 1);
         }
 
         // insert new bounds into history. calculates new total bounds.
@@ -41,38 +58,62 @@ namespace Mirror
         {
             // initialize 'total' if not initialized yet.
             // we don't want to call (0,0).Encapsulate(bounds).
-            if (history.Count == 0)
+            if (boundsCount == 0)
+            {
                 total = bounds;
+            }
 
-            // insert and encapsulate the new bounds
-            history.Enqueue(bounds);
+            // add to current bucket:
+            // either initialize new one, or encapsulate into existing one
+            if (currentBucket == null)
+            {
+                currentBucket = bounds;
+            }
+            else
+            {
+                currentBucket.Value.Encapsulate(bounds);
+            }
+
+            // current bucket has one more bounds.
+            // total bounds increased as well.
+            currentBucketSize += 1;
+            boundsCount += 1;
+
+            // always encapsulate into total immediately.
+            // this is free.
             total.Encapsulate(bounds);
 
-            // ensure history stays within limit
-            if (history.Count > limit)
+            // current bucket full?
+            if (currentBucketSize == boundsPerBucket)
             {
-                // remove oldest
-                history.Dequeue();
+                // move it to full buckets
+                fullBuckets.Enqueue(currentBucket.Value);
+                currentBucket = null;
+                currentBucketSize = 0;
 
-                // optimization: only recalculate every n-th removal.
-                // accurate enough, and N times faster.
-                if (++recalculateCounter < recalculateEveryNth)
-                    return;
+                // full bucket capacity reached?
+                if (fullBuckets.Count > bucketLimit)
+                {
+                    // remove oldest bucket
+                    fullBuckets.Dequeue();
+                    boundsCount -= boundsPerBucket;
 
-                // reset counter
-                recalculateCounter = 0;
-
-                // recalculate total bounds
-                // (only needed after removing the oldest)
-                total = bounds;
-                foreach (Bounds b in history)
-                    total.Encapsulate(b);
+                    // recompute total bounds
+                    // instead of iterating N buckets, we iterate N / boundsPerBucket buckets.
+                    // TODO technically we could reuse 'currentBucket' before clearing instead of encapsulating again
+                    total = bounds;
+                    foreach (Bounds bucket in fullBuckets)
+                        total.Encapsulate(bucket);
+                }
             }
         }
 
         public void Reset()
         {
-            history.Clear();
+            fullBuckets.Clear();
+            currentBucket = null;
+            currentBucketSize = 0;
+            boundsCount = 0;
             total = new Bounds();
         }
     }
