@@ -244,8 +244,10 @@ namespace Mirror
         public static List<T> ReadList<T>(this NetworkReader reader)
         {
             int length = reader.ReadInt();
-            if (length < 0)
-                return null;
+
+            // -1 indicates null
+            if (length < 0) return null;
+
             List<T> result = new List<T>(length);
             for (int i = 0; i < length; i++)
             {

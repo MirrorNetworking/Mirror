@@ -319,11 +319,13 @@ namespace Mirror
         // note that Weaver/Writers/GenerateWriter() handles this manually.
         public static void WriteList<T>(this NetworkWriter writer, List<T> list)
         {
+            // -1 indicates null
             if (list is null)
             {
                 writer.WriteInt(-1);
                 return;
             }
+
             writer.WriteInt(list.Count);
             for (int i = 0; i < list.Count; i++)
                 writer.Write(list[i]);
