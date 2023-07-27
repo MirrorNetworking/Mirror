@@ -283,15 +283,9 @@ namespace Mirror
             // 'null' is encoded as '-1'
             if (length < 0) return null;
 
-            // todo throw an exception for other negative values (we never write them, likely to be attacker)
-
-            // this assumes that a reader for T reads at least 1 bytes
-            // we can't know the exact size of T because it could have a user created reader
-            // NOTE: don't add to length as it could overflow if value is int.max
-            if (length > reader.Remaining)
-            {
-                throw new EndOfStreamException($"Received array that is too large: {length}");
-            }
+            // we can't check if reader.Remaining < length,
+            // because we don't know sizeof(T) since it's a managed type.
+            // if (length > reader.Remaining) throw new EndOfStreamException($"Received array that is too large: {length}");
 
             T[] result = new T[length];
             for (int i = 0; i < length; i++)
