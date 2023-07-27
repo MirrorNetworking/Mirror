@@ -1,6 +1,5 @@
 // Applies HistoryBounds to the physics world by projecting to a trigger Collider.
 // This way we can use Physics.Raycast on it.
-using System;
 using UnityEngine;
 
 namespace Mirror
