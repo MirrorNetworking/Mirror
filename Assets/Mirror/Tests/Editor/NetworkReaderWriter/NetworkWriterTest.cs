@@ -1388,6 +1388,27 @@ namespace Mirror.Tests.NetworkReaderWriter
         }
 
         [Test]
+        [TestCase(20_000)]
+        [TestCase(int.MaxValue)]
+        [TestCase(int.MaxValue - 1)]
+        public void TestReadBytes_LengthIsTooBig(int badLength)
+        {
+            // write bad array
+            NetworkWriter writer = new NetworkWriter();
+            writer.WriteInt(badLength);
+            int[] array = new int[testArraySize] { 1, 2, 3, 4 };
+            for (int i = 0; i < array.Length; i++)
+                writer.Write(array[i]);
+
+            // attempt to read it
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+            EndOfStreamException exception = Assert.Throws<EndOfStreamException>(() =>
+            {
+                _ = reader.ReadBytes(badLength);
+            });
+        }
+
+        [Test]
         [TestCase(testArraySize * sizeof(int) + 1, Description = "min read count is 1 byte, 16 array bytes are writen so 17 should throw error")]
         [TestCase(20_000)]
         [TestCase(int.MaxValue)]
