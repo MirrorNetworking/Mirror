@@ -44,25 +44,7 @@ namespace Mirror
         public static void WriteFloat(this NetworkWriter writer, float value) => writer.WriteBlittable(value);
         public static void WriteFloatNullable(this NetworkWriter writer, float? value) => writer.WriteBlittableNullable(value);
 
-        [StructLayout(LayoutKind.Explicit)]
-        internal struct UIntDouble
-        {
-            [FieldOffset(0)]
-            public double doubleValue;
-
-            [FieldOffset(0)]
-            public ulong longValue;
-        }
-
-        public static void WriteDouble(this NetworkWriter writer, double value)
-        {
-            // DEBUG: try to find the exact value that fails.
-            //UIntDouble convert = new UIntDouble{doubleValue = value};
-            //Debug.Log($"=> NetworkWriter.WriteDouble: {value} => 0x{convert.longValue:X8}");
-
-
-            writer.WriteBlittable(value);
-        }
+        public static void WriteDouble(this NetworkWriter writer, double value) => writer.WriteBlittable(value);
         public static void WriteDoubleNullable(this NetworkWriter writer, double? value) => writer.WriteBlittableNullable(value);
 
         public static void WriteDecimal(this NetworkWriter writer, decimal value) => writer.WriteBlittable(value);
