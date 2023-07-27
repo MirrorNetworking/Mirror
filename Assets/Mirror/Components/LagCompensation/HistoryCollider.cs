@@ -30,26 +30,42 @@ namespace Mirror
         protected virtual void Awake()
         {
             history = new HistoryBounds(boundsLimit, boundsPerBucket);
+
+            // ensure colliders were set.
+            // bounds collider should always be a trigger.
+            if (actualCollider == null)    Debug.LogError("HistoryCollider: actualCollider was not set.");
+            if (boundsCollider == null)    Debug.LogError("HistoryCollider: boundsCollider was not set.");
+            if (!boundsCollider.isTrigger) Debug.LogError("HistoryCollider: boundsCollider must be a trigger.");
         }
 
-        protected virtual void Update()
+        // capturing and projecting onto colliders should use physics update
+        protected virtual void FixedUpdate()
         {
             // capture current bounds every interval
             if (NetworkTime.localTime >= lastCaptureTime + captureInterval)
             {
                 lastCaptureTime = NetworkTime.localTime;
-                Capture();
+                CaptureBounds();
             }
+
+            // project bounds onto helper collider
+            ProjectBounds();
         }
 
-        protected virtual void Capture()
+        protected virtual void CaptureBounds()
         {
             // grab current bounds (collider.bounds returns world coordinates)
             Bounds bounds = actualCollider.bounds;
 
             // TODO convert to axis aligned world bounding box
 
-            // TODO insert into history
+            // insert into history
+            history.Insert(bounds);
+        }
+
+        protected virtual void ProjectBounds()
+        {
+
         }
     }
 }
