@@ -93,12 +93,10 @@ namespace Mirror
             // prevent allocation attacks with a reasonable limit.
             //   server shouldn't allocate too much on client devices.
             //   client shouldn't allocate too much on server in ClientToServer [SyncVar]s.
-            // log an error and return default.
-            // we don't want attackers to be able to trigger exceptions.
             if (count > NetworkReader.AllocationLimit)
             {
-                Debug.LogWarning($"NetworkReader attempted to allocate {count} bytes, which is larger than the allowed limit of {NetworkReader.AllocationLimit} bytes.");
-                return null;
+                // throw EndOfStream for consistency with ReadBlittable when out of data
+                throw new EndOfStreamException($"NetworkReader attempted to allocate {count} bytes, which is larger than the allowed limit of {NetworkReader.AllocationLimit} bytes.");
             }
 
             byte[] bytes = new byte[count];
@@ -262,12 +260,10 @@ namespace Mirror
             // prevent allocation attacks with a reasonable limit.
             //   server shouldn't allocate too much on client devices.
             //   client shouldn't allocate too much on server in ClientToServer [SyncVar]s.
-            // log an error and return default.
-            // we don't want attackers to be able to trigger exceptions.
             if (length > NetworkReader.AllocationLimit)
             {
-                Debug.LogWarning($"NetworkReader attempted to allocate a List<{typeof(T)}> {length} elements, which is larger than the allowed limit of {NetworkReader.AllocationLimit}.");
-                return null;
+                // throw EndOfStream for consistency with ReadBlittable when out of data
+                throw new EndOfStreamException($"NetworkReader attempted to allocate a List<{typeof(T)}> {length} elements, which is larger than the allowed limit of {NetworkReader.AllocationLimit}.");
             }
 
             List<T> result = new List<T>(length);
@@ -304,16 +300,14 @@ namespace Mirror
 
             // 'null' is encoded as '-1'
             if (length < 0) return null;
-            
+
             // prevent allocation attacks with a reasonable limit.
             //   server shouldn't allocate too much on client devices.
             //   client shouldn't allocate too much on server in ClientToServer [SyncVar]s.
-            // log an error and return default.
-            // we don't want attackers to be able to trigger exceptions.
             if (length > NetworkReader.AllocationLimit)
             {
-                Debug.LogWarning($"NetworkReader attempted to allocate an Array<{typeof(T)}> with {length} elements, which is larger than the allowed limit of {NetworkReader.AllocationLimit}.");
-                return null;
+                // throw EndOfStream for consistency with ReadBlittable when out of data
+                throw new EndOfStreamException($"NetworkReader attempted to allocate an Array<{typeof(T)}> with {length} elements, which is larger than the allowed limit of {NetworkReader.AllocationLimit}.");
             }
 
             // we can't check if reader.Remaining < length,
