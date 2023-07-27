@@ -65,7 +65,10 @@ namespace Mirror
 
         protected virtual void ProjectBounds()
         {
+            // grab total collider encapsulating all of history
+            Bounds total = history.total;
 
+            // TODO project onto helper collider, but rotate AABB
         }
     }
 }
