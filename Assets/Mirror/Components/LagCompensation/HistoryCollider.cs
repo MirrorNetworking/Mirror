@@ -1,5 +1,6 @@
 // Applies HistoryBounds to the physics world by projecting to a trigger Collider.
 // This way we can use Physics.Raycast on it.
+using System;
 using UnityEngine;
 
 namespace Mirror
@@ -24,6 +25,10 @@ namespace Mirror
         [Tooltip("Capture bounds every 'captureInterval' seconds. Larger values will require fewer computations, but may not capture every small move.")]
         public float captureInterval = 0.100f; // 100 ms
         double lastCaptureTime = 0;
+
+        [Header("Debug")]
+        public Color historyColor = new Color(1.0f, 0.5f, 0.0f, 1.0f);
+        public Color currentColor = Color.red;
 
         protected HistoryBounds history = null;
 
@@ -69,6 +74,18 @@ namespace Mirror
             Bounds total = history.total;
 
             // TODO project onto helper collider, but rotate AABB
+        }
+
+        // TODO runtime drawing for debugging?
+        protected virtual void OnDrawGizmos()
+        {
+            // draw total bounds
+            Gizmos.color = historyColor;
+            Gizmos.DrawWireCube(history.total.center, history.total.size);
+
+            // draw current bounds
+            Gizmos.color = currentColor;
+            Gizmos.DrawWireCube(actualCollider.bounds.center, actualCollider.bounds.size);
         }
     }
 }
