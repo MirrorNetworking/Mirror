@@ -307,6 +307,10 @@ namespace Mirror
                 return;
             }
 
+            // check if within max size, otherwise Reader can't read it.
+            if (list.Count > NetworkReader.AllocationLimit)
+                throw new IndexOutOfRangeException($"NetworkWriter.WriteList - List<{typeof(T)}> too big: {list.Count} elements. Limit: {NetworkReader.AllocationLimit}");
+
             writer.WriteInt(list.Count);
             for (int i = 0; i < list.Count; i++)
                 writer.Write(list[i]);
@@ -340,6 +344,10 @@ namespace Mirror
                 return;
             }
 
+            // check if within max size, otherwise Reader can't read it.
+            if (array.Length > NetworkReader.AllocationLimit)
+                throw new IndexOutOfRangeException($"NetworkWriter.WriteArray - Array<{typeof(T)}> too big: {array.Length} elements. Limit: {NetworkReader.AllocationLimit}");
+
             writer.WriteInt(array.Length);
             for (int i = 0; i < array.Length; i++)
                 writer.Write(array[i]);
@@ -363,6 +371,11 @@ namespace Mirror
                 writer.WriteShort(-1);
                 return;
             }
+
+            // check if within max size, otherwise Reader can't read it.
+            int totalSize = texture2D.width * texture2D.height;
+            if (totalSize > NetworkReader.AllocationLimit)
+                throw new IndexOutOfRangeException($"NetworkWriter.WriteTexture2D - Texture2D total size (width*height) too big: {totalSize}. Limit: {NetworkReader.AllocationLimit}");
 
             // write dimensions first so reader can create the texture with size
             // 32k x 32k short is more than enough
