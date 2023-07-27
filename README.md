@@ -105,7 +105,7 @@ Without any breaking changes, ever!
 ---
 ## Made with Mirror
 ### [Population: ONE](https://www.populationonevr.com/)
-[![Population: ONE](https://user-images.githubusercontent.com/16416509/178141286-9494c3a8-a4a5-4b06-af2b-b05b66162201.png)](https://www.populationonevr.com/)
+[![Population: ONE](https://github.com/MirrorNetworking/Mirror/assets/16416509/dddc778b-a97f-452d-b5f8-6ec42c6da4f1)](https://www.populationonevr.com/)
 The [BigBoxVR](https://www.bigboxvr.com/) team started using Mirror in February 2019 for what eventually became one of the most popular Oculus Rift games.
 
 In addition to [24/7 support](https://github.com/sponsors/vis2k) from the Mirror team, BigBoxVR also hired one of our engineers.
