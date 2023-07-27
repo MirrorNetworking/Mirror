@@ -50,10 +50,12 @@ namespace Mirror
         // we should keep a reasonable allocation size limit:
         // -> server won't accidentally allocate 2GB on a mobile device
         // -> client won't allocate 2GB on server for ClientToServer [SyncVar]s
-        // -> unlike 64 KB max string length, we need a larger limit here.
-        //    users may send large textures, etc.
-        //    16 MB adds allocation safety while not breaking extreme projects.
-        public const int AllocationLimit = 1024 * 1024 * 16; // 16 MB
+        // -> unlike max string length of 64 KB, we need a larger limit here.
+        //    large enough to not break existing projects,
+        //    small enough to reasonably limit allocation attacks.
+        // -> we don't know the exact size of ReadList<T> etc. because <T> is
+        //    managed. instead, this is considered a 'collection length' limit.
+        public const int AllocationLimit = 1024 * 1024 * 16; // 16 MB * sizeof(T)
 
         public NetworkReader(ArraySegment<byte> segment)
         {

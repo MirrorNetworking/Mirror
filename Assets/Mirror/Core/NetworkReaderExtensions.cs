@@ -266,7 +266,7 @@ namespace Mirror
             // we don't want attackers to be able to trigger exceptions.
             if (length > NetworkReader.AllocationLimit)
             {
-                Debug.LogWarning($"NetworkReader attempted to allocate {length} bytes, which is larger than the allowed limit of {NetworkReader.AllocationLimit} bytes.");
+                Debug.LogWarning($"NetworkReader attempted to allocate a List<{typeof(T)}> {length} elements, which is larger than the allowed limit of {NetworkReader.AllocationLimit}.");
                 return null;
             }
 
@@ -312,7 +312,7 @@ namespace Mirror
             // we don't want attackers to be able to trigger exceptions.
             if (length > NetworkReader.AllocationLimit)
             {
-                Debug.LogWarning($"NetworkReader attempted to allocate {length} bytes, which is larger than the allowed limit of {NetworkReader.AllocationLimit} bytes.");
+                Debug.LogWarning($"NetworkReader attempted to allocate an Array<{typeof(T)}> with {length} elements, which is larger than the allowed limit of {NetworkReader.AllocationLimit}.");
                 return null;
             }
 
@@ -352,7 +352,7 @@ namespace Mirror
             int totalSize = width * height;
             if (totalSize > NetworkReader.AllocationLimit)
             {
-                Debug.LogWarning($"NetworkReader attempted to allocate {totalSize} bytes, which is larger than the allowed limit of {NetworkReader.AllocationLimit} bytes.");
+                Debug.LogWarning($"NetworkReader attempted to allocate a Texture2D with total size (width * height) of {totalSize}, which is larger than the allowed limit of {NetworkReader.AllocationLimit}.");
                 return null;
             }
 
