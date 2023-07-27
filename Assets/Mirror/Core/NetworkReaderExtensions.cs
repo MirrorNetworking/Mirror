@@ -90,6 +90,17 @@ namespace Mirror
 
         public static byte[] ReadBytes(this NetworkReader reader, int count)
         {
+            // prevent allocation attacks with a reasonable limit.
+            //   server shouldn't allocate too much on client devices.
+            //   client shouldn't allocate too much on server in ClientToServer [SyncVar]s.
+            // log an error and return default.
+            // we don't want attackers to be able to trigger exceptions.
+            if (count > NetworkReader.AllocationLimit)
+            {
+                Debug.LogWarning($"NetworkReader attempted to allocate {count} bytes, which is larger than the allowed limit of {NetworkReader.AllocationLimit} bytes.");
+                return null;
+            }
+
             byte[] bytes = new byte[count];
             reader.ReadBytes(bytes, count);
             return bytes;
