@@ -319,7 +319,7 @@ namespace Mirror
         // note that Weaver/Writers/GenerateWriter() handles this manually.
         public static void WriteList<T>(this NetworkWriter writer, List<T> list)
         {
-            // -1 indicates null
+            // 'null' is encoded as '-1'
             if (list is null)
             {
                 writer.WriteInt(-1);

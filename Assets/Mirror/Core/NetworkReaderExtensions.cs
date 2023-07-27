@@ -245,7 +245,7 @@ namespace Mirror
         {
             int length = reader.ReadInt();
 
-            // -1 indicates null
+            // 'null' is encoded as '-1'
             if (length < 0) return null;
 
             List<T> result = new List<T>(length);
