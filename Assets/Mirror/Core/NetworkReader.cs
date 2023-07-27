@@ -45,6 +45,16 @@ namespace Mirror
         // this is safer. see test: ReadString_InvalidUTF8().
         internal readonly UTF8Encoding encoding = new UTF8Encoding(false, true);
 
+        // while allocation free ReadArraySegment is encouraged,
+        // some functions can allocate a new byte[], List<T>, Texture, etc.
+        // we should keep a reasonable allocation size limit:
+        // -> server won't accidentally allocate 2GB on a mobile device
+        // -> client won't allocate 2GB on server for ClientToServer [SyncVar]s
+        // -> unlike 64 KB max string length, we need a larger limit here.
+        //    users may send large textures, etc.
+        //    16 MB adds allocation safety while not breaking extreme projects.
+        public const int AllocationLimit = 1024 * 1024 * 16; // 16 MB
+
         public NetworkReader(ArraySegment<byte> segment)
         {
             buffer = segment;
