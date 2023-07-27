@@ -304,6 +304,17 @@ namespace Mirror
 
             // 'null' is encoded as '-1'
             if (length < 0) return null;
+            
+            // prevent allocation attacks with a reasonable limit.
+            //   server shouldn't allocate too much on client devices.
+            //   client shouldn't allocate too much on server in ClientToServer [SyncVar]s.
+            // log an error and return default.
+            // we don't want attackers to be able to trigger exceptions.
+            if (length > NetworkReader.AllocationLimit)
+            {
+                Debug.LogWarning($"NetworkReader attempted to allocate {length} bytes, which is larger than the allowed limit of {NetworkReader.AllocationLimit} bytes.");
+                return null;
+            }
 
             // we can't check if reader.Remaining < length,
             // because we don't know sizeof(T) since it's a managed type.
