@@ -54,10 +54,10 @@ namespace Mirror
 
         protected virtual void CaptureBounds()
         {
-            // grab current bounds (collider.bounds returns world coordinates)
+            // grab current collider bounds
+            // this is in world space coordinates, and axis aligned
+            // TODO double check
             Bounds bounds = actualCollider.bounds;
-
-            // TODO convert to axis aligned world bounding box
 
             // insert into history
             history.Insert(bounds);
