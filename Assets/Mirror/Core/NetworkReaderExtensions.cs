@@ -336,9 +336,6 @@ namespace Mirror
 
         public static Texture2D ReadTexture2D(this NetworkReader reader)
         {
-            // TODO allocation protection when sending textures to server.
-            //      currently can allocate 32k x 32k x 4 byte = 3.8 GB
-
             // support 'null' textures for [SyncVar]s etc.
             // https://github.com/vis2k/Mirror/issues/3144
             short width = reader.ReadShort();
@@ -346,6 +343,19 @@ namespace Mirror
 
             // read height
             short height = reader.ReadShort();
+
+            // prevent allocation attacks with a reasonable limit.
+            //   server shouldn't allocate too much on client devices.
+            //   client shouldn't allocate too much on server in ClientToServer [SyncVar]s.
+            // log an error and return default.
+            // we don't want attackers to be able to trigger exceptions.
+            int totalSize = width * height;
+            if (totalSize > NetworkReader.AllocationLimit)
+            {
+                Debug.LogWarning($"NetworkReader attempted to allocate {totalSize} bytes, which is larger than the allowed limit of {NetworkReader.AllocationLimit} bytes.");
+                return null;
+            }
+
             Texture2D texture2D = new Texture2D(width, height);
 
             // read pixel content
