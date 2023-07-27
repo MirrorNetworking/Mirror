@@ -71,7 +71,7 @@ namespace Mirror
             // reserve 2 bytes for header after we know how much was written.
             int written = writer.encoding.GetBytes(value, 0, value.Length, writer.buffer, writer.Position + 2);
 
-            // check if within max size
+            // check if within max size, otherwise Reader can't read it.
             if (written > NetworkWriter.MaxStringLength)
                 throw new IndexOutOfRangeException($"NetworkWriter.WriteString - Value too long: {written} bytes. Limit: {NetworkWriter.MaxStringLength} bytes");
 
