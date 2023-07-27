@@ -84,6 +84,32 @@ namespace Mirror.Tests.Runtime
             return identity1;
         }
 
+        [UnityTest]
+        public IEnumerator DisconnectTimeoutTest()
+        {
+            // Set low ping frequency so no NetworkPingMessage is generated
+            NetworkTime.PingInterval = 5f;
+
+            // Set a short timeout for this test and enable disconnectInactiveConnections
+            NetworkServer.disconnectInactiveConnections = true;
+            NetworkServer.disconnectInactiveTimeout = 1;
+
+            GameObject remotePlayer = new GameObject("RemotePlayer", typeof(NetworkIdentity));
+            NetworkConnectionToClient remoteConnection = new NetworkConnectionToClient(1);
+            NetworkServer.OnConnected(remoteConnection);
+            NetworkServer.AddPlayerForConnection(remoteConnection, remotePlayer);
+
+            // There's a host player from HostSetup + remotePlayer
+            Assert.That(NetworkServer.connections.Count, Is.EqualTo(2));
+
+            // wait 2 seconds for remoteConnection to timeout as idle
+            yield return new WaitForSeconds(2f);
+
+            // host client connection should still be alive
+            Assert.That(NetworkServer.connections.Count, Is.EqualTo(1));
+            Assert.That(NetworkServer.localConnection, Is.Not.Null);
+        }
+
         [Test]
         public void Shutdown_DisablesAllSpawnedPrefabs()
         {

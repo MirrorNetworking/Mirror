@@ -14,7 +14,7 @@ namespace Mirror
 
         /// <summary>Server Update frequency, per second. Use around 60Hz for fast paced games like Counter-Strike to minimize latency. Use around 30Hz for games like WoW to minimize computations. Use around 1-10Hz for slow paced games like EVE.</summary>
         // overwritten by NetworkManager (if any)
-        public static int tickRate = 30;
+        public static int tickRate = 60;
 
         // tick rate is in Hz.
         // convert to interval in seconds for convenience where needed.
@@ -70,6 +70,12 @@ namespace Mirror
         // by default, everyone observes everyone
         public static InterestManagementBase aoi;
 
+        // Mirror global disconnect inactive option, independent of Transport.
+        // not all Transports do this properly, and it's easiest to configure this just once.
+        // this is very useful for some projects, keep it.
+        public static bool disconnectInactiveConnections;
+        public static float disconnectInactiveTimeout = 60;
+
         // OnConnected / OnDisconnected used to be NetworkMessages that were
         // invoked. this introduced a bug where external clients could send
         // Connected/Disconnected messages over the network causing undefined
@@ -118,6 +124,15 @@ namespace Mirror
         {
             if (initialized)
                 return;
+
+            // safety: ensure Weaving succeded.
+            // if it silently failed, we would get lots of 'writer not found'
+            // and other random errors at runtime instead. this is cleaner.
+            if (!WeaverFuse.Weaved())
+            {
+                // if it failed, throw an exception to early exit all Listen calls.
+                throw new Exception("NetworkServer won't start because Weaving failed or didn't run.");
+            }
 
             // Debug.Log($"NetworkServer Created version {Version.Current}");
 
@@ -257,6 +272,7 @@ namespace Mirror
             RegisterHandler<ReadyMessage>(OnClientReadyMessage);
             RegisterHandler<CommandMessage>(OnCommandMessage);
             RegisterHandler<NetworkPingMessage>(NetworkTime.OnServerPing, false);
+            RegisterHandler<NetworkPongMessage>(NetworkTime.OnServerPong, false);
             RegisterHandler<EntityStateMessage>(OnEntityStateMessage, true);
             RegisterHandler<TimeSnapshotMessage>(OnTimeSnapshotMessage, true);
         }
@@ -650,37 +666,40 @@ namespace Mirror
                 //       the next time.
                 //       => consider moving processing to NetworkEarlyUpdate.
                 while (!isLoadingScene &&
-                       connection.unbatcher.GetNextMessage(out NetworkReader reader, out double remoteTimestamp))
+                       connection.unbatcher.GetNextMessage(out ArraySegment<byte> message, out double remoteTimestamp))
                 {
-                    // enough to read at least header size?
-                    if (reader.Remaining >= NetworkMessages.IdSize)
+                    using (NetworkReaderPooled reader = NetworkReaderPool.Get(message))
                     {
-                        // make remoteTimeStamp available to the user
-                        connection.remoteTimeStamp = remoteTimestamp;
-
-                        // handle message
-                        if (!UnpackAndInvoke(connection, reader, channelId))
+                        // enough to read at least header size?
+                        if (reader.Remaining >= NetworkMessages.IdSize)
                         {
-                            // warn, disconnect and return if failed
-                            // -> warning because attackers might send random data
-                            // -> messages in a batch aren't length prefixed.
-                            //    failing to read one would cause undefined
-                            //    behaviour for every message afterwards.
-                            //    so we need to disconnect.
-                            // -> return to avoid the below unbatches.count error.
-                            //    we already disconnected and handled it.
-                            Debug.LogWarning($"NetworkServer: failed to unpack and invoke message. Disconnecting {connectionId}.");
+                            // make remoteTimeStamp available to the user
+                            connection.remoteTimeStamp = remoteTimestamp;
+
+                            // handle message
+                            if (!UnpackAndInvoke(connection, reader, channelId))
+                            {
+                                // warn, disconnect and return if failed
+                                // -> warning because attackers might send random data
+                                // -> messages in a batch aren't length prefixed.
+                                //    failing to read one would cause undefined
+                                //    behaviour for every message afterwards.
+                                //    so we need to disconnect.
+                                // -> return to avoid the below unbatches.count error.
+                                //    we already disconnected and handled it.
+                                Debug.LogWarning($"NetworkServer: failed to unpack and invoke message. Disconnecting {connectionId}.");
+                                connection.Disconnect();
+                                return;
+                            }
+                        }
+                        // otherwise disconnect
+                        else
+                        {
+                            // WARNING, not error. can happen if attacker sends random data.
+                            Debug.LogWarning($"NetworkServer: received Message was too short (messages should start with message id). Disconnecting {connectionId}");
                             connection.Disconnect();
                             return;
                         }
-                    }
-                    // otherwise disconnect
-                    else
-                    {
-                        // WARNING, not error. can happen if attacker sends random data.
-                        Debug.LogWarning($"NetworkServer: received Message was too short (messages should start with message id). Disconnecting {connectionId}");
-                        connection.Disconnect();
-                        return;
                     }
                 }
 
@@ -776,6 +795,10 @@ namespace Mirror
             {
                 Debug.LogWarning($"NetworkServer.RegisterHandler replacing handler for {typeof(T).FullName}, id={msgType}. If replacement is intentional, use ReplaceHandler instead to avoid this warning.");
             }
+
+            // register Id <> Type in lookup for debugging.
+            NetworkMessages.Lookup[msgType] = typeof(T);
+
             handlers[msgType] = NetworkMessages.WrapHandler(handler, requireAuthentication);
         }
 
@@ -789,6 +812,10 @@ namespace Mirror
             {
                 Debug.LogWarning($"NetworkServer.RegisterHandler replacing handler for {typeof(T).FullName}, id={msgType}. If replacement is intentional, use ReplaceHandler instead to avoid this warning.");
             }
+
+            // register Id <> Type in lookup for debugging.
+            NetworkMessages.Lookup[msgType] = typeof(T);
+
             handlers[msgType] = NetworkMessages.WrapHandler(handler, requireAuthentication);
         }
 
@@ -1661,6 +1688,21 @@ namespace Mirror
             }
         }
 
+        // helper function to check a connection for inactivity and disconnect if necessary
+        // returns true if disconnected
+        static bool DisconnectIfInactive(NetworkConnectionToClient connection)
+        {
+            // check for inactivity
+            if (disconnectInactiveConnections &&
+                !connection.IsAlive(disconnectInactiveTimeout))
+            {
+                Debug.LogWarning($"Disconnecting {connection} for inactivity!");
+                connection.Disconnect();
+                return true;
+            }
+            return false;
+        }
+
         // NetworkLateUpdate called after any Update/FixedUpdate/LateUpdate
         // (we add this to the UnityEngine in NetworkLoop)
         // internal for tests
@@ -1683,6 +1725,10 @@ namespace Mirror
             // go through all connections
             foreach (NetworkConnectionToClient connection in connectionsCopy)
             {
+                // check for inactivity. disconnects if necessary.
+                if (DisconnectIfInactive(connection))
+                    continue;
+
                 // has this connection joined the world yet?
                 // for each READY connection:
                 //   pull in UpdateVarsMessage for each entity it observes

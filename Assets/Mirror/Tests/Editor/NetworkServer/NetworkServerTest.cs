@@ -387,7 +387,7 @@ namespace Mirror.Tests.NetworkServers
             ConnectClientBlocking(out _);
 
             // send message & process
-            int max = NetworkMessages.MaxContentSize;
+            int max = NetworkMessages.MaxContentSize(Channels.Reliable);
             NetworkClient.Send(new VariableSizedMessage(max));
             ProcessMessages();
 
@@ -408,7 +408,7 @@ namespace Mirror.Tests.NetworkServers
             ConnectClientBlocking(out NetworkConnectionToClient connectionToClient);
 
             // send message & process
-            int max = NetworkMessages.MaxContentSize;
+            int max = NetworkMessages.MaxContentSize(Channels.Reliable);
             connectionToClient.Send(new VariableSizedMessage(max));
             ProcessMessages();
 
@@ -432,8 +432,8 @@ namespace Mirror.Tests.NetworkServers
 
             // send message & process
             int transportMax = transport.GetMaxPacketSize(Channels.Reliable);
-            int messageMax = NetworkMessages.MaxContentSize;
-            LogAssert.Expect(LogType.Error, $"NetworkConnection.ValidatePacketSize: cannot send packet larger than {transportMax} bytes, was {transportMax + 1} bytes");
+            int messageMax = NetworkMessages.MaxContentSize(Channels.Reliable);
+            LogAssert.Expect(LogType.Error, new Regex($"NetworkConnection.Send: message of type (.*) with a size of 65525 bytes is larger than the max allowed message size in one batch: 65524."));
             NetworkClient.Send(new VariableSizedMessage(messageMax + 1));
             ProcessMessages();
 
@@ -455,8 +455,8 @@ namespace Mirror.Tests.NetworkServers
 
             // send message & process
             int transportMax = transport.GetMaxPacketSize(Channels.Reliable);
-            int messageMax = NetworkMessages.MaxContentSize;
-            LogAssert.Expect(LogType.Error, $"NetworkConnection.ValidatePacketSize: cannot send packet larger than {transportMax} bytes, was {transportMax + 1} bytes");
+            int messageMax = NetworkMessages.MaxContentSize(Channels.Reliable);
+            LogAssert.Expect(LogType.Error, new Regex($"NetworkConnection.Send: message of type (.*) with a size of 65525 bytes is larger than the max allowed message size in one batch: 65524."));
             connectionToClient.Send(new VariableSizedMessage(messageMax + 1));
             ProcessMessages();
 

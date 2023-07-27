@@ -301,16 +301,23 @@ namespace Mirror
             // parents.
             // only run this in Editor. don't add more runtime overhead.
 
+            // GetComponentInParent(includeInactive) is needed because Prefabs are not
+            // considered active, so this check requires to scan inactive.
 #if UNITY_EDITOR
+#if UNITY_2021_3_OR_NEWER // 2021 has GetComponentInParents(active)
             if (GetComponent<NetworkIdentity>() == null &&
-#if UNITY_2020_3_OR_NEWER
                 GetComponentInParent<NetworkIdentity>(true) == null)
-#else
-                GetComponentInParent<NetworkIdentity>() == null)
-#endif
             {
                 Debug.LogError($"{GetType()} on {name} requires a NetworkIdentity. Please add a NetworkIdentity component to {name} or it's parents.");
             }
+#elif UNITY_2020_3_OR_NEWER // 2020 only has GetComponentsInParents(active), we can use this too
+            NetworkIdentity[] parentsIds = GetComponentsInParent<NetworkIdentity>(true);
+            int parentIdsCount = parentsIds != null ? parentsIds.Length : 0;
+            if (GetComponent<NetworkIdentity>() == null && parentIdsCount == 0)
+            {
+                Debug.LogError($"{GetType()} on {name} requires a NetworkIdentity. Please add a NetworkIdentity component to {name} or it's parents.");
+            }
+#endif
 #endif
         }
 
@@ -419,13 +426,14 @@ namespace Mirror
             {
                 serialized.Write(message);
 
-                // add to every observer's connection's rpc buffer
+                // send to every observer.
+                // batching buffers this automatically.
                 foreach (NetworkConnectionToClient conn in netIdentity.observers.Values)
                 {
                     bool isOwner = conn == netIdentity.connectionToClient;
                     if ((!isOwner || includeOwner) && conn.isReady)
                     {
-                        conn.BufferRpc(message, channelId);
+                        conn.Send(message, channelId);
                     }
                 }
             }
@@ -477,10 +485,9 @@ namespace Mirror
                 payload = writer.ToArraySegment()
             };
 
-            // serialize it to the connection's rpc buffer.
-            // send them all at once, instead of sending one message per rpc.
-            // conn.Send(message, channelId);
-            connToClient.BufferRpc(message, channelId);
+            // send it to the connection.
+            // batching buffers this automatically.
+            conn.Send(message, channelId);
         }
 
         // move the [SyncVar] generated property's .set into C# to avoid much IL
@@ -748,7 +755,6 @@ namespace Mirror
         //          GeneratedSyncVarDeserialize(reader, ref health, null, reader.ReadInt());
         //      }
         //  }
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void GeneratedSyncVarDeserialize<T>(ref T field, Action<T, T> OnChanged, T value)
         {
             T previous = field;
@@ -806,7 +812,6 @@ namespace Mirror
         //           GeneratedSyncVarDeserialize_GameObject(reader, ref target, OnChangedNB, ref ___targetNetId);
         //       }
         //   }
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void GeneratedSyncVarDeserialize_GameObject(ref GameObject field, Action<GameObject, GameObject> OnChanged, NetworkReader reader, ref uint netIdField)
         {
             uint previousNetId = netIdField;
@@ -869,7 +874,6 @@ namespace Mirror
         //           GeneratedSyncVarDeserialize_NetworkIdentity(reader, ref target, OnChangedNI, ref ___targetNetId);
         //       }
         //   }
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void GeneratedSyncVarDeserialize_NetworkIdentity(ref NetworkIdentity field, Action<NetworkIdentity, NetworkIdentity> OnChanged, NetworkReader reader, ref uint netIdField)
         {
             uint previousNetId = netIdField;
@@ -933,7 +937,6 @@ namespace Mirror
         //           GeneratedSyncVarDeserialize_NetworkBehaviour(reader, ref target, OnChangedNB, ref ___targetNetId);
         //       }
         //   }
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void GeneratedSyncVarDeserialize_NetworkBehaviour<T>(ref T field, Action<T, T> OnChanged, NetworkReader reader, ref NetworkBehaviourSyncVar netIdField)
             where T : NetworkBehaviour
         {
@@ -1099,7 +1102,6 @@ namespace Mirror
             DeserializeSyncVars(reader, initialState);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         void SerializeSyncObjects(NetworkWriter writer, bool initialState)
         {
             // if initialState: write all SyncVars.
@@ -1110,7 +1112,6 @@ namespace Mirror
                 SerializeObjectsDelta(writer);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         void DeserializeSyncObjects(NetworkReader reader, bool initialState)
         {
             if (initialState)
@@ -1351,5 +1352,10 @@ namespace Mirror
 
         /// <summary>Stop event, only called for objects the client has authority over.</summary>
         public virtual void OnStopAuthority() {}
+
+        // Weaver injects this into inheriting classes to return true.
+        // allows runtime & tests to check if a type was weaved.
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public virtual bool Weaved() => false;
     }
 }

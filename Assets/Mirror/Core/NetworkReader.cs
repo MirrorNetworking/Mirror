@@ -105,7 +105,6 @@ namespace Mirror
         //
         // Note: inlining ReadBlittable is enough. don't inline ReadInt etc.
         //       we don't want ReadBlittable to be copied in place everywhere.
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal unsafe T ReadBlittable<T>()
             where T : unmanaged
         {
@@ -212,7 +211,6 @@ namespace Mirror
         }
 
         /// <summary>Reads any data type that mirror supports. Uses weaver populated Reader(T).read</summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public T Read<T>()
         {
             Func<NetworkReader, T> readerDelegate = Reader<T>.read;

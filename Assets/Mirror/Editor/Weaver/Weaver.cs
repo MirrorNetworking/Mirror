@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Mono.CecilX;
+using Mono.CecilX.Cil;
+using Mono.CecilX.Rocks;
 
 namespace Mirror.Weaver
 {
@@ -118,7 +120,17 @@ namespace Mirror.Weaver
             Stopwatch watch = Stopwatch.StartNew();
             watch.Start();
 
-            foreach (TypeDefinition td in moduleDefinition.Types)
+            // ModuleDefinition.Types only finds top level types.
+            // GetAllTypes recursively finds all nested types as well.
+            // fixes nested types not being weaved, for example:
+            //     class Parent {              // ModuleDefinition.Types finds this
+            //         class Child {           // .Types.NestedTypes finds this
+            //             class GrandChild {} // only GetAllTypes finds this too
+            //         }
+            //     }
+            // note this is not about inheritance, only about type definitions.
+            // see test: NetworkBehaviourTests.DeeplyNested()
+            foreach (TypeDefinition td in moduleDefinition.GetAllTypes())
             {
                 if (td.IsClass && td.BaseType.CanBeResolved())
                 {
@@ -140,6 +152,16 @@ namespace Mirror.Weaver
             GeneratedCodeClass = new TypeDefinition(GeneratedCodeNamespace, GeneratedCodeClassName,
                 TypeAttributes.BeforeFieldInit | TypeAttributes.Class | TypeAttributes.AnsiClass | TypeAttributes.Public | TypeAttributes.AutoClass | TypeAttributes.Abstract | TypeAttributes.Sealed,
                 weaverTypes.Import<object>());
+        }
+
+        void ToggleWeaverFuse()
+        {
+            // // find Weaved() function
+            MethodDefinition func = weaverTypes.weaverFuseMethod.Resolve();
+            // // change return 0 to return 1
+
+            ILProcessor worker = func.Body.GetILProcessor();
+            func.Body.Instructions[0] = worker.Create(OpCodes.Ldc_I4_1);
         }
 
         // Weave takes an AssemblyDefinition to be compatible with both old and
@@ -214,7 +236,7 @@ namespace Mirror.Weaver
 
                 if (modified)
                 {
-                    SyncVarAttributeAccessReplacer.Process(moduleDefinition, syncVarAccessLists);
+                    SyncVarAttributeAccessReplacer.Process(Log, moduleDefinition, syncVarAccessLists);
 
                     // add class that holds read/write functions
                     moduleDefinition.Types.Add(GeneratedCodeClass);
@@ -226,6 +248,12 @@ namespace Mirror.Weaver
                     // ILPostProcessor writes to in-memory assembly.
                     // it depends on the caller.
                     //CurrentAssembly.Write(new WriterParameters{ WriteSymbols = true });
+                }
+
+                // if weaving succeeded, switch on the Weaver Fuse in Mirror.dll
+                if (CurrentAssembly.Name.Name == MirrorAssemblyName)
+                {
+                    ToggleWeaverFuse();
                 }
 
                 return true;

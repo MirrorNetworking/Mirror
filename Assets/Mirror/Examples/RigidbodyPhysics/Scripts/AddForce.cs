@@ -11,21 +11,17 @@ namespace Mirror.Examples.RigidbodyPhysics
         protected override void OnValidate()
         {
             base.OnValidate();
-
             rigidbody3d = GetComponent<Rigidbody>();
-            rigidbody3d.isKinematic = true;
         }
 
-        public override void OnStartServer()
-        {
-            rigidbody3d.isKinematic = false;
-        }
-
-        [ServerCallback]
         void Update()
         {
-            if (Input.GetKeyDown(KeyCode.Space))
-                rigidbody3d.AddForce(Vector3.up * force);
+            // do we have authority over this?
+            if (!rigidbody3d.isKinematic)
+            {
+                if (Input.GetKeyDown(KeyCode.Space))
+                    rigidbody3d.AddForce(Vector3.up * force);
+            }
         }
     }
 }

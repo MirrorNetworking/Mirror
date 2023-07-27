@@ -16,13 +16,13 @@
 <img src="https://user-images.githubusercontent.com/16416509/119117854-3e4e2b80-ba5c-11eb-8236-ce6cfd2b6b07.png" title="Original Concept Art for Games that made us dream. Copyright Blizzard, Blizzard, Riot Games, Joymax in that order."/>
 
 ## Mirror Networking 
-The **#1** free **open source** game networking library for **Unity 2019 / 2020 / 2021 / 2022**.
+The **#1** free **open source** game networking library for **Unity 2019 / 2020 / 2021 / 2022 LTS**.
 
-Used **in production** by major hits like [**Population: ONE**](https://www.populationonevr.com/) and many [more](#made-with-mirror).
+Used **in production** by major hits like [**Population: ONE**](https://www.populationonevr.com/) and many [**more**](#made-with-mirror).
 
 Originally based on [**UNET**](https://blog.unity.com/technology/announcing-unet-new-unity-multiplayer-technology): battle tested **since 2014** for 9 years and counting!
 
-Mirror is **[stable](https://mirror-networking.gitbook.io/docs/general/tests)**, [**modular**](#low-level-transports) & **[easy to use](https://mirror-networking.gitbook.io/)** for all types of games, even small [MMORPGs](#made-with-mirror) 🎮.
+Mirror is **[stable](https://mirror-networking.gitbook.io/docs/general/tests)**, [**modular**](#low-level-transports) & **[easy to use](https://mirror-networking.gitbook.io/)** for all types of games, even small [**MMORPGs**](#made-with-mirror) 🎮.
 
 **Made in 🇩🇪🇺🇸🇬🇧🇸🇬🇹🇼 with ❤️**.
 
@@ -37,13 +37,13 @@ Making multiplayer games this way is fun & easy:
 ```cs
 public class Player : NetworkBehaviour
 {
-    // synced automatically
+    // Synced automatically
     [SyncVar] public int health = 100;
     
-    // lists, dictionaries, sets too
+    // Lists, Dictionaries, Sets too
     SyncList<Item> inventory = new SyncList<Item>();
     
-    // server/client-only code
+    // Server/Client-only code
     [Server] void LevelUp() {}
     [Client] void Animate() {}
     
@@ -54,10 +54,10 @@ public class Player : NetworkBehaviour
         if (isClient) Move();
     }
     
-    // zero overhead remote calls
-    [Command]   void CmdUseItem(int slot) {} // client to server
-    [ClientRpc] void RpcRespawn() {}         // server to all clients
-    [TargetRpc] void Hello() {}              // server to one client
+    // Zero overhead remote calls
+    [Command]   void CmdUseItem(int slot) {} // Client to Server
+    [ClientRpc] void RpcRespawn() {}         // Server to all Clients
+    [TargetRpc] void Hello() {}              // Server to one Client
 }
 ```
 
@@ -65,15 +65,18 @@ There's also **NetworkServer** & **NetworkClient**.</br>
 And that's about it 🤩
 
 ---
-## Free, Open & Community Funded
-Mirror is **free & open source** (MIT Licensed).
+## Free, Open Source & Community Focused
+**Mirror** is **free & open source** (MIT Licensed).
 
-"Free" as in free beer, and freedom to use it any way you like.
+🍺 "**Free**" as in free beer, and freedom to use it any way you like.
  
-- Run [Dedicated Servers](https://mirror-networking.gitbook.io/docs/guides/server-hosting) anywhere.
-- Free player hosted games thanks to [Epic Relay](https://github.com/FakeByte/EpicOnlineTransport)!
+- Host Game [Servers](https://mirror-networking.gitbook.io/docs/hosting/the-pragmatic-hosting-guide) anywhere!
+- Customize anything freely!
+- No paywalls, no CCU costs, no strings attached!
 
-Mirror is funded by [**Donations**](https://github.com/sponsors/vis2k) from our [fantastic community](https://discordapp.com/invite/N9QVxbM) of over 14,000 users!
+🤝 We are a team of **professional** game developers, who are paid to **use Mirror in production**. Our incentives will always align with the community, because we are Mirror users just like you! 
+
+❤️ Our [**fantastic community**](https://discordapp.com/invite/N9QVxbM) of over **14,000** users contributes feedback & improvements every day. Please join us on our journey, help others, and consider a [**Donation**](https://github.com/sponsors/vis2k) if you love our work!
 
 <img src="https://user-images.githubusercontent.com/16416509/195067704-5577b581-b829-4c9f-80d0-b6270a3a59e7.png" title="Fitzcarraldo"/>
 
@@ -81,7 +84,7 @@ _The top quote is from Fitzcarraldo, which is quite reminiscent of this project.
 
 ---
 ## Getting Started
-Get **Unity 2019 / 2020 / 2021 LTS**, [Download Mirror](https://assetstore.unity.com/packages/tools/network/mirror-129321), open one of the examples & press Play!
+Get **Unity 2019 / 2020 / 2021 / 2022 LTS**, [Download Mirror](https://assetstore.unity.com/packages/tools/network/mirror-129321), open one of the examples & press Play!
 
 Check out our [Documentation](https://mirror-networking.gitbook.io/) to learn how it all works.
 
@@ -211,6 +214,8 @@ Castaway runs in the Browser, thanks to Mirror's WebGL support.
 <a href="https://www.adversator.com/"><img src="https://user-images.githubusercontent.com/16416509/178641128-37dc270c-bedf-4891-8284-33573d1776b9.jpg" title="Adversator" height="100"/></a>
 <a href="https://store.steampowered.com/app/670260/Solace_Crafting/"><img src="https://user-images.githubusercontent.com/16416509/197175819-1c2720b6-97e6-4844-80b5-2197a7f22839.png" title="Solace Crafting" height="100"/></a>
 <a href="https://www.unitystation.org"><img src="https://user-images.githubusercontent.com/57072365/204021428-0c621067-d580-4c88-b551-3ac70f9da39d.jpg" title="UnityStation" height="100"/></a>
+<a href="https://store.steampowered.com/app/1970020/__Touhou_Fairy_Knockout__One_fairy_to_rule_them_all/"><img src="https://github.com/MirrorNetworking/Mirror/assets/16416509/dc1286a8-b619-4f68-9dfe-6a501be7e233" title="Touhou Fairy Knockout" height="100"/></a>
+<a href="https://store.steampowered.com/app/2168680/Nuclear_Option/"><img src="https://github.com/MirrorNetworking/Mirror/assets/16416509/4e98520e-9bde-4305-8b02-bada090a02dd" title="Nuclear Option" height="100"/></a>
 
 ## Modular Transports
 Mirror uses **KCP** (reliable UDP) by default, but you may use any of our community transports for low level packet sending:
@@ -239,12 +244,37 @@ We prefer to work slow & thoroughly in order to not break everyone's games 🐌.
 Therefore, we need to [KISS](https://en.wikipedia.org/wiki/KISS_principle) 😗.
 
 ---
+# Information Security
+![Mirror alternative Logo](https://github.com/MirrorNetworking/Mirror/assets/16416509/ca26e97c-2f26-487d-a48e-e23ec762bc79)
+
+**Mirror-Networking** follows common information security industry standards & best practices.
+
+Mirror is free open source software (**MIT Licensed**), with over 80% test coverage. The company is located in Germany. We do not collect any user data, impose no restrictions on users & developers, or rely on any closed source dependencies other than Unity.
+
+This makes Mirror an attractive choice for government agencies and large corporations with strict information security requirements.
+
+Feel free to reach out to business [**at**] mirror-networking.com if you have any questions, or need to review any of our policies:
+
+* **Development best Practices and SDLC**.pdf
+* **Disaster Recovery Procedure**.pdf
+* **Document Retention and Destruction Policy**.pdf
+* **Encryption Policy**.pdf
+* **Information Security Guidelines**.pdf
+* **[Privacy Policy](https://mirror-networking.com/privacy-policy/)**
+* **[Security Policy](https://github.com/MirrorNetworking/Mirror/blob/master/SECURITY.md)**
+* **Vulnerability Management Policy**.pdf
+
+Please reach out if you decide to use Mirror.
+
+We are excited to hear about your project, and happy to help if needed!
+
+---
 # Incident Response & Bug Bounty
 A lot of projects use Mirror in production. If you found a critical bug / exploit in Mirror core, please follow the steps outlined in our [Security Policy](SECURITY.md).
 
 **Credits / past findings / fixes:**
 * 2020, fholm: fuzzing ConnectMessage to stop further connects [[#2397](https://github.com/vis2k/Mirror/pull/2397)]
-* 2023-04-05: IncludeSec: [kcp2k UDP spoofing](http://blog.includesecurity.com/?p=1407) [[#3286](https://github.com/vis2k/Mirror/pull/2397)]
+* 2023-04-05: IncludeSec: [kcp2k UDP spoofing](http://blog.includesecurity.com/?p=1407) [[#3286](https://github.com/vis2k/Mirror/pull/3286)]
 
 ---
 # Credits & Thanks 🙏

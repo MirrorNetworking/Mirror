@@ -59,7 +59,6 @@ namespace Mirror
 
         /// <summary>Copies buffer until 'Position' to a new array.</summary>
         // Try to use ToArraySegment instead to avoid allocations!
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public byte[] ToArray()
         {
             byte[] data = new byte[Position];
@@ -123,7 +122,6 @@ namespace Mirror
         //
         // Note: inlining WriteBlittable is enough. don't inline WriteInt etc.
         //       we don't want WriteBlittable to be copied in place everywhere.
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal unsafe void WriteBlittable<T>(T value)
             where T : unmanaged
         {
@@ -221,7 +219,6 @@ namespace Mirror
         }
 
         /// <summary>Writes any type that mirror supports. Uses weaver populated Writer(T).write.</summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Write<T>(T value)
         {
             Action<NetworkWriter, T> writeDelegate = Writer<T>.write;

@@ -465,7 +465,7 @@ MonoBehaviour:
   runInBackground: 1
   autoStartServerBuild: 1
   autoConnectClientBuild: 0
-  sendRate: 30
+  sendRate: 120
   offlineScene: 
   onlineScene: 
   transport: {fileID: 1282001521}
@@ -487,7 +487,7 @@ MonoBehaviour:
     dynamicAdjustment: 1
     dynamicAdjustmentTolerance: 1
     deliveryTimeEmaDuration: 2
-  timeInterpolationGui: 0
+  timeInterpolationGui: 1
 --- !u!114 &1282001521
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -531,7 +531,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   color: {r: 1, g: 1, b: 1, a: 1}
   padding: 2
-  width: 150
+  width: 180
   height: 25
 --- !u!1 &1458789072
 GameObject:

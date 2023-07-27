@@ -13,8 +13,9 @@ jobs:
         unityVersion:
           - 2019.4.40f1
           - 2020.3.48f1
-          - 2021.3.26f1
-          - 2022.2.21f1
+          - 2021.3.27f1
+          - 2022.3.4f1
+          - 2023.1.2f1
 
     steps:
       - name: Checkout repository

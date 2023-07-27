@@ -1,11 +1,10 @@
 using UnityEngine;
-using UnityEngine.Networking;
 
 namespace Mirror.Examples.AdditiveScenes
 {
     [RequireComponent(typeof(CapsuleCollider))]
     [RequireComponent(typeof(CharacterController))]
-    [RequireComponent(typeof(NetworkTransform))]
+    [RequireComponent(typeof(NetworkTransformUnreliable))]
     [RequireComponent(typeof(Rigidbody))]
     public class PlayerController : NetworkBehaviour
     {

@@ -4,6 +4,7 @@
 //
 // however, some of the old NetworkTime code remains for ping time (rtt).
 // some users may still be using that.
+using System;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 #if !UNITY_2020_3_OR_NEWER
@@ -15,8 +16,16 @@ namespace Mirror
     /// <summary>Synchronizes server time to clients.</summary>
     public static class NetworkTime
     {
-        /// <summary>Ping message frequency, used to calculate network time and RTT</summary>
-        public static float PingFrequency = 2;
+        /// <summary>Ping message interval, used to calculate network time and RTT</summary>
+        public static float PingInterval = 2;
+
+        // DEPRECATED 2023-07-06
+        [Obsolete("NetworkTime.PingFrequency was renamed to PingInterval, because we use it as seconds, not as Hz. Please rename all usages, but keep using it just as before.")]
+        public static float PingFrequency
+        {
+            get => PingInterval;
+            set => PingInterval = value;
+        }
 
         /// <summary>Average out the last few results from Ping</summary>
         public static int PingWindowSize = 6;
@@ -72,11 +81,15 @@ namespace Mirror
         /// <summary>Round trip time (in seconds) that it takes a message to go client->server->client.</summary>
         public static double rtt => _rtt.Value;
 
+        /// <Summary>Round trip time variance aka jitter, in seconds.</Summary>
+        // "rttVariance" instead of "rttVar" for consistency with older versions.
+        public static double rttVariance => _rtt.Variance;
+
         // RuntimeInitializeOnLoadMethod -> fast playmode without domain reload
         [RuntimeInitializeOnLoadMethod]
         public static void ResetStatics()
         {
-            PingFrequency = 2;
+            PingInterval = 2;
             PingWindowSize = 6;
             lastPingTime = 0;
             _rtt = new ExponentialMovingAverage(PingWindowSize);
@@ -88,7 +101,7 @@ namespace Mirror
         internal static void UpdateClient()
         {
             // localTime (double) instead of Time.time for accuracy over days
-            if (localTime - lastPingTime >= PingFrequency)
+            if (localTime >= lastPingTime + PingInterval)
             {
                 NetworkPingMessage pingMessage = new NetworkPingMessage(localTime);
                 NetworkClient.Send(pingMessage, Channels.Unreliable);
@@ -96,15 +109,16 @@ namespace Mirror
             }
         }
 
+        // client rtt calculation //////////////////////////////////////////////
         // executed at the server when we receive a ping message
         // reply with a pong containing the time from the client
         // and time from the server
         internal static void OnServerPing(NetworkConnectionToClient conn, NetworkPingMessage message)
         {
-            // Debug.Log($"OnPingServerMessage conn:{conn}");
+            // Debug.Log($"OnServerPing conn:{conn}");
             NetworkPongMessage pongMessage = new NetworkPongMessage
             {
-                clientTime = message.clientTime,
+                localTime = message.localTime,
             };
             conn.Send(pongMessage, Channels.Unreliable);
         }
@@ -114,9 +128,39 @@ namespace Mirror
         // and update time offset
         internal static void OnClientPong(NetworkPongMessage message)
         {
+            // prevent attackers from sending timestamps which are in the future
+            if (message.localTime > localTime) return;
+
             // how long did this message take to come back
-            double newRtt = localTime - message.clientTime;
+            double newRtt = localTime - message.localTime;
             _rtt.Add(newRtt);
+        }
+
+        // server rtt calculation //////////////////////////////////////////////
+        // Executed at the client when we receive a ping message from the server.
+        // in other words, this is for server sided ping + rtt calculation.
+        // reply with a pong containing the time from the server
+        internal static void OnClientPing(NetworkPingMessage message)
+        {
+            // Debug.Log($"OnClientPing conn:{conn}");
+            NetworkPongMessage pongMessage = new NetworkPongMessage
+            {
+                localTime = message.localTime,
+            };
+            NetworkClient.Send(pongMessage, Channels.Unreliable);
+        }
+
+        // Executed at the server when we receive a Pong message back.
+        // find out how long it took since we sent the Ping
+        // and update time offset
+        internal static void OnServerPong(NetworkConnectionToClient conn, NetworkPongMessage message)
+        {
+            // prevent attackers from sending timestamps which are in the future
+            if (message.localTime > localTime) return;
+
+            // how long did this message take to come back
+            double newRtt = localTime - message.localTime;
+            conn._rtt.Add(newRtt);
         }
     }
 }

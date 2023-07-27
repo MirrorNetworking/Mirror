@@ -19,7 +19,6 @@ namespace Mirror
         );
 
         /// <summary>Get a writer from the pool. Creates new one if pool is empty.</summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static NetworkWriterPooled Get()
         {
             // grab from pool & reset position

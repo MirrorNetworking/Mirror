@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Concurrent;
 using System.IO;
+using System.Linq;
+using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 
@@ -9,12 +11,24 @@ namespace Mirror.SimpleWeb
     internal sealed class Connection : IDisposable
     {
         public const int IdNotSet = -1;
-
-        readonly object disposedLock = new object();
+        private readonly object disposedLock = new object();
 
         public TcpClient client;
 
         public int connId = IdNotSet;
+
+        /// <summary>
+        /// Connect request, sent from client to start handshake
+        /// <para>Only valid on server</para>
+        /// </summary>
+        public Request request;
+        /// <summary>
+        /// RemoteEndpoint address or address from request header
+        /// <para>Only valid on server</para>
+        /// </summary>
+        public string remoteAddress;
+
+
         public Stream stream;
         public Thread receiveThread;
         public Thread sendThread;
@@ -23,8 +37,7 @@ namespace Mirror.SimpleWeb
         public ConcurrentQueue<ArrayBuffer> sendQueue = new ConcurrentQueue<ArrayBuffer>();
 
         public Action<Connection> onDispose;
-
-        volatile bool hasDisposed;
+        private volatile bool hasDisposed;
 
         public Connection(TcpClient client, Action<Connection> onDispose)
         {
@@ -92,6 +105,29 @@ namespace Mirror.SimpleWeb
                 {
                     return $"[Conn:{connId}, endPoint:n/a]";
                 }
+        }
+
+        /// <summary>
+        /// Gets the address based on the <see cref="request"/> and RemoteEndPoint
+        /// <para>Called after ServerHandShake is accepted</para>
+        /// </summary>
+        internal string CalculateAddress()
+        {
+            if (request.Headers.TryGetValue("X-Forwarded-For", out string forwardFor))
+            {
+                string actualClientIP = forwardFor.ToString().Split(',').First();
+                // Remove the port number from the address
+                return actualClientIP.Split(':').First();
+            }
+            else
+            {
+                IPEndPoint ipEndPoint = (IPEndPoint)client.Client.RemoteEndPoint;
+                IPAddress ipAddress = ipEndPoint.Address;
+                if (ipAddress.IsIPv4MappedToIPv6)
+                    ipAddress = ipAddress.MapToIPv4();
+
+                return ipAddress.ToString();
+            }
         }
     }
 }

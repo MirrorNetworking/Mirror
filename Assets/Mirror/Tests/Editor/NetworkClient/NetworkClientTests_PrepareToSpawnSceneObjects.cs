@@ -31,8 +31,9 @@ namespace Mirror.Tests.NetworkClients
             Assert.IsTrue(NetworkClient.spawnableObjects.ContainsValue(obj2));
         }
 
+        // test for https://github.com/MirrorNetworking/Mirror/issues/3541
         [Test]
-        public void DoesNotAddActiveObjectsToDictionary()
+        public void DoesAddActiveAndInactiveObjectsToDictionary()
         {
             NetworkIdentity active = CreateSceneObject(30);
             NetworkIdentity inactive = CreateSceneObject(32);
@@ -42,9 +43,9 @@ namespace Mirror.Tests.NetworkClients
 
             NetworkClient.PrepareToSpawnSceneObjects();
 
-            Assert.That(NetworkClient.spawnableObjects, Has.Count.EqualTo(1));
+            Assert.That(NetworkClient.spawnableObjects, Has.Count.EqualTo(2));
             Assert.IsTrue(NetworkClient.spawnableObjects.ContainsValue(inactive));
-            Assert.IsFalse(NetworkClient.spawnableObjects.ContainsValue(active));
+            Assert.IsTrue(NetworkClient.spawnableObjects.ContainsValue(active));
         }
 
         [Test]
@@ -90,13 +91,13 @@ namespace Mirror.Tests.NetworkClients
             NetworkIdentity obj1 = CreateSceneObject(61);
             NetworkClient.spawnableObjects.Add(61, obj1);
 
-            // new disabled object
+            // new disabled object - should be included too since netId == 0.
             NetworkIdentity obj2 = CreateSceneObject(63);
             obj2.gameObject.SetActive(false);
 
             NetworkClient.PrepareToSpawnSceneObjects();
 
-            Assert.That(NetworkClient.spawnableObjects, Has.Count.EqualTo(1));
+            Assert.That(NetworkClient.spawnableObjects, Has.Count.EqualTo(2));
             Assert.IsFalse(NetworkClient.spawnableObjects.ContainsValue(null));
             Assert.IsTrue(NetworkClient.spawnableObjects.ContainsValue(obj2));
         }

@@ -37,9 +37,9 @@ namespace Mirror
         public bool autoConnectClientBuild;
 
         /// <summary>Server Update frequency, per second. Use around 60Hz for fast paced games like Counter-Strike to minimize latency. Use around 30Hz for games like WoW to minimize computations. Use around 1-10Hz for slow paced games like EVE.</summary>
-        [Tooltip("Server & Client send rate per second. Use around 60Hz for fast paced games like Counter-Strike to minimize latency. Use around 30Hz for games like WoW to minimize computations. Use around 1-10Hz for slow paced games like EVE.")]
+        [Tooltip("Server & Client send rate per second. Use 60-100Hz for fast paced games like Counter-Strike to minimize latency. Use around 30Hz for games like WoW to minimize computations. Use around 1-10Hz for slow paced games like EVE.")]
         [FormerlySerializedAs("serverTickRate")]
-        public int sendRate = 30;
+        public int sendRate = 60;
 
         // Deprecated 2022-10-31
         [Obsolete("NetworkManager.serverTickRate was renamed to sendRate because that's what it configures for both server & client now.")]
@@ -88,6 +88,15 @@ namespace Mirror
         [Tooltip("Maximum number of concurrent connections.")]
         public int maxConnections = 100;
 
+        // Mirror global disconnect inactive option, independent of Transport.
+        // not all Transports do this properly, and it's easiest to configure this just once.
+        // this is very useful for some projects, keep it.
+        [Tooltip("When enabled, the server automatically disconnects inactive connections after the configured timeout.")]
+        public bool disconnectInactiveConnections;
+
+        [Tooltip("Timeout in seconds for server to automatically disconnect inactive connections if 'disconnectInactiveConnections' is enabled.")]
+        public float disconnectInactiveTimeout = 60f;
+
         [Header("Authentication")]
         [Tooltip("Authentication component attached to this object")]
         public NetworkAuthenticator authenticator;
@@ -120,6 +129,11 @@ namespace Mirror
 
         [Header("Snapshot Interpolation")]
         public SnapshotInterpolationSettings snapshotSettings = new SnapshotInterpolationSettings();
+
+        [Header("Connection Quality")]
+        public float connectionQualityInterval = 3;
+        double lastConnectionQualityUpdate;
+        ConnectionQuality lastConnectionQuality = ConnectionQuality.ESTIMATING;
 
         [Header("Debug")]
         public bool timeInterpolationGui = false;
@@ -239,7 +253,45 @@ namespace Mirror
         public virtual void LateUpdate()
         {
             UpdateScene();
+            UpdateConnectionQuality();
         }
+
+        // Connection Quality //////////////////////////////////////////////////
+        // uses 'pragmatic' version based on snapshot interpolation by default.
+        void UpdateConnectionQuality()
+        {
+            if (!NetworkClient.active) return;
+
+            // only recalculate every few seconds
+            // we don't want to fire Good->Bad->Good->Bad hundreds of times per second.
+            if (NetworkTime.time < lastConnectionQualityUpdate + connectionQualityInterval) return;
+            lastConnectionQualityUpdate = NetworkTime.time;
+
+            // recaclulate connection quality
+            CalculateConnectionQuality();
+
+            // call event if changed
+            if (NetworkClient.connectionQuality != lastConnectionQuality)
+            {
+                OnConnectionQualityChanged(lastConnectionQuality, NetworkClient.connectionQuality);
+                lastConnectionQuality = NetworkClient.connectionQuality;
+            }
+        }
+
+        // users can overwrite this to run their own connection quality estimation.
+        protected virtual void CalculateConnectionQuality()
+        {
+            // NetworkClient.connectionQuality = ConnectionQualityHeuristics.Pragmatic(NetworkClient.initialBufferTime, NetworkClient.bufferTime);
+            NetworkClient.connectionQuality = ConnectionQualityHeuristics.Simple(NetworkTime.rtt, NetworkTime.rttVariance);
+        }
+
+        // users can overwrite this to display connection quality warnings, etc.
+        protected virtual void OnConnectionQualityChanged(ConnectionQuality previous, ConnectionQuality current)
+        {
+            Debug.Log($"[Mirror] Connection Quality changed from {previous} to {current}");
+        }
+
+        ////////////////////////////////////////////////////////////////////////
 
         // keep the online scene change check in a separate function.
         // only change scene if the requested online scene is not blank, and is not already loaded.
@@ -279,6 +331,9 @@ namespace Mirror
             }
 
             ConfigureHeadlessFrameRate();
+
+            NetworkServer.disconnectInactiveConnections = disconnectInactiveConnections;
+            NetworkServer.disconnectInactiveTimeout = disconnectInactiveTimeout;
 
             // start listening to network connections
             NetworkServer.Listen(maxConnections);

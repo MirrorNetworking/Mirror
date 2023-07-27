@@ -355,6 +355,11 @@ namespace Mirror
 #endif
         }
 
+        // expose our AssetId Guid to uint mapping code in case projects need to map Guids to uint as well.
+        // this way their projects won't break if we change our mapping algorithm.
+        // needs to be available at runtime / builds, don't wrap in #if UNITY_EDITOR
+        public static uint AssetGuidToUint(Guid guid) => (uint)guid.GetHashCode(); // deterministic
+
 #if UNITY_EDITOR
         // child NetworkIdentities are not supported.
         // Disallow them and show an error for the user to fix.
@@ -380,8 +385,21 @@ namespace Mirror
             // only set if not empty. fixes https://github.com/vis2k/Mirror/issues/2765
             if (!string.IsNullOrWhiteSpace(path))
             {
+                // if we generate the assetId then we MUST be sure to set dirty
+                // in order to save the prefab object properly. otherwise it
+                // would be regenerated every time we reopen the prefab.
+                // -> Undo.RecordObject is the new EditorUtility.SetDirty!
+                // -> we need to call it before changing.
+                //
+                // to verify this, duplicate a prefab and double click to open it.
+                // add a log message if "_assetId != before_".
+                // without RecordObject, it'll log every time because it's not saved.
+                Undo.RecordObject(this, "Assigned AssetId");
+
+                // uint before = _assetId;
                 Guid guid = new Guid(AssetDatabase.AssetPathToGUID(path));
-                assetId = (uint)guid.GetHashCode(); // deterministic
+                assetId = AssetGuidToUint(guid);
+                // if (_assetId != before) Debug.Log($"Assigned assetId={assetId} to {name}");
             }
         }
 

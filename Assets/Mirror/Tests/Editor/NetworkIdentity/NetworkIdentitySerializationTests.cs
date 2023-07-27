@@ -1,5 +1,6 @@
 // OnDe/SerializeSafely tests.
 using System.Text.RegularExpressions;
+using Mirror.Tests.EditorBehaviours.NetworkIdentities;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -281,7 +282,7 @@ namespace Mirror.Tests.NetworkIdentities
             // set to CLIENT with some unique values
             // and set connection to server to pretend we are the owner.
             comp.syncDirection = SyncDirection.ClientToServer;
-            comp.value = 12345;
+            comp.SetValue(11); // modify with helper function to avoid #3525
 
             // initial: should still write for owner
             identity.SerializeServer(true, ownerWriter, observersWriter);
@@ -291,7 +292,7 @@ namespace Mirror.Tests.NetworkIdentities
             Assert.That(observersWriter.Position, Is.EqualTo(0));
 
             // delta: ClientToServer comes from the client
-            ++comp.value; // change something
+            comp.SetValue(22); // modify with helper function to avoid #3525
             ownerWriter.Position = 0;
             observersWriter.Position = 0;
             identity.SerializeServer(false, ownerWriter, observersWriter);
@@ -301,6 +302,8 @@ namespace Mirror.Tests.NetworkIdentities
             Assert.That(observersWriter.Position, Is.EqualTo(0));
         }
 
+        // TODO this started failing after we moved SyncVarTest1NetworkBehaviour
+        // into it's own asmdef.
         // server should still broadcast ClientToServer components to everyone
         // except the owner.
         [Test]
@@ -317,7 +320,7 @@ namespace Mirror.Tests.NetworkIdentities
             // set to CLIENT with some unique values
             // and set connection to server to pretend we are the owner.
             comp.syncDirection = SyncDirection.ClientToServer;
-            comp.value = 12345;
+            comp.SetValue(11); // modify with helper function to avoid #3525
 
             // initial: should write something for owner and observers
             identity.SerializeServer(true, ownerWriter, observersWriter);
@@ -327,7 +330,7 @@ namespace Mirror.Tests.NetworkIdentities
             Assert.That(observersWriter.Position, Is.GreaterThan(0));
 
             // delta: should only write for observers
-            ++comp.value; // change something
+            comp.SetValue(22); // modify with helper function to avoid #3525
             ownerWriter.Position = 0;
             observersWriter.Position = 0;
             identity.SerializeServer(false, ownerWriter, observersWriter);
