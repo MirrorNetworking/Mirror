@@ -258,7 +258,7 @@ namespace Mirror
                 writer.WriteUInt(0);
                 return;
             }
-            
+
             // users might try to use unspawned / prefab NetworkBehaviours in
             // rpcs/cmds/syncvars/messages. they would be null on the other
             // end, and it might not be obvious why. let's make it obvious.
@@ -352,11 +352,13 @@ namespace Mirror
 
         public static void WriteArray<T>(this NetworkWriter writer, T[] array)
         {
+            // 'null' is encoded as '-1'
             if (array is null)
             {
                 writer.WriteInt(-1);
                 return;
             }
+
             writer.WriteInt(array.Length);
             for (int i = 0; i < array.Length; i++)
                 writer.Write(array[i]);

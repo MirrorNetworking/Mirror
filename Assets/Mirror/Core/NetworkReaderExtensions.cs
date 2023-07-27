@@ -280,9 +280,8 @@ namespace Mirror
         {
             int length = reader.ReadInt();
 
-            //  we write -1 for null
-            if (length < 0)
-                return null;
+            // 'null' is encoded as '-1'
+            if (length < 0) return null;
 
             // todo throw an exception for other negative values (we never write them, likely to be attacker)
 
