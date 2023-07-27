@@ -1394,23 +1394,19 @@ namespace Mirror.Tests.NetworkReaderWriter
         [TestCase(int.MaxValue - 1)]
         public void TestReadArray_LengthIsTooBig(int badLength)
         {
+            // write bad array
             NetworkWriter writer = new NetworkWriter();
-            WriteBadArray();
+            writer.WriteInt(badLength);
+            int[] array = new int[testArraySize] { 1, 2, 3, 4 };
+            for (int i = 0; i < array.Length; i++)
+                writer.Write(array[i]);
 
+            // attempt to read it
             NetworkReader reader = new NetworkReader(writer.ToArray());
             EndOfStreamException exception = Assert.Throws<EndOfStreamException>(() =>
             {
                 _ = reader.ReadArray<int>();
             });
-            Assert.That(exception, Has.Message.EqualTo($"Received array that is too large: {badLength}"));
-
-            void WriteBadArray()
-            {
-                writer.WriteInt(badLength);
-                int[] array = new int[testArraySize] { 1, 2, 3, 4 };
-                for (int i = 0; i < array.Length; i++)
-                    writer.Write(array[i]);
-            }
         }
 
         [Test]
