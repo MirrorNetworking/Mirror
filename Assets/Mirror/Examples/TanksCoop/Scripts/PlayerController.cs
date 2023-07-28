@@ -265,6 +265,7 @@ namespace Mirror.Examples.TanksCoop
             // so we dont assign it to same person again
             if (tankController.objectOwner != this.netIdentity)
             {
+                // commands are a good place to do additional validation/cheat checks, but these are left out for simplicity here
                 _networkIdentity.RemoveClientAuthority();
                 _networkIdentity.AssignClientAuthority(connectionToClient);
 
