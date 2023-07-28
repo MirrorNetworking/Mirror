@@ -75,6 +75,14 @@ namespace Mirror
             // don't assign empty bounds, this will throw a Unity warning
             if (history.boundsCount == 0) return;
 
+            // scale projection doesn't work yet.
+            // for now, don't allow scale changes.
+            if (transform.lossyScale != Vector3.one)
+            {
+                Debug.LogWarning($"HistoryCollider: {name}'s transform global scale must be (1,1,1).");
+                return;
+            }
+
             // counter rotate the child collider against the gameobject's rotation.
             // we need this to always be axis aligned.
             boundsCollider.transform.localRotation = Quaternion.Inverse(transform.rotation);
