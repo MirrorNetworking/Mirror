@@ -50,6 +50,9 @@ namespace Mirror
         public bool syncRotation = true;  // do not change at runtime!
         public bool syncScale = false; // do not change at runtime! rare. off by default.
 
+        [Tooltip("Set to false to use world coordinates, world will be better when changing hierarchy of target transform.")]
+        public bool localCoordinates = true;
+
         // interpolation is on by default, but can be disabled to jump to
         // the destination immediately. some projects need this.
         [Header("Interpolation")]
@@ -126,15 +129,30 @@ namespace Mirror
         // => internal for testing
         protected virtual TransformSnapshot Construct()
         {
-            // NetworkTime.localTime for double precision until Unity has it too
-            return new TransformSnapshot(
-                // our local time is what the other end uses as remote time
-                NetworkTime.localTime, // Unity 2019 doesn't have timeAsDouble yet
-                0,                     // the other end fills out local time itself
-                target.localPosition,
-                target.localRotation,
-                target.localScale
-            );
+            if (localCoordinates)
+            {
+                // NetworkTime.localTime for double precision until Unity has it too
+                return new TransformSnapshot(
+                    // our local time is what the other end uses as remote time
+                    NetworkTime.localTime, // Unity 2019 doesn't have timeAsDouble yet
+                    0,                     // the other end fills out local time itself
+                    target.localPosition,
+                    target.localRotation,
+                    target.localScale
+                );
+            }
+            else
+            {
+                // NetworkTime.localTime for double precision until Unity has it too
+                return new TransformSnapshot(
+                    // our local time is what the other end uses as remote time
+                    NetworkTime.localTime, // Unity 2019 doesn't have timeAsDouble yet
+                    0,                     // the other end fills out local time itself
+                    target.position,
+                    target.rotation,
+                    target.root.localScale
+                );
+            }
         }
 
         protected void AddSnapshot(SortedList<double, TransformSnapshot> snapshots, double timeStamp, Vector3? position, Quaternion? rotation, Vector3? scale)
@@ -148,9 +166,18 @@ namespace Mirror
             //   client sends snapshot at t=10
             // then the server would assume that it's one super slow move and
             // replay it for 10 seconds.
-            if (!position.HasValue) position = snapshots.Count > 0 ? snapshots.Values[snapshots.Count - 1].position : target.localPosition;
-            if (!rotation.HasValue) rotation = snapshots.Count > 0 ? snapshots.Values[snapshots.Count - 1].rotation : target.localRotation;
-            if (!scale.HasValue) scale = snapshots.Count > 0 ? snapshots.Values[snapshots.Count - 1].scale : target.localScale;
+            if (localCoordinates)
+            {
+                if (!position.HasValue) position = snapshots.Count > 0 ? snapshots.Values[snapshots.Count - 1].position : target.localPosition;
+                if (!rotation.HasValue) rotation = snapshots.Count > 0 ? snapshots.Values[snapshots.Count - 1].rotation : target.localRotation;
+                if (!scale.HasValue) scale = snapshots.Count > 0 ? snapshots.Values[snapshots.Count - 1].scale : target.localScale;
+            }
+            else
+            {
+                if (!position.HasValue) position = snapshots.Count > 0 ? snapshots.Values[snapshots.Count - 1].position : target.position;
+                if (!rotation.HasValue) rotation = snapshots.Count > 0 ? snapshots.Values[snapshots.Count - 1].rotation : target.rotation;
+                if (!scale.HasValue) scale = snapshots.Count > 0 ? snapshots.Values[snapshots.Count - 1].scale : target.root.localScale;
+            }
 
             // insert transform snapshot
             SnapshotInterpolation.InsertIfNotExists(
@@ -186,14 +213,28 @@ namespace Mirror
             // -> but simply don't apply it. if the user doesn't want to sync
             //    scale, then we should not touch scale etc.
 
-            if (syncPosition)
-                target.localPosition = interpolatePosition ? interpolated.position : endGoal.position;
+            if (localCoordinates)
+            {
+                if (syncPosition)
+                    target.localPosition = interpolatePosition ? interpolated.position : endGoal.position;
 
-            if (syncRotation)
-                target.localRotation = interpolateRotation ? interpolated.rotation : endGoal.rotation;
+                if (syncRotation)
+                    target.localRotation = interpolateRotation ? interpolated.rotation : endGoal.rotation;
 
-            if (syncScale)
-                target.localScale = interpolateScale ? interpolated.scale : endGoal.scale;
+                if (syncScale)
+                    target.localScale = interpolateScale ? interpolated.scale : endGoal.scale;
+            }
+            else
+            {
+                if (syncPosition)
+                    target.position = interpolatePosition ? interpolated.position : endGoal.position;
+
+                if (syncRotation)
+                    target.rotation = interpolateRotation ? interpolated.rotation : endGoal.rotation;
+
+                if (syncScale)
+                    target.root.localScale = interpolateScale ? interpolated.scale : endGoal.scale;
+            }
         }
 
         // client->server teleport to force position without interpolation.

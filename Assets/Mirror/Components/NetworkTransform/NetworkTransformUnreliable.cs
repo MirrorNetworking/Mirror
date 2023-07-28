@@ -276,9 +276,18 @@ namespace Mirror
             // (Spawn message wouldn't sync NTChild positions either)
             if (initialState)
             {
-                if (syncPosition) writer.WriteVector3(target.localPosition);
-                if (syncRotation) writer.WriteQuaternion(target.localRotation);
-                if (syncScale) writer.WriteVector3(target.localScale);
+                if (localCoordinates)
+                {
+                    if (syncPosition) writer.WriteVector3(target.localPosition);
+                    if (syncRotation) writer.WriteQuaternion(target.localRotation);
+                    if (syncScale) writer.WriteVector3(target.localScale);
+                }
+                else
+                {
+                    if (syncPosition) writer.WriteVector3(target.position);
+                    if (syncRotation) writer.WriteQuaternion(target.rotation);
+                    if (syncScale) writer.WriteVector3(target.root.localScale);
+                }
             }
         }
 
@@ -289,9 +298,18 @@ namespace Mirror
             // (Spawn message wouldn't sync NTChild positions either)
             if (initialState)
             {
-                if (syncPosition) target.localPosition = reader.ReadVector3();
-                if (syncRotation) target.localRotation = reader.ReadQuaternion();
-                if (syncScale) target.localScale = reader.ReadVector3();
+                if (localCoordinates)
+                {
+                    if (syncPosition) target.localPosition = reader.ReadVector3();
+                    if (syncRotation) target.localRotation = reader.ReadQuaternion();
+                    if (syncScale) target.localScale = reader.ReadVector3();
+                }
+                else
+                {
+                    if (syncPosition) target.position = reader.ReadVector3();
+                    if (syncRotation) target.rotation = reader.ReadQuaternion();
+                    if (syncScale) target.root.localScale = reader.ReadVector3();
+                }
             }
         }
 
