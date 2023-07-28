@@ -88,9 +88,8 @@ namespace Mirror
             boundsCollider.transform.localRotation = Quaternion.Inverse(transform.rotation);
 
             // project world space bounds to collider's local space
-            Vector3 localCenter = boundsCollider.transform.InverseTransformPoint(total.center);
-            boundsCollider.center = localCenter;
-            boundsCollider.size = total.size; // TODO projection?
+            boundsCollider.center = boundsCollider.transform.InverseTransformPoint(total.center);
+            boundsCollider.size   = total.size; // TODO projection?
         }
 
         // TODO runtime drawing for debugging?
