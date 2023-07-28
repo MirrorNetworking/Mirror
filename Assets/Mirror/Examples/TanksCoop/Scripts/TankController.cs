@@ -84,6 +84,7 @@ namespace Mirror.Examples.TanksCoop
         {
             //Debug.Log("OnOwnerChangedHook: " + objectOwner);
 
+            // not ideal to adjust local players control status (or character model being hidden) via this hook, but it works for now
             if (objectOwner)
             {
                 playerController = _new.GetComponent<PlayerController>();

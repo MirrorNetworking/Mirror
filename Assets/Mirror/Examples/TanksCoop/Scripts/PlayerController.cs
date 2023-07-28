@@ -190,6 +190,7 @@ namespace Mirror.Examples.TanksCoop
         }
 
         public TankController tankController;
+        // we dont want this object to move once you have control of tank
         public bool canControlPlayer = true;
 
         void HandleInput()
@@ -213,6 +214,8 @@ namespace Mirror.Examples.TanksCoop
                     }
                 }
 
+                // alternatively we could tell everyone to locally do this and disable NetworkTransform
+                // it would be more optimal but requires a lil more code
                 if (tankController.objectOwner == netIdentity)
                 {
                     this.transform.position = tankController.seatPosition.position;
@@ -222,6 +225,7 @@ namespace Mirror.Examples.TanksCoop
 
         void OnTriggerEnter(Collider other)
         {
+            if (!isOwned) return;
             //Debug.Log(name + "- OnTriggerEnter - " + other.name);
 
             if (other.name == "TankTrigger")
@@ -236,6 +240,7 @@ namespace Mirror.Examples.TanksCoop
 
         void OnTriggerExit(Collider other)
         {
+            if (!isOwned) return;
             //Debug.Log(name + "- OnTriggerExit - " + other.name);
 
             if (other.name == "TankTrigger")
