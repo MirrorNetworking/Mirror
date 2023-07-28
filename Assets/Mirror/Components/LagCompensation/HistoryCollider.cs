@@ -4,14 +4,13 @@ using UnityEngine;
 
 namespace Mirror
 {
-    [RequireComponent(typeof(BoxCollider))]
     public class HistoryCollider : MonoBehaviour
     {
         [Header("Components")]
         [Tooltip("The object's actual collider. We need to know where it is, and how large it is.")]
         public Collider actualCollider;
 
-        [Tooltip("The helper collider that the history bounds are projected onto.\nNeeds to be added for this component, and only used by this component.")]
+        [Tooltip("The helper collider that the history bounds are projected onto.\nNeeds to be added to a child GameObject to counter-rotate an axis aligned Bounding Box onto it.\nThis is only used by this component.")]
         public BoxCollider boundsCollider;
 
         [Header("History")]
@@ -39,6 +38,7 @@ namespace Mirror
             // bounds collider should always be a trigger.
             if (actualCollider == null)    Debug.LogError("HistoryCollider: actualCollider was not set.");
             if (boundsCollider == null)    Debug.LogError("HistoryCollider: boundsCollider was not set.");
+            if (boundsCollider.transform.parent != transform) Debug.LogError("HistoryCollider: boundsCollider must be a child of this GameObject.");
             if (!boundsCollider.isTrigger) Debug.LogError("HistoryCollider: boundsCollider must be a trigger.");
         }
 
