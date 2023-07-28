@@ -72,7 +72,14 @@ namespace Mirror
             // grab total collider encapsulating all of history
             Bounds total = history.total;
 
-            // TODO project onto helper collider, but rotate AABB
+            // counter rotate the child collider against the gameobject's rotation.
+            // we need this to always be axis aligned.
+            boundsCollider.transform.localRotation = Quaternion.Inverse(transform.rotation);
+
+            // project world space bounds to collider's local space
+            Vector3 localCenter = boundsCollider.transform.InverseTransformPoint(total.center);
+            boundsCollider.center = localCenter;
+            boundsCollider.size = total.size; // TODO projection?
         }
 
         // TODO runtime drawing for debugging?
