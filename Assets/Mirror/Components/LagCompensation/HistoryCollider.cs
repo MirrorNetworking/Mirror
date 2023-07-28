@@ -72,6 +72,9 @@ namespace Mirror
             // grab total collider encapsulating all of history
             Bounds total = history.total;
 
+            // don't assign empty bounds, this will throw a Unity warning
+            if (history.boundsCount == 0) return;
+
             // counter rotate the child collider against the gameobject's rotation.
             // we need this to always be axis aligned.
             boundsCollider.transform.localRotation = Quaternion.Inverse(transform.rotation);
