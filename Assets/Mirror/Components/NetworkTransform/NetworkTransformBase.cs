@@ -91,10 +91,16 @@ namespace Mirror
         public bool showOverlay;
         public Color overlayColor = new Color(0, 0, 0, 0.5f);
 
+        // CoordinateSpace ///////////////////////////////////////////////////////////
+        public enum CoordinateSpace
+        {
+            LocalSpace,
+            WorldSpace
+        }
         [Header("Coordinate Space")]
-        [Tooltip("Set to false to use world coordinates for position, rotation and scale. World may be better when changing hierarchy of transforms, can optionally be changed during gameplay.")]
-        public bool localCoordinates = true;
-
+        [Tooltip("Local by default. World may be better when changing hierarchy, or non-NetworkTransforms root position/rotation/scale values.")]
+        public CoordinateSpace coordinateSpace;
+        
         // initialization //////////////////////////////////////////////////////
         // make sure to call this when inheriting too!
         protected virtual void Awake() { }
@@ -130,7 +136,7 @@ namespace Mirror
         // => internal for testing
         protected virtual TransformSnapshot Construct()
         {
-            if (localCoordinates)
+            if (coordinateSpace == CoordinateSpace.LocalSpace)
             {
                 // NetworkTime.localTime for double precision until Unity has it too
                 return new TransformSnapshot(
@@ -167,7 +173,7 @@ namespace Mirror
             //   client sends snapshot at t=10
             // then the server would assume that it's one super slow move and
             // replay it for 10 seconds.
-            if (localCoordinates)
+            if (coordinateSpace == CoordinateSpace.LocalSpace)
             {
                 if (!position.HasValue) position = snapshots.Count > 0 ? snapshots.Values[snapshots.Count - 1].position : target.localPosition;
                 if (!rotation.HasValue) rotation = snapshots.Count > 0 ? snapshots.Values[snapshots.Count - 1].rotation : target.localRotation;
@@ -214,7 +220,7 @@ namespace Mirror
             // -> but simply don't apply it. if the user doesn't want to sync
             //    scale, then we should not touch scale etc.
 
-            if (localCoordinates)
+            if (coordinateSpace == CoordinateSpace.LocalSpace)
             {
                 if (syncPosition)
                     target.localPosition = interpolatePosition ? interpolated.position : endGoal.position;

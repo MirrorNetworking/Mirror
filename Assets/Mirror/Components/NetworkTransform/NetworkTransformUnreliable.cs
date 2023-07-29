@@ -276,7 +276,7 @@ namespace Mirror
             // (Spawn message wouldn't sync NTChild positions either)
             if (initialState)
             {
-                if (localCoordinates)
+                if (coordinateSpace == CoordinateSpace.LocalSpace)
                 {
                     if (syncPosition) writer.WriteVector3(target.localPosition);
                     if (syncRotation) writer.WriteQuaternion(target.localRotation);
@@ -298,7 +298,7 @@ namespace Mirror
             // (Spawn message wouldn't sync NTChild positions either)
             if (initialState)
             {
-                if (localCoordinates)
+                if (coordinateSpace == CoordinateSpace.LocalSpace)
                 {
                     if (syncPosition) target.localPosition = reader.ReadVector3();
                     if (syncRotation) target.localRotation = reader.ReadQuaternion();

@@ -310,7 +310,7 @@ namespace Mirror
             if (serverSnapshots.Count >= connectionToClient.snapshotBufferSizeLimit) return;
 
             // 'only sync on change' needs a correction on every new move sequence.
-            if (localCoordinates)
+            if (coordinateSpace == CoordinateSpace.LocalSpace)
             {
                 if (onlySyncOnChange &&
                 NeedsCorrection(serverSnapshots, connectionToClient.remoteTimeStamp, NetworkServer.sendInterval * sendIntervalMultiplier, onlySyncOnChangeCorrectionMultiplier))
@@ -356,7 +356,7 @@ namespace Mirror
             if (IsClientWithAuthority) return;
 
             // 'only sync on change' needs a correction on every new move sequence.
-            if (localCoordinates)
+            if (coordinateSpace == CoordinateSpace.LocalSpace)
             {
                 if (onlySyncOnChange &&
                 NeedsCorrection(clientSnapshots, NetworkClient.connection.remoteTimeStamp, NetworkClient.sendInterval * sendIntervalMultiplier, onlySyncOnChangeCorrectionMultiplier))
