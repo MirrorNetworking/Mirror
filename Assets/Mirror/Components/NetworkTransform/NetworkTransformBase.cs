@@ -50,9 +50,6 @@ namespace Mirror
         public bool syncRotation = true;  // do not change at runtime!
         public bool syncScale = false; // do not change at runtime! rare. off by default.
 
-        [Tooltip("Set to false to use world coordinates, world will be better when changing hierarchy of target transform.")]
-        public bool localCoordinates = true;
-
         // interpolation is on by default, but can be disabled to jump to
         // the destination immediately. some projects need this.
         [Header("Interpolation")]
@@ -93,6 +90,10 @@ namespace Mirror
         public bool showGizmos;
         public bool showOverlay;
         public Color overlayColor = new Color(0, 0, 0, 0.5f);
+
+        [Header("Coordinate Space")]
+        [Tooltip("Set to false to use world coordinates for position, rotation and scale. World may be better when changing hierarchy of transforms, can optionally be changed during gameplay.")]
+        public bool localCoordinates = true;
 
         // initialization //////////////////////////////////////////////////////
         // make sure to call this when inheriting too!
