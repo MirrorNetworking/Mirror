@@ -60,14 +60,23 @@ namespace Mirror.Examples.Tanks
         {
             GameObject projectile = Instantiate(projectilePrefab, projectileMount.position, projectileMount.rotation);
             NetworkServer.Spawn(projectile);
-            RpcOnFire();
+            // RpcOnFire(connectionToClient);
+            TargetDoMagic(connectionToClient, 42);
         }
 
         // this is called on the tank that fired for all observers
-        [ClientRpc]
-        void RpcOnFire()
+        [TargetRpc]
+        void RpcOnFire(NetworkConnectionToClient conn)
         {
+            Debug.Log($"RpcOnFire with conn={conn}");
             animator.SetTrigger("Shoot");
+        }
+
+        [TargetRpc]
+        public void TargetDoMagic(NetworkConnectionToClient target, int damage)
+        {
+            // This will appear on the opponent's client, not the attacking player's
+            Debug.Log($"Magic Damage = {damage}");
         }
 
         [ServerCallback]
