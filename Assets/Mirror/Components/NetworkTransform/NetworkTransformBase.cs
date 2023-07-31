@@ -136,30 +136,15 @@ namespace Mirror
         // => internal for testing
         protected virtual TransformSnapshot Construct()
         {
-            if (coordinateSpace == CoordinateSpace.LocalSpace)
-            {
-                // NetworkTime.localTime for double precision until Unity has it too
-                return new TransformSnapshot(
-                    // our local time is what the other end uses as remote time
-                    NetworkTime.localTime, // Unity 2019 doesn't have timeAsDouble yet
-                    0,                     // the other end fills out local time itself
-                    target.localPosition,
-                    target.localRotation,
-                    target.localScale
-                );
-            }
-            else
-            {
-                // NetworkTime.localTime for double precision until Unity has it too
-                return new TransformSnapshot(
-                    // our local time is what the other end uses as remote time
-                    NetworkTime.localTime, // Unity 2019 doesn't have timeAsDouble yet
-                    0,                     // the other end fills out local time itself
-                    target.position,
-                    target.rotation,
-                    target.root.localScale
-                );
-            }
+            // NetworkTime.localTime for double precision until Unity has it too
+            return new TransformSnapshot(
+                // our local time is what the other end uses as remote time
+                NetworkTime.localTime, // Unity 2019 doesn't have timeAsDouble yet
+                0,                     // the other end fills out local time itself
+                coordinateSpace == CoordinateSpace.LocalSpace ? target.localPosition : target.position,
+                coordinateSpace == CoordinateSpace.LocalSpace ? target.localRotation : target.rotation,
+                coordinateSpace == CoordinateSpace.LocalSpace ? target.localScale : target.root.localScale
+            );
         }
 
         protected void AddSnapshot(SortedList<double, TransformSnapshot> snapshots, double timeStamp, Vector3? position, Quaternion? rotation, Vector3? scale)
@@ -173,18 +158,10 @@ namespace Mirror
             //   client sends snapshot at t=10
             // then the server would assume that it's one super slow move and
             // replay it for 10 seconds.
-            if (coordinateSpace == CoordinateSpace.LocalSpace)
-            {
-                if (!position.HasValue) position = snapshots.Count > 0 ? snapshots.Values[snapshots.Count - 1].position : target.localPosition;
-                if (!rotation.HasValue) rotation = snapshots.Count > 0 ? snapshots.Values[snapshots.Count - 1].rotation : target.localRotation;
-                if (!scale.HasValue) scale = snapshots.Count > 0 ? snapshots.Values[snapshots.Count - 1].scale : target.localScale;
-            }
-            else
-            {
-                if (!position.HasValue) position = snapshots.Count > 0 ? snapshots.Values[snapshots.Count - 1].position : target.position;
-                if (!rotation.HasValue) rotation = snapshots.Count > 0 ? snapshots.Values[snapshots.Count - 1].rotation : target.rotation;
-                if (!scale.HasValue) scale = snapshots.Count > 0 ? snapshots.Values[snapshots.Count - 1].scale : target.root.localScale;
-            }
+
+            if (!position.HasValue) position = snapshots.Count > 0 ? snapshots.Values[snapshots.Count - 1].position : coordinateSpace == CoordinateSpace.LocalSpace ? target.localPosition : target.position;
+            if (!rotation.HasValue) rotation = snapshots.Count > 0 ? snapshots.Values[snapshots.Count - 1].rotation : coordinateSpace == CoordinateSpace.LocalSpace ? target.localRotation : target.rotation;
+            if (!scale.HasValue) scale = snapshots.Count > 0 ? snapshots.Values[snapshots.Count - 1].scale : coordinateSpace == CoordinateSpace.LocalSpace ? target.localScale : target.root.localScale;
 
             // insert transform snapshot
             SnapshotInterpolation.InsertIfNotExists(
