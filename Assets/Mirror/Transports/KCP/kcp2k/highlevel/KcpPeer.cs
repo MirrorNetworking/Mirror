@@ -586,10 +586,17 @@ namespace kcp2k
             }
             else
             {
-                // invalid unreliable messages may be random internet noise.
-                // show a warning, but don't disconnect.
-                // otherwise attackers could disconnect someone with random noise.
-                Log.Warning($"KcpPeer: received unreliable message while not authenticated.");
+                // it's common to receive unreliable messages before being
+                // authenticated, for example:
+                // - random internet noise
+                // - game server may send an unreliable message after authenticating,
+                //   and the unreliable message arrives on the client before the
+                //   'auth_ok' message. this can be avoided by sending a final
+                //   'ready' message after being authenticated, but this would
+                //   add another 'round trip time' of latency to the handshake.
+                //
+                // it's best to simply ignore invalid unreliable messages here.
+                // Log.Info($"KcpPeer: received unreliable message while not authenticated.");
             }
         }
 

@@ -6,6 +6,10 @@ namespace kcp2k
 {
     public static class Extensions
     {
+        // ArraySegment as HexString for convenience
+        public static string ToHexString(this ArraySegment<byte> segment) =>
+            BitConverter.ToString(segment.Array, segment.Offset, segment.Count);
+
         // non-blocking UDP send.
         // allows for reuse when overwriting KcpServer/Client (i.e. for relays).
         // => wrapped with Poll to avoid WouldBlock allocating new SocketException.
