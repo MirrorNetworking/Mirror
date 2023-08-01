@@ -311,16 +311,18 @@ namespace Mirror
 
             // 'only sync on change' needs a correction on every new move sequence.
             if (onlySyncOnChange &&
-            NeedsCorrection(serverSnapshots, connectionToClient.remoteTimeStamp, NetworkServer.sendInterval * sendIntervalMultiplier, onlySyncOnChangeCorrectionMultiplier))
+                NeedsCorrection(serverSnapshots, connectionToClient.remoteTimeStamp, NetworkServer.sendInterval * sendIntervalMultiplier, onlySyncOnChangeCorrectionMultiplier))
             {
+                GetTransform(out Vector3 currentPosition, out Quaternion currentRotation, out Vector3 currentScale);
+
                 RewriteHistory(
                     serverSnapshots,
                     connectionToClient.remoteTimeStamp,
                     NetworkTime.localTime,                                  // arrival remote timestamp. NOT remote timeline.
                     NetworkServer.sendInterval * sendIntervalMultiplier,    // Unity 2019 doesn't have timeAsDouble yet
-                    coordinateSpace == CoordinateSpace.LocalSpace ? target.localPosition : target.position,
-                    coordinateSpace == CoordinateSpace.LocalSpace ? target.localRotation : target.rotation,
-                    coordinateSpace == CoordinateSpace.LocalSpace ? target.localScale : target.root.localScale);
+                    currentPosition,
+                    currentRotation,
+                    currentScale);
             }
 
             // add a small timeline offset to account for decoupled arrival of
@@ -341,14 +343,16 @@ namespace Mirror
             if (onlySyncOnChange &&
                 NeedsCorrection(clientSnapshots, NetworkClient.connection.remoteTimeStamp, NetworkClient.sendInterval * sendIntervalMultiplier, onlySyncOnChangeCorrectionMultiplier))
             {
+                GetTransform(out Vector3 currentPosition, out Quaternion currentRotation, out Vector3 currentScale);
+
                 RewriteHistory(
                     clientSnapshots,
                     NetworkClient.connection.remoteTimeStamp,               // arrival remote timestamp. NOT remote timeline.
                     NetworkTime.localTime,                                  // Unity 2019 doesn't have timeAsDouble yet
                     NetworkClient.sendInterval * sendIntervalMultiplier,
-                    coordinateSpace == CoordinateSpace.LocalSpace ? target.localPosition : target.position,
-                    coordinateSpace == CoordinateSpace.LocalSpace ? target.localRotation : target.rotation,
-                    coordinateSpace == CoordinateSpace.LocalSpace ? target.localScale : target.root.localScale);
+                    currentPosition,
+                    currentRotation,
+                    currentScale);
             }
 
             // add a small timeline offset to account for decoupled arrival of

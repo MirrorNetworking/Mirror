@@ -276,9 +276,10 @@ namespace Mirror
             // (Spawn message wouldn't sync NTChild positions either)
             if (initialState)
             {
-                if (syncPosition) writer.WriteVector3(coordinateSpace == CoordinateSpace.LocalSpace ? target.localPosition : target.position);
-                if (syncRotation) writer.WriteQuaternion(coordinateSpace == CoordinateSpace.LocalSpace ? target.localRotation : target.rotation);
-                if (syncScale) writer.WriteVector3(coordinateSpace == CoordinateSpace.LocalSpace ? target.localScale : target.root.localScale);
+                GetTransform(out Vector3 position, out Quaternion rotation, out Vector3 scale);
+                if (syncPosition) writer.WriteVector3(position);
+                if (syncRotation) writer.WriteQuaternion(rotation);
+                if (syncScale)    writer.WriteVector3(scale);
             }
         }
 

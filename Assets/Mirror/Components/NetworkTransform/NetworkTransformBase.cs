@@ -22,6 +22,8 @@ using UnityEngine;
 
 namespace Mirror
 {
+    public enum CoordinateSpace { Local, World }
+
     public abstract class NetworkTransformBase : NetworkBehaviour
     {
         // target transform to sync. can be on a child.
@@ -60,6 +62,11 @@ namespace Mirror
         [Tooltip("Set to false to remove scale smoothing. Example use-case: Instant flipping of sprites that use -X and +X for direction.")]
         public bool interpolateScale = true;
 
+        // CoordinateSpace ///////////////////////////////////////////////////////////
+        [Header("Coordinate Space")]
+        [Tooltip("Local by default. World may be better when changing hierarchy, or non-NetworkTransforms root position/rotation/scale values.")]
+        public CoordinateSpace coordinateSpace = CoordinateSpace.Local;
+
         [Header("Send Interval Multiplier")]
         [Tooltip("Check/Sync every multiple of Network Manager send interval (= 1 / NM Send Rate), instead of every send interval.\n(30 NM send rate, and 3 interval, is a send every 0.1 seconds)\nA larger interval means less network sends, which has a variety of upsides. The drawbacks are delays and lower accuracy, you should find a nice balance between not sending too much, but the results looking good for your particular scenario.")]
         [Range(1, 120)]
@@ -91,16 +98,6 @@ namespace Mirror
         public bool showOverlay;
         public Color overlayColor = new Color(0, 0, 0, 0.5f);
 
-        // CoordinateSpace ///////////////////////////////////////////////////////////
-        public enum CoordinateSpace
-        {
-            LocalSpace,
-            WorldSpace
-        }
-        [Header("Coordinate Space")]
-        [Tooltip("Local by default. World may be better when changing hierarchy, or non-NetworkTransforms root position/rotation/scale values.")]
-        public CoordinateSpace coordinateSpace;
-        
         // initialization //////////////////////////////////////////////////////
         // make sure to call this when inheriting too!
         protected virtual void Awake() { }
@@ -132,18 +129,57 @@ namespace Mirror
         }
 
         // snapshot functions //////////////////////////////////////////////////
+        // get local/world transform depending on coordinate space
+        protected virtual void GetTransform(out Vector3 position, out Quaternion rotation, out Vector3 scale)
+        {
+            if (CoordinateSpace.Local == coordinateSpace)
+            {
+                position = target.localPosition;
+                rotation = target.localRotation;
+                scale    = target.localScale;
+            }
+            else
+            {
+                position = target.position;
+                rotation = target.rotation;
+                scale    = target.lossyScale;
+            }
+        }
+
+        // set transform as local / world space
+        // parameters as nullable: sometimes we don't want to set all of them.
+        protected virtual void SetTransform(Vector3 position, Quaternion rotation, Vector3 scale)
+        {
+            if (CoordinateSpace.Local == coordinateSpace)
+            {
+                target.localPosition = position;
+                target.localRotation = rotation;
+                target.localScale    = scale;
+            }
+            else
+            {
+                target.position   = position;
+                target.rotation   = rotation;
+                target.lossyScale = scale; //TODO
+            }
+        }
+
+        // set local/world transform depending on coordinate space
+
         // construct a snapshot of the current state
         // => internal for testing
         protected virtual TransformSnapshot Construct()
         {
+            GetTransform(out Vector3 position, out Quaternion rotation, out Vector3 scale);
+
             // NetworkTime.localTime for double precision until Unity has it too
             return new TransformSnapshot(
                 // our local time is what the other end uses as remote time
                 NetworkTime.localTime, // Unity 2019 doesn't have timeAsDouble yet
                 0,                     // the other end fills out local time itself
-                coordinateSpace == CoordinateSpace.LocalSpace ? target.localPosition : target.position,
-                coordinateSpace == CoordinateSpace.LocalSpace ? target.localRotation : target.rotation,
-                coordinateSpace == CoordinateSpace.LocalSpace ? target.localScale : target.root.localScale
+                position,
+                rotation,
+                scale
             );
         }
 
@@ -159,9 +195,11 @@ namespace Mirror
             // then the server would assume that it's one super slow move and
             // replay it for 10 seconds.
 
-            if (!position.HasValue) position = snapshots.Count > 0 ? snapshots.Values[snapshots.Count - 1].position : coordinateSpace == CoordinateSpace.LocalSpace ? target.localPosition : target.position;
-            if (!rotation.HasValue) rotation = snapshots.Count > 0 ? snapshots.Values[snapshots.Count - 1].rotation : coordinateSpace == CoordinateSpace.LocalSpace ? target.localRotation : target.rotation;
-            if (!scale.HasValue) scale = snapshots.Count > 0 ? snapshots.Values[snapshots.Count - 1].scale : coordinateSpace == CoordinateSpace.LocalSpace ? target.localScale : target.root.localScale;
+            GetTransform(out Vector3 currentPosition, out Quaternion currentRotation, out Vector3 currentScale);
+
+            if (!position.HasValue) position = snapshots.Count > 0 ? snapshots.Values[snapshots.Count - 1].position : currentPosition;
+            if (!rotation.HasValue) rotation = snapshots.Count > 0 ? snapshots.Values[snapshots.Count - 1].rotation : currentRotation;
+            if (!scale.HasValue)    scale    = snapshots.Count > 0 ? snapshots.Values[snapshots.Count - 1].scale    : currentScale;
 
             // insert transform snapshot
             SnapshotInterpolation.InsertIfNotExists(
@@ -197,28 +235,16 @@ namespace Mirror
             // -> but simply don't apply it. if the user doesn't want to sync
             //    scale, then we should not touch scale etc.
 
-            if (coordinateSpace == CoordinateSpace.LocalSpace)
-            {
-                if (syncPosition)
-                    target.localPosition = interpolatePosition ? interpolated.position : endGoal.position;
+            // get defaults
+            GetTransform(out Vector3 position, out Quaternion rotation, out Vector3 scale);
 
-                if (syncRotation)
-                    target.localRotation = interpolateRotation ? interpolated.rotation : endGoal.rotation;
+            // interpolate parts
+            if (syncPosition) position = interpolatePosition ? interpolated.position : endGoal.position;
+            if (syncRotation) rotation = interpolateRotation ? interpolated.rotation : endGoal.rotation;
+            if (syncScale)    scale    = interpolateScale    ? interpolated.scale    : endGoal.scale;
 
-                if (syncScale)
-                    target.localScale = interpolateScale ? interpolated.scale : endGoal.scale;
-            }
-            else
-            {
-                if (syncPosition)
-                    target.position = interpolatePosition ? interpolated.position : endGoal.position;
-
-                if (syncRotation)
-                    target.rotation = interpolateRotation ? interpolated.rotation : endGoal.rotation;
-
-                if (syncScale)
-                    target.root.localScale = interpolateScale ? interpolated.scale : endGoal.scale;
-            }
+            // apply
+            SetTransform(position, rotation, scale); TODO some we dont want to set
         }
 
         // client->server teleport to force position without interpolation.
