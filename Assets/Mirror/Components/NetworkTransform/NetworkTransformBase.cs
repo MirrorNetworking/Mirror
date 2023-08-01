@@ -168,8 +168,6 @@ namespace Mirror
                 target.lossyScale = scale; // TODO
         }
 
-        // set local/world transform depending on coordinate space
-
         // construct a snapshot of the current state
         // => internal for testing
         protected virtual TransformSnapshot Construct()
