@@ -6,10 +6,6 @@ namespace Mirror.SimpleWeb
 {
     public static class Log
     {
-        // used for Conditional
-        const string SIMPLEWEB_LOG_ENABLED = nameof(SIMPLEWEB_LOG_ENABLED);
-        const string DEBUG = nameof(DEBUG);
-
         public enum Levels
         {
             none = 0,
@@ -27,7 +23,6 @@ namespace Mirror.SimpleWeb
             return BitConverter.ToString(buffer, offset, length ?? buffer.Length);
         }
 
-        [Conditional(SIMPLEWEB_LOG_ENABLED)]
         public static void DumpBuffer(string label, byte[] buffer, int offset, int length)
         {
             if (level < Levels.verbose)
@@ -36,7 +31,6 @@ namespace Mirror.SimpleWeb
             logger.Log(LogType.Log, $"[SimpleWebTransport] VERBOSE: <color=cyan>{label}: {BufferToString(buffer, offset, length)}</color>");
         }
 
-        [Conditional(SIMPLEWEB_LOG_ENABLED)]
         public static void DumpBuffer(string label, ArrayBuffer arrayBuffer)
         {
             if (level < Levels.verbose)
@@ -45,7 +39,6 @@ namespace Mirror.SimpleWeb
             logger.Log(LogType.Log, $"[SimpleWebTransport] VERBOSE: <color=cyan>{label}: {BufferToString(arrayBuffer.array, 0, arrayBuffer.count)}</color>");
         }
 
-        [Conditional(SIMPLEWEB_LOG_ENABLED)]
         public static void Verbose(string msg, bool showColor = true)
         {
             if (level < Levels.verbose)
@@ -57,7 +50,6 @@ namespace Mirror.SimpleWeb
                 logger.Log(LogType.Log, $"[SimpleWebTransport] VERBOSE: {msg}");
         }
 
-        [Conditional(SIMPLEWEB_LOG_ENABLED)]
         public static void Info(string msg, bool showColor = true)
         {
             if (level < Levels.info)
@@ -69,12 +61,6 @@ namespace Mirror.SimpleWeb
                 logger.Log(LogType.Log, $"[SimpleWebTransport] INFO: {msg}");
         }
 
-        /// <summary>
-        /// An expected Exception was caught, useful for debugging but not important
-        /// </summary>
-        /// <param name="msg"></param>
-        /// <param name="showColor"></param>
-        [Conditional(SIMPLEWEB_LOG_ENABLED)]
         public static void InfoException(Exception e)
         {
             if (level < Levels.info)
@@ -87,7 +73,6 @@ namespace Mirror.SimpleWeb
 #endif
         }
 
-        [Conditional(SIMPLEWEB_LOG_ENABLED), Conditional(DEBUG)]
         public static void Warn(string msg, bool showColor = true)
         {
             if (level < Levels.warn)
@@ -99,7 +84,6 @@ namespace Mirror.SimpleWeb
                 logger.Log(LogType.Warning, $"[SimpleWebTransport] WARN: {msg}");
         }
 
-        [Conditional(SIMPLEWEB_LOG_ENABLED), Conditional(DEBUG)]
         public static void Error(string msg, bool showColor = true)
         {
             if (level < Levels.error)
