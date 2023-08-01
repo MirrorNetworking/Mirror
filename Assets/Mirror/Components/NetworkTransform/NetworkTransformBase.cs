@@ -116,6 +116,10 @@ namespace Mirror
             // actually use NetworkServer.sendInterval.
             syncInterval = 0;
 
+            // Unity doesn't support setting world scale.
+            // OnValidate force disables syncScale in world mode.
+            if (coordinateSpace == CoordinateSpace.World) syncScale = false;
+
             // obsolete clientAuthority compatibility:
             // if it was used, then set the new SyncDirection automatically.
             // if it wasn't used, then don't touch syncDirection.
@@ -164,8 +168,10 @@ namespace Mirror
         {
             if (coordinateSpace == CoordinateSpace.Local)
                 target.localScale = scale;
-            else
-                target.lossyScale = scale; // TODO
+            // Unity doesn't support setting world scale.
+            // OnValidate disables syncScale in world mode.
+            // else
+                // target.lossyScale = scale; // TODO
         }
 
         // construct a snapshot of the current state
