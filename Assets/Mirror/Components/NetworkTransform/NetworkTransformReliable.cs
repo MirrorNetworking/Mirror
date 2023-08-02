@@ -318,9 +318,9 @@ namespace Mirror
                     connectionToClient.remoteTimeStamp,
                     NetworkTime.localTime,                                  // arrival remote timestamp. NOT remote timeline.
                     NetworkServer.sendInterval * sendIntervalMultiplier,    // Unity 2019 doesn't have timeAsDouble yet
-                    target.localPosition,
-                    target.localRotation,
-                    target.localScale);
+                    GetPosition(),
+                    GetRotation(),
+                    GetScale());
             }
 
             // add a small timeline offset to account for decoupled arrival of
@@ -346,9 +346,9 @@ namespace Mirror
                     NetworkClient.connection.remoteTimeStamp,               // arrival remote timestamp. NOT remote timeline.
                     NetworkTime.localTime,                                  // Unity 2019 doesn't have timeAsDouble yet
                     NetworkClient.sendInterval * sendIntervalMultiplier,
-                    target.localPosition,
-                    target.localRotation,
-                    target.localScale);
+                    GetPosition(),
+                    GetRotation(),
+                    GetScale());
             }
 
             // add a small timeline offset to account for decoupled arrival of

@@ -276,9 +276,9 @@ namespace Mirror
             // (Spawn message wouldn't sync NTChild positions either)
             if (initialState)
             {
-                if (syncPosition) writer.WriteVector3(target.localPosition);
-                if (syncRotation) writer.WriteQuaternion(target.localRotation);
-                if (syncScale) writer.WriteVector3(target.localScale);
+                if (syncPosition) writer.WriteVector3(GetPosition());
+                if (syncRotation) writer.WriteQuaternion(GetRotation());
+                if (syncScale)    writer.WriteVector3(GetScale());
             }
         }
 
@@ -289,9 +289,9 @@ namespace Mirror
             // (Spawn message wouldn't sync NTChild positions either)
             if (initialState)
             {
-                if (syncPosition) target.localPosition = reader.ReadVector3();
-                if (syncRotation) target.localRotation = reader.ReadQuaternion();
-                if (syncScale) target.localScale = reader.ReadVector3();
+                if (syncPosition) SetPosition(reader.ReadVector3());
+                if (syncRotation) SetRotation(reader.ReadQuaternion());
+                if (syncScale)       SetScale(reader.ReadVector3());
             }
         }
 
