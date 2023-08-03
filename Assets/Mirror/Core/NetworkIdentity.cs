@@ -23,14 +23,6 @@ namespace Mirror
     //              to everyone etc.
     public enum Visibility { Default, ForceHidden, ForceShown }
 
-    public struct NetworkIdentitySerialization
-    {
-        // IMPORTANT: int tick avoids floating point inaccuracy over days/weeks
-        public int tick;
-        public NetworkWriter ownerWriter;
-        public NetworkWriter observersWriter;
-    }
-
     /// <summary>NetworkIdentity identifies objects across the network.</summary>
     [DisallowMultipleComponent]
     // NetworkIdentity.Awake initializes all NetworkComponents.
@@ -202,19 +194,6 @@ namespace Mirror
         // TODO rename to 'visibility' after removing .visibility some day!
         [Tooltip("Visibility can overwrite interest management. ForceHidden can be useful to hide monsters while they respawn. ForceShown can be useful for score NetworkIdentities that should always broadcast to everyone in the world.")]
         public Visibility visible = Visibility.Default;
-
-        // broadcasting serializes all entities around a player for each player.
-        // we don't want to serialize one entity twice in the same tick.
-        // so we cache the last serialization and remember the timestamp so we
-        // know which Update it was serialized.
-        // (timestamp is the same while inside Update)
-        // => this way we don't need to pool thousands of writers either.
-        // => way easier to store them per object
-        NetworkIdentitySerialization lastSerialization = new NetworkIdentitySerialization
-        {
-            ownerWriter = new NetworkWriter(),
-            observersWriter = new NetworkWriter()
-        };
 
         // Keep track of all sceneIds to detect scene duplicates
         static readonly Dictionary<ulong, NetworkIdentity> sceneIds =
@@ -1100,41 +1079,6 @@ namespace Mirror
                     comp.Deserialize(reader, initialState);
                 }
             }
-        }
-
-        // get cached serialization for this tick (or serialize if none yet).
-        // IMPORTANT: int tick avoids floating point inaccuracy over days/weeks.
-        // calls SerializeServer, so this function is to be called on server.
-        internal NetworkIdentitySerialization GetServerSerializationAtTick(int tick)
-        {
-            // only rebuild serialization once per tick. reuse otherwise.
-            // except for tests, where Time.frameCount never increases.
-            // so during tests, we always rebuild.
-            // (otherwise [SyncVar] changes would never be serialized in tests)
-            //
-            // NOTE: != instead of < because int.max+1 overflows at some point.
-            if (lastSerialization.tick != tick
-#if UNITY_EDITOR
-                || !Application.isPlaying
-#endif
-               )
-            {
-                // reset
-                lastSerialization.ownerWriter.Position = 0;
-                lastSerialization.observersWriter.Position = 0;
-
-                // serialize
-                SerializeServer(false,
-                                lastSerialization.ownerWriter,
-                                lastSerialization.observersWriter);
-
-                // set tick
-                lastSerialization.tick = tick;
-                //Debug.Log($"{name} (netId={netId}) serialized for tick={tickTimeStamp}");
-            }
-
-            // return it
-            return lastSerialization;
         }
 
         internal void AddObserver(NetworkConnectionToClient conn)
