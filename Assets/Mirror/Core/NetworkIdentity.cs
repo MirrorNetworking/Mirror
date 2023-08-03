@@ -1114,7 +1114,7 @@ namespace Mirror
                 // 'lastSerialization.tick != tick' scope.
                 // so only do it once.
                 //
-                // NOTE: not in Serializell as that should only do one
+                // NOTE: not in SerializeAll as that should only do one
                 //       thing: serialize data.
                 //
                 //
