@@ -1626,65 +1626,111 @@ namespace Mirror
 
         // broadcasting ////////////////////////////////////////////////////////
         // helper function to get the right serialization for a connection
-        static NetworkWriter SerializeForConnection(NetworkIdentity identity, NetworkConnectionToClient connection)
+        static NetworkWriter SerializeForConnection(
+            NetworkConnectionToClient connection,
+            bool owned,
+            NetworkWriter ownerWriter,
+            NetworkWriter observersWriter)
         {
-            // get serialization for this entity (cached)
-            // IMPORTANT: int tick avoids floating point inaccuracy over days/weeks
-            NetworkIdentitySerialization serialization = identity.GetServerSerializationAtTick(Time.frameCount);
-
-            // is this entity owned by this connection?
-            bool owned = identity.connectionToClient == connection;
-
             // send serialized data
             // owner writer if owned
             if (owned)
             {
                 // was it dirty / did we actually serialize anything?
-                if (serialization.ownerWriter.Position > 0)
-                    return serialization.ownerWriter;
+                if (ownerWriter.Position > 0)
+                    return ownerWriter;
             }
             // observers writer if not owned
             else
             {
                 // was it dirty / did we actually serialize anything?
-                if (serialization.observersWriter.Position > 0)
-                    return serialization.observersWriter;
+                if (observersWriter.Position > 0)
+                    return observersWriter;
             }
 
             // nothing was serialized
             return null;
         }
 
-        // helper function to broadcast the world to a connection
-        static void BroadcastToConnection(NetworkConnectionToClient connection)
+        static void BroadcastIdentity(
+            NetworkIdentity identity,
+            NetworkWriterPooled ownerWriter,
+            NetworkWriterPooled observersWriter)
         {
-            // for each entity that this connection is seeing
-            foreach (NetworkIdentity identity in connection.observing)
+            // only serialize if it has any observers
+            // TODO only set dirty if has observers? would be easiest.
+            if (identity.observers.Count > 0)
             {
-                // make sure it's not null or destroyed.
-                // (which can happen if someone uses
-                //  GameObject.Destroy instead of
-                //  NetworkServer.Destroy)
-                if (identity != null)
+                // serialize for owner & observers
+                ownerWriter.Position = 0;
+                observersWriter.Position = 0;
+                identity.SerializeServer(false, ownerWriter, observersWriter);
+
+                // broadcast to each observer connection
+                foreach (NetworkConnectionToClient connection in identity.observers.Values)
                 {
-                    // get serialization for this entity viewed by this connection
-                    // (if anything was serialized this time)
-                    NetworkWriter serialization = SerializeForConnection(identity, connection);
-                    if (serialization != null)
+                    // has this connection joined the world yet?
+                    if (connection.isReady)
                     {
-                        EntityStateMessage message = new EntityStateMessage
+                        // is this entity owned by this connection?
+                        bool owned = identity.connectionToClient == connection;
+
+                        // get serialization for this entity viewed by this connection
+                        // (if anything was serialized this time)
+                        NetworkWriter serialization = SerializeForConnection(connection, owned, ownerWriter, observersWriter);
+                        if (serialization != null)
                         {
-                            netId = identity.netId,
-                            payload = serialization.ToArraySegment()
-                        };
-                        connection.Send(message);
+                            EntityStateMessage message = new EntityStateMessage
+                            {
+                                netId = identity.netId,
+                                payload = serialization.ToArraySegment()
+                            };
+                            connection.Send(message);
+                        }
                     }
                 }
-                // spawned list should have no null entries because we
-                // always call Remove in OnObjectDestroy everywhere.
-                // if it does have null then someone used
-                // GameObject.Destroy instead of NetworkServer.Destroy.
-                else Debug.LogWarning($"Found 'null' entry in observing list for connectionId={connection.connectionId}. Please call NetworkServer.Destroy to destroy networked objects. Don't use GameObject.Destroy.");
+            }
+        }
+
+        static void BroadcastSpawned()
+        {
+            // PULL-Broadcasting vs. PUSH-Broadcasting:
+            //
+            // - Pull: foreach connection: foreach observing: send
+            //   + easier to build LocalWorldState
+            //   + avoids iterating _all_ spawned. only iterates those w/ observers
+            //   - doesn't work with dirtyIdentities.
+            //     each connection would require .dirtyObserving
+            //   - requires .observing
+            //
+            // - Push: foreach spawned: foreach observer: send
+            //   + works with dirtyIdentities
+            //   + doesn't require .observing
+            //   - iterates all spawned. unless we use dirtyIdentities.
+            //   - LocalWorldState building is more complex, but still possible
+            //   - need to cache identity.Serialize() so it's only called once.
+            //     instead of once per observing.
+            //
+            using (NetworkWriterPooled ownerWriter = NetworkWriterPool.Get(),
+                                       observersWriter = NetworkWriterPool.Get())
+            {
+                // let's use push broadcasting to prepare for dirtyObjects.
+                foreach (NetworkIdentity identity in spawned.Values)
+                {
+                    // make sure it's not null or destroyed.
+                    // (which can happen if someone uses
+                    //  GameObject.Destroy instead of
+                    //  NetworkServer.Destroy)
+                    if (identity != null)
+                    {
+                        BroadcastIdentity(identity, ownerWriter, observersWriter);
+                    }
+                    // spawned list should have no null entries because we
+                    // always call Remove in OnObjectDestroy everywhere.
+                    // if it does have null then someone used
+                    // GameObject.Destroy instead of NetworkServer.Destroy.
+                    else Debug.LogWarning($"Found 'null' entry in spawned. Please call NetworkServer.Destroy to destroy networked objects. Don't use GameObject.Destroy.");
+                }
             }
         }
 
@@ -1703,26 +1749,9 @@ namespace Mirror
             return false;
         }
 
-        // NetworkLateUpdate called after any Update/FixedUpdate/LateUpdate
-        // (we add this to the UnityEngine in NetworkLoop)
-        // internal for tests
-        internal static readonly List<NetworkConnectionToClient> connectionsCopy =
-            new List<NetworkConnectionToClient>();
-
-        static void Broadcast()
+        // flush all connection's batched messages
+        static void FlushConnections()
         {
-            // copy all connections into a helper collection so that
-            // OnTransportDisconnected can be called while iterating.
-            // -> OnTransportDisconnected removes from the collection
-            // -> which would throw 'can't modify while iterating' errors
-            // => see also: https://github.com/vis2k/Mirror/issues/2739
-            // (copy nonalloc)
-            // TODO remove this when we move to 'lite' transports with only
-            //      socket send/recv later.
-            connectionsCopy.Clear();
-            connections.Values.CopyTo(connectionsCopy);
-
-            // go through all connections
             foreach (NetworkConnectionToClient connection in connectionsCopy)
             {
                 // check for inactivity. disconnects if necessary.
@@ -1744,14 +1773,37 @@ namespace Mirror
                     // even if targetFrameRate isn't set in host mode (!)
                     // (done via AccurateInterval)
                     connection.Send(new TimeSnapshotMessage(), Channels.Unreliable);
-
-                    // broadcast world state to this connection
-                    BroadcastToConnection(connection);
                 }
 
                 // update connection to flush out batched messages
                 connection.Update();
             }
+        }
+
+        // NetworkLateUpdate called after any Update/FixedUpdate/LateUpdate
+        // (we add this to the UnityEngine in NetworkLoop)
+        // internal for tests
+        internal static readonly List<NetworkConnectionToClient> connectionsCopy =
+            new List<NetworkConnectionToClient>();
+
+        static void Broadcast()
+        {
+            // copy all connections into a helper collection so that
+            // OnTransportDisconnected can be called while iterating.
+            // -> OnTransportDisconnected removes from the collection
+            // -> which would throw 'can't modify while iterating' errors
+            // => see also: https://github.com/vis2k/Mirror/issues/2739
+            // (copy nonalloc)
+            // TODO remove this when we move to 'lite' transports with only
+            //      socket send/recv later.
+            connectionsCopy.Clear();
+            connections.Values.CopyTo(connectionsCopy);
+
+            // broadcast spawned entities
+            BroadcastSpawned();
+
+            // flush all connection's batched messages
+            FlushConnections();
 
             // TODO this is way too slow because we iterate ALL spawned :/
             // TODO this is way too complicated :/
