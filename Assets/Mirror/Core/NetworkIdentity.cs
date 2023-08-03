@@ -967,7 +967,12 @@ namespace Mirror
                         //
                         // we don't want to clear bits before the syncInterval
                         // was elapsed, as then they wouldn't be synced.
-                        comp.ClearAllDirtyBits();
+                        //
+                        // only clear for delta, not for full (spawn messages).
+                        // otherwise if a player joins, we serialize monster,
+                        // and shouldn't clear dirty bits not yet synced to
+                        // other players.
+                        if (!initialState) comp.ClearAllDirtyBits();
                     }
                 }
             }
