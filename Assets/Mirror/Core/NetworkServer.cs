@@ -56,11 +56,8 @@ namespace Mirror
         // otherwise each NetworkBehaviour would need an Update() to wait until
         // syncInterval is elapsed, which is more expansive then simply adding
         // a few false positives here.
-        //
-        // NetworkIdentity adds itself to dirtySpawned exactly once.
-        // we can safely use a List<T> here, faster than a Dictionary with enumerators.
-        internal static readonly List<NetworkIdentity> dirtySpawned =
-            new List<NetworkIdentity>();
+        internal static readonly HashSet<NetworkIdentity> dirtySpawned =
+            new HashSet<NetworkIdentity>();
 
         /// <summary>Single player mode can use dontListen to not accept incoming connections</summary>
         // see also: https://github.com/vis2k/Mirror/pull/2595
@@ -1665,6 +1662,7 @@ namespace Mirror
             return null;
         }
 
+        static readonly List<NetworkIdentity> dirtyRemoved = new List<NetworkIdentity>();
         static void BroadcastDirtySpawned()
         {
             // PULL-Broadcasting vs. PUSH-Broadcasting:
@@ -1691,10 +1689,8 @@ namespace Mirror
                 // only iterate NetworkIdentities which we know to be dirty.
                 // for example, in an MMO we don't need to iterate NPCs,
                 // item drops, idle monsters etc. every Broadcast.
-                for (int i = 0; i < dirtySpawned.Count; ++i)
+                foreach (NetworkIdentity identity in dirtySpawned)
                 {
-                    NetworkIdentity identity = dirtySpawned[i];
-
                     // make sure it's not null or destroyed.
                     // (which can happen if someone uses
                     //  GameObject.Destroy instead of
@@ -1741,8 +1737,7 @@ namespace Mirror
                                 // List.RemoveAt(i) is O(N).
                                 // instead, use O(1) swap-remove from Rust.
                                 // dirtySpawned.RemoveAt(i);
-
-                                dirtySpawned.SwapRemove(i);
+                                dirtyRemoved.Add(identity);
 
                                 // the last element was moved to 'i'.
                                 // count was reduced by 1.
@@ -1757,6 +1752,11 @@ namespace Mirror
                     else Debug.LogWarning($"Found 'null' entry in dirtySpawned. Please call NetworkServer.Destroy to destroy networked objects. Don't use GameObject.Destroy.");
                 }
             }
+
+            // safely remove after iterating
+            foreach (NetworkIdentity identity in dirtyRemoved)
+                dirtySpawned.Remove(identity);
+            dirtyRemoved.Clear();
         }
 
         // helper function to check a connection for inactivity and disconnect if necessary

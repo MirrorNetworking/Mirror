@@ -806,36 +806,6 @@ namespace Mirror
             }
         }
 
-        // NetworkBehaviour OnBecameDirty calls NetworkIdentity callback with index
-        bool addedToDirtySpawned = false;
-        internal void OnBecameDirty()
-        {
-            // ensure either isServer or isClient are set.
-            // ensures tests are obvious. without proper setup, it should throw.
-            if (!isClient && !isServer)
-                Debug.LogWarning("NetworkIdentity.OnBecameDirty(): neither isClient nor isServer are true. Improper setup?");
-
-
-            if (isServer)
-            {
-                // only add to dirty spawned once.
-                // don't run the insertion twice.
-                if (!addedToDirtySpawned)
-                {
-                    // insert into server dirty objects if not inserted yet
-                    // TODO keep a bool so we don't insert all the time?
-
-                    // only add if observed.
-                    // otherwise no point in adding + iterating from broadcast.
-                    if (observers.Count > 0)
-                    {
-                        NetworkServer.dirtySpawned.Add(this);
-                        addedToDirtySpawned = true;
-                    }
-                }
-            }
-        }
-
         // build dirty mask for server owner & observers (= all dirty components).
         // faster to do it in one iteration instead of iterating separately.
         (ulong, ulong, ulong) ServerDirtyMasks(bool initialState)
@@ -1000,10 +970,6 @@ namespace Mirror
             // the NetworkIdentity from dirtyObjects just yet.
             // otherwise if we remove before it was synced, we would miss a sync.
             pendingDirty = pendingMask != 0;
-
-            // if none are still pending, this will be removed from dirtyObjects.
-            // in that case, clear our flag (the flag is only for performance).
-            if (!pendingDirty) addedToDirtySpawned = false;
         }
 
         // serialize components into writer on the client.

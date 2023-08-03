@@ -159,7 +159,17 @@ namespace Mirror
         // called once it becomes dirty, not called again while already dirty.
         // we only want to follow the .netIdentity memory indirection once.
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        void OnBecameDirty() => netIdentity.OnBecameDirty();
+        void OnBecameDirty()
+        {
+            // previously, NetworkBehaviour.OnBecameDirty would call
+            // NetworkIdentity.OnBecameDirty, which would insert into dirtyObjects.
+            //
+            // instead, let's try to insert directly.
+            // avoids the NetworkIdentity indirection.
+            // the only indirection is NetworkServer.dirtyObjects.
+            // we insert 'netIdentity', which is a reference.
+            NetworkServer.dirtySpawned.Add(netIdentity);
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         void SetSyncObjectDirtyBit(ulong dirtyBit)
