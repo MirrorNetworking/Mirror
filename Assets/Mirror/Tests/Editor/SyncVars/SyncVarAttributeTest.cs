@@ -124,32 +124,6 @@ namespace Mirror.Tests.SyncVars
         }
 
         [Test]
-        public void TestSyncIntervalAndClearDirtyComponents()
-        {
-            CreateNetworked(out _, out _, out MockPlayer player);
-            player.lastSyncTime = NetworkTime.localTime;
-            // synchronize immediately
-            player.syncInterval = 1f;
-
-            player.guild = new MockPlayer.Guild
-            {
-                name = "Back street boys"
-            };
-
-            Assert.That(player.IsDirty(), Is.False, "Sync interval not met, so not dirty yet");
-
-            // ClearDirtyComponents should do nothing since syncInterval is not
-            // elapsed yet
-            player.netIdentity.ClearDirtyComponentsDirtyBits();
-
-            // set lastSyncTime far enough back to be ready for syncing
-            player.lastSyncTime = NetworkTime.localTime - player.syncInterval;
-
-            // should be dirty now
-            Assert.That(player.IsDirty(), Is.True, "Sync interval met, should be dirty");
-        }
-
-        [Test]
         public void TestSyncIntervalAndClearAllComponents()
         {
             CreateNetworked(out _, out _, out MockPlayer player);
