@@ -118,6 +118,6 @@ MonoBehaviour:
   syncMode: 0
   syncInterval: 0.1
   rend: {fileID: 6692327599609520039}
-  sleepingProbability: 0.8
-  dirtyColor: {r: 1, g: 1, b: 1, a: 1}
-  cleanColor: {r: 1, g: 0, b: 0, a: 1}
+  sleepingProbability: 0
+  activeColor: {r: 1, g: 1, b: 1, a: 1}
+  sleepingColor: {r: 1, g: 0, b: 0, a: 1}

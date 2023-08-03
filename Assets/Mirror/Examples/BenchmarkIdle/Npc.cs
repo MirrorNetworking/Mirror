@@ -21,7 +21,7 @@ namespace Mirror.Examples.BenchmarkIdle
 
         public override void OnStartServer()
         {
-            sleeping = Random.value < sleepingProbability;
+            sleeping = Random.value >= sleepingProbability;
 
             // color coding
             // can't do this in update, it's too expensive
