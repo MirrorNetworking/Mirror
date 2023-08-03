@@ -1458,9 +1458,6 @@ namespace Mirror
                                 payload = writer.ToArraySegment()
                             };
                             Send(message);
-
-                            // reset dirty bits so it's not resent next time.
-                            identity.ClearDirtyComponentsDirtyBits();
                         }
                     }
                 }
