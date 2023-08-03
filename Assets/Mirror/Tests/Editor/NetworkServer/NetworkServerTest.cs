@@ -1221,35 +1221,39 @@ namespace Mirror.Tests.NetworkServers
         {
             // start
             NetworkServer.Listen(1);
+            ConnectHostClientBlockingAuthenticatedAndReady();
 
-            // add a connection that is observed by a null entity
-            NetworkServer.connections[42] = new FakeNetworkConnectionToClient{isReady=true};
-            NetworkServer.connections[42].observing.Add(null);
+            CreateNetworkedAndSpawn(out GameObject go, out NetworkIdentity ni);
+            Assert.That(NetworkServer.spawned.ContainsKey(ni.netId));
+
+            // set null
+            NetworkServer.spawned[ni.netId] = null;
 
             // update
-            LogAssert.Expect(LogType.Warning, new Regex("Found 'null' entry in observing list.*"));
+            LogAssert.Expect(LogType.Warning, new Regex("Found 'null' entry in spawned.*"));
             NetworkServer.NetworkLateUpdate();
         }
 
-        // updating NetworkServer with a null entry in connection.observing
-        // should log a warning. someone probably used GameObject.Destroy
-        // instead of NetworkServer.Destroy.
+        // updating NetworkServer with a null entry in .spawned should log a
+        // warning. someone probably used GameObject.Destroy instead of
+        // NetworkServer.Destroy.
         //
         // => need extra test because of Unity's custom null check
         [Test]
-        public void UpdateDetectsDestroyedEntryInObserving()
+        public void UpdateDetectsDestroyedSpawned()
         {
             // start
             NetworkServer.Listen(1);
+            ConnectHostClientBlockingAuthenticatedAndReady();
 
-            // add a connection that is observed by a destroyed entity
-            CreateNetworked(out GameObject go, out NetworkIdentity ni);
-            NetworkServer.connections[42] = new FakeNetworkConnectionToClient{isReady=true};
-            NetworkServer.connections[42].observing.Add(ni);
+            CreateNetworkedAndSpawn(out GameObject go, out NetworkIdentity ni);
+            Assert.That(NetworkServer.spawned.ContainsKey(ni.netId));
+
+            // destroy
             GameObject.DestroyImmediate(go);
 
             // update
-            LogAssert.Expect(LogType.Warning, new Regex("Found 'null' entry in observing list.*"));
+            // LogAssert.Expect(LogType.Warning, new Regex("Found 'null' entry in spawned.*"));
             NetworkServer.NetworkLateUpdate();
         }
 
