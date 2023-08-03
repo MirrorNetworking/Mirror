@@ -48,6 +48,20 @@ namespace Mirror
         public static readonly Dictionary<uint, NetworkIdentity> spawned =
             new Dictionary<uint, NetworkIdentity>();
 
+        // all spawned which are dirty (= need broadcasting).
+        //
+        // note that some dirty objects may not be ready for broadcasting,
+        // because we add them independent of syncInterval.
+        //
+        // otherwise each NetworkBehaviour would need an Update() to wait until
+        // syncInterval is elapsed, which is more expansive then simply adding
+        // a few false positives here.
+        //
+        // NetworkIdentity adds itself to dirtySpawned exactly once.
+        // we can safely use a List<T> here, faster than a Dictionary with enumerators.
+        internal static readonly List<NetworkIdentity> dirtySpawned =
+            new List<NetworkIdentity>();
+
         /// <summary>Single player mode can use dontListen to not accept incoming connections</summary>
         // see also: https://github.com/vis2k/Mirror/pull/2595
         public static bool dontListen;
@@ -1213,7 +1227,7 @@ namespace Mirror
 
             // serialize all components with initialState = true
             // (can be null if has none)
-            identity.SerializeServer(true, ownerWriter, observersWriter);
+            identity.SerializeServer(true, ownerWriter, observersWriter, out _);
 
             // convert to ArraySegment to avoid reader allocations
             // if nothing was written, .ToArraySegment returns an empty segment.
@@ -1627,7 +1641,6 @@ namespace Mirror
         // broadcasting ////////////////////////////////////////////////////////
         // helper function to get the right serialization for a connection
         static NetworkWriter SerializeForConnection(
-            NetworkConnectionToClient connection,
             bool owned,
             NetworkWriter ownerWriter,
             NetworkWriter observersWriter)
@@ -1652,47 +1665,7 @@ namespace Mirror
             return null;
         }
 
-        static void BroadcastIdentity(
-            NetworkIdentity identity,
-            NetworkWriterPooled ownerWriter,
-            NetworkWriterPooled observersWriter)
-        {
-            // only serialize if it has any observers
-            // TODO only set dirty if has observers? would be easiest.
-            if (identity.observers.Count > 0)
-            {
-                // serialize for owner & observers
-                ownerWriter.Position = 0;
-                observersWriter.Position = 0;
-                identity.SerializeServer(false, ownerWriter, observersWriter);
-
-                // broadcast to each observer connection
-                foreach (NetworkConnectionToClient connection in identity.observers.Values)
-                {
-                    // has this connection joined the world yet?
-                    if (connection.isReady)
-                    {
-                        // is this entity owned by this connection?
-                        bool owned = identity.connectionToClient == connection;
-
-                        // get serialization for this entity viewed by this connection
-                        // (if anything was serialized this time)
-                        NetworkWriter serialization = SerializeForConnection(connection, owned, ownerWriter, observersWriter);
-                        if (serialization != null)
-                        {
-                            EntityStateMessage message = new EntityStateMessage
-                            {
-                                netId = identity.netId,
-                                payload = serialization.ToArraySegment()
-                            };
-                            connection.Send(message);
-                        }
-                    }
-                }
-            }
-        }
-
-        static void BroadcastSpawned()
+        static void BroadcastDirtySpawned()
         {
             // PULL-Broadcasting vs. PUSH-Broadcasting:
             //
@@ -1715,21 +1688,73 @@ namespace Mirror
                                        observersWriter = NetworkWriterPool.Get())
             {
                 // let's use push broadcasting to prepare for dirtyObjects.
-                foreach (NetworkIdentity identity in spawned.Values)
+                // only iterate NetworkIdentities which we know to be dirty.
+                // for example, in an MMO we don't need to iterate NPCs,
+                // item drops, idle monsters etc. every Broadcast.
+                for (int i = 0; i < dirtySpawned.Count; ++i)
                 {
+                    NetworkIdentity identity = dirtySpawned[i];
+
                     // make sure it's not null or destroyed.
                     // (which can happen if someone uses
                     //  GameObject.Destroy instead of
                     //  NetworkServer.Destroy)
                     if (identity != null)
                     {
-                        BroadcastIdentity(identity, ownerWriter, observersWriter);
+                        // only serialize if it has any observers
+                        // TODO only set dirty if has observers? would be easiest.
+                        if (identity.observers.Count > 0)
+                        {
+                            // serialize for owner & observers
+                            ownerWriter.Position = 0;
+                            observersWriter.Position = 0;
+                            identity.SerializeServer(false, ownerWriter, observersWriter, out bool pendingDirty);
+
+                            // broadcast to each observer connection
+                            foreach (NetworkConnectionToClient connection in identity.observers.Values)
+                            {
+                                // has this connection joined the world yet?
+                                if (connection.isReady)
+                                {
+                                    // is this entity owned by this connection?
+                                    bool owned = identity.connectionToClient == connection;
+
+                                    // get serialization for this entity viewed by this connection
+                                    // (if anything was serialized this time)
+                                    NetworkWriter serialization = SerializeForConnection(owned, ownerWriter, observersWriter);
+                                    if (serialization != null)
+                                    {
+                                        EntityStateMessage message = new EntityStateMessage
+                                        {
+                                            netId = identity.netId,
+                                            payload = serialization.ToArraySegment()
+                                        };
+                                        connection.Send(message);
+                                    }
+                                }
+                            }
+
+                            // if there are no more dirty components pending,
+                            // then remove this in place
+                            if (!pendingDirty)
+                            {
+                                // List.RemoveAt(i) is O(N).
+                                // instead, use O(1) swap-remove from Rust.
+                                // dirtySpawned.RemoveAt(i);
+
+                                dirtySpawned.SwapRemove(i);
+
+                                // the last element was moved to 'i'.
+                                // count was reduced by 1.
+                                // our for-int loop checks .Count, nothing more to do here.
+                            }
+                        }
                     }
                     // spawned list should have no null entries because we
                     // always call Remove in OnObjectDestroy everywhere.
                     // if it does have null then someone used
                     // GameObject.Destroy instead of NetworkServer.Destroy.
-                    else Debug.LogWarning($"Found 'null' entry in spawned. Please call NetworkServer.Destroy to destroy networked objects. Don't use GameObject.Destroy.");
+                    else Debug.LogWarning($"Found 'null' entry in dirtySpawned. Please call NetworkServer.Destroy to destroy networked objects. Don't use GameObject.Destroy.");
                 }
             }
         }
@@ -1800,7 +1825,7 @@ namespace Mirror
             connections.Values.CopyTo(connectionsCopy);
 
             // broadcast spawned entities
-            BroadcastSpawned();
+            BroadcastDirtySpawned();
 
             // flush all connection's batched messages
             FlushConnections();

@@ -60,5 +60,20 @@ namespace Mirror
             return false;
         }
 #endif
+
+        // List.RemoveAt is O(N).
+        // implement Rust's swap-remove O(1) removal technique.
+        public static void SwapRemove<T>(this List<T> list, int index)
+        {
+            // we can only swap if we have at least two elements
+            if (list.Count >= 2)
+            {
+                // copy last element to index
+                list[index] = list[list.Count - 1];
+            }
+
+            // remove last element
+            list.RemoveAt(list.Count - 1);
+        }
     }
 }
