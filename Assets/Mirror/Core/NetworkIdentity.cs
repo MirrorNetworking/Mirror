@@ -960,6 +960,19 @@ namespace Mirror
                             if (ownerDirty) ownerWriter.WriteBytes(segment.Array, segment.Offset, segment.Count);
                             if (observersDirty) observersWriter.WriteBytes(segment.Array, segment.Offset, segment.Count);
                         }
+
+                        // clear dirty bits for the components that we serialized.
+                        // do not clear for _all_ components, only the ones that
+                        // were dirty and had their syncInterval elapsed.
+                        //
+                        // we don't want to clear bits before the syncInterval
+                        // was elapsed, as then they wouldn't be synced.
+                        //
+                        // only clear for delta, not for full (spawn messages).
+                        // otherwise if a player joins, we serialize monster,
+                        // and shouldn't clear dirty bits not yet synced to
+                        // other players.
+                        if (!initialState) comp.ClearAllDirtyBits();
                     }
                 }
             }
@@ -1009,6 +1022,14 @@ namespace Mirror
                         // serialize into writer.
                         // server always knows initialState, we never need to send it
                         comp.Serialize(writer, false);
+
+                        // clear dirty bits for the components that we serialized.
+                        // do not clear for _all_ components, only the ones that
+                        // were dirty and had their syncInterval elapsed.
+                        //
+                        // we don't want to clear bits before the syncInterval
+                        // was elapsed, as then they wouldn't be synced.
+                        comp.ClearAllDirtyBits();
                     }
                 }
             }
@@ -1107,27 +1128,6 @@ namespace Mirror
                                 lastSerialization.ownerWriter,
                                 lastSerialization.observersWriter);
 
-                // clear dirty bits for the components that we serialized.
-                // previously we did this in NetworkServer.BroadcastToConnection
-                // for every connection, for every entity.
-                // but we only serialize each entity once, right here in this
-                // 'lastSerialization.tick != tick' scope.
-                // so only do it once.
-                //
-                // NOTE: not in SerializeAll as that should only do one
-                //       thing: serialize data.
-                //
-                //
-                // NOTE: DO NOT clear ALL component's dirty bits, because
-                //       components can have different syncIntervals and we
-                //       don't want to reset dirty bits for the ones that were
-                //       not synced yet.
-                //
-                // NOTE: this used to be very important to avoid ever growing
-                //       SyncList changes if they had no observers, but we've
-                //       added SyncObject.isRecording since.
-                ClearDirtyComponentsDirtyBits();
-
                 // set tick
                 lastSerialization.tick = tick;
                 //Debug.Log($"{name} (netId={netId}) serialized for tick={tickTimeStamp}");
@@ -1135,23 +1135,6 @@ namespace Mirror
 
             // return it
             return lastSerialization;
-        }
-
-        // Clear only dirty component's dirty bits. ignores components which
-        // may be dirty but not ready to be synced yet (because of syncInterval)
-        //
-        // NOTE: this used to be very important to avoid ever
-        //       growing SyncList changes if they had no observers,
-        //       but we've added SyncObject.isRecording since.
-        internal void ClearDirtyComponentsDirtyBits()
-        {
-            foreach (NetworkBehaviour comp in NetworkBehaviours)
-            {
-                if (comp.IsDirty())
-                {
-                    comp.ClearAllDirtyBits();
-                }
-            }
         }
 
         internal void AddObserver(NetworkConnectionToClient conn)
