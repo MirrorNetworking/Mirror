@@ -105,7 +105,7 @@ Without any breaking changes, ever!
 ---
 ## Made with Mirror
 ### [Population: ONE](https://www.populationonevr.com/)
-[![Population: ONE](https://user-images.githubusercontent.com/16416509/178141286-9494c3a8-a4a5-4b06-af2b-b05b66162201.png)](https://www.populationonevr.com/)
+[![Population: ONE](https://github.com/MirrorNetworking/Mirror/assets/16416509/dddc778b-a97f-452d-b5f8-6ec42c6da4f1)](https://www.populationonevr.com/)
 The [BigBoxVR](https://www.bigboxvr.com/) team started using Mirror in February 2019 for what eventually became one of the most popular Oculus Rift games.
 
 In addition to [24/7 support](https://github.com/sponsors/vis2k) from the Mirror team, BigBoxVR also hired one of our engineers.
@@ -204,6 +204,10 @@ The [France based team](https://naicaonline.com/en/news/view/1) was one of Mirro
 
 Castaway runs in the Browser, thanks to Mirror's WebGL support.
 
+### [Overpowered](https://overpoweredcardgame.com/)
+[![Overpowered](https://github.com/MirrorNetworking/Mirror/assets/16416509/5bdbb227-970d-434e-b062-94fde1297f7c)](https://overpoweredcardgame.com/)
+[Overwpowered](https://overpoweredcardgame.com/), the exciting new card game that combines strategy, myth, and fun into one riveting web-based experience. Launched in 2023, made with Mirror!
+
 ### And many more...
 <a href="https://store.steampowered.com/app/719200/The_Wall/"><img src="https://cdn.akamai.steamstatic.com/steam/apps/719200/header.jpg?t=1588105839" height="100" title="The wall"/></a>
 <a href="https://store.steampowered.com/app/535630/One_More_Night/"><img src="https://cdn.akamai.steamstatic.com/steam/apps/535630/header.jpg?t=1584831320" height="100" title="One more night"/></a>
@@ -275,6 +279,7 @@ A lot of projects use Mirror in production. If you found a critical bug / exploi
 **Credits / past findings / fixes:**
 * 2020, fholm: fuzzing ConnectMessage to stop further connects [[#2397](https://github.com/vis2k/Mirror/pull/2397)]
 * 2023-04-05: IncludeSec: [kcp2k UDP spoofing](http://blog.includesecurity.com/?p=1407) [[#3286](https://github.com/vis2k/Mirror/pull/3286)]
+* 2023-06-27: James Frowen: ClientToServer [SyncVar] [allocation attacks](https://github.com/MirrorNetworking/Mirror/pull/3562)
 
 ---
 # Credits & Thanks 🙏

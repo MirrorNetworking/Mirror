@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using UnityEngine;
 
 namespace Mirror
@@ -44,25 +43,7 @@ namespace Mirror
         public static void WriteFloat(this NetworkWriter writer, float value) => writer.WriteBlittable(value);
         public static void WriteFloatNullable(this NetworkWriter writer, float? value) => writer.WriteBlittableNullable(value);
 
-        [StructLayout(LayoutKind.Explicit)]
-        internal struct UIntDouble
-        {
-            [FieldOffset(0)]
-            public double doubleValue;
-
-            [FieldOffset(0)]
-            public ulong longValue;
-        }
-
-        public static void WriteDouble(this NetworkWriter writer, double value)
-        {
-            // DEBUG: try to find the exact value that fails.
-            //UIntDouble convert = new UIntDouble{doubleValue = value};
-            //Debug.Log($"=> NetworkWriter.WriteDouble: {value} => 0x{convert.longValue:X8}");
-
-
-            writer.WriteBlittable(value);
-        }
+        public static void WriteDouble(this NetworkWriter writer, double value) => writer.WriteBlittable(value);
         public static void WriteDoubleNullable(this NetworkWriter writer, double? value) => writer.WriteBlittableNullable(value);
 
         public static void WriteDecimal(this NetworkWriter writer, decimal value) => writer.WriteBlittable(value);
@@ -89,7 +70,7 @@ namespace Mirror
             // reserve 2 bytes for header after we know how much was written.
             int written = writer.encoding.GetBytes(value, 0, value.Length, writer.buffer, writer.Position + 2);
 
-            // check if within max size
+            // check if within max size, otherwise Reader can't read it.
             if (written > NetworkWriter.MaxStringLength)
                 throw new IndexOutOfRangeException($"NetworkWriter.WriteString - Value too long: {written} bytes. Limit: {NetworkWriter.MaxStringLength} bytes");
 
@@ -258,7 +239,7 @@ namespace Mirror
                 writer.WriteUInt(0);
                 return;
             }
-            
+
             // users might try to use unspawned / prefab NetworkBehaviours in
             // rpcs/cmds/syncvars/messages. they would be null on the other
             // end, and it might not be obvious why. let's make it obvious.
@@ -319,11 +300,17 @@ namespace Mirror
         // note that Weaver/Writers/GenerateWriter() handles this manually.
         public static void WriteList<T>(this NetworkWriter writer, List<T> list)
         {
+            // 'null' is encoded as '-1'
             if (list is null)
             {
                 writer.WriteInt(-1);
                 return;
             }
+
+            // check if within max size, otherwise Reader can't read it.
+            if (list.Count > NetworkReader.AllocationLimit)
+                throw new IndexOutOfRangeException($"NetworkWriter.WriteList - List<{typeof(T)}> too big: {list.Count} elements. Limit: {NetworkReader.AllocationLimit}");
+
             writer.WriteInt(list.Count);
             for (int i = 0; i < list.Count; i++)
                 writer.Write(list[i]);
@@ -350,11 +337,17 @@ namespace Mirror
 
         public static void WriteArray<T>(this NetworkWriter writer, T[] array)
         {
+            // 'null' is encoded as '-1'
             if (array is null)
             {
                 writer.WriteInt(-1);
                 return;
             }
+
+            // check if within max size, otherwise Reader can't read it.
+            if (array.Length > NetworkReader.AllocationLimit)
+                throw new IndexOutOfRangeException($"NetworkWriter.WriteArray - Array<{typeof(T)}> too big: {array.Length} elements. Limit: {NetworkReader.AllocationLimit}");
+
             writer.WriteInt(array.Length);
             for (int i = 0; i < array.Length; i++)
                 writer.Write(array[i]);
@@ -378,6 +371,11 @@ namespace Mirror
                 writer.WriteShort(-1);
                 return;
             }
+
+            // check if within max size, otherwise Reader can't read it.
+            int totalSize = texture2D.width * texture2D.height;
+            if (totalSize > NetworkReader.AllocationLimit)
+                throw new IndexOutOfRangeException($"NetworkWriter.WriteTexture2D - Texture2D total size (width*height) too big: {totalSize}. Limit: {NetworkReader.AllocationLimit}");
 
             // write dimensions first so reader can create the texture with size
             // 32k x 32k short is more than enough

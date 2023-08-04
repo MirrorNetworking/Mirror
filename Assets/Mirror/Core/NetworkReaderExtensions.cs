@@ -90,6 +90,15 @@ namespace Mirror
 
         public static byte[] ReadBytes(this NetworkReader reader, int count)
         {
+            // prevent allocation attacks with a reasonable limit.
+            //   server shouldn't allocate too much on client devices.
+            //   client shouldn't allocate too much on server in ClientToServer [SyncVar]s.
+            if (count > NetworkReader.AllocationLimit)
+            {
+                // throw EndOfStream for consistency with ReadBlittable when out of data
+                throw new EndOfStreamException($"NetworkReader attempted to allocate {count} bytes, which is larger than the allowed limit of {NetworkReader.AllocationLimit} bytes.");
+            }
+
             byte[] bytes = new byte[count];
             reader.ReadBytes(bytes, count);
             return bytes;
@@ -244,8 +253,19 @@ namespace Mirror
         public static List<T> ReadList<T>(this NetworkReader reader)
         {
             int length = reader.ReadInt();
-            if (length < 0)
-                return null;
+
+            // 'null' is encoded as '-1'
+            if (length < 0) return null;
+
+            // prevent allocation attacks with a reasonable limit.
+            //   server shouldn't allocate too much on client devices.
+            //   client shouldn't allocate too much on server in ClientToServer [SyncVar]s.
+            if (length > NetworkReader.AllocationLimit)
+            {
+                // throw EndOfStream for consistency with ReadBlittable when out of data
+                throw new EndOfStreamException($"NetworkReader attempted to allocate a List<{typeof(T)}> {length} elements, which is larger than the allowed limit of {NetworkReader.AllocationLimit}.");
+            }
+
             List<T> result = new List<T>(length);
             for (int i = 0; i < length; i++)
             {
@@ -278,19 +298,21 @@ namespace Mirror
         {
             int length = reader.ReadInt();
 
-            //  we write -1 for null
-            if (length < 0)
-                return null;
+            // 'null' is encoded as '-1'
+            if (length < 0) return null;
 
-            // todo throw an exception for other negative values (we never write them, likely to be attacker)
-
-            // this assumes that a reader for T reads at least 1 bytes
-            // we can't know the exact size of T because it could have a user created reader
-            // NOTE: don't add to length as it could overflow if value is int.max
-            if (length > reader.Remaining)
+            // prevent allocation attacks with a reasonable limit.
+            //   server shouldn't allocate too much on client devices.
+            //   client shouldn't allocate too much on server in ClientToServer [SyncVar]s.
+            if (length > NetworkReader.AllocationLimit)
             {
-                throw new EndOfStreamException($"Received array that is too large: {length}");
+                // throw EndOfStream for consistency with ReadBlittable when out of data
+                throw new EndOfStreamException($"NetworkReader attempted to allocate an Array<{typeof(T)}> with {length} elements, which is larger than the allowed limit of {NetworkReader.AllocationLimit}.");
             }
+
+            // we can't check if reader.Remaining < length,
+            // because we don't know sizeof(T) since it's a managed type.
+            // if (length > reader.Remaining) throw new EndOfStreamException($"Received array that is too large: {length}");
 
             T[] result = new T[length];
             for (int i = 0; i < length; i++)
@@ -308,9 +330,6 @@ namespace Mirror
 
         public static Texture2D ReadTexture2D(this NetworkReader reader)
         {
-            // TODO allocation protection when sending textures to server.
-            //      currently can allocate 32k x 32k x 4 byte = 3.8 GB
-
             // support 'null' textures for [SyncVar]s etc.
             // https://github.com/vis2k/Mirror/issues/3144
             short width = reader.ReadShort();
@@ -318,6 +337,19 @@ namespace Mirror
 
             // read height
             short height = reader.ReadShort();
+
+            // prevent allocation attacks with a reasonable limit.
+            //   server shouldn't allocate too much on client devices.
+            //   client shouldn't allocate too much on server in ClientToServer [SyncVar]s.
+            // log an error and return default.
+            // we don't want attackers to be able to trigger exceptions.
+            int totalSize = width * height;
+            if (totalSize > NetworkReader.AllocationLimit)
+            {
+                Debug.LogWarning($"NetworkReader attempted to allocate a Texture2D with total size (width * height) of {totalSize}, which is larger than the allowed limit of {NetworkReader.AllocationLimit}.");
+                return null;
+            }
+
             Texture2D texture2D = new Texture2D(width, height);
 
             // read pixel content
