@@ -1667,6 +1667,8 @@ namespace Mirror
                 //  NetworkServer.Destroy)
                 if (identity != null)
                 {
+                    if (identity.passive) continue;
+
                     // get serialization for this entity viewed by this connection
                     // (if anything was serialized this time)
                     NetworkWriter serialization = SerializeForConnection(identity, connection);

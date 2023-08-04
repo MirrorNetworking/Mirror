@@ -26,6 +26,8 @@ namespace Mirror.Examples.BenchmarkIdle
             // color coding
             // can't do this in update, it's too expensive
             rend.material.color = sleeping ? sleepingColor : activeColor;
+
+            netIdentity.passive = sleeping;
         }
 
         [ServerCallback]

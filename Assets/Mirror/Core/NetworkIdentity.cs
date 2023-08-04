@@ -40,6 +40,9 @@ namespace Mirror
     [HelpURL("https://mirror-networking.gitbook.io/docs/components/network-identity")]
     public sealed class NetworkIdentity : MonoBehaviour
     {
+        [Tooltip("Performance optimization for passive objects like Npcs, ItemDrops, Trees, Structures etc. skip broadcasting.\nPassive objects only spawn and despawn, their state isn't synced.\nThis can make a huge performance difference for large worlds with lots of passive objects.")]
+        public bool passive = false;
+
         /// <summary>Returns true if running as a client and this object was spawned by a server.</summary>
         //
         // IMPORTANT:
