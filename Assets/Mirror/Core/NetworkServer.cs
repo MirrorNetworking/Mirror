@@ -1741,12 +1741,11 @@ namespace Mirror
                                 // List.RemoveAt(i) is O(N).
                                 // instead, use O(1) swap-remove from Rust.
                                 // dirtySpawned.RemoveAt(i);
-
                                 dirtySpawned.SwapRemove(i);
 
-                                // the last element was moved to 'i'.
-                                // count was reduced by 1.
-                                // our for-int loop checks .Count, nothing more to do here.
+                                // the last entry was swapped in here.
+                                // we need to visit [i] (now last) again next time.
+                                --i;
                             }
                         }
                     }
