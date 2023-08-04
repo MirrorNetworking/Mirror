@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Mirror.RemoteCalls;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 namespace Mirror
 {
@@ -1711,6 +1713,8 @@ namespace Mirror
         internal static readonly List<NetworkConnectionToClient> connectionsCopy =
             new List<NetworkConnectionToClient>();
 
+        static Stopwatch watch = new Stopwatch();
+
         static void Broadcast()
         {
             // copy all connections into a helper collection so that
@@ -1723,6 +1727,8 @@ namespace Mirror
             //      socket send/recv later.
             connectionsCopy.Clear();
             connections.Values.CopyTo(connectionsCopy);
+
+            watch.Restart();
 
             // go through all connections
             foreach (NetworkConnectionToClient connection in connectionsCopy)
@@ -1754,6 +1760,8 @@ namespace Mirror
                 // update connection to flush out batched messages
                 connection.Update();
             }
+
+            Debug.Log($"Broadcast took {watch.Elapsed.TotalMilliseconds:F1} ms");
 
             // TODO this is way too slow because we iterate ALL spawned :/
             // TODO this is way too complicated :/
