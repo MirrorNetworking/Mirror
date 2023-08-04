@@ -430,10 +430,8 @@ namespace Mirror
             if (value <= 16777215)
             {
                 byte a = (byte)250;
-                byte b = (byte)(value & 0xFF);
-                byte c = (byte)((value >> 8) & 0xFF);
-                byte d = (byte)((value >> 16) & 0xFF);
-                writer.WriteUInt((uint)(d << 24 | c << 16 | b << 8 | a));
+                uint b = (uint)(value << 8);
+                writer.WriteUInt(b | a);
                 return;
             }
             if (value <= 4294967295)
