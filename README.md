@@ -204,6 +204,10 @@ The [France based team](https://naicaonline.com/en/news/view/1) was one of Mirro
 
 Castaway runs in the Browser, thanks to Mirror's WebGL support.
 
+### [Overpowered](https://overpoweredcardgame.com/)
+[![Overpowered](https://github.com/MirrorNetworking/Mirror/assets/16416509/5bdbb227-970d-434e-b062-94fde1297f7c)](https://overpoweredcardgame.com/)
+[Overwpowered](https://overpoweredcardgame.com/), the exciting new card game that combines strategy, myth, and fun into one riveting web-based experience. Launched in 2023, made with Mirror!
+
 ### And many more...
 <a href="https://store.steampowered.com/app/719200/The_Wall/"><img src="https://cdn.akamai.steamstatic.com/steam/apps/719200/header.jpg?t=1588105839" height="100" title="The wall"/></a>
 <a href="https://store.steampowered.com/app/535630/One_More_Night/"><img src="https://cdn.akamai.steamstatic.com/steam/apps/535630/header.jpg?t=1584831320" height="100" title="One more night"/></a>
