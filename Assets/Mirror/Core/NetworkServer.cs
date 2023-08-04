@@ -1657,6 +1657,9 @@ namespace Mirror
             NetworkWriterPooled ownerWriter,
             NetworkWriterPooled observersWriter)
         {
+            // skip passive identities for performance
+            if (identity.passive) return;
+
             // only serialize if it has any observers
             // TODO only set dirty if has observers? would be easiest.
             if (identity.observers.Count > 0)

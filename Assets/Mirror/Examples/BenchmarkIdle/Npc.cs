@@ -26,13 +26,16 @@ namespace Mirror.Examples.BenchmarkIdle
             // color coding
             // can't do this in update, it's too expensive
             rend.material.color = sleeping ? sleepingColor : activeColor;
+
+            // set passive
+            netIdentity.passive = sleeping;
         }
 
         [ServerCallback]
         void Update()
         {
-            // set dirty if not sleeping.
-            // only counts as dirty every 'syncInterval'.
+            // set dirty every 'syncInterval'.
+            // passive identities will ignore it.
             if (!sleeping) ++value;
         }
     }
