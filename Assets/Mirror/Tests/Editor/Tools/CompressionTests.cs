@@ -371,6 +371,12 @@ namespace Mirror.Tests.Tools
             Compression.CompressVarUInt(writer, 1099511627775);
             Compression.CompressVarUInt(writer, 281474976710655);
             Compression.CompressVarUInt(writer, 72057594037927935);
+            Compression.CompressVarUInt(writer, ulong.MaxValue / 10);
+            Compression.CompressVarUInt(writer, ulong.MaxValue / 8);
+            Compression.CompressVarUInt(writer, ulong.MaxValue / 6);
+            Compression.CompressVarUInt(writer, ulong.MaxValue / 4);
+            Compression.CompressVarUInt(writer, ulong.MaxValue / 2);
+            Compression.CompressVarUInt(writer, 0x01020304A1A2A3A4); // every byte different (!)
             Compression.CompressVarUInt(writer, ulong.MaxValue);
 
             NetworkReader reader = new NetworkReader(writer.ToArray());
@@ -384,6 +390,12 @@ namespace Mirror.Tests.Tools
             Assert.That(Compression.DecompressVarUInt(reader), Is.EqualTo(1099511627775));
             Assert.That(Compression.DecompressVarUInt(reader), Is.EqualTo(281474976710655));
             Assert.That(Compression.DecompressVarUInt(reader), Is.EqualTo(72057594037927935));
+            Assert.That(Compression.DecompressVarUInt(reader), Is.EqualTo(ulong.MaxValue / 10));
+            Assert.That(Compression.DecompressVarUInt(reader), Is.EqualTo(ulong.MaxValue / 8));
+            Assert.That(Compression.DecompressVarUInt(reader), Is.EqualTo(ulong.MaxValue / 6));
+            Assert.That(Compression.DecompressVarUInt(reader), Is.EqualTo(ulong.MaxValue / 4));
+            Assert.That(Compression.DecompressVarUInt(reader), Is.EqualTo(ulong.MaxValue / 2));
+            Assert.That(Compression.DecompressVarUInt(reader), Is.EqualTo(0x01020304A1A2A3A4)); // every byte different (!)
             Assert.That(Compression.DecompressVarUInt(reader), Is.EqualTo(ulong.MaxValue));
         }
 
