@@ -439,24 +439,18 @@ namespace Mirror
             if (value <= 4294967295)
             {
                 byte a = (byte)251;
-                byte b = (byte)(value & 0xFF);
-                byte c = (byte)((value >> 8) & 0xFF);
-                byte d = (byte)((value >> 16) & 0xFF);
-                byte e = (byte)((value >> 24) & 0xFF);
+                uint b = (uint)value;
                 writer.WriteByte(a);
-                writer.WriteUInt((uint)(e << 24 | d << 16 | c << 8 | b));
+                writer.WriteUInt(b);
                 return;
             }
             if (value <= 1099511627775)
             {
                 byte a = (byte)252;
                 byte b = (byte)(value & 0xFF);
-                byte c = (byte)((value >> 8) & 0xFF);
-                byte d = (byte)((value >> 16) & 0xFF);
-                byte e = (byte)((value >> 24) & 0xFF);
-                byte f = (byte)((value >> 32) & 0xFF);
+                uint c = (uint)(value >> 8);
                 writer.WriteUShort((ushort)(b << 8 | a));
-                writer.WriteUInt((uint)(f << 24 | e << 16 | d << 8 | c));
+                writer.WriteUInt(c);
                 return;
             }
             if (value <= 281474976710655)
@@ -464,42 +458,24 @@ namespace Mirror
                 byte a = (byte)253;
                 byte b = (byte)(value & 0xFF);
                 byte c = (byte)((value >> 8) & 0xFF);
-                byte d = (byte)((value >> 16) & 0xFF);
-                byte e = (byte)((value >> 24) & 0xFF);
-                byte f = (byte)((value >> 32) & 0xFF);
-                byte g = (byte)((value >> 40) & 0xFF);
+                uint d = (uint)(value >> 16);
                 writer.WriteByte(a);
                 writer.WriteUShort((ushort)(c << 8 | b));
-                writer.WriteUInt((uint)(g << 24 | f << 16 | e << 8 | d));
+                writer.WriteUInt(d);
                 return;
             }
             if (value <= 72057594037927935)
             {
-                ulong a = 254;
-                ulong b = (value & 0xFF);
-                ulong c = ((value >> 8) & 0xFF);
-                ulong d = ((value >> 16) & 0xFF);
-                ulong e = ((value >> 24) & 0xFF);
-                ulong f = ((value >> 32) & 0xFF);
-                ulong g = ((value >> 40) & 0xFF);
-                ulong h = ((value >> 48) & 0xFF);
-                writer.WriteULong((h << 56 | g << 48 | f << 40 | e << 32 | d << 24 | c << 16 | b << 8 | a));
+                byte a = 254;
+                ulong b = value << 8;
+                writer.WriteULong(b | a);
                 return;
             }
 
             // all others
             {
-                byte  a = (byte)255;
-                ulong b = (value & 0xFF);
-                ulong c = ((value >> 8) & 0xFF);
-                ulong d = ((value >> 16) & 0xFF);
-                ulong e = ((value >> 24) & 0xFF);
-                ulong f = ((value >> 32) & 0xFF);
-                ulong g = ((value >> 40) & 0xFF);
-                ulong h = ((value >> 48) & 0xFF);
-                ulong i = ((value >> 56) & 0xFF);
-                writer.WriteByte(a);
-                writer.WriteULong((i << 56 | h << 48 | g << 40 | f << 32 | e << 24 | d << 16 | c << 8 | b << 0));
+                writer.WriteByte(255);
+                writer.WriteULong(value);
             }
         }
 
