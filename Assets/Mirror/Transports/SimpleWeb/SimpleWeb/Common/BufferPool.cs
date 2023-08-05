@@ -63,7 +63,7 @@ namespace Mirror.SimpleWeb
 
         public void CopyTo(byte[] target, int offset)
         {
-            if (count > (target.Length + offset)) 
+            if (count > (target.Length + offset))
                 throw new ArgumentException($"{nameof(count)} was greater than {nameof(target)}.length", nameof(target));
 
             Buffer.BlockCopy(array, 0, target, offset, count);
@@ -76,7 +76,7 @@ namespace Mirror.SimpleWeb
 
         public void CopyFrom(byte[] source, int offset, int length)
         {
-            if (length > array.Length) 
+            if (length > array.Length)
                 throw new ArgumentException($"{nameof(length)} was greater than {nameof(array)}.length", nameof(length));
 
             count = length;
@@ -85,7 +85,7 @@ namespace Mirror.SimpleWeb
 
         public void CopyFrom(IntPtr bufferPtr, int length)
         {
-            if (length > array.Length) 
+            if (length > array.Length)
                 throw new ArgumentException($"{nameof(length)} was greater than {nameof(array)}.length", nameof(length));
 
             count = length;
@@ -141,13 +141,13 @@ namespace Mirror.SimpleWeb
         void IncrementCreated()
         {
             int next = Interlocked.Increment(ref _current);
-            Log.Verbose($"[SimpleWebTransport] BufferBucket({arraySize}) count:{next}");
+            // Log.Verbose($"[SimpleWebTransport] BufferBucket({arraySize}) count:{next}");
         }
         [Conditional("DEBUG")]
         void DecrementCreated()
         {
             int next = Interlocked.Decrement(ref _current);
-            Log.Verbose($"[SimpleWebTransport] BufferBucket({arraySize}) count:{next}");
+            // Log.Verbose($"[SimpleWebTransport] BufferBucket({arraySize}) count:{next}");
         }
     }
 
@@ -204,12 +204,12 @@ namespace Mirror.SimpleWeb
             Validate();
 
             // Example
-            // 5         count  
+            // 5         count
             // 20        smallest
             // 16400     largest
 
             // 3.0       log 20
-            // 9.7       log 16400 
+            // 9.7       log 16400
 
             // 6.7       range 9.7 - 3
             // 1.675     each  6.7 / (5-1)
