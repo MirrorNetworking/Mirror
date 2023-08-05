@@ -64,9 +64,9 @@ namespace Mirror.SimpleWeb
         public SslProtocols sslProtocols = SslProtocols.Tls12;
 
         [Header("Debug")]
-        [Tooltip("Log functions uses ConditionalAttribute which will effect which log methods are allowed. DEBUG allows warn/error, SIMPLEWEB_LOG_ENABLED allows all")]
+        [Tooltip("Log functions uses ConditionalAttribute which will effect which log methods are allowed.")]
         [FormerlySerializedAs("logLevels")]
-        [SerializeField] Log.Levels _logLevels = Log.Levels.info;
+        [SerializeField] Log.Levels _logLevels = Log.Levels.warn;
 
         /// <summary>
         /// <para>Gets _logLevels field</para>

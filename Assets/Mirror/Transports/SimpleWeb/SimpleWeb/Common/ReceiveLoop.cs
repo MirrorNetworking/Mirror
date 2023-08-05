@@ -177,14 +177,14 @@ namespace Mirror.SimpleWeb
             // read 2
             header.offset = ReadHelper.Read(stream, buffer, header.offset, Constants.HeaderMinSize);
             // log after first blocking call
-            Log.Verbose($"[SimpleWebTransport] Message From {conn}");
+            // Log.Verbose($"[SimpleWebTransport] Message From {conn}");
 
             if (MessageProcessor.NeedToReadShortLength(buffer))
                 header.offset = ReadHelper.Read(stream, buffer, header.offset, Constants.ShortLength);
             if (MessageProcessor.NeedToReadLongLength(buffer))
                 header.offset = ReadHelper.Read(stream, buffer, header.offset, Constants.LongLength);
 
-            Log.DumpBuffer($"[SimpleWebTransport] Raw Header", buffer, 0, header.offset);
+            // Log.DumpBuffer($"[SimpleWebTransport] Raw Header", buffer, 0, header.offset);
 
             MessageProcessor.ValidateHeader(buffer, maxMessageSize, expectMask, opCodeContinuation);
 
@@ -195,7 +195,7 @@ namespace Mirror.SimpleWeb
             header.payloadLength = MessageProcessor.GetPayloadLength(buffer);
             header.finished = MessageProcessor.Finished(buffer);
 
-            Log.Verbose($"[SimpleWebTransport] Header ln:{header.payloadLength} op:{header.opcode} mask:{expectMask}");
+            // Log.Verbose($"[SimpleWebTransport] Header ln:{header.payloadLength} op:{header.opcode} mask:{expectMask}");
 
             return header;
         }
@@ -239,7 +239,7 @@ namespace Mirror.SimpleWeb
             }
 
             // dump after mask off
-            Log.DumpBuffer($"[SimpleWebTransport] Message", buffer, msgOffset, payloadLength);
+            // Log.DumpBuffer($"[SimpleWebTransport] Message", buffer, msgOffset, payloadLength);
             Log.Info($"[SimpleWebTransport] Close: {GetCloseCode(buffer, msgOffset)} message:{GetCloseMessage(buffer, msgOffset, payloadLength)}");
 
             conn.Dispose();
