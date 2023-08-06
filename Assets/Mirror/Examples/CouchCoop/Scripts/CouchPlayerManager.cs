@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using Mirror;
 
@@ -7,6 +5,7 @@ namespace Mirror.Examples.CouchCoop
 {
     public class CouchPlayerManager : NetworkBehaviour
     {
+        // reference to UI that should be in the scene
         public CanvasScript canvasScript;
         // for multiple player prefabs, currently not implemented, remember to add these into Network Managers Prefab array.
         public GameObject[] playerPrefabs;

@@ -6,15 +6,15 @@ namespace Mirror.Examples.CouchCoop
     public class CouchPlayer : NetworkBehaviour
     {
         public Rigidbody rb;
-        public float movementSpeed;
-        public float jumpSpeed;
+        public float movementSpeed = 3;
+        public float jumpSpeed = 6;
         private float movementVelocity;
         private bool isGrounded;
 
         public CouchPlayerManager couchPlayerManager;
-        public KeyCode jumpKey = KeyCode.Space;
-        public KeyCode leftKey = KeyCode.A;
-        public KeyCode rightKey = KeyCode.D;
+        private KeyCode jumpKey = KeyCode.Space; // Check CouchPlayerManager for controls
+        private KeyCode leftKey = KeyCode.LeftArrow;
+        private KeyCode rightKey = KeyCode.RightArrow;
 
         [SyncVar(hook = nameof(OnNumberChangedHook))]
         public int playerNumber = 0;
@@ -44,6 +44,8 @@ namespace Mirror.Examples.CouchCoop
             if (!Application.isFocused) return;
             if (isOwned == false) { return; }
 
+            // you can control all local players via arrow keys and space bar for fun testing
+            // otherwise check and set individual controls in CouchPlayerManager script.
             if (isGrounded == true)
             {
                 if (Input.GetKey(KeyCode.Space) || Input.GetKeyDown(jumpKey))

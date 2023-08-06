@@ -1,10 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 namespace Mirror.Examples.CouchCoop
 {
-
     public class CanvasScript : MonoBehaviour
     {
         public CouchPlayerManager couchPlayerManager; // Sets itself
