@@ -8,16 +8,18 @@ namespace Mirror.Examples.CouchCoop
     public class CouchPlayerManager : NetworkBehaviour
     {
         public CanvasScript canvasScript;
-        // for multiple player prefabs, currently not implemented
+        // for multiple player prefabs, currently not implemented, remember to add these into Network Managers Prefab array.
         public GameObject[] playerPrefabs;
         public int totalCouchPlayers = 0;
 
         // ignore key controls 0, we will always start at 1
         public KeyCode[] playerKeyJump;
+        public KeyCode[] playerKeyLeft;
+        public KeyCode[] playerKeyRight;
 
         // store a list of players so we know which to remove later
         // can be non sync-list, but may be useful for future features
-        public readonly SyncList<GameObject> couchPlayersList = new SyncList<GameObject>();
+        readonly SyncList<GameObject> couchPlayersList = new SyncList<GameObject>();
 
         private void Awake()
         {
