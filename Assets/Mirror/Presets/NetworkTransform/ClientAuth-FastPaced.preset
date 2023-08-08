@@ -9,7 +9,7 @@ Preset:
   m_Name: ClientAuth-FastPaced
   m_TargetType:
     m_NativeTypeID: 114
-    m_ManagedTypePPtr: {fileID: 11500000, guid: 2f74aedd71d9a4f55b3ce499326d45fb,
+    m_ManagedTypePPtr: {fileID: 11500000, guid: a553cb17010b2403e8523b558bffbc14,
       type: 3}
     m_ManagedTypeFallback: 
   m_Properties:
@@ -67,6 +67,10 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: interpolateScale
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: coordinateSpace
     value: 0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
