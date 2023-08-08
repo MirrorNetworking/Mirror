@@ -4,7 +4,7 @@ Open scene: SceneCouchCoop
 
 - Start game, click UI button Add Player, to add local couch players, add as few or as many local couch players as you want.
 (only 4 keyboard inputs have been setup for this example, for more players, add more controls).
-Join via another client, localhost, LAN or across internet, and add remotep couch players.
+Join via another client, localhost, LAN or across internet, and add remote couch players.
 (no forced amount, can be any combination, example, 1 vs 1, 2 vs 2, 2 vs 4, 99 vs 20)
 
 - Jump keys are numbers 1, 2, 3, 4, depending on which player you are.
