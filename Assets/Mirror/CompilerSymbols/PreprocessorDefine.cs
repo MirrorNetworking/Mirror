@@ -25,7 +25,8 @@ namespace Mirror
                 "MIRROR_71_0_OR_NEWER",
                 "MIRROR_73_OR_NEWER",
                 "MIRROR_78_OR_NEWER",
-                "MIRROR_79_OR_NEWER"
+                "MIRROR_79_OR_NEWER",
+                "MIRROR_81_OR_NEWER"
                 // Remove oldest when adding next month's symbol.
                 // Keep a rolling 12 months of symbols.
             };

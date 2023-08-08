@@ -1,6 +1,4 @@
-using System.Collections;
 using System.Linq;
-using UnityEngine;
 
 namespace Mirror.Examples.TanksCoop
 {
@@ -8,8 +6,6 @@ namespace Mirror.Examples.TanksCoop
     {
 
         public static new AuthorityNetworkManager singleton { get; private set; }
-
-        private NetworkIdentity[] copyOfOwnedObjects;
 
         /// <summary>
         /// Runs on both Server and Client
@@ -30,7 +26,7 @@ namespace Mirror.Examples.TanksCoop
         {
             // this code is to reset any objects belonging to disconnected clients
             // make a copy because the original collection will change in the loop
-            copyOfOwnedObjects = conn.owned.ToArray();
+            NetworkIdentity[] copyOfOwnedObjects = conn.owned.ToArray();
             // Loop the copy, skipping the player object.
             // RemoveClientAuthority on everything else
             foreach (NetworkIdentity identity in copyOfOwnedObjects)
