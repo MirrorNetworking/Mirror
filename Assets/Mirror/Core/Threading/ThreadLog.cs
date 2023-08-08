@@ -1,4 +1,4 @@
-// threaded Debug.Log support (c) mischa 2022
+// threaded Debug.Log support (mischa 2022)
 //
 // Editor shows Debug.Logs from different threads.
 // Builds don't show Debug.Logs from different threads.
