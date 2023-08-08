@@ -75,58 +75,77 @@ namespace Mirror
 
     public class ThreadedTransport : Transport
     {
+        // common //////////////////////////////////////////////////////////////
         public override bool Available()
         {
             throw new NotImplementedException();
         }
-        public override bool ClientConnected()
-        {
-            throw new NotImplementedException();
-        }
-        public override void ClientConnect(string address)
-        {
-            throw new NotImplementedException();
-        }
-        public override void ClientSend(ArraySegment<byte> segment, int channelId = Channels.Reliable)
-        {
-            throw new NotImplementedException();
-        }
-        public override void ClientDisconnect()
-        {
-            throw new NotImplementedException();
-        }
-        public override Uri ServerUri()
-        {
-            throw new NotImplementedException();
-        }
-        public override bool ServerActive()
-        {
-            throw new NotImplementedException();
-        }
-        public override void ServerStart()
-        {
-            throw new NotImplementedException();
-        }
-        public override void ServerSend(int connectionId, ArraySegment<byte> segment, int channelId = Channels.Reliable)
-        {
-            throw new NotImplementedException();
-        }
-        public override void ServerDisconnect(int connectionId)
-        {
-            throw new NotImplementedException();
-        }
-        public override string ServerGetClientAddress(int connectionId)
-        {
-            throw new NotImplementedException();
-        }
-        public override void ServerStop()
-        {
-            throw new NotImplementedException();
-        }
+
         public override int GetMaxPacketSize(int channelId = Channels.Reliable)
         {
             throw new NotImplementedException();
         }
+
+        // client //////////////////////////////////////////////////////////////
+        public override bool ClientConnected()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void ClientConnect(string address)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void ClientSend(ArraySegment<byte> segment, int channelId = Channels.Reliable)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void ClientDisconnect()
+        {
+            throw new NotImplementedException();
+        }
+
+        // server //////////////////////////////////////////////////////////////
+        public override Uri ServerUri()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override bool ServerActive()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void ServerStart()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void ServerSend(int connectionId, ArraySegment<byte> segment, int channelId = Channels.Reliable)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void ServerDisconnect(int connectionId)
+        {
+            throw new NotImplementedException();
+        }
+
+        // TODO pass address in OnConnected.
+        // querying this at runtime won't work for threaded transports.
+        public override string ServerGetClientAddress(int connectionId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void ServerStop()
+        {
+            throw new NotImplementedException();
+        }
+
+        // shutdown ////////////////////////////////////////////////////////////
         public override void Shutdown()
         {
             throw new NotImplementedException();
