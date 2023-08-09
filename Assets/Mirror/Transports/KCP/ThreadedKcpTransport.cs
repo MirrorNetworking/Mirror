@@ -70,6 +70,9 @@ namespace kcp2k
         KcpServer server; // USED IN WORKER THREAD. DON'T TOUCH FROM MAIN THREAD!
         KcpClient client; // USED IN WORKER THREAD. DON'T TOUCH FROM MAIN THREAD!
 
+        // copy MonoBehaviour.enabled for thread safe access
+        volatile bool enabledCopy = true;
+
         // debugging
         [Header("Debug")]
         public bool debugLog;
@@ -130,6 +133,10 @@ namespace kcp2k
             UnreliableMaxMessageSize = KcpPeer.UnreliableMaxMessageSize(MTU);
         }
 
+        // copy MonoBehaviour.enabled for thread safe use
+        void OnEnable()  => enabledCopy = true;
+        void OnDisable() => enabledCopy = true;
+
         // all except WebGL
         public override bool Available() =>
             Application.platform != RuntimePlatform.WebGLPlayer;
@@ -157,7 +164,8 @@ namespace kcp2k
             // only process messages while transport is enabled.
             // scene change messsages disable it to stop processing.
             // (see also: https://github.com/vis2k/Mirror/pull/379)
-            if (enabled) client.TickIncoming();
+            // => enabledCopy for thread safe use
+            if (enabledCopy) client.TickIncoming();
         }
         // process outgoing in late update
         protected override void ThreadedClientLateUpdate() => client.TickOutgoing();
@@ -199,7 +207,8 @@ namespace kcp2k
             // only process messages while transport is enabled.
             // scene change messsages disable it to stop processing.
             // (see also: https://github.com/vis2k/Mirror/pull/379)
-            if (enabled) server.TickIncoming();
+            // => enabledCopy for thread safe use
+            if (enabledCopy) server.TickIncoming();
         }
         // process outgoing in late update
         protected override void ThreadedServerLateUpdate() => server.TickOutgoing();
