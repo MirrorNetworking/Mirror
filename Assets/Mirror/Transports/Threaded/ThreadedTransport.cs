@@ -469,7 +469,7 @@ namespace Mirror
             // copy it to a writer.
             // make sure to recycle it from worker thread.
             ConcurrentNetworkWriterPooled writer = ConcurrentNetworkWriterPool.Get();
-            writer.WriteArraySegment(segment);
+            writer.WriteBytes(segment.Array, segment.Offset, segment.Count);
 
             // enqueue to process in worker thread
             EnqueueThread(ThreadEventType.DoClientSend, writer, channelId, null);
@@ -572,7 +572,7 @@ namespace Mirror
             // copy it to a writer.
             // make sure to recycle it from worker thread.
             ConcurrentNetworkWriterPooled writer = ConcurrentNetworkWriterPool.Get();
-            writer.WriteArraySegment(segment);
+            writer.WriteBytes(segment.Array, segment.Offset, segment.Count);
 
             // enqueue to process in worker thread
             EnqueueThread(ThreadEventType.DoServerSend, writer, channelId, connectionId);
