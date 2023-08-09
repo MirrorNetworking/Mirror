@@ -154,8 +154,8 @@ namespace kcp2k
         {
             client.Send(segment, KcpTransport.ToKcpChannel(channelId));
 
-            // this is called from ThreadedTransport in main thread:
-            // OnClientDataSent?.Invoke(segment, channelId);
+            // thread safe version for statistics
+            OnThreadedClientSend(segment, channelId);
         }
         protected override void ThreadedClientDisconnect() => client.Disconnect();
         // process incoming in early update
@@ -184,8 +184,8 @@ namespace kcp2k
         {
             server.Send(connectionId, segment, KcpTransport.ToKcpChannel(channelId));
 
-            // this is called from ThreadedTransport in main thread:
-            // OnServerDataSent?.Invoke(connectionId, segment, channelId);
+            // thread safe version for statistics
+            OnThreadedServerSend(connectionId, segment, channelId);
         }
         protected override void ThreadedServerDisconnect(int connectionId) =>  server.Disconnect(connectionId);
         /* NOT THREAD SAFE. ThreadedTransport version throws NotImplementedException for this.
