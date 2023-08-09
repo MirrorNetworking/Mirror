@@ -472,7 +472,7 @@ namespace Mirror
             writer.WriteArraySegment(segment);
 
             // enqueue to process in worker thread
-            EnqueueThread(ThreadEventType.DoClientSend, writer, null, null);
+            EnqueueThread(ThreadEventType.DoClientSend, writer, channelId, null);
         }
 
         public override void ClientDisconnect()
@@ -575,7 +575,7 @@ namespace Mirror
             writer.WriteArraySegment(segment);
 
             // enqueue to process in worker thread
-            EnqueueThread(ThreadEventType.DoServerSend, writer, connectionId, null);
+            EnqueueThread(ThreadEventType.DoServerSend, writer, channelId, connectionId);
         }
 
         public override void ServerDisconnect(int connectionId)
