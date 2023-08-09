@@ -289,7 +289,7 @@ namespace Mirror
             // copy to a writer until main thread processes it.
             // make sure to recycle the writer in main thread.
             ConcurrentNetworkWriterPooled writer = ConcurrentNetworkWriterPool.Get();
-            writer.WriteArraySegment(message);
+            writer.WriteBytes(message.Array, message.Offset, message.Count);
             EnqueueClientMain(ClientMainEventType.OnClientSent, writer, channelId, null);
         }
 
@@ -299,7 +299,7 @@ namespace Mirror
             // copy to a writer until main thread processes it.
             // make sure to recycle the writer in main thread.
             ConcurrentNetworkWriterPooled writer = ConcurrentNetworkWriterPool.Get();
-            writer.WriteArraySegment(message);
+            writer.WriteBytes(message.Array, message.Offset, message.Count);
             EnqueueClientMain(ClientMainEventType.OnClientReceived, writer, channelId, null);
         }
 
@@ -324,7 +324,7 @@ namespace Mirror
             // copy to a writer until main thread processes it.
             // make sure to recycle the writer in main thread.
             ConcurrentNetworkWriterPooled writer = ConcurrentNetworkWriterPool.Get();
-            writer.WriteArraySegment(message);
+            writer.WriteBytes(message.Array, message.Offset, message.Count);
             EnqueueServerMain(ServerMainEventType.OnServerSent, writer, connectionId, channelId, null);
         }
 
@@ -334,7 +334,7 @@ namespace Mirror
             // copy to a writer until main thread processes it.
             // make sure to recycle the writer in main thread.
             ConcurrentNetworkWriterPooled writer = ConcurrentNetworkWriterPool.Get();
-            writer.WriteArraySegment(message);
+            writer.WriteBytes(message.Array, message.Offset, message.Count);
             EnqueueServerMain(ServerMainEventType.OnServerReceived, writer, connectionId, channelId, null);
         }
 
