@@ -221,7 +221,10 @@ namespace Mirror
                     case ThreadEventType.DoClientConnect:
                     {
                         // call the threaded function
-                        ThreadedClientConnect((string)elem.param); // address
+                        if (elem.param is string address)
+                            ThreadedClientConnect(address);
+                        else if (elem.param is Uri uri)
+                            ThreadedClientConnect(uri);
                         break;
                     }
                     case ThreadEventType.DoClientSend:
@@ -346,6 +349,7 @@ namespace Mirror
         protected abstract void ThreadedServerDisconnect(int connectionId);
 
         protected abstract void ThreadedClientConnect(string address);
+        protected abstract void ThreadedClientConnect(Uri address);
         protected abstract void ThreadedClientSend(ArraySegment<byte> message, int channelId);
         protected abstract void ThreadedClientDisconnect();
 
@@ -422,7 +426,20 @@ namespace Mirror
             }
 
             // enqueue to process in worker thread
-            EnqueueThread(ThreadEventType.DoServerStart, null, null, null);
+            EnqueueThread(ThreadEventType.DoClientConnect, address, null, null);
+        }
+
+        public override void ClientConnect(Uri uri)
+        {
+            // don't connect the thread twice
+            if (ClientConnected())
+            {
+                Debug.LogWarning($"Threaded transport: client already connected!");
+                return;
+            }
+
+            // enqueue to process in worker thread
+            EnqueueThread(ThreadEventType.DoClientConnect, uri, null, null);
         }
 
         public override void ClientSend(ArraySegment<byte> segment, int channelId = Channels.Reliable)
