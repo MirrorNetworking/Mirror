@@ -133,6 +133,10 @@ namespace Mirror
         // TODO nonalloc
         readonly ConcurrentQueue<ThreadEvent> threadQueue = new ConcurrentQueue<ThreadEvent>();
 
+        // active flags, since we can't access server/client from main thread
+        volatile bool serverActive;
+        volatile bool clientConnected;
+
         // communication between main & worker thread //////////////////////////
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         void EnqueueClientMain(
@@ -419,6 +423,10 @@ namespace Mirror
             }
         }
 
+        // manual state flag because implementations can't access their
+        // threaded .server/.client state from main thread.
+        public override bool ClientConnected() => clientConnected;
+
         public override void ClientConnect(string address)
         {
             // don't connect the thread twice
@@ -430,6 +438,10 @@ namespace Mirror
 
             // enqueue to process in worker thread
             EnqueueThread(ThreadEventType.DoClientConnect, address, null, null);
+
+            // manual state flag because implementations can't access their
+            // threaded .server/.client state from main thread.
+            clientConnected = true;
         }
 
         public override void ClientConnect(Uri uri)
@@ -443,6 +455,10 @@ namespace Mirror
 
             // enqueue to process in worker thread
             EnqueueThread(ThreadEventType.DoClientConnect, uri, null, null);
+
+            // manual state flag because implementations can't access their
+            // threaded .server/.client state from main thread.
+            clientConnected = true;
         }
 
         public override void ClientSend(ArraySegment<byte> segment, int channelId = Channels.Reliable)
@@ -462,6 +478,10 @@ namespace Mirror
         public override void ClientDisconnect()
         {
             EnqueueThread(ThreadEventType.DoClientDisconnect, null, null, null);
+
+            // manual state flag because implementations can't access their
+            // threaded .server/.client state from main thread.
+            clientConnected = false;
         }
 
         // server //////////////////////////////////////////////////////////////
@@ -523,6 +543,10 @@ namespace Mirror
         // implementations need to use ThreadedLateUpdate
         public override void ServerLateUpdate() {}
 
+        // manual state flag because implementations can't access their
+        // threaded .server/.client state from main thread.
+        public override bool ServerActive() => serverActive;
+
         public override void ServerStart()
         {
             // don't start the thread twice
@@ -534,6 +558,10 @@ namespace Mirror
 
             // enqueue to process in worker thread
             EnqueueThread(ThreadEventType.DoServerStart, null, null, null);
+
+            // manual state flag because implementations can't access their
+            // threaded .server/.client state from main thread.
+            serverActive = true;
         }
 
         public override void ServerSend(int connectionId, ArraySegment<byte> segment, int channelId = Channels.Reliable)
@@ -567,6 +595,10 @@ namespace Mirror
         {
             // enqueue to process in worker thread
             EnqueueThread(ThreadEventType.DoServerStop, null, null, null);
+
+            // manual state flag because implementations can't access their
+            // threaded .server/.client state from main thread.
+            serverActive = false;
         }
 
         // shutdown ////////////////////////////////////////////////////////////

@@ -134,12 +134,7 @@ namespace kcp2k
         public override bool Available() =>
             Application.platform != RuntimePlatform.WebGLPlayer;
 
-        // client - thread overrides
-        public override bool ClientConnected() => throw new NotImplementedException(); //client.connected; // TODO NOT THREAD SAFE
-        protected override void ThreadedClientConnect(string address)
-        {
-            client.Connect(address, Port);
-        }
+        protected override void ThreadedClientConnect(string address) => client.Connect(address, Port);
         protected override void ThreadedClientConnect(Uri uri)
         {
             if (uri.Scheme != Scheme)
@@ -176,7 +171,6 @@ namespace kcp2k
             builder.Port = Port;
             return builder.Uri;
         }
-        public override bool ServerActive() => throw new NotImplementedException(); // server.IsActive(); TODO NOT THREAD SAFE
         protected override void ThreadedServerStart() => server.Start(Port);
         protected override void ThreadedServerSend(int connectionId, ArraySegment<byte> segment, int channelId)
         {
