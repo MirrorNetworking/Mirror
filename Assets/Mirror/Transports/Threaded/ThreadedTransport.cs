@@ -12,19 +12,22 @@ using UnityEngine;
 namespace Mirror
 {
     // buffered events for main thread
-    enum MainEventType
+    enum ClientMainEventType
+    {
+        OnClientConnected,
+        OnClientSent,
+        OnClientReceived,
+        OnClientError,
+        OnClientDisconnected,
+    }
+
+    enum ServerMainEventType
     {
         OnServerConnected,
         OnServerSent,
         OnServerReceived,
         OnServerError,
         OnServerDisconnected,
-
-        OnClientConnected,
-        OnClientSent,
-        OnClientReceived,
-        OnClientError,
-        OnClientDisconnected,
     }
 
     // buffered events for worker thread
@@ -42,9 +45,32 @@ namespace Mirror
         DoShutdown
     }
 
-    struct MainEvent
+    struct ClientMainEvent
     {
-        public MainEventType type;
+        public ClientMainEventType type;
+        public object        param;
+
+        // some events have value type parameters: connectionId, error.
+        // store them explicitly to avoid boxing allocations to 'object param'.
+        public int?            channelId;    // connect/disconnect don't have a channel
+        public TransportError? error;
+
+        public ClientMainEvent(
+            ClientMainEventType type,
+            object param,
+            int? channelId = null,
+            TransportError? error = null)
+        {
+            this.type = type;
+            this.channelId = channelId;
+            this.error = error;
+            this.param = param;
+        }
+    }
+
+    struct ServerMainEvent
+    {
+        public ServerMainEventType type;
         public object        param;
 
         // some events have value type parameters: connectionId, error.
@@ -53,8 +79,8 @@ namespace Mirror
         public int?            channelId;    // connect/disconnect don't have a channel
         public TransportError? error;
 
-        public MainEvent(
-            MainEventType type,
+        public ServerMainEvent(
+            ServerMainEventType type,
             object param,
             int? connectionId,
             int? channelId = null,
@@ -99,8 +125,8 @@ namespace Mirror
         // worker thread puts events in, main thread processes them.
         // client & server separate because EarlyUpdate is separate too.
         // TODO nonalloc
-        readonly ConcurrentQueue<MainEvent> clientMainQueue = new ConcurrentQueue<MainEvent>();
-        readonly ConcurrentQueue<MainEvent> serverMainQueue = new ConcurrentQueue<MainEvent>();
+        readonly ConcurrentQueue<ClientMainEvent> clientMainQueue = new ConcurrentQueue<ClientMainEvent>();
+        readonly ConcurrentQueue<ServerMainEvent> serverMainQueue = new ConcurrentQueue<ServerMainEvent>();
 
         // worker thread's event queue
         // main thread puts events in, worker thread processes them.
@@ -110,22 +136,22 @@ namespace Mirror
         // communication between main & worker thread //////////////////////////
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         void EnqueueClientMain(
-            MainEventType type,
+            ClientMainEventType type,
             object param,
             int? connectionId,
             int? channelId,
             TransportError? error) =>
-            clientMainQueue.Enqueue(new MainEvent(type, param, connectionId, channelId, error));
+            clientMainQueue.Enqueue(new ClientMainEvent(type, param, channelId, error));
 
         // add an event for main thread
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         void EnqueueServerMain(
-            MainEventType type,
+            ServerMainEventType type,
             object param,
             int? connectionId,
             int? channelId,
             TransportError? error) =>
-            serverMainQueue.Enqueue(new MainEvent(type, param, connectionId, channelId, error));
+            serverMainQueue.Enqueue(new ServerMainEvent(type, param, connectionId, channelId, error));
 
         void EnqueueThread(
             ThreadEventType type,
@@ -246,7 +272,7 @@ namespace Mirror
         // they will be queued up for main thread automatically.
         protected void OnThreadedServerConnect(int connectionId, string address)
         {
-            EnqueueServerMain(MainEventType.OnServerConnected, address, connectionId, null, null);
+            EnqueueServerMain(ServerMainEventType.OnServerConnected, address, connectionId, null, null);
         }
 
         protected void OnThreadedServerSend(int connectionId, ArraySegment<byte> message, int channelId)
@@ -256,7 +282,7 @@ namespace Mirror
             // make sure to recycle the writer in main thread.
             ConcurrentNetworkWriterPooled writer = ConcurrentNetworkWriterPool.Get();
             writer.WriteArraySegment(message);
-            EnqueueServerMain(MainEventType.OnServerSent, writer, connectionId, channelId, null);
+            EnqueueServerMain(ServerMainEventType.OnServerSent, writer, connectionId, channelId, null);
         }
 
         protected void OnThreadedServerReceive(int connectionId, ArraySegment<byte> message, int channelId)
@@ -266,22 +292,22 @@ namespace Mirror
             // make sure to recycle the writer in main thread.
             ConcurrentNetworkWriterPooled writer = ConcurrentNetworkWriterPool.Get();
             writer.WriteArraySegment(message);
-            EnqueueServerMain(MainEventType.OnServerReceived, writer, connectionId, channelId, null);
+            EnqueueServerMain(ServerMainEventType.OnServerReceived, writer, connectionId, channelId, null);
         }
 
         protected void OnThreadedServerError(int connectionId, TransportError error, string reason)
         {
-            EnqueueServerMain(MainEventType.OnServerError, reason, connectionId, null, error);
+            EnqueueServerMain(ServerMainEventType.OnServerError, reason, connectionId, null, error);
         }
 
         protected void OnThreadedServerDisconnect(int connectionId)
         {
-            EnqueueServerMain(MainEventType.OnServerDisconnected, null, connectionId, null, null);
+            EnqueueServerMain(ServerMainEventType.OnServerDisconnected, null, connectionId, null, null);
         }
 
         protected void OnThreadedClientConnect(string address)
         {
-            EnqueueClientMain(MainEventType.OnClientConnected, address, null, null, null);
+            EnqueueClientMain(ClientMainEventType.OnClientConnected, address, null, null, null);
         }
 
         protected void OnThreadedClientSend(ArraySegment<byte> message, int channelId)
@@ -291,7 +317,7 @@ namespace Mirror
             // make sure to recycle the writer in main thread.
             ConcurrentNetworkWriterPooled writer = ConcurrentNetworkWriterPool.Get();
             writer.WriteArraySegment(message);
-            EnqueueClientMain(MainEventType.OnClientSent, writer, null, channelId, null);
+            EnqueueClientMain(ClientMainEventType.OnClientSent, writer, null, channelId, null);
         }
 
         protected void OnThreadedClientReceive(ArraySegment<byte> message, int channelId)
@@ -301,17 +327,17 @@ namespace Mirror
             // make sure to recycle the writer in main thread.
             ConcurrentNetworkWriterPooled writer = ConcurrentNetworkWriterPool.Get();
             writer.WriteArraySegment(message);
-            EnqueueClientMain(MainEventType.OnClientReceived, writer, null, channelId, null);
+            EnqueueClientMain(ClientMainEventType.OnClientReceived, writer, null, channelId, null);
         }
 
         protected void OnThreadedClientError(TransportError error, string reason)
         {
-            EnqueueClientMain(MainEventType.OnClientError, reason, null, null, error);
+            EnqueueClientMain(ClientMainEventType.OnClientError, reason, null, null, error);
         }
 
         protected void OnThreadedClientDisconnect()
         {
-            EnqueueClientMain(MainEventType.OnClientDisconnected, null, null, null, null);
+            EnqueueClientMain(ClientMainEventType.OnClientDisconnected, null, null, null, null);
         }
 
         protected abstract void ThreadedServerStart();
@@ -339,18 +365,18 @@ namespace Mirror
             // need to process the worker thread's queued events here too.
 
             // TODO deadlock protection. main thread may be to slow to process all.
-            while (clientMainQueue.TryDequeue(out MainEvent elem))
+            while (clientMainQueue.TryDequeue(out ClientMainEvent elem))
             {
                 switch (elem.type)
                 {
                     // CLIENT EVENTS ///////////////////////////////////////////
-                    case MainEventType.OnClientConnected:
+                    case ClientMainEventType.OnClientConnected:
                     {
                         // call original transport event
                         OnClientConnected?.Invoke();
                         break;
                     }
-                    case MainEventType.OnClientSent:
+                    case ClientMainEventType.OnClientSent:
                     {
                         // call original transport event
                         ConcurrentNetworkWriterPooled writer = (ConcurrentNetworkWriterPooled)elem.param;
@@ -360,7 +386,7 @@ namespace Mirror
                         ConcurrentNetworkWriterPool.Return(writer);
                         break;
                     }
-                    case MainEventType.OnClientReceived:
+                    case ClientMainEventType.OnClientReceived:
                     {
                         // call original transport event
                         ConcurrentNetworkWriterPooled writer = (ConcurrentNetworkWriterPooled)elem.param;
@@ -370,13 +396,13 @@ namespace Mirror
                         ConcurrentNetworkWriterPool.Return(writer);
                         break;
                     }
-                    case MainEventType.OnClientError:
+                    case ClientMainEventType.OnClientError:
                     {
                         // call original transport event
                         OnClientError?.Invoke(elem.error.Value, (string)elem.param);
                         break;
                     }
-                    case MainEventType.OnClientDisconnected:
+                    case ClientMainEventType.OnClientDisconnected:
                     {
                         // call original transport event
                         OnClientDisconnected?.Invoke();
@@ -426,19 +452,19 @@ namespace Mirror
             // need to process the worker thread's queued events here too.
 
             // TODO deadlock protection. main thread may be to slow to process all.
-            while (serverMainQueue.TryDequeue(out MainEvent elem))
+            while (serverMainQueue.TryDequeue(out ServerMainEvent elem))
             {
                 switch (elem.type)
                 {
                     // SERVER EVENTS ///////////////////////////////////////////
-                    case MainEventType.OnServerConnected:
+                    case ServerMainEventType.OnServerConnected:
                     {
                         // call original transport event
                         // TODO pass client address in OnConnect here later
                         OnServerConnected?.Invoke(elem.connectionId.Value);//, (string)elem.param);
                         break;
                     }
-                    case MainEventType.OnServerSent:
+                    case ServerMainEventType.OnServerSent:
                     {
                         // call original transport event
                         ConcurrentNetworkWriterPooled writer = (ConcurrentNetworkWriterPooled)elem.param;
@@ -448,7 +474,7 @@ namespace Mirror
                         ConcurrentNetworkWriterPool.Return(writer);
                         break;
                     }
-                    case MainEventType.OnServerReceived:
+                    case ServerMainEventType.OnServerReceived:
                     {
                         // call original transport event
                         ConcurrentNetworkWriterPooled writer = (ConcurrentNetworkWriterPooled)elem.param;
@@ -458,13 +484,13 @@ namespace Mirror
                         ConcurrentNetworkWriterPool.Return(writer);
                         break;
                     }
-                    case MainEventType.OnServerError:
+                    case ServerMainEventType.OnServerError:
                     {
                         // call original transport event
                         OnServerError?.Invoke(elem.connectionId.Value, elem.error.Value, (string)elem.param);
                         break;
                     }
-                    case MainEventType.OnServerDisconnected:
+                    case ServerMainEventType.OnServerDisconnected:
                     {
                         // call original transport event
                         OnServerDisconnected?.Invoke(elem.connectionId.Value);
