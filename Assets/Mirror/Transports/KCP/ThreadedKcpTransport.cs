@@ -67,8 +67,8 @@ namespace kcp2k
         const int MTU = Kcp.MTU_DEF;
 
         // server & client
-        protected KcpServer server; // USED IN WORKER THREAD. DON'T TOUCH FROM MAIN THREAD!
-        protected KcpClient client; // USED IN WORKER THREAD. DON'T TOUCH FROM MAIN THREAD!
+        KcpServer server; // USED IN WORKER THREAD. DON'T TOUCH FROM MAIN THREAD!
+        KcpClient client; // USED IN WORKER THREAD. DON'T TOUCH FROM MAIN THREAD!
 
         // debugging
         [Header("Debug")]
