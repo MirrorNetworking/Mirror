@@ -161,7 +161,7 @@ namespace Mirror
             threadQueue.Enqueue(new ThreadEvent(type, param, connectionId, channelId));
 
         // Unity callbacks /////////////////////////////////////////////////////
-        protected void Awake()
+        protected virtual void Awake()
         {
             // start the thread.
             // if main application terminates, this thread needs to terminate too.
