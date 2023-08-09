@@ -138,7 +138,6 @@ namespace Mirror
         void EnqueueClientMain(
             ClientMainEventType type,
             object param,
-            int? connectionId,
             int? channelId,
             TransportError? error) =>
             clientMainQueue.Enqueue(new ClientMainEvent(type, param, channelId, error));
@@ -277,7 +276,7 @@ namespace Mirror
         // they will be queued up for main thread automatically.
         protected void OnThreadedClientConnect(string address)
         {
-            EnqueueClientMain(ClientMainEventType.OnClientConnected, address, null, null, null);
+            EnqueueClientMain(ClientMainEventType.OnClientConnected, address, null, null);
         }
 
         protected void OnThreadedClientSend(ArraySegment<byte> message, int channelId)
@@ -287,7 +286,7 @@ namespace Mirror
             // make sure to recycle the writer in main thread.
             ConcurrentNetworkWriterPooled writer = ConcurrentNetworkWriterPool.Get();
             writer.WriteArraySegment(message);
-            EnqueueClientMain(ClientMainEventType.OnClientSent, writer, null, channelId, null);
+            EnqueueClientMain(ClientMainEventType.OnClientSent, writer, channelId, null);
         }
 
         protected void OnThreadedClientReceive(ArraySegment<byte> message, int channelId)
@@ -297,17 +296,17 @@ namespace Mirror
             // make sure to recycle the writer in main thread.
             ConcurrentNetworkWriterPooled writer = ConcurrentNetworkWriterPool.Get();
             writer.WriteArraySegment(message);
-            EnqueueClientMain(ClientMainEventType.OnClientReceived, writer, null, channelId, null);
+            EnqueueClientMain(ClientMainEventType.OnClientReceived, writer, channelId, null);
         }
 
         protected void OnThreadedClientError(TransportError error, string reason)
         {
-            EnqueueClientMain(ClientMainEventType.OnClientError, reason, null, null, error);
+            EnqueueClientMain(ClientMainEventType.OnClientError, reason, null, error);
         }
 
         protected void OnThreadedClientDisconnect()
         {
-            EnqueueClientMain(ClientMainEventType.OnClientDisconnected, null, null, null, null);
+            EnqueueClientMain(ClientMainEventType.OnClientDisconnected, null, null, null);
         }
 
         protected void OnThreadedServerConnect(int connectionId, string address)
