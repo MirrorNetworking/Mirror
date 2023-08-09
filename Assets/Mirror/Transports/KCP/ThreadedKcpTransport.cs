@@ -96,19 +96,19 @@ namespace kcp2k
 
             // client (NonAlloc version is not necessary anymore)
             client = new KcpClient(
-                () => OnClientConnected.Invoke(),
-                (message, channel) => OnClientDataReceived.Invoke(message, KcpTransport.FromKcpChannel(channel)),
-                () => OnClientDisconnected.Invoke(),
-                (error, reason) => OnClientError.Invoke(KcpTransport.ToTransportError(error), reason),
+                OnThreadedClientConnected,
+                (message, channel) => OnThreadedClientReceive(message, KcpTransport.FromKcpChannel(channel)),
+                OnThreadedClientDisconnected,
+                (error, reason) => OnThreadedClientError(KcpTransport.ToTransportError(error), reason),
                 config
             );
 
             // server
             server = new KcpServer(
-                (connectionId) => OnServerConnected.Invoke(connectionId),
-                (connectionId, message, channel) => OnServerDataReceived.Invoke(connectionId, message, KcpTransport.FromKcpChannel(channel)),
-                (connectionId) => OnServerDisconnected.Invoke(connectionId),
-                (connectionId, error, reason) => OnServerError.Invoke(connectionId, KcpTransport.ToTransportError(error), reason),
+                OnThreadedServerConnected,
+                (connectionId, message, channel) => OnThreadedServerReceive(connectionId, message, KcpTransport.FromKcpChannel(channel)),
+                OnThreadedServerDisconnected,
+                (connectionId, error, reason) => OnThreadedServerError(connectionId, KcpTransport.ToTransportError(error), reason),
                 config
             );
 

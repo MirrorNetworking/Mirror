@@ -274,9 +274,9 @@ namespace Mirror
 
         // threaded callbacks to call from transport thread.
         // they will be queued up for main thread automatically.
-        protected void OnThreadedClientConnect(string address)
+        protected void OnThreadedClientConnected()
         {
-            EnqueueClientMain(ClientMainEventType.OnClientConnected, address, null, null);
+            EnqueueClientMain(ClientMainEventType.OnClientConnected, null, null, null);
         }
 
         protected void OnThreadedClientSend(ArraySegment<byte> message, int channelId)
@@ -304,14 +304,14 @@ namespace Mirror
             EnqueueClientMain(ClientMainEventType.OnClientError, reason, null, error);
         }
 
-        protected void OnThreadedClientDisconnect()
+        protected void OnThreadedClientDisconnected()
         {
             EnqueueClientMain(ClientMainEventType.OnClientDisconnected, null, null, null);
         }
 
-        protected void OnThreadedServerConnect(int connectionId, string address)
+        protected void OnThreadedServerConnected(int connectionId)
         {
-            EnqueueServerMain(ServerMainEventType.OnServerConnected, address, connectionId, null, null);
+            EnqueueServerMain(ServerMainEventType.OnServerConnected, null, connectionId, null, null);
         }
 
         protected void OnThreadedServerSend(int connectionId, ArraySegment<byte> message, int channelId)
@@ -339,7 +339,7 @@ namespace Mirror
             EnqueueServerMain(ServerMainEventType.OnServerError, reason, connectionId, null, error);
         }
 
-        protected void OnThreadedServerDisconnect(int connectionId)
+        protected void OnThreadedServerDisconnected(int connectionId)
         {
             EnqueueServerMain(ServerMainEventType.OnServerDisconnected, null, connectionId, null, null);
         }
