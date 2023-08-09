@@ -581,7 +581,7 @@ namespace Mirror
         public override void ServerDisconnect(int connectionId)
         {
             // enqueue to process in worker thread
-            EnqueueThread(ThreadEventType.DoServerDisconnect, null, connectionId, null);
+            EnqueueThread(ThreadEventType.DoServerDisconnect, null, null, connectionId);
         }
 
         // TODO pass address in OnConnected.
