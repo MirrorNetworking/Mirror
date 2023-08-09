@@ -258,13 +258,15 @@ namespace Mirror
         void ThreadTick()
         {
             // early update the implementation first
-            ThreadedNetworkEarlyUpdate();
+            ThreadedClientEarlyUpdate();
+            ThreadedServerEarlyUpdate();
 
             // process queued user requests
             ProcessThreadQueue();
 
             // late update the implementation at the end
-            ThreadedNetworkLateUpdate();
+            ThreadedClientLateUpdate();
+            ThreadedServerLateUpdate();
 
             // save some cpu power.
             // TODO update interval and sleep extra time would be ideal
@@ -273,41 +275,6 @@ namespace Mirror
 
         // threaded callbacks to call from transport thread.
         // they will be queued up for main thread automatically.
-        protected void OnThreadedServerConnect(int connectionId, string address)
-        {
-            EnqueueServerMain(ServerMainEventType.OnServerConnected, address, connectionId, null, null);
-        }
-
-        protected void OnThreadedServerSend(int connectionId, ArraySegment<byte> message, int channelId)
-        {
-            // ArraySegment is only valid until returning.
-            // copy to a writer until main thread processes it.
-            // make sure to recycle the writer in main thread.
-            ConcurrentNetworkWriterPooled writer = ConcurrentNetworkWriterPool.Get();
-            writer.WriteArraySegment(message);
-            EnqueueServerMain(ServerMainEventType.OnServerSent, writer, connectionId, channelId, null);
-        }
-
-        protected void OnThreadedServerReceive(int connectionId, ArraySegment<byte> message, int channelId)
-        {
-            // ArraySegment is only valid until returning.
-            // copy to a writer until main thread processes it.
-            // make sure to recycle the writer in main thread.
-            ConcurrentNetworkWriterPooled writer = ConcurrentNetworkWriterPool.Get();
-            writer.WriteArraySegment(message);
-            EnqueueServerMain(ServerMainEventType.OnServerReceived, writer, connectionId, channelId, null);
-        }
-
-        protected void OnThreadedServerError(int connectionId, TransportError error, string reason)
-        {
-            EnqueueServerMain(ServerMainEventType.OnServerError, reason, connectionId, null, error);
-        }
-
-        protected void OnThreadedServerDisconnect(int connectionId)
-        {
-            EnqueueServerMain(ServerMainEventType.OnServerDisconnected, null, connectionId, null, null);
-        }
-
         protected void OnThreadedClientConnect(string address)
         {
             EnqueueClientMain(ClientMainEventType.OnClientConnected, address, null, null, null);
@@ -343,21 +310,58 @@ namespace Mirror
             EnqueueClientMain(ClientMainEventType.OnClientDisconnected, null, null, null, null);
         }
 
-        protected abstract void ThreadedServerStart();
-        protected abstract void ThreadedServerStop();
-        protected abstract void ThreadedServerSend(int connectionId, ArraySegment<byte> message, int channelId);
-        protected abstract void ThreadedServerDisconnect(int connectionId);
+        protected void OnThreadedServerConnect(int connectionId, string address)
+        {
+            EnqueueServerMain(ServerMainEventType.OnServerConnected, address, connectionId, null, null);
+        }
+
+        protected void OnThreadedServerSend(int connectionId, ArraySegment<byte> message, int channelId)
+        {
+            // ArraySegment is only valid until returning.
+            // copy to a writer until main thread processes it.
+            // make sure to recycle the writer in main thread.
+            ConcurrentNetworkWriterPooled writer = ConcurrentNetworkWriterPool.Get();
+            writer.WriteArraySegment(message);
+            EnqueueServerMain(ServerMainEventType.OnServerSent, writer, connectionId, channelId, null);
+        }
+
+        protected void OnThreadedServerReceive(int connectionId, ArraySegment<byte> message, int channelId)
+        {
+            // ArraySegment is only valid until returning.
+            // copy to a writer until main thread processes it.
+            // make sure to recycle the writer in main thread.
+            ConcurrentNetworkWriterPooled writer = ConcurrentNetworkWriterPool.Get();
+            writer.WriteArraySegment(message);
+            EnqueueServerMain(ServerMainEventType.OnServerReceived, writer, connectionId, channelId, null);
+        }
+
+        protected void OnThreadedServerError(int connectionId, TransportError error, string reason)
+        {
+            EnqueueServerMain(ServerMainEventType.OnServerError, reason, connectionId, null, error);
+        }
+
+        protected void OnThreadedServerDisconnect(int connectionId)
+        {
+            EnqueueServerMain(ServerMainEventType.OnServerDisconnected, null, connectionId, null, null);
+        }
 
         protected abstract void ThreadedClientConnect(string address);
         protected abstract void ThreadedClientConnect(Uri address);
         protected abstract void ThreadedClientSend(ArraySegment<byte> message, int channelId);
         protected abstract void ThreadedClientDisconnect();
 
+        protected abstract void ThreadedServerStart();
+        protected abstract void ThreadedServerStop();
+        protected abstract void ThreadedServerSend(int connectionId, ArraySegment<byte> message, int channelId);
+        protected abstract void ThreadedServerDisconnect(int connectionId);
+
         // threaded update functions.
         // make sure not to call main thread OnReceived etc. events.
         // queue everything.
-        protected abstract void ThreadedNetworkEarlyUpdate();
-        protected abstract void ThreadedNetworkLateUpdate();
+        protected abstract void ThreadedClientEarlyUpdate();
+        protected abstract void ThreadedClientLateUpdate();
+        protected abstract void ThreadedServerEarlyUpdate();
+        protected abstract void ThreadedServerLateUpdate();
 
         protected abstract void ThreadedShutdown();
 
