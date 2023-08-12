@@ -106,8 +106,13 @@ namespace Mirror
             writer.WriteBytes(buffer, offset, count);
         }
 
+        // DEPRECATED 2023-08-12
+        [Obsolete("WriteBytesAndSizeSegment was renamed to WriteArraySegmentAndSize for clarity.")]
+        public static void WriteBytesAndSizeSegment(this NetworkWriter writer, ArraySegment<byte> segment) =>
+            WriteArraySegmentAndSize(writer, segment);
+
         // writes ArraySegment of byte (most common type) and size header
-        public static void WriteBytesAndSizeSegment(this NetworkWriter writer, ArraySegment<byte> segment)
+        public static void WriteArraySegmentAndSize(this NetworkWriter writer, ArraySegment<byte> segment)
         {
             writer.WriteBytesAndSize(segment.Array, segment.Offset, segment.Count);
         }
