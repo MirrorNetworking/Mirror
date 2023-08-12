@@ -78,16 +78,6 @@ namespace Mirror
             return reader.encoding.GetString(data.Array, data.Offset, data.Count);
         }
 
-        /// <exception cref="T:OverflowException">if count is invalid</exception>
-        public static byte[] ReadBytesAndSize(this NetworkReader reader)
-        {
-            // count = 0 means the array was null
-            // otherwise count -1 is the length of the array
-            uint count = reader.ReadUInt();
-            // Use checked() to force it to throw OverflowException if data is invalid
-            return count == 0 ? null : reader.ReadBytes(checked((int)(count - 1u)));
-        }
-
         public static byte[] ReadBytes(this NetworkReader reader, int count)
         {
             // prevent allocation attacks with a reasonable limit.
@@ -104,6 +94,17 @@ namespace Mirror
             return bytes;
         }
 
+        /// <exception cref="T:OverflowException">if count is invalid</exception>
+        public static byte[] ReadBytesAndSize(this NetworkReader reader)
+        {
+            // count = 0 means the array was null
+            // otherwise count -1 is the length of the array
+            uint count = reader.ReadUInt();
+            // Use checked() to force it to throw OverflowException if data is invalid
+            return count == 0 ? null : reader.ReadBytes(checked((int)(count - 1u)));
+        }
+
+        // Reads ArraySegment and size header
         /// <exception cref="T:OverflowException">if count is invalid</exception>
         public static ArraySegment<byte> ReadBytesAndSizeSegment(this NetworkReader reader)
         {

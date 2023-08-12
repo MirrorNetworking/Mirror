@@ -82,11 +82,6 @@ namespace Mirror
             writer.Position += written;
         }
 
-        public static void WriteBytesAndSizeSegment(this NetworkWriter writer, ArraySegment<byte> buffer)
-        {
-            writer.WriteBytesAndSize(buffer.Array, buffer.Offset, buffer.Count);
-        }
-
         // Weaver needs a write function with just one byte[] parameter
         // (we don't name it .Write(byte[]) because it's really a WriteBytesAndSize since we write size / null info too)
 
@@ -113,6 +108,13 @@ namespace Mirror
             writer.WriteBytes(buffer, offset, count);
         }
 
+        // writes ArraySegment and size header
+        public static void WriteBytesAndSizeSegment(this NetworkWriter writer, ArraySegment<byte> buffer)
+        {
+            writer.WriteBytesAndSize(buffer.Array, buffer.Offset, buffer.Count);
+        }
+
+        // writes ArraySegment and size header
         public static void WriteArraySegment<T>(this NetworkWriter writer, ArraySegment<T> segment)
         {
             int length = segment.Count;
