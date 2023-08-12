@@ -115,7 +115,7 @@ namespace Mirror
         //
         // it's also easier to work with for serialization etc.
         // serialized and visible in inspector for easier debugging
-        [SerializeField] uint _assetId;
+        [SerializeField, HideInInspector] uint _assetId;
 
         // The AssetId trick:
         //   Ideally we would have a serialized 'Guid m_AssetId' but Unity can't
