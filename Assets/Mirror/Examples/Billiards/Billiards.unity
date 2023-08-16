@@ -716,11 +716,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Red
       objectReference: {fileID: 0}
-    - target: {fileID: 3429911415116987810, guid: d07e00a439ecd46e79554ec89f65317b,
-        type: 3}
-      propertyPath: m_Materials.Array.data[0]
-      value: 
-      objectReference: {fileID: 2100000, guid: 4260669eb9d994f8c96cd5be23e52164, type: 2}
     - target: {fileID: 3429911415116987812, guid: d07e00a439ecd46e79554ec89f65317b,
         type: 3}
       propertyPath: m_RootOrder
