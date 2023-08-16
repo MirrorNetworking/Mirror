@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Mirror
+namespace Mirror.Examples.Billiards
 {
     public class RedBall : NetworkBehaviour
     {
