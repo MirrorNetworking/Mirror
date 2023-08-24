@@ -82,14 +82,8 @@ namespace Mirror
             writer.Position += written;
         }
 
-        public static void WriteBytesAndSizeSegment(this NetworkWriter writer, ArraySegment<byte> buffer)
-        {
-            writer.WriteBytesAndSize(buffer.Array, buffer.Offset, buffer.Count);
-        }
-
         // Weaver needs a write function with just one byte[] parameter
         // (we don't name it .Write(byte[]) because it's really a WriteBytesAndSize since we write size / null info too)
-
         public static void WriteBytesAndSize(this NetworkWriter writer, byte[] buffer)
         {
             // buffer might be null, so we can't use .Length in that case
@@ -98,7 +92,6 @@ namespace Mirror
 
         // for byte arrays with dynamic size, where the reader doesn't know how many will come
         // (like an inventory with different items etc.)
-
         public static void WriteBytesAndSize(this NetworkWriter writer, byte[] buffer, int offset, int count)
         {
             // null is supported because [SyncVar]s might be structs with null byte[] arrays
@@ -113,6 +106,18 @@ namespace Mirror
             writer.WriteBytes(buffer, offset, count);
         }
 
+        // DEPRECATED 2023-08-12
+        [Obsolete("WriteBytesAndSizeSegment was renamed to WriteArraySegmentAndSize for clarity.")]
+        public static void WriteBytesAndSizeSegment(this NetworkWriter writer, ArraySegment<byte> segment) =>
+            WriteArraySegmentAndSize(writer, segment);
+
+        // writes ArraySegment of byte (most common type) and size header
+        public static void WriteArraySegmentAndSize(this NetworkWriter writer, ArraySegment<byte> segment)
+        {
+            writer.WriteBytesAndSize(segment.Array, segment.Offset, segment.Count);
+        }
+
+        // writes ArraySegment of any type, and size header
         public static void WriteArraySegment<T>(this NetworkWriter writer, ArraySegment<T> segment)
         {
             int length = segment.Count;

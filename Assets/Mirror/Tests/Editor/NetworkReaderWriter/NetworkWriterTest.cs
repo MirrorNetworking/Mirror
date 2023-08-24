@@ -158,7 +158,7 @@ namespace Mirror.Tests.NetworkReaderWriter
             writer.WriteBytesAndSize(data);
 
             NetworkReader reader = new NetworkReader(writer.ToArray());
-            ArraySegment<byte> deserialized = reader.ReadBytesAndSizeSegment();
+            ArraySegment<byte> deserialized = reader.ReadArraySegmentAndSize();
             Assert.That(deserialized.Count, Is.EqualTo(data.Length));
             for (int i = 0; i < data.Length; ++i)
                 Assert.That(deserialized.Array[deserialized.Offset + i], Is.EqualTo(data[i]));
@@ -172,10 +172,10 @@ namespace Mirror.Tests.NetworkReaderWriter
             // [2, 3]
             ArraySegment<byte> segment = new ArraySegment<byte>(data, 1, 1);
             NetworkWriter writer = new NetworkWriter();
-            writer.WriteBytesAndSizeSegment(segment);
+            writer.WriteArraySegmentAndSize(segment);
 
             NetworkReader reader = new NetworkReader(writer.ToArray());
-            ArraySegment<byte> deserialized = reader.ReadBytesAndSizeSegment();
+            ArraySegment<byte> deserialized = reader.ReadArraySegmentAndSize();
             Assert.That(deserialized.Count, Is.EqualTo(segment.Count));
             for (int i = 0; i < segment.Count; ++i)
                 Assert.That(deserialized.Array[deserialized.Offset + i], Is.EqualTo(segment.Array[segment.Offset + i]));

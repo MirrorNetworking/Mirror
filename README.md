@@ -6,7 +6,7 @@
 [![Video Tutorials](https://img.shields.io/badge/video_tutorial-brightgreen.svg)](https://mirror-networking.gitbook.io/docs/community-guides/video-tutorials)
 [![Forum](https://img.shields.io/badge/forum-brightgreen.svg)](https://forum.unity.com/threads/mirror-networking-for-unity-aka-hlapi-community-edition.425437/)
 [![Build](https://img.shields.io/appveyor/ci/vis2k73562/hlapi-community-edition/Mirror.svg)](https://ci.appveyor.com/project/vis2k73562/hlapi-community-edition/branch/mirror)
-[![Discord](https://img.shields.io/discord/343440455738064897.svg)](https://discordapp.com/invite/N9QVxbM)
+[![Discord](https://img.shields.io/discord/343440455738064897.svg)](https://discordapp.com/invite/xVW4nU4C34)
 [![release](https://img.shields.io/github/release/vis2k/Mirror.svg)](https://github.com/vis2k/Mirror/releases/latest)
 [![License: MIT](https://img.shields.io/badge/License-MIT-brightgreen.svg)](https://github.com/vis2k/Mirror/blob/master/LICENSE)
 [![Roadmap](https://img.shields.io/badge/roadmap-blue.svg)](https://trello.com/b/fgAE7Tud)
@@ -76,7 +76,7 @@ And that's about it 🤩
 
 🤝 We are a team of **professional** game developers, who are paid to **use Mirror in production**. Our incentives will always align with the community, because we are Mirror users just like you! 
 
-❤️ Our [**fantastic community**](https://discordapp.com/invite/N9QVxbM) of over **14,000** users contributes feedback & improvements every day. Please join us on our journey, help others, and consider a [**Donation**](https://github.com/sponsors/vis2k) if you love our work!
+❤️ Our [**fantastic community**](https://discordapp.com/invite/xVW4nU4C34) of over **14,000** users contributes feedback & improvements every day. Please join us on our journey, help others, and consider a [**Donation**](https://github.com/sponsors/vis2k) if you love our work!
 
 <img src="https://user-images.githubusercontent.com/16416509/195067704-5577b581-b829-4c9f-80d0-b6270a3a59e7.png" title="Fitzcarraldo"/>
 
