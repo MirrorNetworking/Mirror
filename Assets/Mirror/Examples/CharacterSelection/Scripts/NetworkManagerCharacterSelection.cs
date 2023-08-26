@@ -48,8 +48,26 @@ namespace Mirror.Examples.CharacterSelection
 
         void OnCreateCharacter(NetworkConnectionToClient conn, CreateCharacterMessage message)
         {
-            // playerPrefab is the one assigned in the inspector in Network
-            GameObject gameobject = Instantiate(characterData.characterPrefabs[message.characterNumber]);
+            Transform startPos = GetStartPosition();
+
+            // check if the static save data has been pre-set
+            //if (StaticVariables.playerName != "")
+            //{
+            //    inputFieldPlayerName.text = StaticVariables.playerName;
+            //}
+
+            // check that prefab is set, or exists for saved character number data
+            // could be a cheater, or coding error, or different version conflict
+            if (message.characterNumber <= 0 || message.characterNumber >= characterData.characterPrefabs.Length)
+            {
+                Debug.Log("OnCreateCharacter Invalid, set defaults.");
+                message.characterNumber = UnityEngine.Random.Range(1, characterData.characterPrefabs.Length);
+            }
+
+            GameObject playerObject = startPos != null
+                ? Instantiate(characterData.characterPrefabs[message.characterNumber], startPos.position, startPos.rotation)
+                : Instantiate(characterData.characterPrefabs[message.characterNumber]);
+
 
             // Apply data from the message however appropriate for your game
             // Typically Player would be a component you write with syncvars or properties
@@ -60,7 +78,7 @@ namespace Mirror.Examples.CharacterSelection
             //player.race = message.race;
 
             // call this to use this gameobject as the primary controller
-            NetworkServer.AddPlayerForConnection(conn, gameobject);
+            NetworkServer.AddPlayerForConnection(conn, playerObject);
         }
     }
 }

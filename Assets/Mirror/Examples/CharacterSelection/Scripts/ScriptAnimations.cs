@@ -16,7 +16,7 @@ namespace Mirror.Examples.CharacterSelection
 
         private void Start()
         {
-            yStartPosition = this.transform.position.y;
+            yStartPosition = this.transform.localPosition.y;
         }
 
         // Update is called once per frame
@@ -25,7 +25,7 @@ namespace Mirror.Examples.CharacterSelection
             float sinValue = Mathf.Sin(Time.time * bounceSpeed);
 
             yPos = Mathf.Lerp(maximum, minimum, Mathf.Abs((1.0f + sinValue) / 2.0f));
-            transform.position = new Vector3(transform.position.x, yStartPosition + yPos, transform.position.z);
+            transform.localPosition = new Vector3(transform.localPosition.x, yStartPosition + yPos, transform.localPosition.z);
 
             //Rotate
             //transform.Rotate(Vector3.up, Time.deltaTime * rotSpeed);
