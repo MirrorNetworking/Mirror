@@ -23,6 +23,7 @@ namespace Mirror.Examples.CharacterSelection
         {
             public string playerName;
             public int characterNumber;
+            public Color32 characterColour;
         }
 
         public override void OnStartServer()
@@ -40,7 +41,8 @@ namespace Mirror.Examples.CharacterSelection
             CreateCharacterMessage characterMessage = new CreateCharacterMessage
             {
                 playerName = StaticVariables.playerName,
-                characterNumber = StaticVariables.characterNumber
+                characterNumber = StaticVariables.characterNumber,
+                characterColour = StaticVariables.characterColour
             };
 
             NetworkClient.Send(characterMessage);
@@ -71,11 +73,10 @@ namespace Mirror.Examples.CharacterSelection
 
             // Apply data from the message however appropriate for your game
             // Typically Player would be a component you write with syncvars or properties
-            PlayerControllerScript playerControllerScript = playerObject.GetComponent<PlayerControllerScript>();
-            //player.hairColor = message.hairColor;
-            //player.eyeColor = message.eyeColor;
-            //player.name = message.name;
-            //player.race = message.race;
+            CharacterCustomisation characterCustomisation = playerObject.GetComponent<CharacterCustomisation>();
+            characterCustomisation.playerName = message.playerName;
+            characterCustomisation.characterNumber = message.characterNumber;
+            characterCustomisation.characterColour = message.characterColour;
 
             // call this to use this gameobject as the primary controller
             NetworkServer.AddPlayerForConnection(conn, playerObject);

@@ -7,26 +7,40 @@ namespace Mirror.Examples.CharacterSelection
 {
     public class CharacterCustomisation : NetworkBehaviour
     {
+        public TextMesh textMeshName;
+        [SyncVar(hook = nameof(HookSetName))]
+        public string playerName = "";
+
+        void HookSetName(string _old, string _new)
+        {
+            AssignName();
+        }
+
+        [SyncVar]
+        public int characterNumber = 0;
+        
+        [SyncVar(hook = nameof(HookSetColor))]
+        public Color32 characterColour;
+        private Material cachedMaterial;
         public MeshRenderer[] characterRenderers;
 
-        // Color32 packs to 4 bytes
-        [SyncVar(hook = nameof(SetColor))]
-        public Color32 characterColour;
-
-        // Unity clones the material when GetComponent<Renderer>().material is called
-        // Cache it here and destroy it in OnDestroy to prevent a memory leak
-        Material cachedMaterial;
-
-        void SetColor(Color32 _, Color32 newColor)
+        void HookSetColor(Color32 _old, Color32 _new)
         {
-            if (cachedMaterial == null) cachedMaterial = GetComponentInChildren<Renderer>().material;
-            cachedMaterial.color = newColor;
+            Debug.Log("HookSetColor");
+            AssignColours();
         }
 
-        void OnDestroy()
-        {
-            Destroy(cachedMaterial);
-        }
+        //public override void OnStartAuthority()
+        //{
+        //}
+
+        //[Command]
+        //void CmdSetupCharacter(string _playerName, int _characterNumber, Color32 _characterColour)
+        //{
+        //    playerName = _playerName;
+        //    characterNumber = _characterNumber;
+        //    characterColour = _characterColour;
+        //}
 
         public void AssignColours()
         {
@@ -37,14 +51,14 @@ namespace Mirror.Examples.CharacterSelection
             }
         }
 
-        //public override void OnStartServer()
-        //{
-        //    base.OnStartServer();
+        void OnDestroy()
+        {
+            if (cachedMaterial) { Destroy(cachedMaterial); }
+        }
 
-        //    // This script is on players that are respawned repeatedly
-        //    // so once the color has been set, don't change it.
-        //    if (color == Color.black)
-        //        color = Random.ColorHSV(0f, 1f, 1f, 1f, 0.5f, 1f);
-        //}
+        public void AssignName()
+        {
+            textMeshName.text = playerName;
+        }
     }
 }

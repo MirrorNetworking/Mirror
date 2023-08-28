@@ -32,11 +32,13 @@ namespace Mirror.Examples.CharacterSelection
             buttonExit.onClick.AddListener(ButtonExit);
             buttonNextCharacter.onClick.AddListener(ButtonNextCharacter);
             buttonGo.onClick.AddListener(ButtonGo);
+            buttonColour.onClick.AddListener(ButtonColour);
+            buttonColourReset.onClick.AddListener(ButtonColourReset);
             //Adds a listener to the main input field and invokes a method when the value changes.
             inputFieldPlayerName.onValueChanged.AddListener(delegate { InputFieldChangedPlayerName(); });
 
             LoadData();
-            SetupCharacterUI();
+            SetupCharacters();
         }
 
         public void ButtonExit()
@@ -59,7 +61,7 @@ namespace Mirror.Examples.CharacterSelection
             {
                 currentlySelectedCharacter = 1;
             }
-            SetupCharacterUI();
+            SetupCharacters();
 
             StaticVariables.characterNumber = currentlySelectedCharacter;
         }
@@ -67,17 +69,19 @@ namespace Mirror.Examples.CharacterSelection
         public void ButtonColour()
         {
             Debug.Log("ButtonColour");
-            StaticVariables.characterColour = Random.ColorHSV(0f, 1f, 1f, 1f, 0.5f, 1f);
-            characterCustomisation.AssignColours();
+            StaticVariables.characterColourActive = true;
+            StaticVariables.characterColour = Random.ColorHSV(0f, 1f, 1f, 1f, 0f, 1f);
+            SetupCharacterColours();
         }
 
         public void ButtonColourReset()
         {
             Debug.Log("ButtonColourReset ");
-           // StaticVariables.characterColour = Color.
+            StaticVariables.characterColourActive = false;
+            SetupCharacters();
         }
 
-        private void SetupCharacterUI()
+        private void SetupCharacters()
         {
             textTitle.text = "" + characterData.characterTitles[currentlySelectedCharacter];
             textHealth.text = "Health: " + characterData.characterHealths[currentlySelectedCharacter];
@@ -93,12 +97,33 @@ namespace Mirror.Examples.CharacterSelection
             currentInstantiatedCharacter.transform.position = podiumPosition.position;
             currentInstantiatedCharacter.transform.rotation = podiumPosition.rotation;
             characterCustomisation = currentInstantiatedCharacter.GetComponent<CharacterCustomisation>();
+
+            SetupCharacterColours();
+            SetupPlayerName();
+        }
+
+        public void SetupCharacterColours()
+        {
+            Debug.Log("SetupCharacterColours");
+            if (StaticVariables.characterColourActive == true)
+            {
+                characterCustomisation.characterColour = StaticVariables.characterColour;
+                characterCustomisation.AssignColours();
+            }
         }
 
         public void InputFieldChangedPlayerName()
         {
             Debug.Log("InputFieldChangedPlayerName");
             StaticVariables.playerName = inputFieldPlayerName.text;
+            SetupPlayerName();
+        }
+
+        public void SetupPlayerName()
+        {
+            Debug.Log("SetupPlayerName");
+            characterCustomisation.playerName = StaticVariables.playerName;
+            characterCustomisation.AssignName();
         }
 
         public void LoadData()
@@ -108,10 +133,19 @@ namespace Mirror.Examples.CharacterSelection
             {
                 inputFieldPlayerName.text = StaticVariables.playerName;
             }
+            else
+            {
+                StaticVariables.playerName = "Player Name";
+            }
+
             // check that prefab is set, or exists for saved character number data
             if (StaticVariables.characterNumber > 0 && StaticVariables.characterNumber < characterData.characterPrefabs.Length)
             {
                 currentlySelectedCharacter = StaticVariables.characterNumber;
+            }
+            else
+            {
+                StaticVariables.characterNumber = currentlySelectedCharacter;
             }
         }
     }
