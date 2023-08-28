@@ -10,7 +10,7 @@ namespace Mirror.Examples.CharacterSelection
     public class CanvasReferencer : MonoBehaviour
     {
         // Make sure to attach these Buttons in the Inspector
-        public Button buttonExit, buttonNextCharacter, buttonGo;
+        public Button buttonExit, buttonNextCharacter, buttonGo, buttonColour, buttonColourReset;
         public Text textTitle, textHealth, textSpeed, textAttack, textAbilities;
         public InputField inputFieldPlayerName;
 
@@ -18,6 +18,7 @@ namespace Mirror.Examples.CharacterSelection
         private int currentlySelectedCharacter = 1;
         private CharacterData characterData;
         private GameObject currentInstantiatedCharacter;
+        private CharacterCustomisation characterCustomisation;
 
         private void Start()
         {
@@ -63,6 +64,19 @@ namespace Mirror.Examples.CharacterSelection
             StaticVariables.characterNumber = currentlySelectedCharacter;
         }
 
+        public void ButtonColour()
+        {
+            Debug.Log("ButtonColour");
+            StaticVariables.characterColour = Random.ColorHSV(0f, 1f, 1f, 1f, 0.5f, 1f);
+            characterCustomisation.AssignColours();
+        }
+
+        public void ButtonColourReset()
+        {
+            Debug.Log("ButtonColourReset ");
+           // StaticVariables.characterColour = Color.
+        }
+
         private void SetupCharacterUI()
         {
             textTitle.text = "" + characterData.characterTitles[currentlySelectedCharacter];
@@ -78,6 +92,7 @@ namespace Mirror.Examples.CharacterSelection
             currentInstantiatedCharacter = Instantiate(characterData.characterPrefabs[currentlySelectedCharacter]);
             currentInstantiatedCharacter.transform.position = podiumPosition.position;
             currentInstantiatedCharacter.transform.rotation = podiumPosition.rotation;
+            characterCustomisation = currentInstantiatedCharacter.GetComponent<CharacterCustomisation>();
         }
 
         public void InputFieldChangedPlayerName()

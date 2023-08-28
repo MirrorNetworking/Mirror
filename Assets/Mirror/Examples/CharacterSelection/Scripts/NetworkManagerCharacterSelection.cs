@@ -71,7 +71,7 @@ namespace Mirror.Examples.CharacterSelection
 
             // Apply data from the message however appropriate for your game
             // Typically Player would be a component you write with syncvars or properties
-            //Player player = gameobject.GetComponent();
+            PlayerControllerScript playerControllerScript = playerObject.GetComponent<PlayerControllerScript>();
             //player.hairColor = message.hairColor;
             //player.eyeColor = message.eyeColor;
             //player.name = message.name;
