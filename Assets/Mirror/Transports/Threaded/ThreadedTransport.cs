@@ -491,7 +491,7 @@ namespace Mirror
             // regular transports process OnReceive etc. from early update.
             // need to process the worker thread's queued events here too.
 
-            // TODO deadlock protection. main thread may be to slow to process all.
+            // TODO deadlock protection. main thread may be too slow to process all.
             while (serverMainQueue.TryDequeue(out ServerMainEvent elem))
             {
                 switch (elem.type)
