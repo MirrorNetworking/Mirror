@@ -137,6 +137,10 @@ namespace Mirror
         volatile bool serverActive;
         volatile bool clientConnected;
 
+        // max number of thread messages to process per tick in main thread.
+        // very large limit to prevent deadlocks.
+        const int MaxProcessingPerTick = 10_000_000;
+
         // communication between main & worker thread //////////////////////////
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         void EnqueueClientMain(
@@ -374,8 +378,10 @@ namespace Mirror
         {
             // regular transports process OnReceive etc. from early update.
             // need to process the worker thread's queued events here too.
-
-            // TODO deadlock protection. main thread may be to slow to process all.
+            //
+            // process only up to N messages per tick here.
+            // if main thread becomes too slow, we don't want to deadlock.
+            int processed = 0;
             while (clientMainQueue.TryDequeue(out ClientMainEvent elem))
             {
                 switch (elem.type)
@@ -419,6 +425,14 @@ namespace Mirror
                         OnClientDisconnected?.Invoke();
                         break;
                     }
+                }
+
+                // process only up to N messages per tick here.
+                // if main thread becomes too slow, we don't want to deadlock.
+                if (++processed >= MaxProcessingPerTick)
+                {
+                    Debug.LogWarning($"ThreadedTransport processed the limit of {MaxProcessingPerTick} messages this tick. Continuing next tick to prevent deadlock.");
+                    break;
                 }
             }
         }
@@ -490,8 +504,10 @@ namespace Mirror
         {
             // regular transports process OnReceive etc. from early update.
             // need to process the worker thread's queued events here too.
-
-            // TODO deadlock protection. main thread may be too slow to process all.
+            //
+            // process only up to N messages per tick here.
+            // if main thread becomes too slow, we don't want to deadlock.
+            int processed = 0;
             while (serverMainQueue.TryDequeue(out ServerMainEvent elem))
             {
                 switch (elem.type)
@@ -536,6 +552,14 @@ namespace Mirror
                         OnServerDisconnected?.Invoke(elem.connectionId.Value);
                         break;
                     }
+                }
+
+                // process only up to N messages per tick here.
+                // if main thread becomes too slow, we don't want to deadlock.
+                if (++processed >= MaxProcessingPerTick)
+                {
+                    Debug.LogWarning($"ThreadedTransport processed the limit of {MaxProcessingPerTick} messages this tick. Continuing next tick to prevent deadlock.");
+                    break;
                 }
             }
         }
