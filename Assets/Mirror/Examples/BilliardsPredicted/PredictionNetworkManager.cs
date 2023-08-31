@@ -47,7 +47,7 @@ namespace Mirror.Examples.BilliardsPredicted
             timeAccumulator += Math.Min(Time.deltaTime, Time.maximumDeltaTime);
             while (timeAccumulator >= Time.fixedDeltaTime)
             {
-                Physics.Simulate(Time.fixedDeltaTime);
+                NetworkPhysicsUpdate();
                 timeAccumulator -= Time.fixedDeltaTime;
             }
         }
@@ -60,7 +60,13 @@ namespace Mirror.Examples.BilliardsPredicted
         {
             // this is the smoothest solution.
             // automatically does the 'fixed timestep' calculations for us.
+            NetworkPhysicsUpdate();
+        }
+
+        protected virtual void NetworkPhysicsUpdate()
+        {
             Physics.Simulate(Time.fixedDeltaTime);
+
         }
     }
 }
