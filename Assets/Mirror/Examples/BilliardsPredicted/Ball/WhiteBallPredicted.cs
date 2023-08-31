@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Mirror.Examples.BilliardsPredicted
 {
-    public class WhiteBall : NetworkBehaviour
+    public class WhiteBallPredicted : NetworkBehaviour
     {
         public LineRenderer dragIndicator;
         public Rigidbody rigidBody;

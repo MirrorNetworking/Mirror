@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Mirror.Examples.BilliardsPredicted
 {
-    public class RedBall : NetworkBehaviour
+    public class RedBallPredicted : NetworkBehaviour
     {
         // destroy when entering a pocket.
         // there's only one trigger in the scene (the pocket).
