@@ -94,7 +94,7 @@ namespace Mirror.Examples.BilliardsPredicted
         {
             rigidBody.position = startPosition;
             rigidBody.Sleep(); // reset forces
-            GetComponent<NetworkRigidbodyUnreliable>().RpcTeleport(startPosition);
+            // GetComponent<NetworkRigidbodyUnreliable>().RpcTeleport(startPosition);
         }
     }
 }

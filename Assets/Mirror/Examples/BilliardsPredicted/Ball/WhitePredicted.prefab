@@ -146,7 +146,6 @@ GameObject:
   - component: {fileID: 3429911415116987811}
   - component: {fileID: 1848203816128897140}
   - component: {fileID: 6607303410184343467}
-  - component: {fileID: -2991986576794647411}
   m_Layer: 0
   m_Name: WhitePredicted
   m_TagString: Untagged
@@ -284,37 +283,3 @@ MonoBehaviour:
   dragIndicator: {fileID: 982362982}
   rigidBody: {fileID: 1848203816128897140}
   forceMultiplier: 100
---- !u!114 &-2991986576794647411
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3429911415116987808}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b20dc110904e47f8a154cdcf6433eae, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  syncDirection: 0
-  syncMode: 0
-  syncInterval: 0
-  target: {fileID: 3429911415116987812}
-  clientAuthority: 0
-  syncPosition: 1
-  syncRotation: 1
-  syncScale: 0
-  interpolatePosition: 1
-  interpolateRotation: 1
-  interpolateScale: 0
-  coordinateSpace: 0
-  sendIntervalMultiplier: 1
-  timelineOffset: 0
-  showGizmos: 0
-  showOverlay: 0
-  overlayColor: {r: 0, g: 0, b: 0, a: 0.5}
-  onlySyncOnChange: 0
-  bufferResetMultiplier: 3
-  positionSensitivity: 0.01
-  rotationSensitivity: 0.01
-  scaleSensitivity: 0.01
