@@ -54,6 +54,7 @@ namespace Mirror.Examples.BilliardsPredicted
         [Command]
         void CmdApplyForce(Vector3 force)
         {
+            // TODO consider applying this in FixedUpdate later
             whiteBall.GetComponent<Rigidbody>().AddForce(force);
         }
     }
