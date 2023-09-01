@@ -1,5 +1,3 @@
-using System;
-using Mirror;
 using UnityEngine;
 
 namespace Mirror.Examples.BilliardsPredicted
@@ -52,14 +50,6 @@ namespace Mirror.Examples.BilliardsPredicted
             dragIndicator.SetPosition(1, current);
         }
 
-        // all players can apply force to the white ball.
-        // (this is not cheat safe)
-        [Command(requiresAuthority = false)]
-        void CmdApplyForce(Vector3 force)
-        {
-            rigidBody.AddForce(force);
-        }
-
         [ClientCallback]
         void OnMouseUp()
         {
@@ -78,10 +68,9 @@ namespace Mirror.Examples.BilliardsPredicted
             Vector3 delta = from - current;
             Vector3 force = delta * forceMultiplier;
 
-            // apply force to rigidbody.
-            // it will take a round trip to show the effect.
-            // the goal for prediction will be to show it immediately.
-            CmdApplyForce(force);
+            // forward the event to the local player's object.
+            // the ball isn't part of the local player.
+            NetworkClient.localPlayer.GetComponent<PlayerPredicted>().OnDraggedBall(force);
 
             // disable drag indicator
             dragIndicator.gameObject.SetActive(false);
