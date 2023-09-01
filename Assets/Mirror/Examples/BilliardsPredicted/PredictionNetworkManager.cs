@@ -10,7 +10,7 @@ namespace Mirror.Examples.BilliardsPredicted
     {
         // physics simulation isn't called automatically anymore.
         // count the update time and call it every fixedDeltaTime manually.
-        double timeAccumulator = 0;
+        // double timeAccumulator = 0;
 
         public override void Awake()
         {
