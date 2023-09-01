@@ -23,7 +23,7 @@ namespace Mirror.Examples.CharacterSelection
         {
             public string playerName;
             public int characterNumber;
-            public Color32 characterColour;
+            public Color characterColour;
         }
 
         public override void OnStartServer()
@@ -52,18 +52,26 @@ namespace Mirror.Examples.CharacterSelection
         {
             Transform startPos = GetStartPosition();
 
-            // check if the static save data has been pre-set
-            //if (StaticVariables.playerName != "")
-            //{
-            //    inputFieldPlayerName.text = StaticVariables.playerName;
-            //}
+            // check if the save data has been pre-set
+            if (message.playerName == "")
+            {
+                Debug.Log("OnCreateCharacter name invalid, set random.");
+                message.playerName = "Player: " + UnityEngine.Random.Range(100, 1000);
+            }
 
             // check that prefab is set, or exists for saved character number data
             // could be a cheater, or coding error, or different version conflict
             if (message.characterNumber <= 0 || message.characterNumber >= characterData.characterPrefabs.Length)
             {
-                Debug.Log("OnCreateCharacter Invalid, set defaults.");
+                Debug.Log("OnCreateCharacter prefab Invalid, set random.");
                 message.characterNumber = UnityEngine.Random.Range(1, characterData.characterPrefabs.Length);
+            }
+
+            // check if the save data has been pre-set
+            if (message.characterColour == new Color(0, 0, 0, 0))
+            {
+                Debug.Log("OnCreateCharacter colour invalid, set random.");
+                message.characterColour = Random.ColorHSV(0f, 1f, 1f, 1f, 0f, 1f);
             }
 
             GameObject playerObject = startPos != null
@@ -73,10 +81,10 @@ namespace Mirror.Examples.CharacterSelection
 
             // Apply data from the message however appropriate for your game
             // Typically Player would be a component you write with syncvars or properties
-            CharacterCustomisation characterCustomisation = playerObject.GetComponent<CharacterCustomisation>();
-            characterCustomisation.playerName = message.playerName;
-            characterCustomisation.characterNumber = message.characterNumber;
-            characterCustomisation.characterColour = message.characterColour;
+            CharacterSelection characterSelection = playerObject.GetComponent<CharacterSelection>();
+            characterSelection.playerName = message.playerName;
+            characterSelection.characterNumber = message.characterNumber;
+            characterSelection.characterColour = message.characterColour;
 
             // call this to use this gameobject as the primary controller
             NetworkServer.AddPlayerForConnection(conn, playerObject);

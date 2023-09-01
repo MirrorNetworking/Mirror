@@ -5,10 +5,20 @@ namespace Mirror.Examples.CharacterSelection
 {
     public class FaceCamera : MonoBehaviour
     {
+        private Transform cameraObj;
+
         // LateUpdate so that all camera updates are finished.
         void LateUpdate()
         {
-            transform.forward = Camera.main.transform.forward;
+            if (cameraObj == null || cameraObj.gameObject.activeInHierarchy == false)
+            {
+                cameraObj = Camera.main.transform;
+            }
+
+            if (cameraObj)
+            {
+                transform.forward = cameraObj.forward;
+            }
         }
     }
 }

@@ -18,7 +18,8 @@ namespace Mirror.Examples.CharacterSelection
         private int currentlySelectedCharacter = 1;
         private CharacterData characterData;
         private GameObject currentInstantiatedCharacter;
-        private CharacterCustomisation characterCustomisation;
+        private CharacterSelection characterSelection;
+        public SceneReferencer sceneReferencer;
 
         private void Start()
         {
@@ -44,12 +45,25 @@ namespace Mirror.Examples.CharacterSelection
         public void ButtonExit()
         {
             Debug.Log("ButtonExit");
+            if (sceneReferencer)
+            {
+                sceneReferencer.CloseCharacterSelection();
+            }
         }
 
         public void ButtonGo()
         {
             Debug.Log("ButtonGo");
-            SceneManager.LoadScene("SceneMap");
+
+            if (NetworkClient.active)
+            {
+                // presumes we're already in-game
+            }
+            else
+            {
+                // not in-game
+                SceneManager.LoadScene("SceneMap");
+            }
         }
 
         public void ButtonNextCharacter()
@@ -96,7 +110,8 @@ namespace Mirror.Examples.CharacterSelection
             currentInstantiatedCharacter = Instantiate(characterData.characterPrefabs[currentlySelectedCharacter]);
             currentInstantiatedCharacter.transform.position = podiumPosition.position;
             currentInstantiatedCharacter.transform.rotation = podiumPosition.rotation;
-            characterCustomisation = currentInstantiatedCharacter.GetComponent<CharacterCustomisation>();
+            characterSelection = currentInstantiatedCharacter.GetComponent<CharacterSelection>();
+            currentInstantiatedCharacter.transform.SetParent(this.transform.root);
 
             SetupCharacterColours();
             SetupPlayerName();
@@ -107,8 +122,8 @@ namespace Mirror.Examples.CharacterSelection
             Debug.Log("SetupCharacterColours");
             if (StaticVariables.characterColourActive == true)
             {
-                characterCustomisation.characterColour = StaticVariables.characterColour;
-                characterCustomisation.AssignColours();
+                characterSelection.characterColour = StaticVariables.characterColour;
+                characterSelection.AssignColours();
             }
         }
 
@@ -122,8 +137,8 @@ namespace Mirror.Examples.CharacterSelection
         public void SetupPlayerName()
         {
             Debug.Log("SetupPlayerName");
-            characterCustomisation.playerName = StaticVariables.playerName;
-            characterCustomisation.AssignName();
+            characterSelection.playerName = StaticVariables.playerName;
+            characterSelection.AssignName();
         }
 
         public void LoadData()

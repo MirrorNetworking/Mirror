@@ -5,7 +5,7 @@ using Mirror;
 
 namespace Mirror.Examples.CharacterSelection
 {
-    public class CharacterCustomisation : NetworkBehaviour
+    public class CharacterSelection : NetworkBehaviour
     {
         public TextMesh textMeshName;
         [SyncVar(hook = nameof(HookSetName))]
