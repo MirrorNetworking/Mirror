@@ -30,5 +30,47 @@ namespace Mirror.Tests.Tools
             ArraySegment<byte> segment = new ArraySegment<byte>(new byte[] {0xAA, 0xBB, 0xCC});
             Assert.That(segment.ToHexString(), Is.EqualTo("AA-BB-CC"));
         }
+
+        [Test]
+        public void SwapRemove()
+        {
+            List<int> list = new List<int>();
+
+            // one entry
+            list.Clear();
+            list.Add(42);
+            list.SwapRemove(0);
+            Assert.That(list.Count, Is.EqualTo(0));
+
+            // multiple entries - remove first
+            list.Clear();
+            list.Add(42);
+            list.Add(43);
+            list.Add(44);
+            list.SwapRemove(0);
+            Assert.That(list.Count, Is.EqualTo(2));
+            Assert.That(list[0], Is.EqualTo(44));
+            Assert.That(list[1], Is.EqualTo(43)); // order changed due to swap
+
+            // multiple entries - remove middle
+            list.Clear();
+            list.Add(42);
+            list.Add(43);
+            list.Add(44);
+            list.SwapRemove(1);
+            Assert.That(list.Count, Is.EqualTo(2));
+            Assert.That(list[0], Is.EqualTo(42));
+            Assert.That(list[1], Is.EqualTo(44));
+
+            // multiple entries - remove last
+            list.Clear();
+            list.Add(42);
+            list.Add(43);
+            list.Add(44);
+            list.SwapRemove(2);
+            Assert.That(list.Count, Is.EqualTo(2));
+            Assert.That(list[0], Is.EqualTo(42));
+            Assert.That(list[1], Is.EqualTo(43));
+        }
     }
 }

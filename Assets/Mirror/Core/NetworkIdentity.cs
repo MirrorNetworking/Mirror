@@ -23,14 +23,6 @@ namespace Mirror
     //              to everyone etc.
     public enum Visibility { Default, ForceHidden, ForceShown }
 
-    public struct NetworkIdentitySerialization
-    {
-        // IMPORTANT: int tick avoids floating point inaccuracy over days/weeks
-        public int tick;
-        public NetworkWriter ownerWriter;
-        public NetworkWriter observersWriter;
-    }
-
     /// <summary>NetworkIdentity identifies objects across the network.</summary>
     [DisallowMultipleComponent]
     // NetworkIdentity.Awake initializes all NetworkComponents.
@@ -202,19 +194,6 @@ namespace Mirror
         // TODO rename to 'visibility' after removing .visibility some day!
         [Tooltip("Visibility can overwrite interest management. ForceHidden can be useful to hide monsters while they respawn. ForceShown can be useful for score NetworkIdentities that should always broadcast to everyone in the world.")]
         public Visibility visible = Visibility.Default;
-
-        // broadcasting serializes all entities around a player for each player.
-        // we don't want to serialize one entity twice in the same tick.
-        // so we cache the last serialization and remember the timestamp so we
-        // know which Update it was serialized.
-        // (timestamp is the same while inside Update)
-        // => this way we don't need to pool thousands of writers either.
-        // => way easier to store them per object
-        NetworkIdentitySerialization lastSerialization = new NetworkIdentitySerialization
-        {
-            ownerWriter = new NetworkWriter(),
-            observersWriter = new NetworkWriter()
-        };
 
         // Keep track of all sceneIds to detect scene duplicates
         static readonly Dictionary<ulong, NetworkIdentity> sceneIds =
@@ -827,12 +806,48 @@ namespace Mirror
             }
         }
 
+        // NetworkBehaviour OnBecameDirty calls NetworkIdentity callback with index
+        bool addedToDirtySpawned = false;
+        internal void OnBecameDirty()
+        {
+            // ensure either isServer or isClient are set.
+            // ensures tests are obvious. without proper setup, it should throw.
+            if (!isClient && !isServer)
+                Debug.LogWarning("NetworkIdentity.OnBecameDirty(): neither isClient nor isServer are true. Improper setup?");
+
+
+            if (isServer)
+            {
+                // only add to dirty spawned once.
+                // don't run the insertion twice.
+                if (!addedToDirtySpawned)
+                {
+                    // insert into server dirty objects if not inserted yet
+                    // TODO keep a bool so we don't insert all the time?
+
+                    // only add if observed.
+                    // otherwise no point in adding + iterating from broadcast.
+                    if (observers.Count > 0)
+                    {
+                        NetworkServer.dirtySpawned.Add(this);
+                        addedToDirtySpawned = true;
+                    }
+                }
+            }
+        }
+
         // build dirty mask for server owner & observers (= all dirty components).
         // faster to do it in one iteration instead of iterating separately.
-        (ulong, ulong) ServerDirtyMasks(bool initialState)
+        (ulong, ulong, ulong) ServerDirtyMasks(bool initialState)
         {
             ulong ownerMask = 0;
             ulong observerMask = 0;
+
+            // are any dirty but not ready to be sent yet?
+            // we need to know this because then we don't remove
+            // the NetworkIdentity from dirtyObjects just yet.
+            // otherwise if we remove before it was synced, we would miss a sync.
+            ulong dirtyPending = 0;
 
             NetworkBehaviour[] components = NetworkBehaviours;
             for (int i = 0; i < components.Length; ++i)
@@ -840,6 +855,8 @@ namespace Mirror
                 NetworkBehaviour component = components[i];
 
                 bool dirty = component.IsDirty();
+                bool pending = !dirty && component.IsDirtyPending();
+
                 ulong nthBit = (1u << i);
 
                 // owner needs to be considered for both SyncModes, because
@@ -849,7 +866,10 @@ namespace Mirror
                 // for delta, only for ServerToClient and only if dirty.
                 //     ClientToServer comes from the owner client.
                 if (initialState || (component.syncDirection == SyncDirection.ServerToClient && dirty))
+                {
                     ownerMask |= nthBit;
+                    if (pending) dirtyPending |= nthBit;
+                }
 
                 // observers need to be considered only in Observers mode
                 //
@@ -858,10 +878,13 @@ namespace Mirror
                 // SyncDirection is irrelevant, as both are broadcast to
                 // observers which aren't the owner.
                 if (component.syncMode == SyncMode.Observers && (initialState || dirty))
+                {
                     observerMask |= nthBit;
+                    if (pending) dirtyPending |= nthBit;
+                }
             }
 
-            return (ownerMask, observerMask);
+            return (ownerMask, observerMask, dirtyPending);
         }
 
         // build dirty mask for client.
@@ -906,7 +929,7 @@ namespace Mirror
         // check ownerWritten/observersWritten to know if anything was written
         // We pass dirtyComponentsMask into this function so that we can check
         // if any Components are dirty before creating writers
-        internal void SerializeServer(bool initialState, NetworkWriter ownerWriter, NetworkWriter observersWriter)
+        internal void SerializeServer(bool initialState, NetworkWriter ownerWriter, NetworkWriter observersWriter, out bool pendingDirty)
         {
             // ensure NetworkBehaviours are valid before usage
             ValidateComponents();
@@ -919,7 +942,7 @@ namespace Mirror
             // instead of writing a 1 byte index per component,
             // we limit components to 64 bits and write one ulong instead.
             // the ulong is also varint compressed for minimum bandwidth.
-            (ulong ownerMask, ulong observerMask) = ServerDirtyMasks(initialState);
+            (ulong ownerMask, ulong observerMask, ulong pendingMask) = ServerDirtyMasks(initialState);
 
             // if nothing dirty, then don't even write the mask.
             // otherwise, every unchanged object would send a 1 byte dirty mask!
@@ -976,6 +999,16 @@ namespace Mirror
                     }
                 }
             }
+
+            // are any dirty but not ready to be sent yet?
+            // we need to know this because then we don't remove
+            // the NetworkIdentity from dirtyObjects just yet.
+            // otherwise if we remove before it was synced, we would miss a sync.
+            pendingDirty = pendingMask != 0;
+
+            // if none are still pending, this will be removed from dirtyObjects.
+            // in that case, clear our flag (the flag is only for performance).
+            if (!pendingDirty) addedToDirtySpawned = false;
         }
 
         // serialize components into writer on the client.
@@ -1100,41 +1133,6 @@ namespace Mirror
                     comp.Deserialize(reader, initialState);
                 }
             }
-        }
-
-        // get cached serialization for this tick (or serialize if none yet).
-        // IMPORTANT: int tick avoids floating point inaccuracy over days/weeks.
-        // calls SerializeServer, so this function is to be called on server.
-        internal NetworkIdentitySerialization GetServerSerializationAtTick(int tick)
-        {
-            // only rebuild serialization once per tick. reuse otherwise.
-            // except for tests, where Time.frameCount never increases.
-            // so during tests, we always rebuild.
-            // (otherwise [SyncVar] changes would never be serialized in tests)
-            //
-            // NOTE: != instead of < because int.max+1 overflows at some point.
-            if (lastSerialization.tick != tick
-#if UNITY_EDITOR
-                || !Application.isPlaying
-#endif
-               )
-            {
-                // reset
-                lastSerialization.ownerWriter.Position = 0;
-                lastSerialization.observersWriter.Position = 0;
-
-                // serialize
-                SerializeServer(false,
-                                lastSerialization.ownerWriter,
-                                lastSerialization.observersWriter);
-
-                // set tick
-                lastSerialization.tick = tick;
-                //Debug.Log($"{name} (netId={netId}) serialized for tick={tickTimeStamp}");
-            }
-
-            // return it
-            return lastSerialization;
         }
 
         internal void AddObserver(NetworkConnectionToClient conn)

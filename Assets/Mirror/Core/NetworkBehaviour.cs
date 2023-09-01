@@ -155,10 +155,18 @@ namespace Mirror
                 syncVarHookGuard &= ~dirtyBit;
         }
 
+        // callback for both SyncObject and SyncVar dirty bit setters.
+        // called once it becomes dirty, not called again while already dirty.
+        // we only want to follow the .netIdentity memory indirection once.
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        void OnBecameDirty() => netIdentity.OnBecameDirty();
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         void SetSyncObjectDirtyBit(ulong dirtyBit)
         {
+            bool clean = syncObjectDirtyBits == 0;
             syncObjectDirtyBits |= dirtyBit;
+            if (clean) OnBecameDirty();
         }
 
         /// <summary>Set as dirty so that it's synced to clients again.</summary>
@@ -166,7 +174,9 @@ namespace Mirror
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void SetSyncVarDirtyBit(ulong dirtyBit)
         {
+            bool clean = syncObjectDirtyBits == 0;
             syncVarDirtyBits |= dirtyBit;
+            if (clean) OnBecameDirty();
         }
 
         /// <summary>Set as dirty to trigger OnSerialize & send. Dirty bits are cleared after the send.</summary>
@@ -189,6 +199,12 @@ namespace Mirror
             (syncVarDirtyBits | syncObjectDirtyBits) != 0UL &&
             // only check time if bits were dirty. this is more expensive.
             NetworkTime.localTime - lastSyncTime >= syncInterval;
+
+        // check only dirty bits, ignoring sync interval.
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool IsDirtyPending() =>
+            // check bits first. this is basically free.
+            (syncVarDirtyBits | syncObjectDirtyBits) != 0UL;
 
         /// <summary>Clears all the dirty bits that were set by SetSyncVarDirtyBit() (formally SetDirtyBits)</summary>
         // automatically invoked when an update is sent for this object, but can
