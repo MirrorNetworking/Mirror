@@ -146,6 +146,7 @@ GameObject:
   - component: {fileID: 3429911415116987811}
   - component: {fileID: 1848203816128897140}
   - component: {fileID: 6607303410184343467}
+  - component: {fileID: -2068612481632719751}
   m_Layer: 0
   m_Name: WhitePredicted
   m_TagString: Untagged
@@ -283,3 +284,18 @@ MonoBehaviour:
   dragIndicator: {fileID: 982362982}
   rigidBody: {fileID: 1848203816128897140}
   forceMultiplier: 100
+--- !u!114 &-2068612481632719751
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3429911415116987808}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d38927cdc6024b9682b5fe9778b9ef99, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
