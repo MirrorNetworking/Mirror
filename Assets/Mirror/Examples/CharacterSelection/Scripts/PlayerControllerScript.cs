@@ -54,12 +54,18 @@ namespace Mirror.Examples.CharacterSelection
         public Vector3Int velocity;
         public Vector3 direction;
 
-        protected override void OnValidate()
+        private Transform cameraObj;
+        public Transform cameraTarget;
+        private SceneReferencer sceneReferencer;
+        private CharacterSelection characterSelection;
+
+        public void Awake()
         {
-            base.OnValidate();
 
             if (characterController == null)
                 characterController = GetComponent<CharacterController>();
+            if (characterSelection == null)
+                characterSelection = GetComponent<CharacterSelection>();
 
             // Override CharacterController default values
             characterController.enabled = false;
@@ -75,6 +81,9 @@ namespace Mirror.Examples.CharacterSelection
         {
             characterController.enabled = true;
             this.enabled = true;
+
+            sceneReferencer = FindObjectOfType<SceneReferencer>();
+            cameraObj = sceneReferencer.cameraObject.transform;
         }
 
         public override void OnStopAuthority()
@@ -85,6 +94,11 @@ namespace Mirror.Examples.CharacterSelection
 
         void Update()
         {
+            if (cameraObj && characterSelection)
+            {
+                characterSelection.floatingInfo.forward = cameraObj.transform.forward;
+            }
+
             if (!Application.isFocused) return;
             if (!characterController.enabled)
                 return;
@@ -101,6 +115,12 @@ namespace Mirror.Examples.CharacterSelection
 
             // Diagnostic velocity...FloorToInt for display purposes
             velocity = Vector3Int.FloorToInt(characterController.velocity);
+
+            if (cameraObj != null)
+            {
+                cameraObj.position = cameraTarget.position;
+                cameraObj.rotation = cameraTarget.rotation;
+            }
         }
 
         // TODO: Turning works while airborne...feature?

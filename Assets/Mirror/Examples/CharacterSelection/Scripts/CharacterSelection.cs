@@ -20,27 +20,17 @@ namespace Mirror.Examples.CharacterSelection
         public int characterNumber = 0;
         
         [SyncVar(hook = nameof(HookSetColor))]
-        public Color32 characterColour;
+        public Color characterColour;
         private Material cachedMaterial;
         public MeshRenderer[] characterRenderers;
 
-        void HookSetColor(Color32 _old, Color32 _new)
+        public Transform floatingInfo;
+
+        void HookSetColor(Color _old, Color _new)
         {
             Debug.Log("HookSetColor");
             AssignColours();
         }
-
-        //public override void OnStartAuthority()
-        //{
-        //}
-
-        //[Command]
-        //void CmdSetupCharacter(string _playerName, int _characterNumber, Color32 _characterColour)
-        //{
-        //    playerName = _playerName;
-        //    characterNumber = _characterNumber;
-        //    characterColour = _characterColour;
-        //}
 
         public void AssignColours()
         {
@@ -60,5 +50,13 @@ namespace Mirror.Examples.CharacterSelection
         {
             textMeshName.text = playerName;
         }
+
+        //[Command]
+        //public void CmdSetupCharacter(string _playerName, int _characterNumber, Color _characterColour)
+        //{
+        //    playerName = _playerName;
+        //    characterNumber = _characterNumber;
+        //    characterColour = _characterColour;
+        //}
     }
 }

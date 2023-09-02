@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using static Mirror.Examples.CharacterSelection.NetworkManagerCharacterSelection;
 
 namespace Mirror.Examples.CharacterSelection
 {
@@ -20,6 +21,7 @@ namespace Mirror.Examples.CharacterSelection
         private GameObject currentInstantiatedCharacter;
         private CharacterSelection characterSelection;
         public SceneReferencer sceneReferencer;
+        public Camera cameraObj;
 
         private void Start()
         {
@@ -55,9 +57,19 @@ namespace Mirror.Examples.CharacterSelection
         {
             Debug.Log("ButtonGo");
 
-            if (NetworkClient.active)
+            if (sceneReferencer && NetworkClient.active)
             {
                 // presumes we're already in-game
+                //NetworkClient.localPlayer.GetComponent<CharacterSelection>().CmdSetupCharacter(StaticVariables.playerName, StaticVariables.characterNumber, StaticVariables.characterColour);
+
+                CreateCharacterMessage characterMessage = new CreateCharacterMessage
+                {
+                    playerName = StaticVariables.playerName,
+                    characterNumber = StaticVariables.characterNumber,
+                    characterColour = StaticVariables.characterColour
+                };
+                NetworkManagerCharacterSelection.singleton.ReplacePlayer(NetworkClient.localPlayer.connectionToClient,characterMessage);
+                sceneReferencer.CloseCharacterSelection();
             }
             else
             {
@@ -115,6 +127,11 @@ namespace Mirror.Examples.CharacterSelection
 
             SetupCharacterColours();
             SetupPlayerName();
+
+            if (cameraObj)
+            {
+                characterSelection.floatingInfo.forward = cameraObj.transform.forward;
+            }
         }
 
         public void SetupCharacterColours()

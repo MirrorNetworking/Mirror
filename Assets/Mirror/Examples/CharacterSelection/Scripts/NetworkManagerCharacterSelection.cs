@@ -7,6 +7,7 @@ namespace Mirror.Examples.CharacterSelection
 {
     public class NetworkManagerCharacterSelection : NetworkManager
     {
+        public static new NetworkManagerCharacterSelection singleton { get; private set; }
         private CharacterData characterData;
 
         public override void Awake()
@@ -17,6 +18,8 @@ namespace Mirror.Examples.CharacterSelection
                 Debug.Log("Add CharacterData prefab singleton into the scene.");
                 return;
             }
+            base.Awake();
+            singleton = this;
         }
 
         public struct CreateCharacterMessage : NetworkMessage
@@ -88,6 +91,29 @@ namespace Mirror.Examples.CharacterSelection
 
             // call this to use this gameobject as the primary controller
             NetworkServer.AddPlayerForConnection(conn, playerObject);
+        }
+
+        public void ReplacePlayer(NetworkConnectionToClient conn, CreateCharacterMessage message)
+        {
+            // Cache a reference to the current player object
+            GameObject oldPlayer = conn.identity.gameObject;
+
+            GameObject playerObject = Instantiate(characterData.characterPrefabs[message.characterNumber], oldPlayer.transform.position, oldPlayer.transform.rotation);
+
+            // Instantiate the new player object and broadcast to clients
+            // Include true for keepAuthority paramater to prevent ownership change
+            NetworkServer.ReplacePlayerForConnection(conn, playerObject, true);
+
+            // Apply data from the message however appropriate for your game
+            // Typically Player would be a component you write with syncvars or properties
+            CharacterSelection characterSelection = playerObject.GetComponent<CharacterSelection>();
+            characterSelection.playerName = message.playerName;
+            characterSelection.characterNumber = message.characterNumber;
+            characterSelection.characterColour = message.characterColour;
+
+            // Remove the previous player object that's now been replaced
+            // Delay is required to allow replacement to complete.
+            Destroy(oldPlayer, 0.1f);
         }
     }
 }

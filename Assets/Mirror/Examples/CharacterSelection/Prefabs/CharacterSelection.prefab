@@ -208,6 +208,8 @@ MonoBehaviour:
   textAbilities: {fileID: 6961198751744583697}
   inputFieldPlayerName: {fileID: 6961198751004169283}
   podiumPosition: {fileID: 6961198750704402548}
+  sceneReferencer: {fileID: 0}
+  cameraObj: {fileID: 6961198751400663442}
 --- !u!1 &6961198749922865296
 GameObject:
   m_ObjectHideFlags: 0
@@ -2056,7 +2058,7 @@ GameObject:
   - component: {fileID: 6961198751400663443}
   m_Layer: 0
   m_Name: Main Camera
-  m_TagString: MainCamera
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
