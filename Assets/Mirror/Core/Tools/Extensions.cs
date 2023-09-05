@@ -47,7 +47,7 @@ namespace Mirror
         }
 
 #if !UNITY_2021_OR_NEWER
-        // Unity 2020 and earlier doesn't have Queue.TryDequeue which we need for batching.
+        // Unity 2020 and earlier don't have Queue.TryDequeue which we need for batching.
         public static bool TryDequeue<T>(this Queue<T> source, out T element)
         {
             if (source.Count > 0)
