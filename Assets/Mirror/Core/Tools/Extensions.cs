@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
@@ -58,6 +59,20 @@ namespace Mirror
 
             element = default;
             return false;
+        }
+#endif
+
+#if !UNITY_2021_OR_NEWER
+        // Unity 2020 and earlier don't have ConcurrentQueue.Clear which we need for ThreadedTransport.
+        public static void Clear<T>(this ConcurrentQueue<T> source)
+        {
+            // while count > 0 risks deadlock if other thread write at the same time.
+            // our safest solution is a best-effort approach to clear 'Count' once.
+            int count = source.Count; // get it only once
+            for (int i = 0; i < count; ++i)
+            {
+                source.TryDequeue(out _);
+            }
         }
 #endif
     }
