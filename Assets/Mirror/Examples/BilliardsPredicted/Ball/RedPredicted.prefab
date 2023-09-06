@@ -163,5 +163,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   syncDirection: 0
   syncMode: 0
-  syncInterval: 0.5
+  syncInterval: 0.1
   positionSensitivity: 0.01
+  smoothCorrection: 1
