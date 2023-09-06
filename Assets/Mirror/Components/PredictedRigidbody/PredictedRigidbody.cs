@@ -32,14 +32,6 @@ namespace Mirror.PredictedRigidbody
             if (isServer) UpdateServer();
         }
 
-        protected override void OnValidate()
-        {
-            // make sure syncInterval isn't 0.
-            // it's enough to correct every 100ms or so.
-            syncInterval = Mathf.Max(syncInterval, 0.1f);
-            base.OnValidate();
-        }
-
         // send state to clients every sendInterval.
         // reliable for now.
         public override void OnSerialize(NetworkWriter writer, bool initialState)
