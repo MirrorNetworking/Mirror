@@ -18,13 +18,18 @@ namespace Mirror.PredictedRigidbody
             rb = GetComponent<Rigidbody>();
         }
 
-        void Update()
+        void UpdateServer()
         {
             if (Vector3.Distance(transform.position, lastPosition) >= positionSensitivity)
             {
                 lastPosition = transform.position;
                 SetDirty();
             }
+        }
+
+        void Update()
+        {
+            if (isServer) UpdateServer();
         }
 
         protected override void OnValidate()
