@@ -40,6 +40,7 @@ namespace Mirror.PredictedRigidbody
         public override void OnSerialize(NetworkWriter writer, bool initialState)
         {
             writer.WriteVector3(rb.position);
+            writer.WriteQuaternion(rb.rotation);
             writer.WriteVector3(rb.velocity);
         }
 
@@ -47,13 +48,15 @@ namespace Mirror.PredictedRigidbody
         // this is where reconciliation happens if necessary.
         public override void OnDeserialize(NetworkReader reader, bool initialState)
         {
-            double timestamp = NetworkClient.connection.remoteTimeStamp;
-            Vector3 position = reader.ReadVector3();
-            Vector3 velocity = reader.ReadVector3();
+            double timestamp    = NetworkClient.connection.remoteTimeStamp;
+            Vector3 position    = reader.ReadVector3();
+            Quaternion rotation = reader.ReadQuaternion();
+            Vector3 velocity    = reader.ReadVector3();
 
             // hard force for now.
             // TODO compare past position at timestamp, and only correct if needed
             rb.position = position;
+            rb.rotation = rotation;
             rb.velocity = velocity;
         }
     }
