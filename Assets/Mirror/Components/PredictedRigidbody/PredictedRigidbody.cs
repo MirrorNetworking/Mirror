@@ -13,9 +13,30 @@ namespace Mirror.PredictedRigidbody
         [Tooltip("Broadcast changes if position changed by more than ... meters.")]
         public float positionSensitivity = 0.01f;
 
+        [Header("Smoothing")]
+        public bool smoothCorrection = true;
+
         void Awake()
         {
             rb = GetComponent<Rigidbody>();
+        }
+
+        void ApplyState(Vector3 position, Quaternion rotation, Vector3 velocity)
+        {
+            // Rigidbody .position teleports, while .MovePosition interpolates
+            // TODO is this a good idea? what about next capture while it's interpolating?
+            if (smoothCorrection)
+            {
+                rb.MovePosition(position);
+                rb.MoveRotation(rotation);
+            }
+            else
+            {
+                rb.position = position;
+                rb.rotation = rotation;
+            }
+
+            rb.velocity = velocity;
         }
 
         void UpdateServer()
@@ -51,10 +72,7 @@ namespace Mirror.PredictedRigidbody
             Vector3 velocity    = reader.ReadVector3();
 
             // hard force for now.
-            // TODO compare past position at timestamp, and only correct if needed
-            rb.position = position;
-            rb.rotation = rotation;
-            rb.velocity = velocity;
+            ApplyState(position, rotation, velocity);
         }
     }
 }
