@@ -20,8 +20,9 @@ namespace Mirror.Examples.CouchCoop
         // can be non sync-list, but may be useful for future features
         readonly SyncList<GameObject> couchPlayersList = new SyncList<GameObject>();
 
-        private void Awake()
+        public override void OnStartAuthority()
         {
+            // hook up UI to local player, for cmd communication
             canvasScript = GameObject.FindObjectOfType<CanvasScript>();
             canvasScript.couchPlayerManager = this;
         }
