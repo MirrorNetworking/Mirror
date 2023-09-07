@@ -72,7 +72,7 @@ namespace Mirror.Examples.BilliardsPredicted
             Vector3 from = transform.position;
 
             // debug drawing: only works if Gizmos are enabled!
-            Debug.DrawLine(from, current, Color.red, 3);
+            Debug.DrawLine(from, current, Color.white, 2);
 
             // calculate pending force delta
             Vector3 delta = from - current;
