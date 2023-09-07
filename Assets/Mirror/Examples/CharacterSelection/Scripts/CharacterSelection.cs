@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using Mirror;
 
@@ -7,28 +5,29 @@ namespace Mirror.Examples.CharacterSelection
 {
     public class CharacterSelection : NetworkBehaviour
     {
+        public Transform floatingInfo;
+
+        [SyncVar]
+        public int characterNumber = 0;
+
         public TextMesh textMeshName;
         [SyncVar(hook = nameof(HookSetName))]
         public string playerName = "";
 
         void HookSetName(string _old, string _new)
         {
+            //Debug.Log("HookSetName");
             AssignName();
         }
-
-        [SyncVar]
-        public int characterNumber = 0;
         
         [SyncVar(hook = nameof(HookSetColor))]
         public Color characterColour;
         private Material cachedMaterial;
         public MeshRenderer[] characterRenderers;
 
-        public Transform floatingInfo;
-
         void HookSetColor(Color _old, Color _new)
         {
-            Debug.Log("HookSetColor");
+            //Debug.Log("HookSetColor");
             AssignColours();
         }
 
@@ -51,11 +50,12 @@ namespace Mirror.Examples.CharacterSelection
             textMeshName.text = playerName;
         }
 
+        // To change server controlled sync vars, clients end Commands, and the hooks will fire
+        // Although not used in this example, we could change some character aspects without replacing current prefab.
         //[Command]
-        //public void CmdSetupCharacter(string _playerName, int _characterNumber, Color _characterColour)
+        //public void CmdSetupCharacter(string _playerName, Color _characterColour)
         //{
         //    playerName = _playerName;
-        //    characterNumber = _characterNumber;
         //    characterColour = _characterColour;
         //}
     }

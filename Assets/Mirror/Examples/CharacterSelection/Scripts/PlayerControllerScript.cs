@@ -1,4 +1,5 @@
 using UnityEngine;
+using Mirror;
 
 namespace Mirror.Examples.CharacterSelection
 {

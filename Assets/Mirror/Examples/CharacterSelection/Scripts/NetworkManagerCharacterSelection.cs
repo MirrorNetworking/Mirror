@@ -1,12 +1,15 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using Mirror;
 
 namespace Mirror.Examples.CharacterSelection
 {
     public class NetworkManagerCharacterSelection : NetworkManager
     {
+        // See the scene 'SceneMapSpawnWithNoCharacter', to spawn as empty player.
+        // 'SceneMap' will auto spawn as random player character.
+        // Compare Network Manager inspector setups to see the difference between the two.
+        // Either of these allow selecting character after spawning in too.
+        public bool SpawnAsCharacter = true;
+
         public static new NetworkManagerCharacterSelection singleton { get; private set; }
         private CharacterData characterData;
 
@@ -40,15 +43,18 @@ namespace Mirror.Examples.CharacterSelection
         {
             base.OnClientConnect();
 
-            // you can send the message here, or wherever else you want
-            CreateCharacterMessage characterMessage = new CreateCharacterMessage
+            if (SpawnAsCharacter)
             {
-                playerName = StaticVariables.playerName,
-                characterNumber = StaticVariables.characterNumber,
-                characterColour = StaticVariables.characterColour
-            };
+                // you can send the message here, or wherever else you want
+                CreateCharacterMessage characterMessage = new CreateCharacterMessage
+                {
+                    playerName = StaticVariables.playerName,
+                    characterNumber = StaticVariables.characterNumber,
+                    characterColour = StaticVariables.characterColour
+                };
 
-            NetworkClient.Send(characterMessage);
+                NetworkClient.Send(characterMessage);
+            }
         }
 
         void OnCreateCharacter(NetworkConnectionToClient conn, CreateCharacterMessage message)

@@ -1,13 +1,10 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using static Mirror.Examples.CharacterSelection.NetworkManagerCharacterSelection;
 
 namespace Mirror.Examples.CharacterSelection
-{
-    
+{ 
     public class CanvasReferencer : MonoBehaviour
     {
         // Make sure to attach these Buttons in the Inspector
@@ -46,7 +43,7 @@ namespace Mirror.Examples.CharacterSelection
 
         public void ButtonExit()
         {
-            Debug.Log("ButtonExit");
+            //Debug.Log("ButtonExit");
             if (sceneReferencer)
             {
                 sceneReferencer.CloseCharacterSelection();
@@ -55,12 +52,15 @@ namespace Mirror.Examples.CharacterSelection
 
         public void ButtonGo()
         {
-            Debug.Log("ButtonGo");
+            //Debug.Log("ButtonGo");
 
+            // presumes we're already in-game
             if (sceneReferencer && NetworkClient.active)
             {
-                // presumes we're already in-game
-                //NetworkClient.localPlayer.GetComponent<CharacterSelection>().CmdSetupCharacter(StaticVariables.playerName, StaticVariables.characterNumber, StaticVariables.characterColour);
+                
+                // You could check if prefab (character number) has not changed, and if so just update the sync vars and hooks of current prefab, this would call a command from your player.
+                // this is not fully setup for this example, but provides a minor template to follow if needed
+                //NetworkClient.localPlayer.GetComponent<CharacterSelection>().CmdSetupCharacter(StaticVariables.playerName, StaticVariables.characterColour);
 
                 CreateCharacterMessage characterMessage = new CreateCharacterMessage
                 {
@@ -74,13 +74,13 @@ namespace Mirror.Examples.CharacterSelection
             else
             {
                 // not in-game
-                SceneManager.LoadScene("SceneMap");
+                SceneManager.LoadScene("SceneMapCharacter");
             }
         }
 
         public void ButtonNextCharacter()
         {
-            Debug.Log("ButtonNextCharacter");
+            //Debug.Log("ButtonNextCharacter");
 
             currentlySelectedCharacter += 1;
             if (currentlySelectedCharacter >= characterData.characterPrefabs.Length)
@@ -94,16 +94,14 @@ namespace Mirror.Examples.CharacterSelection
 
         public void ButtonColour()
         {
-            Debug.Log("ButtonColour");
-            //StaticVariables.characterColourActive = true;
+            //Debug.Log("ButtonColour");
             StaticVariables.characterColour = Random.ColorHSV(0f, 1f, 1f, 1f, 0f, 1f);
             SetupCharacterColours();
         }
 
         public void ButtonColourReset()
         {
-            Debug.Log("ButtonColourReset ");
-           // StaticVariables.characterColourActive = false;
+            //Debug.Log("ButtonColourReset ");
             StaticVariables.characterColour = new Color(0, 0, 0, 0);
             SetupCharacters();
         }
@@ -137,7 +135,7 @@ namespace Mirror.Examples.CharacterSelection
 
         public void SetupCharacterColours()
         {
-            Debug.Log("SetupCharacterColours");
+           // Debug.Log("SetupCharacterColours");
             if (StaticVariables.characterColour != new Color(0, 0, 0, 0))
             {
                 characterSelection.characterColour = StaticVariables.characterColour;
@@ -147,14 +145,14 @@ namespace Mirror.Examples.CharacterSelection
 
         public void InputFieldChangedPlayerName()
         {
-            Debug.Log("InputFieldChangedPlayerName");
+            //Debug.Log("InputFieldChangedPlayerName");
             StaticVariables.playerName = inputFieldPlayerName.text;
             SetupPlayerName();
         }
 
         public void SetupPlayerName()
         {
-            Debug.Log("SetupPlayerName");
+            //Debug.Log("SetupPlayerName");
             if (characterSelection)
             {
                 characterSelection.playerName = StaticVariables.playerName;

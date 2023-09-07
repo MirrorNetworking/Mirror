@@ -1,14 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using Mirror;
 
 namespace Mirror.Examples.CharacterSelection
 {
-    
-    public class SceneReferencer : NetworkBehaviour
+    public class SceneReferencer : MonoBehaviour
     {
         // Make sure to attach these Buttons in the Inspector
         public Button buttonCharacterSelection;
@@ -28,12 +23,12 @@ namespace Mirror.Examples.CharacterSelection
             }
 
             buttonCharacterSelection.onClick.AddListener(ButtonCharacterSelection);
-
         }
 
         public void ButtonCharacterSelection()
         {
-            Debug.Log("ButtonCharacterSelection");
+            // server-only mode should not press this button
+            //Debug.Log("ButtonCharacterSelection");
             cameraObject.SetActive(false);
             sceneObjects.SetActive(false);
             characterSelectionObject.SetActive(true);
@@ -42,7 +37,7 @@ namespace Mirror.Examples.CharacterSelection
 
         public void CloseCharacterSelection()
         {
-            Debug.Log("CloseCharacterSelection");
+            //Debug.Log("CloseCharacterSelection");
             cameraObject.SetActive(true);
             characterSelectionObject.SetActive(false);
             sceneObjects.SetActive(true);

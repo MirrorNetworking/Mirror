@@ -1,12 +1,12 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace Mirror.Examples.CharacterSelection
 {
+    // A fun little bob script for characters.
+    // You could reference this and change values depending on characters state, idle, walk, run.
+
     public class ScriptAnimations : MonoBehaviour
     {
-        //public float rotSpeed = 3;
         public float minimum = 0.1f;
         public float maximum = 0.5f;
 
@@ -19,17 +19,12 @@ namespace Mirror.Examples.CharacterSelection
             yStartPosition = this.transform.localPosition.y;
         }
 
-        // Update is called once per frame
         void Update()
         {
             float sinValue = Mathf.Sin(Time.time * bounceSpeed);
 
             yPos = Mathf.Lerp(maximum, minimum, Mathf.Abs((1.0f + sinValue) / 2.0f));
             transform.localPosition = new Vector3(transform.localPosition.x, yStartPosition + yPos, transform.localPosition.z);
-
-            //Rotate
-            //transform.Rotate(Vector3.up, Time.deltaTime * rotSpeed);
-
         }
     }
 
