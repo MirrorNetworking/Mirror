@@ -951,8 +951,6 @@ MonoBehaviour:
   animRotation: 0
   velocity: {x: 0, y: 0, z: 0}
   direction: {x: 0, y: 0, z: 0}
-  smoothSpeed: 200
-  offset: {x: 0, y: 2, z: -5}
   cameraTarget: {fileID: 2977242866262118958}
 --- !u!114 &3540726253812090381
 MonoBehaviour:
@@ -983,19 +981,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e04a8cb02afdc4e778925020d233d718, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  syncDirection: 1
+  syncDirection: 0
   syncMode: 0
   syncInterval: 0.1
+  floatingInfo: {fileID: 8779262763683201687}
+  characterNumber: 0
   textMeshName: {fileID: 3542259476824360018}
   playerName: 
-  characterNumber: 0
   characterColour: {r: 0, g: 0, b: 0, a: 0}
   characterRenderers:
   - {fileID: 9105303183937996605}
   - {fileID: 9105303183086384159}
   - {fileID: 9105303183046110706}
   - {fileID: 9105303183986044559}
-  floatingInfo: {fileID: 8779262763683201687}
 --- !u!1 &9105303183937996607
 GameObject:
   m_ObjectHideFlags: 0

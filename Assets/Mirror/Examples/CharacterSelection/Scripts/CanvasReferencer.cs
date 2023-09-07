@@ -57,18 +57,25 @@ namespace Mirror.Examples.CharacterSelection
             // presumes we're already in-game
             if (sceneReferencer && NetworkClient.active)
             {
-                
+
                 // You could check if prefab (character number) has not changed, and if so just update the sync vars and hooks of current prefab, this would call a command from your player.
                 // this is not fully setup for this example, but provides a minor template to follow if needed
                 //NetworkClient.localPlayer.GetComponent<CharacterSelection>().CmdSetupCharacter(StaticVariables.playerName, StaticVariables.characterColour);
 
-                CreateCharacterMessage characterMessage = new CreateCharacterMessage
+                CreateCharacterMessage _characterMessage = new CreateCharacterMessage
                 {
                     playerName = StaticVariables.playerName,
                     characterNumber = StaticVariables.characterNumber,
                     characterColour = StaticVariables.characterColour
                 };
-                NetworkManagerCharacterSelection.singleton.ReplacePlayer(NetworkClient.localPlayer.connectionToClient,characterMessage);
+
+                ReplaceCharacterMessage replaceCharacterMessage = new ReplaceCharacterMessage
+                {
+                    createCharacterMessage = _characterMessage
+                };
+                NetworkManagerCharacterSelection.singleton.ReplaceCharacter(replaceCharacterMessage);
+                //NetworkManagerCharacterSelection.singleton.ReplacePlayer(NetworkClient.localPlayer.connectionToClient,characterMessage);
+                //NetworkClient.localPlayer.GetComponent<CharacterSelection>().CmdReplaceCharacter(NetworkClient.localPlayer.connectionToClient, characterMessage);
                 sceneReferencer.CloseCharacterSelection();
             }
             else

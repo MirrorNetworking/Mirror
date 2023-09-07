@@ -32,11 +32,17 @@ namespace Mirror.Examples.CharacterSelection
             public Color characterColour;
         }
 
+        public struct ReplaceCharacterMessage : NetworkMessage
+        {
+            public CreateCharacterMessage createCharacterMessage;
+        }
+
         public override void OnStartServer()
         {
             base.OnStartServer();
 
             NetworkServer.RegisterHandler<CreateCharacterMessage>(OnCreateCharacter);
+            NetworkServer.RegisterHandler<ReplaceCharacterMessage>(OnReplaceCharacterMessage);
         }
 
         public override void OnClientConnect()
@@ -99,12 +105,12 @@ namespace Mirror.Examples.CharacterSelection
             NetworkServer.AddPlayerForConnection(conn, playerObject);
         }
 
-        public void ReplacePlayer(NetworkConnectionToClient conn, CreateCharacterMessage message)
+        void OnReplaceCharacterMessage(NetworkConnectionToClient conn, ReplaceCharacterMessage message)
         {
             // Cache a reference to the current player object
             GameObject oldPlayer = conn.identity.gameObject;
 
-            GameObject playerObject = Instantiate(characterData.characterPrefabs[message.characterNumber], oldPlayer.transform.position, oldPlayer.transform.rotation);
+            GameObject playerObject = Instantiate(characterData.characterPrefabs[message.createCharacterMessage.characterNumber], oldPlayer.transform.position, oldPlayer.transform.rotation);
 
             // Instantiate the new player object and broadcast to clients
             // Include true for keepAuthority paramater to prevent ownership change
@@ -113,13 +119,18 @@ namespace Mirror.Examples.CharacterSelection
             // Apply data from the message however appropriate for your game
             // Typically Player would be a component you write with syncvars or properties
             CharacterSelection characterSelection = playerObject.GetComponent<CharacterSelection>();
-            characterSelection.playerName = message.playerName;
-            characterSelection.characterNumber = message.characterNumber;
-            characterSelection.characterColour = message.characterColour;
+            characterSelection.playerName = message.createCharacterMessage.playerName;
+            characterSelection.characterNumber = message.createCharacterMessage.characterNumber;
+            characterSelection.characterColour = message.createCharacterMessage.characterColour;
 
             // Remove the previous player object that's now been replaced
             // Delay is required to allow replacement to complete.
             Destroy(oldPlayer, 0.1f);
+        }
+
+        public void ReplaceCharacter(ReplaceCharacterMessage message)
+        {
+            NetworkClient.Send(message);
         }
     }
 }
