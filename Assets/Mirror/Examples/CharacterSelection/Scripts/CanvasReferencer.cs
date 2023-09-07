@@ -95,7 +95,7 @@ namespace Mirror.Examples.CharacterSelection
         public void ButtonColour()
         {
             Debug.Log("ButtonColour");
-            StaticVariables.characterColourActive = true;
+            //StaticVariables.characterColourActive = true;
             StaticVariables.characterColour = Random.ColorHSV(0f, 1f, 1f, 1f, 0f, 1f);
             SetupCharacterColours();
         }
@@ -103,7 +103,8 @@ namespace Mirror.Examples.CharacterSelection
         public void ButtonColourReset()
         {
             Debug.Log("ButtonColourReset ");
-            StaticVariables.characterColourActive = false;
+           // StaticVariables.characterColourActive = false;
+            StaticVariables.characterColour = new Color(0, 0, 0, 0);
             SetupCharacters();
         }
 
@@ -137,7 +138,7 @@ namespace Mirror.Examples.CharacterSelection
         public void SetupCharacterColours()
         {
             Debug.Log("SetupCharacterColours");
-            if (StaticVariables.characterColourActive == true)
+            if (StaticVariables.characterColour != new Color(0, 0, 0, 0))
             {
                 characterSelection.characterColour = StaticVariables.characterColour;
                 characterSelection.AssignColours();
@@ -154,8 +155,11 @@ namespace Mirror.Examples.CharacterSelection
         public void SetupPlayerName()
         {
             Debug.Log("SetupPlayerName");
-            characterSelection.playerName = StaticVariables.playerName;
-            characterSelection.AssignName();
+            if (characterSelection)
+            {
+                characterSelection.playerName = StaticVariables.playerName;
+                characterSelection.AssignName();
+            }
         }
 
         public void LoadData()
@@ -163,7 +167,10 @@ namespace Mirror.Examples.CharacterSelection
             // check if the static save data has been pre-set
             if (StaticVariables.playerName != "")
             {
-                inputFieldPlayerName.text = StaticVariables.playerName;
+                if (inputFieldPlayerName)
+                {
+                    inputFieldPlayerName.text = StaticVariables.playerName;
+                }
             }
             else
             {

@@ -58,7 +58,7 @@ namespace Mirror.Examples.CharacterSelection
             // check if the save data has been pre-set
             if (message.playerName == "")
             {
-                Debug.Log("OnCreateCharacter name invalid, set random.");
+                Debug.Log("OnCreateCharacter name invalid or not set, use random.");
                 message.playerName = "Player: " + UnityEngine.Random.Range(100, 1000);
             }
 
@@ -66,14 +66,14 @@ namespace Mirror.Examples.CharacterSelection
             // could be a cheater, or coding error, or different version conflict
             if (message.characterNumber <= 0 || message.characterNumber >= characterData.characterPrefabs.Length)
             {
-                Debug.Log("OnCreateCharacter prefab Invalid, set random.");
+                Debug.Log("OnCreateCharacter prefab Invalid or not set, use random.");
                 message.characterNumber = UnityEngine.Random.Range(1, characterData.characterPrefabs.Length);
             }
 
             // check if the save data has been pre-set
             if (message.characterColour == new Color(0, 0, 0, 0))
             {
-                Debug.Log("OnCreateCharacter colour invalid, set random.");
+                Debug.Log("OnCreateCharacter colour invalid or not set, use random.");
                 message.characterColour = Random.ColorHSV(0f, 1f, 1f, 1f, 0f, 1f);
             }
 

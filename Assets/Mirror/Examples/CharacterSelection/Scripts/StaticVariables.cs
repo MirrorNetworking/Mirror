@@ -9,6 +9,6 @@ namespace Mirror.Examples.CharacterSelection
         public static string playerName = "";
         public static int characterNumber = 0;
         public static Color characterColour;
-        public static bool characterColourActive = false;
+       // public static bool characterColourActive = false;
     }
 }
