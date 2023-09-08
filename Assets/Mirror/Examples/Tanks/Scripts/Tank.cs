@@ -20,14 +20,24 @@ namespace Mirror.Examples.Tanks
         public Transform  projectileMount;
 
         [Header("Stats")]
-        [SyncVar] public int health = 4;
+        [SyncVar(hook = nameof(OnHealthChanged))]
+        public int health = 4;
+
+        void OnHealthChanged(int _old, int _new)
+        {
+            // Called when the sync var is changed.
+            UpdateHealthVisual();
+        }
+
+        void UpdateHealthVisual()
+        {
+            healthBar.text = new string('-', health);
+            // If this line was placed in the hook, server-only would not call it.
+            // By moving it out of the hook into its own function, both the hook and server (after command changes the varaible) can call the result.
+        }
 
         void Update()
-        {
-            // always update health bar.
-            // (SyncVar hook would only update on clients, not on server)
-            healthBar.text = new string('-', health);
-            
+        {         
             // take input from focused window only
             if(!Application.isFocused) return; 
 
@@ -76,6 +86,9 @@ namespace Mirror.Examples.Tanks
             if (other.GetComponent<Projectile>() != null)
             {
                 --health;
+                // SyncVar hook only runs on clients, not on server, so we check and call it manually IF server-only mode needs to run the result too.
+                if (isServerOnly)
+                    UpdateHealthVisual();
                 if (health == 0)
                     NetworkServer.Destroy(gameObject);
             }
