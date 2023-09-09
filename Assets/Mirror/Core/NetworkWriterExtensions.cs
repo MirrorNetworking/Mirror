@@ -277,7 +277,9 @@ namespace Mirror
             }
             else
             {
-                Debug.LogWarning($"NetworkWriter {value} has no NetworkIdentity");
+                // if users attempt to pass a transform without NetworkIdentity
+                // to a [Command] or [SyncVar], it should show an obvious warning.
+                Debug.LogWarning($"Attempted to sync a Transform ({value}) which isn't networked. Transforms without a NetworkIdentity component can't be synced.");
                 writer.WriteUInt(0);
             }
         }
@@ -292,7 +294,7 @@ namespace Mirror
 
             // warn if the GameObject doesn't have a NetworkIdentity,
             if (!value.TryGetComponent(out NetworkIdentity identity))
-                Debug.LogWarning($"NetworkWriter {value} has no NetworkIdentity");
+                Debug.LogWarning($"Attempted to sync a GameObject ({value}) which isn't networked. GameObject without a NetworkIdentity component can't be synced.");
 
             // serialize the correct amount of data in any case to make sure
             // that the other end can read the expected amount of data too.
