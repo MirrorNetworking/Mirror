@@ -134,19 +134,19 @@ namespace Mirror
 
         // snapshot functions //////////////////////////////////////////////////
         // get local/world position
-        protected Vector3 GetPosition() =>
+        protected virtual Vector3 GetPosition() =>
             coordinateSpace == CoordinateSpace.Local ? target.localPosition : target.position;
 
         // get local/world rotation
-        protected Quaternion GetRotation() =>
+        protected virtual Quaternion GetRotation() =>
             coordinateSpace == CoordinateSpace.Local ? target.localRotation : target.rotation;
 
         // get local/world scale
-        protected Vector3 GetScale() =>
+        protected virtual Vector3 GetScale() =>
             coordinateSpace == CoordinateSpace.Local ? target.localScale    : target.lossyScale;
 
         // set local/world position
-        protected void SetPosition(Vector3 position)
+        protected virtual void SetPosition(Vector3 position)
         {
             if (coordinateSpace == CoordinateSpace.Local)
                 target.localPosition = position;
@@ -155,7 +155,7 @@ namespace Mirror
         }
 
         // set local/world rotation
-        protected void SetRotation(Quaternion rotation)
+        protected virtual void SetRotation(Quaternion rotation)
         {
             if (coordinateSpace == CoordinateSpace.Local)
                 target.localRotation = rotation;
@@ -164,7 +164,7 @@ namespace Mirror
         }
 
         // set local/world position
-        protected void SetScale(Vector3 scale)
+        protected virtual void SetScale(Vector3 scale)
         {
             if (coordinateSpace == CoordinateSpace.Local)
                 target.localScale = scale;

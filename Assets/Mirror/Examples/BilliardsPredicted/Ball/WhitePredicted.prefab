@@ -233,7 +233,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sceneId: 0
-  _assetId: 554815358
+  _assetId: 2140274599
   serverOnly: 0
   visible: 0
   hasSpawned: 0
@@ -275,7 +275,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3429911415116987808}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 22982698a2c944cf39e961e49e9cd00c, type: 3}
+  m_Script: {fileID: 11500000, guid: 8fb3f86b63cef4b2093db683f699a13c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   syncDirection: 0
