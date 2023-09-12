@@ -16,8 +16,11 @@ namespace Mirror
     /// <summary>Synchronizes server time to clients.</summary>
     public static class NetworkTime
     {
-        /// <summary>Ping message interval, used to calculate network time and RTT</summary>
-        public static float PingInterval = 2;
+        /// <summary>Ping message interval, used to calculate latency / RTT and predicted time.</summary>
+        // 2s was enough to get a good average RTT.
+        // for prediction, we want to react to latency changes more rapidly.
+        const float DefaultPingInterval = 0.1f; // for resets
+        public static float PingInterval = DefaultPingInterval;
 
         // DEPRECATED 2023-07-06
         [Obsolete("NetworkTime.PingFrequency was renamed to PingInterval, because we use it as seconds, not as Hz. Please rename all usages, but keep using it just as before.")]
@@ -28,7 +31,8 @@ namespace Mirror
         }
 
         /// <summary>Average out the last few results from Ping</summary>
-        public static int PingWindowSize = 6;
+        // const because it's used immediately in _rtt constructor.
+        public const int PingWindowSize = 50; // average over 50 * 100ms = 5s
 
         static double lastPingTime;
 
@@ -73,6 +77,49 @@ namespace Mirror
                 : NetworkClient.localTimeline;
         }
 
+        // prediction //////////////////////////////////////////////////////////
+        // NetworkTime.time is server time, behind by bufferTime.
+        // for prediction, we want server time, ahead by latency.
+        // so that client inputs at predictedTime=2 arrive on server at time=2.
+        // the more accurate this is, the more closesly will corrections be
+        // be applied and the less jitter we will see.
+        //
+        // we'll use a two step process to calculate predicted time:
+        // 1. move snapshot interpolated time to server time, without being behind by bufferTime
+        // 2. constantly send this time to server (included in ping message)
+        //    server replies with how far off it was.
+        //    client averages that offset and applies it to predictedTime to get ever closer.
+        //
+        // this is also very easy to test & verify:
+        // - add LatencySimulation with 50ms latency
+        // - log predictionError on server in OnServerPing, see if it gets closer to 0
+        //
+        // credits: FakeByte, imer, NinjaKickja, mischa
+        // const because it's used immediately in _predictionError constructor.
+
+        static int PredictionErrorWindowSize = 20; // average over 20 * 100ms = 2s
+        static ExponentialMovingAverage _predictionErrorUnadjusted = new ExponentialMovingAverage(PredictionErrorWindowSize);
+        public static double predictionErrorUnadjusted => _predictionErrorUnadjusted.Value;
+        public static double predictionErrorAdjusted { get; private set; } // for debugging
+
+        static double predictedTimeUnadjusted
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => NetworkServer.active
+                ? localTime // server always uses it's own timeline
+                : NetworkClient.localTimeline + NetworkClient.bufferTime; // remove the buffer out of the snapshot interpolated time
+        }
+
+        /// <summary>Predicted timeline in order for client inputs to be timestamped with the exact time when they will most likely arrive on the server. This is the basis for all prediction like PredictedRigidbody.</summary>
+        public static double predictedTime
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => NetworkServer.active
+                ? localTime // server always uses it's own timeline
+                : predictedTimeUnadjusted + predictionErrorUnadjusted; // add the offset that the server told us we are off by
+        }
+        ////////////////////////////////////////////////////////////////////////
+
         /// <summary>Clock difference in seconds between the client and the server. Always 0 on server.</summary>
         // original implementation used 'client - server' time. keep it this way.
         // TODO obsolete later. people shouldn't worry about this.
@@ -89,8 +136,7 @@ namespace Mirror
         [RuntimeInitializeOnLoadMethod]
         public static void ResetStatics()
         {
-            PingInterval = 2;
-            PingWindowSize = 6;
+            PingInterval = DefaultPingInterval;
             lastPingTime = 0;
             _rtt = new ExponentialMovingAverage(PingWindowSize);
 #if !UNITY_2020_3_OR_NEWER
@@ -103,7 +149,14 @@ namespace Mirror
             // localTime (double) instead of Time.time for accuracy over days
             if (localTime >= lastPingTime + PingInterval)
             {
-                NetworkPingMessage pingMessage = new NetworkPingMessage(localTime);
+                // send raw predicted time without the offset applied yet.
+                // we then apply the offset to it after.
+                NetworkPingMessage pingMessage = new NetworkPingMessage
+                (
+                    localTime,
+                    predictedTimeUnadjusted,
+                    predictedTime
+                );
                 NetworkClient.Send(pingMessage, Channels.Unreliable);
                 lastPingTime = localTime;
             }
@@ -115,17 +168,28 @@ namespace Mirror
         // and time from the server
         internal static void OnServerPing(NetworkConnectionToClient conn, NetworkPingMessage message)
         {
+            // calculate the prediction offset that the client needs to apply to unadjusted time to reach server time.
+            // this will be sent back to client for corrections.
+            double unadjustedError = localTime - message.predictedTimeUnadjusted;
+
+            // to see how well the client's final prediction worked, compare with adjusted time.
+            // this is purely for debugging.
+            double adjustedError = localTime - message.predictedTimeAdjusted;
+            Debug.Log($"[Server] unadjustedError:{(unadjustedError*1000):F1}ms adjustedError:{(adjustedError*1000):F1}ms");
+
             // Debug.Log($"OnServerPing conn:{conn}");
             NetworkPongMessage pongMessage = new NetworkPongMessage
-            {
-                localTime = message.localTime,
-            };
+            (
+                message.localTime,
+                unadjustedError,
+                adjustedError
+            );
             conn.Send(pongMessage, Channels.Unreliable);
         }
 
         // Executed at the client when we receive a Pong message
         // find out how long it took since we sent the Ping
-        // and update time offset
+        // and update time offset & prediction offset.
         internal static void OnClientPong(NetworkPongMessage message)
         {
             // prevent attackers from sending timestamps which are in the future
@@ -134,6 +198,12 @@ namespace Mirror
             // how long did this message take to come back
             double newRtt = localTime - message.localTime;
             _rtt.Add(newRtt);
+
+            // feed unadjusted prediction error into our exponential moving average
+            // store adjusted prediction error for debug / GUI purposes
+            _predictionErrorUnadjusted.Add(message.predictionErrorUnadjusted);
+            predictionErrorAdjusted = message.predictionErrorAdjusted;
+            // Debug.Log($"[Client] predictionError avg={(_predictionErrorUnadjusted.Value*1000):F1} ms");
         }
 
         // server rtt calculation //////////////////////////////////////////////
@@ -144,9 +214,10 @@ namespace Mirror
         {
             // Debug.Log($"OnClientPing conn:{conn}");
             NetworkPongMessage pongMessage = new NetworkPongMessage
-            {
-                localTime = message.localTime,
-            };
+            (
+                message.localTime,
+                0, 0 // server doesn't predict
+            );
             NetworkClient.Send(pongMessage, Channels.Unreliable);
         }
 

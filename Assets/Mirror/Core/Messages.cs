@@ -105,11 +105,18 @@ namespace Mirror
     // whoever wants to measure rtt, sends this to the other end.
     public struct NetworkPingMessage : NetworkMessage
     {
+        // local time is used to calculate round trip time.
         public double localTime;
 
-        public NetworkPingMessage(double value)
+        // predicted time is used to adjust the predicted timeline.
+        public double predictedTimeUnadjusted;
+        public double predictedTimeAdjusted; // for debug purposes
+
+        public NetworkPingMessage(double localTime, double predictedTimeUnadjusted, double predictedTimeAdjusted)
         {
-            localTime = value;
+            this.localTime = localTime;
+            this.predictedTimeUnadjusted = predictedTimeUnadjusted;
+            this.predictedTimeAdjusted = predictedTimeAdjusted;
         }
     }
 
@@ -117,6 +124,18 @@ namespace Mirror
     // we can use this to calculate rtt.
     public struct NetworkPongMessage : NetworkMessage
     {
+        // local time is used to calculate round trip time.
         public double localTime;
+
+        // predicted error is used to adjust the predicted timeline.
+        public double predictionErrorUnadjusted;
+        public double predictionErrorAdjusted; // for debug purposes
+
+        public NetworkPongMessage(double localTime, double predictionErrorUnadjusted, double predictionErrorAdjusted)
+        {
+            this.localTime = localTime;
+            this.predictionErrorUnadjusted = predictionErrorUnadjusted;
+            this.predictionErrorAdjusted = predictionErrorAdjusted;
+        }
     }
 }
