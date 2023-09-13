@@ -102,21 +102,17 @@ namespace Mirror
         public static double predictionErrorUnadjusted => _predictionErrorUnadjusted.Value;
         public static double predictionErrorAdjusted { get; private set; } // for debugging
 
-        static double predictedTimeUnadjusted
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => NetworkServer.active
-                ? localTime // server always uses it's own timeline
-                : NetworkClient.localTimeline + NetworkClient.bufferTime; // remove the buffer out of the snapshot interpolated time
-        }
-
         /// <summary>Predicted timeline in order for client inputs to be timestamped with the exact time when they will most likely arrive on the server. This is the basis for all prediction like PredictedRigidbody.</summary>
+        // on client, this is based on localTime (aka Time.time) instead of the snapshot interpolated timeline.
+        // this gives much better and immediately accurate results.
+        // -> snapshot interpolation timeline tries to emulate a server timeline without hard offset corrections.
+        // -> predictedTime does have hard offset corrections, so might as well use Time.time directly for this.
         public static double predictedTime
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => NetworkServer.active
                 ? localTime // server always uses it's own timeline
-                : predictedTimeUnadjusted + predictionErrorUnadjusted; // add the offset that the server told us we are off by
+                : localTime + predictionErrorUnadjusted; // add the offset that the server told us we are off by
         }
         ////////////////////////////////////////////////////////////////////////
 
@@ -154,7 +150,6 @@ namespace Mirror
                 NetworkPingMessage pingMessage = new NetworkPingMessage
                 (
                     localTime,
-                    predictedTimeUnadjusted,
                     predictedTime
                 );
                 NetworkClient.Send(pingMessage, Channels.Unreliable);
@@ -170,7 +165,7 @@ namespace Mirror
         {
             // calculate the prediction offset that the client needs to apply to unadjusted time to reach server time.
             // this will be sent back to client for corrections.
-            double unadjustedError = localTime - message.predictedTimeUnadjusted;
+            double unadjustedError = localTime - message.localTime;
 
             // to see how well the client's final prediction worked, compare with adjusted time.
             // this is purely for debugging.

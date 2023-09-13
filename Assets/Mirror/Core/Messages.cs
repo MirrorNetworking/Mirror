@@ -105,17 +105,16 @@ namespace Mirror
     // whoever wants to measure rtt, sends this to the other end.
     public struct NetworkPingMessage : NetworkMessage
     {
-        // local time is used to calculate round trip time.
+        // local time is used to calculate round trip time,
+        // and to calculate the predicted time offset.
         public double localTime;
 
-        // predicted time is used to adjust the predicted timeline.
-        public double predictedTimeUnadjusted;
-        public double predictedTimeAdjusted; // for debug purposes
+        // predicted time is sent to compare the final error, for debugging only
+        public double predictedTimeAdjusted;
 
-        public NetworkPingMessage(double localTime, double predictedTimeUnadjusted, double predictedTimeAdjusted)
+        public NetworkPingMessage(double localTime, double predictedTimeAdjusted)
         {
             this.localTime = localTime;
-            this.predictedTimeUnadjusted = predictedTimeUnadjusted;
             this.predictedTimeAdjusted = predictedTimeAdjusted;
         }
     }
