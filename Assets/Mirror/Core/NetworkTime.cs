@@ -175,7 +175,7 @@ namespace Mirror
             // to see how well the client's final prediction worked, compare with adjusted time.
             // this is purely for debugging.
             double adjustedError = localTime - message.predictedTimeAdjusted;
-            Debug.Log($"[Server] unadjustedError:{(unadjustedError*1000):F1}ms adjustedError:{(adjustedError*1000):F1}ms");
+            // Debug.Log($"[Server] unadjustedError:{(unadjustedError*1000):F1}ms adjustedError:{(adjustedError*1000):F1}ms");
 
             // Debug.Log($"OnServerPing conn:{conn}");
             NetworkPongMessage pongMessage = new NetworkPongMessage
