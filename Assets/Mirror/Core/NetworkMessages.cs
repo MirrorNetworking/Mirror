@@ -31,6 +31,9 @@ namespace Mirror
         // size of message id header in bytes
         public const int IdSize = sizeof(ushort);
 
+        // Flag user can set to stop disconnections
+        public static bool DisconnectOnException = true;
+
         // Id <> Type lookup for debugging, profiler, etc.
         // important when debugging messageId errors!
         public static readonly Dictionary<ushort, Type> Lookup =
@@ -164,8 +167,10 @@ namespace Mirror
                 }
                 catch (Exception e)
                 {
-                    Debug.LogError($"Disconnecting connId={conn.connectionId} to prevent exploits from an Exception in MessageHandler: {e.GetType().Name} {e.Message}\n{e.StackTrace}");
-                    conn.Disconnect();
+                    string disconnectMessage = DisconnectOnException ? " Disconnecting to prevent exploits" : "";
+                    Debug.LogError($"Exception in MessageHandler from connId={conn.connectionId}{disconnectMessage}: {e.GetType().Name} {e.Message}\n{e.StackTrace}");
+                    if (DisconnectOnException)
+                        conn.Disconnect();
                 }
             };
 
