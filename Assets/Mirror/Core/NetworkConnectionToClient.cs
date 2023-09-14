@@ -132,7 +132,8 @@ namespace Mirror
                 // TODO it would be safer for the server to store the last N
                 // messages' timestamp and only send a message number.
                 // This way client's can't just modify the timestamp.
-                NetworkPingMessage pingMessage = new NetworkPingMessage(NetworkTime.localTime);
+                // predictedTime parameter is 0 because the server doesn't predict.
+                NetworkPingMessage pingMessage = new NetworkPingMessage(NetworkTime.localTime, 0);
                 Send(pingMessage, Channels.Unreliable);
                 lastPingTime = NetworkTime.localTime;
             }

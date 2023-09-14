@@ -1702,7 +1702,7 @@ namespace Mirror
             // only if in world
             if (!ready) return;
 
-            GUILayout.BeginArea(new Rect(10, 5, 800, 50));
+            GUILayout.BeginArea(new Rect(10, 5, 1000, 50));
 
             GUILayout.BeginHorizontal("Box");
             GUILayout.Label("Snapshot Interp.:");
@@ -1717,6 +1717,8 @@ namespace Mirror
             GUILayout.Box($"timescale: {localTimescale:F2}");
             GUILayout.Box($"BTM: {NetworkClient.bufferTimeMultiplier:F2}"); // current dynamically adjusted multiplier
             GUILayout.Box($"RTT: {NetworkTime.rtt * 1000:F0}ms");
+            GUILayout.Box($"PredErrUNADJ: {NetworkTime.predictionErrorUnadjusted * 1000:F0}ms");
+            GUILayout.Box($"PredErrADJ: {NetworkTime.predictionErrorAdjusted * 1000:F0}ms");
             GUILayout.EndHorizontal();
 
             GUILayout.EndArea();
