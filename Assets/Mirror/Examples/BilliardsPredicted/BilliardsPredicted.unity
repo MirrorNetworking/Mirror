@@ -731,6 +731,7 @@ GameObject:
   - component: {fileID: 1282001519}
   - component: {fileID: 1282001521}
   - component: {fileID: 1282001522}
+  - component: {fileID: 1282001523}
   m_Layer: 0
   m_Name: NetworkManager
   m_TagString: Untagged
@@ -786,7 +787,7 @@ MonoBehaviour:
   sendRate: 120
   offlineScene: 
   onlineScene: 
-  transport: {fileID: 1282001521}
+  transport: {fileID: 1282001523}
   networkAddress: localhost
   maxConnections: 2
   disconnectInactiveConnections: 0
@@ -857,6 +858,25 @@ MonoBehaviour:
   padding: 2
   width: 180
   height: 25
+--- !u!114 &1282001523
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1282001517}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 96b149f511061407fb54895c057b7736, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  wrap: {fileID: 1282001521}
+  jitter: 0
+  jitterSpeed: 0
+  reliableLatency: 25
+  unreliableLoss: 0
+  unreliableLatency: 25
+  unreliableScramble: 0
 --- !u!1001 &1321391581
 PrefabInstance:
   m_ObjectHideFlags: 0

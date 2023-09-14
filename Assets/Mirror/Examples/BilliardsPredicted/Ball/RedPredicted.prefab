@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 3429911415116987811}
   - component: {fileID: -177125271246800426}
   - component: {fileID: 5308121378143249733}
-  - component: {fileID: -4867038537898682568}
+  - component: {fileID: -8731861437394929722}
   m_Layer: 0
   m_Name: RedPredicted
   m_TagString: Untagged
@@ -149,7 +149,7 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
---- !u!114 &-4867038537898682568
+--- !u!114 &-8731861437394929722
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -158,28 +158,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 3429911415116987808}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b20dc110904e47f8a154cdcf6433eae, type: 3}
+  m_Script: {fileID: 11500000, guid: d38927cdc6024b9682b5fe9778b9ef99, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   syncDirection: 0
   syncMode: 0
-  syncInterval: 0
-  target: {fileID: 3429911415116987812}
-  clientAuthority: 0
-  syncPosition: 1
-  syncRotation: 1
-  syncScale: 0
-  interpolatePosition: 1
-  interpolateRotation: 1
-  interpolateScale: 0
-  coordinateSpace: 0
-  sendIntervalMultiplier: 1
-  timelineOffset: 0
-  showGizmos: 0
-  showOverlay: 0
-  overlayColor: {r: 0, g: 0, b: 0, a: 0.5}
-  onlySyncOnChange: 0
-  bufferResetMultiplier: 3
+  syncInterval: 0.1
   positionSensitivity: 0.01
-  rotationSensitivity: 0.01
-  scaleSensitivity: 0.01
+  stateHistoryLimit: 32
+  correctionThreshold: 0.1
+  smoothCorrection: 1
+  lineTime: 10
