@@ -50,10 +50,22 @@ namespace Mirror.Examples.BilliardsPredicted
             if (!isServer) CmdApplyForce(force);
         }
 
+        // while prediction is applied on clients immediately,
+        // we still want to validate every input on the server and reject it if necessary.
+        // this way we can latency free yet cheat safe movement.
+        // TODO this should be on some kind of base class for reuse, but perhaps independent of parameters?
+        bool IsValidMove(Vector3 force) => true;
+
         // TODO send over unreliable with ack, notify, etc. later
         [Command]
         void CmdApplyForce(Vector3 force)
         {
+            if (!IsValidMove(force))
+            {
+                Debug.Log($"Server rejected move: {force}");
+                return;
+            }
+
             // TODO consider applying this in FixedUpdate later
             whiteBall.GetComponent<Rigidbody>().AddForce(force);
         }
