@@ -129,7 +129,7 @@ namespace Mirror
 
         [Header("Security")]
         [Tooltip("For security, it can be a good idea to disconnect a player if they were able to trigger a runtime Exception.\nThis could be prevent components being accessed in an undefined state, which may be an attack vector for exploits.\nHowever, some games may want to allow exceptions in order to not interrupt the player's experience.")]
-        public bool exceptionsCauseDisconnect = false;
+        public bool exceptionsDisconnect = false;
 
         [Header("Snapshot Interpolation")]
         public SnapshotInterpolationSettings snapshotSettings = new SnapshotInterpolationSettings();
@@ -328,7 +328,7 @@ namespace Mirror
             // apply settings before initializing anything
             NetworkServer.disconnectInactiveConnections = disconnectInactiveConnections;
             NetworkServer.disconnectInactiveTimeout = disconnectInactiveTimeout;
-            NetworkServer.exceptionsCauseDisconnect = exceptionsCauseDisconnect;
+            NetworkServer.exceptionsDisconnect = exceptionsDisconnect;
 
             if (runInBackground)
                 Application.runInBackground = true;
@@ -407,7 +407,7 @@ namespace Mirror
             InitializeSingleton();
 
             // apply settings before initializing anything
-            NetworkClient.exceptionsCauseDisconnect = exceptionsCauseDisconnect;
+            NetworkClient.exceptionsDisconnect = exceptionsDisconnect;
             // NetworkClient.sendRate = clientSendRate;
 
             if (runInBackground)

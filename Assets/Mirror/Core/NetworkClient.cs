@@ -36,7 +36,7 @@ namespace Mirror
         // For security, it can be a good idea to disconnect a player if they were able to trigger a runtime Exception.
         // This could be prevent components being accessed in an undefined state, which may be an attack vector for exploits.
         // However, some games may want to allow exceptions in order to not interrupt the player's experience.")]
-        public static bool exceptionsCauseDisconnect = false;
+        public static bool exceptionsDisconnect = false;
 
         // message handlers by messageId
         internal static readonly Dictionary<ushort, NetworkMessageDelegate> handlers =
@@ -506,7 +506,7 @@ namespace Mirror
             // so let's wrap it to ignore the NetworkConnection parameter.
             // it's not needed on client. it's always NetworkClient.connection.
             void HandlerWrapped(NetworkConnection _, T value) => handler(value);
-            handlers[msgType] = NetworkMessages.WrapHandler((Action<NetworkConnection, T>)HandlerWrapped, requireAuthentication, exceptionsCauseDisconnect);
+            handlers[msgType] = NetworkMessages.WrapHandler((Action<NetworkConnection, T>)HandlerWrapped, requireAuthentication, exceptionsDisconnect);
         }
 
         /// <summary>Replace a handler for a particular message type. Should require authentication by default.</summary>
@@ -516,7 +516,7 @@ namespace Mirror
             where T : struct, NetworkMessage
         {
             ushort msgType = NetworkMessageId<T>.Id;
-            handlers[msgType] = NetworkMessages.WrapHandler(handler, requireAuthentication, exceptionsCauseDisconnect);
+            handlers[msgType] = NetworkMessages.WrapHandler(handler, requireAuthentication, exceptionsDisconnect);
         }
 
         /// <summary>Replace a handler for a particular message type. Should require authentication by default.</summary>
