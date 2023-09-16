@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
@@ -41,6 +44,61 @@ namespace Mirror
             if (EditorGUI.EndChangeCheck())
             {
                 serializedObject.ApplyModifiedProperties();
+            }
+
+            if (GUILayout.Button("Find & Add All Networked Prefabs"))
+            {
+                ScanForNetworkIdentities();
+            }
+        }
+
+        private void ScanForNetworkIdentities()
+        {
+            List<GameObject> identities = new List<GameObject>();
+            bool cancelled = false;
+            try
+            {
+                string[] paths = EditorHelper.IterateOverProject("t:prefab").ToArray();
+                int count = 0;
+                foreach (string path in paths)
+                {
+                    if (path.Contains("Mirror/Tests/"))
+                    {
+                        // Don't add test prefabs
+                        continue;
+                    }
+
+                    if (EditorUtility.DisplayCancelableProgressBar("Searching for NetworkIdentities..",
+                            $"Scanned {count}/{paths.Length} Found {identities.Count}",
+                            count / (float)paths.Length))
+                    {
+                        cancelled = true;
+                        break;
+                    }
+
+                    count++;
+
+                    NetworkIdentity ni = AssetDatabase.LoadAssetAtPath<NetworkIdentity>(path);
+                    if (!ni)
+                    {
+                        continue;
+                    }
+
+                    identities.Add(ni.gameObject);
+                }
+            }
+            finally
+            {
+
+                EditorUtility.ClearProgressBar();
+                if (!cancelled)
+                {
+                    networkManager.spawnPrefabs.Clear();
+                    networkManager.spawnPrefabs.AddRange(identities);
+                    EditorUtility.SetDirty(networkManager);
+                }
+                // Loading assets might use a lot of memory, so try to unload them after
+                Resources.UnloadUnusedAssets();
             }
         }
 
