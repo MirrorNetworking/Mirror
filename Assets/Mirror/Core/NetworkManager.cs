@@ -325,6 +325,11 @@ namespace Mirror
             // Debug.Log("NetworkManager SetupServer");
             InitializeSingleton();
 
+            // apply settings before initializing anything
+            NetworkServer.disconnectInactiveConnections = disconnectInactiveConnections;
+            NetworkServer.disconnectInactiveTimeout = disconnectInactiveTimeout;
+            NetworkServer.exceptionsCauseDisconnect = exceptionsCauseDisconnect;
+
             if (runInBackground)
                 Application.runInBackground = true;
 
@@ -335,9 +340,6 @@ namespace Mirror
             }
 
             ConfigureHeadlessFrameRate();
-
-            NetworkServer.disconnectInactiveConnections = disconnectInactiveConnections;
-            NetworkServer.disconnectInactiveTimeout = disconnectInactiveTimeout;
 
             // start listening to network connections
             NetworkServer.Listen(maxConnections);
@@ -404,6 +406,10 @@ namespace Mirror
         {
             InitializeSingleton();
 
+            // apply settings before initializing anything
+            NetworkClient.exceptionsCauseDisconnect = exceptionsCauseDisconnect;
+            // NetworkClient.sendRate = clientSendRate;
+
             if (runInBackground)
                 Application.runInBackground = true;
 
@@ -413,7 +419,6 @@ namespace Mirror
                 authenticator.OnClientAuthenticated.AddListener(OnClientAuthenticated);
             }
 
-            // NetworkClient.sendRate = clientSendRate;
         }
 
         /// <summary>Starts the client, connects it to the server with networkAddress.</summary>
