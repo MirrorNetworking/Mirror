@@ -95,7 +95,7 @@ namespace Mirror
                 {
                     networkManager.spawnPrefabs.Clear();
                     networkManager.spawnPrefabs.AddRange(identities);
-                    EditorUtility.SetDirty(networkManager);
+                    Undo.RecordObject(networkManager, "Added NI's from project");
                 }
                 // Loading assets might use a lot of memory, so try to unload them after
                 Resources.UnloadUnusedAssets();
