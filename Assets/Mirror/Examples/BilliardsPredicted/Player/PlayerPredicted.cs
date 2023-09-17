@@ -53,6 +53,8 @@ namespace Mirror.Examples.BilliardsPredicted
         // while prediction is applied on clients immediately,
         // we still want to validate every input on the server and reject it if necessary.
         // this way we can latency free yet cheat safe movement.
+        // this should include a certain tolerance so players aren't hard corrected
+        // for their local movement all the time.
         // TODO this should be on some kind of base class for reuse, but perhaps independent of parameters?
         bool IsValidMove(Vector3 force) => true;
 
