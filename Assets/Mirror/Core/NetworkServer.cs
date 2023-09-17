@@ -70,6 +70,15 @@ namespace Mirror
         // by default, everyone observes everyone
         public static InterestManagementBase aoi;
 
+        // For security, it is recommended to disconnect a player if a networked
+        // action triggers an exception\nThis could prevent components being
+        // accessed in an undefined state, which may be an attack vector for
+        // exploits.
+        //
+        // However, some games may want to allow exceptions in order to not
+        // interrupt the player's experience.
+        public static bool exceptionsDisconnect = true; // security by default
+
         // Mirror global disconnect inactive option, independent of Transport.
         // not all Transports do this properly, and it's easiest to configure this just once.
         // this is very useful for some projects, keep it.
@@ -799,7 +808,7 @@ namespace Mirror
             // register Id <> Type in lookup for debugging.
             NetworkMessages.Lookup[msgType] = typeof(T);
 
-            handlers[msgType] = NetworkMessages.WrapHandler(handler, requireAuthentication);
+            handlers[msgType] = NetworkMessages.WrapHandler(handler, requireAuthentication, exceptionsDisconnect);
         }
 
         /// <summary>Register a handler for message type T. Most should require authentication.</summary>
@@ -816,7 +825,7 @@ namespace Mirror
             // register Id <> Type in lookup for debugging.
             NetworkMessages.Lookup[msgType] = typeof(T);
 
-            handlers[msgType] = NetworkMessages.WrapHandler(handler, requireAuthentication);
+            handlers[msgType] = NetworkMessages.WrapHandler(handler, requireAuthentication, exceptionsDisconnect);
         }
 
         /// <summary>Replace a handler for message type T. Most should require authentication.</summary>
@@ -831,7 +840,7 @@ namespace Mirror
             where T : struct, NetworkMessage
         {
             ushort msgType = NetworkMessageId<T>.Id;
-            handlers[msgType] = NetworkMessages.WrapHandler(handler, requireAuthentication);
+            handlers[msgType] = NetworkMessages.WrapHandler(handler, requireAuthentication, exceptionsDisconnect);
         }
 
         /// <summary>Unregister a handler for a message type T.</summary>
