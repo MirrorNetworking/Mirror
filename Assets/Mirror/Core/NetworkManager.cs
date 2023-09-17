@@ -128,7 +128,7 @@ namespace Mirror
         public static int startPositionIndex;
 
         [Header("Security")]
-        [Tooltip("For security, it can be a good idea to disconnect a player if they were able to trigger a runtime Exception.\nThis could be prevent components being accessed in an undefined state, which may be an attack vector for exploits.\nHowever, some games may want to allow exceptions in order to not interrupt the player's experience.")]
+        [Tooltip("For security, it is recommended to disconnect a player if a networked action triggers an exception\nThis could prevent components being accessed in an undefined state, which may be an attack vector for exploits.\nHowever, some games may want to allow exceptions in order to not interrupt the player's experience.")]
         public bool exceptionsDisconnect = false;
 
         [Header("Snapshot Interpolation")]
