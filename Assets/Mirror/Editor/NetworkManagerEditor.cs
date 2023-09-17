@@ -69,7 +69,7 @@ namespace Mirror
                     }
 
                     if (EditorUtility.DisplayCancelableProgressBar("Searching for NetworkIdentities..",
-                            $"Scanned {count}/{paths.Length} Found {identities.Count}",
+                            $"Scanned {count}/{paths.Length} prefabs. Found {identities.Count} new ones",
                             count / (float)paths.Length))
                     {
                         cancelled = true;
@@ -84,7 +84,11 @@ namespace Mirror
                         continue;
                     }
 
-                    identities.Add(ni.gameObject);
+                    if (!networkManager.spawnPrefabs.Contains(ni.gameObject))
+                    {
+                        identities.Add(ni.gameObject);
+                    }
+
                 }
             }
             finally
@@ -93,7 +97,6 @@ namespace Mirror
                 EditorUtility.ClearProgressBar();
                 if (!cancelled)
                 {
-                    networkManager.spawnPrefabs.Clear();
                     networkManager.spawnPrefabs.AddRange(identities);
                     Undo.RecordObject(networkManager, "Added NI's from project");
                 }
