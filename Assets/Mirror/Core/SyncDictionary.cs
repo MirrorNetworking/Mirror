@@ -1,7 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.ExceptionServices;
-using UnityEngineInternal;
 
 namespace Mirror
 {
