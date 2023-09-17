@@ -30,7 +30,7 @@ namespace Mirror
 
         abstract class ChangesTracker
         {
-            protected readonly List<Change> changes = new();
+            protected readonly List<Change> changes = new List<Change>();
             public uint Count => (uint)changes.Count;
             public List<Change> CurrentChanges => changes;
             public virtual void ClearChanges() => changes.Clear();
@@ -53,7 +53,7 @@ namespace Mirror
         // -> ResetTrackedFields is important for "changes head" as it means the next time any new slot gets changed, it results in at most 1 more change being added.
         class SingleChangePerKeyTracker : ChangesTracker
         {
-            readonly Dictionary<TKey, int> changeMap = new();
+            readonly Dictionary<TKey, int> changeMap = new Dictionary<TKey, int>();
             int changeCountDuringLastChangeMapReset = 0;
 
             public override void ClearChanges()
