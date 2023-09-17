@@ -1,5 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.ExceptionServices;
+using UnityEngineInternal;
 
 namespace Mirror
 {
@@ -28,12 +30,82 @@ namespace Mirror
             internal TValue item;
         }
 
-        // list of changes.
+        abstract class ChangesTracker
+        {
+            protected readonly List<Change> changes = new();
+            public uint Count => (uint)changes.Count;
+            public List<Change> CurrentChanges => changes;
+            public virtual void ClearChanges() => changes.Clear();
+            public virtual void AddChange(Change changeToAdd) => changes.Add(changeToAdd);
+            public virtual void ResetTrackedFields() { }
+        }
+
+        // Traditional list of changes
         // -> insert/delete/clear is only ONE change
-        // -> changing the same slot 10x caues 10 changes.
+        // -> changing the same slot 10x causes 10 changes.
         // -> note that this grows until next sync(!)
-        // TODO Dictionary<key, change> to avoid ever growing changes / redundant changes!
-        readonly List<Change> changes = new List<Change>();
+        // -> may still be useful for some code that relies on knowing about every change that happens, including redundant changes
+        class AllChangesTracker : ChangesTracker { /* Nothing to override here */ }
+
+        // Map of changes
+        // -> insert/delete/set of any field results in AT MOST one change
+        // -> changing the same slot 10x causes 1 change
+        // -> clear operation deletes all tracked changes and replaces them with just 1 single tracked change
+        // -> Things only get a little trickier with tracking "changes ahead", aka "which changes were previously sent/received via SerializeAll/DeserializeAll when Deltas are being set/received."
+        // -> ResetTrackedFields is important for "changes head" as it means the next time any new slot gets changed, it results in at most 1 more change being added.
+        class SingleChangePerKeyTracker : ChangesTracker
+        {
+            readonly Dictionary<TKey, int> changeMap = new();
+            int changeCountDuringLastChangeMapReset = 0;
+
+            public override void ClearChanges()
+            {
+                changeMap.Clear();
+                changeCountDuringLastChangeMapReset = 0;
+                base.ClearChanges();
+            }
+
+            public override void AddChange(Change changeToAdd)
+            {
+                if(changeToAdd.operation == Operation.OP_CLEAR)
+                {
+                    changeMap.Clear();
+                    if(changeCountDuringLastChangeMapReset == 0)
+                    {
+                        // ResetTrackedFields was never called so just clear the whole changes list
+                        changes.Clear();
+                    }
+                    if(changes.Count > changeCountDuringLastChangeMapReset)
+                    {
+                        // Remove everything from the changes list that was added after the last call to ResetTrackedFields
+                        int removeCount = changes.Count - (changeCountDuringLastChangeMapReset + 1);
+                        changes.RemoveRange(changeCountDuringLastChangeMapReset, removeCount);
+                    }
+                    base.AddChange(changeToAdd);
+                }
+                else if(changeMap.TryGetValue(changeToAdd.key, out int changeIndex))
+                {
+                    // changeMap should never contain an index that does not exist in the changes list
+                    // changeMap should always provide the index pointing to the last recorded change in the changes list for the given key
+                    changes[changeIndex] = changeToAdd;
+                }
+                else
+                {
+                    base.AddChange(changeToAdd);
+                    changeMap[changeToAdd.key] = changes.Count - 1;
+                }
+            }
+
+            public override void ResetTrackedFields()
+            {
+                // This has to do with the 'changes ahead' system. By clearning changeMap, it means that up to 1 new change per slot
+                // this point will get added to the changes list even if the changes list itself already contains a change for said slot.
+                changeMap.Clear();
+                changeCountDuringLastChangeMapReset = changes.Count;
+            }
+        }
+
+        readonly ChangesTracker changeTracker;
 
         // how many changes we need to ignore
         // this is needed because when we initialize the list,
@@ -43,7 +115,7 @@ namespace Mirror
 
         public override void Reset()
         {
-            changes.Clear();
+            changeTracker.ClearChanges();
             changesAhead = 0;
             objects.Clear();
         }
@@ -58,11 +130,22 @@ namespace Mirror
 
         // throw away all the changes
         // this should be called after a successful sync
-        public override void ClearChanges() => changes.Clear();
+        public override void ClearChanges() => changeTracker.ClearChanges();
 
-        public SyncIDictionary(IDictionary<TKey, TValue> objects)
+        public SyncIDictionary(IDictionary<TKey, TValue> objects, bool syncAllChanges)
         {
             this.objects = objects;
+
+            if (syncAllChanges)
+            {
+                // Some applications may need to sync all changes in great detail, even if those changes are redundant
+                this.changeTracker = new AllChangesTracker();
+            }
+            else
+            {
+                // Nearly all of the time, we should just sync 1 change per key to save bandwidth by not sending redundant changes
+                this.changeTracker = new SingleChangePerKeyTracker();
+            }
         }
 
         void AddOperation(Operation op, TKey key, TValue item, bool checkAccess)
@@ -72,16 +155,14 @@ namespace Mirror
                 throw new System.InvalidOperationException("SyncDictionaries can only be modified by the owner.");
             }
 
-            Change change = new Change
-            {
-                operation = op,
-                key = key,
-                item = item
-            };
-
             if (IsRecording())
             {
-                changes.Add(change);
+                changeTracker.AddChange(new Change()
+                {
+                    operation = op,
+                    key = key,
+                    item = item
+                });
                 OnDirty?.Invoke();
             }
 
@@ -103,19 +184,19 @@ namespace Mirror
             // thus the client will need to skip all the pending changes
             // or they would be applied again.
             // So we write how many changes are pending
-            writer.WriteUInt((uint)changes.Count);
+            changeTracker.ResetTrackedFields();
+            writer.WriteUInt(changeTracker.Count);
         }
 
         public override void OnSerializeDelta(NetworkWriter writer)
         {
             // write all the queued up changes
-            writer.WriteUInt((uint)changes.Count);
+            writer.WriteUInt(changeTracker.Count);
 
-            for (int i = 0; i < changes.Count; i++)
+            List<Change> changes = changeTracker.CurrentChanges;
+            foreach(Change change in changes)
             {
-                Change change = changes[i];
                 writer.WriteByte((byte)change.operation);
-
                 switch (change.operation)
                 {
                     case Operation.OP_ADD:
@@ -134,11 +215,11 @@ namespace Mirror
 
         public override void OnDeserializeAll(NetworkReader reader)
         {
-            // if init,  write the full list content
+            // if init, write the full list content
             int count = (int)reader.ReadUInt();
 
             objects.Clear();
-            changes.Clear();
+            changeTracker.ClearChanges();
 
             for (int i = 0; i < count; i++)
             {
@@ -159,14 +240,13 @@ namespace Mirror
 
             for (int i = 0; i < changesCount; i++)
             {
-                Operation operation = (Operation)reader.ReadByte();
-
                 // apply the operation only if it is a new change
                 // that we have not applied yet
                 bool apply = changesAhead == 0;
                 TKey key = default;
                 TValue item = default;
 
+                Operation operation = (Operation)reader.ReadByte();
                 switch (operation)
                 {
                     case Operation.OP_ADD:
@@ -316,9 +396,9 @@ namespace Mirror
 
     public class SyncDictionary<TKey, TValue> : SyncIDictionary<TKey, TValue>
     {
-        public SyncDictionary() : base(new Dictionary<TKey, TValue>()) {}
-        public SyncDictionary(IEqualityComparer<TKey> eq) : base(new Dictionary<TKey, TValue>(eq)) {}
-        public SyncDictionary(IDictionary<TKey, TValue> d) : base(new Dictionary<TKey, TValue>(d)) {}
+        public SyncDictionary(bool syncAllChanges = false) : base(new Dictionary<TKey, TValue>(), syncAllChanges) {}
+        public SyncDictionary(IEqualityComparer<TKey> eq, bool syncAllChanges = false) : base(new Dictionary<TKey, TValue>(eq), syncAllChanges) {}
+        public SyncDictionary(IDictionary<TKey, TValue> d, bool syncAllChanges = false) : base(new Dictionary<TKey, TValue>(d), syncAllChanges) {}
         public new Dictionary<TKey, TValue>.ValueCollection Values => ((Dictionary<TKey, TValue>)objects).Values;
         public new Dictionary<TKey, TValue>.KeyCollection Keys => ((Dictionary<TKey, TValue>)objects).Keys;
         public new Dictionary<TKey, TValue>.Enumerator GetEnumerator() => ((Dictionary<TKey, TValue>)objects).GetEnumerator();
