@@ -33,10 +33,14 @@ namespace Mirror
         public static float sendInterval => sendRate < int.MaxValue ? 1f / sendRate : 0; // for 30 Hz, that's 33ms
         static double lastSendTime;
 
-        // For security, it can be a good idea to disconnect a player if they were able to trigger a runtime Exception.
-        // This could be prevent components being accessed in an undefined state, which may be an attack vector for exploits.
-        // However, some games may want to allow exceptions in order to not interrupt the player's experience.")]
-        public static bool exceptionsDisconnect = false;
+        // For security, it is recommended to disconnect a player if a networked
+        // action triggers an exception\nThis could prevent components being
+        // accessed in an undefined state, which may be an attack vector for
+        // exploits.
+        //
+        // However, some games may want to allow exceptions in order to not
+        // interrupt the player's experience.
+        public static bool exceptionsDisconnect = true; // security by default
 
         // message handlers by messageId
         internal static readonly Dictionary<ushort, NetworkMessageDelegate> handlers =

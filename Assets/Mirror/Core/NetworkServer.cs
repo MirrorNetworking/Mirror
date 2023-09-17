@@ -70,10 +70,14 @@ namespace Mirror
         // by default, everyone observes everyone
         public static InterestManagementBase aoi;
 
-        // For security, it can be a good idea to disconnect a player if they were able to trigger a runtime Exception.
-        // This could be prevent components being accessed in an undefined state, which may be an attack vector for exploits.
-        // However, some games may want to allow exceptions in order to not interrupt the player's experience.")]
-        public static bool exceptionsDisconnect = false;
+        // For security, it is recommended to disconnect a player if a networked
+        // action triggers an exception\nThis could prevent components being
+        // accessed in an undefined state, which may be an attack vector for
+        // exploits.
+        //
+        // However, some games may want to allow exceptions in order to not
+        // interrupt the player's experience.
+        public static bool exceptionsDisconnect = true; // security by default
 
         // Mirror global disconnect inactive option, independent of Transport.
         // not all Transports do this properly, and it's easiest to configure this just once.
