@@ -1492,6 +1492,14 @@ namespace Mirror
         {
             // Debug.Log($"DestroyObject instance:{identity.netId}");
 
+            // NetworkServer.Destroy should only be called on server or host.
+            // on client, show a warning to explain what it does.
+            if (!active)
+            {
+                Debug.LogWarning("NetworkServer.Destroy() called without an active server. Servers can only destroy while active, clients can only ask the server to destroy (for example, with a [Command]), after which the server may decide to destroy the object and broadcast the change to all clients.");
+                return;
+            }
+
             // only call OnRebuildObservers while active,
             // not while shutting down
             // (https://github.com/vis2k/Mirror/issues/2977)
