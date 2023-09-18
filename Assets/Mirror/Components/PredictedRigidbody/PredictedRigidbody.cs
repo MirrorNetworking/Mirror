@@ -321,6 +321,8 @@ namespace Mirror.PredictedRigidbody
 
             // however, adding yet one more frame delay gives much(!) better results.
             // we don't know why yet, so keep this as an option for now.
+            // possibly because client captures at the beginning of the frame,
+            // with physics happening at the end of the frame?
             if (oneFrameAhead) timestamp += serverDeltaTime;
 
             // parse state
