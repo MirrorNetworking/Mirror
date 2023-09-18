@@ -227,15 +227,14 @@ namespace Mirror.PredictedRigidbody
             // find the two closest client states between timestamp
             if (!Prediction.Sample(stateHistory, timestamp, out RigidbodyState before, out RigidbodyState after, out double t))
             {
-                // not having enough entries yet is fine.
+                // not having enough entries yet is fine: simply wait until we have more.
+                if (stateHistory.Count < 2) return;
+
                 // having enough entries and not being able to sample is a problem.
                 // in that case, try to produce a useful debug message.
-                if (stateHistory.Count >= 2)
-                {
-                    RigidbodyState oldest = stateHistory.Values[0];
-                    RigidbodyState newest = stateHistory.Values[stateHistory.Count - 1];
-                    Debug.Log($"Couldn't sample history of size={stateHistory.Count} @ t={timestamp:F3} oldest={oldest.timestamp:F3} newest={newest.timestamp:F3}");
-                }
+                RigidbodyState oldest = stateHistory.Values[0];
+                RigidbodyState newest = stateHistory.Values[stateHistory.Count - 1];
+                Debug.Log($"Couldn't sample history of size={stateHistory.Count} @ t={timestamp:F3} oldest={oldest.timestamp:F3} newest={newest.timestamp:F3}");
                 return;
             }
 
