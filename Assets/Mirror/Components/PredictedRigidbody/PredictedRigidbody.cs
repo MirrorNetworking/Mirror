@@ -222,15 +222,18 @@ namespace Mirror.PredictedRigidbody
                 stateHistory[entry.timestamp] = entry;
 
                 // debug draw the corrected state
-                Debug.DrawLine(last.position, entry.position, Color.cyan, lineTime);
+                // Debug.DrawLine(last.position, entry.position, Color.cyan, lineTime);
 
                 // save last
                 last = entry;
                 correctedCount += 1;
             }
 
-            // log & apply the final position
+            // log, draw & apply the final position.
+            // always do this here, not when iterating above, in case we aren't iterating.
+            // for example, on same machine with near zero latency.
             Debug.Log($"Correcting {name}: {correctedCount} / {stateHistory.Count} states to final position from: {rb.position} to: {last.position}");
+            Debug.DrawLine(rb.position, last.position, Color.green, lineTime);
             ApplyState(last.position, last.rotation, last.velocity);
         }
 
