@@ -88,6 +88,7 @@ namespace Mirror.PredictedRigidbody
 
         void UpdateServer()
         {
+            // to save bandwidth, we only serialize when position changed
             if (Vector3.Distance(transform.position, lastPosition) >= positionSensitivity)
             {
                 lastPosition = transform.position;
