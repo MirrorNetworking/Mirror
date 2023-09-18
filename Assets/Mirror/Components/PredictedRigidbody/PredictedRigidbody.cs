@@ -229,7 +229,7 @@ namespace Mirror.PredictedRigidbody
                 correctedCount += 1;
             }
 
-            Debug.Log($"Corrected {name}: {correctedCount} / {stateHistory.Count} states to final position from: {rb.position} to: {last.position}");
+            Debug.Log($"Correcting {name}: {correctedCount} / {stateHistory.Count} states to final position from: {rb.position} to: {last.position}");
 
             // 'last' will now have the final position after reconciliation.
             // apply it to the Rigidbody, but respect the 'live' delta since last capture.
