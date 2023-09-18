@@ -274,15 +274,18 @@ namespace Mirror.PredictedRigidbody
                     Debug.LogWarning($"Hard correcting client because the client is too far behind the server. History of size={stateHistory.Count} @ t={timestamp:F3} oldest={oldest.timestamp:F3} newest={newest.timestamp:F3}. This would cause the client to be out of sync as long as it's behind.");
                     ApplyCorrection(state, state, state);
                 }
-                // otherwise it has to be newer than the newest state in history?
-                // this could happen if the predictedTime is too far ahead of the server.
-                // log a warning for now. this may happen occasionally.
-                // if it happens all the time, then this is a problem.
+                // is it newer than the newest state in history?
+                // this can happen if client's predictedTime predicts too far ahead of the server.
+                // in that case, log a warning for now but still apply the correction.
+                // otherwise it could be out of sync as long as it's too far ahead.
+                //
+                // for example, when running prediction on the same machine with near zero latency.
+                // when applying corrections here, this looks just fine on the local machine.
                 else if (newest.timestamp < state.timestamp)
                 {
                     double ahead = state.timestamp - newest.timestamp;
-                    Debug.LogWarning($"Ignoring correction because the client is ahead of the server by {(ahead*1000):F1}ms. History of size={stateHistory.Count} @ t={timestamp:F3} oldest={oldest.timestamp:F3} newest={newest.timestamp:F3}. This can happen if the prediction timeline is slightly off. This is fine unless it happens all the time.");
-                    // don't apply correction.
+                    Debug.Log($"Hard correction because the client is ahead of the server by {(ahead*1000):F1}ms. History of size={stateHistory.Count} @ t={timestamp:F3} oldest={oldest.timestamp:F3} newest={newest.timestamp:F3}. This can happen when latency is near zero, and is fine unless it shows jitter.");
+                    ApplyCorrection(state, state, state);
                 }
                 // otherwise something went very wrong. sampling should've worked.
                 // hard correct to recover the error.
