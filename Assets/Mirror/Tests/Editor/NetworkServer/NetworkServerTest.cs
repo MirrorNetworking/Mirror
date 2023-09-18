@@ -1049,6 +1049,9 @@ namespace Mirror.Tests.NetworkServers
         [Test]
         public void UnSpawn()
         {
+            // start server
+            NetworkServer.Listen(1);
+
             // create scene object with valid netid and set active
             CreateNetworked(out GameObject go, out NetworkIdentity identity);
             identity.sceneId = 42;
@@ -1063,6 +1066,9 @@ namespace Mirror.Tests.NetworkServers
         [Test]
         public void UnSpawnAndClearAuthority()
         {
+            // start server
+            NetworkServer.Listen(1);
+
             // create scene object with valid netid and set active
             CreateNetworked(out GameObject go, out NetworkIdentity identity, out NetworkBehaviourMock comp);
             identity.sceneId = 42;
