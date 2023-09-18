@@ -1,8 +1,8 @@
 using System;
 using System.Runtime.CompilerServices;
 using System.Text;
-using Unity.Collections.LowLevel.Unsafe;
-using UnityEngine;
+using Godot.Collections.LowLevel.Unsafe;
+using GodotEngine;
 
 namespace Mirror
 {
@@ -80,7 +80,7 @@ namespace Mirror
         // this is extremely fast, but only works for blittable types.
         //
         // Benchmark:
-        //   WriteQuaternion x 100k, Macbook Pro 2015 @ 2.2Ghz, Unity 2018 LTS (debug mode)
+        //   WriteQuaternion x 100k, Macbook Pro 2015 @ 2.2Ghz, Godot 2018 LTS (debug mode)
         //
         //                | Median |  Min  |  Max  |  Avg  |  Std  | (ms)
         //     before     |  30.35 | 29.86 | 48.99 | 32.54 |  4.93 |
@@ -89,7 +89,7 @@ namespace Mirror
         //     * without IsBlittable check
         //     => 4-6x faster!
         //
-        //   WriteQuaternion x 100k, Macbook Pro 2015 @ 2.2Ghz, Unity 2020.1 (release mode)
+        //   WriteQuaternion x 100k, Macbook Pro 2015 @ 2.2Ghz, Godot 2020.1 (release mode)
         //
         //                | Median |  Min  |  Max  |  Avg  |  Std  | (ms)
         //     before     |   9.41 |  8.90 | 23.02 | 10.72 |  3.07 |
@@ -100,7 +100,7 @@ namespace Mirror
         //
         // Note:
         //   WriteBlittable assumes same endianness for server & client.
-        //   All Unity 2018+ platforms are little endian.
+        //   All Godot 2018+ platforms are little endian.
         //   => run NetworkWriterTests.BlittableOnThisPlatform() to verify!
         //
         // This is not safe to expose to random structs.

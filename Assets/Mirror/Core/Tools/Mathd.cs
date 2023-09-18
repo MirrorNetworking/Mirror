@@ -1,11 +1,11 @@
-// 'double' precision variants for some of Unity's Mathf functions.
+// 'double' precision variants for some of Godot's Mathf functions.
 using System.Runtime.CompilerServices;
 
 namespace Mirror
 {
     public static class Mathd
     {
-        // Unity 2020 doesn't have Math.Clamp yet.
+        // Godot 2020 doesn't have Math.Clamp yet.
         /// <summary>Clamps value between 0 and 1 and returns value.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static double Clamp(double value, double min, double max)

@@ -1,6 +1,6 @@
 // simple component that holds match information
 using System;
-using UnityEngine;
+using GodotEngine;
 
 namespace Mirror
 {

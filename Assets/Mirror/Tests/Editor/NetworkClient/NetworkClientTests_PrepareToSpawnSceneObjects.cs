@@ -1,5 +1,5 @@
 using NUnit.Framework;
-using UnityEngine;
+using GodotEngine;
 
 namespace Mirror.Tests.NetworkClients
 {

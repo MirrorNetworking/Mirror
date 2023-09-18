@@ -8,8 +8,8 @@
 //            see also: https://github.com/vis2k/Mirror/issues/2907
 using System;
 using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.Serialization;
+using GodotEngine;
+using GodotEngine.Serialization;
 
 namespace Mirror
 {
@@ -57,7 +57,7 @@ namespace Mirror
         List<QueuedMessage> unreliableServerToClient = new List<QueuedMessage>();
 
         // random
-        // UnityEngine.Random.value is [0, 1] with both upper and lower bounds inclusive
+        // GodotEngine.Random.value is [0, 1] with both upper and lower bounds inclusive
         // but we need the upper bound to be exclusive, so using System.Random instead.
         // => NextDouble() is NEVER < 0 so loss=0 never drops!
         // => NextDouble() is ALWAYS < 1 so loss=1 always drops!

@@ -1,6 +1,6 @@
 // straight forward Vector3.Distance based interest management.
 using System.Collections.Generic;
-using UnityEngine;
+using GodotEngine;
 
 namespace Mirror
 {

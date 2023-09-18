@@ -1,4 +1,4 @@
-using UnityEngine;
+using GodotEngine;
 
 namespace Mirror.Examples.TanksCoop
 {
@@ -280,7 +280,7 @@ namespace Mirror.Examples.TanksCoop
 
             tankController = _networkIdentity.GetComponent<TankController>();
 
-            // double check command is sent to remove auth, from owner of object 
+            // double check command is sent to remove auth, from owner of object
             if (tankController.objectOwner != null && tankController.objectOwner == this.netIdentity)
             {
                 _networkIdentity.RemoveClientAuthority();

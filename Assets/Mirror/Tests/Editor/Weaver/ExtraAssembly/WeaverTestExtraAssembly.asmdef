@@ -3,7 +3,7 @@
     "references": [
         "Mirror"
     ],
-    "optionalUnityReferences": [],
+    "optionalGodotReferences": [],
     "includePlatforms": [
         "Editor"
     ],

@@ -75,7 +75,7 @@ namespace Mirror.Weaver
 
             if (!td.IsDerivedFrom<NetworkBehaviour>())
             {
-                if (td.IsDerivedFrom<UnityEngine.MonoBehaviour>())
+                if (td.IsDerivedFrom<GodotEngine.MonoBehaviour>())
                     MonoBehaviourProcessor.Process(Log, td, ref WeavingFailed);
                 return false;
             }
@@ -192,7 +192,7 @@ namespace Mirror.Weaver
 
                 // fix "No writer found for ..." error
                 // https://github.com/vis2k/Mirror/issues/2579
-                // -> when restarting Unity, weaver would try to weave a DLL
+                // -> when restarting Godot, weaver would try to weave a DLL
                 //    again
                 // -> resulting in two GeneratedNetworkCode classes (see ILSpy)
                 // -> the second one wouldn't have all the writer types setup

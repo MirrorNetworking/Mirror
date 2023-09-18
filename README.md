@@ -1,11 +1,11 @@
 ![Mirror Logo](https://user-images.githubusercontent.com/16416509/119120944-6db26780-ba5f-11eb-9cdd-fc8500207f4d.png)
 
-[![Download](https://img.shields.io/badge/asset_store-brightgreen.svg)](https://assetstore.unity.com/packages/tools/network/mirror-129321)
+[![Download](https://img.shields.io/badge/asset_store-brightgreen.svg)](https://assetstore.godot.com/packages/tools/network/mirror-129321)
 [![Documentation](https://img.shields.io/badge/docs-brightgreen.svg)](https://mirror-networking.gitbook.io/)
 [![Showcase](https://img.shields.io/badge/showcase-brightgreen.svg)](https://mirror-networking.com/showcase/)
-[![Video Tutorials](https://img.shields.io/badge/video_tutorial-brightgreen.svg)](https://mirror-networking.gitbook.io/docs/community-guides/video-tutorials)
-[![Forum](https://img.shields.io/badge/forum-brightgreen.svg)](https://forum.unity.com/threads/mirror-networking-for-unity-aka-hlapi-community-edition.425437/)
-[![Build](https://img.shields.io/appveyor/ci/vis2k73562/hlapi-community-edition/Mirror.svg)](https://ci.appveyor.com/project/vis2k73562/hlapi-community-edition/branch/mirror)
+[![Video Tutorials](https://img.shields.io/badge/video_tutorial-brightgreen.svg)](https://mirror-networking.gitbook.io/docs/commgodot-guides/video-tutorials)
+[![Forum](https://img.shields.io/badge/forum-brightgreen.svg)](https://forum.godot.com/threads/mirror-networking-for-godot-aka-hlapi-commgodot-edition.425437/)
+[![Build](https://img.shields.io/appveyor/ci/vis2k73562/hlapi-commgodot-edition/Mirror.svg)](https://ci.appveyor.com/project/vis2k73562/hlapi-commgodot-edition/branch/mirror)
 [![Discord](https://img.shields.io/discord/343440455738064897.svg)](https://discordapp.com/invite/xVW4nU4C34)
 [![release](https://img.shields.io/github/release/vis2k/Mirror.svg)](https://github.com/vis2k/Mirror/releases/latest)
 [![License: MIT](https://img.shields.io/badge/License-MIT-brightgreen.svg)](https://github.com/vis2k/Mirror/blob/master/LICENSE)
@@ -16,11 +16,11 @@
 <img src="https://user-images.githubusercontent.com/16416509/119117854-3e4e2b80-ba5c-11eb-8236-ce6cfd2b6b07.png" title="Original Concept Art for Games that made us dream. Copyright Blizzard, Blizzard, Riot Games, Joymax in that order."/>
 
 ## Mirror Networking 
-The **#1** free **open source** game networking library for **Unity 2019 / 2020 / 2021 / 2022 LTS**.
+The **#1** free **open source** game networking library for **Godot 2019 / 2020 / 2021 / 2022 LTS**.
 
 Used **in production** by major hits like [**Population: ONE**](https://www.populationonevr.com/) and many [**more**](#made-with-mirror).
 
-Originally based on [**UNET**](https://blog.unity.com/technology/announcing-unet-new-unity-multiplayer-technology): battle tested **since 2014** for 9 years and counting!
+Originally based on [**UNET**](https://blog.godot.com/technology/announcing-unet-new-godot-multiplayer-technology): battle tested **since 2014** for 9 years and counting!
 
 Mirror is **[stable](https://mirror-networking.gitbook.io/docs/general/tests)**, [**modular**](#low-level-transports) & **[easy to use](https://mirror-networking.gitbook.io/)** for all types of games, even small [**MMORPGs**](#made-with-mirror) 🎮.
 
@@ -74,9 +74,9 @@ And that's about it 🤩
 - Customize anything freely!
 - No paywalls, no CCU costs, no strings attached!
 
-🤝 We are a team of **professional** game developers, who are paid to **use Mirror in production**. Our incentives will always align with the community, because we are Mirror users just like you! 
+🤝 We are a team of **professional** game developers, who are paid to **use Mirror in production**. Our incentives will always align with the commgodot, because we are Mirror users just like you! 
 
-❤️ Our [**fantastic community**](https://discordapp.com/invite/xVW4nU4C34) of over **14,000** users contributes feedback & improvements every day. Please join us on our journey, help others, and consider a [**Donation**](https://github.com/sponsors/vis2k) if you love our work!
+❤️ Our [**fantastic commgodot**](https://discordapp.com/invite/xVW4nU4C34) of over **14,000** users contributes feedback & improvements every day. Please join us on our journey, help others, and consider a [**Donation**](https://github.com/sponsors/vis2k) if you love our work!
 
 <img src="https://user-images.githubusercontent.com/16416509/195067704-5577b581-b829-4c9f-80d0-b6270a3a59e7.png" title="Fitzcarraldo"/>
 
@@ -84,7 +84,7 @@ _The top quote is from Fitzcarraldo, which is quite reminiscent of this project.
 
 ---
 ## Getting Started
-Get **Unity 2019 / 2020 / 2021 / 2022 LTS**, [Download Mirror](https://assetstore.unity.com/packages/tools/network/mirror-129321), open one of the examples & press Play!
+Get **Godot 2019 / 2020 / 2021 / 2022 LTS**, [Download Mirror](https://assetstore.godot.com/packages/tools/network/mirror-129321), open one of the examples & press Play!
 
 Check out our [Documentation](https://mirror-networking.gitbook.io/) to learn how it all works.
 
@@ -92,14 +92,14 @@ If you are migrating from UNET, then please check out our [Migration Guide](http
 
 ---
 ## Mirror LTS (Long Term Support)
-Mirror LTS is available on the [Asset Store](https://assetstore.unity.com/packages/tools/network/mirror-lts-102631).
+Mirror LTS is available on the [Asset Store](https://assetstore.godot.com/packages/tools/network/mirror-lts-102631).
 
 Mirror LTS gives you peace of mind to run your game in production.
 Without any breaking changes, ever!
 
 * **Bug fixes** only. 
 * **Consistent API**: update any time, without any breaking features.
-* Lives along side **Unity 2019/2020/2021** LTS.
+* Lives along side **Godot 2019/2020/2021** LTS.
 * Supported for two years at a time.
 
 ---
@@ -217,12 +217,12 @@ Castaway runs in the Browser, thanks to Mirror's WebGL support.
 <a href="https://store.steampowered.com/app/1745640/MACE_Mapinguaris_Temple/"><img src="https://user-images.githubusercontent.com/16416509/166089837-bbecf190-0f06-4c88-910d-1ce87e2f171d.png" title="MACE" height="100"/></a>
 <a href="https://www.adversator.com/"><img src="https://user-images.githubusercontent.com/16416509/178641128-37dc270c-bedf-4891-8284-33573d1776b9.jpg" title="Adversator" height="100"/></a>
 <a href="https://store.steampowered.com/app/670260/Solace_Crafting/"><img src="https://user-images.githubusercontent.com/16416509/197175819-1c2720b6-97e6-4844-80b5-2197a7f22839.png" title="Solace Crafting" height="100"/></a>
-<a href="https://www.unitystation.org"><img src="https://user-images.githubusercontent.com/57072365/204021428-0c621067-d580-4c88-b551-3ac70f9da39d.jpg" title="UnityStation" height="100"/></a>
+<a href="https://www.godotstation.org"><img src="https://user-images.githubusercontent.com/57072365/204021428-0c621067-d580-4c88-b551-3ac70f9da39d.jpg" title="GodotStation" height="100"/></a>
 <a href="https://store.steampowered.com/app/1970020/__Touhou_Fairy_Knockout__One_fairy_to_rule_them_all/"><img src="https://github.com/MirrorNetworking/Mirror/assets/16416509/dc1286a8-b619-4f68-9dfe-6a501be7e233" title="Touhou Fairy Knockout" height="100"/></a>
 <a href="https://store.steampowered.com/app/2168680/Nuclear_Option/"><img src="https://github.com/MirrorNetworking/Mirror/assets/16416509/4e98520e-9bde-4305-8b02-bada090a02dd" title="Nuclear Option" height="100"/></a>
 
 ## Modular Transports
-Mirror uses **KCP** (reliable UDP) by default, but you may use any of our community transports for low level packet sending:
+Mirror uses **KCP** (reliable UDP) by default, but you may use any of our commgodot transports for low level packet sending:
 * (built in) [KCP](https://github.com/vis2k/kcp2k): reliable UDP
 * (built in) [Telepathy](https://github.com/vis2k/Telepathy): TCP
 * (built in) [Websockets](https://github.com/MirrorNetworking/SimpleWebTransport): Websockets
@@ -253,7 +253,7 @@ Therefore, we need to [KISS](https://en.wikipedia.org/wiki/KISS_principle) 😗.
 
 **Mirror-Networking** follows common information security industry standards & best practices.
 
-Mirror is free open source software (**MIT Licensed**), with over 80% test coverage. The company is located in Germany. We do not collect any user data, impose no restrictions on users & developers, or rely on any closed source dependencies other than Unity.
+Mirror is free open source software (**MIT Licensed**), with over 80% test coverage. The company is located in Germany. We do not collect any user data, impose no restrictions on users & developers, or rely on any closed source dependencies other than Godot.
 
 This makes Mirror an attractive choice for government agencies and large corporations with strict information security requirements.
 

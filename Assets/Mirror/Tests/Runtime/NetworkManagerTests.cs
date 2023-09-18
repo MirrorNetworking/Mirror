@@ -1,7 +1,7 @@
 using System.Collections;
 using NUnit.Framework;
-using UnityEngine.SceneManagement;
-using UnityEngine.TestTools;
+using GodotEngine.SceneManagement;
+using GodotEngine.TestTools;
 
 namespace Mirror.Tests.Runtime
 {
@@ -19,24 +19,24 @@ namespace Mirror.Tests.Runtime
             Assert.That(isActive, Is.EqualTo(expected));
         }
 
-        [UnityTest]
+        [GodotTest]
         public IEnumerator IsActiveSceneWorksWithSceneName()
         {
             yield return RunIsActiveSceneTest(activeScene.name, true);
             yield return RunIsActiveSceneTest("NotActiveScene", false);
         }
-        [UnityTest]
+        [GodotTest]
         public IEnumerator IsActiveSceneWorksWithScenePath()
         {
             yield return RunIsActiveSceneTest(activeScene.path, true);
-            yield return RunIsActiveSceneTest("Assets/Mirror/Tests/Runtime/Scenes/NotActiveScene.unity", false);
+            yield return RunIsActiveSceneTest("Assets/Mirror/Tests/Runtime/Scenes/NotActiveScene.godot", false);
         }
-        [UnityTest]
+        [GodotTest]
         public IEnumerator IsActiveSceneIsFalseForScenesWithSameNameButDifferentPath()
         {
             yield return RunIsActiveSceneTest($"Another/Path/To/{activeScene.path}", false);
         }
-        [UnityTest]
+        [GodotTest]
         public IEnumerator IsActiveSceneIsFalseForEmptyString()
         {
             yield return RunIsActiveSceneTest("", false);

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Mirror.RemoteCalls;
-using UnityEngine;
+using GodotEngine;
 
 namespace Mirror
 {
@@ -108,7 +108,7 @@ namespace Mirror
         public static TimeSample earlyUpdateDuration;
         public static TimeSample lateUpdateDuration;
 
-        // capture full Unity update time from before Early- to after LateUpdate
+        // capture full Godot update time from before Early- to after LateUpdate
         public static TimeSample fullUpdateDuration;
 
         /// <summary>Starts server and listens to incoming connections with max connections limit.</summary>
@@ -384,7 +384,7 @@ namespace Mirror
             // maybe we shouldn't allow timeline to deviate more than a certain %.
             // for now, this is only used for client authority movement.
 
-            // Unity 2019 doesn't have Time.timeAsDouble yet
+            // Godot 2019 doesn't have Time.timeAsDouble yet
             //
             // NetworkTime uses unscaled time and ignores Time.timeScale.
             // fixes Time.timeScale getting server & client time out of sync:
@@ -1140,7 +1140,7 @@ namespace Mirror
 
             // let connection know that we finished spawning, so it can call
             // OnStartClient on each one (only after all were spawned, which
-            // is how Unity's Start() function works too)
+            // is how Godot's Start() function works too)
             conn.Send(new ObjectSpawnFinishedMessage());
         }
 
@@ -1558,7 +1558,7 @@ namespace Mirror
                 // Destroy if application is running
                 if (Application.isPlaying)
                 {
-                    UnityEngine.Object.Destroy(identity.gameObject);
+                    GodotEngine.Object.Destroy(identity.gameObject);
                 }
                 // Destroy can't be used in Editor during tests. use DestroyImmediate.
                 else
@@ -1721,7 +1721,7 @@ namespace Mirror
         }
 
         // NetworkLateUpdate called after any Update/FixedUpdate/LateUpdate
-        // (we add this to the UnityEngine in NetworkLoop)
+        // (we add this to the GodotEngine in NetworkLoop)
         // internal for tests
         internal static readonly List<NetworkConnectionToClient> connectionsCopy =
             new List<NetworkConnectionToClient>();
@@ -1797,7 +1797,7 @@ namespace Mirror
 
         // update //////////////////////////////////////////////////////////////
         // NetworkEarlyUpdate called before any Update/FixedUpdate
-        // (we add this to the UnityEngine in NetworkLoop)
+        // (we add this to the GodotEngine in NetworkLoop)
         internal static void NetworkEarlyUpdate()
         {
             // measure update time for profiling.
@@ -1839,7 +1839,7 @@ namespace Mirror
                 // also important for syncInterval=0 components like
                 // NetworkTransform, so they can sync on same interval as time
                 // snapshots _but_ not every single tick.
-                // Unity 2019 doesn't have Time.timeAsDouble yet
+                // Godot 2019 doesn't have Time.timeAsDouble yet
                 if (!Application.isPlaying || AccurateInterval.Elapsed(NetworkTime.localTime, sendInterval, ref lastSendTime))
                     Broadcast();
             }

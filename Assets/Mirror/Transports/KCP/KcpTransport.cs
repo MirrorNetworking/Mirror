@@ -2,10 +2,10 @@
 using System;
 using System.Linq;
 using System.Net;
-using UnityEngine;
+using GodotEngine;
 using Mirror;
-using Unity.Collections;
-using UnityEngine.Serialization;
+using Godot.Collections;
+using GodotEngine.Serialization;
 
 namespace kcp2k
 {

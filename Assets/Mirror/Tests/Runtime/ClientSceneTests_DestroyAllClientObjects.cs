@@ -3,8 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using NUnit.Framework;
-using UnityEngine;
-using UnityEngine.TestTools;
+using GodotEngine;
+using GodotEngine.TestTools;
 
 namespace Mirror.Tests.Runtime.ClientSceneTests
 {
@@ -38,10 +38,10 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
 
         NetworkConnectionToClient connectionToClient;
 
-        [UnitySetUp]
-        public override IEnumerator UnitySetUp()
+        [GodotSetUp]
+        public override IEnumerator GodotSetUp()
         {
-            yield return base.UnitySetUp();
+            yield return base.GodotSetUp();
 
             // start server & client and wait 1 frame
             NetworkServer.Listen(1);
@@ -49,8 +49,8 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
             yield return null;
         }
 
-        [UnityTearDown]
-        public override IEnumerator UnityTearDown()
+        [GodotTearDown]
+        public override IEnumerator GodotTearDown()
         {
             unspawnHandlers.Clear();
             base.TearDown();
@@ -65,7 +65,7 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
             serverIdentity.sceneId = clientIdentity.sceneId = sceneId;
         }
 
-        [UnityTest]
+        [GodotTest]
         public IEnumerator DestroysAllNetworkPrefabsInScene()
         {
             // sceneId 0 is prefab
@@ -76,12 +76,12 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
 
             NetworkClient.DestroyAllClientObjects();
 
-            // wait for frame to make sure unity events are called
+            // wait for frame to make sure godot events are called
             yield return null;
             Assert.That(destroyCalled, Is.EqualTo(1));
         }
 
-        [UnityTest]
+        [GodotTest]
         public IEnumerator DisablesAllNetworkSceneObjectsInScene()
         {
             // sceneId 0 is prefab
@@ -95,7 +95,7 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
 
             NetworkClient.DestroyAllClientObjects();
 
-            // wait for frame to make sure unity events are called
+            // wait for frame to make sure godot events are called
             yield return null;
 
             Assert.That(disableCalled, Is.EqualTo(1));

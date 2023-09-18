@@ -28,7 +28,7 @@ If applicable, add screenshots to help explain your problem.
 **Desktop (please complete the following information):**
 * OS: \[e.g. Windows, MacOS\]
 * Build target: \[e.g.  Android, webgl, standalone, iOS\]
-* Unity version: \[e.g. 2017.4]
+* Godot version: \[e.g. 2017.4]
 * Mirror branch: \[e.g.  master, 2018\]
 
 **Additional context**

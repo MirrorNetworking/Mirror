@@ -1,9 +1,9 @@
 using Mirror;
-using UnityEngine;
+using GodotEngine;
 
-namespace WeaverSyncVarTests.SyncVarsUnityComponent
+namespace WeaverSyncVarTests.SyncVarsGodotComponent
 {
-    class SyncVarsUnityComponent : NetworkBehaviour
+    class SyncVarsGodotComponent : NetworkBehaviour
     {
         [SyncVar]
         TextMesh invalidVar;

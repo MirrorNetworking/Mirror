@@ -4,7 +4,7 @@
 // standalone C# implementation to be engine (and language) agnostic.
 
 using System.Collections.Generic;
-using UnityEngine;
+using GodotEngine;
 
 namespace Mirror
 {
@@ -24,7 +24,7 @@ namespace Mirror
     //    but still grow larger buckets internally.
     public class HistoryBounds
     {
-        // mischa: use MinMaxBounds to avoid Unity Bounds.Encapsulate conversions.
+        // mischa: use MinMaxBounds to avoid Godot Bounds.Encapsulate conversions.
         readonly int boundsPerBucket;
         readonly Queue<MinMaxBounds> fullBuckets;
 
@@ -40,7 +40,7 @@ namespace Mirror
 
         // total bounds encapsulating all of the bounds history.
         // totalMinMax is used for internal calculations.
-        // public total is used for Unity representation.
+        // public total is used for Godot representation.
         MinMaxBounds totalMinMax;
         public Bounds total
         {

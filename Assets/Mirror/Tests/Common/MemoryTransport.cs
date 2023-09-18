@@ -3,7 +3,7 @@
 //       can't be called with MemoryTransport
 using System;
 using System.Collections.Generic;
-using UnityEngine;
+using GodotEngine;
 
 namespace Mirror.Tests
 {

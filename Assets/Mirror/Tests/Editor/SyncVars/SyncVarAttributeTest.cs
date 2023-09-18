@@ -1,6 +1,6 @@
 using Mirror.Tests.NetworkBehaviours;
 using NUnit.Framework;
-using UnityEngine;
+using GodotEngine;
 
 namespace Mirror.Tests.SyncVars
 {

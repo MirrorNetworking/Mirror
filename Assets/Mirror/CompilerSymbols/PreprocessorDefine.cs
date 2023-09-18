@@ -1,12 +1,12 @@
 using System.Collections.Generic;
-using UnityEditor;
+using GodotEditor;
 
 namespace Mirror
 {
     static class PreprocessorDefine
     {
         /// <summary>
-        /// Add define symbols as soon as Unity gets done compiling.
+        /// Add define symbols as soon as Godot gets done compiling.
         /// </summary>
         [InitializeOnLoadMethod]
         public static void AddDefineSymbols()

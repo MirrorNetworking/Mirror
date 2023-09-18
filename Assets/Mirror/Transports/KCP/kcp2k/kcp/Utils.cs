@@ -4,7 +4,7 @@ namespace kcp2k
 {
     public static partial class Utils
     {
-        // Clamp so we don't have to depend on UnityEngine
+        // Clamp so we don't have to depend on GodotEngine
         public static int Clamp(int value, int min, int max)
         {
             if (value < min) return min;

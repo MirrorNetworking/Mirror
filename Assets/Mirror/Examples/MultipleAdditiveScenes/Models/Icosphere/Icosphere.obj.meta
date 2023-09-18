@@ -13,8 +13,8 @@ ModelImporter:
     4300000: Icosphere
   externalObjects:
   - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
+      type: GodotEngine:Material
+      assembly: GodotEngine.CoreModule
       name: ProBuilderDefault
     second: {fileID: 2100000, guid: 883a7db7f994aab478a4380ad50eda70, type: 2}
   materials:

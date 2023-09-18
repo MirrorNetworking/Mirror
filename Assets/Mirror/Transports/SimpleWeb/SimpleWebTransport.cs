@@ -1,8 +1,8 @@
 using System;
 using System.Net;
 using System.Security.Authentication;
-using UnityEngine;
-using UnityEngine.Serialization;
+using GodotEngine;
+using GodotEngine.Serialization;
 
 namespace Mirror.SimpleWeb
 {
@@ -34,10 +34,10 @@ namespace Mirror.SimpleWeb
         [Tooltip("How long without a message before disconnecting (in milliseconds)")]
         public int receiveTimeout = 20000;
 
-        [Tooltip("Caps the number of messages the server will process per tick. Allows LateUpdate to finish to let the reset of unity continue in case more messages arrive before they are processed")]
+        [Tooltip("Caps the number of messages the server will process per tick. Allows LateUpdate to finish to let the reset of godot continue in case more messages arrive before they are processed")]
         public int serverMaxMessagesPerTick = 10000;
 
-        [Tooltip("Caps the number of messages the client will process per tick. Allows LateUpdate to finish to let the reset of unity continue in case more messages arrive before they are processed")]
+        [Tooltip("Caps the number of messages the client will process per tick. Allows LateUpdate to finish to let the reset of godot continue in case more messages arrive before they are processed")]
         public int clientMaxMessagesPerTick = 1000;
 
         [Header("Server settings")]

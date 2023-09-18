@@ -14,20 +14,20 @@
 //
 // => instead we process incoming, update world, process_outgoing in the same
 //    frame. it's more clear (no race conditions) and lower latency.
-// => we need to add custom Update functions to the Unity engine:
+// => we need to add custom Update functions to the Godot engine:
 //      NetworkEarlyUpdate before Update()/FixedUpdate()
 //      NetworkLateUpdate after LateUpdate()
 //    this way the user can update the world in Update/FixedUpdate/LateUpdate
 //    and networking still runs before/after those functions no matter what!
-// => see also: https://docs.unity3d.com/Manual/ExecutionOrder.html
+// => see also: https://docs.godot3d.com/Manual/ExecutionOrder.html
 // => update order:
-//    * we add to the end of EarlyUpdate so it runs after any Unity initializations
+//    * we add to the end of EarlyUpdate so it runs after any Godot initializations
 //    * we add to the end of PreLateUpdate so it runs after LateUpdate(). adding
 //      to the beginning of PostLateUpdate doesn't actually work.
 using System;
-using UnityEngine;
-using UnityEngine.LowLevel;
-using UnityEngine.PlayerLoop;
+using GodotEngine;
+using GodotEngine.LowLevel;
+using GodotEngine.PlayerLoop;
 
 namespace Mirror
 {
@@ -69,11 +69,11 @@ namespace Mirror
             return -1;
         }
 
-        // MODIFIED AddSystemToPlayerLoopList from Unity.Entities.ScriptBehaviourUpdateOrder (ECS)
+        // MODIFIED AddSystemToPlayerLoopList from Godot.Entities.ScriptBehaviourUpdateOrder (ECS)
         //
-        // => adds an update function to the Unity internal update type.
-        // => Unity has different update loops:
-        //    https://medium.com/@thebeardphantom/unity-2018-and-playerloop-5c46a12a677
+        // => adds an update function to the Godot internal update type.
+        // => Godot has different update loops:
+        //    https://medium.com/@thebeardphantom/godot-2018-and-playerloop-5c46a12a677
         //      EarlyUpdate
         //      FixedUpdate
         //      PreUpdate
@@ -82,7 +82,7 @@ namespace Mirror
         //      PostLateUpdate
         //
         // function: the custom update function to add
-        //           IMPORTANT: according to a comment in Unity.Entities.ScriptBehaviourUpdateOrder,
+        //           IMPORTANT: according to a comment in Godot.Entities.ScriptBehaviourUpdateOrder,
         //                      the UpdateFunction can not be virtual because
         //                      Mono 4.6 has problems invoking virtual methods
         //                      as delegates from native!
@@ -156,11 +156,11 @@ namespace Mirror
             return false;
         }
 
-        // hook into Unity runtime to actually add our custom functions
+        // hook into Godot runtime to actually add our custom functions
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         static void RuntimeInitializeOnLoad()
         {
-            //Debug.Log("Mirror: adding Network[Early/Late]Update to Unity...");
+            //Debug.Log("Mirror: adding Network[Early/Late]Update to Godot...");
 
             // get loop
             // 2019 has GetCURRENTPlayerLoop which is safe to use without
@@ -169,7 +169,7 @@ namespace Mirror
             PlayerLoopSystem playerLoop = PlayerLoop.GetCurrentPlayerLoop();
 
             // add NetworkEarlyUpdate to the end of EarlyUpdate so it runs after
-            // any Unity initializations but before the first Update/FixedUpdate
+            // any Godot initializations but before the first Update/FixedUpdate
             AddToPlayerLoop(NetworkEarlyUpdate, typeof(NetworkLoop), ref playerLoop, typeof(EarlyUpdate), AddMode.End);
 
             // add NetworkLateUpdate to the end of PreLateUpdate so it runs after

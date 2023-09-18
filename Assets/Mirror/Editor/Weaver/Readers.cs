@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Mono.CecilX;
 using Mono.CecilX.Cil;
 // to use Mono.CecilX.Rocks here, we need to 'override references' in the
-// Unity.Mirror.CodeGen assembly definition file in the Editor, and add CecilX.Rocks.
+// Godot.Mirror.CodeGen assembly definition file in the Editor, and add CecilX.Rocks.
 // otherwise we get an unknown import exception.
 using Mono.CecilX.Rocks;
 
@@ -121,19 +121,19 @@ namespace Mirror.Weaver
             }
 
             // check if reader generation is applicable on this type
-            if (variableDefinition.IsDerivedFrom<UnityEngine.Component>())
+            if (variableDefinition.IsDerivedFrom<GodotEngine.Component>())
             {
                 Log.Error($"Cannot generate reader for component type {variableReference.Name}. Use a supported type or provide a custom reader", variableReference);
                 WeavingFailed = true;
                 return null;
             }
-            if (variableReference.Is<UnityEngine.Object>())
+            if (variableReference.Is<GodotEngine.Object>())
             {
                 Log.Error($"Cannot generate reader for {variableReference.Name}. Use a supported type or provide a custom reader", variableReference);
                 WeavingFailed = true;
                 return null;
             }
-            if (variableReference.Is<UnityEngine.ScriptableObject>())
+            if (variableReference.Is<GodotEngine.ScriptableObject>())
             {
                 Log.Error($"Cannot generate reader for {variableReference.Name}. Use a supported type or provide a custom reader", variableReference);
                 WeavingFailed = true;
@@ -301,7 +301,7 @@ namespace Mirror.Weaver
                 worker.Emit(OpCodes.Ldloca, 0);
                 worker.Emit(OpCodes.Initobj, variable);
             }
-            else if (td.IsDerivedFrom<UnityEngine.ScriptableObject>())
+            else if (td.IsDerivedFrom<GodotEngine.ScriptableObject>())
             {
                 GenericInstanceMethod genericInstanceMethod = new GenericInstanceMethod(weaverTypes.ScriptableObjectCreateInstanceMethod);
                 genericInstanceMethod.GenericArguments.Add(variable);

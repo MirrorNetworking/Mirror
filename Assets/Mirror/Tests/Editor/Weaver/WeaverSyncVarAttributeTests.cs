@@ -30,12 +30,12 @@ namespace Mirror.Weaver.Tests
         }
 
         [Test]
-        public void SyncVarsUnityComponent()
+        public void SyncVarsGodotComponent()
         {
             HasError("Cannot generate writer for component type TextMesh. Use a supported type or provide a custom writer",
-                "UnityEngine.TextMesh");
+                "GodotEngine.TextMesh");
             HasError("invalidVar has unsupported type. Use a supported Mirror type instead",
-                "UnityEngine.TextMesh WeaverSyncVarTests.SyncVarsUnityComponent.SyncVarsUnityComponent::invalidVar");
+                "GodotEngine.TextMesh WeaverSyncVarTests.SyncVarsGodotComponent.SyncVarsGodotComponent::invalidVar");
         }
 
         [Test]
@@ -50,7 +50,7 @@ namespace Mirror.Weaver.Tests
         {
             // NOTE if this test fails without a warning:
             // that happens if after WeaverAssembler->AssemblyBuilder.Build(),
-            // Unity invokes ILPostProcessor internally.
+            // Godot invokes ILPostProcessor internally.
             // and we invoke it from WeaverAssembler buildFinished again.
             // => make sure that our ILPostProcessor does nto run on
             //    WeaverAssembler assemblies

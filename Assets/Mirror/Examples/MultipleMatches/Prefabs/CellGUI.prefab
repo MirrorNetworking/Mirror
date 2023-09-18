@@ -1,5 +1,5 @@
 %YAML 1.1
-%TAG !u! tag:unity3d.com,2011:
+%TAG !u! tag:godot3d.com,2011:
 --- !u!1 &4903779300334215825
 GameObject:
   m_ObjectHideFlags: 0
@@ -128,7 +128,7 @@ MonoBehaviour:
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_ObjectArgumentAssemblyTypeName: GodotEngine.Object, GodotEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 

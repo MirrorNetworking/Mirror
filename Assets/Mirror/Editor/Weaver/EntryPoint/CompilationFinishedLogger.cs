@@ -1,9 +1,9 @@
 // logger for compilation finished hook.
 // where we need a callback and Debug.Log.
-// for Unity 2020+ we use ILPostProcessor.
+// for Godot 2020+ we use ILPostProcessor.
 #if !UNITY_2020_3_OR_NEWER
 using Mono.CecilX;
-using UnityEngine;
+using GodotEngine;
 
 namespace Mirror.Weaver
 {
@@ -14,7 +14,7 @@ namespace Mirror.Weaver
         {
             if (mr != null) message = $"{message} (at {mr})";
 
-            if (CompilationFinishedHook.UnityLogEnabled) Debug.LogWarning(message);
+            if (CompilationFinishedHook.GodotLogEnabled) Debug.LogWarning(message);
             CompilationFinishedHook.OnWeaverWarning?.Invoke(message);
         }
 
@@ -23,7 +23,7 @@ namespace Mirror.Weaver
         {
             if (mr != null) message = $"{message} (at {mr})";
 
-            if (CompilationFinishedHook.UnityLogEnabled) Debug.LogError(message);
+            if (CompilationFinishedHook.GodotLogEnabled) Debug.LogError(message);
             CompilationFinishedHook.OnWeaverError?.Invoke(message);
         }
     }

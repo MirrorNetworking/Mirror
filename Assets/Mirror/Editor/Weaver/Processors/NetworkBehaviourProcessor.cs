@@ -597,7 +597,7 @@ namespace Mirror.Weaver
             // call GeneratedSyncVarDeserialize<T>.
             // special cases for GameObject/NetworkIdentity/NetworkBehaviour
             // passing netId too for persistence.
-            if (syncVar.FieldType.Is<UnityEngine.GameObject>())
+            if (syncVar.FieldType.Is<GodotEngine.GameObject>())
             {
                 // reader
                 worker.Emit(OpCodes.Ldarg_1);

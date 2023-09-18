@@ -1,4 +1,4 @@
-// for Unity 2020+ we use ILPostProcessor.
+// for Godot 2020+ we use ILPostProcessor.
 // only automatically invoke it for older versions.
 #if !UNITY_2020_3_OR_NEWER
 using System;
@@ -6,10 +6,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Mono.CecilX;
-using UnityEditor;
-using UnityEditor.Compilation;
-using UnityEngine;
-using UnityAssembly = UnityEditor.Compilation.Assembly;
+using GodotEditor;
+using GodotEditor.Compilation;
+using GodotEngine;
+using GodotAssembly = GodotEditor.Compilation.Assembly;
 
 namespace Mirror.Weaver
 {
@@ -27,8 +27,8 @@ namespace Mirror.Weaver
         // delete for subscription to Weaver error messages
         public static Action<string> OnWeaverError;
 
-        // controls whether Weaver errors are reported direct to the Unity console (tests enable this)
-        public static bool UnityLogEnabled = true;
+        // controls whether Weaver errors are reported direct to the Godot console (tests enable this)
+        public static bool GodotLogEnabled = true;
 
         [InitializeOnLoadMethod]
         public static void OnInitializeOnLoad()
@@ -49,7 +49,7 @@ namespace Mirror.Weaver
 
         public static void WeaveExistingAssemblies()
         {
-            foreach (UnityAssembly assembly in CompilationPipeline.GetAssemblies())
+            foreach (GodotAssembly assembly in CompilationPipeline.GetAssemblies())
             {
                 if (File.Exists(assembly.outputPath))
                 {
@@ -76,7 +76,7 @@ namespace Mirror.Weaver
             }
 
             // Should not run on the editor only assemblies (test ones still need to be weaved)
-            if (assemblyPath.Contains("-Editor") || 
+            if (assemblyPath.Contains("-Editor") ||
                 (assemblyPath.Contains(".Editor") && !assemblyPath.Contains(".Tests")))
             {
                 return;
@@ -103,29 +103,29 @@ namespace Mirror.Weaver
             if (!File.Exists(mirrorRuntimeDll))
             {
                 // this is normal, it happens with any assembly that is built before mirror
-                // such as unity packages or your own assemblies
+                // such as godot packages or your own assemblies
                 // those don't need to be weaved
                 // if any assembly depends on mirror, then it will be built after
                 return;
             }
 
-            // find UnityEngine.CoreModule.dll
-            string unityEngineCoreModuleDLL = UnityEditorInternal.InternalEditorUtility.GetEngineCoreModuleAssemblyPath();
-            if (string.IsNullOrEmpty(unityEngineCoreModuleDLL))
+            // find GodotEngine.CoreModule.dll
+            string godotEngineCoreModuleDLL = GodotEditorInternal.InternalEditorUtility.GetEngineCoreModuleAssemblyPath();
+            if (string.IsNullOrEmpty(godotEngineCoreModuleDLL))
             {
-                Debug.LogError("Failed to find UnityEngine assembly");
+                Debug.LogError("Failed to find GodotEngine assembly");
                 return;
             }
 
             HashSet<string> dependencyPaths = GetDependencyPaths(assemblyPath);
             dependencyPaths.Add(Path.GetDirectoryName(mirrorRuntimeDll));
-            dependencyPaths.Add(Path.GetDirectoryName(unityEngineCoreModuleDLL));
+            dependencyPaths.Add(Path.GetDirectoryName(godotEngineCoreModuleDLL));
 
             if (!WeaveFromFile(assemblyPath, dependencyPaths.ToArray()))
             {
                 // Set false...will be checked in \Editor\EnterPlayModeSettingsCheck.CheckSuccessfulWeave()
                 SessionState.SetBool("MIRROR_WEAVE_SUCCESS", false);
-                if (UnityLogEnabled) Debug.LogError($"Weaving failed for {assemblyPath}");
+                if (GodotLogEnabled) Debug.LogError($"Weaving failed for {assemblyPath}");
             }
         }
 
@@ -157,9 +157,9 @@ namespace Mirror.Weaver
             using (DefaultAssemblyResolver asmResolver = new DefaultAssemblyResolver())
             using (AssemblyDefinition assembly = AssemblyDefinition.ReadAssembly(assemblyPath, new ReaderParameters{ ReadWrite = true, ReadSymbols = true, AssemblyResolver = asmResolver }))
             {
-                // add this assembly's path and unity's assembly path
+                // add this assembly's path and godot's assembly path
                 asmResolver.AddSearchDirectory(Path.GetDirectoryName(assemblyPath));
-                asmResolver.AddSearchDirectory(Helpers.UnityEngineDllDirectoryName());
+                asmResolver.AddSearchDirectory(Helpers.GodotEngineDllDirectoryName());
 
                 // add dependencies
                 if (dependencies != null)

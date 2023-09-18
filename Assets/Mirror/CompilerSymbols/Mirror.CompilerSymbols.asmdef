@@ -1,7 +1,7 @@
 {
     "name": "Mirror.CompilerSymbols",
     "references": [],
-    "optionalUnityReferences": [],
+    "optionalGodotReferences": [],
     "includePlatforms": [
         "Editor"
     ],

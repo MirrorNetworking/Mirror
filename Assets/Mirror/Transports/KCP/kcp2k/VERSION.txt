@@ -62,7 +62,7 @@ V1.27 [2023-01-08]
   fixes https://github.com/MirrorNetworking/Mirror/issues/3337
 
 V1.26 [2022-12-22]
-- KcpPeer.RawInput: fix compile error in old Unity Mono versions
+- KcpPeer.RawInput: fix compile error in old Godot Mono versions
 - fix: KcpServer sets up a new connection's OnError immediately.
   fixes KcpPeer throwing NullReferenceException when attempting to call OnError
   after authentication errors.
@@ -141,7 +141,7 @@ V1.13 [2021-11-28]
 - feature: OnData now includes channel it was received on
 
 V1.12 [2021-07-16]
-- Tests: don't depend on Unity anymore
+- Tests: don't depend on Godot anymore
 - fix: #26 - Kcp now catches exception if host couldn't be resolved, and calls
   OnDisconnected to let the user now.
 - fix: KcpServer.DualMode is now configurable in the constructor instead of
@@ -168,7 +168,7 @@ V1.9 [2021-03-02]
   => original Tick() is still supported for convenience. simply processes both!
 
 V1.8 [2021-02-14]
-- fix: Unity IPv6 errors on Nintendo Switch
+- fix: Godot IPv6 errors on Nintendo Switch
 - fix: KcpConnection now disconnects if data message was received without content.
   previously it would call OnData with an empty ArraySegment, causing all kinds of
   weird behaviour in Mirror/DOTSNET. Added tests too.
@@ -211,12 +211,12 @@ V1.4 [2020-11-27]
 - perf: Mirror KcpTransport: CongestionControl disabled by default (turbo mode)
 
 V1.3 [2020-11-17]
-- Log.Info/Warning/Error so logging doesn't depend on UnityEngine anymore
+- Log.Info/Warning/Error so logging doesn't depend on GodotEngine anymore
 - fix: Server.Tick catches SocketException which happens if Android client is killed
-- MirrorTransport: debugLog option added that can be checked in Unity Inspector
-- Utils.Clamp so Kcp.cs doesn't depend on UnityEngine
-- Utils.SegmentsEqual: use Linq SequenceEqual so it doesn't depend on UnityEngine
-=> kcp2k can now be used in any C# project even without Unity
+- MirrorTransport: debugLog option added that can be checked in Godot Inspector
+- Utils.Clamp so Kcp.cs doesn't depend on GodotEngine
+- Utils.SegmentsEqual: use Linq SequenceEqual so it doesn't depend on GodotEngine
+=> kcp2k can now be used in any C# project even without Godot
 
 V1.2 [2020-11-10]
 - more tests added

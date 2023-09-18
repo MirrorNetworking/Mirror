@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
-using UnityEngine.SceneManagement;
-using UnityEngine.Serialization;
+using GodotEngine;
+using GodotEngine.SceneManagement;
+using GodotEngine.Serialization;
 
 namespace Mirror
 {
@@ -198,7 +198,7 @@ namespace Mirror
 
         /// <summary>
         /// Called on the server when a new client connects.
-        /// <para>Unity calls this on the Server when a Client connects to the Server. Use an override to tell the NetworkManager what to do when a client connects to the server.</para>
+        /// <para>Godot calls this on the Server when a Client connects to the Server. Use an override to tell the NetworkManager what to do when a client connects to the server.</para>
         /// </summary>
         /// <param name="conn">Connection from client.</param>
         public override void OnServerConnect(NetworkConnectionToClient conn)
@@ -565,7 +565,7 @@ namespace Mirror
         // for users to apply settings from their room player object to their in-game player object
         /// <summary>
         /// This is called on the server when it is told that a client has finished switching from the room scene to a game player scene.
-        /// <para>When switching from the room, the room-player is replaced with a game-player object. This callback function gives an opportunity to apply state from the room-player to the game-player object.</para>
+        /// <para>When switching from the room, the room-player is replaced with a game-player object. This callback function gives an opportgodot to apply state from the room-player to the game-player object.</para>
         /// </summary>
         /// <param name="conn">The connection of the player</param>
         /// <param name="roomPlayer">The room player object.</param>

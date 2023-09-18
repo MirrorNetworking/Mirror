@@ -1,21 +1,21 @@
 using System.Collections;
 using NUnit.Framework;
-using UnityEngine.TestTools;
+using GodotEngine.TestTools;
 
 namespace Mirror.Tests.Runtime
 {
     public class ClientSceneTest_LocalPlayer_AsHost : MirrorPlayModeTest
     {
-        [UnitySetUp]
-        public override IEnumerator UnitySetUp()
+        [GodotSetUp]
+        public override IEnumerator GodotSetUp()
         {
-            yield return base.UnitySetUp();
+            yield return base.GodotSetUp();
 
             NetworkServer.Listen(1);
             ConnectHostClientBlockingAuthenticatedAndReady();
         }
 
-        [UnityTest]
+        [GodotTest]
         public IEnumerator LocalPlayerIsSetToNullAfterNetworkDestroy()
         {
             // need spawned local player
@@ -30,7 +30,7 @@ namespace Mirror.Tests.Runtime
             Assert.IsTrue(NetworkClient.localPlayer is null, "local player should be set to c# null");
         }
 
-        [UnityTest]
+        [GodotTest]
         public IEnumerator LocalPlayerIsSetToNullAfterNetworkUnspawn()
         {
             // need spawned local player

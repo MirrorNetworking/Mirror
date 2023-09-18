@@ -1,7 +1,7 @@
 using System.Collections;
 using NUnit.Framework;
-using UnityEngine;
-using UnityEngine.TestTools;
+using GodotEngine;
+using GodotEngine.TestTools;
 
 namespace Mirror.Tests.Runtime.ClientSceneTests
 {
@@ -16,7 +16,7 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
             ConnectHostClientBlockingAuthenticatedAndReady();
         }
 
-        [UnityTest]
+        [GodotTest]
         public IEnumerator LocalPlayerIsSetToNullAfterDestroy()
         {
             // need spawned local player
@@ -31,7 +31,7 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
             Assert.IsTrue(NetworkClient.localPlayer is null, "local player should be set to c# null");
         }
 
-        [UnityTest]
+        [GodotTest]
         public IEnumerator DestroyingOtherObjectDoesntEffectLocalPlayer()
         {
             // need spawned not-local-player
@@ -50,7 +50,7 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
             Assert.IsTrue(NetworkClient.localPlayer == player, "local player should still be equal to player");
         }
 
-        [UnityTest]
+        [GodotTest]
         public IEnumerator LocalPlayerIsSetToNullAfterDestroyMessage()
         {
             // need spawned local player

@@ -1,8 +1,8 @@
 using System;
 using NUnit.Framework;
-using UnityEditor;
-using UnityEngine;
-using UnityEngine.TestTools;
+using GodotEditor;
+using GodotEngine;
+using GodotEngine.TestTools;
 
 namespace Mirror.Tests
 {
@@ -37,7 +37,7 @@ namespace Mirror.Tests
         {
             validPrefab = LoadPrefab(ValidPrefabAssetGuid);
             validPrefabNetworkIdentity = validPrefab.GetComponent<NetworkIdentity>();
-            
+
             // loading the prefab with multiple children *may* trigger OnValidate which will cause an error log
             // but also may not, so we can't use LogAssert.Expect here
             try
@@ -49,7 +49,7 @@ namespace Mirror.Tests
             {
                 LogAssert.ignoreFailingMessages = false;
             }
-            
+
             invalidPrefab = LoadPrefab(InvalidPrefabAssetGuid);
             validPrefabAssetId = (uint)(new Guid(ValidPrefabAssetGuid).GetHashCode());
             anotherAssetId = (uint)(new Guid(AnotherGuidString).GetHashCode());

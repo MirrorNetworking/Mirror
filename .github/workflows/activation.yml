@@ -11,9 +11,9 @@ jobs:
     steps:
       - name: Acquire Activation File
         id: getManualLicenseFile
-        uses: game-ci/unity-request-activation-file@v2
+        uses: game-ci/godot-request-activation-file@v2
         with:
-          unityVersion: 2019.4.40f1
+          godotVersion: 2019.4.40f1
 
       - name: Upload License Request
         uses: actions/upload-artifact@v3
@@ -23,5 +23,5 @@ jobs:
 
       - name: Next Steps
         run: |
-          echo "Upload the alf file to https://license.unity3d.com/manual to get a ulf license file."
+          echo "Upload the alf file to https://license.godot3d.com/manual to get a ulf license file."
           echo "Unzip and open the ulf license in Notepad and paste into secret called UNITY_LICENSE."

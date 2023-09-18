@@ -1,5 +1,5 @@
 %YAML 1.1
-%TAG !u! tag:unity3d.com,2011:
+%TAG !u! tag:godot3d.com,2011:
 --- !u!29 &1
 OcclusionCullingSettings:
   m_ObjectHideFlags: 0
@@ -188,7 +188,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5948271423698091598, guid: c624c75494b4d7d4086b9212f897e56a, type: 3}
       propertyPath: originScene
-      value: Assets/DungeonTest/Scenes/Level2.unity
+      value: Assets/DungeonTest/Scenes/Level2.godot
       objectReference: {fileID: 0}
     - target: {fileID: 5948271423698091598, guid: c624c75494b4d7d4086b9212f897e56a, type: 3}
       propertyPath: startPosition.x
@@ -204,7 +204,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5948271423698091598, guid: c624c75494b4d7d4086b9212f897e56a, type: 3}
       propertyPath: destinationScene
-      value: Assets/Mirror/Examples/AdditiveLevels/Scenes/SubLevel1.unity
+      value: Assets/Mirror/Examples/AdditiveLevels/Scenes/SubLevel1.godot
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c624c75494b4d7d4086b9212f897e56a, type: 3}

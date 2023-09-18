@@ -1,5 +1,5 @@
 ﻿// simple component that holds team information
-using UnityEngine;
+using GodotEngine;
 
 namespace Mirror
 {

@@ -6,8 +6,8 @@ using Mirror.Tests.NetworkBehaviours;
 using Mirror.Tests.NetworkMessagesTests;
 using Mirror.Tests.SyncCollections;
 using NUnit.Framework;
-using UnityEngine;
-using UnityEngine.TestTools;
+using GodotEngine;
+using GodotEngine.TestTools;
 
 namespace Mirror.Tests.NetworkServers
 {
@@ -1241,7 +1241,7 @@ namespace Mirror.Tests.NetworkServers
         // should log a warning. someone probably used GameObject.Destroy
         // instead of NetworkServer.Destroy.
         //
-        // => need extra test because of Unity's custom null check
+        // => need extra test because of Godot's custom null check
         [Test]
         public void UpdateDetectsDestroyedEntryInObserving()
         {

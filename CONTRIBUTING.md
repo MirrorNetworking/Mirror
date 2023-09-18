@@ -6,7 +6,7 @@ First off, thank you for considering contributing to this project. It's people l
 
 Following these guidelines helps to communicate that you respect the time of the developers managing and developing this open source project. In return, they should reciprocate that respect in addressing your issue, assessing changes, and helping you finalize your pull requests.
 
-This is an open source project and we love to receive contributions from our community — you! There are many ways to contribute, from writing tutorials or blog posts, improving the documentation, submitting bug reports and feature requests or writing code which can be incorporated into the main project itself.
+This is an open source project and we love to receive contributions from our commgodot — you! There are many ways to contribute, from writing tutorials or blog posts, improving the documentation, submitting bug reports and feature requests or writing code which can be incorporated into the main project itself.
 
 If you haven't already, come find us in [Discord](https://discord.gg/N9QVxbM). We want you working on things you're excited about, and we can give you instant feedback.
 
@@ -54,7 +54,7 @@ Include details about your configuration and environment:
 
 ### Suggesting Enhancements
 
-This section guides you through submitting an enhancement suggestion for this project, including completely new features and minor improvements to existing functionality. Following these guidelines helps maintainers and the community understand your suggestion and find related suggestions.
+This section guides you through submitting an enhancement suggestion for this project, including completely new features and minor improvements to existing functionality. Following these guidelines helps maintainers and the commgodot understand your suggestion and find related suggestions.
 
 Before creating enhancement suggestions, please check the list of enhancements suggestions in the issue tracker as you might find out that you don't need to create one. When you are creating an enhancement suggestion, please include as many details as possible.
 
@@ -87,7 +87,7 @@ We can always use more test coverage.
 * **Use the same coding style as the one used in this project**.
 * **Documentation:** If your PR adds or changes any public properties or methods, you must retain the old versions preceded with `[Obsolete("Describe what to do / use instead")` attribute wherever possible, and you must update any relevant pages in the /docs folder.  It's not done until it's documented!
 * **Welcome suggestions from the maintainers to improve your pull request**.
-* **Include unit tests for new code** Unit test for new code helps us check if it works. See the [Unity Test Runner](https://docs.unity3d.com/2018.4/Documentation/Manual/testing-editortestsrunner.html) for more information about running tests in unity.
+* **Include unit tests for new code** Unit test for new code helps us check if it works. See the [Godot Test Runner](https://docs.godot3d.com/2018.4/Documentation/Manual/testing-editortestsrunner.html) for more information about running tests in godot.
 
 Please follow our coding conventions (below) and make sure all of your commits are atomic (one feature per commit). Rebase your pull requests if necessary.
 
@@ -142,7 +142,7 @@ Start reading our code and you'll get the hang of it. We optimize for readabilit
 	MMOs need to run for weeks without issues or exploits.
     Only do GC optimizations and caching in hot path. Avoid it everywhere else to keep the code simple.
 * **Curly Braces { }**
-    Always use braces even for one line if's. Unity did this everywhere, and there is value in not accidentally missing a line in an if statement because there were no braces.
+    Always use braces even for one line if's. Godot did this everywhere, and there is value in not accidentally missing a line in an if statement because there were no braces.
 * **Naming**
     Follow [C# standard naming conventions](https://github.com/ktaranov/naming-convention/blob/master/C%23%20Coding%20Standards%20and%20Naming%20Conventions.md). Also, be descriptive. \`NetworkIdentity identity\`, not \`NetworkIdentity uv\` or similar. If you need a comment to explain it, the name needs to be changed. For example, don't do `msg = ... // the message`, use `message = ...` without a comment instead. Avoid prefixes like `m_`, `s_`, or similar.
 * **private** 

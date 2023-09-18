@@ -1,7 +1,7 @@
 using Mirror;
-using UnityEngine;
+using GodotEngine;
 
-namespace GeneratedReaderWriter.GivesErrorWhenUsingUnityAsset
+namespace GeneratedReaderWriter.GivesErrorWhenUsingGodotAsset
 {
     public class GivesErrorForClassWithNoValidConstructor : NetworkBehaviour
     {

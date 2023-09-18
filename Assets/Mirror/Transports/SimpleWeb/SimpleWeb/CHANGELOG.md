@@ -17,7 +17,7 @@
 
 ### Bug Fixes
 
-* fixing Runtime is not defined for unity 2021 ([945b50d](https://github.com/James-Frowen/SimpleWebTransport/commit/945b50dbad5b71c43e2bdaa4033f87d3f62c5572))
+* fixing Runtime is not defined for godot 2021 ([945b50d](https://github.com/James-Frowen/SimpleWebTransport/commit/945b50dbad5b71c43e2bdaa4033f87d3f62c5572))
 
 ## [1.2.5](https://github.com/James-Frowen/SimpleWebTransport/compare/v1.2.4...v1.2.5) (2022-02-02)
 

@@ -1,5 +1,5 @@
 %YAML 1.1
-%TAG !u! tag:unity3d.com,2011:
+%TAG !u! tag:godot3d.com,2011:
 --- !u!29 &1
 OcclusionCullingSettings:
   m_ObjectHideFlags: 0
@@ -1979,7 +1979,7 @@ MonoBehaviour:
   timeInterpolationGui: 0
   Zone: {fileID: 3460729395543957449, guid: de939020b5e2aa5489ebcc4002d75d54, type: 3}
   subScenes:
-  - Assets/Mirror/Examples/AdditiveScenes/Scenes/SubScene.unity
+  - Assets/Mirror/Examples/AdditiveScenes/Scenes/SubScene.godot
 --- !u!4 &1661834279
 Transform:
   m_ObjectHideFlags: 0

@@ -1,24 +1,24 @@
 // base class for networking tests to make things easier.
 using System.Collections;
-using UnityEngine.TestTools;
+using GodotEngine.TestTools;
 
 namespace Mirror.Tests
 {
     public abstract class MirrorPlayModeTest : MirrorTest
     {
         // when overwriting, call it like this:
-        //   yield return base.UnitySetUp();
-        [UnitySetUp]
-        public virtual IEnumerator UnitySetUp()
+        //   yield return base.GodotSetUp();
+        [GodotSetUp]
+        public virtual IEnumerator GodotSetUp()
         {
             base.SetUp();
             yield return null;
         }
 
         // when overwriting, call it like this:
-        //   yield return base.UnityTearDown();
-        [UnityTearDown]
-        public virtual IEnumerator UnityTearDown()
+        //   yield return base.GodotTearDown();
+        [GodotTearDown]
+        public virtual IEnumerator GodotTearDown()
         {
             base.TearDown();
             yield return null;

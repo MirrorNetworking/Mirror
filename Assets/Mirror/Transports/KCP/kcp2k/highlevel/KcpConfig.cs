@@ -3,7 +3,7 @@ using System;
 
 namespace kcp2k
 {
-    // [Serializable] to show it in Unity inspector.
+    // [Serializable] to show it in Godot inspector.
     // 'class' so we can set defaults easily.
     [Serializable]
     public class KcpConfig

@@ -1,6 +1,6 @@
 ﻿// A simple logger class that uses Console.WriteLine by default.
-// Can also do Logger.LogMethod = Debug.Log for Unity etc.
-// (this way we don't have to depend on UnityEngine)
+// Can also do Logger.LogMethod = Debug.Log for Godot etc.
+// (this way we don't have to depend on GodotEngine)
 using System;
 
 namespace kcp2k

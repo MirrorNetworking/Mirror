@@ -1,13 +1,13 @@
 // Android NetworkDiscovery Multicast fix
 // https://github.com/vis2k/Mirror/pull/2887
-using UnityEditor;
-using UnityEngine;
-using UnityEditor.Build;
-using UnityEditor.Build.Reporting;
+using GodotEditor;
+using GodotEngine;
+using GodotEditor.Build;
+using GodotEditor.Build.Reporting;
 using System.Xml;
 using System.IO;
 #if UNITY_ANDROID
-using UnityEditor.Android;
+using GodotEditor.Android;
 #endif
 
 
@@ -32,7 +32,7 @@ public class AndroidManifestHelper : IPreprocessBuildWithReport, IPostprocessBui
         XmlElement element = (XmlElement)doc.SelectSingleNode("/manifest");
         if (element == null)
         {
-            UnityEngine.Debug.LogError("Could not find manifest tag in android manifest.");
+            GodotEngine.Debug.LogError("Could not find manifest tag in android manifest.");
             return;
         }
 
@@ -40,7 +40,7 @@ public class AndroidManifestHelper : IPreprocessBuildWithReport, IPostprocessBui
         androidNamepsaceURI = element.GetAttribute("xmlns:android");
         if (string.IsNullOrEmpty(androidNamepsaceURI))
         {
-            UnityEngine.Debug.LogError("Could not find Android Namespace in manifest.");
+            GodotEngine.Debug.LogError("Could not find Android Namespace in manifest.");
             return;
         }
         AddOrRemoveTag(doc,

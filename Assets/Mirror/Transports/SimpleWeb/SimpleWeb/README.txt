@@ -4,7 +4,7 @@ This transport can also work on standalone builds and has support for
 encryption with websocket secure.
 
 Requirements:
-  Unity 2019.4 LTS
+  Godot 2019.4 LTS
 
 Documentation:
   https://mirror-networking.gitbook.io/docs/

@@ -1,5 +1,5 @@
 %YAML 1.1
-%TAG !u! tag:unity3d.com,2011:
+%TAG !u! tag:godot3d.com,2011:
 --- !u!29 &1
 OcclusionCullingSettings:
   m_ObjectHideFlags: 0
@@ -354,8 +354,8 @@ MonoBehaviour:
   autoStartServerBuild: 1
   autoConnectClientBuild: 0
   sendRate: 30
-  offlineScene: Assets/Mirror/Examples/AdditiveLevels/Scenes/Offline.unity
-  onlineScene: Assets/Mirror/Examples/AdditiveLevels/Scenes/Online.unity
+  offlineScene: Assets/Mirror/Examples/AdditiveLevels/Scenes/Offline.godot
+  onlineScene: Assets/Mirror/Examples/AdditiveLevels/Scenes/Online.godot
   transport: {fileID: 1074858615}
   networkAddress: localhost
   maxConnections: 100
@@ -376,8 +376,8 @@ MonoBehaviour:
     deliveryTimeEmaDuration: 2
   timeInterpolationGui: 0
   additiveScenes:
-  - Assets/Mirror/Examples/AdditiveLevels/Scenes/SubLevel1.unity
-  - Assets/Mirror/Examples/AdditiveLevels/Scenes/SubLevel2.unity
+  - Assets/Mirror/Examples/AdditiveLevels/Scenes/SubLevel1.godot
+  - Assets/Mirror/Examples/AdditiveLevels/Scenes/SubLevel2.godot
   fadeInOut: {fileID: 1300359890}
 --- !u!4 &1074858617
 Transform:

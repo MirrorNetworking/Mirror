@@ -1,6 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
+using GodotEngine;
 
 /*
     Documentation: https://mirror-networking.gitbook.io/docs/components/network-authenticators
@@ -38,7 +38,7 @@ namespace Mirror.Examples.Chat
         #region Server
 
         // RuntimeInitializeOnLoadMethod -> fast playmode without domain reload
-        [UnityEngine.RuntimeInitializeOnLoadMethod]
+        [GodotEngine.RuntimeInitializeOnLoadMethod]
         static void ResetStatics()
         {
             playerNames.Clear();

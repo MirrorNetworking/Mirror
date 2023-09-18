@@ -2,7 +2,7 @@
 using System;
 using System.Net;
 using System.Net.Sockets;
-using UnityEngine;
+using GodotEngine;
 
 // Replaced by Kcp November 2020
 namespace Mirror
@@ -64,7 +64,7 @@ namespace Mirror
 
         void Awake()
         {
-            // tell Telepathy to use Unity's Debug.Log
+            // tell Telepathy to use Godot's Debug.Log
             Telepathy.Log.Info = Debug.Log;
             Telepathy.Log.Warning = Debug.LogWarning;
             Telepathy.Log.Error = Debug.LogError;
@@ -205,7 +205,7 @@ namespace Mirror
             catch (SocketException)
             {
                 // using server.listener.LocalEndpoint causes an Exception
-                // in UWP + Unity 2019:
+                // in UWP + Godot 2019:
                 //   Exception thrown at 0x00007FF9755DA388 in UWF.exe:
                 //   Microsoft C++ exception: Il2CppExceptionWrapper at memory
                 //   location 0x000000E15A0FCDD0. SocketException: An address
@@ -255,7 +255,7 @@ namespace Mirror
             if (server != null && server.Active && server.listener != null)
             {
                 // printing server.listener.LocalEndpoint causes an Exception
-                // in UWP + Unity 2019:
+                // in UWP + Godot 2019:
                 //   Exception thrown at 0x00007FF9755DA388 in UWF.exe:
                 //   Microsoft C++ exception: Il2CppExceptionWrapper at memory
                 //   location 0x000000E15A0FCDD0. SocketException: An address

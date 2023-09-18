@@ -1,6 +1,6 @@
 ﻿// People should be able to see and report errors to the developer very easily.
 //
-// Unity's Developer Console only works in development builds and it only shows
+// Godot's Developer Console only works in development builds and it only shows
 // errors. This class provides a console that works in all builds and also shows
 // log and warnings in development builds.
 //
@@ -12,7 +12,7 @@
 //
 // Note: normal Debug.Log messages can be shown by building in Debug/Development
 //       mode.
-using UnityEngine;
+using GodotEngine;
 using System.Collections.Generic;
 
 namespace Mirror
@@ -37,7 +37,7 @@ namespace Mirror
         // and drawing would get slower and slower.
         public int maxLogCount = 50;
 
-        // Unity Editor has the Console window, we don't need to show it there.
+        // Godot Editor has the Console window, we don't need to show it there.
         // unless for testing, so keep it as option.
         public bool showInEditor = false;
 

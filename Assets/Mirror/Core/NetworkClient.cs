@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Mirror.RemoteCalls;
-using UnityEngine;
+using GodotEngine;
 
 namespace Mirror
 {
@@ -133,7 +133,7 @@ namespace Mirror
         // initialization //////////////////////////////////////////////////////
         static void AddTransportHandlers()
         {
-            // community Transports may forget to call OnDisconnected.
+            // commgodot Transports may forget to call OnDisconnected.
             // which could cause handlers to be added twice with +=.
             // ensure we always clear the old ones first.
             // fixes: https://github.com/vis2k/Mirror/issues/3152
@@ -1198,7 +1198,7 @@ namespace Mirror
             // remove existing items, they will be re-added below
             spawnableObjects.Clear();
 
-            // finds all NetworkIdentity currently loaded by unity (includes disabled objects)
+            // finds all NetworkIdentity currently loaded by godot (includes disabled objects)
             NetworkIdentity[] allIdentities = Resources.FindObjectsOfTypeAll<NetworkIdentity>();
             foreach (NetworkIdentity identity in allIdentities)
             {
@@ -1479,7 +1479,7 @@ namespace Mirror
 
         // update //////////////////////////////////////////////////////////////
         // NetworkEarlyUpdate called before any Update/FixedUpdate
-        // (we add this to the UnityEngine in NetworkLoop)
+        // (we add this to the GodotEngine in NetworkLoop)
         internal static void NetworkEarlyUpdate()
         {
             // process all incoming messages first before updating the world
@@ -1491,7 +1491,7 @@ namespace Mirror
         }
 
         // NetworkLateUpdate called after any Update/FixedUpdate/LateUpdate
-        // (we add this to the UnityEngine in NetworkLoop)
+        // (we add this to the GodotEngine in NetworkLoop)
         internal static void NetworkLateUpdate()
         {
             // broadcast ClientToServer components while active
@@ -1511,7 +1511,7 @@ namespace Mirror
                 // NetworkTransform, so they can sync on same interval as time
                 // snapshots _but_ not every single tick.
                 //
-                // Unity 2019 doesn't have Time.timeAsDouble yet
+                // Godot 2019 doesn't have Time.timeAsDouble yet
                 if (!Application.isPlaying ||
                     AccurateInterval.Elapsed(NetworkTime.localTime, sendInterval, ref lastSendTime))
                 {

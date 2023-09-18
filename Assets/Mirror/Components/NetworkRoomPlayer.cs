@@ -1,4 +1,4 @@
-using UnityEngine;
+using GodotEngine;
 
 namespace Mirror
 {
@@ -36,7 +36,7 @@ namespace Mirror
         [SyncVar(hook = nameof(IndexChanged))]
         public int index;
 
-        #region Unity Callbacks
+        #region Godot Callbacks
 
         /// <summary>
         /// Do not use Start - Override OnStartHost / OnStartClient instead!

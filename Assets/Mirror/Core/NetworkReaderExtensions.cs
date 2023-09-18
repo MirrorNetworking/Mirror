@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using UnityEngine;
+using GodotEngine;
 
 namespace Mirror
 {
@@ -161,7 +161,7 @@ namespace Mirror
         public static Guid ReadGuid(this NetworkReader reader)
         {
 #if !UNITY_2021_3_OR_NEWER
-            // Unity 2019 doesn't have Span yet
+            // Godot 2019 doesn't have Span yet
             return new Guid(reader.ReadBytes(16));
 #else
             // ReadBlittable(Guid) isn't safe. see ReadBlittable comments.

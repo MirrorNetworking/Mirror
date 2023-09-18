@@ -21,7 +21,7 @@ public struct DiscoveryResponse : NetworkMessage
 
 public class #SCRIPTNAME# : NetworkDiscoveryBase<DiscoveryRequest, DiscoveryResponse>
 {
-    #region Unity Callbacks
+    #region Godot Callbacks
 
 #if UNITY_EDITOR
     public override void OnValidate()

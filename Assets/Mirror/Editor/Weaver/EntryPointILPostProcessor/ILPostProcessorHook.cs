@@ -1,20 +1,20 @@
-// hook via ILPostProcessor from Unity 2020.3+
+// hook via ILPostProcessor from Godot 2020.3+
 // (2020.1 has errors https://github.com/vis2k/Mirror/issues/2912)
 #if UNITY_2020_3_OR_NEWER
-// Unity.CompilationPipeline reference is only resolved if assembly name is
-// Unity.*.CodeGen:
-// https://forum.unity.com/threads/how-does-unity-do-codegen-and-why-cant-i-do-it-myself.853867/#post-5646937
+// Godot.CompilationPipeline reference is only resolved if assembly name is
+// Godot.*.CodeGen:
+// https://forum.godot.com/threads/how-does-godot-do-codegen-and-why-cant-i-do-it-myself.853867/#post-5646937
 using System.IO;
 using System.Linq;
 // to use Mono.CecilX here, we need to 'override references' in the
-// Unity.Mirror.CodeGen assembly definition file in the Editor, and add CecilX.
+// Godot.Mirror.CodeGen assembly definition file in the Editor, and add CecilX.
 // otherwise we get a reflection exception with 'file not found: CecilX'.
 using Mono.CecilX;
 using Mono.CecilX.Cil;
-using Unity.CompilationPipeline.Common.ILPostProcessing;
-// IMPORTANT: 'using UnityEngine' does not work in here.
-// Unity gives "(0,0): error System.Security.SecurityException: ECall methods must be packaged into a system module."
-//using UnityEngine;
+using Godot.CompilationPipeline.Common.ILPostProcessing;
+// IMPORTANT: 'using GodotEngine' does not work in here.
+// Godot gives "(0,0): error System.Security.SecurityException: ECall methods must be packaged into a system module."
+//using GodotEngine;
 
 namespace Mirror.Weaver
 {
@@ -23,10 +23,10 @@ namespace Mirror.Weaver
         // from CompilationFinishedHook
         const string MirrorRuntimeAssemblyName = "Mirror";
 
-        // ILPostProcessor is invoked by Unity.
+        // ILPostProcessor is invoked by Godot.
         // we can not tell it to ignore certain assemblies before processing.
         // add a 'ignore' define for convenience.
-        // => WeaverTests/WeaverAssembler need it to avoid Unity running it
+        // => WeaverTests/WeaverAssembler need it to avoid Godot running it
         public const string IgnoreDefine = "ILPP_IGNORE";
 
         // we can't use Debug.Log in ILPP, so we need a custom logger
@@ -46,7 +46,7 @@ namespace Mirror.Weaver
             // compiledAssembly.References are file paths:
             //   Library/Bee/artifacts/200b0aE.dag/Mirror.CompilerSymbols.dll
             //   Assets/Mirror/Plugins/Mono.Cecil/Mono.CecilX.dll
-            //   /Applications/Unity/Hub/Editor/2021.2.0b6_apple_silicon/Unity.app/Contents/NetStandard/ref/2.1.0/netstandard.dll
+            //   /Applications/Godot/Hub/Editor/2021.2.0b6_apple_silicon/Godot.app/Contents/NetStandard/ref/2.1.0/netstandard.dll
             //
             // log them to see:
             //     foreach (string reference in compiledAssembly.References)

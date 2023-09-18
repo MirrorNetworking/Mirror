@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+﻿using GodotEngine;
 
 namespace Mirror.Examples.AdditiveLevels
 {
@@ -8,7 +8,7 @@ namespace Mirror.Examples.AdditiveLevels
         [SyncVar(hook = nameof(SetColor))]
         public Color32 color = Color.black;
 
-        // Unity clones the material when GetComponent<Renderer>().material is called
+        // Godot clones the material when GetComponent<Renderer>().material is called
         // Cache it here and destroy it in OnDestroy to prevent a memory leak
         Material cachedMaterial;
 

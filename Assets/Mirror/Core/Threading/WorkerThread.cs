@@ -1,11 +1,11 @@
-// worker thread for Unity (mischa 2022)
-// thread with proper exception handling, profling, init, cleanup, etc. for Unity.
+// worker thread for Godot (mischa 2022)
+// thread with proper exception handling, profling, init, cleanup, etc. for Godot.
 // use this from main thread.
 using System;
 using System.Diagnostics;
 using System.Threading;
-using UnityEngine.Profiling;
-using Debug = UnityEngine.Debug;
+using GodotEngine.Profiling;
+using Debug = GodotEngine.Debug;
 
 namespace Mirror
 {
@@ -15,7 +15,7 @@ namespace Mirror
 
         protected volatile bool active;
 
-        // stopwatch so we don't need to use Unity's Time (engine independent)
+        // stopwatch so we don't need to use Godot's Time (engine independent)
         readonly Stopwatch watch = new Stopwatch();
 
         // callbacks need to be set after constructor.
@@ -96,7 +96,7 @@ namespace Mirror
         //
         // in other words, "while (true) {}" wouldn't throw an interrupt exception.
         // and that's _okay_. using interrupt is safe & best practice.
-        // => Unity still aborts deadlocked threads on script reload.
+        // => Godot still aborts deadlocked threads on script reload.
         // => and we catch + warn on AbortException.
         public void Interrupt() => thread.Interrupt();
 
@@ -109,7 +109,7 @@ namespace Mirror
 
         // guarded wrapper for thread code.
         // catches exceptions which would otherwise be silent.
-        // shows in Unity profiler.
+        // shows in Godot profiler.
         // etc.
         public void Guard(string identifier)
         {
@@ -119,7 +119,7 @@ namespace Mirror
                 // very important for debugging threads.
                 Debug.Log($"{identifier}: started.");
 
-                // show this thread in Unity profiler
+                // show this thread in Godot profiler
                 Profiler.BeginThreadProfiling("Mirror Worker Threads", $"{identifier}");
 
                 // run init once
@@ -136,7 +136,7 @@ namespace Mirror
             {
                 Debug.Log($"{identifier}: interrupted. That's okay.");
             }
-            // Unity domain reload will cause a ThreadAbortException.
+            // Godot domain reload will cause a ThreadAbortException.
             // for example, when saving a changed script while in play mode.
             catch (ThreadAbortException)
             {
@@ -152,7 +152,7 @@ namespace Mirror
                 active = false;
                 OnCleanup();
 
-                // remove this thread from Unity profiler
+                // remove this thread from Godot profiler
                 Profiler.EndThreadProfiling();
 
                 // log when work ends = thread terminates.

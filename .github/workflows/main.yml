@@ -20,20 +20,20 @@ on:
       - '*.ps1'
   
 jobs:
-  RunUnityTests:
-    name: Run Unity Tests
-    uses: ./.github/workflows/RunUnityTests.yml
+  RunGodotTests:
+    name: Run Godot Tests
+    uses: ./.github/workflows/RunGodotTests.yml
     secrets: inherit
 
   #SonarQube:
   #  name: SonarQube Analysis
-  #  needs: RunUnityTests
+  #  needs: RunGodotTests
   #  uses: ./.github/workflows/SonarQube.yml
   #  secrets: inherit
 
   Release:
     name: Semantic Release
     if: github.event_name == 'push'
-    needs: RunUnityTests
+    needs: RunGodotTests
     uses: ./.github/workflows/Semantic.yml
     secrets: inherit

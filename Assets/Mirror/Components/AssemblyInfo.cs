@@ -2,9 +2,9 @@ using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("Mirror.Tests.Common")]
 [assembly: InternalsVisibleTo("Mirror.Tests")]
-// need to use Unity.*.CodeGen assembly name to import Unity.CompilationPipeline
+// need to use Godot.*.CodeGen assembly name to import Godot.CompilationPipeline
 // for ILPostProcessor tests.
-[assembly: InternalsVisibleTo("Unity.Mirror.Tests.CodeGen")]
+[assembly: InternalsVisibleTo("Godot.Mirror.Tests.CodeGen")]
 [assembly: InternalsVisibleTo("Mirror.Tests.Generated")]
 [assembly: InternalsVisibleTo("Mirror.Tests.Runtime")]
 [assembly: InternalsVisibleTo("Mirror.Tests.Performance.Editor")]

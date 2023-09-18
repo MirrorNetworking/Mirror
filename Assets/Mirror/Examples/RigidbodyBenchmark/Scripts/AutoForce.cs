@@ -1,5 +1,5 @@
-using UnityEngine;
-using Random = UnityEngine.Random;
+using GodotEngine;
+using Random = GodotEngine.Random;
 
 namespace Mirror.Examples.RigidbodyBenchmark
 {

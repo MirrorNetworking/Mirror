@@ -1,7 +1,7 @@
 using System;
 using Mono.CecilX;
-using UnityEditor;
-using UnityEngine;
+using GodotEditor;
+using GodotEngine;
 
 namespace Mirror.Weaver
 {
@@ -125,15 +125,15 @@ namespace Mirror.Weaver
                 md => md.Name == "CreateInstance" && md.HasGenericParameters,
                 ref WeavingFailed);
 
-            TypeReference unityDebug = Import(typeof(UnityEngine.Debug));
+            TypeReference godotDebug = Import(typeof(GodotEngine.Debug));
             // these have multiple methods with same name, so need to check parameters too
-            logErrorReference = Resolvers.ResolveMethod(unityDebug, assembly, Log, md =>
+            logErrorReference = Resolvers.ResolveMethod(godotDebug, assembly, Log, md =>
                 md.Name == "LogError" &&
                 md.Parameters.Count == 1 &&
                 md.Parameters[0].ParameterType.FullName == typeof(object).FullName,
                 ref WeavingFailed);
 
-            logWarningReference = Resolvers.ResolveMethod(unityDebug, assembly, Log, md =>
+            logWarningReference = Resolvers.ResolveMethod(godotDebug, assembly, Log, md =>
                 md.Name == "LogWarning" &&
                 md.Parameters.Count == 1 &&
                 md.Parameters[0].ParameterType.FullName == typeof(object).FullName,
@@ -155,7 +155,7 @@ namespace Mirror.Weaver
             ref WeavingFailed);
 
             // [InitializeOnLoadMethod]
-            // 'UnityEditor' is not available in builds.
+            // 'GodotEditor' is not available in builds.
             // we can only import this attribute if we are in an Editor assembly.
             if (Helpers.IsEditorAssembly(assembly))
             {

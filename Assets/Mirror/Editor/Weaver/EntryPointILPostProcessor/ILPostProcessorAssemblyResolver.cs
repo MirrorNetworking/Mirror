@@ -19,7 +19,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using Mono.CecilX;
-using Unity.CompilationPipeline.Common.ILPostProcessing;
+using Godot.CompilationPipeline.Common.ILPostProcessing;
 
 namespace Mirror.Weaver
 {

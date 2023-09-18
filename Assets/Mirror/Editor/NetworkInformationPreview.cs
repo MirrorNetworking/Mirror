@@ -1,6 +1,6 @@
 using System.Collections.Generic;
-using UnityEditor;
-using UnityEngine;
+using GodotEditor;
+using GodotEngine;
 
 namespace Mirror
 {

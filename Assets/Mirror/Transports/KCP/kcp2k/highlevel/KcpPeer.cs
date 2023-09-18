@@ -56,7 +56,7 @@ namespace kcp2k
 
         // internal time.
         // StopWatch offers ElapsedMilliSeconds and should be more precise than
-        // Unity's time.deltaTime over long periods.
+        // Godot's time.deltaTime over long periods.
         readonly Stopwatch watch = new Stopwatch();
 
         // we need to subtract the channel and cookie bytes from every
@@ -609,7 +609,7 @@ namespace kcp2k
             if (segment.Count <= 5) return;
 
             // parse channel
-            // byte channel = segment[0]; ArraySegment[i] isn't supported in some older Unity Mono versions
+            // byte channel = segment[0]; ArraySegment[i] isn't supported in some older Godot Mono versions
             byte channel = segment.Array[segment.Offset + 0];
 
             // parse cookie

@@ -9,11 +9,11 @@ namespace Mirror.Weaver.Tests
         {
             // we need this negative test to make sure that SyncList is being processed
             HasError("Cannot generate reader for Object. Use a supported type or provide a custom reader",
-                "UnityEngine.Object");
+                "GodotEngine.Object");
             HasError("target has an unsupported type",
-                "UnityEngine.Object WeaverSyncListTests.SyncListNestedInAbstractClassWithInvalid.SyncListNestedStructWithInvalid/SomeAbstractClass/MyNestedStruct::target");
+                "GodotEngine.Object WeaverSyncListTests.SyncListNestedInAbstractClassWithInvalid.SyncListNestedStructWithInvalid/SomeAbstractClass/MyNestedStruct::target");
             HasError("Cannot generate writer for Object. Use a supported type or provide a custom writer",
-                "UnityEngine.Object");
+                "GodotEngine.Object");
         }
 
         [Test]
@@ -21,11 +21,11 @@ namespace Mirror.Weaver.Tests
         {
             // we need this negative test to make sure that SyncList is being processed
             HasError("Cannot generate reader for Object. Use a supported type or provide a custom reader",
-                "UnityEngine.Object");
+                "GodotEngine.Object");
             HasError("target has an unsupported type",
-                "UnityEngine.Object WeaverSyncListTests.SyncListNestedInStructWithInvalid.SyncListNestedInStructWithInvalid/SomeData::target");
+                "GodotEngine.Object WeaverSyncListTests.SyncListNestedInStructWithInvalid.SyncListNestedInStructWithInvalid/SomeData::target");
             HasError("Cannot generate writer for Object. Use a supported type or provide a custom writer",
-                "UnityEngine.Object");
+                "GodotEngine.Object");
         }
 
         [Test]

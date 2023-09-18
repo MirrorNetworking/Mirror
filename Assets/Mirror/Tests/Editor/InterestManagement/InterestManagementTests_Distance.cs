@@ -1,6 +1,6 @@
 // Vector3.Distance based
 using NUnit.Framework;
-using UnityEngine;
+using GodotEngine;
 
 namespace Mirror.Tests.InterestManagement
 {

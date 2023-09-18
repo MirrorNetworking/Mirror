@@ -1,18 +1,18 @@
 using System.Collections;
 using NUnit.Framework;
-using UnityEditor;
-using UnityEngine;
-using UnityEngine.TestTools;
+using GodotEditor;
+using GodotEngine;
+using GodotEngine.TestTools;
 
 namespace Mirror.Tests.Runtime
 {
     [TestFixture]
     public class NetworkServerRuntimeTest : MirrorPlayModeTest
     {
-        [UnitySetUp]
-        public override IEnumerator UnitySetUp()
+        [GodotSetUp]
+        public override IEnumerator GodotSetUp()
         {
-            yield return base.UnitySetUp();
+            yield return base.GodotSetUp();
 
             // start server & client and wait 1 frame
             NetworkServer.Listen(1);
@@ -20,7 +20,7 @@ namespace Mirror.Tests.Runtime
             yield return null;
         }
 
-        [UnityTest]
+        [GodotTest]
         public IEnumerator DestroyPlayerForConnectionTest()
         {
             // create spawned player
@@ -33,7 +33,7 @@ namespace Mirror.Tests.Runtime
             Assert.That(player == null, "Player should be destroyed with DestroyPlayerForConnection");
         }
 
-        [UnityTest]
+        [GodotTest]
         public IEnumerator RemovePlayerForConnectionTest()
         {
             // create spawned player
@@ -51,7 +51,7 @@ namespace Mirror.Tests.Runtime
             Assert.That(NetworkServer.localConnection.identity != null, "identity should not be null");
         }
 
-        [UnityTest]
+        [GodotTest]
         public IEnumerator Shutdown_DestroysAllSpawnedPrefabs()
         {
             // setup
@@ -63,7 +63,7 @@ namespace Mirror.Tests.Runtime
             NetworkIdentity identity1 = SpawnPrefab(prefab);
             NetworkIdentity identity2 = SpawnPrefab(prefab);
 
-            // shutdown, wait 1 frame for unity to destroy objects
+            // shutdown, wait 1 frame for godot to destroy objects
             NetworkServer.Shutdown();
             yield return null;
 
@@ -84,7 +84,7 @@ namespace Mirror.Tests.Runtime
             return identity1;
         }
 
-        [UnityTest]
+        [GodotTest]
         public IEnumerator DisconnectTimeoutTest()
         {
             // Set low ping frequency so no NetworkPingMessage is generated

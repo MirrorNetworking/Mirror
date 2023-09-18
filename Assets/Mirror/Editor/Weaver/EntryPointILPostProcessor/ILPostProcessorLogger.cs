@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using Mono.CecilX;
-using Unity.CompilationPipeline.Common.Diagnostics;
+using Godot.CompilationPipeline.Common.Diagnostics;
 
 namespace Mirror.Weaver
 {
@@ -27,7 +27,7 @@ namespace Mirror.Weaver
             // DiagnosticMessage can't display \n for some reason.
             // it just cuts it off and we don't see any stack trace.
             // so let's replace all line breaks so we get the stack trace.
-            // (Unity 2021.2.0b6 apple silicon)
+            // (Godot 2021.2.0b6 apple silicon)
             //message = message.Replace("\n", "/");
 
             // lets break it into several messages instead so it's easier readable

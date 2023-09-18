@@ -1,6 +1,6 @@
 using System;
 using Mirror;
-using UnityEngine;
+using GodotEngine;
 
 namespace WeaverMessageTests.MessageSelfReferencing
 {

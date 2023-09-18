@@ -86,9 +86,9 @@ namespace Telepathy
                 listener = TcpListener.Create(port);
                 listener.Server.NoDelay = NoDelay;
                 // IMPORTANT: do not set send/receive timeouts on listener.
-                // On linux setting the recv timeout will cause the blocking 
-                // Accept call to timeout with EACCEPT (which mono interprets 
-                // as EWOULDBLOCK). 
+                // On linux setting the recv timeout will cause the blocking
+                // Accept call to timeout with EACCEPT (which mono interprets
+                // as EWOULDBLOCK).
                 // https://stackoverflow.com/questions/1917814/eagain-error-for-accept-on-blocking-socket/1918118#1918118
                 // => fixes https://github.com/vis2k/Mirror/issues/2695
                 //
@@ -181,7 +181,7 @@ namespace Telepathy
             }
             catch (ThreadAbortException exception)
             {
-                // UnityEditor causes AbortException if thread is still
+                // GodotEditor causes AbortException if thread is still
                 // running when we press Play again next time. that's okay.
                 Log.Info("[Telepathy] Server thread aborted. That's okay. " + exception);
             }

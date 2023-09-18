@@ -1,7 +1,7 @@
 using System.Collections;
 using NUnit.Framework;
-using UnityEngine;
-using UnityEngine.TestTools;
+using GodotEngine;
+using GodotEngine.TestTools;
 
 namespace Mirror.Tests.Runtime
 {
@@ -10,16 +10,16 @@ namespace Mirror.Tests.Runtime
         GameObject gameObject;
         NetworkIdentity identity;
 
-        [UnitySetUp]
-        public override IEnumerator UnitySetUp()
+        [GodotSetUp]
+        public override IEnumerator GodotSetUp()
         {
-            yield return base.UnitySetUp();
+            yield return base.GodotSetUp();
             CreateNetworked(out gameObject, out identity);
             yield return null;
         }
 
         // prevents https://github.com/vis2k/Mirror/issues/1484
-        [UnityTest]
+        [GodotTest]
         public IEnumerator OnDestroyIsServerTrue()
         {
             // call OnStartServer so that isServer is true
@@ -39,7 +39,7 @@ namespace Mirror.Tests.Runtime
             Assert.That(identity == null, Is.True);
         }
 
-        [UnityTest]
+        [GodotTest]
         public IEnumerator OnDestroyIsServerTrueWhenNetworkServerDestroyIsCalled()
         {
             // call OnStartServer so that isServer is true
@@ -60,7 +60,7 @@ namespace Mirror.Tests.Runtime
         // imer: There's currently an issue with dropped/skipped serializations
         // once a server has been running for around a week, this test should
         // highlight the potential cause
-        [UnityTest]
+        [GodotTest]
         public IEnumerator TestSerializationWithLargeTimestamps()
         {
             // 14 * 24 hours per day * 60 minutes per hour * 60 seconds per minute = 14 days

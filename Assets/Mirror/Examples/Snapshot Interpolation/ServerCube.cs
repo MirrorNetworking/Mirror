@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using UnityEngine;
+using GodotEngine;
 
 namespace Mirror.Examples.SnapshotInterpolationDemo
 {
@@ -30,7 +30,7 @@ namespace Mirror.Examples.SnapshotInterpolationDemo
         [Range(0, 1)] public float scramble = 0.1f;
 
         // random
-        // UnityEngine.Random.value is [0, 1] with both upper and lower bounds inclusive
+        // GodotEngine.Random.value is [0, 1] with both upper and lower bounds inclusive
         // but we need the upper bound to be exclusive, so using System.Random instead.
         // => NextDouble() is NEVER < 0 so loss=0 never drops!
         // => NextDouble() is ALWAYS < 1 so loss=1 always drops!
@@ -68,7 +68,7 @@ namespace Mirror.Examples.SnapshotInterpolationDemo
         void Send(Vector3 position)
         {
             // create snapshot
-            // Unity 2019 doesn't have Time.timeAsDouble yet
+            // Godot 2019 doesn't have Time.timeAsDouble yet
             Snapshot3D snap = new Snapshot3D(NetworkTime.localTime, 0, position);
 
             // simulate packet loss
@@ -82,7 +82,7 @@ namespace Mirror.Examples.SnapshotInterpolationDemo
 
                 // simulate latency
                 float simulatedLatency = SimulateLatency();
-                // Unity 2019 doesn't have Time.timeAsDouble yet
+                // Godot 2019 doesn't have Time.timeAsDouble yet
                 double deliveryTime = NetworkTime.localTime + simulatedLatency;
                 queue.Insert(index, (deliveryTime, snap));
             }
@@ -95,7 +95,7 @@ namespace Mirror.Examples.SnapshotInterpolationDemo
             {
                 (double deliveryTime, Snapshot3D snap) = queue[i];
 
-                // Unity 2019 doesn't have Time.timeAsDouble yet
+                // Godot 2019 doesn't have Time.timeAsDouble yet
                 if (NetworkTime.localTime >= deliveryTime)
                 {
                     client.OnMessage(snap);

@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using UnityEngine;
+using GodotEngine;
 
 namespace Mirror
 {
@@ -153,7 +153,7 @@ namespace Mirror
         internal virtual void Update()
         {
             // go through batches for all channels
-            // foreach ((int key, Batcher batcher) in batches) // Unity 2020 doesn't support deconstruct yet
+            // foreach ((int key, Batcher batcher) in batches) // Godot 2020 doesn't support deconstruct yet
             foreach (KeyValuePair<int, Batcher> kvp in batches)
             {
                 // make and send as many batches as necessary from the stored
@@ -169,7 +169,7 @@ namespace Mirror
 
                         // send to transport
                         SendToTransport(segment, kvp.Key);
-                        //UnityEngine.Debug.Log($"sending batch of {writer.Position} bytes for channel={kvp.Key} connId={connectionId}");
+                        //GodotEngine.Debug.Log($"sending batch of {writer.Position} bytes for channel={kvp.Key} connId={connectionId}");
 
                         // reset writer for each new batch
                         writer.Position = 0;

@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.Serialization;
-using Random = UnityEngine.Random;
+using GodotEngine;
+using GodotEngine.Serialization;
+using Random = GodotEngine.Random;
 
 namespace Mirror.Examples.LagCompensationDemo
 {
@@ -52,7 +52,7 @@ namespace Mirror.Examples.LagCompensationDemo
         [Range(0, 1)] public float scramble = 0.1f;
 
         // random
-        // UnityEngine.Random.value is [0, 1] with both upper and lower bounds inclusive
+        // GodotEngine.Random.value is [0, 1] with both upper and lower bounds inclusive
         // but we need the upper bound to be exclusive, so using System.Random instead.
         // => NextDouble() is NEVER < 0 so loss=0 never drops!
         // => NextDouble() is ALWAYS < 1 so loss=1 always drops!
@@ -91,7 +91,7 @@ namespace Mirror.Examples.LagCompensationDemo
             Flush();
 
             // capture lag compensation snapshots every interval.
-            // NetworkTime.localTime because Unity 2019 doesn't have 'double' time yet.
+            // NetworkTime.localTime because Godot 2019 doesn't have 'double' time yet.
             if (NetworkTime.localTime >= lastCaptureTime + lagCompensationSettings.captureInterval)
             {
                 lastCaptureTime = NetworkTime.localTime;
@@ -102,7 +102,7 @@ namespace Mirror.Examples.LagCompensationDemo
         void Send(Vector3 position)
         {
             // create snapshot
-            // Unity 2019 doesn't have Time.timeAsDouble yet
+            // Godot 2019 doesn't have Time.timeAsDouble yet
             Snapshot3D snap = new Snapshot3D(NetworkTime.localTime, 0, position);
 
             // simulate packet loss
@@ -116,7 +116,7 @@ namespace Mirror.Examples.LagCompensationDemo
 
                 // simulate latency
                 float simulatedLatency = SimulateLatency();
-                // Unity 2019 doesn't have Time.timeAsDouble yet
+                // Godot 2019 doesn't have Time.timeAsDouble yet
                 double deliveryTime = NetworkTime.localTime + simulatedLatency;
                 queue.Insert(index, (deliveryTime, snap));
             }
@@ -129,7 +129,7 @@ namespace Mirror.Examples.LagCompensationDemo
             {
                 (double deliveryTime, Snapshot3D snap) = queue[i];
 
-                // Unity 2019 doesn't have Time.timeAsDouble yet
+                // Godot 2019 doesn't have Time.timeAsDouble yet
                 if (NetworkTime.localTime >= deliveryTime)
                 {
                     client.OnMessage(snap);

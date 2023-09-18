@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
+using GodotEngine;
+using GodotEngine.UI;
 using Mirror;
 
 
@@ -9,11 +9,11 @@ public class CanvasNetworkManagerHUD : MonoBehaviour
 {
     [SerializeField] private GameObject startButtonsGroup;
     [SerializeField] private GameObject statusLabelsGroup;
-    
+
     [SerializeField] private Button startHostButton;
     [SerializeField] private Button startServerOnlyButton;
     [SerializeField] private Button startClientButton;
-    
+
     [SerializeField] private Button mainStopButton;
     [SerializeField] private Text mainStopButtonText;
     [SerializeField] private Button secondaryStopButton;
@@ -27,9 +27,9 @@ public class CanvasNetworkManagerHUD : MonoBehaviour
         inputNetworkAddress.text = NetworkManager.singleton.networkAddress;
 
         RegisterListeners();
-        
+
         //RegisterClientEvents();
-        
+
         CheckWebGLPlayer();
     }
 
@@ -44,7 +44,7 @@ public class CanvasNetworkManagerHUD : MonoBehaviour
 
         // Add input field listener to update NetworkManager's Network Address
         // when changed.
-        inputNetworkAddress.onValueChanged.AddListener(delegate { OnNetworkAddressChange(); });        
+        inputNetworkAddress.onValueChanged.AddListener(delegate { OnNetworkAddressChange(); });
     }
 
     // Not working at the moment. Can't register events.
@@ -79,13 +79,13 @@ public class CanvasNetworkManagerHUD : MonoBehaviour
     private void StartButtons()
     {
         if (!NetworkClient.active)
-        {   
-            statusLabelsGroup.SetActive(false); 
+        {
+            statusLabelsGroup.SetActive(false);
             startButtonsGroup.SetActive(true);
         }
         else
         {
-            ShowConnectingStatus();    
+            ShowConnectingStatus();
         }
     }
 
@@ -98,7 +98,7 @@ public class CanvasNetworkManagerHUD : MonoBehaviour
         if (NetworkServer.active && NetworkClient.active)
         {
             statusText.text = $"<b>Host</b>: running via {Transport.active}";
-            
+
             mainStopButtonText.text = "Stop Client";
         }
         // Server only
@@ -114,7 +114,7 @@ public class CanvasNetworkManagerHUD : MonoBehaviour
             statusText.text =$"<b>Client</b>: connected to {NetworkManager.singleton.networkAddress} via {Transport.active}";
 
             mainStopButtonText.text = "Stop Client";
-        }        
+        }
 
         // Note secondary button is only used to Stop Host, and is only needed in host mode.
         secondaryStopButton.gameObject.SetActive(NetworkServer.active && NetworkClient.active);
@@ -152,7 +152,7 @@ public class CanvasNetworkManagerHUD : MonoBehaviour
         if (NetworkClient.active)
         {
             NetworkManager.singleton.StopClient();
-        } 
+        }
         else
         {
             NetworkManager.singleton.StopServer();
@@ -169,7 +169,7 @@ public class CanvasNetworkManagerHUD : MonoBehaviour
         NetworkManager.singleton.networkAddress = inputNetworkAddress.text;
     }
 
-    private void Update() 
+    private void Update()
     {
         RefreshHUD();
     }

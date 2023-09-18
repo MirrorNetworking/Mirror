@@ -4,7 +4,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
-using UnityEditor;
+using GodotEditor;
 
 namespace Mirror
 {
@@ -24,10 +24,10 @@ namespace Mirror
 
     public class SyncObjectCollectionsDrawer
     {
-        readonly UnityEngine.Object targetObject;
+        readonly GodotEngine.Object targetObject;
         readonly List<SyncObjectCollectionField> syncObjectCollectionFields;
 
-        public SyncObjectCollectionsDrawer(UnityEngine.Object targetObject)
+        public SyncObjectCollectionsDrawer(GodotEngine.Object targetObject)
         {
             this.targetObject = targetObject;
             syncObjectCollectionFields = new List<SyncObjectCollectionField>();

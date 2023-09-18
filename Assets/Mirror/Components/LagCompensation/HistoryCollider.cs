@@ -1,6 +1,6 @@
 // Applies HistoryBounds to the physics world by projecting to a trigger Collider.
 // This way we can use Physics.Raycast on it.
-using UnityEngine;
+using GodotEngine;
 
 namespace Mirror
 {
@@ -72,7 +72,7 @@ namespace Mirror
             // grab total collider encapsulating all of history
             Bounds total = history.total;
 
-            // don't assign empty bounds, this will throw a Unity warning
+            // don't assign empty bounds, this will throw a Godot warning
             if (history.boundsCount == 0) return;
 
             // scale projection doesn't work yet.

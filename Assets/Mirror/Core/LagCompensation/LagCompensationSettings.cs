@@ -1,7 +1,7 @@
 // snapshot interpolation settings struct.
-// can easily be exposed in Unity inspectors.
+// can easily be exposed in Godot inspectors.
 using System;
-using UnityEngine;
+using GodotEngine;
 
 namespace Mirror
 {

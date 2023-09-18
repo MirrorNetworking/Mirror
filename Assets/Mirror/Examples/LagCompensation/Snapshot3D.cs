@@ -1,5 +1,5 @@
 // a simple snapshot with timestamp & interpolation
-using UnityEngine;
+using GodotEngine;
 
 namespace Mirror.Examples.LagCompensationDemo
 {

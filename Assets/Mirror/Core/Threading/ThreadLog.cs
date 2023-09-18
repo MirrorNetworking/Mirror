@@ -6,7 +6,7 @@
 // need to hook into logMessageReceivedThreaded to receive them in builds too.
 using System.Collections.Concurrent;
 using System.Threading;
-using UnityEngine;
+using GodotEngine;
 
 namespace Mirror
 {
@@ -38,7 +38,7 @@ namespace Mirror
         static int mainThreadId;
 
 #if !UNITY_EDITOR
-        // Editor as of Unity 2021 does log threaded messages.
+        // Editor as of Godot 2021 does log threaded messages.
         // only builds don't.
         // do nothing in editor, otherwise we would log twice.
         // before scene load ensures thread logs are all caught.

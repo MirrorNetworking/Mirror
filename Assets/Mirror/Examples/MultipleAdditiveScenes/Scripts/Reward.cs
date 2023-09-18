@@ -1,4 +1,4 @@
-using UnityEngine;
+using GodotEngine;
 
 namespace Mirror.Examples.MultipleAdditiveScenes
 {
@@ -37,7 +37,7 @@ namespace Mirror.Examples.MultipleAdditiveScenes
                 Color32 color = randomColor.color;
 
                 // calculate the points from the color ... lighter scores higher as the average approaches 255
-                // UnityEngine.Color RGB values are float fractions of 255
+                // GodotEngine.Color RGB values are float fractions of 255
                 uint points = (uint)(((color.r) + (color.g) + (color.b)) / 3);
 
                 // award the points via SyncVar on the PlayerController

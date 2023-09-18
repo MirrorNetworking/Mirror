@@ -25,17 +25,17 @@ jobs:
         with:
           dotnet-version: '3.1.100'
   
-      # Installs nuget package from https://www.nuget.org/packages/unity-packer
-      - name: Install unity-packer
-        run: dotnet tool install -g unity-packer
+      # Installs nuget package from https://www.nuget.org/packages/godot-packer
+      - name: Install godot-packer
+        run: dotnet tool install -g godot-packer
   
       - name: Package
-        run: unity-packer pack Mirror.unitypackage Assets/Mirror Assets/Mirror Assets/ScriptTemplates Assets/ScriptTemplates LICENSE Assets/Mirror/LICENSE
+        run: godot-packer pack Mirror.godotpackage Assets/Mirror Assets/Mirror Assets/ScriptTemplates Assets/ScriptTemplates LICENSE Assets/Mirror/LICENSE
 
       - uses: actions/upload-artifact@v3
         with:
-          name: Mirror.unitypackage
-          path: Mirror.unitypackage
+          name: Mirror.godotpackage
+          path: Mirror.godotpackage
 
       - name: Release
         uses: cycjimmy/semantic-release-action@v3

@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using UnityEngine;
+using GodotEngine;
 
 namespace Mirror
 {
@@ -197,7 +197,7 @@ namespace Mirror
         public static void WriteGuid(this NetworkWriter writer, Guid value)
         {
 #if !UNITY_2021_3_OR_NEWER
-            // Unity 2019 doesn't have Span yet
+            // Godot 2019 doesn't have Span yet
             byte[] data = value.ToByteArray();
             writer.WriteBytes(data, 0, data.Length);
 #else

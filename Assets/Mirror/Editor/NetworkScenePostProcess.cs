@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
-using UnityEditor;
-using UnityEditor.Callbacks;
-using UnityEngine;
+using GodotEditor;
+using GodotEditor.Callbacks;
+using GodotEngine;
 
 namespace Mirror
 {
@@ -21,7 +21,7 @@ namespace Mirror
             //    in the FindObjectsOfType result with scene=DontDestroyOnLoad
             //    for some reason
             // => OfTypeAll so disabled objects are included too
-            // => Unity 2019 returns prefabs here too, so filter them out.
+            // => Godot 2019 returns prefabs here too, so filter them out.
             IEnumerable<NetworkIdentity> identities = Resources.FindObjectsOfTypeAll<NetworkIdentity>()
                 .Where(identity => identity.gameObject.hideFlags != HideFlags.NotEditable &&
                                    identity.gameObject.hideFlags != HideFlags.HideAndDontSave &&

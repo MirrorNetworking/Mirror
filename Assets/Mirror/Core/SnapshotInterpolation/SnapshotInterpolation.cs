@@ -1,6 +1,6 @@
 // snapshot interpolation V2 by mischa
 //
-// Unity independent to be engine agnostic & easy to test.
+// Godot independent to be engine agnostic & easy to test.
 // boxing: in C#, uses <T> does not box! passing the interface would box!
 //
 // credits:
@@ -29,7 +29,7 @@ namespace Mirror
     {
         // calculate timescale for catch-up / slow-down
         // note that negative threshold should be <0.
-        //   caller should verify (i.e. Unity OnValidate).
+        //   caller should verify (i.e. Godot OnValidate).
         //   improves branch prediction.
         public static double Timescale(
             double drift,                    // how far we are off from bufferTime
@@ -80,7 +80,7 @@ namespace Mirror
 
             // add the tolerance
             double safezone = multiples + dynamicAdjustmentTolerance;
-            // UnityEngine.Debug.Log($"sendInterval={sendInterval:F3} jitter std={jitterStandardDeviation:F3} => that is ~{multiples:F1} x sendInterval + {dynamicAdjustmentTolerance} => dynamic bufferTimeMultiplier={safezone}");
+            // GodotEngine.Debug.Log($"sendInterval={sendInterval:F3} jitter std={jitterStandardDeviation:F3} => that is ~{multiples:F1} x sendInterval + {dynamicAdjustmentTolerance} => dynamic bufferTimeMultiplier={safezone}");
             return safezone;
         }
 
@@ -254,7 +254,7 @@ namespace Mirror
                 localTimescale = Timescale(drift, catchupSpeed, slowdownSpeed, absoluteNegativeThreshold, absolutePositiveThreshold);
 
                 // debug logging
-                // UnityEngine.Debug.Log($"sendInterval={sendInterval:F3} bufferTime={bufferTime:F3} drift={drift:F3} driftEma={driftEma.Value:F3} timescale={localTimescale:F3} deliveryIntervalEma={deliveryTimeEma.Value:F3}");
+                // GodotEngine.Debug.Log($"sendInterval={sendInterval:F3} bufferTime={bufferTime:F3} drift={drift:F3} driftEma={driftEma.Value:F3} timescale={localTimescale:F3} deliveryIntervalEma={deliveryTimeEma.Value:F3}");
             }
         }
 

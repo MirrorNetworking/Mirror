@@ -2,16 +2,16 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Mirror.RemoteCalls;
-using UnityEngine;
-using UnityEngine.Serialization;
+using GodotEngine;
+using GodotEngine.Serialization;
 
 #if UNITY_EDITOR
-using UnityEditor;
+using GodotEditor;
 
 #if UNITY_2021_2_OR_NEWER
-using UnityEditor.SceneManagement;
+using GodotEditor.SceneManagement;
 #else
-using UnityEditor.Experimental.SceneManagement;
+using GodotEditor.Experimental.SceneManagement;
 #endif
 #endif
 
@@ -118,7 +118,7 @@ namespace Mirror
         [SerializeField, HideInInspector] uint _assetId;
 
         // The AssetId trick:
-        //   Ideally we would have a serialized 'Guid m_AssetId' but Unity can't
+        //   Ideally we would have a serialized 'Guid m_AssetId' but Godot can't
         //   serialize it because Guid's internal bytes are private
         //
         //   Using just the Guid string would work, but it's 32 chars long and
@@ -223,7 +223,7 @@ namespace Mirror
         // Helper function to handle Command/Rpc
         internal void HandleRemoteCall(byte componentIndex, ushort functionHash, RemoteCallType remoteCallType, NetworkReader reader, NetworkConnectionToClient senderConnection = null)
         {
-            // check if unity object has been destroyed
+            // check if godot object has been destroyed
             if (this == null)
             {
                 Debug.LogWarning($"{remoteCallType} [{functionHash}] received for deleted object [netId={netId}]");
@@ -294,7 +294,7 @@ namespace Mirror
         {
             // Get all NetworkBehaviour components, including children.
             // Some users need NetworkTransform on child bones, etc.
-            // => Deterministic: https://forum.unity.com/threads/getcomponentsinchildren.4582/#post-33983
+            // => Deterministic: https://forum.godot.com/threads/getcomponentsinchildren.4582/#post-33983
             // => Never null. GetComponents returns [] if none found.
             // => Include inactive. We need all child components.
             NetworkBehaviours = GetComponentsInChildren<NetworkBehaviour>(true);
@@ -406,7 +406,7 @@ namespace Mirror
         void AssignAssetID(GameObject prefab) => AssignAssetID(AssetDatabase.GetAssetPath(prefab));
 
         // persistent sceneId assignment
-        // (because scene objects have no persistent unique ID in Unity)
+        // (because scene objects have no persistent unique ID in Godot)
         //
         // original UNET used OnPostProcessScene to assign an index based on
         // FindObjectOfType<NetworkIdentity> order.
@@ -515,11 +515,11 @@ namespace Mirror
         public void SetSceneIdSceneHashPartInternal()
         {
             // Use `ToLower` to that because BuildPipeline.BuildPlayer is case insensitive but hash is case sensitive
-            // If the scene in the project is `forest.unity` but `Forest.unity` is given to BuildPipeline then the
-            // BuildPipeline will use `Forest.unity` for the build and create a different hash than the editor will.
+            // If the scene in the project is `forest.godot` but `Forest.godot` is given to BuildPipeline then the
+            // BuildPipeline will use `Forest.godot` for the build and create a different hash than the editor will.
             // Using ToLower will mean the hash will be the same for these 2 paths
-            // Assets/Scenes/Forest.unity
-            // Assets/Scenes/forest.unity
+            // Assets/Scenes/Forest.godot
+            // Assets/Scenes/forest.godot
             string scenePath = gameObject.scene.path.ToLower();
 
             // get deterministic scene hash
@@ -554,7 +554,7 @@ namespace Mirror
             //    stage, do not bother with anything else ever!
             else if (PrefabStageUtility.GetCurrentPrefabStage() != null)
             {
-                // when modifying a prefab in prefab stage, Unity calls
+                // when modifying a prefab in prefab stage, Godot calls
                 // OnValidate for that prefab and for all scene objects based on
                 // that prefab.
                 //
@@ -610,7 +610,7 @@ namespace Mirror
         // OnDestroy is called for all SPAWNED NetworkIdentities
         // => scene objects aren't destroyed. it's not called for them.
         //
-        // Note: Unity will Destroy all networked objects on Scene Change, so we
+        // Note: Godot will Destroy all networked objects on Scene Change, so we
         // have to handle that here silently. That means we cannot have any
         // warning or logging in this method.
         void OnDestroy()
@@ -678,7 +678,7 @@ namespace Mirror
                 // an exception in OnStartServer should be caught, so that one
                 // component's exception doesn't stop all other components from
                 // being initialized
-                // => this is what Unity does for Start() etc. too.
+                // => this is what Godot does for Start() etc. too.
                 //    one exception doesn't stop all the other Start() calls!
                 try
                 {
@@ -698,7 +698,7 @@ namespace Mirror
                 // an exception in OnStartServer should be caught, so that one
                 // component's exception doesn't stop all other components from
                 // being initialized
-                // => this is what Unity does for Start() etc. too.
+                // => this is what Godot does for Start() etc. too.
                 //    one exception doesn't stop all the other Start() calls!
                 try
                 {
@@ -724,7 +724,7 @@ namespace Mirror
                 // an exception in OnStartClient should be caught, so that one
                 // component's exception doesn't stop all other components from
                 // being initialized
-                // => this is what Unity does for Start() etc. too.
+                // => this is what Godot does for Start() etc. too.
                 //    one exception doesn't stop all the other Start() calls!
                 try
                 {
@@ -749,7 +749,7 @@ namespace Mirror
                 // an exception in OnStopClient should be caught, so that
                 // one component's exception doesn't stop all other components
                 // from being initialized
-                // => this is what Unity does for Start() etc. too.
+                // => this is what Godot does for Start() etc. too.
                 //    one exception doesn't stop all the other Start() calls!
                 try
                 {
@@ -794,7 +794,7 @@ namespace Mirror
                 // an exception in OnStartLocalPlayer should be caught, so that
                 // one component's exception doesn't stop all other components
                 // from being initialized
-                // => this is what Unity does for Start() etc. too.
+                // => this is what Godot does for Start() etc. too.
                 //    one exception doesn't stop all the other Start() calls!
                 try
                 {
@@ -814,7 +814,7 @@ namespace Mirror
                 // an exception in OnStopLocalPlayer should be caught, so that
                 // one component's exception doesn't stop all other components
                 // from being initialized
-                // => this is what Unity does for Start() etc. too.
+                // => this is what Godot does for Start() etc. too.
                 //    one exception doesn't stop all the other Start() calls!
                 try
                 {
@@ -1338,7 +1338,7 @@ namespace Mirror
                 // an exception in OnStartAuthority should be caught, so that one
                 // component's exception doesn't stop all other components from
                 // being initialized
-                // => this is what Unity does for Start() etc. too.
+                // => this is what Godot does for Start() etc. too.
                 //    one exception doesn't stop all the other Start() calls!
                 try
                 {
@@ -1358,7 +1358,7 @@ namespace Mirror
                 // an exception in OnStopAuthority should be caught, so that one
                 // component's exception doesn't stop all other components from
                 // being initialized
-                // => this is what Unity does for Start() etc. too.
+                // => this is what Godot does for Start() etc. too.
                 //    one exception doesn't stop all the other Start() calls!
                 try
                 {

@@ -1,5 +1,5 @@
-﻿using UnityEngine;
-using UnityEngine.SceneManagement;
+﻿using GodotEngine;
+using GodotEngine.SceneManagement;
 
 // This sets up the scene camera for the local player
 

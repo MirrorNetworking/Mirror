@@ -1,4 +1,4 @@
-using UnityEngine;
+using GodotEngine;
 using Mirror;
 
 namespace Mirror.Examples.CharacterSelection
@@ -19,7 +19,7 @@ namespace Mirror.Examples.CharacterSelection
             //Debug.Log("HookSetName");
             AssignName();
         }
-        
+
         [SyncVar(hook = nameof(HookSetColor))]
         public Color characterColour;
         private Material cachedMaterial;

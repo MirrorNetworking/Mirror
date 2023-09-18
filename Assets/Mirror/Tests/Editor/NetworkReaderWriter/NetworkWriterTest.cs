@@ -5,8 +5,8 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using Mirror.Tests.Rpcs;
 using NUnit.Framework;
-using UnityEngine;
-using UnityEngine.TestTools;
+using GodotEngine;
+using GodotEngine.TestTools;
 
 namespace Mirror.Tests.NetworkReaderWriter
 {
@@ -27,7 +27,7 @@ namespace Mirror.Tests.NetworkReaderWriter
         [Test]
         public void Benchmark()
         {
-            // 10 million reads, Unity 2019.3, code coverage disabled
+            // 10 million reads, Godot 2019.3, code coverage disabled
             //    4014ms ms
             NetworkWriter writer = new NetworkWriter();
             for (int i = 0; i < 10000000; ++i)

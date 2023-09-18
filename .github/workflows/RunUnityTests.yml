@@ -1,16 +1,16 @@
-name: Run Unity Tests
+name: Run Godot Tests
 
 on:
   workflow_dispatch:
   workflow_call:
 
 jobs:
-  RunUnityTests:
-    name: Run Unity Tests
+  RunGodotTests:
+    name: Run Godot Tests
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        unityVersion:
+        godotVersion:
           - 2019.4.40f1
           - 2020.3.48f1
           - 2021.3.27f1
@@ -28,12 +28,12 @@ jobs:
       #  uses: actions/cache@v3
       #  with:
       #    path: Library
-      #    key: Library-${{ matrix.unityVersion }}
+      #    key: Library-${{ matrix.godotVersion }}
 
       - name: Run editor Tests
-        uses: game-ci/unity-test-runner@main
+        uses: game-ci/godot-test-runner@main
 
-        # We can use the same license for all Unity versions
+        # We can use the same license for all Godot versions
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
 
@@ -43,18 +43,18 @@ jobs:
         with:
           projectPath: ./
           testMode: editmode
-          unityVersion: ${{ matrix.unityVersion }}
+          godotVersion: ${{ matrix.godotVersion }}
           customParameters: -stackTraceLogType None
         
       - name: Archive test results
         uses: actions/upload-artifact@v3
         with:
-          name: Test Results ${{ matrix.unityVersion }}
+          name: Test Results ${{ matrix.godotVersion }}
           path: artifacts
 
       - name: Publish test results
         uses: MirrorNetworking/nunit-reporter@master
         with:
-          reportTitle: Test Report ${{ matrix.unityVersion }}
+          reportTitle: Test Report ${{ matrix.godotVersion }}
           path: "artifacts/*.xml"
           access-token: ${{ secrets.GITHUB_TOKEN }}

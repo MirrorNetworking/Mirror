@@ -7,7 +7,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
 using System.Threading;
-using UnityEngine;
+using GodotEngine;
 
 namespace Mirror
 {
@@ -167,7 +167,7 @@ namespace Mirror
             int? connectionId) =>
             threadQueue.Enqueue(new ThreadEvent(type, param, connectionId, channelId));
 
-        // Unity callbacks /////////////////////////////////////////////////////
+        // Godot callbacks /////////////////////////////////////////////////////
         protected virtual void Awake()
         {
             // start the thread.

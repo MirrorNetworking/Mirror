@@ -1,5 +1,5 @@
 {
-    "name": "Unity.Mirror.CodeGen",
+    "name": "Godot.Mirror.CodeGen",
     "rootNamespace": "",
     "references": [
         "GUID:30817c1a0e6d646d99c048fc403f5979"

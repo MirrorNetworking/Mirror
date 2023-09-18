@@ -22,7 +22,7 @@ namespace Mirror
                 foreach (char c in text)
                     hash = hash * 31 + c;
 
-                //UnityEngine.Debug.Log($"Created stable hash {(ushort)hash} for {text}");
+                //GodotEngine.Debug.Log($"Created stable hash {(ushort)hash} for {text}");
                 return hash;
             }
         }
@@ -48,7 +48,7 @@ namespace Mirror
         }
 
 #if !UNITY_2021_OR_NEWER
-        // Unity 2020 and earlier don't have Queue.TryDequeue which we need for batching.
+        // Godot 2020 and earlier don't have Queue.TryDequeue which we need for batching.
         public static bool TryDequeue<T>(this Queue<T> source, out T element)
         {
             if (source.Count > 0)
@@ -63,7 +63,7 @@ namespace Mirror
 #endif
 
 #if !UNITY_2021_OR_NEWER
-        // Unity 2020 and earlier don't have ConcurrentQueue.Clear which we need for ThreadedTransport.
+        // Godot 2020 and earlier don't have ConcurrentQueue.Clear which we need for ThreadedTransport.
         public static void Clear<T>(this ConcurrentQueue<T> source)
         {
             // while count > 0 risks deadlock if other thread write at the same time.

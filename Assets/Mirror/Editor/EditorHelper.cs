@@ -1,6 +1,6 @@
 using System.IO;
-using UnityEditor;
-using UnityEngine;
+using GodotEditor;
+using GodotEngine;
 
 namespace Mirror
 {

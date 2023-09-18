@@ -1,8 +1,8 @@
 using System;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
-using UnityEngine;
-using UnityEngine.SceneManagement;
+using GodotEngine;
+using GodotEngine.SceneManagement;
 
 namespace Mirror
 {
@@ -46,7 +46,7 @@ namespace Mirror
         public static bool IsPrefab(GameObject obj)
         {
 #if UNITY_EDITOR
-            return UnityEditor.PrefabUtility.IsPartOfPrefabAsset(obj);
+            return GodotEditor.PrefabUtility.IsPartOfPrefabAsset(obj);
 #else
             return false;
 #endif
@@ -59,7 +59,7 @@ namespace Mirror
             // it never fires though. even for Prefabs dragged to the Scene.
             // (see Scene Objects example scene.)
             // #if UNITY_EDITOR
-            //             if (UnityEditor.EditorUtility.IsPersistent(identity.gameObject))
+            //             if (GodotEditor.EditorUtility.IsPersistent(identity.gameObject))
             //                 return false;
             // #endif
 
@@ -73,11 +73,11 @@ namespace Mirror
             prefab = null;
 
 #if UNITY_EDITOR
-            if (!UnityEditor.PrefabUtility.IsPartOfPrefabInstance(gameObject))
+            if (!GodotEditor.PrefabUtility.IsPartOfPrefabInstance(gameObject))
             {
                 return false;
             }
-            prefab = UnityEditor.PrefabUtility.GetCorrespondingObjectFromSource(gameObject);
+            prefab = GodotEditor.PrefabUtility.GetCorrespondingObjectFromSource(gameObject);
 #endif
 
             if (prefab == null)

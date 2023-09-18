@@ -3,7 +3,7 @@ Assets/StreamingAssets/
 Assets/StreamingAssets.meta
 
 # =============== #
-# Unity generated #
+# Godot generated #
 # =============== #
 Source/Temp/
 Source/Library/
@@ -33,7 +33,7 @@ Source/Source.sln
 *.suo
 /*.sln
 *.user
-*.unityproj
+*.godotproj
 *.booproj
 Output/
 bin/
@@ -43,16 +43,16 @@ bin/
 Mirror/packages
 .mfractor
 
-# Unity generated
+# Godot generated
 Library
 Temp
-UnityPackageManager
+GodotPackageManager
 CodeCoverage
 Logs
 Obj
 *.mdb
 *.mdb.meta
-ProjectSettings/Packages/com.unity.testtools.codecoverage/Settings.json
+ProjectSettings/Packages/com.godot.testtools.codecoverage/Settings.json
 ProjectSettings/RiderScriptEditorPersistedState.asset
 ProjectSettings/SceneTemplateSettings.json
 UserSettings/

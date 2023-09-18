@@ -1,7 +1,7 @@
 {
     "name": "Telepathy",
     "references": [],
-    "optionalUnityReferences": [],
+    "optionalGodotReferences": [],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

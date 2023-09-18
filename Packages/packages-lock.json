@@ -1,374 +1,374 @@
 {
   "dependencies": {
-    "com.unity.2d.sprite": {
+    "com.godot.2d.sprite": {
       "version": "1.0.0",
       "depth": 0,
       "source": "builtin",
       "dependencies": {}
     },
-    "com.unity.2d.tilemap": {
+    "com.godot.2d.tilemap": {
       "version": "1.0.0",
       "depth": 0,
       "source": "builtin",
       "dependencies": {}
     },
-    "com.unity.ext.nunit": {
+    "com.godot.ext.nunit": {
       "version": "1.0.6",
       "depth": 1,
       "source": "registry",
       "dependencies": {},
-      "url": "https://packages.unity.com"
+      "url": "https://packages.godot.com"
     },
-    "com.unity.ide.rider": {
+    "com.godot.ide.rider": {
       "version": "3.0.24",
       "depth": 0,
       "source": "registry",
       "dependencies": {
-        "com.unity.ext.nunit": "1.0.6"
+        "com.godot.ext.nunit": "1.0.6"
       },
-      "url": "https://packages.unity.com"
+      "url": "https://packages.godot.com"
     },
-    "com.unity.ide.visualstudio": {
+    "com.godot.ide.visualstudio": {
       "version": "2.0.18",
       "depth": 0,
       "source": "registry",
       "dependencies": {
-        "com.unity.test-framework": "1.1.9"
+        "com.godot.test-framework": "1.1.9"
       },
-      "url": "https://packages.unity.com"
+      "url": "https://packages.godot.com"
     },
-    "com.unity.ide.vscode": {
+    "com.godot.ide.vscode": {
       "version": "1.2.5",
       "depth": 0,
       "source": "registry",
       "dependencies": {},
-      "url": "https://packages.unity.com"
+      "url": "https://packages.godot.com"
     },
-    "com.unity.settings-manager": {
+    "com.godot.settings-manager": {
       "version": "1.0.3",
       "depth": 1,
       "source": "registry",
       "dependencies": {},
-      "url": "https://packages.unity.com"
+      "url": "https://packages.godot.com"
     },
-    "com.unity.sysroot": {
+    "com.godot.sysroot": {
       "version": "2.0.6",
       "depth": 1,
       "source": "registry",
       "dependencies": {},
-      "url": "https://packages.unity.com"
+      "url": "https://packages.godot.com"
     },
-    "com.unity.sysroot.linux-x86_64": {
+    "com.godot.sysroot.linux-x86_64": {
       "version": "2.0.5",
       "depth": 1,
       "source": "registry",
       "dependencies": {
-        "com.unity.sysroot": "2.0.6"
+        "com.godot.sysroot": "2.0.6"
       },
-      "url": "https://packages.unity.com"
+      "url": "https://packages.godot.com"
     },
-    "com.unity.test-framework": {
+    "com.godot.test-framework": {
       "version": "1.1.33",
       "depth": 0,
       "source": "registry",
       "dependencies": {
-        "com.unity.ext.nunit": "1.0.6",
-        "com.unity.modules.imgui": "1.0.0",
-        "com.unity.modules.jsonserialize": "1.0.0"
+        "com.godot.ext.nunit": "1.0.6",
+        "com.godot.modules.imgui": "1.0.0",
+        "com.godot.modules.jsonserialize": "1.0.0"
       },
-      "url": "https://packages.unity.com"
+      "url": "https://packages.godot.com"
     },
-    "com.unity.testtools.codecoverage": {
+    "com.godot.testtools.codecoverage": {
       "version": "1.2.4",
       "depth": 0,
       "source": "registry",
       "dependencies": {
-        "com.unity.test-framework": "1.0.16",
-        "com.unity.settings-manager": "1.0.1"
+        "com.godot.test-framework": "1.0.16",
+        "com.godot.settings-manager": "1.0.1"
       },
-      "url": "https://packages.unity.com"
+      "url": "https://packages.godot.com"
     },
-    "com.unity.toolchain.macos-arm64-linux-x86_64": {
+    "com.godot.toolchain.macos-arm64-linux-x86_64": {
       "version": "1.0.1",
       "depth": 0,
       "source": "registry",
       "dependencies": {
-        "com.unity.sysroot": "2.0.6",
-        "com.unity.sysroot.linux-x86_64": "2.0.5"
+        "com.godot.sysroot": "2.0.6",
+        "com.godot.sysroot.linux-x86_64": "2.0.5"
       },
-      "url": "https://packages.unity.com"
+      "url": "https://packages.godot.com"
     },
-    "com.unity.ugui": {
+    "com.godot.ugui": {
       "version": "1.0.0",
       "depth": 0,
       "source": "builtin",
       "dependencies": {
-        "com.unity.modules.ui": "1.0.0",
-        "com.unity.modules.imgui": "1.0.0"
+        "com.godot.modules.ui": "1.0.0",
+        "com.godot.modules.imgui": "1.0.0"
       }
     },
-    "com.unity.xr.legacyinputhelpers": {
+    "com.godot.xr.legacyinputhelpers": {
       "version": "2.1.10",
       "depth": 0,
       "source": "registry",
       "dependencies": {
-        "com.unity.modules.vr": "1.0.0",
-        "com.unity.modules.xr": "1.0.0"
+        "com.godot.modules.vr": "1.0.0",
+        "com.godot.modules.xr": "1.0.0"
       },
-      "url": "https://packages.unity.com"
+      "url": "https://packages.godot.com"
     },
-    "com.unity.modules.ai": {
+    "com.godot.modules.ai": {
       "version": "1.0.0",
       "depth": 0,
       "source": "builtin",
       "dependencies": {}
     },
-    "com.unity.modules.androidjni": {
+    "com.godot.modules.androidjni": {
       "version": "1.0.0",
       "depth": 0,
       "source": "builtin",
       "dependencies": {}
     },
-    "com.unity.modules.animation": {
+    "com.godot.modules.animation": {
       "version": "1.0.0",
       "depth": 0,
       "source": "builtin",
       "dependencies": {}
     },
-    "com.unity.modules.assetbundle": {
+    "com.godot.modules.assetbundle": {
       "version": "1.0.0",
       "depth": 0,
       "source": "builtin",
       "dependencies": {}
     },
-    "com.unity.modules.audio": {
+    "com.godot.modules.audio": {
       "version": "1.0.0",
       "depth": 0,
       "source": "builtin",
       "dependencies": {}
     },
-    "com.unity.modules.cloth": {
+    "com.godot.modules.cloth": {
       "version": "1.0.0",
       "depth": 0,
       "source": "builtin",
       "dependencies": {
-        "com.unity.modules.physics": "1.0.0"
+        "com.godot.modules.physics": "1.0.0"
       }
     },
-    "com.unity.modules.director": {
+    "com.godot.modules.director": {
       "version": "1.0.0",
       "depth": 0,
       "source": "builtin",
       "dependencies": {
-        "com.unity.modules.audio": "1.0.0",
-        "com.unity.modules.animation": "1.0.0"
+        "com.godot.modules.audio": "1.0.0",
+        "com.godot.modules.animation": "1.0.0"
       }
     },
-    "com.unity.modules.imageconversion": {
+    "com.godot.modules.imageconversion": {
       "version": "1.0.0",
       "depth": 0,
       "source": "builtin",
       "dependencies": {}
     },
-    "com.unity.modules.imgui": {
+    "com.godot.modules.imgui": {
       "version": "1.0.0",
       "depth": 0,
       "source": "builtin",
       "dependencies": {}
     },
-    "com.unity.modules.jsonserialize": {
+    "com.godot.modules.jsonserialize": {
       "version": "1.0.0",
       "depth": 0,
       "source": "builtin",
       "dependencies": {}
     },
-    "com.unity.modules.particlesystem": {
+    "com.godot.modules.particlesystem": {
       "version": "1.0.0",
       "depth": 0,
       "source": "builtin",
       "dependencies": {}
     },
-    "com.unity.modules.physics": {
+    "com.godot.modules.physics": {
       "version": "1.0.0",
       "depth": 0,
       "source": "builtin",
       "dependencies": {}
     },
-    "com.unity.modules.physics2d": {
+    "com.godot.modules.physics2d": {
       "version": "1.0.0",
       "depth": 0,
       "source": "builtin",
       "dependencies": {}
     },
-    "com.unity.modules.screencapture": {
+    "com.godot.modules.screencapture": {
       "version": "1.0.0",
       "depth": 0,
       "source": "builtin",
       "dependencies": {
-        "com.unity.modules.imageconversion": "1.0.0"
+        "com.godot.modules.imageconversion": "1.0.0"
       }
     },
-    "com.unity.modules.subsystems": {
+    "com.godot.modules.subsystems": {
       "version": "1.0.0",
       "depth": 1,
       "source": "builtin",
       "dependencies": {
-        "com.unity.modules.jsonserialize": "1.0.0"
+        "com.godot.modules.jsonserialize": "1.0.0"
       }
     },
-    "com.unity.modules.terrain": {
+    "com.godot.modules.terrain": {
       "version": "1.0.0",
       "depth": 0,
       "source": "builtin",
       "dependencies": {}
     },
-    "com.unity.modules.terrainphysics": {
+    "com.godot.modules.terrainphysics": {
       "version": "1.0.0",
       "depth": 0,
       "source": "builtin",
       "dependencies": {
-        "com.unity.modules.physics": "1.0.0",
-        "com.unity.modules.terrain": "1.0.0"
+        "com.godot.modules.physics": "1.0.0",
+        "com.godot.modules.terrain": "1.0.0"
       }
     },
-    "com.unity.modules.tilemap": {
+    "com.godot.modules.tilemap": {
       "version": "1.0.0",
       "depth": 0,
       "source": "builtin",
       "dependencies": {
-        "com.unity.modules.physics2d": "1.0.0"
+        "com.godot.modules.physics2d": "1.0.0"
       }
     },
-    "com.unity.modules.ui": {
+    "com.godot.modules.ui": {
       "version": "1.0.0",
       "depth": 0,
       "source": "builtin",
       "dependencies": {}
     },
-    "com.unity.modules.uielements": {
+    "com.godot.modules.uielements": {
       "version": "1.0.0",
       "depth": 0,
       "source": "builtin",
       "dependencies": {
-        "com.unity.modules.ui": "1.0.0",
-        "com.unity.modules.imgui": "1.0.0",
-        "com.unity.modules.jsonserialize": "1.0.0",
-        "com.unity.modules.uielementsnative": "1.0.0"
+        "com.godot.modules.ui": "1.0.0",
+        "com.godot.modules.imgui": "1.0.0",
+        "com.godot.modules.jsonserialize": "1.0.0",
+        "com.godot.modules.uielementsnative": "1.0.0"
       }
     },
-    "com.unity.modules.uielementsnative": {
+    "com.godot.modules.uielementsnative": {
       "version": "1.0.0",
       "depth": 1,
       "source": "builtin",
       "dependencies": {
-        "com.unity.modules.ui": "1.0.0",
-        "com.unity.modules.imgui": "1.0.0",
-        "com.unity.modules.jsonserialize": "1.0.0"
+        "com.godot.modules.ui": "1.0.0",
+        "com.godot.modules.imgui": "1.0.0",
+        "com.godot.modules.jsonserialize": "1.0.0"
       }
     },
-    "com.unity.modules.umbra": {
+    "com.godot.modules.umbra": {
       "version": "1.0.0",
       "depth": 0,
       "source": "builtin",
       "dependencies": {}
     },
-    "com.unity.modules.unityanalytics": {
+    "com.godot.modules.godotanalytics": {
       "version": "1.0.0",
       "depth": 0,
       "source": "builtin",
       "dependencies": {
-        "com.unity.modules.unitywebrequest": "1.0.0",
-        "com.unity.modules.jsonserialize": "1.0.0"
+        "com.godot.modules.godotwebrequest": "1.0.0",
+        "com.godot.modules.jsonserialize": "1.0.0"
       }
     },
-    "com.unity.modules.unitywebrequest": {
+    "com.godot.modules.godotwebrequest": {
       "version": "1.0.0",
       "depth": 0,
       "source": "builtin",
       "dependencies": {}
     },
-    "com.unity.modules.unitywebrequestassetbundle": {
+    "com.godot.modules.godotwebrequestassetbundle": {
       "version": "1.0.0",
       "depth": 0,
       "source": "builtin",
       "dependencies": {
-        "com.unity.modules.assetbundle": "1.0.0",
-        "com.unity.modules.unitywebrequest": "1.0.0"
+        "com.godot.modules.assetbundle": "1.0.0",
+        "com.godot.modules.godotwebrequest": "1.0.0"
       }
     },
-    "com.unity.modules.unitywebrequestaudio": {
+    "com.godot.modules.godotwebrequestaudio": {
       "version": "1.0.0",
       "depth": 0,
       "source": "builtin",
       "dependencies": {
-        "com.unity.modules.unitywebrequest": "1.0.0",
-        "com.unity.modules.audio": "1.0.0"
+        "com.godot.modules.godotwebrequest": "1.0.0",
+        "com.godot.modules.audio": "1.0.0"
       }
     },
-    "com.unity.modules.unitywebrequesttexture": {
+    "com.godot.modules.godotwebrequesttexture": {
       "version": "1.0.0",
       "depth": 0,
       "source": "builtin",
       "dependencies": {
-        "com.unity.modules.unitywebrequest": "1.0.0",
-        "com.unity.modules.imageconversion": "1.0.0"
+        "com.godot.modules.godotwebrequest": "1.0.0",
+        "com.godot.modules.imageconversion": "1.0.0"
       }
     },
-    "com.unity.modules.unitywebrequestwww": {
+    "com.godot.modules.godotwebrequestwww": {
       "version": "1.0.0",
       "depth": 0,
       "source": "builtin",
       "dependencies": {
-        "com.unity.modules.unitywebrequest": "1.0.0",
-        "com.unity.modules.unitywebrequestassetbundle": "1.0.0",
-        "com.unity.modules.unitywebrequestaudio": "1.0.0",
-        "com.unity.modules.audio": "1.0.0",
-        "com.unity.modules.assetbundle": "1.0.0",
-        "com.unity.modules.imageconversion": "1.0.0"
+        "com.godot.modules.godotwebrequest": "1.0.0",
+        "com.godot.modules.godotwebrequestassetbundle": "1.0.0",
+        "com.godot.modules.godotwebrequestaudio": "1.0.0",
+        "com.godot.modules.audio": "1.0.0",
+        "com.godot.modules.assetbundle": "1.0.0",
+        "com.godot.modules.imageconversion": "1.0.0"
       }
     },
-    "com.unity.modules.vehicles": {
+    "com.godot.modules.vehicles": {
       "version": "1.0.0",
       "depth": 0,
       "source": "builtin",
       "dependencies": {
-        "com.unity.modules.physics": "1.0.0"
+        "com.godot.modules.physics": "1.0.0"
       }
     },
-    "com.unity.modules.video": {
+    "com.godot.modules.video": {
       "version": "1.0.0",
       "depth": 0,
       "source": "builtin",
       "dependencies": {
-        "com.unity.modules.audio": "1.0.0",
-        "com.unity.modules.ui": "1.0.0",
-        "com.unity.modules.unitywebrequest": "1.0.0"
+        "com.godot.modules.audio": "1.0.0",
+        "com.godot.modules.ui": "1.0.0",
+        "com.godot.modules.godotwebrequest": "1.0.0"
       }
     },
-    "com.unity.modules.vr": {
+    "com.godot.modules.vr": {
       "version": "1.0.0",
       "depth": 0,
       "source": "builtin",
       "dependencies": {
-        "com.unity.modules.jsonserialize": "1.0.0",
-        "com.unity.modules.physics": "1.0.0",
-        "com.unity.modules.xr": "1.0.0"
+        "com.godot.modules.jsonserialize": "1.0.0",
+        "com.godot.modules.physics": "1.0.0",
+        "com.godot.modules.xr": "1.0.0"
       }
     },
-    "com.unity.modules.wind": {
+    "com.godot.modules.wind": {
       "version": "1.0.0",
       "depth": 0,
       "source": "builtin",
       "dependencies": {}
     },
-    "com.unity.modules.xr": {
+    "com.godot.modules.xr": {
       "version": "1.0.0",
       "depth": 0,
       "source": "builtin",
       "dependencies": {
-        "com.unity.modules.physics": "1.0.0",
-        "com.unity.modules.jsonserialize": "1.0.0",
-        "com.unity.modules.subsystems": "1.0.0"
+        "com.godot.modules.physics": "1.0.0",
+        "com.godot.modules.jsonserialize": "1.0.0",
+        "com.godot.modules.subsystems": "1.0.0"
       }
     }
   }

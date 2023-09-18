@@ -1,6 +1,6 @@
 #define onlySyncOnChange_BANDWIDTH_SAVING
 using System.Collections.Generic;
-using UnityEngine;
+using GodotEngine;
 using Mirror;
 
 /*
@@ -22,7 +22,7 @@ public class #SCRIPTNAME# : NetworkTransformBase
     protected override Transform targetComponent => target;
     */
 
-    #region Unity Callbacks
+    #region Godot Callbacks
 
     protected override void OnValidate()
     {

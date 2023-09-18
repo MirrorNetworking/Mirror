@@ -1,6 +1,6 @@
 // default = no component = everyone sees everyone
 using NUnit.Framework;
-using UnityEngine;
+using GodotEngine;
 
 namespace Mirror.Tests.InterestManagement
 {

@@ -12,10 +12,10 @@ namespace Mirror.Weaver.Tests
         }
 
         [Test]
-        public void GivesErrorWhenUsingUnityAsset()
+        public void GivesErrorWhenUsingGodotAsset()
         {
             HasError("Material can't be deserialized because it has no default constructor. Don't use Material in [SyncVar]s, Rpcs, Cmds, etc.",
-                "UnityEngine.Material");
+                "GodotEngine.Material");
         }
 
         [Test]
@@ -24,10 +24,10 @@ namespace Mirror.Weaver.Tests
             // TODO: decide if we want to block sending of Object
             // would only want to be send as an arg as a base type for an Inherited object
             HasError("Cannot generate writer for Object. Use a supported type or provide a custom writer",
-                "UnityEngine.Object");
+                "GodotEngine.Object");
             // TODO change weaver to run checks for write/read at the same time
             //HasError("Cannot generate reader for Object. Use a supported type or provide a custom reader",
-            //    "UnityEngine.Object");
+            //    "GodotEngine.Object");
         }
 
         [Test]
@@ -36,20 +36,20 @@ namespace Mirror.Weaver.Tests
             // TODO: decide if we want to block sending of ScripableObject
             // would only want to be send as an arg as a base type for an Inherited object
             HasError("Cannot generate writer for ScriptableObject. Use a supported type or provide a custom writer",
-                "UnityEngine.ScriptableObject");
+                "GodotEngine.ScriptableObject");
             // TODO change weaver to run checks for write/read at the same time
             //HasError("Cannot generate reader for ScriptableObject. Use a supported type or provide a custom reader",
-            //    "UnityEngine.ScriptableObject");
+            //    "GodotEngine.ScriptableObject");
         }
 
         [Test]
         public void GivesErrorWhenUsingMonoBehaviour()
         {
             HasError("Cannot generate writer for component type MonoBehaviour. Use a supported type or provide a custom writer",
-                "UnityEngine.MonoBehaviour");
+                "GodotEngine.MonoBehaviour");
             // TODO change weaver to run checks for write/read at the same time
             //HasError("Cannot generate reader for component type MonoBehaviour. Use a supported type or provide a custom reader",
-            //    "UnityEngine.MonoBehaviour");
+            //    "GodotEngine.MonoBehaviour");
         }
 
         [Test]
@@ -92,31 +92,31 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void GivesErrorForInvalidArrayType()
         {
-            HasError("Cannot generate writer for UnityEngine.MonoBehaviour[]. Use a supported type or provide a custom writer",
-                "UnityEngine.MonoBehaviour[]");
+            HasError("Cannot generate writer for GodotEngine.MonoBehaviour[]. Use a supported type or provide a custom writer",
+                "GodotEngine.MonoBehaviour[]");
             // TODO change weaver to run checks for write/read at the same time
             //HasError("Cannot generate reader for Array because element MonoBehaviour does not have a reader. Use a supported type or provide a custom reader",
-            //    "UnityEngine.MonoBehaviour[]");
+            //    "GodotEngine.MonoBehaviour[]");
         }
 
         [Test]
         public void GivesErrorForInvalidArraySegmentType()
         {
-            HasError("Cannot generate writer for System.ArraySegment`1<UnityEngine.MonoBehaviour>. Use a supported type or provide a custom writer",
-                "System.ArraySegment`1<UnityEngine.MonoBehaviour>");
+            HasError("Cannot generate writer for System.ArraySegment`1<GodotEngine.MonoBehaviour>. Use a supported type or provide a custom writer",
+                "System.ArraySegment`1<GodotEngine.MonoBehaviour>");
             // TODO change weaver to run checks for write/read at the same time
             //HasError("Cannot generate reader for ArraySegment because element MonoBehaviour does not have a reader. Use a supported type or provide a custom reader",
-            //    "System.ArraySegment`1<UnityEngine.MonoBehaviour>");
+            //    "System.ArraySegment`1<GodotEngine.MonoBehaviour>");
         }
 
         [Test]
         public void GivesErrorForInvalidListType()
         {
-            HasError("Cannot generate writer for System.Collections.Generic.List`1<UnityEngine.MonoBehaviour>. Use a supported type or provide a custom writer",
-                "System.Collections.Generic.List`1<UnityEngine.MonoBehaviour>");
+            HasError("Cannot generate writer for System.Collections.Generic.List`1<GodotEngine.MonoBehaviour>. Use a supported type or provide a custom writer",
+                "System.Collections.Generic.List`1<GodotEngine.MonoBehaviour>");
             // TODO change weaver to run checks for write/read at the same time
             //HasError("Cannot generate reader for List because element MonoBehaviour does not have a reader. Use a supported type or provide a custom reader",
-            //    "System.Collections.Generic.List`1<UnityEngine.MonoBehaviour>");
+            //    "System.Collections.Generic.List`1<GodotEngine.MonoBehaviour>");
         }
 
         [Test, Ignore("Enable again when we don't have obsoletes in NetworkWriter anymore.")]

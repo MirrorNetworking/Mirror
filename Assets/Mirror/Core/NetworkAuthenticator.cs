@@ -1,10 +1,10 @@
 using System;
-using UnityEngine;
-using UnityEngine.Events;
+using GodotEngine;
+using GodotEngine.Events;
 
 namespace Mirror
 {
-    [Serializable] public class UnityEventNetworkConnection : UnityEvent<NetworkConnectionToClient> {}
+    [Serializable] public class GodotEventNetworkConnection : GodotEvent<NetworkConnectionToClient> {}
 
     /// <summary>Base class for implementing component-based authentication during the Connect phase</summary>
     [HelpURL("https://mirror-networking.gitbook.io/docs/components/network-authenticators")]
@@ -13,11 +13,11 @@ namespace Mirror
         /// <summary>Notify subscribers on the server when a client is authenticated</summary>
         [Header("Event Listeners (optional)")]
         [Tooltip("Mirror has an internal subscriber to this event. You can add your own here.")]
-        public UnityEventNetworkConnection OnServerAuthenticated = new UnityEventNetworkConnection();
+        public GodotEventNetworkConnection OnServerAuthenticated = new GodotEventNetworkConnection();
 
         /// <summary>Notify subscribers on the client when the client is authenticated</summary>
         [Tooltip("Mirror has an internal subscriber to this event. You can add your own here.")]
-        public UnityEvent OnClientAuthenticated = new UnityEvent();
+        public GodotEvent OnClientAuthenticated = new GodotEvent();
 
         /// <summary>Called when server starts, used to register message handlers if needed.</summary>
         public virtual void OnStartServer() {}
@@ -60,12 +60,12 @@ namespace Mirror
             // disconnect the client
             NetworkClient.connection.Disconnect();
         }
-        
+
         // Reset() instead of OnValidate():
-        // Any NetworkAuthenticator assigns itself to the NetworkManager, this is fine on first adding it, 
-        // but if someone intentionally sets Authenticator to null on the NetworkManager again then the 
+        // Any NetworkAuthenticator assigns itself to the NetworkManager, this is fine on first adding it,
+        // but if someone intentionally sets Authenticator to null on the NetworkManager again then the
         // Authenticator will reassign itself if a value in the inspector is changed.
-        // My change switches OnValidate to Reset since Reset is only called when the component is first 
+        // My change switches OnValidate to Reset since Reset is only called when the component is first
         // added (or reset is pressed).
         void Reset()
         {
@@ -75,7 +75,7 @@ namespace Mirror
             if (manager != null && manager.authenticator == null)
             {
                 // undo has to be called before the change happens
-                UnityEditor.Undo.RecordObject(manager, "Assigned NetworkManager authenticator");
+                GodotEditor.Undo.RecordObject(manager, "Assigned NetworkManager authenticator");
                 manager.authenticator = this;
             }
 #endif

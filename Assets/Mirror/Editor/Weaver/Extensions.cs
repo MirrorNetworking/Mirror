@@ -87,7 +87,7 @@ namespace Mirror.Weaver
 
         // Does type use netId as backing field
         public static bool IsNetworkIdentityField(this TypeReference tr) =>
-            tr.Is<UnityEngine.GameObject>() ||
+            tr.Is<GodotEngine.GameObject>() ||
             tr.Is<NetworkIdentity>() ||
             // handle both NetworkBehaviour and inheritors.
             // fixes: https://github.com/MirrorNetworking/Mirror/issues/2939

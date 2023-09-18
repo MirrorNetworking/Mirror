@@ -1,5 +1,5 @@
 ﻿// idle object that rarely gets dirty
-using UnityEngine;
+using GodotEngine;
 
 namespace Mirror.Examples.BenchmarkIdle
 {

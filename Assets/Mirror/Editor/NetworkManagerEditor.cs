@@ -1,6 +1,6 @@
-using UnityEditor;
-using UnityEditorInternal;
-using UnityEngine;
+using GodotEditor;
+using GodotEditorInternal;
+using GodotEngine;
 
 namespace Mirror
 {

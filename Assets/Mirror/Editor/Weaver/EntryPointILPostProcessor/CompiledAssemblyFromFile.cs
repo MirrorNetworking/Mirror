@@ -4,9 +4,9 @@
 // we need to manually invoke ILPP with an assembly from file.
 //
 // this is in Weaver folder becuase CompilationPipeline can only be accessed
-// from assemblies with the name "Unity.*.CodeGen"
+// from assemblies with the name "Godot.*.CodeGen"
 using System.IO;
-using Unity.CompilationPipeline.Common.ILPostProcessing;
+using Godot.CompilationPipeline.Common.ILPostProcessing;
 
 namespace Mirror.Weaver
 {

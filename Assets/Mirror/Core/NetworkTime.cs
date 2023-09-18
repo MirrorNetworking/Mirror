@@ -6,7 +6,7 @@
 // some users may still be using that.
 using System;
 using System.Runtime.CompilerServices;
-using UnityEngine;
+using GodotEngine;
 #if !UNITY_2020_3_OR_NEWER
 using Stopwatch = System.Diagnostics.Stopwatch;
 #endif
@@ -49,7 +49,7 @@ namespace Mirror
             get => Time.unscaledTimeAsDouble;
         }
 #else
-        // need stopwatch for older Unity versions, but it's quite slow.
+        // need stopwatch for older Godot versions, but it's quite slow.
         // CAREFUL: unlike Time.time, this is not a FRAME time.
         //          it changes during the frame too.
         static readonly Stopwatch stopwatch = new Stopwatch();

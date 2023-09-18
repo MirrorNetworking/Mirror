@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using UnityEngine;
+using GodotEngine;
 
 namespace Mirror
 {
@@ -121,7 +121,7 @@ namespace Mirror
         //   -> for dynamically sized types like strings this is not easy.
         //      algorithms need to detect inserts/deletions, i.e. Myers Diff.
         //      those are very cpu intensive and barely fast enough for large
-        //      scale multiplayer games (in Unity)
+        //      scale multiplayer games (in Godot)
         // * or we use dirty bits as meta data about which fields have changed
         //   -> spares us from running delta algorithms
         //   -> still supports dynamically sized types

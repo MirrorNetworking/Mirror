@@ -1,7 +1,7 @@
 // NetworkTransform V3 (reliable) by mischa (2022-10)
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using UnityEngine;
+using GodotEngine;
 
 namespace Mirror
 {
@@ -135,7 +135,7 @@ namespace Mirror
 
         protected virtual void CheckLastSendTime()
         {
-            // timeAsDouble not available in older Unity versions.
+            // timeAsDouble not available in older Godot versions.
             if (AccurateInterval.Elapsed(NetworkTime.localTime, NetworkServer.sendInterval, ref lastSendIntervalTime))
             {
                 if (sendIntervalCounter == sendIntervalMultiplier)
@@ -317,7 +317,7 @@ namespace Mirror
                     serverSnapshots,
                     connectionToClient.remoteTimeStamp,
                     NetworkTime.localTime,                                  // arrival remote timestamp. NOT remote timeline.
-                    NetworkServer.sendInterval * sendIntervalMultiplier,    // Unity 2019 doesn't have timeAsDouble yet
+                    NetworkServer.sendInterval * sendIntervalMultiplier,    // Godot 2019 doesn't have timeAsDouble yet
                     GetPosition(),
                     GetRotation(),
                     GetScale());
@@ -344,7 +344,7 @@ namespace Mirror
                 RewriteHistory(
                     clientSnapshots,
                     NetworkClient.connection.remoteTimeStamp,               // arrival remote timestamp. NOT remote timeline.
-                    NetworkTime.localTime,                                  // Unity 2019 doesn't have timeAsDouble yet
+                    NetworkTime.localTime,                                  // Godot 2019 doesn't have timeAsDouble yet
                     NetworkClient.sendInterval * sendIntervalMultiplier,
                     GetPosition(),
                     GetRotation(),
@@ -397,7 +397,7 @@ namespace Mirror
                 NetworkClient.snapshotSettings.bufferLimit,
                 new TransformSnapshot(
                     remoteTimeStamp - sendInterval, // arrival remote timestamp. NOT remote time.
-                    localTime - sendInterval,       // Unity 2019 doesn't have timeAsDouble yet
+                    localTime - sendInterval,       // Godot 2019 doesn't have timeAsDouble yet
                     position,
                     rotation,
                     scale

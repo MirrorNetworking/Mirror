@@ -1,12 +1,12 @@
 using System;
 using System.Net;
-using UnityEngine;
-using UnityEngine.Events;
+using GodotEngine;
+using GodotEngine.Events;
 
 namespace Mirror.Discovery
 {
     [Serializable]
-    public class ServerFoundUnityEvent<TResponseType> : UnityEvent<TResponseType> {};
+    public class ServerFoundGodotEvent<TResponseType> : GodotEvent<TResponseType> {};
 
     [DisallowMultipleComponent]
     [AddComponentMenu("Network/Network Discovery")]

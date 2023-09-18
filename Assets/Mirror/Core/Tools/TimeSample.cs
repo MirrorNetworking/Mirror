@@ -11,7 +11,7 @@ namespace Mirror
 {
     public struct TimeSample
     {
-        // UnityEngine.Time isn't thread safe. use stopwatch instead.
+        // GodotEngine.Time isn't thread safe. use stopwatch instead.
         readonly Stopwatch watch;
 
         // remember when Begin was called

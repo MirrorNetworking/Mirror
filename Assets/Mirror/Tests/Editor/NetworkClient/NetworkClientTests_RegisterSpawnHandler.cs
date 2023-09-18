@@ -1,6 +1,6 @@
 ﻿using NUnit.Framework;
-using UnityEngine;
-using UnityEngine.TestTools;
+using GodotEngine;
+using GodotEngine.TestTools;
 
 namespace Mirror.Tests.NetworkClients
 {
@@ -111,7 +111,7 @@ namespace Mirror.Tests.NetworkClients
             NetworkClient.RegisterSpawnHandler(assetId, spawnHandler, unspawnHandler);
 
             SpawnDelegate spawnHandler2 = new SpawnDelegate((x, y) => new GameObject());
-            UnSpawnDelegate unspawnHandler2 = new UnSpawnDelegate(x => UnityEngine.Object.Destroy(x));
+            UnSpawnDelegate unspawnHandler2 = new UnSpawnDelegate(x => GodotEngine.Object.Destroy(x));
 
             LogAssert.Expect(LogType.Warning, $"Replacing existing spawnHandlers for {assetId}");
             NetworkClient.RegisterSpawnHandler(assetId, spawnHandler2, unspawnHandler2);
@@ -200,7 +200,7 @@ namespace Mirror.Tests.NetworkClients
             NetworkClient.RegisterSpawnHandler(assetId, spawnHandler, unspawnHandler);
 
             SpawnHandlerDelegate spawnHandler2 = new SpawnHandlerDelegate(x => new GameObject());
-            UnSpawnDelegate unspawnHandler2 = new UnSpawnDelegate(x => UnityEngine.Object.Destroy(x));
+            UnSpawnDelegate unspawnHandler2 = new UnSpawnDelegate(x => GodotEngine.Object.Destroy(x));
 
             LogAssert.Expect(LogType.Warning, $"Replacing existing spawnHandlers for {assetId}");
             NetworkClient.RegisterSpawnHandler(assetId, spawnHandler2, unspawnHandler2);
@@ -213,7 +213,7 @@ namespace Mirror.Tests.NetworkClients
             NetworkClient.prefabs.Add(assetId, validPrefab);
 
             SpawnHandlerDelegate spawnHandler = new SpawnHandlerDelegate(x => new GameObject());
-            UnSpawnDelegate unspawnHandler = new UnSpawnDelegate(x => UnityEngine.Object.Destroy(x));
+            UnSpawnDelegate unspawnHandler = new UnSpawnDelegate(x => GodotEngine.Object.Destroy(x));
 
             LogAssert.Expect(LogType.Error, $"assetId '{assetId}' is already used by prefab '{validPrefab.name}'");
             NetworkClient.RegisterSpawnHandler(assetId, spawnHandler, unspawnHandler);

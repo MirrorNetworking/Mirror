@@ -1,5 +1,5 @@
 %YAML 1.1
-%TAG !u! tag:unity3d.com,2011:
+%TAG !u! tag:godot3d.com,2011:
 --- !u!29 &1
 OcclusionCullingSettings:
   m_ObjectHideFlags: 0
@@ -263,8 +263,8 @@ MonoBehaviour:
   autoStartServerBuild: 1
   autoConnectClientBuild: 0
   sendRate: 30
-  offlineScene: Assets/Mirror/Examples/Room/Scenes/OfflineScene.unity
-  onlineScene: Assets/Mirror/Examples/Room/Scenes/RoomScene.unity
+  offlineScene: Assets/Mirror/Examples/Room/Scenes/OfflineScene.godot
+  onlineScene: Assets/Mirror/Examples/Room/Scenes/RoomScene.godot
   transport: {fileID: 2008127830}
   networkAddress: localhost
   maxConnections: 5
@@ -288,8 +288,8 @@ MonoBehaviour:
   showRoomGUI: 1
   minPlayers: 1
   roomPlayerPrefab: {fileID: 114033720796874720, guid: deae2134a1d77704b9c595efe69767dd, type: 3}
-  RoomScene: Assets/Mirror/Examples/Room/Scenes/RoomScene.unity
-  GameplayScene: Assets/Mirror/Examples/Room/Scenes/OnlineScene.unity
+  RoomScene: Assets/Mirror/Examples/Room/Scenes/RoomScene.godot
+  GameplayScene: Assets/Mirror/Examples/Room/Scenes/OnlineScene.godot
   _allPlayersReady: 0
   roomSlots: []
   clientIndex: 0

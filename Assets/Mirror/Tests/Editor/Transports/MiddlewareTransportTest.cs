@@ -1,7 +1,7 @@
 using System;
 using NSubstitute;
 using NUnit.Framework;
-using UnityEngine;
+using GodotEngine;
 
 namespace Mirror.Tests.Transports
 {

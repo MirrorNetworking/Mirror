@@ -1,5 +1,5 @@
 using NUnit.Framework;
-using UnityEngine;
+using GodotEngine;
 
 // Note: Weaver doesn't run on nested class so use namespace to group classes instead
 namespace Mirror.Tests.NetworkBehaviours

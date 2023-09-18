@@ -1,4 +1,4 @@
-using UnityEngine;
+using GodotEngine;
 
 namespace Mirror.Examples.CharacterSelection
 {
@@ -71,7 +71,7 @@ namespace Mirror.Examples.CharacterSelection
             if (message.playerName == "")
             {
                 Debug.Log("OnCreateCharacter name invalid or not set, use random.");
-                message.playerName = "Player: " + UnityEngine.Random.Range(100, 1000);
+                message.playerName = "Player: " + GodotEngine.Random.Range(100, 1000);
             }
 
             // check that prefab is set, or exists for saved character number data
@@ -79,7 +79,7 @@ namespace Mirror.Examples.CharacterSelection
             if (message.characterNumber <= 0 || message.characterNumber >= characterData.characterPrefabs.Length)
             {
                 Debug.Log("OnCreateCharacter prefab Invalid or not set, use random.");
-                message.characterNumber = UnityEngine.Random.Range(1, characterData.characterPrefabs.Length);
+                message.characterNumber = GodotEngine.Random.Range(1, characterData.characterPrefabs.Length);
             }
 
             // check if the save data has been pre-set

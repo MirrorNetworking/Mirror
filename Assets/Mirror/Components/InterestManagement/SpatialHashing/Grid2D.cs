@@ -1,8 +1,8 @@
 // Grid2D from uMMORPG: get/set values of type T at any point
-// -> not named 'Grid' because Unity already has a Grid type. causes warnings.
+// -> not named 'Grid' because Godot already has a Grid type. causes warnings.
 // -> struct to avoid memory indirection. it's accessed a lot.
 using System.Collections.Generic;
-using UnityEngine;
+using GodotEngine;
 
 namespace Mirror
 {
@@ -50,7 +50,7 @@ namespace Mirror
                 // let's create the HashSet with a large initial capacity
                 // in order to avoid resizing & allocations.
 #if !UNITY_2021_3_OR_NEWER
-                // Unity 2019 doesn't have "new HashSet(capacity)" yet
+                // Godot 2019 doesn't have "new HashSet(capacity)" yet
                 hashSet = new HashSet<T>();
 #else
                 hashSet = new HashSet<T>(128);

@@ -1,4 +1,4 @@
-using UnityEngine;
+using GodotEngine;
 using Mirror;
 
 /*
@@ -94,7 +94,7 @@ public class #SCRIPTNAME# : NetworkRoomManager
 
     /// <summary>
     /// This is called on the server when it is told that a client has finished switching from the room scene to a game player scene.
-    /// <para>When switching from the room, the room-player is replaced with a game-player object. This callback function gives an opportunity to apply state from the room-player to the game-player object.</para>
+    /// <para>When switching from the room, the room-player is replaced with a game-player object. This callback function gives an opportgodot to apply state from the room-player to the game-player object.</para>
     /// </summary>
     /// <param name="conn">The connection of the player</param>
     /// <param name="roomPlayer">The room player object.</param>

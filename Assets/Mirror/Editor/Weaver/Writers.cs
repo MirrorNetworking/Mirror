@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Mono.CecilX;
 using Mono.CecilX.Cil;
 // to use Mono.CecilX.Rocks here, we need to 'override references' in the
-// Unity.Mirror.CodeGen assembly definition file in the Editor, and add CecilX.Rocks.
+// Godot.Mirror.CodeGen assembly definition file in the Editor, and add CecilX.Rocks.
 // otherwise we get an unknown import exception.
 using Mono.CecilX.Rocks;
 
@@ -128,15 +128,15 @@ namespace Mirror.Weaver
             {
                 throw new GenerateWriterException($"{variableReference.Name} is not a supported type. Use a supported type or provide a custom writer", variableReference);
             }
-            if (variableDefinition.IsDerivedFrom<UnityEngine.Component>())
+            if (variableDefinition.IsDerivedFrom<GodotEngine.Component>())
             {
                 throw new GenerateWriterException($"Cannot generate writer for component type {variableReference.Name}. Use a supported type or provide a custom writer", variableReference);
             }
-            if (variableReference.Is<UnityEngine.Object>())
+            if (variableReference.Is<GodotEngine.Object>())
             {
                 throw new GenerateWriterException($"Cannot generate writer for {variableReference.Name}. Use a supported type or provide a custom writer", variableReference);
             }
-            if (variableReference.Is<UnityEngine.ScriptableObject>())
+            if (variableReference.Is<GodotEngine.ScriptableObject>())
             {
                 throw new GenerateWriterException($"Cannot generate writer for {variableReference.Name}. Use a supported type or provide a custom writer", variableReference);
             }

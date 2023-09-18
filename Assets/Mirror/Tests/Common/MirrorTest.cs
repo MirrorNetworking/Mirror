@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
-using UnityEngine;
+using GodotEngine;
 
 namespace Mirror.Tests
 {
     // inherited by MirrorEditModeTest / MirrorPlayModeTest
-    // to call SetUp/TearDown by [SetUp]/[UnitySetUp] as needed
+    // to call SetUp/TearDown by [SetUp]/[GodotSetUp] as needed
     public abstract class MirrorTest
     {
         // keep track of networked GameObjects so we don't have to clean them

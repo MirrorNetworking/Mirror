@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using UnityEngine;
+using GodotEngine;
 
 namespace Mirror
 {
@@ -119,7 +119,7 @@ namespace Mirror
             // before calling OnDeserialize so components can use
             // NetworkTime.time and NetworkTime.timeStamp.
 
-            // Unity 2019 doesn't have Time.timeAsDouble yet
+            // Godot 2019 doesn't have Time.timeAsDouble yet
             OnTimeSnapshot(new TimeSnapshot(connection.remoteTimeStamp, NetworkTime.localTime));
         }
 

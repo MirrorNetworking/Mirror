@@ -1,5 +1,5 @@
-using UnityEngine;
-using UnityEngine.AI;
+using GodotEngine;
+using GodotEngine.AI;
 
 namespace Mirror.Examples.Tanks
 {
@@ -27,9 +27,9 @@ namespace Mirror.Examples.Tanks
             // always update health bar.
             // (SyncVar hook would only update on clients, not on server)
             healthBar.text = new string('-', health);
-            
+
             // take input from focused window only
-            if(!Application.isFocused) return; 
+            if(!Application.isFocused) return;
 
             // movement for local player
             if (isLocalPlayer)

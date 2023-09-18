@@ -1,7 +1,7 @@
 using System;
 using System.Reflection;
-using UnityEditor;
-using UnityEngine;
+using GodotEditor;
+using GodotEngine;
 
 namespace Mirror
 {
@@ -36,7 +36,7 @@ namespace Mirror
             // SyncObjects are serialized in NetworkBehaviour.OnSerialize, which
             // is always there even if we don't use SyncObjects. so we need to
             // search for SyncObjects manually.
-            // Any SyncObject should be added to syncObjects when unity creates an
+            // Any SyncObject should be added to syncObjects when godot creates an
             // object so we can check length of list so see if sync objects exists
             return ((NetworkBehaviour)serializedObject.targetObject).HasSyncObjects();
         }
@@ -47,7 +47,7 @@ namespace Mirror
             if (target == null) return;
 
             // If target's base class is changed from NetworkBehaviour to MonoBehaviour
-            // then Unity temporarily keep using this Inspector causing things to break
+            // then Godot temporarily keep using this Inspector causing things to break
             if (!(target is NetworkBehaviour)) { return; }
 
             Type scriptClass = target.GetType();

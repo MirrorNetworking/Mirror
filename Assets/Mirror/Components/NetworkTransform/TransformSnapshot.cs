@@ -1,7 +1,7 @@
 // snapshot for snapshot interpolation
 // https://gafferongames.com/post/snapshot_interpolation/
 // position, rotation, scale for compatibility for now.
-using UnityEngine;
+using GodotEngine;
 
 namespace Mirror
 {
@@ -17,7 +17,7 @@ namespace Mirror
         //
         // note: in theory, IF server sends exactly(!) at the same interval then
         //       the 16 bit ushort timestamp would be enough to calculate the
-        //       remote time (sequence * sendInterval). but Unity's update is
+        //       remote time (sequence * sendInterval). but Godot's update is
         //       not guaranteed to run on the exact intervals / do catchup.
         //       => remote timestamp is better for now
         //

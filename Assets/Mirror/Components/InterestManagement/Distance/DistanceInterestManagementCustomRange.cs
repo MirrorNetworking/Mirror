@@ -1,6 +1,6 @@
 // add this to NetworkIdentities for custom range if needed.
 // only works with DistanceInterestManagement.
-using UnityEngine;
+using GodotEngine;
 
 namespace Mirror
 {

@@ -1,5 +1,5 @@
 using System;
-using UnityEngine;
+using GodotEngine;
 
 namespace Mirror.Experimental
 {
@@ -58,7 +58,7 @@ namespace Mirror.Experimental
 
         void SendToServer()
         {
-            double now = NetworkTime.localTime; // Unity 2019 doesn't have Time.timeAsDouble yet
+            double now = NetworkTime.localTime; // Godot 2019 doesn't have Time.timeAsDouble yet
             if (now > nextSyncTime)
             {
                 nextSyncTime = now + syncInterval;

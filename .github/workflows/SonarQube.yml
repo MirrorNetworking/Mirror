@@ -10,12 +10,12 @@ jobs:
     runs-on: ubuntu-latest
 
     # available list of containers here:
-    # https://hub.docker.com/r/unityci/editor/tags?page=1&ordering=last_updated&name=ubuntu-2020.1.17f1-base
-    container: unityci/editor:ubuntu-2021.3.16f1-base-1.0.1
+    # https://hub.docker.com/r/godotci/editor/tags?page=1&ordering=last_updated&name=ubuntu-2020.1.17f1-base
+    container: godotci/editor:ubuntu-2021.3.16f1-base-1.0.1
 
     steps:
       - name: SonarQube analysis
-        uses: MirrorNetworking/unity-runner@2.0.0
+        uses: MirrorNetworking/godot-runner@2.0.0
         with:
           entrypoint: /sonar-scanner.sh
           projectKey: vis2k_Mirror
@@ -32,6 +32,6 @@ jobs:
           # Assets/Mirror/Examples/**    - Examples don't need test coverage
           # Assets/Mirror/Tests/**       - Tests don't need test coverage
         env:
-          FrameworkPathOverride: /opt/Unity/Editor/Data/MonoBleedingEdge/
+          FrameworkPathOverride: /opt/Godot/Editor/Data/MonoBleedingEdge/
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

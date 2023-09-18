@@ -1,7 +1,7 @@
 #if !UNITY_2020_3_OR_NEWER
 // make sure we weaved successfully when entering play mode.
-using UnityEditor;
-using UnityEngine;
+using GodotEditor;
+using GodotEngine;
 
 namespace Mirror
 {
@@ -17,7 +17,7 @@ namespace Mirror
 
         static void OnPlayModeStateChanged(PlayModeStateChange state)
         {
-            // Per Unity docs, this fires "when exiting edit mode before the Editor is in play mode".
+            // Per Godot docs, this fires "when exiting edit mode before the Editor is in play mode".
             // This doesn't fire when closing the editor.
             if (state == PlayModeStateChange.ExitingEditMode)
             {

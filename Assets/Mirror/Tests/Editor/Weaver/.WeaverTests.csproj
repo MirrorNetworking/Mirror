@@ -95,7 +95,7 @@
     <Compile Include="WeaverGeneratedReaderWriterTests~\GivesErrorWhenUsingObject.cs" />
     <Compile Include="WeaverGeneratedReaderWriterTests~\GivesErrorWhenUsingScriptableObject.cs" />
     <Compile Include="WeaverGeneratedReaderWriterTests~\GivesErrorWhenUsingTypeInheritedFromMonoBehaviour.cs" />
-    <Compile Include="WeaverGeneratedReaderWriterTests~\GivesErrorWhenUsingUnityAsset.cs" />
+    <Compile Include="WeaverGeneratedReaderWriterTests~\GivesErrorWhenUsingGodotAsset.cs" />
     <Compile Include="WeaverClientRpcTests~\AbstractClientRpc.cs" />
     <Compile Include="WeaverClientRpcTests~\ClientRpcCantBeStatic.cs" />
     <Compile Include="WeaverClientRpcTests~\ClientRpcThatExcludesOwner.cs" />
@@ -235,7 +235,7 @@
     <Compile Include="WeaverSyncVarHookTests~\FindsStaticHook.cs" />
     <Compile Include="WeaverSyncVarTests~\SyncVarsCantBeArray.cs" />
     <Compile Include="WeaverSyncVarTests~\SyncVarsDerivedNetworkBehaviour.cs" />
-    <Compile Include="WeaverSyncVarTests~\SyncVarsUnityComponent.cs" />
+    <Compile Include="WeaverSyncVarTests~\SyncVarsGodotComponent.cs" />
     <Compile Include="WeaverSyncVarTests~\SyncVarsGenericParam.cs" />
     <Compile Include="WeaverSyncVarTests~\SyncVarsInterface.cs" />
     <Compile Include="WeaverSyncVarTests~\SyncVarsMoreThan63.cs" />
@@ -251,19 +251,19 @@
     <Compile Include="WeaverTargetRpcTests~\ErrorWhenNetworkConnectionIsNotTheFirstParameter.cs" />
     <Compile Include="WeaverTargetRpcTests~\TargetRpcValid.cs" />
     <Compile Include="WeaverTargetRpcTests~\VirtualTargetRpc.cs" />
-    <Reference Include="UnityEngine.CoreModule">
-      <HintPath>G:/UnityEditors/2018.3.6f1/Editor/Data/Managed/UnityEngine/UnityEngine.CoreModule.dll</HintPath>
+    <Reference Include="GodotEngine.CoreModule">
+      <HintPath>G:/GodotEditors/2018.3.6f1/Editor/Data/Managed/GodotEngine/GodotEngine.CoreModule.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="UnityEngine">
-      <HintPath>G:\UnityEditors\2018.3.6f1\Editor\Data\Managed/UnityEngine/UnityEngine.dll</HintPath>
+    <Reference Include="GodotEngine">
+      <HintPath>G:\GodotEditors\2018.3.6f1\Editor\Data\Managed/GodotEngine/GodotEngine.dll</HintPath>
     </Reference>
-    <Reference Include="UnityEditor">
-      <HintPath>G:\UnityEditors\2018.3.6f1\Editor\Data\Managed/UnityEditor.dll</HintPath>
+    <Reference Include="GodotEditor">
+      <HintPath>G:\GodotEditors\2018.3.6f1\Editor\Data\Managed/GodotEditor.dll</HintPath>
     </Reference>
-    <Reference Include="UnityEngine.TextRenderingModule">
-      <HintPath>G:\UnityEditors\2018.3.6f1\Editor\Data\Managed\UnityEngine\UnityEngine.TextRenderingModule.dll</HintPath>
+    <Reference Include="GodotEngine.TextRenderingModule">
+      <HintPath>G:\GodotEditors\2018.3.6f1\Editor\Data\Managed\GodotEngine\GodotEngine.TextRenderingModule.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

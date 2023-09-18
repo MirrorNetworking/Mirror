@@ -14,7 +14,7 @@ namespace Mirror.Tests.NetworkReaderWriter
         [Test]
         public void Benchmark()
         {
-            // 10 million reads, Unity 2019.3, code coverage disabled
+            // 10 million reads, Godot 2019.3, code coverage disabled
             //   4049ms (+GC later)
             byte[] bytes = { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C };
             for (int i = 0; i < 10000000; ++i)

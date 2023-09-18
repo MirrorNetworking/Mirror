@@ -23,7 +23,7 @@
 //   * Transports should only process messages while the component is enabled.
 //
 using System;
-using UnityEngine;
+using GodotEngine;
 
 namespace Mirror
 {
@@ -153,10 +153,10 @@ namespace Mirror
         //      process_outgoing()
         //
         // => see NetworkLoop.cs for detailed explanations!
-#pragma warning disable UNT0001 // Empty Unity message
+#pragma warning disable UNT0001 // Empty Godot message
         public void Update() {}
         public void LateUpdate() {}
-#pragma warning restore UNT0001 // Empty Unity message
+#pragma warning restore UNT0001 // Empty Godot message
 
         /// <summary>
         /// NetworkLoop NetworkEarly/LateUpdate were added for a proper network
@@ -178,11 +178,11 @@ namespace Mirror
         /// <summary>Shut down the transport, both as client and server</summary>
         public abstract void Shutdown();
 
-        /// <summary>Called by Unity when quitting. Inheriting Transports should call base for proper Shutdown.</summary>
+        /// <summary>Called by Godot when quitting. Inheriting Transports should call base for proper Shutdown.</summary>
         public virtual void OnApplicationQuit()
         {
             // stop transport (e.g. to shut down threads)
-            // (when pressing Stop in the Editor, Unity keeps threads alive
+            // (when pressing Stop in the Editor, Godot keeps threads alive
             //  until we press Start again. so if Transports use threads, we
             //  really want them to end now and not after next start)
             Shutdown();

@@ -1,7 +1,7 @@
 // NetworkTransform V2 by mischa (2021-07)
 // comment out the below line to quickly revert the onlySyncOnChange feature
 #define onlySyncOnChange_BANDWIDTH_SAVING
-using UnityEngine;
+using GodotEngine;
 
 namespace Mirror
 {
@@ -73,7 +73,7 @@ namespace Mirror
 			if (sendIntervalCounter == sendIntervalMultiplier)
 				sendIntervalCounter = 0;
 
-			// timeAsDouble not available in older Unity versions.
+			// timeAsDouble not available in older Godot versions.
 			if (AccurateInterval.Elapsed(NetworkTime.localTime, NetworkServer.sendInterval, ref lastSendIntervalTime))
                 sendIntervalCounter++;
         }
@@ -82,7 +82,7 @@ namespace Mirror
         {
             // broadcast to all clients each 'sendInterval'
             // (client with authority will drop the rpc)
-            // NetworkTime.localTime for double precision until Unity has it too
+            // NetworkTime.localTime for double precision until Godot has it too
             //
             // IMPORTANT:
             // snapshot interpolation requires constant sending.
@@ -190,7 +190,7 @@ namespace Mirror
             if (!NetworkClient.ready) return;
 
             // send to server each 'sendInterval'
-            // NetworkTime.localTime for double precision until Unity has it too
+            // NetworkTime.localTime for double precision until Godot has it too
             //
             // IMPORTANT:
             // snapshot interpolation requires constant sending.

@@ -15,6 +15,6 @@ namespace GeneratedReaderWriter.ExcludesNonSerializedFields
     {
         public int usefulNumber;
         // Object is a not allowed type
-        [System.NonSerialized] public UnityEngine.Object obj;
+        [System.NonSerialized] public GodotEngine.Object obj;
     }
 }

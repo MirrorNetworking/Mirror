@@ -1,12 +1,12 @@
 // helper function to use ILPostProcessor for an assembly from file.
 // we keep this in Weaver folder because we can access CompilationPipleine here.
-// in tests folder we can't, unless we rename to "Unity.*.CodeGen",
+// in tests folder we can't, unless we rename to "Godot.*.CodeGen",
 // but then tests wouldn't be weaved anymore.
 #if UNITY_2020_3_OR_NEWER
 using System;
 using System.IO;
-using Unity.CompilationPipeline.Common.Diagnostics;
-using Unity.CompilationPipeline.Common.ILPostProcessing;
+using Godot.CompilationPipeline.Common.Diagnostics;
+using Godot.CompilationPipeline.Common.ILPostProcessing;
 
 namespace Mirror.Weaver
 {
@@ -21,16 +21,16 @@ namespace Mirror.Weaver
             CompiledAssemblyFromFile assembly = new CompiledAssemblyFromFile(assemblyPath);
             assembly.References = references;
 
-            // create ILPP and check WillProcess like Unity would.
+            // create ILPP and check WillProcess like Godot would.
             ILPostProcessorHook ilpp = new ILPostProcessorHook();
             if (ilpp.WillProcess(assembly))
             {
                 //Debug.Log($"Will Process: {assembly.Name}");
 
-                // process it like Unity would
+                // process it like Godot would
                 ILPostProcessResult result = ilpp.Process(assembly);
 
-                // handle the error messages like Unity would
+                // handle the error messages like Godot would
                 foreach (DiagnosticMessage message in result.Diagnostics)
                 {
                     if (message.DiagnosticType == DiagnosticType.Warning)

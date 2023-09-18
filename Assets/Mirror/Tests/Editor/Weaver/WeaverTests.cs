@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.IO;
 using NUnit.Framework;
-using UnityEngine;
-using UnityEngine.TestTools;
+using GodotEngine;
+using GodotEngine.TestTools;
 
 namespace Mirror.Weaver.Tests
 {
@@ -47,7 +47,7 @@ namespace Mirror.Weaver.Tests
         {
 #if !UNITY_2020_3_OR_NEWER
             // CompilationFinishedHook is used for tests pre-2020 ILPostProcessor
-            CompilationFinishedHook.UnityLogEnabled = false;
+            CompilationFinishedHook.GodotLogEnabled = false;
             CompilationFinishedHook.OnWeaverError += HandleWeaverError;
             CompilationFinishedHook.OnWeaverWarning += HandleWeaverWarning;
 #endif
@@ -60,7 +60,7 @@ namespace Mirror.Weaver.Tests
             // CompilationFinishedHook is used for tests pre-2020 ILPostProcessor
             CompilationFinishedHook.OnWeaverError -= HandleWeaverError;
             CompilationFinishedHook.OnWeaverWarning -= HandleWeaverWarning;
-            CompilationFinishedHook.UnityLogEnabled = true;
+            CompilationFinishedHook.GodotLogEnabled = true;
 #endif
         }
 

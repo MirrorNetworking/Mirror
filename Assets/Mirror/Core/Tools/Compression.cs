@@ -1,7 +1,7 @@
 // Quaternion compression from DOTSNET
 using System;
 using System.Runtime.CompilerServices;
-using UnityEngine;
+using GodotEngine;
 
 namespace Mirror
 {

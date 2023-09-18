@@ -8,7 +8,7 @@ namespace Mirror.Weaver
     static class Helpers
     {
         // This code is taken from SerializationWeaver
-        public static string UnityEngineDllDirectoryName()
+        public static string GodotEngineDllDirectoryName()
         {
             string directoryName = Path.GetDirectoryName(Assembly.GetExecutingAssembly().CodeBase);
             return directoryName?.Replace(@"file:\", "");
@@ -17,9 +17,9 @@ namespace Mirror.Weaver
         public static bool IsEditorAssembly(AssemblyDefinition currentAssembly)
         {
             // we want to add the [InitializeOnLoad] attribute if it's available
-            // -> usually either 'UnityEditor' or 'UnityEditor.CoreModule'
+            // -> usually either 'GodotEditor' or 'GodotEditor.CoreModule'
             return currentAssembly.MainModule.AssemblyReferences.Any(assemblyReference =>
-                assemblyReference.Name.StartsWith(nameof(UnityEditor))
+                assemblyReference.Name.StartsWith(nameof(GodotEditor))
             );
         }
     }

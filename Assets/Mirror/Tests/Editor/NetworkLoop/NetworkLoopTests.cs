@@ -1,6 +1,6 @@
 using NUnit.Framework;
-using UnityEngine.LowLevel;
-using UnityEngine.PlayerLoop;
+using GodotEngine.LowLevel;
+using GodotEngine.PlayerLoop;
 
 namespace Mirror.Tests
 {

@@ -2,7 +2,7 @@
 //      but we need to split NetworkIdentity.spawned in server/client first.
 //      atm we can't spawn an object on both server & client separately yet.
 using NUnit.Framework;
-using UnityEngine;
+using GodotEngine;
 
 namespace Mirror.Tests.NetworkTransformTests
 {

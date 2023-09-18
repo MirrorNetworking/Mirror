@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using UnityEngine;
+using GodotEngine;
 
 namespace Mirror.Discovery
 {
@@ -20,8 +20,8 @@ namespace Mirror.Discovery
             if (networkDiscovery == null)
             {
                 networkDiscovery = GetComponent<NetworkDiscovery>();
-                UnityEditor.Events.UnityEventTools.AddPersistentListener(networkDiscovery.OnServerFound, OnDiscoveredServer);
-                UnityEditor.Undo.RecordObjects(new Object[] { this, networkDiscovery }, "Set NetworkDiscovery");
+                GodotEditor.Events.GodotEventTools.AddPersistentListener(networkDiscovery.OnServerFound, OnDiscoveredServer);
+                GodotEditor.Undo.RecordObjects(new Object[] { this, networkDiscovery }, "Set NetworkDiscovery");
             }
         }
 #endif

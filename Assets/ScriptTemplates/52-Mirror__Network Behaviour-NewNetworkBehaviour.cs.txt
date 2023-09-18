@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using UnityEngine;
+using GodotEngine;
 using Mirror;
 
 /*
@@ -11,7 +11,7 @@ using Mirror;
 
 public class #SCRIPTNAME# : NetworkBehaviour
 {
-    #region Unity Callbacks
+    #region Godot Callbacks
 
     /// <summary>
     /// Add your validation code here after the base.OnValidate(); call.

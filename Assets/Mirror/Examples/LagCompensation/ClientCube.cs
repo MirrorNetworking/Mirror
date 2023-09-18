@@ -1,7 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
+using GodotEngine;
 
 namespace Mirror.Examples.LagCompensationDemo
 {
@@ -66,7 +66,7 @@ namespace Mirror.Examples.LagCompensationDemo
         public void OnMessage(Snapshot3D snap)
         {
             // set local timestamp (= when it was received on our end)
-            // Unity 2019 doesn't have Time.timeAsDouble yet
+            // Godot 2019 doesn't have Time.timeAsDouble yet
             snap.localTime = NetworkTime.localTime;
 
             // (optional) dynamic adjustment

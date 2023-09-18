@@ -2,8 +2,8 @@ using System;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text;
-using Unity.Collections.LowLevel.Unsafe;
-using UnityEngine;
+using Godot.Collections.LowLevel.Unsafe;
+using GodotEngine;
 
 namespace Mirror
 {
@@ -63,7 +63,7 @@ namespace Mirror
         }
 
 #if !UNITY_2021_3_OR_NEWER
-        // Unity 2019 doesn't have the implicit byte[] to segment conversion yet
+        // Godot 2019 doesn't have the implicit byte[] to segment conversion yet
         public NetworkReader(byte[] bytes)
         {
             buffer = new ArraySegment<byte>(bytes, 0, bytes.Length);
@@ -80,7 +80,7 @@ namespace Mirror
         }
 
 #if !UNITY_2021_3_OR_NEWER
-        // Unity 2019 doesn't have the implicit byte[] to segment conversion yet
+        // Godot 2019 doesn't have the implicit byte[] to segment conversion yet
         public void SetBuffer(byte[] bytes)
         {
             buffer = new ArraySegment<byte>(bytes, 0, bytes.Length);
@@ -96,7 +96,7 @@ namespace Mirror
         //
         // Note:
         //   ReadBlittable assumes same endianness for server & client.
-        //   All Unity 2018+ platforms are little endian.
+        //   All Godot 2018+ platforms are little endian.
         //
         // This is not safe to expose to random structs.
         //   * StructLayout.Sequential is the default, which is safe.

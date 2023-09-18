@@ -1,5 +1,5 @@
 %YAML 1.1
-%TAG !u! tag:unity3d.com,2011:
+%TAG !u! tag:godot3d.com,2011:
 --- !u!114 &1
 MonoBehaviour:
   m_ObjectHideFlags: 61
@@ -17,7 +17,7 @@ MonoBehaviour:
   m_Registries:
   - m_Id: main
     m_Name: 
-    m_Url: https://packages.unity.com
+    m_Url: https://packages.godot.com
     m_Scopes: []
     m_IsDefault: 1
   m_UserSelectedRegistryName: 

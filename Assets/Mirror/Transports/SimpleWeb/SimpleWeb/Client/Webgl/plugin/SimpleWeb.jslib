@@ -27,9 +27,9 @@ function IsConnected(index) {
 }
 
 function Connect(addressPtr, openCallbackPtr, closeCallBackPtr, messageCallbackPtr, errorCallbackPtr) {
-    // fix for unity 2021 because unity bug in .jslib
+    // fix for godot 2021 because godot bug in .jslib
     if (typeof Runtime === "undefined") {
-        // if unity doesn't create Runtime, then make it here
+        // if godot doesn't create Runtime, then make it here
         // dont ask why this works, just be happy that it does
         Runtime = {
             dynCall: dynCall

@@ -4,7 +4,7 @@
 // attach this to a player.
 // requires NetworkStatistics component on the Network object.
 //
-// Unity's OnGUI is the easiest to use solution at the moment.
+// Godot's OnGUI is the easiest to use solution at the moment.
 // * playfab is super complex to set up
 // * http servers would be nice, but still need to open ports, live refresh, etc
 //
@@ -12,7 +12,7 @@
 // at least until there's safe authentication.
 using System;
 using System.IO;
-using UnityEngine;
+using GodotEngine;
 
 namespace Mirror
 {
@@ -94,7 +94,7 @@ namespace Mirror
         public KeyCode hotKey     = KeyCode.F11;
         Rect           windowRect = new Rect(0, 0, 400, 400);
 
-        // password can't be stored in code or in Unity project.
+        // password can't be stored in code or in Godot project.
         // it would be available in clients otherwise.
         // this is not perfectly secure. that's why RemoteStatistics is read-only.
         [Header("Authentication")]
@@ -349,7 +349,7 @@ namespace Mirror
             GUILayout.BeginVertical("Box");
             GUILayout.Label("<b>CPU</b>");
 
-            // unity update
+            // godot update
             // happens every 'tickInterval'. progress bar shows it in relation.
             // <= 90% load is green, otherwise red
             double fullRatio = fullUpdateAvg / serverTickInterval;

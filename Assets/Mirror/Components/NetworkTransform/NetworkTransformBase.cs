@@ -18,7 +18,7 @@
 //         buffer for bufferTime but end up closer to the original time
 using System;
 using System.Collections.Generic;
-using UnityEngine;
+using GodotEngine;
 
 namespace Mirror
 {
@@ -35,7 +35,7 @@ namespace Mirror
         // TODO SyncDirection { ClientToServer, ServerToClient } is easier?
         // Deprecated 2022-10-25
         [Obsolete("NetworkTransform clientAuthority was replaced with syncDirection. To enable client authority, set SyncDirection to ClientToServer in the Inspector.")]
-        [Header("[Obsolete]")] // Unity doesn't show obsolete warning for fields. do it manually.
+        [Header("[Obsolete]")] // Godot doesn't show obsolete warning for fields. do it manually.
         [Tooltip("Obsolete: NetworkTransform clientAuthority was replaced with syncDirection. To enable client authority, set SyncDirection to ClientToServer in the Inspector.")]
         public bool clientAuthority;
         // Is this a client with authority over this transform?
@@ -116,7 +116,7 @@ namespace Mirror
             // actually use NetworkServer.sendInterval.
             syncInterval = 0;
 
-            // Unity doesn't support setting world scale.
+            // Godot doesn't support setting world scale.
             // OnValidate force disables syncScale in world mode.
             if (coordinateSpace == CoordinateSpace.World) syncScale = false;
 
@@ -168,7 +168,7 @@ namespace Mirror
         {
             if (coordinateSpace == CoordinateSpace.Local)
                 target.localScale = scale;
-            // Unity doesn't support setting world scale.
+            // Godot doesn't support setting world scale.
             // OnValidate disables syncScale in world mode.
             // else
                 // target.lossyScale = scale; // TODO
@@ -178,10 +178,10 @@ namespace Mirror
         // => internal for testing
         protected virtual TransformSnapshot Construct()
         {
-            // NetworkTime.localTime for double precision until Unity has it too
+            // NetworkTime.localTime for double precision until Godot has it too
             return new TransformSnapshot(
                 // our local time is what the other end uses as remote time
-                NetworkTime.localTime, // Unity 2019 doesn't have timeAsDouble yet
+                NetworkTime.localTime, // Godot 2019 doesn't have timeAsDouble yet
                 0,                     // the other end fills out local time itself
                 GetPosition(),
                 GetRotation(),
@@ -211,7 +211,7 @@ namespace Mirror
                 NetworkClient.snapshotSettings.bufferLimit,
                 new TransformSnapshot(
                     timeStamp, // arrival remote timestamp. NOT remote time.
-                    NetworkTime.localTime, // Unity 2019 doesn't have timeAsDouble yet
+                    NetworkTime.localTime, // Godot 2019 doesn't have timeAsDouble yet
                     position.Value,
                     rotation.Value,
                     scale.Value

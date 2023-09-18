@@ -1,6 +1,6 @@
 using NUnit.Framework;
-using UnityEngine;
-using Random = UnityEngine.Random;
+using GodotEngine;
+using Random = GodotEngine.Random;
 
 namespace Mirror.Tests.LagCompensationTests
 {
@@ -23,7 +23,7 @@ namespace Mirror.Tests.LagCompensationTests
         // simple benchmark to compare some optimizations later.
         // 64 entries are much more than we would usually use.
         //
-        // Unity 2021.3 LTS, release mode: 100k; limit=8
+        // Godot 2021.3 LTS, release mode: 100k; limit=8
         //   O(N) Queue<Bounds> implementation:     183 ms
         //   O(N) Queue and recalculate every 2nd:  108 ms
         //   O(N) cache friendly OpenQueue:          98 ms

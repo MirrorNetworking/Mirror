@@ -6,7 +6,7 @@ namespace Mirror.SimpleWeb
 {
 #if !UNITY_2021_3_OR_NEWER
 
-    // Unity 2019 doesn't have ArraySegment.ToArray() yet.
+    // Godot 2019 doesn't have ArraySegment.ToArray() yet.
     public static class Extensions
     {
         public static byte[] ToArray(this ArraySegment<byte> segment)

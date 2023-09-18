@@ -4,7 +4,7 @@ namespace WeaverNetworkBehaviourTests.NetworkBehaviourTargetRpcParamComponent
 {
     class NetworkBehaviourTargetRpcParamComponent : NetworkBehaviour
     {
-        public class ComponentClass : UnityEngine.Component
+        public class ComponentClass : GodotEngine.Component
         {
             int monkeys = 12;
         }

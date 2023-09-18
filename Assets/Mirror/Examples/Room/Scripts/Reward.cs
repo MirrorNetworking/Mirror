@@ -1,4 +1,4 @@
-using UnityEngine;
+using GodotEngine;
 
 namespace Mirror.Examples.NetworkRoom
 {
@@ -37,7 +37,7 @@ namespace Mirror.Examples.NetworkRoom
                 Color32 color = randomColor.color;
 
                 // calculate the points from the color ... lighter scores higher as the average approaches 255
-                // UnityEngine.Color RGB values are float fractions of 255
+                // GodotEngine.Color RGB values are float fractions of 255
                 uint points = (uint)(((color.r) + (color.g) + (color.b)) / 3);
                 //Debug.Log($"Scored {points} points R:{color.r} G:{color.g} B:{color.b}");
 

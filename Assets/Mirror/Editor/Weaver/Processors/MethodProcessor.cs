@@ -22,7 +22,7 @@ namespace Mirror.Weaver
             MethodDefinition cmd = new MethodDefinition(newName, md.Attributes, md.ReturnType);
 
             // force the substitute method to be protected.
-            // -> public would show in the Inspector for UnityEvents as
+            // -> public would show in the Inspector for GodotEvents as
             //    User_CmdUsePotion() etc. but the user shouldn't use those.
             // -> private would not allow inheriting classes to call it, see
             //    OverrideVirtualWithBaseCallsBothVirtualAndBase test.

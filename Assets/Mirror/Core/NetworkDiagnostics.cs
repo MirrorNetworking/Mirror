@@ -33,7 +33,7 @@ namespace Mirror
         public static event Action<MessageInfo> InMessageEvent;
 
         // RuntimeInitializeOnLoadMethod -> fast playmode without domain reload
-        [UnityEngine.RuntimeInitializeOnLoadMethod]
+        [GodotEngine.RuntimeInitializeOnLoadMethod]
         static void ResetStatics()
         {
             InMessageEvent = null;

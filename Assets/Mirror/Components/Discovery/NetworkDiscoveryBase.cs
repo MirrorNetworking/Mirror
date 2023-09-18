@@ -2,7 +2,7 @@ using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
-using UnityEngine;
+using GodotEngine;
 
 // Based on https://github.com/EnlightenedOne/MirrorNetworkDiscovery
 // forked from https://github.com/in0finite/MirrorNetworkDiscovery
@@ -45,7 +45,7 @@ namespace Mirror.Discovery
         public Transport transport;
 
         [Tooltip("Invoked when a server is found")]
-        public ServerFoundUnityEvent<Response> OnServerFound;
+        public ServerFoundGodotEvent<Response> OnServerFound;
 
         // Each game should have a random unique handshake,
         // this way you can tell if this is the same game or not
@@ -66,7 +66,7 @@ namespace Mirror.Discovery
             if (secretHandshake == 0)
             {
                 secretHandshake = RandomLong();
-                UnityEditor.Undo.RecordObject(this, "Set secret handshake");
+                GodotEditor.Undo.RecordObject(this, "Set secret handshake");
             }
         }
 #endif
@@ -92,12 +92,12 @@ namespace Mirror.Discovery
 
         public static long RandomLong()
         {
-            int value1 = UnityEngine.Random.Range(int.MinValue, int.MaxValue);
-            int value2 = UnityEngine.Random.Range(int.MinValue, int.MaxValue);
+            int value1 = GodotEngine.Random.Range(int.MinValue, int.MaxValue);
+            int value2 = GodotEngine.Random.Range(int.MinValue, int.MaxValue);
             return value1 + ((long)value2 << 32);
         }
 
-        // Ensure the ports are cleared no matter when Game/Unity UI exits
+        // Ensure the ports are cleared no matter when Game/Godot UI exits
         void OnApplicationQuit()
         {
             //Debug.Log("NetworkDiscoveryBase OnApplicationQuit");
@@ -274,7 +274,7 @@ namespace Mirror.Discovery
 
             if (Application.platform == RuntimePlatform.Android)
             {
-                using (AndroidJavaObject activity = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity"))
+                using (AndroidJavaObject activity = new AndroidJavaClass("com.godot3d.player.GodotPlayer").GetStatic<AndroidJavaObject>("currentActivity"))
                 {
                     using (var wifiManager = activity.Call<AndroidJavaObject>("getSystemService", "wifi"))
                     {

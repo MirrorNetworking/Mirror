@@ -1,5 +1,5 @@
 using System;
-using UnityEngine;
+using GodotEngine;
 using Conditional = System.Diagnostics.ConditionalAttribute;
 
 namespace Mirror.SimpleWeb
@@ -15,7 +15,7 @@ namespace Mirror.SimpleWeb
             verbose = 4,
         }
 
-        public static ILogger logger = Debug.unityLogger;
+        public static ILogger logger = Debug.godotLogger;
         public static Levels level = Levels.none;
 
         public static string BufferToString(byte[] buffer, int offset = 0, int? length = null)

@@ -178,7 +178,7 @@ namespace Mirror.Weaver
             }
 
             // [SyncVar] GameObject?
-            if (fd.FieldType.Is<UnityEngine.GameObject>())
+            if (fd.FieldType.Is<GodotEngine.GameObject>())
             {
                 // return this.GetSyncVarGameObject(ref field, uint netId);
                 // this.
@@ -319,7 +319,7 @@ namespace Mirror.Weaver
             // call GeneratedSyncVarSetter<T>.
             // special cases for GameObject/NetworkIdentity/NetworkBehaviour
             // passing netId too for persistence.
-            if (fd.FieldType.Is<UnityEngine.GameObject>())
+            if (fd.FieldType.Is<GodotEngine.GameObject>())
             {
                 // GameObject setter needs one more parameter: netId field ref
                 worker.Emit(OpCodes.Ldarg_0);

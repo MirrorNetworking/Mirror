@@ -3,154 +3,154 @@
     "dependencyTypeInfos": [
         {
             "userAdded": false,
-            "type": "UnityEngine.AnimationClip",
+            "type": "GodotEngine.AnimationClip",
             "ignore": false,
             "defaultInstantiationMode": 0,
             "supportsModification": true
         },
         {
             "userAdded": false,
-            "type": "UnityEditor.Animations.AnimatorController",
+            "type": "GodotEditor.Animations.AnimatorController",
             "ignore": false,
             "defaultInstantiationMode": 0,
             "supportsModification": true
         },
         {
             "userAdded": false,
-            "type": "UnityEngine.AnimatorOverrideController",
+            "type": "GodotEngine.AnimatorOverrideController",
             "ignore": false,
             "defaultInstantiationMode": 0,
             "supportsModification": true
         },
         {
             "userAdded": false,
-            "type": "UnityEditor.Audio.AudioMixerController",
+            "type": "GodotEditor.Audio.AudioMixerController",
             "ignore": false,
             "defaultInstantiationMode": 0,
             "supportsModification": true
         },
         {
             "userAdded": false,
-            "type": "UnityEngine.ComputeShader",
+            "type": "GodotEngine.ComputeShader",
             "ignore": true,
             "defaultInstantiationMode": 1,
             "supportsModification": true
         },
         {
             "userAdded": false,
-            "type": "UnityEngine.Cubemap",
+            "type": "GodotEngine.Cubemap",
             "ignore": false,
             "defaultInstantiationMode": 0,
             "supportsModification": true
         },
         {
             "userAdded": false,
-            "type": "UnityEngine.GameObject",
+            "type": "GodotEngine.GameObject",
             "ignore": false,
             "defaultInstantiationMode": 0,
             "supportsModification": true
         },
         {
             "userAdded": false,
-            "type": "UnityEditor.LightingDataAsset",
+            "type": "GodotEditor.LightingDataAsset",
             "ignore": false,
             "defaultInstantiationMode": 0,
             "supportsModification": false
         },
         {
             "userAdded": false,
-            "type": "UnityEngine.LightingSettings",
+            "type": "GodotEngine.LightingSettings",
             "ignore": false,
             "defaultInstantiationMode": 0,
             "supportsModification": true
         },
         {
             "userAdded": false,
-            "type": "UnityEngine.Material",
+            "type": "GodotEngine.Material",
             "ignore": false,
             "defaultInstantiationMode": 0,
             "supportsModification": true
         },
         {
             "userAdded": false,
-            "type": "UnityEditor.MonoScript",
+            "type": "GodotEditor.MonoScript",
             "ignore": true,
             "defaultInstantiationMode": 1,
             "supportsModification": true
         },
         {
             "userAdded": false,
-            "type": "UnityEngine.PhysicMaterial",
+            "type": "GodotEngine.PhysicMaterial",
             "ignore": false,
             "defaultInstantiationMode": 0,
             "supportsModification": true
         },
         {
             "userAdded": false,
-            "type": "UnityEngine.PhysicsMaterial2D",
+            "type": "GodotEngine.PhysicsMaterial2D",
             "ignore": false,
             "defaultInstantiationMode": 0,
             "supportsModification": true
         },
         {
             "userAdded": false,
-            "type": "UnityEngine.Rendering.PostProcessing.PostProcessProfile",
+            "type": "GodotEngine.Rendering.PostProcessing.PostProcessProfile",
             "ignore": false,
             "defaultInstantiationMode": 0,
             "supportsModification": true
         },
         {
             "userAdded": false,
-            "type": "UnityEngine.Rendering.PostProcessing.PostProcessResources",
+            "type": "GodotEngine.Rendering.PostProcessing.PostProcessResources",
             "ignore": false,
             "defaultInstantiationMode": 0,
             "supportsModification": true
         },
         {
             "userAdded": false,
-            "type": "UnityEngine.Rendering.VolumeProfile",
+            "type": "GodotEngine.Rendering.VolumeProfile",
             "ignore": false,
             "defaultInstantiationMode": 0,
             "supportsModification": true
         },
         {
             "userAdded": false,
-            "type": "UnityEditor.SceneAsset",
+            "type": "GodotEditor.SceneAsset",
             "ignore": false,
             "defaultInstantiationMode": 0,
             "supportsModification": false
         },
         {
             "userAdded": false,
-            "type": "UnityEngine.Shader",
+            "type": "GodotEngine.Shader",
             "ignore": true,
             "defaultInstantiationMode": 1,
             "supportsModification": true
         },
         {
             "userAdded": false,
-            "type": "UnityEngine.ShaderVariantCollection",
+            "type": "GodotEngine.ShaderVariantCollection",
             "ignore": true,
             "defaultInstantiationMode": 1,
             "supportsModification": true
         },
         {
             "userAdded": false,
-            "type": "UnityEngine.Texture",
+            "type": "GodotEngine.Texture",
             "ignore": false,
             "defaultInstantiationMode": 0,
             "supportsModification": true
         },
         {
             "userAdded": false,
-            "type": "UnityEngine.Texture2D",
+            "type": "GodotEngine.Texture2D",
             "ignore": false,
             "defaultInstantiationMode": 0,
             "supportsModification": true
         },
         {
             "userAdded": false,
-            "type": "UnityEngine.Timeline.TimelineAsset",
+            "type": "GodotEngine.Timeline.TimelineAsset",
             "ignore": false,
             "defaultInstantiationMode": 0,
             "supportsModification": true
