@@ -178,6 +178,9 @@ namespace Mirror.PredictedRigidbody
 
             // first, remember the delta between last recorded state and current live state.
             // before we potentially correct 'last' in history.
+            // TODO we always record the current state in CompareState now.
+            //      applying live delta may not be necessary anymore.
+            //      this should always be '0' now.
             RigidbodyState newest = stateHistory.Values[stateHistory.Count - 1];
             Vector3 livePositionDelta = rb.position - newest.position;
             Vector3 liveVelocityDelta = rb.velocity - newest.velocity;
@@ -240,6 +243,13 @@ namespace Mirror.PredictedRigidbody
         // apply correction if necessary.
         void CompareState(double timestamp, RigidbodyState state)
         {
+            // we only capture state every 'interval' milliseconds.
+            // so the newest entry in 'history' may be up to 'interval' behind 'now'.
+            // if there's no latency, we may receive a server state for 'now'.
+            // sampling would fail, if we haven't recorded anything in a while.
+            // to solve this, always record the current state when receiving a server state.
+            RecordState();
+
             // find the two closest client states between timestamp
             if (!Prediction.Sample(stateHistory, timestamp, out RigidbodyState before, out RigidbodyState after, out double t))
             {
