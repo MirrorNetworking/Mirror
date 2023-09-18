@@ -181,9 +181,9 @@ namespace Mirror.PredictedRigidbody
             // TODO we always record the current state in CompareState now.
             //      applying live delta may not be necessary anymore.
             //      this should always be '0' now.
-            RigidbodyState newest = stateHistory.Values[stateHistory.Count - 1];
-            Vector3 livePositionDelta = rb.position - newest.position;
-            Vector3 liveVelocityDelta = rb.velocity - newest.velocity;
+            // RigidbodyState newest = stateHistory.Values[stateHistory.Count - 1];
+            // Vector3 livePositionDelta = rb.position - newest.position;
+            // Vector3 liveVelocityDelta = rb.velocity - newest.velocity;
             // TODO rotation delta?
 
             // insert the corrected state and adjust 'after.delta' to the inserted.
@@ -233,9 +233,9 @@ namespace Mirror.PredictedRigidbody
 
             // 'last' will now have the final position after reconciliation.
             // apply it to the Rigidbody, but respect the 'live' delta since last capture.
-            Vector3    finalPosition = last.position + livePositionDelta;
+            Vector3    finalPosition = last.position;// + livePositionDelta;
             Quaternion finalRotation = last.rotation;
-            Vector3    finalVelocity = last.velocity + liveVelocityDelta;
+            Vector3    finalVelocity = last.velocity;// + liveVelocityDelta;
             ApplyState(finalPosition, finalRotation, finalVelocity);
         }
 
