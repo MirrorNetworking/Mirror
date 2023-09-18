@@ -202,6 +202,15 @@ namespace Mirror.PredictedRigidbody
                 // TODO rotation
                 entry.velocity = last.velocity + entry.velocityDelta;
 
+                // save the corrected entry into history.
+                // if we don't, then corrections for [i+1] would compare the
+                // uncorrected state and attempt to correct again, resulting in
+                // noticeable jitter and displacements.
+                //
+                // not saving it would also result in objects flying towards
+                // infinity when using sendInterval = 0.
+                stateHistory[entry.timestamp] = entry;
+
                 // debug draw the corrected state
                 Debug.DrawLine(last.position, entry.position, Color.green, lineTime);
 
