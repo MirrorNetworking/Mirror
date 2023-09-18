@@ -283,9 +283,16 @@ namespace Mirror.PredictedRigidbody
                 // when applying corrections here, this looks just fine on the local machine.
                 else if (newest.timestamp < state.timestamp)
                 {
-                    double ahead = state.timestamp - newest.timestamp;
-                    Debug.Log($"Hard correction because the client is ahead of the server by {(ahead*1000):F1}ms. History of size={stateHistory.Count} @ t={timestamp:F3} oldest={oldest.timestamp:F3} newest={newest.timestamp:F3}. This can happen when latency is near zero, and is fine unless it shows jitter.");
-                    ApplyCorrection(state, state, state);
+                    // the correction is for a state in the future.
+                    // we clamp it to 'now'.
+                    // but only correct if off by threshold.
+                    // TODO maybe we should interpolate this back to 'now'?
+                    if (Vector3.Distance(state.position, rb.position) >= correctionThreshold)
+                    {
+                        double ahead = state.timestamp - newest.timestamp;
+                        Debug.Log($"Hard correction because the client is ahead of the server by {(ahead*1000):F1}ms. History of size={stateHistory.Count} @ t={timestamp:F3} oldest={oldest.timestamp:F3} newest={newest.timestamp:F3}. This can happen when latency is near zero, and is fine unless it shows jitter.");
+                        ApplyCorrection(state, state, state);
+                    }
                 }
                 // otherwise something went very wrong. sampling should've worked.
                 // hard correct to recover the error.
