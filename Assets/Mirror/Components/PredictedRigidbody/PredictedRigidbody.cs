@@ -89,11 +89,17 @@ namespace Mirror.PredictedRigidbody
         void UpdateServer()
         {
             // to save bandwidth, we only serialize when position changed
-            if (Vector3.Distance(transform.position, lastPosition) >= positionSensitivity)
-            {
-                lastPosition = transform.position;
-                SetDirty();
-            }
+            // if (Vector3.Distance(transform.position, lastPosition) >= positionSensitivity)
+            // {
+            //     lastPosition = transform.position;
+            //     SetDirty();
+            // }
+
+            // always set dirty to always serialize.
+            // fixes issues where an object was idle and stopped serializing on server,
+            // even though it was still moving on client.
+            // hence getting totally out of sync.
+            SetDirty();
         }
 
         void Update()
