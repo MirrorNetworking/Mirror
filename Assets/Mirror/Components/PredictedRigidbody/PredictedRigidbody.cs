@@ -227,14 +227,46 @@ namespace Mirror.PredictedRigidbody
             // find the two closest client states between timestamp
             if (!Prediction.Sample(stateHistory, timestamp, out RigidbodyState before, out RigidbodyState after, out double t))
             {
-                // not having enough entries yet is fine: simply wait until we have more.
-                if (stateHistory.Count < 2) return;
+                // if we failed to sample, that could indicate a problem.
+                // first, if the client didn't record 'limit' entries yet, then
+                // let it keep recording. it'll be fine.
+                if (stateHistory.Count < stateHistoryLimit) return;
 
-                // having enough entries and not being able to sample is a problem.
-                // in that case, try to produce a useful debug message.
+                // if we are already at the recording limit and still can't
+                // sample, then that's a problem.
+                // there are two cases to consider.
                 RigidbodyState oldest = stateHistory.Values[0];
                 RigidbodyState newest = stateHistory.Values[stateHistory.Count - 1];
-                Debug.Log($"Couldn't sample history of size={stateHistory.Count} @ t={timestamp:F3} oldest={oldest.timestamp:F3} newest={newest.timestamp:F3}");
+
+                // is the state older than the oldest state in history?
+                // this can happen if the client gets so far behind the server
+                // that it doesn't have a recored history to sample from.
+                // in that case, we should hard correct the client.
+                // otherwise it could be out of sync as long as it's too far behind.
+                if (state.timestamp < oldest.timestamp)
+                {
+                    Debug.LogWarning($"Hard correcting client because the client is too far behind the server. History of size={stateHistory.Count} @ t={timestamp:F3} oldest={oldest.timestamp:F3} newest={newest.timestamp:F3}. This would cause the client to be out of sync as long as it's behind.");
+                    ApplyCorrection(state, state, state);
+                }
+                // otherwise it has to be newer than the newest state in history?
+                // this could happen if the predictedTime is too far ahead of the server.
+                // log a warning for now. this may happen occasionally.
+                // if it happens all the time, then this is a problem.
+                else if (newest.timestamp < state.timestamp)
+                {
+                    Debug.LogWarning($"Ignoring correction because the client is ahead of the server. History of size={stateHistory.Count} @ t={timestamp:F3} oldest={oldest.timestamp:F3} newest={newest.timestamp:F3}. This can happen if the prediction timeline is slightly off. This is fine unless it happens all the time.");
+                    // don't apply correction.
+                }
+                // otherwise something went very wrong. sampling should've worked.
+                // hard correct to recover the error.
+                else
+                {
+                    // TODO
+                    Debug.LogError($"Failed to sample history of size={stateHistory.Count} @ t={timestamp:F3} oldest={oldest.timestamp:F3} newest={newest.timestamp:F3}. This should never happen because the timestamp is within history.");
+                    ApplyCorrection(state, state, state);
+                }
+
+                // either way, nothing more to do here
                 return;
             }
 
