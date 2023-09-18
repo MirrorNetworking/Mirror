@@ -270,7 +270,8 @@ namespace Mirror.PredictedRigidbody
                 // if it happens all the time, then this is a problem.
                 else if (newest.timestamp < state.timestamp)
                 {
-                    Debug.LogWarning($"Ignoring correction because the client is ahead of the server. History of size={stateHistory.Count} @ t={timestamp:F3} oldest={oldest.timestamp:F3} newest={newest.timestamp:F3}. This can happen if the prediction timeline is slightly off. This is fine unless it happens all the time.");
+                    double ahead = state.timestamp - newest.timestamp;
+                    Debug.LogWarning($"Ignoring correction because the client is ahead of the server by {(ahead*1000):F1}ms. History of size={stateHistory.Count} @ t={timestamp:F3} oldest={oldest.timestamp:F3} newest={newest.timestamp:F3}. This can happen if the prediction timeline is slightly off. This is fine unless it happens all the time.");
                     // don't apply correction.
                 }
                 // otherwise something went very wrong. sampling should've worked.
