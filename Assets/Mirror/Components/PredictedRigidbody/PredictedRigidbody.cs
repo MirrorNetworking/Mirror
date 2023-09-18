@@ -222,7 +222,7 @@ namespace Mirror.PredictedRigidbody
                 stateHistory[entry.timestamp] = entry;
 
                 // debug draw the corrected state
-                Debug.DrawLine(last.position, entry.position, Color.green, lineTime);
+                Debug.DrawLine(last.position, entry.position, Color.cyan, lineTime);
 
                 // save last
                 last = entry;
