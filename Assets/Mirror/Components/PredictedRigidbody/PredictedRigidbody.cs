@@ -229,14 +229,9 @@ namespace Mirror.PredictedRigidbody
                 correctedCount += 1;
             }
 
+            // log & apply the final position
             Debug.Log($"Correcting {name}: {correctedCount} / {stateHistory.Count} states to final position from: {rb.position} to: {last.position}");
-
-            // 'last' will now have the final position after reconciliation.
-            // apply it to the Rigidbody, but respect the 'live' delta since last capture.
-            Vector3    finalPosition = last.position;// + livePositionDelta;
-            Quaternion finalRotation = last.rotation;
-            Vector3    finalVelocity = last.velocity;// + liveVelocityDelta;
-            ApplyState(finalPosition, finalRotation, finalVelocity);
+            ApplyState(last.position, last.rotation, last.velocity);
         }
 
         // compare client state with server state at timestamp.
