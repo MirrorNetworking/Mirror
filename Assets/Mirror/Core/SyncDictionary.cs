@@ -130,19 +130,19 @@ namespace Mirror
         // this should be called after a successful sync
         public override void ClearChanges() => changeTracker.ClearChanges();
 
-        public SyncIDictionary(IDictionary<TKey, TValue> objects, bool syncAllChanges)
+        public SyncIDictionary(IDictionary<TKey, TValue> objects, bool efficientChangeTrackingAndSync = false)
         {
             this.objects = objects;
 
-            if (syncAllChanges)
-            {
-                // Some applications may need to sync all changes in great detail, even if those changes are redundant
-                this.changeTracker = new AllChangesTracker();
-            }
-            else
+            if (efficientChangeTrackingAndSync)
             {
                 // Nearly all of the time, we should just sync 1 change per key to save bandwidth by not sending redundant changes
                 this.changeTracker = new SingleChangePerKeyTracker();
+            }
+            else
+            {
+                // Some applications may need to sync all changes in great detail, even if those changes are redundant
+                this.changeTracker = new AllChangesTracker();
             }
         }
 
@@ -394,9 +394,9 @@ namespace Mirror
 
     public class SyncDictionary<TKey, TValue> : SyncIDictionary<TKey, TValue>
     {
-        public SyncDictionary(bool syncAllChanges = false) : base(new Dictionary<TKey, TValue>(), syncAllChanges) {}
-        public SyncDictionary(IEqualityComparer<TKey> eq, bool syncAllChanges = false) : base(new Dictionary<TKey, TValue>(eq), syncAllChanges) {}
-        public SyncDictionary(IDictionary<TKey, TValue> d, bool syncAllChanges = false) : base(new Dictionary<TKey, TValue>(d), syncAllChanges) {}
+        public SyncDictionary(bool efficientChangeTrackingAndSync = false) : base(new Dictionary<TKey, TValue>(), efficientChangeTrackingAndSync) {}
+        public SyncDictionary(IEqualityComparer<TKey> eq, bool efficientChangeTrackingAndSync = false) : base(new Dictionary<TKey, TValue>(eq), efficientChangeTrackingAndSync) {}
+        public SyncDictionary(IDictionary<TKey, TValue> d, bool efficientChangeTrackingAndSync = false) : base(new Dictionary<TKey, TValue>(d), efficientChangeTrackingAndSync) {}
         public new Dictionary<TKey, TValue>.ValueCollection Values => ((Dictionary<TKey, TValue>)objects).Values;
         public new Dictionary<TKey, TValue>.KeyCollection Keys => ((Dictionary<TKey, TValue>)objects).Keys;
         public new Dictionary<TKey, TValue>.Enumerator GetEnumerator() => ((Dictionary<TKey, TValue>)objects).GetEnumerator();
