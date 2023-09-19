@@ -6,3 +6,7 @@ If you are advanced, this demo shows how to use Mirror's prediction features for
 
 The demo is work in progress.
 At the moment, this is only for the Mirror team to test individual prediction features!
+
+Notes:
+- Red/White ball Rigidbody CollisionMode needs to be ContinousDynamic to avoid white flying through red sometimes.
+  even 'Continous' is not enough, we need ContinousDynamic.

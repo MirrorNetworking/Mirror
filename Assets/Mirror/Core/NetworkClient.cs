@@ -33,6 +33,15 @@ namespace Mirror
         public static float sendInterval => sendRate < int.MaxValue ? 1f / sendRate : 0; // for 30 Hz, that's 33ms
         static double lastSendTime;
 
+        // For security, it is recommended to disconnect a player if a networked
+        // action triggers an exception\nThis could prevent components being
+        // accessed in an undefined state, which may be an attack vector for
+        // exploits.
+        //
+        // However, some games may want to allow exceptions in order to not
+        // interrupt the player's experience.
+        public static bool exceptionsDisconnect = true; // security by default
+
         // message handlers by messageId
         internal static readonly Dictionary<ushort, NetworkMessageDelegate> handlers =
             new Dictionary<ushort, NetworkMessageDelegate>();
@@ -501,7 +510,7 @@ namespace Mirror
             // so let's wrap it to ignore the NetworkConnection parameter.
             // it's not needed on client. it's always NetworkClient.connection.
             void HandlerWrapped(NetworkConnection _, T value) => handler(value);
-            handlers[msgType] = NetworkMessages.WrapHandler((Action<NetworkConnection, T>)HandlerWrapped, requireAuthentication);
+            handlers[msgType] = NetworkMessages.WrapHandler((Action<NetworkConnection, T>)HandlerWrapped, requireAuthentication, exceptionsDisconnect);
         }
 
         /// <summary>Replace a handler for a particular message type. Should require authentication by default.</summary>
@@ -511,7 +520,7 @@ namespace Mirror
             where T : struct, NetworkMessage
         {
             ushort msgType = NetworkMessageId<T>.Id;
-            handlers[msgType] = NetworkMessages.WrapHandler(handler, requireAuthentication);
+            handlers[msgType] = NetworkMessages.WrapHandler(handler, requireAuthentication, exceptionsDisconnect);
         }
 
         /// <summary>Replace a handler for a particular message type. Should require authentication by default.</summary>
@@ -1702,7 +1711,7 @@ namespace Mirror
             // only if in world
             if (!ready) return;
 
-            GUILayout.BeginArea(new Rect(10, 5, 800, 50));
+            GUILayout.BeginArea(new Rect(10, 5, 1000, 50));
 
             GUILayout.BeginHorizontal("Box");
             GUILayout.Label("Snapshot Interp.:");
@@ -1717,6 +1726,8 @@ namespace Mirror
             GUILayout.Box($"timescale: {localTimescale:F2}");
             GUILayout.Box($"BTM: {NetworkClient.bufferTimeMultiplier:F2}"); // current dynamically adjusted multiplier
             GUILayout.Box($"RTT: {NetworkTime.rtt * 1000:F0}ms");
+            GUILayout.Box($"PredErrUNADJ: {NetworkTime.predictionErrorUnadjusted * 1000:F0}ms");
+            GUILayout.Box($"PredErrADJ: {NetworkTime.predictionErrorAdjusted * 1000:F0}ms");
             GUILayout.EndHorizontal();
 
             GUILayout.EndArea();
