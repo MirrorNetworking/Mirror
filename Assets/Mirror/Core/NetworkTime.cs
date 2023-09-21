@@ -169,6 +169,9 @@ namespace Mirror
 
             // to see how well the client's final prediction worked, compare with adjusted time.
             // this is purely for debugging.
+            // >0 means: server is ... seconds ahead of client's prediction (good if small)
+            // <0 means: server is ... seconds behind client's prediction.
+            //           in other words, client is predicting too far ahead (not good)
             double adjustedError = localTime - message.predictedTimeAdjusted;
             // Debug.Log($"[Server] unadjustedError:{(unadjustedError*1000):F1}ms adjustedError:{(adjustedError*1000):F1}ms");
 
