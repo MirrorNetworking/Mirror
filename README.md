@@ -76,7 +76,7 @@ And that's about it 🤩
 
 🤝 We are a team of **professional** game developers, who are paid to **use Mirror in production**. Our incentives will always align with the community, because we are Mirror users just like you! 
 
-❤️ Our [**fantastic community**](https://discordapp.com/invite/xVW4nU4C34) of over **14,000** users contributes feedback & improvements every day. Please join us on our journey, help others, and consider a [**Donation**](https://github.com/sponsors/vis2k) if you love our work!
+❤️ Our [**fantastic community**](https://discordapp.com/invite/xVW4nU4C34) of over **14,000** users contributes feedback & improvements every day. Please join us on our journey, help others, and consider a [**Donation**](https://github.com/sponsors/miwarnec) if you love our work!
 
 <img src="https://user-images.githubusercontent.com/16416509/195067704-5577b581-b829-4c9f-80d0-b6270a3a59e7.png" title="Fitzcarraldo"/>
 
