@@ -11,7 +11,7 @@ namespace Mirror.Tests.Tools
         [Test]
         public void GetStableHashHode()
         {
-            Assert.That("".GetStableHashCode(), Is.EqualTo(23));
+            Assert.That("".GetStableHashCode(), Is.EqualTo(-2128831035));
             Assert.That("Test".GetStableHashCode(), Is.EqualTo(23844169));
         }
 

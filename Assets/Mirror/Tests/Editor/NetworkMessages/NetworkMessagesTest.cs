@@ -45,7 +45,7 @@ namespace Mirror.Tests.NetworkMessagesTests
         {
             // "Mirror.Tests.MessageTests.TestMessage"
             Debug.Log(typeof(TestMessage).FullName);
-            Assert.That(NetworkMessageId<TestMessage>.Id, Is.EqualTo(22739));
+            Assert.That(NetworkMessageId<TestMessage>.Id, Is.EqualTo(28872));
         }
 
         [Test]
