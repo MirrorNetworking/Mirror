@@ -52,7 +52,7 @@ namespace Mirror
             }
         }
 
-        private void ScanForNetworkIdentities()
+        void ScanForNetworkIdentities()
         {
             List<GameObject> identities = new List<GameObject>();
             bool cancelled = false;
@@ -62,9 +62,11 @@ namespace Mirror
                 int count = 0;
                 foreach (string path in paths)
                 {
-                    if (path.Contains("Mirror/Tests/"))
+                    // ignore test & example prefabs.
+                    // users sometimes keep the folders in their projects.
+                    if (path.Contains("Mirror/Tests/") ||
+                        path.Contains("Mirror/Examples/"))
                     {
-                        // Don't add test prefabs
                         continue;
                     }
 
