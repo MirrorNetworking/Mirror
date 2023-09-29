@@ -99,8 +99,13 @@ namespace Mirror
                 EditorUtility.ClearProgressBar();
                 if (!cancelled)
                 {
+                    // RecordObject is needed for "*" to show up in Scene.
+                    // however, this only saves List.Count without the entries.
                     Undo.RecordObject(networkManager, "NetworkManager: populated prefabs");
+                    // add the entries
                     networkManager.spawnPrefabs.AddRange(identities);
+                    // SetDirty is required to save the individual entries properly.
+                    EditorUtility.SetDirty(target);
                 }
                 // Loading assets might use a lot of memory, so try to unload them after
                 Resources.UnloadUnusedAssets();
