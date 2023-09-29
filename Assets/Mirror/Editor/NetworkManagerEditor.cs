@@ -99,8 +99,8 @@ namespace Mirror
                 EditorUtility.ClearProgressBar();
                 if (!cancelled)
                 {
+                    Undo.RecordObject(networkManager, "NetworkManager: populated prefabs");
                     networkManager.spawnPrefabs.AddRange(identities);
-                    Undo.RecordObject(networkManager, "Added NI's from project");
                 }
                 // Loading assets might use a lot of memory, so try to unload them after
                 Resources.UnloadUnusedAssets();
