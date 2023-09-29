@@ -102,8 +102,13 @@ namespace Mirror
                     // RecordObject is needed for "*" to show up in Scene.
                     // however, this only saves List.Count without the entries.
                     Undo.RecordObject(networkManager, "NetworkManager: populated prefabs");
+
                     // add the entries
                     networkManager.spawnPrefabs.AddRange(identities);
+
+                    // sort alphabetically for better UX
+                    networkManager.spawnPrefabs = networkManager.spawnPrefabs.OrderBy(go => go.name).ToList();
+
                     // SetDirty is required to save the individual entries properly.
                     EditorUtility.SetDirty(target);
                 }
