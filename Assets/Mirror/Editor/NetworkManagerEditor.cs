@@ -46,7 +46,7 @@ namespace Mirror
                 serializedObject.ApplyModifiedProperties();
             }
 
-            if (GUILayout.Button("Populate Network Prefabs"))
+            if (GUILayout.Button("Populate Spawnable Prefabs"))
             {
                 ScanForNetworkIdentities();
             }
