@@ -17,8 +17,18 @@ namespace Mirror
         // => addons can work with each other without knowing their ids before
         // => 2 bytes is enough to avoid collisions.
         //    registering a messageId twice will log a warning anyway.
-        public static readonly ushort Id =
-            (ushort)(typeof(T).FullName.GetStableHashCode());
+        public static readonly ushort Id = CalculateId();
+
+        // Gets the 32bit fnv1a hash
+        // To get it down to 16bit but still reduce hash collisions we cant just cast it to ushort
+        // Instead we take the highest 16bits of the 32bit hash and fold them with xor into the lower 16bits
+        // This will create a more uniform 16bit hash, the method is described in:
+        // http://www.isthe.com/chongo/tech/comp/fnv/ in section "Changing the FNV hash size - xor-folding"
+        private static ushort CalculateId()
+        {
+            int hash = typeof(T).FullName.GetStableHashCode();
+            return (ushort)((hash >> 16) ^ hash);
+        }
     }
 
     // message packing all in one place, instead of constructing headers in all

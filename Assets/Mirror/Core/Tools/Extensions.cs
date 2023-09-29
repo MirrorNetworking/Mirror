@@ -12,18 +12,26 @@ namespace Mirror
 
         // string.GetHashCode is not guaranteed to be the same on all
         // machines, but we need one that is the same on all machines.
+        // Uses fnv1a as hash function for more uniform distribution http://www.isthe.com/chongo/tech/comp/fnv/
+        // Tests: https://softwareengineering.stackexchange.com/questions/49550/which-hashing-algorithm-is-best-for-uniqueness-and-speed
         // NOTE: Do not call this from hot path because it's slow O(N) for long method names.
         // - As of 2012-02-16 There are 2 design-time callers (weaver) and 1 runtime caller that caches.
         public static int GetStableHashCode(this string text)
         {
             unchecked
             {
-                int hash = 23;
-                foreach (char c in text)
-                    hash = hash * 31 + c;
+                uint hash = 0x811c9dc5;
+                uint prime = 0x1000193;
+
+                for (int i = 0; i < text.Length; ++i)
+                {
+                    byte value = (byte)text[i];
+                    hash = hash ^ value;
+                    hash *= prime;
+                }
 
                 //UnityEngine.Debug.Log($"Created stable hash {(ushort)hash} for {text}");
-                return hash;
+                return (int)hash;
             }
         }
 
