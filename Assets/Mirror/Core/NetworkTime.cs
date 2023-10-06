@@ -54,7 +54,10 @@ namespace Mirror
         //          it changes during the frame too.
         static readonly Stopwatch stopwatch = new Stopwatch();
         static NetworkTime() => stopwatch.Start();
-        public static double localTime => stopwatch.Elapsed.TotalSeconds;
+        // stopwatch.Elapsed.TotalSeconds seems to have strange initial delay results in 2019
+        // (double)Time.unscaledTime fixes those problems but adds in-accuracy over-time.
+        // public static double localTime => stopwatch.Elapsed.TotalSeconds;
+        public static double localTime => (double)Time.unscaledTime;
 #endif
 
         /// <summary>The time in seconds since the server started.</summary>
