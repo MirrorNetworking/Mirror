@@ -292,7 +292,9 @@ namespace Mirror
         // users can overwrite this to display connection quality warnings, etc.
         protected virtual void OnConnectionQualityChanged(ConnectionQuality previous, ConnectionQuality current)
         {
-            Debug.Log($"[Mirror] Connection Quality changed from {previous} to {current}");
+            // logging the change is very useful to track down user's lag reports.
+            // we want to include as much detail as possible for debugging.
+            Debug.Log($"[Mirror] Connection Quality changed from {previous} to {current}:\n  rtt={(NetworkTime.rtt*1000):F1}ms\n  rttVar={(NetworkTime.rttVariance*1000):F1}ms\n  bufferTime={(NetworkClient.bufferTime*1000):F1}ms");
         }
 
         ////////////////////////////////////////////////////////////////////////
