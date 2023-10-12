@@ -24,6 +24,7 @@ namespace Mirror.Weaver
 
         public void LogDiagnostics(string message, DiagnosticType logType = DiagnosticType.Warning)
         {
+            // TODO IN-44868 FIX IS IN 2021.3.32f1, 2022.3.11f1, 2023.2.0b13 and 2023.3.0a8
             // DiagnosticMessage can't display \n for some reason.
             // it just cuts it off and we don't see any stack trace.
             // so let's replace all line breaks so we get the stack trace.
