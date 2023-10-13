@@ -29,6 +29,9 @@ namespace kcp2k
         protected Socket socket;
         EndPoint newClientEP;
 
+        // expose local endpoint for users / relays / nat traversal etc.
+        public EndPoint LocalEndPoint => socket?.LocalEndPoint;
+
         // raw receive buffer always needs to be of 'MTU' size, even if
         // MaxMessageSize is larger. kcp always sends in MTU segments and having
         // a buffer smaller than MTU would silently drop excess data.

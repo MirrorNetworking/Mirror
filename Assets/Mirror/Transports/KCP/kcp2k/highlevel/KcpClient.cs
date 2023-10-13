@@ -16,6 +16,9 @@ namespace kcp2k
         protected Socket socket;
         public EndPoint remoteEndPoint;
 
+        // expose local endpoint for users / relays / nat traversal etc.
+        public EndPoint LocalEndPoint => socket?.LocalEndPoint;
+
         // config
         protected readonly KcpConfig config;
 
