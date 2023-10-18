@@ -126,6 +126,13 @@ Nudge Nudge Games' first title: the colorful, post-apocalyptic open world sandbo
 
 _Soon to be released for PC & mobile!_
 
+### [Unleashed](https://www.unleashedgames.io/)
+[![unleashed](https://github.com/MirrorNetworking/Mirror/assets/16416509/ef3bcf74-8fa9-4d22-801d-4d29cb59a013)](https://www.unleashedgames.io/)
+From original devs of World of Warcraft, Kingdoms of Amalur, and EverQuest comes a new family friendly fantasy adventure.</br>
+Fight against the forces of darkness, explore a world consumed by wild magic, and build a stronghold with your friends to increase your power in a new world.
+
+_Lead by industry veterans Brian Birmingham & Irena Pereira, Unleashed is developing their next gen adventure game made with Mirror!_
+
 ### [Dinkum](https://store.steampowered.com/app/1062520/Dinkum/)
 [![dinkum](https://user-images.githubusercontent.com/16416509/180051810-50c9ebfd-973b-4f2f-8448-d599443d9ce3.jpg)](https://store.steampowered.com/app/1062520/Dinkum/)
 Set in the Australian Outback, Dinkum is a relaxing farming & survival game. Made by just one developer, Dinkum already reached 1000+ "Overwhelmingly Positive" reviews 1 week after its early access release. 
