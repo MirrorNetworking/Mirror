@@ -128,8 +128,7 @@ _Soon to be released for PC & mobile!_
 
 ### [Unleashed](https://www.unleashedgames.io/)
 [![unleashed](https://github.com/MirrorNetworking/Mirror/assets/16416509/ef3bcf74-8fa9-4d22-801d-4d29cb59a013)](https://www.unleashedgames.io/)
-From original devs of World of Warcraft, Kingdoms of Amalur, and EverQuest comes a new family friendly fantasy adventure.</br>
-Fight against the forces of darkness, explore a world consumed by wild magic, and build a stronghold with your friends to increase your power in a new world.
+From original devs of **World of Warcraft**, **Kingdoms of Amalur**, and **EverQuest** comes a new family friendly fantasy adventure. Fight against the forces of darkness, explore a world consumed by wild magic, and build a stronghold with your friends to increase your power in a new world.
 
 _Lead by industry veterans Brian Birmingham & Irena Pereira, Unleashed is developing their next gen adventure game made with Mirror!_
 
