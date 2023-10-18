@@ -132,6 +132,8 @@ From original devs of **World of Warcraft**, **Kingdoms of Amalur**, and **EverQ
 
 _Lead by industry veterans Brian Birmingham & Irena Pereira, Unleashed is developing their next gen adventure game made with Mirror!_
 
+Follow them on X: https://twitter.com/UnleashingGames/
+
 ### [Dinkum](https://store.steampowered.com/app/1062520/Dinkum/)
 [![dinkum](https://user-images.githubusercontent.com/16416509/180051810-50c9ebfd-973b-4f2f-8448-d599443d9ce3.jpg)](https://store.steampowered.com/app/1062520/Dinkum/)
 Set in the Australian Outback, Dinkum is a relaxing farming & survival game. Made by just one developer, Dinkum already reached 1000+ "Overwhelmingly Positive" reviews 1 week after its early access release. 
