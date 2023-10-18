@@ -79,7 +79,7 @@ namespace Mirror.Examples.CharacterSelection
             else
             {
                 // not in-game
-                SceneManager.LoadScene("SceneMapCharacter");
+                SceneManager.LoadScene("MirrorCharacterSelection");
             }
         }
 
