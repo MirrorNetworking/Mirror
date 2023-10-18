@@ -14,10 +14,10 @@ on:
       - '.gitignore'
       - '.editorconfig'
       - 'LICENSE'
-      - '*.md'
-      - '*.yml'
-      - '*.txt'
-      - '*.ps1'
+      - '**.md'
+      - '**.yml'
+      - '**.txt'
+      - '**.ps1'
   
 jobs:
   RunUnityTests:
