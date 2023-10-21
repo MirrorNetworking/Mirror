@@ -1054,7 +1054,7 @@ namespace Mirror
             // the below DeserializeClient call invokes SyncVarHooks.
             // flags always need to be initialized before that.
             // fixes: https://github.com/MirrorNetworking/Mirror/issues/3259
-            identity.isOwned = message.isOwner;
+            identity.isClientOwned = message.isOwner;
             identity.netId = message.netId;
 
             if (message.isLocalPlayer)
@@ -1079,7 +1079,7 @@ namespace Mirror
             }
 
             spawned[message.netId] = identity;
-            if (identity.isOwned) connection?.owned.Add(identity);
+            if (identity.isClientOwned) connection?.owned.Add(identity);
 
             // the initial spawn with OnObjectSpawnStarted/Finished calls all
             // object's OnStartClient/OnStartLocalPlayer after they were all
@@ -1290,7 +1290,7 @@ namespace Mirror
                 if (aoi != null)
                     aoi.SetHostVisibility(identity, true);
 
-                identity.isOwned = message.isOwner;
+                identity.isClientOwned = message.isOwner;
                 BootstrapIdentity(identity);
             }
         }
@@ -1353,10 +1353,10 @@ namespace Mirror
             }
 
             // set ownership flag (aka authority)
-            identity.isOwned = message.isOwner;
+            identity.isClientOwned = message.isOwner;
 
             // Add / Remove to client's connectionToServer.owned hashset.
-            if (identity.isOwned)
+            if (identity.isClientOwned)
                 connection?.owned.Add(identity);
             else
                 connection?.owned.Remove(identity);

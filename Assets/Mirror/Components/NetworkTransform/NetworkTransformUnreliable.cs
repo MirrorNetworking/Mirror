@@ -165,7 +165,7 @@ namespace Mirror
             //    https://github.com/MirrorNetworking/Mirror/issues/3329
             if (syncDirection == SyncDirection.ClientToServer &&
                 connectionToClient != null &&
-                !isOwned)
+                !isClientOwned)
             {
                 if (serverSnapshots.Count == 0) return;
 
