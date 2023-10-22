@@ -23,10 +23,8 @@ namespace Mirror.Examples.MultipleAdditiveScenes
                 ClaimPrize(other.gameObject);
         }
 
-        // This is called from PlayerController.CmdClaimPrize which is invoked by PlayerController.OnControllerColliderHit
-        // This only runs on the server
         [ServerCallback]
-        public void ClaimPrize(GameObject player)
+        void ClaimPrize(GameObject player)
         {
             if (available)
             {
