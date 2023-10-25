@@ -50,9 +50,6 @@ namespace Mirror
         [Tooltip("Packet loss in %\n2% recommended for long term play testing, upto 5% for short bursts.\nAnything higher, or for a prolonged amount of time, suggests user has a connection fault.")]
         [Range(0, 100)] public float unreliableLoss = 2;
 
-        [Tooltip("Unreliable latency in milliseconds (1000 = 1 second) \n100ms recommended for long term play testing, upto 500ms for short bursts.\nAnything higher, or for a prolonged amount of time, suggests user has a connection fault.")]
-        [Range(0, 10000)] public float unreliableLatency = 100;
-
         [Tooltip("Scramble % of unreliable messages, just like over the real network. Mirror unreliable is unordered.")]
         [Range(0, 100)] public float unreliableScramble = 2;
 
@@ -100,9 +97,9 @@ namespace Mirror
             switch (channeldId)
             {
                 case Channels.Reliable:
-                    return reliableLatency/1000 + spike;
+                    return latency/1000 + spike;
                 case Channels.Unreliable:
-                    return unreliableLatency/1000 + spike;
+                    return latency/1000 + spike;
                 default:
                     return 0;
             }
