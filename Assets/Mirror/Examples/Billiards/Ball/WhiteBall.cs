@@ -8,7 +8,8 @@ namespace Mirror.Examples.Billiards
     {
         public LineRenderer dragIndicator;
         public Rigidbody rigidBody;
-        public float forceMultiplier = 10;
+        public float forceMultiplier = 2;
+        public float maxForce = 40;
 
         // remember start position to reset to after entering a pocket
         Vector3 startPosition;
@@ -57,7 +58,10 @@ namespace Mirror.Examples.Billiards
         [Command(requiresAuthority = false)]
         void CmdApplyForce(Vector3 force)
         {
-            rigidBody.AddForce(force);
+            // AddForce has different force modes, see this excellent diagram:
+            // https://www.reddit.com/r/Unity3D/comments/psukm1/know_the_difference_between_forcemodes_a_little/
+            // when applying a one-time force to the ball, we need 'Impulse'.
+            rigidBody.AddForce(force, ForceMode.Impulse);
         }
 
         [ClientCallback]
@@ -77,6 +81,9 @@ namespace Mirror.Examples.Billiards
             // calculate pending force delta
             Vector3 delta = from - current;
             Vector3 force = delta * forceMultiplier;
+
+            // there should be a maximum allowed force
+            force = Vector3.ClampMagnitude(force, maxForce);
 
             // apply force to rigidbody.
             // it will take a round trip to show the effect.

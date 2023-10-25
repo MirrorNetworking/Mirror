@@ -283,7 +283,7 @@ MonoBehaviour:
   syncInterval: 0
   dragIndicator: {fileID: 982362982}
   rigidBody: {fileID: 1848203816128897140}
-  forceMultiplier: 100
+  forceMultiplier: 2
 --- !u!114 &-2991986576794647411
 MonoBehaviour:
   m_ObjectHideFlags: 0
