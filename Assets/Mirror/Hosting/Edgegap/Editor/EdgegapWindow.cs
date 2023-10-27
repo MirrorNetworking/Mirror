@@ -68,8 +68,8 @@ public class EdgegapWindow : EditorWindow
     {
         // Set root VisualElement and style
         // TODO don't hardcode this
-        _visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>("Assets/Mirror/Hosters/Edgegap/Editor/EdgegapWindow.uxml");
-        StyleSheet styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>("Assets/Mirror/Hosters/Edgegap/Editor/EdgegapWindow.uss");
+        _visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>("Assets/Mirror/Hosting/Edgegap/Editor/EdgegapWindow.uxml");
+        StyleSheet styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>("Assets/Mirror/Hosting/Edgegap/Editor/EdgegapWindow.uss");
         rootVisualElement.styleSheets.Add(styleSheet);
 
         LoadToolData();

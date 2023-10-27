@@ -91,7 +91,7 @@ namespace Edgegap
         static EdgegapServerDataManager()
         {
             // TODO don't hardcode
-            _serverDataStylesheet = AssetDatabase.LoadAssetAtPath<StyleSheet>("Assets/Mirror/Hosters/Edgegap/Editor/EdgegapServerData.uss");
+            _serverDataStylesheet = AssetDatabase.LoadAssetAtPath<StyleSheet>("Assets/Mirror/Hosting/Edgegap/Editor/EdgegapServerData.uss");
         }
         public static void RegisterServerDataContainer(VisualElement serverDataContainer)
         {
