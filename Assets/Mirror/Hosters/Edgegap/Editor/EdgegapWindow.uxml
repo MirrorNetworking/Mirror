@@ -7,7 +7,7 @@
 >
 	<engine:VisualElement class="content">
 		<engine:VisualElement class="background" />
-		<engine:Label class="text__title" text="Edgegap server management" />
+		<engine:Label class="text__title" text="Edgegap Server Management" />
 
 		<engine:ScrollView>
 			<engine:VisualElement class="container">
@@ -31,7 +31,7 @@
 				<engine:Toggle name="autoIncrementTag" tooltip="Auto increment the tag on build for quicker iteration" label="Increment tag on build"  />
 			</engine:VisualElement>
 
-			
+
 			<engine:VisualElement class="container" />
 
 			<engine:VisualElement class="container">
@@ -39,7 +39,7 @@
 					<engine:Button name="buildAndPushBtn" text="Build and Push" />
 					<engine:Button name="serverActionBtn" />
 				</engine:VisualElement>
-				
+
 			</engine:VisualElement>
 
 			<engine:VisualElement name="serverDataContainer" />
