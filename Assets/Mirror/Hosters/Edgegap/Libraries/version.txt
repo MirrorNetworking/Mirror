@@ -1,0 +1,2 @@
+source: https://github.com/JamesNK/Newtonsoft.Json/releases/tag/13.0.3
+architecture: netstandard 1.0
