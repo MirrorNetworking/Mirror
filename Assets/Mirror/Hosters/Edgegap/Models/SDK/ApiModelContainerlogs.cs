@@ -49,7 +49,7 @@ namespace IO.Swagger.Model {
     /// </summary>
     /// <returns>String presentation of the object</returns>
     public override string ToString()  {
-      var sb = new StringBuilder();
+      StringBuilder sb = new StringBuilder();
       sb.Append("class ApiModelContainerlogs {\n");
       sb.Append("  Logs: ").Append(Logs).Append("\n");
       sb.Append("  Encoding: ").Append(Encoding).Append("\n");

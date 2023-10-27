@@ -177,7 +177,7 @@ namespace IO.Swagger.Model {
     /// </summary>
     /// <returns>String presentation of the object</returns>
     public override string ToString()  {
-      var sb = new StringBuilder();
+      StringBuilder sb = new StringBuilder();
       sb.Append("class Status {\n");
       sb.Append("  RequestId: ").Append(RequestId).Append("\n");
       sb.Append("  Fqdn: ").Append(Fqdn).Append("\n");

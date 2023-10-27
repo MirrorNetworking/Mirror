@@ -34,7 +34,7 @@ namespace IO.Swagger.Model {
     /// </summary>
     /// <returns>String presentation of the object</returns>
     public override string ToString()  {
-      var sb = new StringBuilder();
+      StringBuilder sb = new StringBuilder();
       sb.Append("class LocationModel {\n");
       sb.Append("  Latitude: ").Append(Latitude).Append("\n");
       sb.Append("  Longitude: ").Append(Longitude).Append("\n");

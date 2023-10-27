@@ -42,7 +42,7 @@ namespace IO.Swagger.Model {
     /// </summary>
     /// <returns>String presentation of the object</returns>
     public override string ToString()  {
-      var sb = new StringBuilder();
+      StringBuilder sb = new StringBuilder();
       sb.Append("class MatchmakerReleaseUpdate {\n");
       sb.Append("  FrontendComponentName: ").Append(FrontendComponentName).Append("\n");
       sb.Append("  DirectorComponentName: ").Append(DirectorComponentName).Append("\n");

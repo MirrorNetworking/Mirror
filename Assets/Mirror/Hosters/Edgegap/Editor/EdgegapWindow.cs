@@ -12,6 +12,7 @@ using System;
 using System.Threading.Tasks;
 using Edgegap;
 using IO.Swagger.Model;
+using UnityEditor.Build.Reporting;
 
 public class EdgegapWindow : EditorWindow
 {
@@ -177,7 +178,7 @@ public class EdgegapWindow : EditorWindow
             .Replace("\\r\\n", "")
             .Replace("\\n", "")
             .Trim();
-        var externalIp = IPAddress.Parse(externalIpString);
+        IPAddress externalIp = IPAddress.Parse(externalIpString);
 
         return externalIp.ToString();
     }
@@ -320,7 +321,7 @@ public class EdgegapWindow : EditorWindow
             }
 
             // create server build
-            var buildResult = EdgegapBuildUtils.BuildServer();
+            BuildReport buildResult = EdgegapBuildUtils.BuildServer();
             if (buildResult.summary.result != UnityEditor.Build.Reporting.BuildResult.Succeeded)
             {
                 onError("Edgegap build failed");
@@ -328,9 +329,9 @@ public class EdgegapWindow : EditorWindow
             }
 
 
-            var registry = _containerRegistry;
-            var imageName = _containerImageRepo;
-            var tag = _containerImageTag;
+            string registry = _containerRegistry;
+            string imageName = _containerImageRepo;
+            string tag = _containerImageTag;
 
             // increment tag for quicker iteration
             if (_autoIncrementTag)
@@ -375,16 +376,16 @@ public class EdgegapWindow : EditorWindow
         string path = $"/v1/app/{_appName}/version/{_appVersionName}";
 
         // Setup post data
-        var updatePatchData = new AppVersionUpdatePatchData { DockerImage = _containerImageRepo, DockerRegistry = _containerRegistry, DockerTag = newTag };
-        var json = JsonConvert.SerializeObject(updatePatchData);
-        var patchData = new StringContent(json, Encoding.UTF8, "application/json");
+        AppVersionUpdatePatchData updatePatchData = new AppVersionUpdatePatchData { DockerImage = _containerImageRepo, DockerRegistry = _containerRegistry, DockerTag = newTag };
+        string json = JsonConvert.SerializeObject(updatePatchData);
+        StringContent patchData = new StringContent(json, Encoding.UTF8, "application/json");
 
         // Make HTTP request
-        var request = new HttpRequestMessage(new HttpMethod("PATCH"), path);
+        HttpRequestMessage request = new HttpRequestMessage(new HttpMethod("PATCH"), path);
         request.Content = patchData;
 
         HttpResponseMessage response = await _httpClient.SendAsync(request);
-        var content = await response.Content.ReadAsStringAsync();
+        string content = await response.Content.ReadAsStringAsync();
 
         if (!response.IsSuccessStatusCode)
         {
@@ -399,18 +400,18 @@ public class EdgegapWindow : EditorWindow
         const string path = "/v1/deploy";
 
         // Setup post data
-        var deployPostData = new DeployPostData(_appName, _appVersionName, new List<string> { _userExternalIp });
-        var json = JsonConvert.SerializeObject(deployPostData);
-        var postData = new StringContent(json, Encoding.UTF8, "application/json");
+        DeployPostData deployPostData = new DeployPostData(_appName, _appVersionName, new List<string> { _userExternalIp });
+        string json = JsonConvert.SerializeObject(deployPostData);
+        StringContent postData = new StringContent(json, Encoding.UTF8, "application/json");
 
         // Make HTTP request
         HttpResponseMessage response = await _httpClient.PostAsync(path, postData);
-        var content = await response.Content.ReadAsStringAsync();
+        string content = await response.Content.ReadAsStringAsync();
 
         if (response.IsSuccessStatusCode)
         {
             // Parse response
-            var parsedResponse = JsonConvert.DeserializeObject<Deployment>(content);
+            Deployment parsedResponse = JsonConvert.DeserializeObject<Deployment>(content);
 
             _deploymentRequestId = parsedResponse.RequestId;
 
@@ -439,7 +440,7 @@ public class EdgegapWindow : EditorWindow
         else
         {
             // Parse response
-            var content = await response.Content.ReadAsStringAsync();
+            string content = await response.Content.ReadAsStringAsync();
 
             Debug.LogError($"Could not stop Edgegap server. Got {(int)response.StatusCode} with response:\n{content}");
         }
@@ -456,7 +457,7 @@ public class EdgegapWindow : EditorWindow
 
     async void UpdateServerStatus()
     {
-        var serverStatusResponse = await FetchServerStatus();
+        Status serverStatusResponse = await FetchServerStatus();
 
         ToolState toolState;
         ServerStatus serverStatus = serverStatusResponse.GetServerStatus();
@@ -498,7 +499,7 @@ public class EdgegapWindow : EditorWindow
         HttpResponseMessage response = await _httpClient.GetAsync(path);
 
         // Parse response
-        var content = await response.Content.ReadAsStringAsync();
+        string content = await response.Content.ReadAsStringAsync();
 
         Status parsedData;
 
@@ -570,7 +571,7 @@ public class EdgegapWindow : EditorWindow
 
     void SetDockerRepoInfoUI(ToolState toolState)
     {
-        var connected = toolState.CanStartDeployment();
+        bool connected = toolState.CanStartDeployment();
         _containerRegistryInput.SetEnabled(connected);
         _autoIncrementTagInput.SetEnabled(connected);
         _containerImageRepoInput.SetEnabled(connected);
@@ -647,7 +648,7 @@ public class EdgegapWindow : EditorWindow
     /// </summary>
     void SaveToolData()
     {
-        var data = JsonUtility.ToJson(this, false);
+        string data = JsonUtility.ToJson(this, false);
         EditorPrefs.SetString(EditorDataSerializationName, data);
     }
 
@@ -656,7 +657,7 @@ public class EdgegapWindow : EditorWindow
     /// </summary>
     void LoadToolData()
     {
-        var data = EditorPrefs.GetString(EditorDataSerializationName, JsonUtility.ToJson(this, false));
+        string data = EditorPrefs.GetString(EditorDataSerializationName, JsonUtility.ToJson(this, false));
         JsonUtility.FromJsonOverwrite(data, this);
     }
 }

@@ -114,7 +114,7 @@ namespace IO.Swagger.Model {
     /// </summary>
     /// <returns>String presentation of the object</returns>
     public override string ToString()  {
-      var sb = new StringBuilder();
+      StringBuilder sb = new StringBuilder();
       sb.Append("class SessionModel {\n");
       sb.Append("  AppName: ").Append(AppName).Append("\n");
       sb.Append("  VersionName: ").Append(VersionName).Append("\n");

@@ -74,7 +74,7 @@ namespace IO.Swagger.Model {
     /// </summary>
     /// <returns>String presentation of the object</returns>
     public override string ToString()  {
-      var sb = new StringBuilder();
+      StringBuilder sb = new StringBuilder();
       sb.Append("class PortMapping {\n");
       sb.Append("  External: ").Append(External).Append("\n");
       sb.Append("  Internal: ").Append(Internal).Append("\n");

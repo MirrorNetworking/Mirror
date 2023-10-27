@@ -34,7 +34,7 @@ namespace IO.Swagger.Model {
     /// </summary>
     /// <returns>String presentation of the object</returns>
     public override string ToString()  {
-      var sb = new StringBuilder();
+      StringBuilder sb = new StringBuilder();
       sb.Append("class ContainerLogStorageModel {\n");
       sb.Append("  Enabled: ").Append(Enabled).Append("\n");
       sb.Append("  EndpointStorage: ").Append(EndpointStorage).Append("\n");

@@ -33,7 +33,7 @@ namespace IO.Swagger.Model {
     /// </summary>
     /// <returns>String presentation of the object</returns>
     public override string ToString()  {
-      var sb = new StringBuilder();
+      StringBuilder sb = new StringBuilder();
       sb.Append("class Locations {\n");
       sb.Append("  _Locations: ").Append(_Locations).Append("\n");
       sb.Append("  Messages: ").Append(Messages).Append("\n");

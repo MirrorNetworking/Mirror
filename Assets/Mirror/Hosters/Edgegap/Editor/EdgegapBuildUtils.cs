@@ -19,7 +19,7 @@ namespace Edgegap
 
         public static BuildReport BuildServer()
         {
-            var scenes = EditorBuildSettings.scenes.Select(s=>s.path);
+            IEnumerable<string> scenes = EditorBuildSettings.scenes.Select(s=>s.path);
             BuildPlayerOptions options = new BuildPlayerOptions
             {
                 scenes = scenes.ToArray(),
@@ -64,8 +64,8 @@ namespace Edgegap
             Process proc = new Process() { StartInfo = startInfo, };
             proc.EnableRaisingEvents = true;
 
-            var errors = new ConcurrentQueue<string>();
-            var outputs = new ConcurrentQueue<string>();
+            ConcurrentQueue<string> errors = new ConcurrentQueue<string>();
+            ConcurrentQueue<string> outputs = new ConcurrentQueue<string>();
 
             void pipeQueue(ConcurrentQueue<string> q, Action<string> opt)
             {
@@ -138,7 +138,7 @@ namespace Edgegap
 
         public static string IncrementTag(string tag)
         {
-            var lastDigits = lastDigitsRegex.Match(tag);
+            Match lastDigits = lastDigitsRegex.Match(tag);
             if (!lastDigits.Success)
             {
                 return tag + " _1";

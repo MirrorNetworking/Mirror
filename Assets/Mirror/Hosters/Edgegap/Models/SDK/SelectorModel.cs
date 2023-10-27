@@ -42,7 +42,7 @@ namespace IO.Swagger.Model {
     /// </summary>
     /// <returns>String presentation of the object</returns>
     public override string ToString()  {
-      var sb = new StringBuilder();
+      StringBuilder sb = new StringBuilder();
       sb.Append("class SelectorModel {\n");
       sb.Append("  Tag: ").Append(Tag).Append("\n");
       sb.Append("  TagOnly: ").Append(TagOnly).Append("\n");

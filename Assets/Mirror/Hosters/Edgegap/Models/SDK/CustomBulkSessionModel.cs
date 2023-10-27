@@ -34,7 +34,7 @@ namespace IO.Swagger.Model {
     /// </summary>
     /// <returns>String presentation of the object</returns>
     public override string ToString()  {
-      var sb = new StringBuilder();
+      StringBuilder sb = new StringBuilder();
       sb.Append("class CustomBulkSessionModel {\n");
       sb.Append("  CustomId: ").Append(CustomId).Append("\n");
       sb.Append("  IpList: ").Append(IpList).Append("\n");

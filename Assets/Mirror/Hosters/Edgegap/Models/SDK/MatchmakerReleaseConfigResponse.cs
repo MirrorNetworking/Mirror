@@ -34,7 +34,7 @@ namespace IO.Swagger.Model {
     /// </summary>
     /// <returns>String presentation of the object</returns>
     public override string ToString()  {
-      var sb = new StringBuilder();
+      StringBuilder sb = new StringBuilder();
       sb.Append("class MatchmakerReleaseConfigResponse {\n");
       sb.Append("  Name: ").Append(Name).Append("\n");
       sb.Append("  Configuration: ").Append(Configuration).Append("\n");

@@ -26,7 +26,7 @@ namespace IO.Swagger.Model {
     /// </summary>
     /// <returns>String presentation of the object</returns>
     public override string ToString()  {
-      var sb = new StringBuilder();
+      StringBuilder sb = new StringBuilder();
       sb.Append("class CustomSessionDeleteModel {\n");
       sb.Append("  Sessions: ").Append(Sessions).Append("\n");
       sb.Append("}\n");

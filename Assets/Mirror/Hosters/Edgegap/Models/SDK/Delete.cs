@@ -34,7 +34,7 @@ namespace IO.Swagger.Model {
     /// </summary>
     /// <returns>String presentation of the object</returns>
     public override string ToString()  {
-      var sb = new StringBuilder();
+      StringBuilder sb = new StringBuilder();
       sb.Append("class Delete {\n");
       sb.Append("  Message: ").Append(Message).Append("\n");
       sb.Append("  DeploymentSummary: ").Append(DeploymentSummary).Append("\n");

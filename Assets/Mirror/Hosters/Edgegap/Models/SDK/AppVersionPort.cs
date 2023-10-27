@@ -58,7 +58,7 @@ namespace IO.Swagger.Model {
     /// </summary>
     /// <returns>String presentation of the object</returns>
     public override string ToString()  {
-      var sb = new StringBuilder();
+      StringBuilder sb = new StringBuilder();
       sb.Append("class AppVersionPort {\n");
       sb.Append("  Port: ").Append(Port).Append("\n");
       sb.Append("  Protocol: ").Append(Protocol).Append("\n");

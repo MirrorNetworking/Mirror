@@ -26,7 +26,7 @@ namespace IO.Swagger.Model {
     /// </summary>
     /// <returns>String presentation of the object</returns>
     public override string ToString()  {
-      var sb = new StringBuilder();
+      StringBuilder sb = new StringBuilder();
       sb.Append("class Paginator {\n");
       sb.Append("  NumPages: ").Append(NumPages).Append("\n");
       sb.Append("}\n");

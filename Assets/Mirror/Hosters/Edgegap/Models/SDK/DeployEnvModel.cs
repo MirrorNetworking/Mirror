@@ -42,7 +42,7 @@ namespace IO.Swagger.Model {
     /// </summary>
     /// <returns>String presentation of the object</returns>
     public override string ToString()  {
-      var sb = new StringBuilder();
+      StringBuilder sb = new StringBuilder();
       sb.Append("class DeployEnvModel {\n");
       sb.Append("  Key: ").Append(Key).Append("\n");
       sb.Append("  Value: ").Append(Value).Append("\n");

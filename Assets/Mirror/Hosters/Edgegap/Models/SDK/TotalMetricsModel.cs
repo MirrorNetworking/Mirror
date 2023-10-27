@@ -46,7 +46,7 @@ namespace IO.Swagger.Model {
     /// </summary>
     /// <returns>String presentation of the object</returns>
     public override string ToString()  {
-      var sb = new StringBuilder();
+      StringBuilder sb = new StringBuilder();
       sb.Append("class TotalMetricsModel {\n");
       sb.Append("  ReceiveTotal: ").Append(ReceiveTotal).Append("\n");
       sb.Append("  TransmitTotal: ").Append(TransmitTotal).Append("\n");
