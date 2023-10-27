@@ -27,6 +27,12 @@ namespace Mirror
         public Transport wrap;
 
         [Header("Common")]
+        // latency always needs to be applied to both channels!
+        // fixes a bug in prediction where predictedTime would have no latency, but [Command]s would have 100ms latency resulting in heavy, hard to debug jittering!
+        // in real world, all UDP channels go over the same socket connection with the same latency.
+        [Tooltip("Latency in milliseconds (1000 = 1 second). Always applied to both reliable and unreliable, otherwise unreliable NetworkTime may be behind reliable [SyncVars/Commands/Rpcs] or vice versa!")]
+        [Range(0, 10000)] public float latency = 100;
+
         [Tooltip("Jitter latency via perlin(Time * jitterSpeed) * jitter")]
         [FormerlySerializedAs("latencySpikeMultiplier")]
         [Range(0, 1)] public float jitter = 0.02f;
@@ -36,8 +42,6 @@ namespace Mirror
         public float jitterSpeed = 1;
 
         [Header("Reliable Messages")]
-        [Tooltip("Reliable latency in milliseconds (1000 = 1 second)")]
-        [Range(0, 10000)] public float reliableLatency = 100;
         // note: packet loss over reliable manifests itself in latency.
         //       don't need (and can't add) a loss option here.
         // note: reliable is ordered by definition. no need to scramble.
@@ -45,9 +49,6 @@ namespace Mirror
         [Header("Unreliable Messages")]
         [Tooltip("Packet loss in %\n2% recommended for long term play testing, upto 5% for short bursts.\nAnything higher, or for a prolonged amount of time, suggests user has a connection fault.")]
         [Range(0, 100)] public float unreliableLoss = 2;
-
-        [Tooltip("Unreliable latency in milliseconds (1000 = 1 second) \n100ms recommended for long term play testing, upto 500ms for short bursts.\nAnything higher, or for a prolonged amount of time, suggests user has a connection fault.")]
-        [Range(0, 10000)] public float unreliableLatency = 100;
 
         [Tooltip("Scramble % of unreliable messages, just like over the real network. Mirror unreliable is unordered.")]
         [Range(0, 100)] public float unreliableScramble = 2;
@@ -96,9 +97,9 @@ namespace Mirror
             switch (channeldId)
             {
                 case Channels.Reliable:
-                    return reliableLatency/1000 + spike;
+                    return latency/1000 + spike;
                 case Channels.Unreliable:
-                    return unreliableLatency/1000 + spike;
+                    return latency/1000 + spike;
                 default:
                     return 0;
             }
