@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<engine:UXML
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:engine="UnityEngine.UIElements"
+    xmlns:editor="UnityEditor.UIElements"
+	xmlns:uie="UnityEditor.UIElements"
+>
+	<engine:VisualElement class="content">
+		<engine:VisualElement class="background" />
+		<engine:Label class="text__title" text="Edgegap server management" />
+
+		<engine:ScrollView>
+			<engine:VisualElement class="container">
+				<engine:TextField name="apiKey" label="API key" password="true" view-data-key="apiKey" />
+				<uie:EnumField name="environmentSelect" label="API environment" include-obsolete-values="false"/>
+				<engine:TextField name="appName" label="App name" view-data-key="appName" />
+				<engine:TextField name="appVersionName" label="App version" view-data-key="appVersionName" />
+			</engine:VisualElement>
+
+			<engine:VisualElement class="container">
+				<engine:VisualElement class="flex flex--right">
+					<engine:Label name="connectionStatusLabel" class="text--muted" text="Awaiting connection" />
+					<engine:Button name="connectionBtn" />
+				</engine:VisualElement>
+			</engine:VisualElement>
+
+			<engine:VisualElement class="container">
+				<engine:TextField name="containerRegistry" tooltip="ex: docker.io or harbor.edgegap.net" label="Container Registry" view-data-key="containerRegistry" />
+				<engine:TextField name="containerImageRepo" tooltip="ex: edgegap/image" label="Image repository" view-data-key="containerImageRepo" />
+				<engine:TextField name="tag" label="Tag" tooltip="ex: 1.2" view-data-key="tag" />
+				<engine:Toggle name="autoIncrementTag" tooltip="Auto increment the tag on build for quicker iteration" label="Increment tag on build"  />
+			</engine:VisualElement>
+
+			
+			<engine:VisualElement class="container" />
+
+			<engine:VisualElement class="container">
+			<engine:VisualElement class="flex">
+					<engine:Button name="buildAndPushBtn" text="Build and Push" />
+					<engine:Button name="serverActionBtn" />
+				</engine:VisualElement>
+				
+			</engine:VisualElement>
+
+			<engine:VisualElement name="serverDataContainer" />
+
+			<engine:VisualElement class="container flex flex--right">
+				<engine:Button name="documentationBtn" text="Documentation" tooltip="Opens the documentation website. The website version changes depending on the selected API environment."/>
+			</engine:VisualElement>
+		</engine:ScrollView>
+	</engine:VisualElement>
+</engine:UXML>
