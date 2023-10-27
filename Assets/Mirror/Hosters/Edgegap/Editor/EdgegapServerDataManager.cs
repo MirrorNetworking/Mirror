@@ -79,12 +79,12 @@ namespace Edgegap
     /// </summary>
     public static class EdgegapServerDataManager
     {
-        private static Status _serverData;
-        private static ApiEnvironment _apiEnvironment;
+        static Status _serverData;
+        static ApiEnvironment _apiEnvironment;
 
         // UI elements
-        private static readonly StyleSheet _serverDataStylesheet;
-        private static readonly List<VisualElement> _serverDataContainers = new List<VisualElement>();
+        static readonly StyleSheet _serverDataStylesheet;
+        static readonly List<VisualElement> _serverDataContainers = new List<VisualElement>();
 
         public static Status GetServerStatus() => _serverData;
 
@@ -108,7 +108,7 @@ namespace Edgegap
             RefreshServerDataContainers();
         }
 
-        private static VisualElement GetStatusSection()
+        static VisualElement GetStatusSection()
         {
             ServerStatus serverStatus = _serverData.GetServerStatus();
             string dashboardUrl = _apiEnvironment.GetDashboardUrl();
@@ -149,7 +149,7 @@ namespace Edgegap
             return container;
         }
 
-        private static VisualElement GetDnsSection()
+        static VisualElement GetDnsSection()
         {
             string serverDns = _serverData.Fqdn;
 
@@ -170,7 +170,7 @@ namespace Edgegap
             return container;
         }
 
-        private static VisualElement GetPortsSection()
+        static VisualElement GetPortsSection()
         {
             List<PortMapping> serverPorts = _serverData.Ports.Values.ToList();
 
@@ -229,7 +229,7 @@ namespace Edgegap
             return serverDataTree;
         }
 
-        private static void RefreshServerDataContainers()
+        static void RefreshServerDataContainers()
         {
             foreach (VisualElement serverDataContainer in _serverDataContainers)
             {
