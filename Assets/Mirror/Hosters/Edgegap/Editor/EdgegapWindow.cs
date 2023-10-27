@@ -17,44 +17,44 @@ public class EdgegapWindow : EditorWindow
 {
     static readonly HttpClient _httpClient = new HttpClient();
 
-    private const string EditorDataSerializationName = "EdgegapSerializationData";
-    private const int ServerStatusCronjobIntervalMs = 10000; // Interval at which the server status is updated
+    const string EditorDataSerializationName = "EdgegapSerializationData";
+    const int ServerStatusCronjobIntervalMs = 10000; // Interval at which the server status is updated
 
-    private readonly System.Timers.Timer _updateServerStatusCronjob = new System.Timers.Timer(ServerStatusCronjobIntervalMs);
+    readonly System.Timers.Timer _updateServerStatusCronjob = new System.Timers.Timer(ServerStatusCronjobIntervalMs);
 
-    [SerializeField] private string _userExternalIp;
-    [SerializeField] private string _apiKey;
-    [SerializeField] private ApiEnvironment _apiEnvironment;
-    [SerializeField] private string _appName;
-    [SerializeField] private string _appVersionName;
-    [SerializeField] private string _deploymentRequestId;
+    [SerializeField] string _userExternalIp;
+    [SerializeField] string _apiKey;
+    [SerializeField] ApiEnvironment _apiEnvironment;
+    [SerializeField] string _appName;
+    [SerializeField] string _appVersionName;
+    [SerializeField] string _deploymentRequestId;
 
-    [SerializeField] private string _containerRegistry;
-    [SerializeField] private string _containerImageRepo;
-    [SerializeField] private string _containerImageTag;
-    [SerializeField] private bool _autoIncrementTag = true;
+    [SerializeField] string _containerRegistry;
+    [SerializeField] string _containerImageRepo;
+    [SerializeField] string _containerImageTag;
+    [SerializeField] bool _autoIncrementTag = true;
 
 
-    private VisualTreeAsset _visualTree;
-    private bool _shouldUpdateServerStatus = false;
+    VisualTreeAsset _visualTree;
+    bool _shouldUpdateServerStatus = false;
 
     // Interactable elements
-    private EnumField _apiEnvironmentSelect;
-    private TextField _apiKeyInput;
-    private TextField _appNameInput;
-    private TextField _appVersionNameInput;
-    private TextField _containerRegistryInput;
-    private TextField _containerImageRepoInput;
-    private TextField _containerImageTagInput;
-    private Toggle _autoIncrementTagInput;
-    private Button _connectionButton;
-    private Button _serverActionButton;
-    private Button _documentationBtn;
-    private Button _buildAndPushServerBtn;
+    EnumField _apiEnvironmentSelect;
+    TextField _apiKeyInput;
+    TextField _appNameInput;
+    TextField _appVersionNameInput;
+    TextField _containerRegistryInput;
+    TextField _containerImageRepoInput;
+    TextField _containerImageTagInput;
+    Toggle _autoIncrementTagInput;
+    Button _connectionButton;
+    Button _serverActionButton;
+    Button _documentationBtn;
+    Button _buildAndPushServerBtn;
 
     // Readonly elements
-    private Label _connectionStatusLabel;
-    private VisualElement _serverDataContainer;
+    Label _connectionStatusLabel;
+    VisualElement _serverDataContainer;
 
     [MenuItem("Edgegap/Server Management")]
     public static void ShowEdgegapToolWindow()
@@ -133,7 +133,7 @@ public class EdgegapWindow : EditorWindow
     /// Binds the form inputs to the associated variables and initializes the inputs as required.
     /// Requires the VisualElements to be loaded before this call. Otherwise, the elements cannot be found.
     /// </summary>
-    private void InitUIElements()
+    void InitUIElements()
     {
         _apiEnvironmentSelect = rootVisualElement.Q<EnumField>("environmentSelect");
         _apiKeyInput = rootVisualElement.Q<TextField>("apiKey");
@@ -170,7 +170,7 @@ public class EdgegapWindow : EditorWindow
     /// With a call to an external resource, determines the current user's public IP address.
     /// </summary>
     /// <returns>External IP address</returns>
-    private string GetExternalIpAddress()
+    string GetExternalIpAddress()
     {
         string externalIpString = new WebClient()
             .DownloadString("http://icanhazip.com")
@@ -182,7 +182,7 @@ public class EdgegapWindow : EditorWindow
         return externalIp.ToString();
     }
 
-    private void OpenDocumentationCallback()
+    void OpenDocumentationCallback()
     {
         ApiEnvironment selectedApiEnvironment = (ApiEnvironment)_apiEnvironmentSelect.value;
         string documentationUrl = selectedApiEnvironment.GetDocumentationUrl();
@@ -198,7 +198,7 @@ public class EdgegapWindow : EditorWindow
         }
     }
 
-    private void ConnectCallback()
+    void ConnectCallback()
     {
         ApiEnvironment selectedApiEnvironment = (ApiEnvironment)_apiEnvironmentSelect.value;
         string selectedAppName = _appNameInput.value;
@@ -220,13 +220,13 @@ public class EdgegapWindow : EditorWindow
                 "Could not connect - Invalid data",
                 "The data provided is invalid. " +
                 "Make sure every field is filled, and that you provide your complete Edgegap API token " +
-                "(including the \"token\" part).", 
+                "(including the \"token\" part).",
                 "Ok"
             );
         }
     }
 
-    private async void Connect(
+    async void Connect(
         ApiEnvironment selectedApiEnvironment,
         string selectedAppName,
         string selectedAppVersionName,
@@ -279,7 +279,7 @@ public class EdgegapWindow : EditorWindow
         }
     }
 
-    private void DisconnectCallback()
+    void DisconnectCallback()
     {
         if (string.IsNullOrEmpty(_deploymentRequestId))
         {
@@ -291,14 +291,14 @@ public class EdgegapWindow : EditorWindow
         }
     }
 
-    private float ProgressCounter = 0;
+    float ProgressCounter = 0;
 
-    private void ShowBuildWorkInProgress(string status)
+    void ShowBuildWorkInProgress(string status)
     {
         EditorUtility.DisplayProgressBar("Build and push progress", status, ProgressCounter++ / 50);
     }
 
-    private async void BuildAndPushServer()
+    async void BuildAndPushServer()
     {
         SetToolUIState(ToolState.Building);
 
@@ -370,7 +370,7 @@ public class EdgegapWindow : EditorWindow
         }
     }
 
-    private async Task UpdateAppTagOnEdgegap(string newTag)
+    async Task UpdateAppTagOnEdgegap(string newTag)
     {
         string path = $"/v1/app/{_appName}/version/{_appVersionName}";
 
@@ -392,7 +392,7 @@ public class EdgegapWindow : EditorWindow
         }
     }
 
-    private async void StartServerCallback()
+    async void StartServerCallback()
     {
         SetToolUIState(ToolState.ProcessingDeployment); // Prevents being called multiple times.
 
@@ -424,7 +424,7 @@ public class EdgegapWindow : EditorWindow
         }
     }
 
-    private async void StopServerCallback()
+    async void StopServerCallback()
     {
         string path = $"/v1/stop/{_deploymentRequestId}";
 
@@ -445,16 +445,16 @@ public class EdgegapWindow : EditorWindow
         }
     }
 
-    private void StartServerStatusCronjob()
+    void StartServerStatusCronjob()
     {
         _updateServerStatusCronjob.Elapsed += (sourceObject, elaspedEvent) => _shouldUpdateServerStatus = true;
         _updateServerStatusCronjob.AutoReset = true;
         _updateServerStatusCronjob.Start();
     }
 
-    private void StopServerStatusCronjob() => _updateServerStatusCronjob.Stop();
+    void StopServerStatusCronjob() => _updateServerStatusCronjob.Stop();
 
-    private async void UpdateServerStatus()
+    async void UpdateServerStatus()
     {
         var serverStatusResponse = await FetchServerStatus();
 
@@ -490,7 +490,7 @@ public class EdgegapWindow : EditorWindow
         SetToolUIState(toolState);
     }
 
-    private async Task<Status> FetchServerStatus()
+    async Task<Status> FetchServerStatus()
     {
         string path = $"/v1/status/{_deploymentRequestId}";
 
@@ -526,7 +526,7 @@ public class EdgegapWindow : EditorWindow
         return parsedData;
     }
 
-    private void RestoreActiveDeployment()
+    void RestoreActiveDeployment()
     {
         ConnectCallback();
 
@@ -534,7 +534,7 @@ public class EdgegapWindow : EditorWindow
         StartServerStatusCronjob();
     }
 
-    private void SyncObjectWithForm()
+    void SyncObjectWithForm()
     {
         _apiKey = _apiKeyInput.value;
         _apiEnvironment = (ApiEnvironment)_apiEnvironmentSelect.value;
@@ -547,7 +547,7 @@ public class EdgegapWindow : EditorWindow
         _autoIncrementTag = _autoIncrementTagInput.value;
     }
 
-    private void SyncFormWithObject()
+    void SyncFormWithObject()
     {
         _apiKeyInput.value = _apiKey;
         _apiEnvironmentSelect.value = _apiEnvironment;
@@ -557,10 +557,10 @@ public class EdgegapWindow : EditorWindow
         _containerRegistryInput.value = _containerRegistry;
         _containerImageTagInput.value = _containerImageTag;
         _containerImageRepoInput.value = _containerImageRepo;
-        _autoIncrementTagInput.value = _autoIncrementTag; 
+        _autoIncrementTagInput.value = _autoIncrementTag;
     }
 
-    private void SetToolUIState(ToolState toolState)
+    void SetToolUIState(ToolState toolState)
     {
         SetConnectionInfoUI(toolState);
         SetConnectionButtonUI(toolState);
@@ -568,7 +568,7 @@ public class EdgegapWindow : EditorWindow
         SetDockerRepoInfoUI(toolState);
     }
 
-    private void SetDockerRepoInfoUI(ToolState toolState)
+    void SetDockerRepoInfoUI(ToolState toolState)
     {
         var connected = toolState.CanStartDeployment();
         _containerRegistryInput.SetEnabled(connected);
@@ -578,7 +578,7 @@ public class EdgegapWindow : EditorWindow
 
     }
 
-    private void SetConnectionInfoUI(ToolState toolState)
+    void SetConnectionInfoUI(ToolState toolState)
     {
         bool canEditConnectionInfo = toolState.CanEditConnectionInfo();
 
@@ -586,10 +586,10 @@ public class EdgegapWindow : EditorWindow
         _apiEnvironmentSelect.SetEnabled(canEditConnectionInfo);
         _appNameInput.SetEnabled(canEditConnectionInfo);
         _appVersionNameInput.SetEnabled(canEditConnectionInfo);
-       
+
     }
 
-    private void SetConnectionButtonUI(ToolState toolState)
+    void SetConnectionButtonUI(ToolState toolState)
     {
         bool canConnect = toolState.CanConnect();
         bool canDisconnect = toolState.CanDisconnect();
@@ -616,7 +616,7 @@ public class EdgegapWindow : EditorWindow
         }
     }
 
-    private void SetServerActionUI(ToolState toolState)
+    void SetServerActionUI(ToolState toolState)
     {
         bool canStartDeployment = toolState.CanStartDeployment();
         bool canStopDeployment = toolState.CanStopDeployment();
@@ -645,7 +645,7 @@ public class EdgegapWindow : EditorWindow
     /// Save the tool's serializable data to the EditorPrefs to allow persistence across restarts.
     /// Any field with [SerializeField] will be saved.
     /// </summary>
-    private void SaveToolData()
+    void SaveToolData()
     {
         var data = JsonUtility.ToJson(this, false);
         EditorPrefs.SetString(EditorDataSerializationName, data);
@@ -654,7 +654,7 @@ public class EdgegapWindow : EditorWindow
     /// <summary>
     /// Load the tool's serializable data from the EditorPrefs to the object, restoring the tool's state.
     /// </summary>
-    private void LoadToolData()
+    void LoadToolData()
     {
         var data = EditorPrefs.GetString(EditorDataSerializationName, JsonUtility.ToJson(this, false));
         JsonUtility.FromJsonOverwrite(data, this);

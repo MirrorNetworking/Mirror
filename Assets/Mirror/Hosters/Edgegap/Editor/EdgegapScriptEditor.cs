@@ -7,13 +7,13 @@ public class EdgegapPluginScriptEditor : Editor
 {
     VisualElement _serverDataContainer;
 
-    private void OnEnable()
+    void OnEnable()
     {
         _serverDataContainer = EdgegapServerDataManager.GetServerDataVisualTree();
         EdgegapServerDataManager.RegisterServerDataContainer(_serverDataContainer);
     }
 
-    private void OnDisable()
+    void OnDisable()
     {
         EdgegapServerDataManager.DeregisterServerDataContainer(_serverDataContainer);
     }

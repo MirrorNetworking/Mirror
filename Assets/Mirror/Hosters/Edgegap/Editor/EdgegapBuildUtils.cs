@@ -48,7 +48,7 @@ namespace Edgegap
             return true;
         }
 
-        private static async Task RunCommand(string command, string arguments, Action<string> outputReciever = null, Action<string> errorReciever = null)
+        static async Task RunCommand(string command, string arguments, Action<string> outputReciever = null, Action<string> errorReciever = null)
         {
 
             ProcessStartInfo startInfo = new ProcessStartInfo()
@@ -98,7 +98,7 @@ namespace Edgegap
 
         }
 
-        private static void Proc_OutputDataReceived(object sender, DataReceivedEventArgs e)
+        static void Proc_OutputDataReceived(object sender, DataReceivedEventArgs e)
         {
             throw new NotImplementedException();
         }
@@ -169,6 +169,6 @@ RUN chmod +x /root/build/ServerBuild
 ENTRYPOINT [ ""/root/build/ServerBuild"", ""-batchmode"", ""-nographics""]
 ";
 
-        
+
     }
 }
