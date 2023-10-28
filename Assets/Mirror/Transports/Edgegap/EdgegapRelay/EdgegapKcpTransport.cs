@@ -87,7 +87,7 @@ namespace Edgegap
             EdgegapKcpClient client = (EdgegapKcpClient)this.client;
             client.userId = userId;
             client.sessionId = sessionId;
-            client.state = ConnectionState.Checking; // reset from last time
+            client.connectionState = ConnectionState.Checking; // reset from last time
             client.Connect(relayAddress, relayGameClientPort);
         }
         public override void ClientConnect(Uri uri)
@@ -137,7 +137,7 @@ namespace Edgegap
                 EdgegapKcpClient client = (EdgegapKcpClient)this.client;
                 GUILayout.BeginHorizontal();
                 GUILayout.Label("State:");
-                GUILayout.Label(client.state.ToString());
+                GUILayout.Label(client.connectionState.ToString());
                 GUILayout.EndHorizontal();
             }
 

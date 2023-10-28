@@ -121,7 +121,7 @@ namespace kcp2k
         {
             if (connections.TryGetValue(connectionId, out KcpServerConnection connection))
             {
-                connection.peer.SendData(segment, channel);
+                connection.SendData(segment, channel);
             }
         }
 
@@ -129,7 +129,7 @@ namespace kcp2k
         {
             if (connections.TryGetValue(connectionId, out KcpServerConnection connection))
             {
-                connection.peer.Disconnect();
+                connection.Disconnect();
             }
         }
 
@@ -199,37 +199,31 @@ namespace kcp2k
 
         protected virtual KcpServerConnection CreateConnection(int connectionId)
         {
-            // events need to be wrapped with connectionIds
-            Action<ArraySegment<byte>> RawSendWrap =
-                data => RawSend(connectionId, data);
-
-            // create empty connection without peer first.
-            // we need it to set up peer callbacks.
-            // afterwards we assign the peer.
-            KcpServerConnection connection = new KcpServerConnection(newClientEP);
-
             // generate a random cookie for this connection to avoid UDP spoofing.
             // needs to be random, but without allocations to avoid GC.
             uint cookie = Common.GenerateCookie();
 
-            // set up peer with callbacks
-            KcpPeer peer = new KcpPeer(RawSendWrap, OnAuthenticatedWrap, OnDataWrap, OnDisconnectedWrap, OnErrorWrap, config, cookie);
+            // create empty connection without peer first.
+            // we need it to set up peer callbacks.
+            // afterwards we assign the peer.
+            // events need to be wrapped with connectionIds
+            KcpServerConnection connection = new KcpServerConnection(
+                OnConnectedCallback,
+                (message,  channel) => OnData(connectionId, message, channel),
+                OnDisconnectedCallback,
+                (error, reason) => OnError(connectionId, error, reason),
+                (data) => RawSend(connectionId, data),
+                config,
+                cookie,
+                newClientEP);
 
-            // assign peer to connection
-            connection.peer = peer;
             return connection;
 
             // setup authenticated event that also adds to connections
-            void OnAuthenticatedWrap()
+            void OnConnectedCallback(KcpServerConnection conn)
             {
-                // only send handshake to client AFTER we received his
-                // handshake in OnAuthenticated.
-                // we don't want to reply to random internet messages
-                // with handshakes each time.
-                connection.peer.SendHandshake();
-
                 // add to connections dict after being authenticated.
-                connections.Add(connectionId, connection);
+                connections.Add(connectionId, conn);
                 Log.Info($"KcpServer: added connection({connectionId})");
 
                 // setup Data + Disconnected events only AFTER the
@@ -239,20 +233,12 @@ namespace kcp2k
 
                 // setup data event
 
-
                 // finally, call mirror OnConnected event
                 Log.Info($"KcpServer: OnConnected({connectionId})");
                 OnConnected(connectionId);
             }
 
-            void OnDataWrap(ArraySegment<byte> message, KcpChannel channel)
-            {
-                // call mirror event
-                //Log.Info($"KCP: OnServerDataReceived({connectionId}, {BitConverter.ToString(message.Array, message.Offset, message.Count)})");
-                OnData(connectionId, message, channel);
-            }
-
-            void OnDisconnectedWrap()
+            void OnDisconnectedCallback()
             {
                 // flag for removal
                 // (can't remove directly because connection is updated
@@ -262,11 +248,6 @@ namespace kcp2k
                 // call mirror event
                 Log.Info($"KcpServer: OnDisconnected({connectionId})");
                 OnDisconnected(connectionId);
-            }
-
-            void OnErrorWrap(ErrorCode error, string reason)
-            {
-                OnError(connectionId, error, reason);
             }
         }
 
@@ -306,8 +287,8 @@ namespace kcp2k
                 // connected event was set up.
                 // tick will process the first message and adds the
                 // connection if it was the handshake.
-                connection.peer.RawInput(segment);
-                connection.peer.TickIncoming();
+                connection.RawInput(segment);
+                connection.TickIncoming();
 
                 // again, do not add to connections.
                 // if the first message wasn't the kcp handshake then
@@ -316,7 +297,7 @@ namespace kcp2k
             // existing connection: simply input the message into kcp
             else
             {
-                connection.peer.RawInput(segment);
+                connection.RawInput(segment);
             }
         }
 
@@ -335,7 +316,7 @@ namespace kcp2k
             // (even if we didn't receive anything. need to tick ping etc.)
             foreach (KcpServerConnection connection in connections.Values)
             {
-                connection.peer.TickIncoming();
+                connection.TickIncoming();
             }
 
             // remove disconnected connections
@@ -355,7 +336,7 @@ namespace kcp2k
             // flush all server connections
             foreach (KcpServerConnection connection in connections.Values)
             {
-                connection.peer.TickOutgoing();
+                connection.TickOutgoing();
             }
         }
 

@@ -15,7 +15,7 @@ namespace Edgegap
         // authentication
         public uint userId;
         public uint sessionId;
-        public ConnectionState state = ConnectionState.Disconnected;
+        public ConnectionState connectionState = ConnectionState.Disconnected;
 
         // ping
         double lastPingTime;
@@ -35,7 +35,7 @@ namespace Edgegap
         public void Connect(string relayAddress, ushort relayPort, uint userId, uint sessionId)
         {
             // reset last state
-            state = ConnectionState.Checking;
+            connectionState = ConnectionState.Checking;
             this.userId = userId;
             this.sessionId = sessionId;
 
@@ -70,11 +70,11 @@ namespace Edgegap
                             {
                                 // parse state
                                 if (reader.Remaining < 1) return false;
-                                ConnectionState last = state;
-                                state = (ConnectionState)reader.ReadByte();
+                                ConnectionState last = connectionState;
+                                connectionState = (ConnectionState)reader.ReadByte();
 
                                 // log state changes for debugging.
-                                if (state != last) Debug.Log($"EdgegapClient: state updated to: {state}");
+                                if (connectionState != last) Debug.Log($"EdgegapClient: state updated to: {connectionState}");
 
                                 // return true indicates Mirror to keep checking
                                 // for further messages.
@@ -94,7 +94,7 @@ namespace Edgegap
             catch (SocketException e)
             {
                 Log.Info($"EdgegapClient: looks like the other end has closed the connection. This is fine: {e}");
-                peer.Disconnect();
+                Disconnect();
             }
 
             return false;
