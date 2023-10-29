@@ -11,21 +11,6 @@ namespace Mirror
         // via NetMan or NetworkClientConfig or NetworkClient as component etc.
         public static SnapshotInterpolationSettings snapshotSettings = new SnapshotInterpolationSettings();
 
-        // obsolete snapshot settings access
-        // DEPRECATED 2023-03-11
-        // [Obsolete("NetworkClient snapshot interpolation settings were moved to NetworkClient.snapshotSettings.*")]
-        // public static double bufferTimeMultiplier => currentBufferTimeMultiplier;
-        [Obsolete("NetworkClient snapshot interpolation settings were moved to NetworkClient.snapshotSettings.*")]
-        public static float catchupNegativeThreshold => snapshotSettings.catchupNegativeThreshold;
-        [Obsolete("NetworkClient snapshot interpolation settings were moved to NetworkClient.snapshotSettings.*")]
-        public static float catchupPositiveThreshold => snapshotSettings.catchupPositiveThreshold;
-        [Obsolete("NetworkClient snapshot interpolation settings were moved to NetworkClient.snapshotSettings.*")]
-        public static double catchupSpeed => snapshotSettings.catchupSpeed;
-        [Obsolete("NetworkClient snapshot interpolation settings were moved to NetworkClient.snapshotSettings.*")]
-        public static double slowdownSpeed => snapshotSettings.slowdownSpeed;
-        [Obsolete("NetworkClient snapshot interpolation settings were moved to NetworkClient.snapshotSettings.*")]
-        public static int driftEmaDuration => snapshotSettings.driftEmaDuration;
-
         // snapshot interpolation runtime data /////////////////////////////////
         // buffer time is dynamically adjusted.
         // store the current multiplier here, without touching the original in settings.

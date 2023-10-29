@@ -83,10 +83,6 @@ namespace Mirror
         /// <summary>Check if client is connected (after connecting).</summary>
         public static bool isConnected => connectState == ConnectState.Connected;
 
-        // Deprecated 2022-12-12
-        [Obsolete("NetworkClient.isHostClient was renamed to .activeHost to be more obvious")]
-        public static bool isHostClient => activeHost;
-
         // OnConnected / OnDisconnected used to be NetworkMessages that were
         // invoked. this introduced a bug where external clients could send
         // Connected/Disconnected messages over the network causing undefined
@@ -215,10 +211,6 @@ namespace Mirror
             connectState = ConnectState.Connected;
             HostMode.SetupConnections();
         }
-
-        // Deprecated 2022-12-12
-        [Obsolete("NetworkClient.ConnectLocalServer was moved to HostMode.InvokeOnConnected")]
-        public static void ConnectLocalServer() => HostMode.InvokeOnConnected();
 
         // disconnect //////////////////////////////////////////////////////////
         /// <summary>Disconnect from server.</summary>

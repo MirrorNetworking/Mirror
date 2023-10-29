@@ -52,10 +52,6 @@ namespace Mirror
         // see also: https://github.com/vis2k/Mirror/pull/2595
         public static bool dontListen;
 
-        // Deprecated 2022-12-12
-        [Obsolete("NetworkServer.localClientActive was renamed to .activeHost to be more obvious")]
-        public static bool localClientActive => activeHost;
-
         /// <summary>active checks if the server has been started either has standalone or as host server.</summary>
         public static bool active { get; internal set; }
 
@@ -1871,11 +1867,5 @@ namespace Mirror
                 fullUpdateDuration.End();
             }
         }
-
-        // calls OnStartClient for all SERVER objects in host mode once.
-        // client doesn't get spawn messages for those, so need to call manually.
-        // Deprecated 2022-12-12
-        [Obsolete("NetworkServer.ActivateHostScene was moved to HostMode.ActivateHostScene")]
-        public static void ActivateHostScene() => HostMode.ActivateHostScene();
     }
 }

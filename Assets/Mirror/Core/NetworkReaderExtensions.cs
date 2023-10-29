@@ -103,11 +103,6 @@ namespace Mirror
             // Use checked() to force it to throw OverflowException if data is invalid
             return count == 0 ? null : reader.ReadBytes(checked((int)(count - 1u)));
         }
-        // DEPRECATED 2023-08-12
-        [Obsolete("ReadBytesAndSizeSegment was renamed to ReadArraySegmentAndSize for clarity.")]
-        public static ArraySegment<byte> ReadBytesAndSizeSegment(this NetworkReader reader) =>
-            ReadArraySegmentAndSize(reader);
-
         // Reads ArraySegment and size header
         /// <exception cref="T:OverflowException">if count is invalid</exception>
         public static ArraySegment<byte> ReadArraySegmentAndSize(this NetworkReader reader)
