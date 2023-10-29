@@ -83,7 +83,12 @@ namespace Mirror.Examples.CharacterSelection
             characterController.enabled = true;
             this.enabled = true;
 
-            sceneReferencer = FindObjectOfType<SceneReferencer>();
+#if UNITY_2021_3_OR_NEWER
+            sceneReferencer = GameObject.FindAnyObjectByType<SceneReferencer>();
+#else
+            // Deprecated in Unity 2023.1
+            sceneReferencer = GameObject.FindObjectOfType<SceneReferencer>();
+#endif
             cameraObj = sceneReferencer.cameraObject.transform;
         }
 

@@ -26,7 +26,12 @@ namespace Mirror.Examples.CouchCoop
 
             if (isOwned)
             {
+#if UNITY_2021_3_OR_NEWER
+                couchPlayerManager = GameObject.FindAnyObjectByType<CouchPlayerManager>();
+#else
+                // Deprecated in Unity 2023.1
                 couchPlayerManager = GameObject.FindObjectOfType<CouchPlayerManager>();
+#endif
                 // setup controls according to the pre-sets on CouchPlayerManager
                 jumpKey = couchPlayerManager.playerKeyJump[playerNumber];
                 leftKey = couchPlayerManager.playerKeyLeft[playerNumber];
