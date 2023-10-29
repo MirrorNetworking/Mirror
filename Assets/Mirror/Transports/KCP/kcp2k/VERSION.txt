@@ -1,3 +1,8 @@
+V1.38 [2023-10-29]
+- fix: #54 mismatching cookie race condition. cookie is now included in all messages.
+- feature: Exposed local end point on KcpClient/Server
+- refactor: KcpPeer refactored as abstract class to remove KcpServer initialization workarounds
+
 V1.37 [2023-07-31]
 - fix: #47 KcpServer.Stop now clears connections so they aren't carried over to the next session
 - fix: KcpPeer doesn't log 'received unreliable message while not authenticated' anymore.

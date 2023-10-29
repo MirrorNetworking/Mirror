@@ -6,12 +6,8 @@ using System.Net.Sockets;
 
 namespace kcp2k
 {
-    public class KcpClient
+    public class KcpClient : KcpPeer
     {
-        // kcp
-        // public so that bandwidth statistics can be accessed from the outside
-        public KcpPeer peer;
-
         // IO
         protected Socket socket;
         public EndPoint remoteEndPoint;
@@ -38,12 +34,13 @@ namespace kcp2k
         // events are readonly, set in constructor.
         // this ensures they are always initialized when used.
         // fixes https://github.com/MirrorNetworking/Mirror/issues/3337 and more
-        protected readonly Action OnConnected;
-        protected readonly Action<ArraySegment<byte>, KcpChannel> OnData;
-        protected readonly Action OnDisconnected;
-        protected readonly Action<ErrorCode, string> OnError;
+        protected readonly Action OnConnectedCallback;
+        protected readonly Action<ArraySegment<byte>, KcpChannel> OnDataCallback;
+        protected readonly Action OnDisconnectedCallback;
+        protected readonly Action<ErrorCode, string> OnErrorCallback;
 
         // state
+        bool active = false; // active between when connect() and disconnect() are called
         public bool connected;
 
         public KcpClient(Action OnConnected,
@@ -51,18 +48,46 @@ namespace kcp2k
                          Action OnDisconnected,
                          Action<ErrorCode, string> OnError,
                          KcpConfig config)
+                         : base(config, 0) // client has no cookie yet
         {
             // initialize callbacks first to ensure they can be used safely.
-            this.OnConnected = OnConnected;
-            this.OnData = OnData;
-            this.OnDisconnected = OnDisconnected;
-            this.OnError = OnError;
+            OnConnectedCallback = OnConnected;
+            OnDataCallback = OnData;
+            OnDisconnectedCallback = OnDisconnected;
+            OnErrorCallback = OnError;
             this.config = config;
 
             // create mtu sized receive buffer
             rawReceiveBuffer = new byte[config.Mtu];
         }
 
+        // callbacks ///////////////////////////////////////////////////////////
+        // some callbacks need to wrapped with some extra logic
+        protected override void OnAuthenticated()
+        {
+            Log.Info($"KcpClient: OnConnected");
+            connected = true;
+            OnConnectedCallback();
+        }
+
+        protected override void OnData(ArraySegment<byte> message, KcpChannel channel) =>
+            OnDataCallback(message, channel);
+
+        protected override void OnError(ErrorCode error, string message) =>
+            OnErrorCallback(error, message);
+
+        protected override void OnDisconnected()
+        {
+            Log.Info($"KcpClient: OnDisconnected");
+            connected = false;
+            socket?.Close();
+            socket = null;
+            remoteEndPoint = null;
+            OnDisconnectedCallback();
+            active = false;
+        }
+
+        ////////////////////////////////////////////////////////////////////////
         public void Connect(string address, ushort port)
         {
             if (connected)
@@ -77,37 +102,20 @@ namespace kcp2k
             {
                 // pass error to user callback. no need to log it manually.
                 OnError(ErrorCode.DnsResolve, $"Failed to resolve host: {address}");
-                OnDisconnected();
+                OnDisconnectedCallback();
                 return;
             }
 
             // create fresh peer for each new session
             // client doesn't need secure cookie.
-            peer = new KcpPeer(RawSend, OnAuthenticatedWrap, OnData, OnDisconnectedWrap, OnError, config, 0);
-
-            // some callbacks need to wrapped with some extra logic
-            void OnAuthenticatedWrap()
-            {
-                Log.Info($"KcpClient: OnConnected");
-                connected = true;
-                OnConnected();
-            }
-            void OnDisconnectedWrap()
-            {
-                Log.Info($"KcpClient: OnDisconnected");
-                connected = false;
-                peer = null;
-                socket?.Close();
-                socket = null;
-                remoteEndPoint = null;
-                OnDisconnected();
-            }
+            Reset(config);
 
             Log.Info($"KcpClient: connect to {address}:{port}");
 
             // create socket
             remoteEndPoint = new IPEndPoint(addresses[0], port);
             socket = new Socket(remoteEndPoint.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
+            active = true;
 
             // recv & send are called from main thread.
             // need to ensure this never blocks.
@@ -120,8 +128,10 @@ namespace kcp2k
             // bind to endpoint so we can use send/recv instead of sendto/recvfrom.
             socket.Connect(remoteEndPoint);
 
-            // client should send handshake to server as very first message
-            peer.SendHandshake();
+            // immediately send a hello message to the server.
+            // server will call OnMessage and add the new connection.
+            // note that this still has cookie=0 until we receive the server's hello.
+            SendHello();
         }
 
         // io - input.
@@ -147,14 +157,14 @@ namespace kcp2k
                 // for example, his can happen when connecting without a server.
                 // see test: ConnectWithoutServer().
                 Log.Info($"KcpClient: looks like the other end has closed the connection. This is fine: {e}");
-                peer.Disconnect();
+                base.Disconnect();
                 return false;
             }
         }
 
         // io - output.
         // virtual so it may be modified for relays, etc.
-        protected virtual void RawSend(ArraySegment<byte> data)
+        protected override void RawSend(ArraySegment<byte> data)
         {
             try
             {
@@ -174,10 +184,10 @@ namespace kcp2k
                 return;
             }
 
-            peer.SendData(segment, channel);
+            SendData(segment, channel);
         }
 
-        public void Disconnect()
+        public override void Disconnect()
         {
             // only if connected
             // otherwise we end up in a deadlock because of an open Mirror bug:
@@ -187,34 +197,89 @@ namespace kcp2k
             // call Disconnect and let the connection handle it.
             // DO NOT set it to null yet. it needs to be updated a few more
             // times first. let the connection handle it!
-            peer?.Disconnect();
+            base.Disconnect();
+        }
+
+        // insert raw IO. usually from socket.Receive.
+        // offset is useful for relays, where we may parse a header and then
+        // feed the rest to kcp.
+        public void RawInput(ArraySegment<byte> segment)
+        {
+            // ensure valid size: at least 1 byte for channel + 4 bytes for cookie
+            if (segment.Count <= 5) return;
+
+            // parse channel
+            // byte channel = segment[0]; ArraySegment[i] isn't supported in some older Unity Mono versions
+            byte channel = segment.Array[segment.Offset + 0];
+
+            // server messages always contain the security cookie.
+            // parse it, assign if not assigned, warn if suddenly different.
+            Utils.Decode32U(segment.Array, segment.Offset + 1, out uint messageCookie);
+            if (messageCookie == 0)
+            {
+                Log.Error($"KcpClient: received message with cookie=0, this should never happen. Server should always include the security cookie.");
+            }
+
+            if (cookie == 0)
+            {
+                cookie = messageCookie;
+                Log.Info($"KcpClient: received initial cookie: {cookie}");
+            }
+            else if (cookie != messageCookie)
+            {
+                Log.Warning($"KcpClient: dropping message with mismatching cookie: {messageCookie} expected: {cookie}.");
+                return;
+            }
+
+            // parse message
+            ArraySegment<byte> message = new ArraySegment<byte>(segment.Array, segment.Offset + 1+4, segment.Count - 1-4);
+
+            switch (channel)
+            {
+                case (byte)KcpChannel.Reliable:
+                {
+                    OnRawInputReliable(message);
+                    break;
+                }
+                case (byte)KcpChannel.Unreliable:
+                {
+                    OnRawInputUnreliable(message);
+                    break;
+                }
+                default:
+                {
+                    // invalid channel indicates random internet noise.
+                    // servers may receive random UDP data.
+                    // just ignore it, but log for easier debugging.
+                    Log.Warning($"KcpClient: invalid channel header: {channel}, likely internet noise");
+                    break;
+                }
+            }
         }
 
         // process incoming messages. should be called before updating the world.
         // virtual because relay may need to inject their own ping or similar.
-        public virtual void TickIncoming()
+        public override void TickIncoming()
         {
             // recv on socket first, then process incoming
             // (even if we didn't receive anything. need to tick ping etc.)
             // (connection is null if not active)
-            if (peer != null)
+            if (active)
             {
-
                 while (RawReceive(out ArraySegment<byte> segment))
-                    peer.RawInput(segment);
+                    RawInput(segment);
             }
 
-            // RawReceive may have disconnected peer. null check again.
-            peer?.TickIncoming();
+            // RawReceive may have disconnected peer. active check again.
+            if (active) base.TickIncoming();
         }
 
         // process outgoing messages. should be called after updating the world.
         // virtual because relay may need to inject their own ping or similar.
-        public virtual void TickOutgoing()
+        public override void TickOutgoing()
         {
-            // process outgoing
-            // (connection is null if not active)
-            peer?.TickOutgoing();
+            // process outgoing while active
+            if (active) base.TickOutgoing();
         }
 
         // process incoming and outgoing for convenience

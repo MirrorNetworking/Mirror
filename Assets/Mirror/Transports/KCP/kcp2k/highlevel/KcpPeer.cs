@@ -8,9 +8,7 @@ using System.Net.Sockets;
 
 namespace kcp2k
 {
-    enum KcpState { Connected, Authenticated, Disconnected }
-
-    public class KcpPeer
+    public abstract class KcpPeer
     {
         // kcp reliability algorithm
         internal Kcp kcp;
@@ -24,29 +22,11 @@ namespace kcp2k
         // => cookie can be a random number, but it needs to be cryptographically
         //    secure random that can't be easily predicted.
         // => cookie can be hash(ip, port) BUT only if salted to be not predictable
-        readonly uint cookie;
-
-        // this is the cookie that the other end received during handshake.
-        // store byte[] representation to avoid runtime int->byte[] conversions.
-        internal readonly byte[] receivedCookie = new byte[4];
-
-        // IO agnostic
-        readonly Action<ArraySegment<byte>> RawSend;
+        internal uint cookie;
 
         // state: connected as soon as we create the peer.
         // leftover from KcpConnection. remove it after refactoring later.
-        KcpState state = KcpState.Connected;
-
-        // events are readonly, set in constructor.
-        // this ensures they are always initialized when used.
-        // fixes https://github.com/MirrorNetworking/Mirror/issues/3337 and more
-        readonly Action OnAuthenticated;
-        readonly Action<ArraySegment<byte>, KcpChannel> OnData;
-        readonly Action OnDisconnected;
-        // error callback instead of logging.
-        // allows libraries to show popups etc.
-        // (string instead of Exception for ease of use and to avoid user panic)
-        readonly Action<ErrorCode, string> OnError;
+        protected KcpState state = KcpState.Connected;
 
         // If we don't receive anything these many milliseconds
         // then consider us disconnected
@@ -58,50 +38,6 @@ namespace kcp2k
         // StopWatch offers ElapsedMilliSeconds and should be more precise than
         // Unity's time.deltaTime over long periods.
         readonly Stopwatch watch = new Stopwatch();
-
-        // we need to subtract the channel and cookie bytes from every
-        // MaxMessageSize calculation.
-        // we also need to tell kcp to use MTU-1 to leave space for the byte.
-        const int CHANNEL_HEADER_SIZE = 1;
-        const int COOKIE_HEADER_SIZE = 4;
-        const int METADATA_SIZE = CHANNEL_HEADER_SIZE + COOKIE_HEADER_SIZE;
-
-        // reliable channel (= kcp) MaxMessageSize so the outside knows largest
-        // allowed message to send. the calculation in Send() is not obvious at
-        // all, so let's provide the helper here.
-        //
-        // kcp does fragmentation, so max message is way larger than MTU.
-        //
-        // -> runtime MTU changes are disabled: mss is always MTU_DEF-OVERHEAD
-        // -> Send() checks if fragment count < rcv_wnd, so we use rcv_wnd - 1.
-        //    NOTE that original kcp has a bug where WND_RCV default is used
-        //    instead of configured rcv_wnd, limiting max message size to 144 KB
-        //    https://github.com/skywind3000/kcp/pull/291
-        //    we fixed this in kcp2k.
-        // -> we add 1 byte KcpHeader enum to each message, so -1
-        //
-        // IMPORTANT: max message is MTU * rcv_wnd, in other words it completely
-        //            fills the receive window! due to head of line blocking,
-        //            all other messages have to wait while a maxed size message
-        //            is being delivered.
-        //            => in other words, DO NOT use max size all the time like
-        //               for batching.
-        //            => sending UNRELIABLE max message size most of the time is
-        //               best for performance (use that one for batching!)
-        static int ReliableMaxMessageSize_Unconstrained(int mtu, uint rcv_wnd) =>
-            (mtu - Kcp.OVERHEAD - METADATA_SIZE) * ((int)rcv_wnd - 1) - 1;
-
-        // kcp encodes 'frg' as 1 byte.
-        // max message size can only ever allow up to 255 fragments.
-        //   WND_RCV gives 127 fragments.
-        //   WND_RCV * 2 gives 255 fragments.
-        // so we can limit max message size by limiting rcv_wnd parameter.
-        public static int ReliableMaxMessageSize(int mtu, uint rcv_wnd) =>
-            ReliableMaxMessageSize_Unconstrained(mtu, Math.Min(rcv_wnd, Kcp.FRG_MAX));
-
-        // unreliable max message size is simply MTU - channel header size
-        public static int UnreliableMaxMessageSize(int mtu) =>
-            mtu - METADATA_SIZE;
 
         // buffer to receive kcp's processed messages (avoids allocations).
         // IMPORTANT: this is for KCP messages. so it needs to be of size:
@@ -142,6 +78,50 @@ namespace kcp2k
         public int SendBufferCount    => kcp.snd_buf.Count;
         public int ReceiveBufferCount => kcp.rcv_buf.Count;
 
+        // we need to subtract the channel and cookie bytes from every
+        // MaxMessageSize calculation.
+        // we also need to tell kcp to use MTU-1 to leave space for the byte.
+        public const int CHANNEL_HEADER_SIZE = 1;
+        public const int COOKIE_HEADER_SIZE = 4;
+        public const int METADATA_SIZE = CHANNEL_HEADER_SIZE + COOKIE_HEADER_SIZE;
+
+        // reliable channel (= kcp) MaxMessageSize so the outside knows largest
+        // allowed message to send. the calculation in Send() is not obvious at
+        // all, so let's provide the helper here.
+        //
+        // kcp does fragmentation, so max message is way larger than MTU.
+        //
+        // -> runtime MTU changes are disabled: mss is always MTU_DEF-OVERHEAD
+        // -> Send() checks if fragment count < rcv_wnd, so we use rcv_wnd - 1.
+        //    NOTE that original kcp has a bug where WND_RCV default is used
+        //    instead of configured rcv_wnd, limiting max message size to 144 KB
+        //    https://github.com/skywind3000/kcp/pull/291
+        //    we fixed this in kcp2k.
+        // -> we add 1 byte KcpHeader enum to each message, so -1
+        //
+        // IMPORTANT: max message is MTU * rcv_wnd, in other words it completely
+        //            fills the receive window! due to head of line blocking,
+        //            all other messages have to wait while a maxed size message
+        //            is being delivered.
+        //            => in other words, DO NOT use max size all the time like
+        //               for batching.
+        //            => sending UNRELIABLE max message size most of the time is
+        //               best for performance (use that one for batching!)
+        static int ReliableMaxMessageSize_Unconstrained(int mtu, uint rcv_wnd) =>
+            (mtu - Kcp.OVERHEAD - METADATA_SIZE) * ((int)rcv_wnd - 1) - 1;
+
+        // kcp encodes 'frg' as 1 byte.
+        // max message size can only ever allow up to 255 fragments.
+        //   WND_RCV gives 127 fragments.
+        //   WND_RCV * 2 gives 255 fragments.
+        // so we can limit max message size by limiting rcv_wnd parameter.
+        public static int ReliableMaxMessageSize(int mtu, uint rcv_wnd) =>
+            ReliableMaxMessageSize_Unconstrained(mtu, Math.Min(rcv_wnd, Kcp.FRG_MAX));
+
+        // unreliable max message size is simply MTU - channel header size
+        public static int UnreliableMaxMessageSize(int mtu) =>
+            mtu - METADATA_SIZE;
+
         // maximum send rate per second can be calculated from kcp parameters
         // source: https://translate.google.com/translate?sl=auto&tl=en&u=https://wetest.qq.com/lab/view/391.html
         //
@@ -164,27 +144,43 @@ namespace kcp2k
         // => useful to start from a fresh state every time the client connects
         // => NoDelay, interval, wnd size are the most important configurations.
         //    let's force require the parameters so we don't forget it anywhere.
-        public KcpPeer(
-            Action<ArraySegment<byte>> output,
-            Action OnAuthenticated,
-            Action<ArraySegment<byte>, KcpChannel> OnData,
-            Action OnDisconnected,
-            Action<ErrorCode, string> OnError,
-            KcpConfig config,
-            uint cookie)
+        protected KcpPeer(KcpConfig config, uint cookie)
         {
-            // initialize callbacks first to ensure they can be used safely.
-            this.OnAuthenticated = OnAuthenticated;
-            this.OnData = OnData;
-            this.OnDisconnected = OnDisconnected;
-            this.OnError = OnError;
-            this.RawSend = output;
+            // initialize variable state in extra function so we can reuse it
+            // when reconnecting to reset state
+            Reset(config);
+
+            // set the cookie after resetting state so it's not overwritten again.
+            // with log message for debugging in case of cookie issues.
+            this.cookie = cookie;
+            Log.Info($"{GetType()}: created with cookie={cookie}");
+
+            // create mtu sized send buffer
+            rawSendBuffer = new byte[config.Mtu];
+
+            // calculate max message sizes once
+            unreliableMax = UnreliableMaxMessageSize(config.Mtu);
+            reliableMax = ReliableMaxMessageSize(config.Mtu, config.ReceiveWindowSize);
+
+            // create message buffers AFTER window size is set
+            // see comments on buffer definition for the "+1" part
+            kcpMessageBuffer = new byte[1 + reliableMax];
+            kcpSendBuffer    = new byte[1 + reliableMax];
+        }
+
+        // Reset all state once.
+        // useful for KcpClient to reconned with a fresh kcp state.
+        protected void Reset(KcpConfig config)
+        {
+            // reset state
+            cookie = 0;
+            state = KcpState.Connected;
+            lastReceiveTime = 0;
+            lastPingTime = 0;
+            watch.Restart(); // start at 0 each time
 
             // set up kcp over reliable channel (that's what kcp is for)
             kcp = new Kcp(0, RawSendReliable);
-
-            // security cookie
-            this.cookie = cookie;
 
             // set nodelay.
             // note that kcp uses 'nocwnd' internally so we negate the parameter
@@ -197,25 +193,26 @@ namespace kcp2k
             // message afterwards.
             kcp.SetMtu((uint)config.Mtu - METADATA_SIZE);
 
-            // create mtu sized send buffer
-            rawSendBuffer = new byte[config.Mtu];
-
-            // calculate max message sizes once
-            unreliableMax = UnreliableMaxMessageSize(config.Mtu);
-            reliableMax = ReliableMaxMessageSize(config.Mtu, config.ReceiveWindowSize);
-
             // set maximum retransmits (aka dead_link)
             kcp.dead_link = config.MaxRetransmits;
-
-            // create message buffers AFTER window size is set
-            // see comments on buffer definition for the "+1" part
-            kcpMessageBuffer = new byte[1 + reliableMax];
-            kcpSendBuffer    = new byte[1 + reliableMax];
-
             timeout = config.Timeout;
-
-            watch.Start();
         }
+
+        // callbacks ///////////////////////////////////////////////////////////
+        // events are abstract, guaranteed to be implemented.
+        // this ensures they are always initialized when used.
+        // fixes https://github.com/MirrorNetworking/Mirror/issues/3337 and more
+        protected abstract void OnAuthenticated();
+        protected abstract void OnData(ArraySegment<byte> message, KcpChannel channel);
+        protected abstract void OnDisconnected();
+
+        // error callback instead of logging.
+        // allows libraries to show popups etc.
+        // (string instead of Exception for ease of use and to avoid user panic)
+        protected abstract void OnError(ErrorCode error, string message);
+        protected abstract void RawSend(ArraySegment<byte> data);
+
+        ////////////////////////////////////////////////////////////////////////
 
         void HandleTimeout(uint time)
         {
@@ -225,7 +222,7 @@ namespace kcp2k
             {
                 // pass error to user callback. no need to log it manually.
                 // GetType() shows Server/ClientConn instead of just Connection.
-                OnError(ErrorCode.Timeout, $"KcpPeer: Connection timed out after not receiving any message for {timeout}ms. Disconnecting.");
+                OnError(ErrorCode.Timeout, $"{GetType()}: Connection timed out after not receiving any message for {timeout}ms. Disconnecting.");
                 Disconnect();
             }
         }
@@ -237,7 +234,7 @@ namespace kcp2k
             {
                 // pass error to user callback. no need to log it manually.
                 // GetType() shows Server/ClientConn instead of just Connection.
-                OnError(ErrorCode.Timeout, $"KcpPeer: dead_link detected: a message was retransmitted {kcp.dead_link} times without ack. Disconnecting.");
+                OnError(ErrorCode.Timeout, $"{GetType()}: dead_link detected: a message was retransmitted {kcp.dead_link} times without ack. Disconnecting.");
                 Disconnect();
             }
         }
@@ -267,7 +264,7 @@ namespace kcp2k
                 // pass error to user callback. no need to log it manually.
                 // GetType() shows Server/ClientConn instead of just Connection.
                 OnError(ErrorCode.Congestion,
-                        $"KcpPeer: disconnecting connection because it can't process data fast enough.\n" +
+                        $"{GetType()}: disconnecting connection because it can't process data fast enough.\n" +
                         $"Queue total {total}>{QueueDisconnectThreshold}. rcv_queue={kcp.rcv_queue.Count} snd_queue={kcp.snd_queue.Count} rcv_buf={kcp.rcv_buf.Count} snd_buf={kcp.snd_buf.Count}\n" +
                         $"* Try to Enable NoDelay, decrease INTERVAL, disable Congestion Window (= enable NOCWND!), increase SEND/RECV WINDOW or compress data.\n" +
                         $"* Or perhaps the network is simply too slow on our end, or on the other end.");
@@ -299,7 +296,7 @@ namespace kcp2k
                 // we don't allow sending messages > Max, so this must be an
                 // attacker. let's disconnect to avoid allocation attacks etc.
                 // pass error to user callback. no need to log it manually.
-                OnError(ErrorCode.InvalidReceive, $"KcpPeer: possible allocation attack for msgSize {msgSize} > buffer {kcpMessageBuffer.Length}. Disconnecting the connection.");
+                OnError(ErrorCode.InvalidReceive, $"{GetType()}: possible allocation attack for msgSize {msgSize} > buffer {kcpMessageBuffer.Length}. Disconnecting the connection.");
                 Disconnect();
                 return false;
             }
@@ -311,7 +308,7 @@ namespace kcp2k
                 // if receive failed, close everything
                 // pass error to user callback. no need to log it manually.
                 // GetType() shows Server/ClientConn instead of just Connection.
-                OnError(ErrorCode.InvalidReceive, $"KcpPeer: Receive failed with error={received}. closing connection.");
+                OnError(ErrorCode.InvalidReceive, $"{GetType()}: Receive failed with error={received}. closing connection.");
                 Disconnect();
                 return false;
             }
@@ -337,28 +334,15 @@ namespace kcp2k
                 // message type FSM. no default so we never miss a case.
                 switch (header)
                 {
-                    case KcpHeader.Handshake:
+                    case KcpHeader.Hello:
                     {
-                        // we were waiting for a handshake.
+                        // we were waiting for a Hello message.
                         // it proves that the other end speaks our protocol.
 
-                        // parse the cookie
-                        if (message.Count != 4)
-                        {
-                            // pass error to user callback. no need to log it manually.
-                            OnError(ErrorCode.InvalidReceive, $"KcpPeer: received invalid handshake message with size {message.Count} != 4. Disconnecting the connection.");
-                            Disconnect();
-                            return;
-                        }
-
-                        // store the cookie bytes to avoid int->byte[] conversions when sending.
-                        // still convert to uint once, just for prettier logging.
-                        Buffer.BlockCopy(message.Array, message.Offset, receivedCookie, 0, 4);
-                        uint prettyCookie = BitConverter.ToUInt32(message.Array, message.Offset);
-
-                        Log.Info($"KcpPeer: received handshake with cookie={prettyCookie}");
+                        // log with previously parsed cookie
+                        Log.Info($"{GetType()}: received hello with cookie={cookie}");
                         state = KcpState.Authenticated;
-                        OnAuthenticated?.Invoke();
+                        OnAuthenticated();
                         break;
                     }
                     case KcpHeader.Ping:
@@ -372,7 +356,7 @@ namespace kcp2k
                         // everything else is not allowed during handshake!
                         // pass error to user callback. no need to log it manually.
                         // GetType() shows Server/ClientConn instead of just Connection.
-                        OnError(ErrorCode.InvalidReceive, $"KcpPeer: received invalid header {header} while Connected. Disconnecting the connection.");
+                        OnError(ErrorCode.InvalidReceive, $"{GetType()}: received invalid header {header} while Connected. Disconnecting the connection.");
                         Disconnect();
                         break;
                     }
@@ -394,11 +378,11 @@ namespace kcp2k
                 // message type FSM. no default so we never miss a case.
                 switch (header)
                 {
-                    case KcpHeader.Handshake:
+                    case KcpHeader.Hello:
                     {
-                        // should never receive another handshake after auth
+                        // should never receive another hello after auth
                         // GetType() shows Server/ClientConn instead of just Connection.
-                        Log.Warning($"KcpPeer: received invalid header {header} while Authenticated. Disconnecting the connection.");
+                        Log.Warning($"{GetType()}: received invalid header {header} while Authenticated. Disconnecting the connection.");
                         Disconnect();
                         break;
                     }
@@ -408,14 +392,14 @@ namespace kcp2k
                         if (message.Count > 0)
                         {
                             //Log.Warning($"Kcp recv msg: {BitConverter.ToString(message.Array, message.Offset, message.Count)}");
-                            OnData?.Invoke(message, KcpChannel.Reliable);
+                            OnData(message, KcpChannel.Reliable);
                         }
                         // empty data = attacker, or something went wrong
                         else
                         {
                             // pass error to user callback. no need to log it manually.
                             // GetType() shows Server/ClientConn instead of just Connection.
-                            OnError(ErrorCode.InvalidReceive, $"KcpPeer: received empty Data message while Authenticated. Disconnecting the connection.");
+                            OnError(ErrorCode.InvalidReceive, $"{GetType()}: received empty Data message while Authenticated. Disconnecting the connection.");
                             Disconnect();
                         }
                         break;
@@ -429,7 +413,7 @@ namespace kcp2k
                     {
                         // disconnect might happen
                         // GetType() shows Server/ClientConn instead of just Connection.
-                        Log.Info($"KcpPeer: received disconnect message");
+                        Log.Info($"{GetType()}: received disconnect message");
                         Disconnect();
                         break;
                     }
@@ -437,7 +421,7 @@ namespace kcp2k
             }
         }
 
-        public void TickIncoming()
+        public virtual void TickIncoming()
         {
             uint time = (uint)watch.ElapsedMilliseconds;
 
@@ -468,7 +452,7 @@ namespace kcp2k
                 // this is ok, the connection was closed
                 // pass error to user callback. no need to log it manually.
                 // GetType() shows Server/ClientConn instead of just Connection.
-                OnError(ErrorCode.ConnectionClosed, $"KcpPeer: Disconnecting because {exception}. This is fine.");
+                OnError(ErrorCode.ConnectionClosed, $"{GetType()}: Disconnecting because {exception}. This is fine.");
                 Disconnect();
             }
             catch (ObjectDisposedException exception)
@@ -476,7 +460,7 @@ namespace kcp2k
                 // fine, socket was closed
                 // pass error to user callback. no need to log it manually.
                 // GetType() shows Server/ClientConn instead of just Connection.
-                OnError(ErrorCode.ConnectionClosed, $"KcpPeer: Disconnecting because {exception}. This is fine.");
+                OnError(ErrorCode.ConnectionClosed, $"{GetType()}: Disconnecting because {exception}. This is fine.");
                 Disconnect();
             }
             catch (Exception exception)
@@ -484,12 +468,12 @@ namespace kcp2k
                 // unexpected
                 // pass error to user callback. no need to log it manually.
                 // GetType() shows Server/ClientConn instead of just Connection.
-                OnError(ErrorCode.Unexpected, $"KcpPeer: unexpected Exception: {exception}");
+                OnError(ErrorCode.Unexpected, $"{GetType()}: unexpected Exception: {exception}");
                 Disconnect();
             }
         }
 
-        public void TickOutgoing()
+        public virtual void TickOutgoing()
         {
             uint time = (uint)watch.ElapsedMilliseconds;
 
@@ -517,7 +501,7 @@ namespace kcp2k
                 // this is ok, the connection was closed
                 // pass error to user callback. no need to log it manually.
                 // GetType() shows Server/ClientConn instead of just Connection.
-                OnError(ErrorCode.ConnectionClosed, $"KcpPeer: Disconnecting because {exception}. This is fine.");
+                OnError(ErrorCode.ConnectionClosed, $"{GetType()}: Disconnecting because {exception}. This is fine.");
                 Disconnect();
             }
             catch (ObjectDisposedException exception)
@@ -525,7 +509,7 @@ namespace kcp2k
                 // fine, socket was closed
                 // pass error to user callback. no need to log it manually.
                 // GetType() shows Server/ClientConn instead of just Connection.
-                OnError(ErrorCode.ConnectionClosed, $"KcpPeer: Disconnecting because {exception}. This is fine.");
+                OnError(ErrorCode.ConnectionClosed, $"{GetType()}: Disconnecting because {exception}. This is fine.");
                 Disconnect();
             }
             catch (Exception exception)
@@ -533,23 +517,23 @@ namespace kcp2k
                 // unexpected
                 // pass error to user callback. no need to log it manually.
                 // GetType() shows Server/ClientConn instead of just Connection.
-                OnError(ErrorCode.Unexpected, $"KcpPeer: unexpected exception: {exception}");
+                OnError(ErrorCode.Unexpected, $"{GetType()}: unexpected exception: {exception}");
                 Disconnect();
             }
         }
 
-        void OnRawInputReliable(ArraySegment<byte> message)
+        protected void OnRawInputReliable(ArraySegment<byte> message)
         {
             // input into kcp, but skip channel byte
             int input = kcp.Input(message.Array, message.Offset, message.Count);
             if (input != 0)
             {
                 // GetType() shows Server/ClientConn instead of just Connection.
-                Log.Warning($"KcpPeer: Input failed with error={input} for buffer with length={message.Count - 1}");
+                Log.Warning($"{GetType()}: Input failed with error={input} for buffer with length={message.Count - 1}");
             }
         }
 
-        void OnRawInputUnreliable(ArraySegment<byte> message)
+        protected void OnRawInputUnreliable(ArraySegment<byte> message)
         {
             // ideally we would queue all unreliable messages and
             // then process them in ReceiveNext() together with the
@@ -572,7 +556,7 @@ namespace kcp2k
             //    the current state allows it.
             if (state == KcpState.Authenticated)
             {
-                OnData?.Invoke(message, KcpChannel.Unreliable);
+                OnData(message, KcpChannel.Unreliable);
 
                 // set last receive time to avoid timeout.
                 // -> we do this in ANY case even if not enabled.
@@ -596,58 +580,7 @@ namespace kcp2k
                 //   add another 'round trip time' of latency to the handshake.
                 //
                 // it's best to simply ignore invalid unreliable messages here.
-                // Log.Info($"KcpPeer: received unreliable message while not authenticated.");
-            }
-        }
-
-        // insert raw IO. usually from socket.Receive.
-        // offset is useful for relays, where we may parse a header and then
-        // feed the rest to kcp.
-        public void RawInput(ArraySegment<byte> segment)
-        {
-            // ensure valid size: at least 1 byte for channel + 4 bytes for cookie
-            if (segment.Count <= 5) return;
-
-            // parse channel
-            // byte channel = segment[0]; ArraySegment[i] isn't supported in some older Unity Mono versions
-            byte channel = segment.Array[segment.Offset + 0];
-
-            // parse cookie
-            uint messageCookie = BitConverter.ToUInt32(segment.Array, segment.Offset + 1);
-
-            // compare cookie to protect against UDP spoofing.
-            // messages won't have a cookie until after handshake.
-            // so only compare if we are authenticated.
-            // simply drop the message if the cookie doesn't match.
-            if (state == KcpState.Authenticated && messageCookie != cookie)
-            {
-                Log.Warning($"KcpPeer: dropped message with invalid cookie: {messageCookie} expected: {cookie}.");
-                return;
-            }
-
-            // parse message
-            ArraySegment<byte> message = new ArraySegment<byte>(segment.Array, segment.Offset + 1+4, segment.Count - 1-4);
-
-            switch (channel)
-            {
-                case (byte)KcpChannel.Reliable:
-                {
-                    OnRawInputReliable(message);
-                    break;
-                }
-                case (byte)KcpChannel.Unreliable:
-                {
-                    OnRawInputUnreliable(message);
-                    break;
-                }
-                default:
-                {
-                    // invalid channel indicates random internet noise.
-                    // servers may receive random UDP data.
-                    // just ignore it, but log for easier debugging.
-                    Log.Warning($"KcpPeer: invalid channel header: {channel}, likely internet noise");
-                    break;
-                }
+                // Log.Info($"{GetType()}: received unreliable message while not authenticated.");
             }
         }
 
@@ -660,7 +593,7 @@ namespace kcp2k
 
             // write handshake cookie to protect against UDP spoofing.
             // from 1, with 4 bytes
-            Buffer.BlockCopy(receivedCookie, 0, rawSendBuffer, 1, 4);
+            Utils.Encode32U(rawSendBuffer, 1, cookie); // allocation free
 
             // write data
             // from 5, with N bytes
@@ -678,7 +611,7 @@ namespace kcp2k
             {
                 // otherwise content is larger than MaxMessageSize. let user know!
                 // GetType() shows Server/ClientConn instead of just Connection.
-                OnError(ErrorCode.InvalidSend, $"KcpPeer: Failed to send reliable message of size {content.Count} because it's larger than ReliableMaxMessageSize={reliableMax}");
+                OnError(ErrorCode.InvalidSend, $"{GetType()}: Failed to send reliable message of size {content.Count} because it's larger than ReliableMaxMessageSize={reliableMax}");
                 return;
             }
 
@@ -694,7 +627,7 @@ namespace kcp2k
             if (sent < 0)
             {
                 // GetType() shows Server/ClientConn instead of just Connection.
-                OnError(ErrorCode.InvalidSend, $"KcpPeer: Send failed with error={sent} for content with length={content.Count}");
+                OnError(ErrorCode.InvalidSend, $"{GetType()}: Send failed with error={sent} for content with length={content.Count}");
             }
         }
 
@@ -705,7 +638,7 @@ namespace kcp2k
             {
                 // otherwise content is larger than MaxMessageSize. let user know!
                 // GetType() shows Server/ClientConn instead of just Connection.
-                Log.Error($"KcpPeer: Failed to send unreliable message of size {message.Count} because it's larger than UnreliableMaxMessageSize={unreliableMax}");
+                Log.Error($"{GetType()}: Failed to send unreliable message of size {message.Count} because it's larger than UnreliableMaxMessageSize={unreliableMax}");
                 return;
             }
 
@@ -715,7 +648,7 @@ namespace kcp2k
 
             // write handshake cookie to protect against UDP spoofing.
             // from 1, with 4 bytes
-            Buffer.BlockCopy(receivedCookie, 0, rawSendBuffer, 1, 4);
+            Utils.Encode32U(rawSendBuffer, 1, cookie); // allocation free
 
             // write data
             // from 5, with N bytes
@@ -732,20 +665,14 @@ namespace kcp2k
         // * server should send it as reply to client's handshake, not before
         //   (server should not reply to random internet messages with handshake)
         // => handshake info needs to be delivered, so it goes over reliable.
-        public void SendHandshake()
+        public void SendHello()
         {
-            // server includes a random cookie in handshake.
-            // client is expected to include in every message.
-            // this avoid UDP spoofing.
-            // KcpPeer simply always sends a cookie.
-            // in case client -> server cookies are ever implemented, etc.
-
-            // TODO nonalloc
-            byte[] cookieBytes = BitConverter.GetBytes(cookie);
+            // send an empty message with 'Hello' header.
+            // cookie is automatically included in all messages.
 
             // GetType() shows Server/ClientConn instead of just Connection.
-            Log.Info($"KcpPeer: sending Handshake to other end with cookie={cookie}!");
-            SendReliable(KcpHeader.Handshake, new ArraySegment<byte>(cookieBytes));
+            Log.Info($"{GetType()}: sending handshake to other end with cookie={cookie}");
+            SendReliable(KcpHeader.Hello, default);
         }
 
         public void SendData(ArraySegment<byte> data, KcpChannel channel)
@@ -758,7 +685,7 @@ namespace kcp2k
             {
                 // pass error to user callback. no need to log it manually.
                 // GetType() shows Server/ClientConn instead of just Connection.
-                OnError(ErrorCode.InvalidSend, $"KcpPeer: tried sending empty message. This should never happen. Disconnecting.");
+                OnError(ErrorCode.InvalidSend, $"{GetType()}: tried sending empty message. This should never happen. Disconnecting.");
                 Disconnect();
                 return;
             }
@@ -782,7 +709,7 @@ namespace kcp2k
         void SendDisconnect() => SendReliable(KcpHeader.Disconnect, default);
 
         // disconnect this connection
-        public void Disconnect()
+        public virtual void Disconnect()
         {
             // only if not disconnected yet
             if (state == KcpState.Disconnected)
@@ -811,9 +738,9 @@ namespace kcp2k
 
             // set as Disconnected, call event
             // GetType() shows Server/ClientConn instead of just Connection.
-            Log.Info($"KcpPeer: Disconnected.");
+            Log.Info($"{GetType()}: Disconnected.");
             state = KcpState.Disconnected;
-            OnDisconnected?.Invoke();
+            OnDisconnected();
         }
     }
 }
