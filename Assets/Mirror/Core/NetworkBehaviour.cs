@@ -72,8 +72,10 @@ namespace Mirror
         public bool hasAuthority => isOwned;
 
         /// <summary>authority is true if we are allowed to modify this component's state. On server, it's true if SyncDirection is ServerToClient. On client, it's true if SyncDirection is ClientToServer and(!) if this object is owned by the client.</summary>
-        // on the client: if owned and if clientAuthority sync direction
-        // on the server: if serverAuthority sync direction
+        // on the client: if Client->Server SyncDirection and owned
+        // on the server: if Server->Client SyncDirection
+        // on the host:   if Server->Client SyncDirection (= server owns it), or if Client->Server and owned (=host client owns it)
+        // in host mode:  always true because either server or client always has authority, and host is both.
         //
         // for example, NetworkTransform:
         //   client may modify position if ClientAuthority mode and owned
@@ -84,10 +86,20 @@ namespace Mirror
         //
         // also note that this is a per-NetworkBehaviour flag.
         // another component may not be client authoritative, etc.
-        public bool authority =>
-            isClient
-                ? syncDirection == SyncDirection.ClientToServer && isOwned
-                : syncDirection == SyncDirection.ServerToClient;
+        public bool authority
+        {
+            get
+            {
+                // host mode needs to be checked explicitly
+                if (isClient && isServer) return syncDirection == SyncDirection.ServerToClient || isOwned;
+
+                // client-only
+                if (isClient) return syncDirection == SyncDirection.ClientToServer && isOwned;
+
+                // server-only
+                return syncDirection == SyncDirection.ServerToClient;
+            }
+        }
 
         /// <summary>The unique network Id of this object (unique at runtime).</summary>
         public uint netId => netIdentity.netId;
