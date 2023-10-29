@@ -84,6 +84,11 @@ namespace Mirror
         //
         // also note that this is a per-NetworkBehaviour flag.
         // another component may not be client authoritative, etc.
+        //
+        // checking isServer firstly in case we are in host mode
+        // otherwise checking isClient && isOwned
+        // otherwise no authority
+        // fixes: https://github.com/MirrorNetworking/Mirror/issues/3529
         public bool authority =>
             isServer && syncDirection == SyncDirection.ServerToClient ||
             isClient && syncDirection == SyncDirection.ClientToServer && isOwned;
