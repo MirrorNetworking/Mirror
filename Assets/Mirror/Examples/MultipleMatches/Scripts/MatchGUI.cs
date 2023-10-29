@@ -19,7 +19,12 @@ namespace Mirror.Examples.MultipleMatch
 
         public void Awake()
         {
-            canvasController = FindObjectOfType<CanvasController>();
+#if UNITY_2021_3_OR_NEWER
+            canvasController = GameObject.FindAnyObjectByType<CanvasController>();
+#else
+            // Deprecated in Unity 2023.1
+            canvasController = GameObject.FindObjectOfType<CanvasController>();
+#endif
             toggleButton.onValueChanged.AddListener(delegate { OnToggleClicked(); });
         }
 

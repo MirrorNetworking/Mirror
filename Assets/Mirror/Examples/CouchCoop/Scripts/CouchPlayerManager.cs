@@ -23,7 +23,12 @@ namespace Mirror.Examples.CouchCoop
         public override void OnStartAuthority()
         {
             // hook up UI to local player, for cmd communication
+#if UNITY_2021_3_OR_NEWER
+            canvasScript = GameObject.FindAnyObjectByType<CanvasScript>();
+#else
+            // Deprecated in Unity 2023.1
             canvasScript = GameObject.FindObjectOfType<CanvasScript>();
+#endif
             canvasScript.couchPlayerManager = this;
         }
 
