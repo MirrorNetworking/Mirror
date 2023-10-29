@@ -855,6 +855,77 @@ namespace Mirror.Tests.NetworkBehaviours
             Assert.That(comp.onStopLocalPlayerCalled, Is.EqualTo(1));
         }
 
+        [Test]
+        public void AuthorityIsFalseVariations()
+        {
+            // has no authority as client only (both sync directions)
+            CreateNetworked(out _, out NetworkIdentity identity, out EmptyBehaviour emptyBehaviour);
+            identity.isClient = true;
+            identity.isServer = false;
+            identity.isOwned = false;
+            emptyBehaviour.syncDirection = SyncDirection.ClientToServer;
+            Debug.Assert(!emptyBehaviour.authority, "Client-only isOwned=false syncDirection=ClientToServer should have no authority");
+
+            CreateNetworked(out _, out  identity, out  emptyBehaviour);
+            identity.isClient = true;
+            identity.isServer = false;
+            identity.isOwned = false;
+            emptyBehaviour.syncDirection = SyncDirection.ServerToClient;
+            Debug.Assert(!emptyBehaviour.authority, "Client-only isOwned=false syncDirection=ServerToClient should have no authority");
+
+            // has no authority as server only
+            CreateNetworked(out _, out identity, out emptyBehaviour);
+            identity.isClient = false;
+            identity.isServer = true;
+            identity.isOwned = false;
+            emptyBehaviour.syncDirection = SyncDirection.ClientToServer;
+            Debug.Assert(!emptyBehaviour.authority, "Server-only isOwned=false syncDirection=ClientToServer should have no authority");
+
+            // has no authority as host, not owned and client-to-server sync
+            CreateNetworked(out _, out  identity, out  emptyBehaviour);
+            identity.isClient = true;
+            identity.isServer = true;
+            identity.isOwned = false;
+            emptyBehaviour.syncDirection = SyncDirection.ClientToServer;
+            Debug.Assert(!emptyBehaviour.authority, "Host isOwned=false syncDirection=ClientToServer should have no authority");
+        }
+
+        [Test]
+        public void AuthorityIsTrueVariations()
+        {
+            // has authority as client only
+            CreateNetworked(out _, out NetworkIdentity identity, out EmptyBehaviour emptyBehaviour);
+            identity.isClient = true;
+            identity.isServer = false;
+            identity.isOwned = true;
+            emptyBehaviour.syncDirection = SyncDirection.ClientToServer;
+            Debug.Assert(emptyBehaviour.authority, "Client-only isOwned=true syncDirection=ClientToServer should have authority");
+
+            // has authority as server only
+            CreateNetworked(out _, out identity, out emptyBehaviour);
+            identity.isClient = false;
+            identity.isServer = true;
+            identity.isOwned = false;
+            emptyBehaviour.syncDirection = SyncDirection.ServerToClient;
+            Debug.Assert(emptyBehaviour.authority, "Server-only isOwned=false syncDirection=ServerToClient should have authority");
+
+            // has authority as host, owned and client-to-server sync
+            CreateNetworked(out _, out  identity, out  emptyBehaviour);
+            identity.isClient = true;
+            identity.isServer = true;
+            identity.isOwned = true;
+            emptyBehaviour.syncDirection = SyncDirection.ClientToServer;
+            Debug.Assert(emptyBehaviour.authority, "Host isOwned=true syncDirection=ClientToServer should have authority");
+
+            // has authority as host, not owned and server-to-client sync
+            CreateNetworked(out _, out identity, out emptyBehaviour);
+            identity.isClient = true;
+            identity.isServer = true;
+            identity.isOwned = false;
+            emptyBehaviour.syncDirection = SyncDirection.ServerToClient;
+            Debug.Assert(emptyBehaviour.authority, "Host isOwned=false syncDirection=ServerToClient should have authority");
+        }
+
         // test for an issue where nested classes wouldn't be weaved.
         // previously Weaver.Weave() would only check ModuleDefinition.Types,
         // which would only get the base types.
