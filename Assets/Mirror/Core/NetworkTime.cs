@@ -22,14 +22,6 @@ namespace Mirror
         const float DefaultPingInterval = 0.1f; // for resets
         public static float PingInterval = DefaultPingInterval;
 
-        // DEPRECATED 2023-07-06
-        [Obsolete("NetworkTime.PingFrequency was renamed to PingInterval, because we use it as seconds, not as Hz. Please rename all usages, but keep using it just as before.")]
-        public static float PingFrequency
-        {
-            get => PingInterval;
-            set => PingInterval = value;
-        }
-
         /// <summary>Average out the last few results from Ping</summary>
         // const because it's used immediately in _rtt constructor.
         public const int PingWindowSize = 50; // average over 50 * 100ms = 5s

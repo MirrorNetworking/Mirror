@@ -20,10 +20,6 @@ namespace Mirror
         // TODO move to server's NetworkConnectionToClient?
         public readonly HashSet<NetworkIdentity> observing = new HashSet<NetworkIdentity>();
 
-        // Deprecated 2022-10-13
-        [Obsolete(".clientOwnedObjects was renamed to .owned :)")]
-        public HashSet<NetworkIdentity> clientOwnedObjects => owned;
-
         // unbatcher
         public Unbatcher unbatcher = new Unbatcher();
 

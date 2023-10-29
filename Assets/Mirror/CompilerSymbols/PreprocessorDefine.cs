@@ -15,18 +15,14 @@ namespace Mirror
             HashSet<string> defines = new HashSet<string>(currentDefines.Split(';'))
             {
                 "MIRROR",
-                "MIRROR_57_0_OR_NEWER",
-                "MIRROR_58_0_OR_NEWER",
-                "MIRROR_65_0_OR_NEWER",
-                "MIRROR_66_0_OR_NEWER",
-                "MIRROR_2022_9_OR_NEWER",
-                "MIRROR_2022_10_OR_NEWER",
-                "MIRROR_70_0_OR_NEWER",
-                "MIRROR_71_0_OR_NEWER",
+                "MIRROR_70_OR_NEWER",
+                "MIRROR_71_OR_NEWER",
                 "MIRROR_73_OR_NEWER",
                 "MIRROR_78_OR_NEWER",
                 "MIRROR_79_OR_NEWER",
-                "MIRROR_81_OR_NEWER"
+                "MIRROR_81_OR_NEWER",
+                "MIRROR_82_OR_NEWER",
+                "MIRROR_83_OR_NEWER"
                 // Remove oldest when adding next month's symbol.
                 // Keep a rolling 12 months of symbols.
             };
