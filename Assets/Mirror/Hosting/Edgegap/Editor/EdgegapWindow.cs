@@ -327,6 +327,17 @@ namespace Edgegap
                     return;
                 }
 
+                // MIRROR CHANGE
+                // make sure Linux build target is installed before attemping to build.
+                // if it's not installed, tell the user about it.
+                if (!BuildPipeline.IsBuildTargetSupported(BuildTargetGroup.Standalone, BuildTarget.StandaloneLinux64))
+                {
+                    onError("Unity Linux build support isn't installed for Unity. Please install it from the Unity Hub for this Unity version.");
+                    return;
+                }
+
+                // END MIRROR CHANGE
+
                 // create server build
                 BuildReport buildResult = EdgegapBuildUtils.BuildServer();
                 if (buildResult.summary.result != BuildResult.Succeeded)
