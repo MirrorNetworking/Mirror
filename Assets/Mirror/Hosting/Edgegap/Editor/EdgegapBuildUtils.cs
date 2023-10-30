@@ -69,7 +69,7 @@ namespace Edgegap
             ConcurrentQueue<string> errors = new ConcurrentQueue<string>();
             ConcurrentQueue<string> outputs = new ConcurrentQueue<string>();
 
-            void pipeQueue(ConcurrentQueue<string> q, Action<string> opt)
+            void PipeQueue(ConcurrentQueue<string> q, Action<string> opt)
             {
                 while (!q.IsEmpty)
                 {
@@ -90,12 +90,12 @@ namespace Edgegap
             while (!proc.HasExited)
             {
                 await Task.Delay(100);
-                pipeQueue(errors, errorReciever);
-                pipeQueue(outputs, outputReciever);
+                PipeQueue(errors, errorReciever);
+                PipeQueue(outputs, outputReciever);
             }
 
-            pipeQueue(errors, errorReciever);
-            pipeQueue(outputs, outputReciever);
+            PipeQueue(errors, errorReciever);
+            PipeQueue(outputs, outputReciever);
 
 
         }
