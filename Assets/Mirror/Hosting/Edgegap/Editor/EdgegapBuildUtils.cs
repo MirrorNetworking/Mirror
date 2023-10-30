@@ -24,7 +24,9 @@ namespace Edgegap
             {
                 scenes = scenes.ToArray(),
                 target = BuildTarget.StandaloneLinux64,
+ #pragma warning disable CS0618 // disable deprecated warning until Edgegap updates this
                 options = BuildOptions.EnableHeadlessMode,
+ #pragma warning restore CS0618
                 locationPathName = "Builds/EdgegapServer/ServerBuild"
             };
 
