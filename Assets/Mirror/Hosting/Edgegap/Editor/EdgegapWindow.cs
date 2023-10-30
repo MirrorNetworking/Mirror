@@ -374,7 +374,7 @@ namespace Edgegap
             {
                 EditorUtility.ClearProgressBar();
                 Debug.LogError(ex);
-                onError("Edgegap build and push failed");
+                onError($"Edgegap build and push failed with Error: {ex}");
             }
         }
 
