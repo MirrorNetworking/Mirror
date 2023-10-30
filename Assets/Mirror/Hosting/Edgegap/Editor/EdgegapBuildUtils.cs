@@ -48,7 +48,7 @@ namespace Edgegap
                 Debug.LogError(error);
                 return false;
             }
-            Debug.Log($"[Edgegap] Docker version detected: {output}");
+            Debug.Log($"[Edgegap] Docker version detected: {output}"); // MIRROR CHANGE
             return true;
         }
 
@@ -57,6 +57,10 @@ namespace Edgegap
         {
 #if UNITY_EDITOR_WIN
             await RunCommand("cmd.exe", "/c docker --version", outputReciever, errorReciever);
+#elif UNITY_EDITOR_OSX
+            await RunCommand("/bin/bash", "-c \"docker --version\"", outputReciever, errorReciever);
+#elif UNITY_EDITOR_LINUX
+            await RunCommand("/bin/bash", "-c \"docker --version\"", outputReciever, errorReciever);
 #else
             Debug.LogError("The platform is not supported yet.");
 #endif
@@ -75,6 +79,19 @@ namespace Edgegap
                 UseShellExecute = false,
                 CreateNoWindow = true,
             };
+
+#if !UNITY_EDITOR_WIN
+            // on mac, commands like 'docker' aren't found because it's not in the application's PATH
+            // even if it runs on mac's terminal.
+            // to solve this we need to do two steps:
+            // 1. add /usr/bin/local to PATH if it's not there already. often this is missing in the application.
+            //    this is where docker is usually instaled.
+            // 2. add PATH to ProcessStartInfo
+            string existingPath = Environment.GetEnvironmentVariable("PATH");
+            string customPath = $"{existingPath}:/usr/local/bin";
+            startInfo.EnvironmentVariables["PATH"] = customPath;
+            // Debug.Log("PATH: " + customPath);
+#endif
 
             Process proc = new Process() { StartInfo = startInfo, };
             proc.EnableRaisingEvents = true;
