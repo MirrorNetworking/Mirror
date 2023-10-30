@@ -41,7 +41,7 @@ namespace Edgegap
             }
 
             string error = null;
-            await RunCommand("cmd.exe", "/c docker --version", null, (msg)=> error = msg);
+            await RunCommand_DockerVersion(msg => error = msg); // MIRROR CHANGE
             if (!string.IsNullOrEmpty(error))
             {
                 Debug.LogError(error);
@@ -49,6 +49,17 @@ namespace Edgegap
             }
             return true;
         }
+
+        // MIRROR CHANGE
+        static async Task RunCommand_DockerVersion(Action<string> errorReciever = null)
+        {
+#if UNITY_EDITOR_WIN
+            await RunCommand("cmd.exe", "/c docker --version", null, errorReciever);
+#else
+            Debug.LogError("The platform is not supported yet.");
+#endif
+        }
+        // END MIRROR CHANGE
 
         static async Task RunCommand(string command, string arguments, Action<string> outputReciever = null, Action<string> errorReciever = null)
         {
