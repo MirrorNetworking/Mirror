@@ -374,6 +374,12 @@ namespace Edgegap
                         return;
                     }
 
+                    if (error.Contains("unauthorized to access repository"))
+                    {
+                        onError($"Docker authorization failed:\n\n{error}\nTo solve this, you can open a terminal and enter 'docker login {registry}', then enter your credentials.");
+                        return;
+                    }
+
                     // otherwise show generic error message
                     onError($"Unable to push docker image to registry. Please make sure you're logged in to {registry} and check the following error:\n\n{error}");
                     return;
