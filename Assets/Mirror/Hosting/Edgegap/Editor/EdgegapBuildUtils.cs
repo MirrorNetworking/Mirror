@@ -96,8 +96,6 @@ namespace Edgegap
 
             PipeQueue(errors, errorReciever);
             PipeQueue(outputs, outputReciever);
-
-
         }
 
         static void Proc_OutputDataReceived(object sender, DataReceivedEventArgs e)
