@@ -359,12 +359,12 @@ namespace Edgegap
                 }
 
                 // create docker image
-                await EdgegapBuildUtils.DockerBuild(registry, imageName, tag, ShowBuildWorkInProgress);
+                await EdgegapBuildUtils.RunCommand_DockerBuild(registry, imageName, tag, ShowBuildWorkInProgress);
 
                 SetToolUIState(ToolState.Pushing);
 
                 // push docker image
-                if (!await EdgegapBuildUtils.DockerPush(registry, imageName, tag, ShowBuildWorkInProgress))
+                if (!await EdgegapBuildUtils.RunCommand_DockerPush(registry, imageName, tag, ShowBuildWorkInProgress))
                 {
                     onError("Unable to push docker image to registry. Make sure you're logged in to " + registry);
                     return;

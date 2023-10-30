@@ -65,6 +65,52 @@ namespace Edgegap
             Debug.LogError("The platform is not supported yet.");
 #endif
         }
+
+        // MIRROR CHANGE
+        public static async Task RunCommand_DockerBuild(string registry, string imageRepo, string tag, Action<string> onStatusUpdate)
+        {
+            string realErrorMessage = null;
+
+#if UNITY_EDITOR_WIN
+            await RunCommand("docker.exe", $"build -t {registry}/{imageRepo}:{tag} .", onStatusUpdate,
+#elif UNITY_EDITOR_OSX
+            await RunCommand("/bin/bash", $"-c \"docker build -t {registry}/{imageRepo}:{tag} .\"", onStatusUpdate,
+#elif UNITY_EDITOR_LINUX
+            await RunCommand("/bin/bash", $"-c \"docker build -t {registry}/{imageRepo}:{tag} .\"", onStatusUpdate,
+#endif
+                (msg) =>
+                {
+                    if (msg.Contains("ERROR"))
+                    {
+                        realErrorMessage = msg;
+                    }
+                    onStatusUpdate(msg);
+                });
+
+            if(realErrorMessage != null)
+            {
+                throw new Exception(realErrorMessage);
+            }
+
+        }
+
+        public static async Task<bool> RunCommand_DockerPush(string registry, string imageRepo, string tag, Action<string> onStatusUpdate)
+        {
+            string error = string.Empty;
+#if UNITY_EDITOR_WIN
+            await RunCommand("docker.exe", $"push {registry}/{imageRepo}:{tag}", onStatusUpdate, (msg) => error += msg + "\n");
+#elif UNITY_EDITOR_OSX
+            await RunCommand("/bin/bash", $"-c \"docker push {registry}/{imageRepo}:{tag}\"", onStatusUpdate, (msg) => error += msg + "\n");
+#elif UNITY_EDITOR_LINUX
+            await RunCommand("/bin/bash", $"-c \"docker push {registry}/{imageRepo}:{tag}\"", onStatusUpdate, (msg) => error += msg + "\n");
+#endif
+            if (!string.IsNullOrEmpty(error))
+            {
+                Debug.LogError(error);
+                return false;
+            }
+            return true;
+        }
         // END MIRROR CHANGE
 
         static async Task RunCommand(string command, string arguments, Action<string> outputReciever = null, Action<string> errorReciever = null)
@@ -132,37 +178,6 @@ namespace Edgegap
         static void Proc_OutputDataReceived(object sender, DataReceivedEventArgs e)
         {
             throw new NotImplementedException();
-        }
-
-        public static async Task DockerBuild(string registry, string imageRepo, string tag, Action<string> onStatusUpdate)
-        {
-            string realErrorMessage = null;
-            await RunCommand("docker.exe", $"build -t {registry}/{imageRepo}:{tag} .", onStatusUpdate,
-                (msg) =>
-                {
-                    if (msg.Contains("ERROR"))
-                    {
-                        realErrorMessage = msg;
-                    }
-                    onStatusUpdate(msg);
-                });
-
-            if(realErrorMessage != null)
-            {
-                throw new Exception(realErrorMessage);
-            }
-        }
-
-        public static async Task<bool> DockerPush(string registry, string imageRepo, string tag, Action<string> onStatusUpdate)
-        {
-            string error = string.Empty;
-            await RunCommand("docker.exe", $"push {registry}/{imageRepo}:{tag}", onStatusUpdate, (msg) => error += msg + "\n");
-            if (!string.IsNullOrEmpty(error))
-            {
-                Debug.LogError(error);
-                return false;
-            }
-            return true;
         }
 
         static Regex lastDigitsRegex = new Regex("([0-9])+$");
