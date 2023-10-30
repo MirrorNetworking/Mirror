@@ -16,6 +16,7 @@ UserSettings/Search.settings
 # ===================================== #
 Database.sqlite
 Database/
+Builds/
 
 # ===================================== #
 # Visual Studio / MonoDevelop / Rider   #
