@@ -321,7 +321,7 @@ namespace Edgegap
             try
             {
                 // check for installation and setup docker file
-                if (!await EdgegapBuildUtils.DockerSetupAndInstalationCheck())
+                if (!await EdgegapBuildUtils.DockerSetupAndInstallationCheck())
                 {
                     onError("Docker installation not found. Docker can be downloaded from:\n\nhttps://www.docker.com/");
                     return;

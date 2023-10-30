@@ -33,7 +33,7 @@ namespace Edgegap
             return BuildPipeline.BuildPlayer(options);
         }
 
-        public static async Task<bool> DockerSetupAndInstalationCheck()
+        public static async Task<bool> DockerSetupAndInstallationCheck()
         {
             if (!File.Exists("Dockerfile"))
             {
