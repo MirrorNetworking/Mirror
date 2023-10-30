@@ -364,9 +364,18 @@ namespace Edgegap
                 SetToolUIState(ToolState.Pushing);
 
                 // push docker image
-                if (!await EdgegapBuildUtils.RunCommand_DockerPush(registry, imageName, tag, ShowBuildWorkInProgress))
+                (bool result, string error) = await EdgegapBuildUtils.RunCommand_DockerPush(registry, imageName, tag, ShowBuildWorkInProgress);
+                if (!result)
                 {
-                    onError("Unable to push docker image to registry. Please check the Unity console for error messages and make sure you're logged in to " + registry);
+                    // catch common issues with detailed solutions
+                    if (error.Contains("Cannot connect to the Docker daemon"))
+                    {
+                        onError($"{error}\nTo solve this, you can install and run Docker Desktop from:\n\nhttps://www.docker.com/products/docker-desktop");
+                        return;
+                    }
+
+                    // otherwise show generic error message
+                    onError($"Unable to push docker image to registry. Please make sure you're logged in to {registry} and check the following error:\n\n{error}");
                     return;
                 }
 

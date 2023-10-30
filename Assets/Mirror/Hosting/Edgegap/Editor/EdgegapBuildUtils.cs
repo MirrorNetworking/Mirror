@@ -93,7 +93,7 @@ namespace Edgegap
             }
         }
 
-        public static async Task<bool> RunCommand_DockerPush(string registry, string imageRepo, string tag, Action<string> onStatusUpdate)
+        public static async Task<(bool, string)> RunCommand_DockerPush(string registry, string imageRepo, string tag, Action<string> onStatusUpdate)
         {
             string error = string.Empty;
 #if UNITY_EDITOR_WIN
@@ -106,9 +106,9 @@ namespace Edgegap
             if (!string.IsNullOrEmpty(error))
             {
                 Debug.LogError(error);
-                return false;
+                return (false, error);
             }
-            return true;
+            return (true, null);
         }
         // END MIRROR CHANGE
 
