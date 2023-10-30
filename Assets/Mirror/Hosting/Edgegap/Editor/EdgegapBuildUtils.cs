@@ -69,7 +69,6 @@ namespace Edgegap
 
         static async Task RunCommand(string command, string arguments, Action<string> outputReciever = null, Action<string> errorReciever = null)
         {
-
             ProcessStartInfo startInfo = new ProcessStartInfo()
             {
                 FileName = command,
