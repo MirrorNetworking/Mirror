@@ -21,6 +21,11 @@ public class EdgegapWindow : EditorWindow
     const string EditorDataSerializationName = "EdgegapSerializationData";
     const int ServerStatusCronjobIntervalMs = 10000; // Interval at which the server status is updated
 
+    // MIRROR CHANGE: specify stylesheet paths in one place
+    // TODO DON'T HARDCODE
+    public const string StylesheetPath = "Assets/Mirror/Hosting/Edgegap/Editor";
+    // END MIRROR CHANGE
+
     readonly System.Timers.Timer _updateServerStatusCronjob = new System.Timers.Timer(ServerStatusCronjobIntervalMs);
 
     [SerializeField] string _userExternalIp;
@@ -67,10 +72,9 @@ public class EdgegapWindow : EditorWindow
     protected void OnEnable()
     {
         // Set root VisualElement and style
-        // TODO don't hardcode this
         // BEGIN MIRROR CHANGE
-        _visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>("Assets/Mirror/Hosting/Edgegap/Editor/EdgegapWindow.uxml");
-        StyleSheet styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>("Assets/Mirror/Hosting/Edgegap/Editor/EdgegapWindow.uss");
+        _visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>($"{StylesheetPath}/EdgegapWindow.uxml");
+        StyleSheet styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>($"{StylesheetPath}/EdgegapWindow.uss");
         // END MIRROR CHANGE
         rootVisualElement.styleSheets.Add(styleSheet);
 
