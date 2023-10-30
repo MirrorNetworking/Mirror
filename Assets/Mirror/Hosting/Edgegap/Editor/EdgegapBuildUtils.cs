@@ -79,6 +79,7 @@ namespace Edgegap
                 CreateNoWindow = true,
             };
 
+            // MIRROR CHANGE
 #if !UNITY_EDITOR_WIN
             // on mac, commands like 'docker' aren't found because it's not in the application's PATH
             // even if it runs on mac's terminal.
@@ -91,6 +92,7 @@ namespace Edgegap
             startInfo.EnvironmentVariables["PATH"] = customPath;
             // Debug.Log("PATH: " + customPath);
 #endif
+            // END MIRROR CHANGE
 
             Process proc = new Process() { StartInfo = startInfo, };
             proc.EnableRaisingEvents = true;
