@@ -40,23 +40,21 @@ namespace Edgegap
                 File.WriteAllText("Dockerfile", dockerFileText);
             }
 
+            string output = null;
             string error = null;
-            await RunCommand_DockerVersion(msg => error = msg); // MIRROR CHANGE
+            await RunCommand_DockerVersion(msg => output = msg, msg => error = msg); // MIRROR CHANGE
             if (!string.IsNullOrEmpty(error))
             {
                 Debug.LogError(error);
                 return false;
             }
+            Debug.Log($"[Edgegap] Docker version detected: {output}");
             return true;
         }
 
         // MIRROR CHANGE
-        static async Task RunCommand_DockerVersion(Action<string> errorReciever = null)
+        static async Task RunCommand_DockerVersion(Action<string> outputReciever = null, Action<string> errorReciever = null)
         {
-            void OutputReceiver(string message)
-            {
-                Debug.Log($"[Edgegap] docker version check: {message}");
-            }
 
 #if UNITY_EDITOR_WIN
             await RunCommand("cmd.exe", "/c docker --version", OutputReceiver, errorReciever);
