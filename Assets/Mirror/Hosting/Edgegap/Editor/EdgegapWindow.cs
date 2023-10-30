@@ -12,6 +12,7 @@ using System;
 using System.Threading.Tasks;
 using IO.Swagger.Model;
 using UnityEditor.Build.Reporting;
+using Application = UnityEngine.Application;
 
 namespace Edgegap
 {
@@ -332,7 +333,7 @@ namespace Edgegap
                 // if it's not installed, tell the user about it.
                 if (!BuildPipeline.IsBuildTargetSupported(BuildTargetGroup.Standalone, BuildTarget.StandaloneLinux64))
                 {
-                    onError("Unity Linux build support isn't installed for Unity. Please install it from the Unity Hub for this Unity version.");
+                    onError($"Linux Build Support is missing.\n\nPlease open Unity Hub -> Installs -> Unity {Application.unityVersion} -> Add Modules -> Linux Build Support (IL2CPP & Mono & Dedicated Server) -> Install");
                     return;
                 }
 
