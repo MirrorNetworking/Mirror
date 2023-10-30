@@ -329,7 +329,7 @@ namespace Edgegap
 
                 // create server build
                 BuildReport buildResult = EdgegapBuildUtils.BuildServer();
-                if (buildResult.summary.result != UnityEditor.Build.Reporting.BuildResult.Succeeded)
+                if (buildResult.summary.result != BuildResult.Succeeded)
                 {
                     onError("Edgegap build failed");
                     return;
