@@ -61,15 +61,17 @@ public class EdgegapWindow : EditorWindow
     public static void ShowEdgegapToolWindow()
     {
         EdgegapWindow window = GetWindow<EdgegapWindow>();
-        window.titleContent = new GUIContent("Edgegap Server Management");
+        window.titleContent = new GUIContent("Edgegap Hosting"); // MIRROR CHANGE
     }
 
     protected void OnEnable()
     {
         // Set root VisualElement and style
         // TODO don't hardcode this
+        // BEGIN MIRROR CHANGE
         _visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>("Assets/Mirror/Hosting/Edgegap/Editor/EdgegapWindow.uxml");
         StyleSheet styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>("Assets/Mirror/Hosting/Edgegap/Editor/EdgegapWindow.uss");
+        // END MIRROR CHANGE
         rootVisualElement.styleSheets.Add(styleSheet);
 
         LoadToolData();
