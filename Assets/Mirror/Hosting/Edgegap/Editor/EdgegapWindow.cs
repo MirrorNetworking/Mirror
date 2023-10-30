@@ -331,7 +331,7 @@ namespace Edgegap
                 BuildReport buildResult = EdgegapBuildUtils.BuildServer();
                 if (buildResult.summary.result != BuildResult.Succeeded)
                 {
-                    onError("Edgegap build failed");
+                    onError("Edgegap build failed, please check the Unity console logs.");
                     return;
                 }
 
