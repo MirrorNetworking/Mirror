@@ -4,7 +4,6 @@ namespace Edgegap
 {
     public struct AppVersionUpdatePatchData
     {
-
         [JsonProperty("docker_repository")]
         public string DockerRegistry;
 
@@ -13,6 +12,5 @@ namespace Edgegap
 
         [JsonProperty("docker_tag")]
         public string DockerTag;
-
     }
 }
