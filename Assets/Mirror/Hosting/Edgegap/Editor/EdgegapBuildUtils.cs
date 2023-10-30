@@ -53,8 +53,13 @@ namespace Edgegap
         // MIRROR CHANGE
         static async Task RunCommand_DockerVersion(Action<string> errorReciever = null)
         {
+            void OutputReceiver(string message)
+            {
+                Debug.Log($"[Edgegap] docker version check: {message}");
+            }
+
 #if UNITY_EDITOR_WIN
-            await RunCommand("cmd.exe", "/c docker --version", null, errorReciever);
+            await RunCommand("cmd.exe", "/c docker --version", OutputReceiver, errorReciever);
 #else
             Debug.LogError("The platform is not supported yet.");
 #endif
