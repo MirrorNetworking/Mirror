@@ -91,7 +91,6 @@ namespace Edgegap
             {
                 throw new Exception(realErrorMessage);
             }
-
         }
 
         public static async Task<bool> RunCommand_DockerPush(string registry, string imageRepo, string tag, Action<string> onStatusUpdate)

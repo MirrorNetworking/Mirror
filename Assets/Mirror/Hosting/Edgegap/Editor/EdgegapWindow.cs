@@ -366,7 +366,7 @@ namespace Edgegap
                 // push docker image
                 if (!await EdgegapBuildUtils.RunCommand_DockerPush(registry, imageName, tag, ShowBuildWorkInProgress))
                 {
-                    onError("Unable to push docker image to registry. Make sure you're logged in to " + registry);
+                    onError("Unable to push docker image to registry. Please check the Unity console for error messages and make sure you're logged in to " + registry);
                     return;
                 }
 
