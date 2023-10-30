@@ -7,7 +7,7 @@
 >
 	<engine:VisualElement class="content">
 		<engine:VisualElement class="background" />
-		<engine:Label class="text__title" text="Edgegap Server Management" />
+		<engine:Label class="text__title" text="Edgegap Hosting" />
 
 		<engine:ScrollView>
 			<engine:VisualElement class="container">

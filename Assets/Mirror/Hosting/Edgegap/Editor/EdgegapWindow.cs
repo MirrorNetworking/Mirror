@@ -57,7 +57,7 @@ public class EdgegapWindow : EditorWindow
     Label _connectionStatusLabel;
     VisualElement _serverDataContainer;
 
-    [MenuItem("Edgegap/Server Management")]
+    [MenuItem("Edgegap/Edgegap Hosting")] // MIRROR CHANGE
     public static void ShowEdgegapToolWindow()
     {
         EdgegapWindow window = GetWindow<EdgegapWindow>();
