@@ -146,6 +146,7 @@ namespace Edgegap
 
         // base OnGUI only shows in editor & development builds.
         // here we always show it because we need the sessionid & userid buttons.
+#pragma warning disable CS0109
         new void OnGUI()
         {
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
@@ -156,5 +157,6 @@ namespace Edgegap
 
         public override string ToString() => "Edgegap Kcp Transport";
     }
+#pragma warning restore CS0109
 }
 //#endif MIRROR <- commented out because MIRROR isn't defined on first import yet
