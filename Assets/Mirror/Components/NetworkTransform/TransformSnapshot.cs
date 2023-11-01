@@ -61,5 +61,8 @@ namespace Mirror
                 Vector3.LerpUnclamped(from.scale, to.scale, (float)t)
             );
         }
+
+        public override string ToString() =>
+            $"TransformSnapshot(remoteTime={remoteTime:F2}, localTime={localTime:F2}, pos={position}, rot={rotation}, scale={scale})";
     }
 }
