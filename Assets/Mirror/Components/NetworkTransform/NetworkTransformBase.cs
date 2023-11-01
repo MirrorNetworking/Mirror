@@ -313,12 +313,21 @@ namespace Mirror
         // common Teleport code for client->server and server->client
         protected virtual void OnTeleport(Vector3 destination)
         {
-            // reset any in-progress interpolation & buffers
-            Reset();
-
             // set the new position.
             // interpolation will automatically continue.
             target.position = destination;
+
+            // reset interpolation to immediately jump to the new position.
+            // do not call Reset() here, this would cause delta compression to
+            // get out of sync for NetworkTransformReliable because NTReliable's
+            // 'override Reset()' resets lastDe/SerializedPosition:
+            // https://github.com/MirrorNetworking/Mirror/issues/3588
+            // because client's next OnSerialize() will delta compress,
+            // but server's last delta will have been reset, causing offsets.
+            //
+            // instead, simply clear snapshots.
+            serverSnapshots.Clear();
+            clientSnapshots.Clear();
 
             // TODO
             // what if we still receive a snapshot from before the interpolation?
@@ -329,13 +338,22 @@ namespace Mirror
         // common Teleport code for client->server and server->client
         protected virtual void OnTeleport(Vector3 destination, Quaternion rotation)
         {
-            // reset any in-progress interpolation & buffers
-            Reset();
-
             // set the new position.
             // interpolation will automatically continue.
             target.position = destination;
             target.rotation = rotation;
+
+            // reset interpolation to immediately jump to the new position.
+            // do not call Reset() here, this would cause delta compression to
+            // get out of sync for NetworkTransformReliable because NTReliable's
+            // 'override Reset()' resets lastDe/SerializedPosition:
+            // https://github.com/MirrorNetworking/Mirror/issues/3588
+            // because client's next OnSerialize() will delta compress,
+            // but server's last delta will have been reset, causing offsets.
+            //
+            // instead, simply clear snapshots.
+            serverSnapshots.Clear();
+            clientSnapshots.Clear();
 
             // TODO
             // what if we still receive a snapshot from before the interpolation?

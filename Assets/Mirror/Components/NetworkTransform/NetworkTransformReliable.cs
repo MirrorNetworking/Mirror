@@ -405,6 +405,9 @@ namespace Mirror
             );
         }
 
+        // reset state for next session.
+        // do not ever call this during a session (i.e. after teleport).
+        // calling this will break delta compression.
         public override void Reset()
         {
             base.Reset();
