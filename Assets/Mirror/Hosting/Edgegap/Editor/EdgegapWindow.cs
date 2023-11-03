@@ -193,18 +193,23 @@ namespace Edgegap
 
         void OpenDocumentationCallback()
         {
-            ApiEnvironment selectedApiEnvironment = (ApiEnvironment)_apiEnvironmentSelect.value;
-            string documentationUrl = selectedApiEnvironment.GetDocumentationUrl();
+            // MIRROR CHANGE
+            // ApiEnvironment selectedApiEnvironment = (ApiEnvironment)_apiEnvironmentSelect.value;
+            // string documentationUrl = selectedApiEnvironment.GetDocumentationUrl();
+            //
+            // if (!string.IsNullOrEmpty(documentationUrl))
+            // {
+            //     UnityEngine.Application.OpenURL(documentationUrl);
+            // }
+            // else
+            // {
+            //     string apiEnvName = Enum.GetName(typeof(ApiEnvironment), selectedApiEnvironment);
+            //     Debug.LogWarning($"Could not open documentation for api environment {apiEnvName}: No documentation URL.");
+            // }
 
-            if (!string.IsNullOrEmpty(documentationUrl))
-            {
-                UnityEngine.Application.OpenURL(documentationUrl);
-            }
-            else
-            {
-                string apiEnvName = Enum.GetName(typeof(ApiEnvironment), selectedApiEnvironment);
-                Debug.LogWarning($"Could not open documentation for api environment {apiEnvName}: No documentation URL.");
-            }
+            // link to the easiest documentation
+            UnityEngine.Application.OpenURL("https://mirror-networking.gitbook.io/docs/hosting/edgegap-hosting-plugin-guide");
+            // END MIRROR CHANGE
         }
 
         void ConnectCallback()
