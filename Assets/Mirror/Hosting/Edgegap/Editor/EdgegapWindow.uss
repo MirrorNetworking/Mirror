@@ -1,0 +1,60 @@
+#serverDataContainer {
+    margin: 4px 0px 0px 0px;
+}
+
+.content {
+    position: relative;
+    height: auto;
+    overflow: hidden;
+    padding: 8px 0px 8px 0px;
+}
+
+.background {
+    position: absolute;
+    height: 400px;
+    width: 400px;
+    top: -10px;
+    right: -150px;
+    background-image: url("./Images/logo_transparent_400_alpha25.png");
+    -unity-background-scale-mode: scale-and-crop;
+}
+
+.text__title {
+    font-size: 20px;
+    color: rgb(36, 194, 237);
+    padding-top: 8px;
+    padding-bottom: 8px;
+    -unity-text-align: middle-center;
+    -unity-font: url("./Fonts/BaronNeue.otf");
+}
+
+.text--muted {
+    color: #8a8a8a;
+}
+
+.text--success {
+    color: #90be6d;
+}
+
+.container {
+    padding: 4px 4px;
+}
+
+.flex {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: auto;
+}
+
+.flex--wrap {
+    flex-wrap: wrap;
+}
+
+.flex--right {
+    justify-content: flex-end;
+}
+
+.flex--between {
+    justify-content: space-between;
+}
