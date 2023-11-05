@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using System.Net;
 using System.Text;
 using System;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using IO.Swagger.Model;
 using UnityEditor.Build.Reporting;
@@ -382,6 +383,13 @@ namespace Edgegap
                     if (error.Contains("unauthorized to access repository"))
                     {
                         onError($"Docker authorization failed:\n\n{error}\nTo solve this, you can open a terminal and enter 'docker login {registry}', then enter your credentials.");
+                        return;
+                    }
+
+                    // project not found?
+                    if (Regex.IsMatch(error, @".*project .* not found.*", RegexOptions.IgnoreCase))
+                    {
+                        onError($"{error}\nTo solve this, make sure that Image Repository is 'project/game' where 'project' is from the Container Registry page on the Edgegap website.");
                         return;
                     }
 
