@@ -12,35 +12,35 @@ public class #SCRIPTNAME# : NetworkManager
 {
     // You can adjust the parameters of the Actions below to suit your needs and pass the values through the Invoke() method.
 
-    public static event Action OnStartAction;
-    public static event Action OnDestroyAction;
+    public event Action OnStartAction;
+    public event Action OnDestroyAction;
 
-    public static event Action OnApplicationQuitAction;
+    public event Action OnApplicationQuitAction;
 
-    public static event Action<string> ServerChangeSceneAction;
-    public static event Action<string> OnServerChangeSceneAction;
-    public static event Action<string> OnServerSceneChangedAction;
-    public static event Action<string, SceneOperation, bool> OnClientChangeSceneAction;
-    public static event Action OnClientSceneChangedAction;
+    public event Action<string> ServerChangeSceneAction;
+    public event Action<string> OnServerChangeSceneAction;
+    public event Action<string> OnServerSceneChangedAction;
+    public event Action<string, SceneOperation, bool> OnClientChangeSceneAction;
+    public event Action OnClientSceneChangedAction;
 
-    public static event Action<NetworkConnectionToClient> OnServerConnectAction;
-    public static event Action<NetworkConnectionToClient> OnServerReadyAction;
-    public static event Action<NetworkConnectionToClient> OnServerAddPlayerAction;
-    public static event Action<NetworkConnectionToClient> OnServerDisconnectAction;
-    public static event Action<NetworkConnectionToClient, TransportError, string> OnServerErrorAction;
+    public event Action<NetworkConnectionToClient> OnServerConnectAction;
+    public event Action<NetworkConnectionToClient> OnServerReadyAction;
+    public event Action<NetworkConnectionToClient> OnServerAddPlayerAction;
+    public event Action<NetworkConnectionToClient> OnServerDisconnectAction;
+    public event Action<NetworkConnectionToClient, TransportError, string> OnServerErrorAction;
 
-    public static event Action OnClientConnectAction;
-    public static event Action OnClientDisconnectAction;
-    public static event Action OnClientNotReadyAction;
-    public static event Action<ConnectionQuality, ConnectionQuality> OnConnectionQualityChangedAction;
-    public static event Action<TransportError, string> OnClientErrorAction;
+    public event Action OnClientConnectAction;
+    public event Action OnClientDisconnectAction;
+    public event Action OnClientNotReadyAction;
+    public event Action<ConnectionQuality, ConnectionQuality> OnConnectionQualityChangedAction;
+    public event Action<TransportError, string> OnClientErrorAction;
 
-    public static event Action OnStartServerAction;
-    public static event Action OnStopServerAction;
-    public static event Action OnStartHostAction;
-    public static event Action OnStopHostAction;
-    public static event Action OnStartClientAction;
-    public static event Action OnStopClientAction;
+    public event Action OnStartServerAction;
+    public event Action OnStopServerAction;
+    public event Action OnStartHostAction;
+    public event Action OnStopHostAction;
+    public event Action OnStartClientAction;
+    public event Action OnStopClientAction;
 
     // Overrides the base singleton so we don't have to cast to this type everywhere.
     public static new #SCRIPTNAME# singleton => (#SCRIPTNAME#)NetworkManager.singleton;
