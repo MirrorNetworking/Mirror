@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
+using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using UnityEditor;
@@ -16,6 +16,9 @@ namespace Edgegap
 {
     internal static class EdgegapBuildUtils
     {
+        public static bool IsArmCPU() =>
+            RuntimeInformation.ProcessArchitecture == Architecture.Arm ||
+            RuntimeInformation.ProcessArchitecture == Architecture.Arm64;
 
         public static BuildReport BuildServer()
         {
