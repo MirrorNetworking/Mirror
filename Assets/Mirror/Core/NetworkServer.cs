@@ -117,22 +117,23 @@ namespace Mirror
             if (!dontListen)
             {
                 Transport.active.ServerStart();
-                //Debug.Log("Server started listening");
-            }
 
-            active = true;
-            RegisterMessageHandlers();
-
-            if (Transport.active is PortTransport portTransport)
-            {
+                if (Transport.active is PortTransport portTransport)
+                {
 #if UNITY_SERVER
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine($"Server listening on port {portTransport.Port}");
                 Console.ResetColor();
 #else
-                Debug.Log($"Server listening on port {portTransport.Port}");
+                    Debug.Log($"Server listening on port {portTransport.Port}");
 #endif
+                }
+                else
+                    Debug.Log("Server started listening");
             }
+
+            active = true;
+            RegisterMessageHandlers();
         }
 
         // initialization / shutdown ///////////////////////////////////////////
