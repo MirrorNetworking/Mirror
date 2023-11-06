@@ -122,6 +122,17 @@ namespace Mirror
 
             active = true;
             RegisterMessageHandlers();
+
+            if (Transport.active is PortTransport portTransport)
+            {
+#if UNITY_SERVER
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine($"Server listening on port {portTransport.Port}");
+                Console.ResetColor();
+#else
+                Debug.Log($"Server listening on port {portTransport.Port}");
+#endif
+            }
         }
 
         // initialization / shutdown ///////////////////////////////////////////
