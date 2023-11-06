@@ -250,29 +250,16 @@ namespace Edgegap
         {
             SetToolUIState(ToolState.Connecting);
 
+            _httpClient.BaseAddress = new Uri(selectedApiEnvironment.GetApiUrl());
 
-            // MIRROR CHANGE ///////////////////////////////////////////////////
-            // the old code throws an exception when trying to connect again after disconnecting:
-            // "InvalidOperationException: This instance has already started one or more requests. Properties can only be modified before sending the first request."
-            //   _httpClient.BaseAddress = new Uri(selectedApiEnvironment.GetApiUrl());
-            //   string path = $"/v1/app/{selectedAppName}/version/{selectedAppVersionName}";
-            //   _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            //   _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("token", selectedApiTokenValue);
-            //   HttpResponseMessage response = await _httpClient.GetAsync(path);
-            //
-            // solution: https://stackoverflow.com/questions/51478525/httpclient-this-instance-has-already-started-one-or-more-requests-properties-ca
-            // "Rather than setting DefaultRequestHeaders, set the headers on each HttpRequestMessage you are sending."
-
-            // Create the request message
-            string baseUrl = selectedApiEnvironment.GetApiUrl();
             string path = $"/v1/app/{selectedAppName}/version/{selectedAppVersionName}";
-            Uri fullUrl = new Uri(new Uri(baseUrl), path);
-            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, fullUrl);
-            request.Headers.Accept.Clear();
-            request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            request.Headers.Authorization = new AuthenticationHeaderValue("token", selectedApiTokenValue);
-            HttpResponseMessage response = await _httpClient.SendAsync(request);
-            // END MIRROR CHANGE ///////////////////////////////////////////////
+
+            // Headers
+            _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("token", selectedApiTokenValue);
+
+            // Make HTTP request
+            HttpResponseMessage response = await _httpClient.GetAsync(path);
 
             if (response.IsSuccessStatusCode)
             {
