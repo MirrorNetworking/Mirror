@@ -120,7 +120,7 @@ namespace Mirror
 
                 if (Transport.active is PortTransport portTransport)
                 {
-#if UNITY_SERVER
+#if UNITY_SERVER && !UNITY_EDITOR
                     Console.ForegroundColor = ConsoleColor.Green;
                     Console.WriteLine($"Server listening on port {portTransport.Port}");
                     Console.ResetColor();
