@@ -220,15 +220,22 @@ namespace Mirror
             // some transports might not be ready until Start.
             //
             // (tick rate is applied in StartServer!)
+            //
 #if UNITY_SERVER
-            if (autoStartServerBuild)
+            // don't auto start in editor where we have a UI, only in builds.
+            // otherwise if we switch to 'Dedicated Server' target and press
+            // Play, it would auto start the server every time.
+            if (!Application.isEditor)
             {
-                StartServer();
-            }
-            // only start server or client, never both
-            else if (autoConnectClientBuild)
-            {
-                StartClient();
+                if (autoStartServerBuild)
+                {
+                    StartServer();
+                }
+                // only start server or client, never both
+                else if (autoConnectClientBuild)
+                {
+                    StartClient();
+                }
             }
 #endif
         }
