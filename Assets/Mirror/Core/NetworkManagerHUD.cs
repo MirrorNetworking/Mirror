@@ -1,5 +1,3 @@
-// vis2k: GUILayout instead of spacey += ...; removed Update hotkeys to avoid
-// confusion if someone accidentally presses one.
 using UnityEngine;
 
 namespace Mirror
@@ -23,7 +21,7 @@ namespace Mirror
 
         void OnGUI()
         {
-            GUILayout.BeginArea(new Rect(10 + offsetX, 40 + offsetY, 250, 9999));
+            GUILayout.BeginArea(new Rect(10 + offsetX, 40 + offsetY, 300, 9999));
             if (!NetworkClient.isConnected && !NetworkServer.active)
             {
                 StartButtons();
@@ -64,14 +62,26 @@ namespace Mirror
                     }
                 }
 
-                // Client + IP
+                // Client + IP (+ PORT)
                 GUILayout.BeginHorizontal();
                 if (GUILayout.Button("Client"))
                 {
                     manager.StartClient();
                 }
-                // This updates networkAddress every frame from the TextField
                 manager.networkAddress = GUILayout.TextField(manager.networkAddress);
+                // only show a port field if we have a port transport
+                // we can't have "IP:PORT" in the address field since this only
+                // works for IPV4:PORT.
+                // for IPV6:PORT it would be misleading since IPV6 contains ":":
+                // 2001:0db8:0000:0000:0000:ff00:0042:8329
+                if (Transport.active is PortTransport portTransport)
+                {
+                    // use TryParse in case someone tries to enter non-numeric characters
+                    if (ushort.TryParse(GUILayout.TextField(portTransport.Port.ToString()), out ushort port))
+                    {
+                        portTransport.Port = port;
+                    }
+                }
                 GUILayout.EndHorizontal();
 
                 // Server Only
