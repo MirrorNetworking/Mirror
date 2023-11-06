@@ -7,8 +7,46 @@ using UnityEngine.UIElements;
 
 namespace Edgegap
 {
-    static class EdgegapServerDataManagerUtils
+    // MIRROR CHANGE: EdgegapServerDataManagerUtils were merged into EdgegapServerDataManager to reduce complexity & dependencies
+    // static class EdgegapServerDataManagerUtils {}
+    // END MIRROR CHANGE
+
+    /// <summary>
+    /// Utility class to centrally manage the Edgegap server data, and create / update the elements displaying the server info.
+    /// </summary>
+    public static class EdgegapServerDataManager
     {
+        static Status _serverData;
+        static ApiEnvironment _apiEnvironment;
+
+        // UI elements
+        static readonly StyleSheet _serverDataStylesheet;
+        static readonly List<VisualElement> _serverDataContainers = new List<VisualElement>();
+
+        public static Status GetServerStatus() => _serverData;
+
+        static EdgegapServerDataManager()
+        {
+            // MIRROR CHANGE
+            _serverDataStylesheet = AssetDatabase.LoadAssetAtPath<StyleSheet>($"{EdgegapWindow.StylesheetPath}/EdgegapServerData.uss");
+            // END MIRROR CHANGE
+        }
+        public static void RegisterServerDataContainer(VisualElement serverDataContainer)
+        {
+            _serverDataContainers.Add(serverDataContainer);
+        }
+        public static void DeregisterServerDataContainer(VisualElement serverDataContainer)
+        {
+            _serverDataContainers.Remove(serverDataContainer);
+        }
+        public static void SetServerData(Status serverData, ApiEnvironment apiEnvironment)
+        {
+            _serverData = serverData;
+            _apiEnvironment = apiEnvironment;
+            RefreshServerDataContainers();
+        }
+
+
         public static Label GetHeader(string text)
         {
             Label header = new Label(text);
@@ -72,42 +110,6 @@ namespace Edgegap
 
             return infoText;
         }
-    }
-
-    /// <summary>
-    /// Utility class to centrally manage the Edgegap server data, and create / update the elements displaying the server info.
-    /// </summary>
-    public static class EdgegapServerDataManager
-    {
-        static Status _serverData;
-        static ApiEnvironment _apiEnvironment;
-
-        // UI elements
-        static readonly StyleSheet _serverDataStylesheet;
-        static readonly List<VisualElement> _serverDataContainers = new List<VisualElement>();
-
-        public static Status GetServerStatus() => _serverData;
-
-        static EdgegapServerDataManager()
-        {
-            // MIRROR CHANGE
-            _serverDataStylesheet = AssetDatabase.LoadAssetAtPath<StyleSheet>($"{EdgegapWindow.StylesheetPath}/EdgegapServerData.uss");
-            // END MIRROR CHANGE
-        }
-        public static void RegisterServerDataContainer(VisualElement serverDataContainer)
-        {
-            _serverDataContainers.Add(serverDataContainer);
-        }
-        public static void DeregisterServerDataContainer(VisualElement serverDataContainer)
-        {
-            _serverDataContainers.Remove(serverDataContainer);
-        }
-        public static void SetServerData(Status serverData, ApiEnvironment apiEnvironment)
-        {
-            _serverData = serverData;
-            _apiEnvironment = apiEnvironment;
-            RefreshServerDataContainers();
-        }
 
         static VisualElement GetStatusSection()
         {
@@ -124,7 +126,7 @@ namespace Edgegap
             VisualElement container = new VisualElement();
             container.AddToClassList("container");
 
-            container.Add(EdgegapServerDataManagerUtils.GetHeader("Server Status"));
+            container.Add(GetHeader("Server Status"));
 
             VisualElement row = new VisualElement();
             row.AddToClassList("row__status");
@@ -138,7 +140,7 @@ namespace Edgegap
             // Link to dashboard
             if (!string.IsNullOrEmpty(deploymentDashboardUrl))
             {
-                row.Add(EdgegapServerDataManagerUtils.GetLinkButton("See in the dashboard", deploymentDashboardUrl));
+                row.Add(GetLinkButton("See in the dashboard", deploymentDashboardUrl));
             }
             else
             {
@@ -157,14 +159,14 @@ namespace Edgegap
             VisualElement container = new VisualElement();
             container.AddToClassList("container");
 
-            container.Add(EdgegapServerDataManagerUtils.GetHeader("Server DNS"));
+            container.Add(GetHeader("Server DNS"));
 
             VisualElement row = new VisualElement();
             row.AddToClassList("row__dns");
             row.AddToClassList("focusable");
 
             row.Add(new Label(serverDns));
-            row.Add(EdgegapServerDataManagerUtils.GetCopyButton("Copy", serverDns));
+            row.Add(GetCopyButton("Copy", serverDns));
 
             container.Add(row);
 
@@ -178,8 +180,8 @@ namespace Edgegap
             VisualElement container = new VisualElement();
             container.AddToClassList("container");
 
-            container.Add(EdgegapServerDataManagerUtils.GetHeader("Server Ports"));
-            container.Add(EdgegapServerDataManagerUtils.GetHeaderRow());
+            container.Add(GetHeader("Server Ports"));
+            container.Add(GetHeaderRow());
 
             VisualElement portList = new VisualElement();
 
@@ -187,7 +189,7 @@ namespace Edgegap
             {
                 foreach (PortMapping port in serverPorts)
                 {
-                    portList.Add(EdgegapServerDataManagerUtils.GetRowFromPortResponse(port));
+                    portList.Add(GetRowFromPortResponse(port));
                 }
             }
             else
@@ -219,12 +221,12 @@ namespace Edgegap
                 }
                 else
                 {
-                    serverDataTree.Add(EdgegapServerDataManagerUtils.GetInfoText("Additionnal information will be displayed when the server is ready."));
+                    serverDataTree.Add(GetInfoText("Additionnal information will be displayed when the server is ready."));
                 }
             }
             else
             {
-                serverDataTree.Add(EdgegapServerDataManagerUtils.GetInfoText("Server data will be displayed here when a server is running."));
+                serverDataTree.Add(GetInfoText("Server data will be displayed here when a server is running."));
             }
 
             return serverDataTree;
