@@ -19,14 +19,6 @@ namespace Edgegap
 
         public static BuildReport BuildServer()
         {
-            // MIRROR CHANGE
-            // Switch to the desired build target. As of 2021.3.19f1 there is a bug where
-            // appropriate scripts are not being executed by BuildPlayer.
-            // https://forum.unity.com/threads/unity-2021-2-dedicated-server-target-and-stripping-optimizations-now-live-please-share-feedback.1143734/page-4
-            EditorUserBuildSettings.standaloneBuildSubtarget = StandaloneBuildSubtarget.Server;
-            EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.LinuxHeadlessSimulation, BuildTarget.StandaloneLinux64);
-            // END MIRROR CHANGE
-
             IEnumerable<string> scenes = EditorBuildSettings.scenes.Select(s=>s.path);
             BuildPlayerOptions options = new BuildPlayerOptions
             {
