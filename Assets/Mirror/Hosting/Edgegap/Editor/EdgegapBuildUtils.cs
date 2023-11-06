@@ -19,14 +19,23 @@ namespace Edgegap
 
         public static BuildReport BuildServer()
         {
+            // MIRROR CHANGE
+            // Switch to the desired build target. As of 2021.3.19f1 there is a bug where
+            // appropriate scripts are not being executed by BuildPlayer.
+            // https://forum.unity.com/threads/unity-2021-2-dedicated-server-target-and-stripping-optimizations-now-live-please-share-feedback.1143734/page-4
+            EditorUserBuildSettings.standaloneBuildSubtarget = StandaloneBuildSubtarget.Server;
+            EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.LinuxHeadlessSimulation, BuildTarget.StandaloneLinux64);
+            // END MIRROR CHANGE
+
             IEnumerable<string> scenes = EditorBuildSettings.scenes.Select(s=>s.path);
             BuildPlayerOptions options = new BuildPlayerOptions
             {
                 scenes = scenes.ToArray(),
                 target = BuildTarget.StandaloneLinux64,
- #pragma warning disable CS0618 // disable deprecated warning until Edgegap updates this
-                options = BuildOptions.EnableHeadlessMode,
- #pragma warning restore CS0618
+                // MIRROR CHANGE
+                // options = BuildOptions.EnableHeadlessMode, // obsolete and missing UNITY_SERVER define
+                subtarget = (int)StandaloneBuildSubtarget.Server, // dedicated server with UNITY_SERVER define
+                // END MIRROR CHANGE
                 locationPathName = "Builds/EdgegapServer/ServerBuild"
             };
 
