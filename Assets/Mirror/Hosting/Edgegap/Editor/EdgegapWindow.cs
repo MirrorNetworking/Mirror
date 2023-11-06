@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using System.Net;
 using System.Text;
 using System;
+using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using IO.Swagger.Model;
@@ -342,7 +343,17 @@ namespace Edgegap
                     onError($"Linux Build Support is missing.\n\nPlease open Unity Hub -> Installs -> Unity {Application.unityVersion} -> Add Modules -> Linux Build Support (IL2CPP & Mono & Dedicated Server) -> Install\n\nAfterwards restart Unity!");
                     return;
                 }
+                // END MIRROR CHANGE
 
+                // MIRROR CHANGE
+                // Edgegap VMs are x86.
+                // ARM CPUs like Apple Silicon need special handling.
+                if (RuntimeInformation.ProcessArchitecture == Architecture.Arm ||
+                    RuntimeInformation.ProcessArchitecture == Architecture.Arm64)
+                {
+                    onError($"Building from {RuntimeInformation.ProcessArchitecture} Processors is currently not supported because Edgegap infrastructure runs on x86.\n\nPlease find another machine to build from while we are working on ARM support.");
+                    return;
+                }
                 // END MIRROR CHANGE
 
                 // create server build
