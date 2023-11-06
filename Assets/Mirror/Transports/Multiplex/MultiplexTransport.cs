@@ -280,7 +280,20 @@ namespace Mirror
             AddServerCallbacks();
 
             foreach (Transport transport in transports)
+            {
                 transport.ServerStart();
+
+                if (transport is PortTransport portTransport)
+                {
+#if UNITY_SERVER
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine($"Server listening on port {portTransport.Port}");
+                Console.ResetColor();
+#else
+                    Debug.Log($"Server listening on port {portTransport.Port}");
+#endif
+                }
+            }
         }
 
         public override void ServerStop()
