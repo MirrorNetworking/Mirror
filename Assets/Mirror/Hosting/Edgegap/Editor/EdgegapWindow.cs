@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using System.Net;
 using System.Text;
 using System;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -66,6 +67,10 @@ namespace Edgegap
         Label _connectionStatusLabel;
         VisualElement _serverDataContainer;
 
+        // server data manager
+        StyleSheet _serverDataStylesheet;
+        List<VisualElement> _serverDataContainers = new List<VisualElement>();
+
         [MenuItem("Edgegap/Edgegap Hosting")] // MIRROR CHANGE
         public static void ShowEdgegapToolWindow()
         {
@@ -79,6 +84,7 @@ namespace Edgegap
             // BEGIN MIRROR CHANGE
             _visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>($"{StylesheetPath}/EdgegapWindow.uxml");
             StyleSheet styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>($"{StylesheetPath}/EdgegapWindow.uss");
+            _serverDataStylesheet = AssetDatabase.LoadAssetAtPath<StyleSheet>($"{StylesheetPath}/EdgegapServerData.uss");
             // END MIRROR CHANGE
             rootVisualElement.styleSheets.Add(styleSheet);
 
@@ -137,7 +143,7 @@ namespace Edgegap
         {
             SyncObjectWithForm();
             SaveToolData();
-            EdgegapServerDataManager.DeregisterServerDataContainer(_serverDataContainer);
+            DeregisterServerDataContainer(_serverDataContainer);
         }
 
         /// <summary>
@@ -166,8 +172,8 @@ namespace Edgegap
             _serverDataContainer = rootVisualElement.Q<VisualElement>("serverDataContainer");
 
             // Load initial server data UI element and register for updates.
-            VisualElement serverDataElement = EdgegapServerDataManager.GetServerDataVisualTree();
-            EdgegapServerDataManager.RegisterServerDataContainer(serverDataElement);
+            VisualElement serverDataElement = GetServerDataVisualTree();
+            RegisterServerDataContainer(serverDataElement);
             _serverDataContainer.Clear();
             _serverDataContainer.Add(serverDataElement);
 
@@ -521,7 +527,7 @@ namespace Edgegap
 
             if (serverStatus == ServerStatus.Terminated)
             {
-                EdgegapServerDataManager.SetServerData(null, _apiEnvironment);
+                SetServerData(null, _apiEnvironment);
 
                 if (_updateServerStatusCronjob.Enabled)
                 {
@@ -533,7 +539,7 @@ namespace Edgegap
             }
             else
             {
-                EdgegapServerDataManager.SetServerData(serverStatusResponse, _apiEnvironment);
+                SetServerData(serverStatusResponse, _apiEnvironment);
 
                 if (serverStatus == ServerStatus.Ready || serverStatus == ServerStatus.Error)
                 {
@@ -699,6 +705,218 @@ namespace Edgegap
             }
         }
 
+        // server data manager /////////////////////////////////////////////////
+        public void RegisterServerDataContainer(VisualElement serverDataContainer)
+        {
+            _serverDataContainers.Add(serverDataContainer);
+        }
+
+        public void DeregisterServerDataContainer(VisualElement serverDataContainer)
+        {
+            _serverDataContainers.Remove(serverDataContainer);
+        }
+
+        public void SetServerData(Status serverData, ApiEnvironment apiEnvironment)
+        {
+            EdgegapServerDataManager._serverData = serverData;
+            RefreshServerDataContainers();
+        }
+
+        public Label GetHeader(string text)
+        {
+            Label header = new Label(text);
+            header.AddToClassList("label__header");
+
+            return header;
+        }
+
+        public VisualElement GetHeaderRow()
+        {
+            VisualElement row = new VisualElement();
+            row.AddToClassList("row__port-table");
+            row.AddToClassList("label__header");
+
+            row.Add(new Label("Name"));
+            row.Add(new Label("External"));
+            row.Add(new Label("Internal"));
+            row.Add(new Label("Protocol"));
+            row.Add(new Label("Link"));
+
+            return row;
+        }
+
+        public VisualElement GetRowFromPortResponse(PortMapping port)
+        {
+            VisualElement row = new VisualElement();
+            row.AddToClassList("row__port-table");
+            row.AddToClassList("focusable");
+
+
+            row.Add(new Label(port.Name));
+            row.Add(new Label(port.External.ToString()));
+            row.Add(new Label(port.Internal.ToString()));
+            row.Add(new Label(port.Protocol));
+            row.Add(GetCopyButton("Copy", port.Link));
+
+            return row;
+        }
+
+        public Button GetCopyButton(string btnText, string copiedText)
+        {
+            Button copyBtn = new Button();
+            copyBtn.text = btnText;
+            copyBtn.clickable.clicked += () => GUIUtility.systemCopyBuffer = copiedText;
+
+            return copyBtn;
+        }
+
+        public Button GetLinkButton(string btnText, string targetUrl)
+        {
+            Button copyBtn = new Button();
+            copyBtn.text = btnText;
+            copyBtn.clickable.clicked += () => UnityEngine.Application.OpenURL(targetUrl);
+
+            return copyBtn;
+        }
+        public Label GetInfoText(string innerText)
+        {
+            Label infoText = new Label(innerText);
+            infoText.AddToClassList("label__info-text");
+
+            return infoText;
+        }
+
+        VisualElement GetStatusSection()
+        {
+            ServerStatus serverStatus = EdgegapServerDataManager._serverData.GetServerStatus();
+            string dashboardUrl = _apiEnvironment.GetDashboardUrl();
+            string requestId = EdgegapServerDataManager._serverData.RequestId;
+            string deploymentDashboardUrl = "";
+
+            if (!string.IsNullOrEmpty(requestId) && !string.IsNullOrEmpty(dashboardUrl))
+            {
+                deploymentDashboardUrl = $"{dashboardUrl}/arbitrium/deployment/read/{requestId}/";
+            }
+
+            VisualElement container = new VisualElement();
+            container.AddToClassList("container");
+
+            container.Add(GetHeader("Server Status"));
+
+            VisualElement row = new VisualElement();
+            row.AddToClassList("row__status");
+
+            // Status pill
+            Label statusLabel = new Label(serverStatus.GetLabelText());
+            statusLabel.AddToClassList(serverStatus.GetStatusBgClass());
+            statusLabel.AddToClassList("label__status");
+            row.Add(statusLabel);
+
+            // Link to dashboard
+            if (!string.IsNullOrEmpty(deploymentDashboardUrl))
+            {
+                row.Add(GetLinkButton("See in the dashboard", deploymentDashboardUrl));
+            }
+            else
+            {
+                row.Add(new Label("Could not resolve link to this deployment"));
+            }
+
+            container.Add(row);
+
+            return container;
+        }
+
+        VisualElement GetDnsSection()
+        {
+            string serverDns = EdgegapServerDataManager._serverData.Fqdn;
+
+            VisualElement container = new VisualElement();
+            container.AddToClassList("container");
+
+            container.Add(GetHeader("Server DNS"));
+
+            VisualElement row = new VisualElement();
+            row.AddToClassList("row__dns");
+            row.AddToClassList("focusable");
+
+            row.Add(new Label(serverDns));
+            row.Add(GetCopyButton("Copy", serverDns));
+
+            container.Add(row);
+
+            return container;
+        }
+
+        VisualElement GetPortsSection()
+        {
+            List<PortMapping> serverPorts = EdgegapServerDataManager._serverData.Ports.Values.ToList();
+
+            VisualElement container = new VisualElement();
+            container.AddToClassList("container");
+
+            container.Add(GetHeader("Server Ports"));
+            container.Add(GetHeaderRow());
+
+            VisualElement portList = new VisualElement();
+
+            if (serverPorts.Count > 0)
+            {
+                foreach (PortMapping port in serverPorts)
+                {
+                    portList.Add(GetRowFromPortResponse(port));
+                }
+            }
+            else
+            {
+                portList.Add(new Label("No port configured for this app version."));
+            }
+
+            container.Add(portList);
+
+            return container;
+        }
+
+        public VisualElement GetServerDataVisualTree()
+        {
+            VisualElement serverDataTree = new VisualElement();
+            serverDataTree.styleSheets.Add(_serverDataStylesheet);
+
+            bool hasServerData = EdgegapServerDataManager._serverData != null;
+            bool isReady = hasServerData && EdgegapServerDataManager._serverData.GetServerStatus().IsOneOf(ServerStatus.Ready, ServerStatus.Error);
+
+            if (hasServerData)
+            {
+                serverDataTree.Add(GetStatusSection());
+
+                if (isReady)
+                {
+                    serverDataTree.Add(GetDnsSection());
+                    serverDataTree.Add(GetPortsSection());
+                }
+                else
+                {
+                    serverDataTree.Add(GetInfoText("Additionnal information will be displayed when the server is ready."));
+                }
+            }
+            else
+            {
+                serverDataTree.Add(GetInfoText("Server data will be displayed here when a server is running."));
+            }
+
+            return serverDataTree;
+        }
+
+        void RefreshServerDataContainers()
+        {
+            foreach (VisualElement serverDataContainer in _serverDataContainers)
+            {
+                serverDataContainer.Clear();
+                serverDataContainer.Add(GetServerDataVisualTree()); // Cannot reuse a same instance of VisualElement
+            }
+        }
+
+        // save & load /////////////////////////////////////////////////////////
         /// <summary>
         /// Save the tool's serializable data to the EditorPrefs to allow persistence across restarts.
         /// Any field with [SerializeField] will be saved.
