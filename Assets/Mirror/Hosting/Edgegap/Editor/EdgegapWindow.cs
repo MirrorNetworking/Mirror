@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using System.Net;
 using System.Text;
 using System;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
@@ -26,9 +27,13 @@ namespace Edgegap
         const string EditorDataSerializationName = "EdgegapSerializationData";
         const int ServerStatusCronjobIntervalMs = 10000; // Interval at which the server status is updated
 
-        // MIRROR CHANGE: specify stylesheet paths in one place
-        // TODO DON'T HARDCODE
-        public const string StylesheetPath = "Assets/Mirror/Hosting/Edgegap/Editor";
+        // MIRROR CHANGE
+        // get the path of this .cs file so we don't need to hardcode paths to
+        // the .uxml and .uss files:
+        // https://forum.unity.com/threads/too-many-hard-coded-paths-in-the-templates-and-documentation.728138/
+        // this way users can move this folder without breaking UIToolkit paths.
+        internal string StylesheetPath =>
+            Path.GetDirectoryName(AssetDatabase.GetAssetPath(MonoScript.FromScriptableObject(this)));
         // END MIRROR CHANGE
 
         readonly System.Timers.Timer _updateServerStatusCronjob = new System.Timers.Timer(ServerStatusCronjobIntervalMs);
