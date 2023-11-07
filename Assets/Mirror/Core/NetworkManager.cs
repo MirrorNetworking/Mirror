@@ -221,11 +221,10 @@ namespace Mirror
             //
             // (tick rate is applied in StartServer!)
             //
-#if UNITY_SERVER
             // don't auto start in editor where we have a UI, only in builds.
             // otherwise if we switch to 'Dedicated Server' target and press
             // Play, it would auto start the server every time.
-            if (!Application.isEditor)
+            if (Utils.IsHeadless() && !Application.isEditor)
             {
                 if (autoStartServerBuild)
                 {
@@ -237,7 +236,6 @@ namespace Mirror
                     StartClient();
                 }
             }
-#endif
         }
 
         // make sure to call base.Update() when overwriting
@@ -686,10 +684,11 @@ namespace Mirror
         // useful for headless benchmark clients.
         public virtual void ConfigureHeadlessFrameRate()
         {
-#if UNITY_SERVER
-            Application.targetFrameRate = sendRate;
-            // Debug.Log($"Server Tick Rate set to {Application.targetFrameRate} Hz.");
-#endif
+            if (Utils.IsHeadless())
+            {
+                Application.targetFrameRate = sendRate;
+                // Debug.Log($"Server Tick Rate set to {Application.targetFrameRate} Hz.");
+            }
         }
 
         bool InitializeSingleton()

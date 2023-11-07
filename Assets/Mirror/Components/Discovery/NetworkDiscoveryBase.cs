@@ -85,9 +85,10 @@ namespace Mirror.Discovery
                 transport = Transport.active;
 
             // Server mode? then start advertising
-#if UNITY_SERVER
-            AdvertiseServer();
-#endif
+            if (Utils.IsHeadless())
+            {
+                AdvertiseServer();
+            }
         }
 
         public static long RandomLong()
