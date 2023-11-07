@@ -397,7 +397,7 @@ namespace Edgegap
                     if (error.Contains("unauthorized to access repository"))
                     {
                         onError($"Docker authorization failed:\n\n{error}\nTo solve this, you can open a terminal and enter 'docker login {registry}', then enter your credentials.");
-                    EditorUtility.ClearProgressBar(); // MIRROR CHANGE: always clear before returning otherwise it gets stuck there forever!
+                        EditorUtility.ClearProgressBar(); // MIRROR CHANGE: always clear before returning otherwise it gets stuck there forever!
                         return;
                     }
 
