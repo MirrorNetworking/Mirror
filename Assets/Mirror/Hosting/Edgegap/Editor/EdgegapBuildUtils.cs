@@ -28,8 +28,11 @@ namespace Edgegap
                 scenes = scenes.ToArray(),
                 target = BuildTarget.StandaloneLinux64,
                 // MIRROR CHANGE
-                // options = BuildOptions.EnableHeadlessMode, // obsolete and missing UNITY_SERVER define
+#if UNITY_2021_3_OR_NEWER
                 subtarget = (int)StandaloneBuildSubtarget.Server, // dedicated server with UNITY_SERVER define
+#else
+                options = BuildOptions.EnableHeadlessMode, // obsolete and missing UNITY_SERVER define
+#endif
                 // END MIRROR CHANGE
                 locationPathName = "Builds/EdgegapServer/ServerBuild"
             };
