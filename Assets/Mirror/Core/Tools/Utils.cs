@@ -2,6 +2,7 @@ using System;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
 
 namespace Mirror
@@ -32,6 +33,15 @@ namespace Mirror
 
     public static class Utils
     {
+        // detect headless / dedicated server mode
+        // in Unity 2019/2020, we need to check if there is no graphics device.
+        // in Unity 2021+, we could check for the #if UNITY_SERVER define.
+        // checking graphics device is safest.
+        // => it works on all Unity versions.
+        // => it keeps all the code active instead of ifdefing it out.
+        public static bool IsHeadless() =>
+            SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null;
+
         public static uint GetTrueRandomUInt()
         {
             // use Crypto RNG to avoid having time based duplicates
