@@ -356,16 +356,6 @@ namespace Edgegap
                 }
                 // END MIRROR CHANGE
 
-                // MIRROR CHANGE
-                // Edgegap VMs are x86.
-                // ARM CPUs like Apple Silicon need special handling.
-                if (EdgegapBuildUtils.IsArmCPU())
-                {
-                    onError($"Building from {RuntimeInformation.ProcessArchitecture} Processors is currently not supported because Edgegap infrastructure runs on x86.\n\nPlease find another machine to build from while we are working on ARM support.");
-                    return;
-                }
-                // END MIRROR CHANGE
-
                 // create server build
                 BuildReport buildResult = EdgegapBuildUtils.BuildServer();
                 if (buildResult.summary.result != BuildResult.Succeeded)

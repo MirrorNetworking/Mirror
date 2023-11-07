@@ -75,12 +75,19 @@ namespace Edgegap
         {
             string realErrorMessage = null;
 
+            // ARM -> x86 support:
+            // build commands use 'buildx' on ARM cpus for cross compilation.
+            // otherwise docker builds would not launch when deployed because
+            // Edgegap's infrastructure is on x86. instead the deployment logs
+            // would show an error in a linux .go file with 'not found'.
+            string buildCommand = IsArmCPU() ? "buildx build --platform linux/amd64" : "build";
+
 #if UNITY_EDITOR_WIN
-            await RunCommand("docker.exe", $"build -t {registry}/{imageRepo}:{tag} .", onStatusUpdate,
+            await RunCommand("docker.exe", $"{buildCommand} -t {registry}/{imageRepo}:{tag} .", onStatusUpdate,
 #elif UNITY_EDITOR_OSX
-            await RunCommand("/bin/bash", $"-c \"docker build -t {registry}/{imageRepo}:{tag} .\"", onStatusUpdate,
+            await RunCommand("/bin/bash", $"-c \"docker {buildCommand} -t {registry}/{imageRepo}:{tag} .\"", onStatusUpdate,
 #elif UNITY_EDITOR_LINUX
-            await RunCommand("/bin/bash", $"-c \"docker build -t {registry}/{imageRepo}:{tag} .\"", onStatusUpdate,
+            await RunCommand("/bin/bash", $"-c \"docker {buildCommand} -t {registry}/{imageRepo}:{tag} .\"", onStatusUpdate,
 #endif
                 (msg) =>
                 {
