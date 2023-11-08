@@ -10,10 +10,11 @@ jobs:
       - name: Checkout Repo
         uses: actions/checkout@v2
         with:
-          ref: AssetStoreRelease
+          ref: master
 
       - name: Merge master into AssetStoreRelease
         run: |
+          git checkout AssetStoreRelease
           git merge master
 
       - name: Set up .NET Core
