@@ -22,7 +22,9 @@ namespace Edgegap
 {
     public class EdgegapWindow : EditorWindow
     {
-        static readonly HttpClient _httpClient = new HttpClient();
+        // MIRROR CHANGE: create HTTPClient in-place to avoid InvalidOperationExceptions when reusing
+        // static readonly HttpClient _httpClient = new HttpClient();
+        // END MIRROR CHANGE
 
         const string EditorDataSerializationName = "EdgegapSerializationData";
         const int ServerStatusCronjobIntervalMs = 10000; // Interval at which the server status is updated
@@ -253,6 +255,18 @@ namespace Edgegap
             }
         }
 
+        // MIRROR CHANGE: create HTTPClient in-place to avoid InvalidOperationExceptions when reusing
+        HttpClient CreateHttpClient()
+        {
+            HttpClient httpClient = new HttpClient();
+            httpClient.BaseAddress = new Uri(_apiEnvironment.GetApiUrl());
+            httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            string token = _apiKeyInput.value.Substring(6);
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("token", token);
+            return httpClient;
+        }
+        // END MIRROR CHANGE
+
         async void Connect(
             ApiEnvironment selectedApiEnvironment,
             string selectedAppName,
@@ -262,15 +276,9 @@ namespace Edgegap
         {
             SetToolUIState(ToolState.Connecting);
 
-            _httpClient.BaseAddress = new Uri(selectedApiEnvironment.GetApiUrl());
-
-            string path = $"/v1/app/{selectedAppName}/version/{selectedAppVersionName}";
-
-            // Headers
-            _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("token", selectedApiTokenValue);
-
             // Make HTTP request
+            HttpClient _httpClient = CreateHttpClient(); // MIRROR CHANGE: create HTTPClient in-place to avoid InvalidOperationExceptions when reusing
+            string path = $"/v1/app/{_appName}/version/{_appVersionName}";
             HttpResponseMessage response = await _httpClient.GetAsync(path);
 
             if (response.IsSuccessStatusCode)
@@ -441,9 +449,9 @@ namespace Edgegap
             StringContent patchData = new StringContent(json, Encoding.UTF8, "application/json");
 
             // Make HTTP request
+            HttpClient _httpClient = CreateHttpClient(); // MIRROR CHANGE: create HTTPClient in-place to avoid InvalidOperationExceptions when reusing
             HttpRequestMessage request = new HttpRequestMessage(new HttpMethod("PATCH"), path);
             request.Content = patchData;
-
             HttpResponseMessage response = await _httpClient.SendAsync(request);
             string content = await response.Content.ReadAsStringAsync();
 
@@ -465,6 +473,7 @@ namespace Edgegap
             StringContent postData = new StringContent(json, Encoding.UTF8, "application/json");
 
             // Make HTTP request
+            HttpClient _httpClient = CreateHttpClient(); // MIRROR CHANGE: create HTTPClient in-place to avoid InvalidOperationExceptions when reusing
             HttpResponseMessage response = await _httpClient.PostAsync(path, postData);
             string content = await response.Content.ReadAsStringAsync();
 
@@ -490,6 +499,7 @@ namespace Edgegap
             string path = $"/v1/stop/{_deploymentRequestId}";
 
             // Make HTTP request
+            HttpClient _httpClient = CreateHttpClient(); // MIRROR CHANGE: create HTTPClient in-place to avoid InvalidOperationExceptions when reusing
             HttpResponseMessage response = await _httpClient.DeleteAsync(path);
 
             if (response.IsSuccessStatusCode)
@@ -556,6 +566,7 @@ namespace Edgegap
             string path = $"/v1/status/{_deploymentRequestId}";
 
             // Make HTTP request
+            HttpClient _httpClient = CreateHttpClient(); // MIRROR CHANGE: create HTTPClient in-place to avoid InvalidOperationExceptions when reusing
             HttpResponseMessage response = await _httpClient.GetAsync(path);
 
             // Parse response
