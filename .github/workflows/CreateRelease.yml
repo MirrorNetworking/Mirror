@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  modify-and-commit:
+  CreateRelease:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
@@ -14,7 +14,7 @@ jobs:
 
       - name: Merge master into AssetStoreRelease
         run: |
-          git checkout AssetStoreRelease
+          git switch AssetStoreRelease
           git merge master
 
       - name: Set up .NET Core
