@@ -343,7 +343,6 @@ namespace Edgegap
                 if (!await EdgegapBuildUtils.DockerSetupAndInstallationCheck())
                 {
                     onError("Docker installation not found. Docker can be downloaded from:\n\nhttps://www.docker.com/");
-                    EditorUtility.ClearProgressBar(); // MIRROR CHANGE: always clear before returning otherwise it gets stuck there forever!
                     return;
                 }
 
@@ -353,7 +352,6 @@ namespace Edgegap
                 if (!BuildPipeline.IsBuildTargetSupported(BuildTargetGroup.Standalone, BuildTarget.StandaloneLinux64))
                 {
                     onError($"Linux Build Support is missing.\n\nPlease open Unity Hub -> Installs -> Unity {Application.unityVersion} -> Add Modules -> Linux Build Support (IL2CPP & Mono & Dedicated Server) -> Install\n\nAfterwards restart Unity!");
-                    EditorUtility.ClearProgressBar(); // MIRROR CHANGE: always clear before returning otherwise it gets stuck there forever!
                     return;
                 }
                 // END MIRROR CHANGE
@@ -363,7 +361,6 @@ namespace Edgegap
                 if (buildResult.summary.result != BuildResult.Succeeded)
                 {
                     onError("Edgegap build failed, please check the Unity console logs.");
-                    EditorUtility.ClearProgressBar(); // MIRROR CHANGE: always clear before returning otherwise it gets stuck there forever!
                     return;
                 }
 
@@ -390,14 +387,12 @@ namespace Edgegap
                     if (error.Contains("Cannot connect to the Docker daemon"))
                     {
                         onError($"{error}\nTo solve this, you can install and run Docker Desktop from:\n\nhttps://www.docker.com/products/docker-desktop");
-                        EditorUtility.ClearProgressBar(); // MIRROR CHANGE: always clear before returning otherwise it gets stuck there forever!
                         return;
                     }
 
                     if (error.Contains("unauthorized to access repository"))
                     {
                         onError($"Docker authorization failed:\n\n{error}\nTo solve this, you can open a terminal and enter 'docker login {registry}', then enter your credentials.");
-                        EditorUtility.ClearProgressBar(); // MIRROR CHANGE: always clear before returning otherwise it gets stuck there forever!
                         return;
                     }
 
@@ -405,13 +400,11 @@ namespace Edgegap
                     if (Regex.IsMatch(error, @".*project .* not found.*", RegexOptions.IgnoreCase))
                     {
                         onError($"{error}\nTo solve this, make sure that Image Repository is 'project/game' where 'project' is from the Container Registry page on the Edgegap website.");
-                    EditorUtility.ClearProgressBar(); // MIRROR CHANGE: always clear before returning otherwise it gets stuck there forever!
                         return;
                     }
 
                     // otherwise show generic error message
                     onError($"Unable to push docker image to registry. Please make sure you're logged in to {registry} and check the following error:\n\n{error}");
-                    EditorUtility.ClearProgressBar(); // MIRROR CHANGE: always clear before returning otherwise it gets stuck there forever!
                     return;
                 }
 
@@ -422,16 +415,19 @@ namespace Edgegap
                 // cleanup
                 _containerImageTag = tag;
                 SyncFormWithObject();
-                EditorUtility.ClearProgressBar();
                 SetToolUIState(ToolState.Connected);
 
                 Debug.Log("Server built and pushed successfully");
             }
             catch (Exception ex)
             {
-                EditorUtility.ClearProgressBar();
                 Debug.LogError(ex);
                 onError($"Edgegap build and push failed with Error: {ex}");
+            }
+            finally
+            {
+                // MIRROR CHANGE: always clear otherwise it gets stuck there forever!
+                EditorUtility.ClearProgressBar();
             }
         }
 
