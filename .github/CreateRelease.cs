@@ -21,7 +21,7 @@ int maxVersion = matches.Max(m => int.Parse(m.Groups[2].Value));
 
 // Find the last define ending with "MIRROR_n_OR_NEWER"
 pattern = @"(\s+)\""(MIRROR_(\d+)_OR_NEWER)\""";
-MatchCollection matches = Regex.Matches(text, pattern);
+matches = Regex.Matches(text, pattern);
 Match lastMatch = matches.Last();
 
 // Add a new define for the next full version, used here and in ProjectSettings and version.txt
