@@ -12,10 +12,9 @@ jobs:
         with:
           ref: AssetStoreRelease
 
-      #- name: Merge master into AssetStoreRelease
-      #  run: |
-      #    git switch AssetStoreRelease
-      #    git merge master
+      - name: Merge master into AssetStoreRelease
+        run: |
+          git merge master
 
       - name: Set up .NET Core
         uses: actions/setup-dotnet@v1
