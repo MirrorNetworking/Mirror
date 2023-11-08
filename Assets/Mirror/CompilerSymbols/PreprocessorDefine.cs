@@ -17,6 +17,8 @@ namespace Mirror
             // Deprecated in Unity 2023.1
             string currentDefines = PlayerSettings.GetScriptingDefineSymbolsForGroup(EditorUserBuildSettings.selectedBuildTargetGroup);
 #endif
+            // Remove oldest when adding next month's symbol.
+            // Keep a rolling 12 months of symbols.
             HashSet<string> defines = new HashSet<string>(currentDefines.Split(';'))
             {
                 "MIRROR",
@@ -28,8 +30,6 @@ namespace Mirror
                 "MIRROR_81_OR_NEWER",
                 "MIRROR_82_OR_NEWER",
                 "MIRROR_83_OR_NEWER"
-                // Remove oldest when adding next month's symbol.
-                // Keep a rolling 12 months of symbols.
             };
 
             // only touch PlayerSettings if we actually modified it,
