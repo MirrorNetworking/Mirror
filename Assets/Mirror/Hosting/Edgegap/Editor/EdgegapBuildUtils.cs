@@ -215,6 +215,7 @@ namespace Edgegap
            // throw new NotImplementedException();
         }
 
+        // -batchmode -nographics remains for Unity 2019/2020 support pre-dedicated server builds
         static string dockerFileText = @"FROM ubuntu:bionic
 
 ARG DEBIAN_FRONTEND=noninteractive
