@@ -278,7 +278,7 @@ namespace Edgegap
 
             // Make HTTP request
             HttpClient _httpClient = CreateHttpClient(); // MIRROR CHANGE: create HTTPClient in-place to avoid InvalidOperationExceptions when reusing
-            string path = $"/v1/app/{_appName}/version/{_appVersionName}";
+            string path = $"/v1/app/{selectedAppName}/version/{selectedAppVersionName}"; // MIRROR CHANGE: use selectedAppName and selectedAppVersionName instead of _appName & _appVersionName
             HttpResponseMessage response = await _httpClient.GetAsync(path);
 
             if (response.IsSuccessStatusCode)
