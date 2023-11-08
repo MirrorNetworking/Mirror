@@ -39,6 +39,11 @@ jobs:
           git config --local user.email ${{ secrets.COMMITTER_EMAIL }}
           git add Assets/Mirror/version.txt
           git commit -m "release!: Asset Store Release" -a
+
+          # Perform a git pull to update the local branch with remote changes
+          git pull origin AssetStoreRelease
+
+          # Push the updated branch to the remote
           git push origin AssetStoreRelease
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
