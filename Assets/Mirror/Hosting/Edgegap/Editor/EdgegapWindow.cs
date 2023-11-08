@@ -223,7 +223,7 @@ namespace Edgegap
             // }
 
             // link to the easiest documentation
-            UnityEngine.Application.OpenURL("https://mirror-networking.gitbook.io/docs/hosting/edgegap-hosting-plugin-guide");
+            Application.OpenURL("https://mirror-networking.gitbook.io/docs/hosting/edgegap-hosting-plugin-guide");
             // END MIRROR CHANGE
         }
 
