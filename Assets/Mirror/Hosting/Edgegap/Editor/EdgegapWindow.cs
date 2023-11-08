@@ -328,10 +328,12 @@ namespace Edgegap
 
         float ProgressCounter = 0;
 
-        void ShowBuildWorkInProgress(string status)
+        // MIRROR CHANGE: added title parameter for more detailed progress while waiting
+        void ShowBuildWorkInProgress(string title, string status)
         {
-            EditorUtility.DisplayProgressBar("Build and push progress", status, ProgressCounter++ / 50);
+            EditorUtility.DisplayProgressBar(title, status, ProgressCounter++ / 50);
         }
+        // END MIRROR CHANGE
 
         async void BuildAndPushServer()
         {
@@ -383,12 +385,12 @@ namespace Edgegap
                 }
 
                 // create docker image
-                await EdgegapBuildUtils.RunCommand_DockerBuild(registry, imageName, tag, ShowBuildWorkInProgress);
+                await EdgegapBuildUtils.RunCommand_DockerBuild(registry, imageName, tag, status => ShowBuildWorkInProgress("Building Docker Image", status));
 
                 SetToolUIState(ToolState.Pushing);
 
                 // push docker image
-                (bool result, string error) = await EdgegapBuildUtils.RunCommand_DockerPush(registry, imageName, tag, ShowBuildWorkInProgress);
+                (bool result, string error) = await EdgegapBuildUtils.RunCommand_DockerPush(registry, imageName, tag, status => ShowBuildWorkInProgress("Uploading Docker Image (this may take a while)", status));
                 if (!result)
                 {
                     // catch common issues with detailed solutions
@@ -417,7 +419,7 @@ namespace Edgegap
                 }
 
                 // update edgegap server settings for new tag
-                ShowBuildWorkInProgress("Updating server info on Edgegap");
+                ShowBuildWorkInProgress("Build and Push", "Updating server info on Edgegap");
                 await UpdateAppTagOnEdgegap(tag);
 
                 // cleanup
