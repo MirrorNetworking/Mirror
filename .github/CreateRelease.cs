@@ -8,27 +8,27 @@ string path = "Assets/Mirror/CompilerSymbols/PreprocessorDefine.cs";
 string text = File.ReadAllText(path);
 
 // Find the whole line of the first define ending with "MIRROR_n_OR_NEWER,"
-string pattern = @"\s+\""(MIRROR_(\d+)_OR_NEWER)\""\,\r\n";
+string pattern = @"\s+\""(MIRROR_(\d+)_OR_NEWER)\""\,\n";
 Match match = Regex.Matches(text, pattern).First();
 
 // Remove the first define
 text = text.Replace(match.Value, "");
 
 // Find the highest version number entry, not having a comma at the end
-pattern = @"\""(MIRROR_(\d+)_OR_NEWER)\""\r\n";
+pattern = @"\""(MIRROR_(\d+)_OR_NEWER)\""\n";
 MatchCollection matches = Regex.Matches(text, pattern);
 int maxVersion = matches.Max(m => int.Parse(m.Groups[2].Value));
 
 // Find the last define ending with "MIRROR_n_OR_NEWER"
 pattern = @"(\s+)\""(MIRROR_(\d+)_OR_NEWER)\""";
-MatchCollection matches = Regex.Matches(text, pattern);
+matches = Regex.Matches(text, pattern);
 Match lastMatch = matches.Last();
 
 // Add a new define for the next full version, used here and in ProjectSettings and version.txt
 string newDefine = $"MIRROR_{maxVersion + 1}_OR_NEWER";
 
 // Add the new define to the end of the hashset entries, with a comma after the previous entry and properly indented
-text = text.Insert(lastMatch.Index + lastMatch.Length, $",\r\n{match.Groups[1].Value}\"{newDefine}\"");
+text = text.Insert(lastMatch.Index + lastMatch.Length, $",\n{match.Groups[1].Value}\"{newDefine}\"");
 
 File.WriteAllText(path, text);
 
