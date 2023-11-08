@@ -14,10 +14,8 @@ jobs:
 
       - name: Merge master into AssetStoreRelease
         run: |
-          git config --local user.name ${{ secrets.COMMITTER_NAME }}
-          git config --local user.email ${{ secrets.COMMITTER_EMAIL }}
           git fetch origin master --depth 1
-          git rebase origin/master
+          git reset --hard origin/master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -33,8 +31,10 @@ jobs:
 
       - name: Commit and Push
         run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
+          git config --local user.name ${{ secrets.COMMITTER_NAME }}
+          git config --local user.email ${{ secrets.COMMITTER_EMAIL }}
           git add Assets/Mirror/version.txt
           git commit -m "release!: Asset Store Release" -a
           git push origin AssetStoreRelease
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
