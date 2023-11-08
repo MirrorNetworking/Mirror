@@ -4,18 +4,18 @@ on:
   workflow_dispatch:
 
 jobs:
-  modify-and-commit:
+  CreateRelease:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v2
         with:
-          ref: master
+          ref: AssetStoreRelease
 
       - name: Merge master into AssetStoreRelease
         run: |
-          git checkout AssetStoreRelease
-          git merge master
+          git fetch origin master --depth 1
+          git rebase origin/master
 
       - name: Set up .NET Core
         uses: actions/setup-dotnet@v1
