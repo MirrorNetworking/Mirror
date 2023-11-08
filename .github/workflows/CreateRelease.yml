@@ -15,7 +15,7 @@ jobs:
       - name: Merge master into AssetStoreRelease
         run: |
           git fetch origin master --depth 1
-          git merge master
+          git merge origin/master
 
       - name: Set up .NET Core
         uses: actions/setup-dotnet@v1
