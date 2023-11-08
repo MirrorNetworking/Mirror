@@ -40,6 +40,9 @@ jobs:
           git add Assets/Mirror/version.txt
           git commit -m "release!: Asset Store Release" -a
 
+          # Configure Git to rebase when pulling
+          git config --local pull.rebase true
+
           # Perform a git pull to update the local branch with remote changes
           git pull origin AssetStoreRelease
 
