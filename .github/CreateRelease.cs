@@ -70,5 +70,5 @@ if (sectionMatches.Count > 0)
 
 File.WriteAllText(path, text);
 
-// Update version.txt with newDefine
-File.WriteAllText("Assets/Mirror/version.txt", newDefine);
+// Update version.txt with newDefine, e.g. MIRROR_84_OR_NEWER, replacing _ with .
+File.WriteAllText("Assets/Mirror/version.txt", newDefine.Replace("_", "."));
