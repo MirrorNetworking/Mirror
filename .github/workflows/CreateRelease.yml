@@ -1,0 +1,35 @@
+name: Create Release
+
+on:
+  workflow_dispatch:
+
+jobs:
+  modify-and-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v2
+        with:
+          ref: master
+
+      - name: Merge master into AssetStoreRelease
+        run: |
+          git checkout AssetStoreRelease
+          git merge master
+
+      - name: Set up .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 3.1.301
+
+      - name: Run CreateRelease.cs
+        run: |
+          dotnet script .github/CreateRelease.cs
+
+      - name: Commit and Push
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add Assets/Mirror/version.txt
+          git commit -m "release!: Asset Store Release" -a
+          git push origin AssetStoreRelease
