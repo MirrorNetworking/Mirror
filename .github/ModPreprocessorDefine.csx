@@ -2,13 +2,16 @@ using System;
 using System.IO;
 using System.Text.RegularExpressions;
 
+Console.WriteLine("ModPreprocessorDefine Started");
+Console.Out.Flush();
+
 ModPreprocessorDefine.DoSomething();
 
 class ModPreprocessorDefine
 {
     public static void DoSomething()
     {
-        Console.WriteLine("ModPreprocessorDefine Started");
+        Console.WriteLine("DoSomething: ModPreprocessorDefine Started");
         Console.Out.Flush();
 
         // Redirect console output to a file
@@ -64,7 +67,7 @@ class ModPreprocessorDefine
         Console.Out.Flush();
     }
 
-    string RemoveFirstOrNewerEntry(string input)
+    static string RemoveFirstOrNewerEntry(string input)
     {
         // Regex pattern to match the first entry ending with "_OR_NEWER"
         string pattern = @"^\s*""[^""]*_OR_NEWER""\s*,\s*$";
@@ -81,7 +84,7 @@ class ModPreprocessorDefine
         return input;
     }
 
-    string GetLastVersionNumber(string input)
+    static string GetLastVersionNumber(string input)
     {
         // Regex pattern to match the last entry and capture the version number
         string pattern = @"^\s*""([^""]*)_OR_NEWER""\s*,\s*$";
@@ -95,7 +98,7 @@ class ModPreprocessorDefine
         return versionNumber;
     }
 
-    string AppendNewEntry(string input, string versionNumber)
+    static string AppendNewEntry(string input, string versionNumber)
     {
         // Calculate the next version number (increment by 1)
         int nextVersion = int.TryParse(versionNumber, out int currentVersion) ? currentVersion + 1 : 1;
@@ -120,7 +123,7 @@ class ModPreprocessorDefine
         return input;
     }
 
-    string GetHashSetIndentation(string input)
+    static string GetHashSetIndentation(string input)
     {
         // Regex pattern to match the indentation of "HashSet<string> defines = new HashSet<string>"
         string pattern = @"^\s*HashSet<string> defines = new HashSet<string>";
