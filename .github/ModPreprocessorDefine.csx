@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 
 void Main()
 {
-    Console.WriteLine("ModPreprocessorDefine Started);
+    Console.WriteLine("ModPreprocessorDefine Started");
 
     // Redirect console output to a file
     var originalConsoleOut = Console.Out;
@@ -21,19 +21,19 @@ void Main()
 
         // Read the contents of the file
         string fileContents = File.ReadAllText(filePath);
-        Console.WriteLine("ModPreprocessorDefine File read);
+        Console.WriteLine("ModPreprocessorDefine File read");
 
         // Find and remove the first entry ending with "_OR_NEWER"
         fileContents = RemoveFirstOrNewerEntry(fileContents);
-        Console.WriteLine("ModPreprocessorDefine Old entry removed);
+        Console.WriteLine("ModPreprocessorDefine Old entry removed");
 
         // Find the last entry and capture the version number
         string versionNumber = GetLastVersionNumber(fileContents);
-        Console.WriteLine($"ModPreprocessorDefine current version {versionNumber});
+        Console.WriteLine($"ModPreprocessorDefine current version {versionNumber}");
 
         // Append a new entry with the correct indentation and next version number
         fileContents = AppendNewEntry(fileContents, versionNumber);
-        Console.WriteLine("ModPreprocessorDefine New entry appended);
+        Console.WriteLine("ModPreprocessorDefine New entry appended");
 
         // Write the modified contents back to the file
         File.WriteAllText(filePath, fileContents);
@@ -41,7 +41,7 @@ void Main()
         Console.SetOut(originalConsoleOut);
     }
 
-    Console.WriteLine("ModPreprocessorDefine Finished);
+    Console.WriteLine("ModPreprocessorDefine Finished");
 
     // Print the contents of the redirected file
     Console.WriteLine("Console Output:");
