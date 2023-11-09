@@ -12,9 +12,17 @@ void Main()
     // Redirect console output to a file
     var originalConsoleOut = Console.Out;
 
-    using (var writer = new StreamWriter("console_output.txt"))
+    // Modify the path to use an absolute path
+    string outputPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "console_output.txt");
+
+    // Redirect console output to the absolute file path
+    using (var writer = new StreamWriter(outputPath))
     {
         Console.SetOut(writer);
+
+        // Print some debug information
+        Console.WriteLine($"Working Directory: {Environment.CurrentDirectory}");
+        Console.WriteLine($"Output File Path: {outputPath}");
 
         // Define the path to the PreprocessorDefine.cs file
         string filePath = "Assets/Mirror/CompilerSymbols/PreprocessorDefine.cs";
