@@ -3,7 +3,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Diagnostics;
 
-class ModPreprocessorDefine
+class Program
 {
     static void Main()
     {
