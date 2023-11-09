@@ -33,9 +33,9 @@ jobs:
         dotnet tool install -g dotnet-script
         dotnet script --version
 
-    - name: Run CreateRelease.cs
+    - name: Run CreateRelease.csx
       run: |
-        dotnet script .github/CreateRelease.cs
+        dotnet script .github/ModPreprocessorDefine.csx
 
     - name: Commit and Push
       run: |
@@ -46,62 +46,3 @@ jobs:
         git push origin AssetStoreRelease
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    #- name: Set Git Config
-    #  run: |
-    #    git config user.name ${{ secrets.COMMITTER_NAME }}
-    #    git config user.email ${{ secrets.COMMITTER_EMAIL }}
-
-    #- name: Merge Master into AssetStoreRelease
-    #  run: |
-    #    git fetch --unshallow
-    #    git checkout -b AssetStoreRelease
-    #    git pull
-    #    git merge --no-ff master -m "Merged master"
-    #    git push
-
-#jobs:
-#  CreateRelease:
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Checkout Repo
-#        uses: actions/checkout@v2
-#        with:
-#          ref: AssetStoreRelease
-
-#      - name: Merge master into AssetStoreRelease
-#        run: |
-#          git fetch origin master --depth 1
-#          git reset --hard origin/master
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-#      - name: Set up .NET Core
-#        uses: actions/setup-dotnet@v1
-
-#      - name: Install dotnet-script
-#        run: |
-#          dotnet tool install -g dotnet-script
-#          dotnet script --version
-
-#      - name: Run CreateRelease.cs
-#        run: |
-#          dotnet script .github/CreateRelease.cs
-
-#      - name: Commit and Push
-#        run: |
-#          git config --local user.name ${{ secrets.COMMITTER_NAME }}
-#          git config --local user.email ${{ secrets.COMMITTER_EMAIL }}
-#          git add Assets/Mirror/version.txt
-#          git commit -m "release!: Asset Store Release" -a
-
-#          # Configure Git to rebase when pulling
-#          git config --local pull.rebase true
-
-#          # Perform a git pull to update the local branch with remote changes
-#          git pull origin AssetStoreRelease
-
-#          # Push the updated branch to the remote
-#          git push origin AssetStoreRelease
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
