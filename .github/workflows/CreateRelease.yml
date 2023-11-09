@@ -22,11 +22,7 @@ jobs:
 
     - name: Check if AssetStoreRelease branch exists
       run: |
-        if ! git show-ref --verify --quiet refs/heads/AssetStoreRelease; then
-          git checkout -b AssetStoreRelease
-        else
-          git checkout AssetStoreRelease
-        fi
+        git checkout -b AssetStoreRelease
 
     - name: Debug - List Files
       run: |
@@ -35,7 +31,7 @@ jobs:
     - name: Merge Master into AssetStoreRelease
       run: |
         git merge master
-        git push
+        git push --set-upstream origin AssetStoreRelease
 
 #jobs:
 #  CreateRelease:
