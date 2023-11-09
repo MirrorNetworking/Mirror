@@ -33,7 +33,7 @@ jobs:
         dotnet tool install -g dotnet-script
         dotnet script --version
 
-    - name: Run CreateRelease.csx
+    - name: Run ModPreprocessorDefine.csx
       run: |
         dotnet script .github/ModPreprocessorDefine.csx
 
