@@ -39,6 +39,9 @@ jobs:
     - name: Run ModPreprocessorDefine.csx
       run: dotnet script .github/ModPreprocessorDefine.csx
 
+    - name: Print Console Output
+      run: cat console_output.txt
+
     - name: Print Current Directory After
       run: pwd
 
