@@ -15,16 +15,14 @@ jobs:
       run: |
         git config user.name ${{ secrets.COMMITTER_NAME }}
         git config user.email ${{ secrets.COMMITTER_EMAIL }}
-        git checkout -b AssetStoreRelease
-
-    - name: Pull latest changes from AssetStoreRelease
-      run: |
-        git pull --strategy-option=theirs origin AssetStoreRelease
 
     - name: Merge Master into AssetStoreRelease
       run: |
-        git merge master
-        git push --set-upstream origin AssetStoreRelease
+        git fetch --unshallow
+        git checkout -b AssetStoreRelease
+        git pull
+        git merge --no-ff master -m "Merged master"
+        git push
 
 #jobs:
 #  CreateRelease:
