@@ -74,7 +74,7 @@ string AppendNewEntry(string input, string versionNumber)
 
     // Insert the comma and new entry into the "defines" HashSet
     input = input.Remove(definesEndIndex - 2, 2); // Remove the trailing "};"
-    input = input.Insert(definesEndIndex - 2, $",\n{newEntry}\n{indentation}};");
+    input = input.Insert(definesEndIndex - 2, $",\n{newEntry}\n{indentation}}};");
 
     return input;
 }
