@@ -67,6 +67,7 @@ string AppendNewEntry(string input, string versionNumber)
 
     // Create the new entry with the correct indentation and next version number
     string newEntry = indentation + $"    \"MIRROR_{nextVersion}_OR_NEWER\"";
+    Console.WriteLine($"New entry: {newEntry}");
 
     // Find the position of the "defines" HashSet and insert the new entry into it
     int definesStartIndex = input.IndexOf("HashSet<string> defines = new HashSet<string>");
@@ -75,6 +76,8 @@ string AppendNewEntry(string input, string versionNumber)
     // Insert the comma and new entry into the "defines" HashSet
     input = input.Remove(definesEndIndex - 2, 2); // Remove the trailing "};"
     input = input.Insert(definesEndIndex - 2, $",\n{newEntry}\n{indentation}}};");
+
+    Console.WriteLine(input);
 
     return input;
 }
