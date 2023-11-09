@@ -33,7 +33,7 @@ jobs:
         dotnet tool install -g dotnet-script
         dotnet script --version
 
-    - name: Run CreateRelease.cs
+    - name: Run CreateRelease.csx
       run: |
         dotnet script .github/CreateRelease.cs
 
