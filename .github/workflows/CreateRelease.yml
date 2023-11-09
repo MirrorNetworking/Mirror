@@ -33,20 +33,8 @@ jobs:
         dotnet tool install -g dotnet-script
         dotnet script --version
 
-    - name: Print Current Directory Before
-      run: pwd
-
     - name: Run ModPreprocessorDefine.csx
       run: dotnet script .github/ModPreprocessorDefine.csx
-
-    - name: Print Console Output
-      run: cat console_output.txt
-
-    - name: Print Current Directory After
-      run: pwd
-
-    - name: Check Git Status
-      run: git status
 
     - name: Commit and Push
       run: |
