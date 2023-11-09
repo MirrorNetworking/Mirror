@@ -1,7 +1,5 @@
-// updatePreprocessorDefine.csx
-
-#load "System.IO"
-#load "System.Text.RegularExpressions"
+#r "System.IO"
+#r "System.Text.RegularExpressions"
 
 void Main()
 {
