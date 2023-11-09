@@ -19,7 +19,7 @@ jobs:
 
     - name: Pull latest changes from AssetStoreRelease
       run: |
-        git pull origin AssetStoreRelease
+        git pull --strategy-option=theirs origin AssetStoreRelease
 
     - name: Merge Master into AssetStoreRelease
       run: |
