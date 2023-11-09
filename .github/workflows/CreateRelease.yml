@@ -9,16 +9,31 @@ jobs:
 
     steps:
     - name: Checkout Repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Set Git Config
       run: |
         git config user.name ${{ secrets.COMMITTER_NAME }}
         git config user.email ${{ secrets.COMMITTER_EMAIL }}
 
+    - name: Debug - List Branches
+      run: |
+        git branch -a
+
+    - name: Check if AssetStoreRelease branch exists
+      run: |
+        if ! git show-ref --verify --quiet refs/heads/AssetStoreRelease; then
+          git checkout -b AssetStoreRelease
+        else
+          git checkout AssetStoreRelease
+        fi
+
+    - name: Debug - List Files
+      run: |
+        ls -al
+
     - name: Merge Master into AssetStoreRelease
       run: |
-        git checkout AssetStoreRelease
         git merge master
         git push
 
