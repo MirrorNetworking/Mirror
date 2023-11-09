@@ -11,18 +11,27 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v3
 
-    - name: Set Git Config
-      run: |
-        git config user.name ${{ secrets.COMMITTER_NAME }}
-        git config user.email ${{ secrets.COMMITTER_EMAIL }}
-
     - name: Merge Master into AssetStoreRelease
-      run: |
-        git fetch --unshallow
-        git checkout -b AssetStoreRelease
-        git pull
-        git merge --no-ff master -m "Merged master"
-        git push
+      uses: devmasx/merge-branch@master
+      with:
+        type: now
+        from_branch: master
+        target_branch: AssetStoreRelease
+        message: "Merged master"
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+
+    #- name: Set Git Config
+    #  run: |
+    #    git config user.name ${{ secrets.COMMITTER_NAME }}
+    #    git config user.email ${{ secrets.COMMITTER_EMAIL }}
+
+    #- name: Merge Master into AssetStoreRelease
+    #  run: |
+    #    git fetch --unshallow
+    #    git checkout -b AssetStoreRelease
+    #    git pull
+    #    git merge --no-ff master -m "Merged master"
+    #    git push
 
 #jobs:
 #  CreateRelease:
