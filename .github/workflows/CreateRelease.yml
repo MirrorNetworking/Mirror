@@ -39,6 +39,8 @@ jobs:
 
     - name: Commit and Push
       run: |
+        git config user.name ${{ secrets.COMMITTER_NAME }}
+        git config user.email ${{ secrets.COMMITTER_EMAIL }}
         git add Assets/Mirror/version.txt
         git commit -m "release!: Asset Store Release" -a
         git push origin AssetStoreRelease
