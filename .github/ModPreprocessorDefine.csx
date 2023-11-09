@@ -1,6 +1,10 @@
 #r "System.IO"
 #r "System.Text.RegularExpressions"
 
+using System;
+using System.IO;
+using System.Text.RegularExpressions;
+
 void Main()
 {
     // Define the path to the PreprocessorDefine.cs file
