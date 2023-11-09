@@ -7,64 +7,46 @@ Console.Out.Flush();
 
 ModPreprocessorDefine.DoSomething();
 
+Console.WriteLine("ModPreprocessorDefine Finished");
+Console.Out.Flush();
+
 class ModPreprocessorDefine
 {
     public static void DoSomething()
     {
-        Console.WriteLine("DoSomething: ModPreprocessorDefine Started");
-        Console.Out.Flush();
-
         // Redirect console output to a file
         var originalConsoleOut = Console.Out;
 
-        // Modify the path to use an absolute path
-        string outputPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "console_output.txt");
-
-        // Redirect console output to the absolute file path
-        using (var writer = new StreamWriter(outputPath))
-        {
-            Console.SetOut(writer);
-
-            // Print some debug information
-            Console.WriteLine($"Working Directory: {Environment.CurrentDirectory}");
-            Console.WriteLine($"Output File Path: {outputPath}");
-            Console.Out.Flush();
-
-            // Define the path to the PreprocessorDefine.cs file
-            string filePath = "Assets/Mirror/CompilerSymbols/PreprocessorDefine.cs";
-
-            // Read the contents of the file
-            string fileContents = File.ReadAllText(filePath);
-            Console.WriteLine("ModPreprocessorDefine File read");
-            Console.Out.Flush();
-
-            // Find and remove the first entry ending with "_OR_NEWER"
-            fileContents = RemoveFirstOrNewerEntry(fileContents);
-            Console.WriteLine("ModPreprocessorDefine Old entry removed");
-            Console.Out.Flush();
-
-            // Find the last entry and capture the version number
-            string versionNumber = GetLastVersionNumber(fileContents);
-            Console.WriteLine($"ModPreprocessorDefine current version {versionNumber}");
-            Console.Out.Flush();
-
-            // Append a new entry with the correct indentation and next version number
-            fileContents = AppendNewEntry(fileContents, versionNumber);
-            Console.WriteLine("ModPreprocessorDefine New entry appended");
-            Console.Out.Flush();
-
-            // Write the modified contents back to the file
-            File.WriteAllText(filePath, fileContents);
-
-            Console.SetOut(originalConsoleOut);
-        }
-
-        Console.WriteLine("ModPreprocessorDefine Finished");
-
-        // Print the contents of the redirected file
-        Console.WriteLine("Console Output:");
-        Console.WriteLine(File.ReadAllText("console_output.txt"));
+        // Print some debug information
+        Console.WriteLine($"Working Directory: {Environment.CurrentDirectory}");
+        Console.WriteLine($"Output File Path: {outputPath}");
         Console.Out.Flush();
+
+        // Define the path to the PreprocessorDefine.cs file
+        string filePath = "Assets/Mirror/CompilerSymbols/PreprocessorDefine.cs";
+
+        // Read the contents of the file
+        string fileContents = File.ReadAllText(filePath);
+        Console.WriteLine("ModPreprocessorDefine File read");
+        Console.Out.Flush();
+
+        // Find and remove the first entry ending with "_OR_NEWER"
+        fileContents = RemoveFirstOrNewerEntry(fileContents);
+        Console.WriteLine("ModPreprocessorDefine Old entry removed");
+        Console.Out.Flush();
+
+        // Find the last entry and capture the version number
+        string versionNumber = GetLastVersionNumber(fileContents);
+        Console.WriteLine($"ModPreprocessorDefine current version {versionNumber}");
+        Console.Out.Flush();
+
+        // Append a new entry with the correct indentation and next version number
+        fileContents = AppendNewEntry(fileContents, versionNumber);
+        Console.WriteLine("ModPreprocessorDefine New entry appended");
+        Console.Out.Flush();
+
+        // Write the modified contents back to the file
+        File.WriteAllText(filePath, fileContents);
     }
 
     static string RemoveFirstOrNewerEntry(string input)
