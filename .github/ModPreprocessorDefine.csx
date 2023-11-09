@@ -14,14 +14,6 @@ class ModPreprocessorDefine
 {
     public static void DoSomething()
     {
-        // Redirect console output to a file
-        var originalConsoleOut = Console.Out;
-
-        // Print some debug information
-        Console.WriteLine($"Working Directory: {Environment.CurrentDirectory}");
-        Console.WriteLine($"Output File Path: {outputPath}");
-        Console.Out.Flush();
-
         // Define the path to the PreprocessorDefine.cs file
         string filePath = "Assets/Mirror/CompilerSymbols/PreprocessorDefine.cs";
 
