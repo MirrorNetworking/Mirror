@@ -35,7 +35,7 @@ jobs:
 
     - name: Run CreateRelease.csx
       run: |
-        dotnet script .github/CreateRelease.cs
+        dotnet script .github/ModPreprocessorDefine.csx
 
     - name: Commit and Push
       run: |
