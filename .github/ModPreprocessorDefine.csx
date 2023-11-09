@@ -4,9 +4,12 @@
 using System;
 using System.IO;
 using System.Text.RegularExpressions;
+using System.Diagnostics;
 
 void Main()
 {
+    Debug.WriteLine("Debug ModPreprocessorDefine Started");
+
     Console.WriteLine("ModPreprocessorDefine Started");
     Console.Out.Flush();
 
