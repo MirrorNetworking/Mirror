@@ -3,12 +3,12 @@ using System.IO;
 using System.Text.RegularExpressions;
 
 Console.WriteLine("ModPreprocessorDefine Started");
-Console.Out.Flush();
+// Console.Out.Flush();
 
 ModPreprocessorDefine.DoSomething();
 
 Console.WriteLine("ModPreprocessorDefine Finished");
-Console.Out.Flush();
+// Console.Out.Flush();
 
 class ModPreprocessorDefine
 {
@@ -20,22 +20,22 @@ class ModPreprocessorDefine
         // Read the contents of the file
         string fileContents = File.ReadAllText(filePath);
         Console.WriteLine("ModPreprocessorDefine File read");
-        Console.Out.Flush();
+        // Console.Out.Flush();
 
         // Find and remove the first entry ending with "_OR_NEWER"
         fileContents = RemoveFirstOrNewerEntry(fileContents);
         Console.WriteLine("ModPreprocessorDefine Old entry removed");
-        Console.Out.Flush();
+        // Console.Out.Flush();
 
         // Find the last entry and capture the version number
         string versionNumber = GetLastVersionNumber(fileContents);
         Console.WriteLine($"ModPreprocessorDefine current version {versionNumber}");
-        Console.Out.Flush();
+        // Console.Out.Flush();
 
         // Append a new entry with the correct indentation and next version number
         fileContents = AppendNewEntry(fileContents, versionNumber);
         Console.WriteLine("ModPreprocessorDefine New entry appended");
-        Console.Out.Flush();
+        // Console.Out.Flush();
 
         // Write the modified contents back to the file
         File.WriteAllText(filePath, fileContents);
