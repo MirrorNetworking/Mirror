@@ -1,11 +1,12 @@
 using System;
 using System.IO;
 using System.Text.RegularExpressions;
-using System.Diagnostics;
 
-class Program
+ModPreprocessorDefine.DoSomething();
+
+class ModPreprocessorDefine
 {
-    static void Main()
+    public static void DoSomething()
     {
         Console.WriteLine("ModPreprocessorDefine Started");
         Console.Out.Flush();
