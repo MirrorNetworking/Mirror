@@ -3,6 +3,20 @@ name: Main
 on:
   workflow_dispatch:
   pull_request:
+    branches:
+    - master
+    paths-ignore:
+      - 'Packages/**'
+      - 'ProjectSettings/**'
+      - '.github/**'
+      - '.gitattributes'
+      - '.gitignore'
+      - '.editorconfig'
+      - 'LICENSE'
+      - '**.md'
+      - '**.yml'
+      - '**.txt'
+      - '**.ps1'
   push:
     branches:
     - master
