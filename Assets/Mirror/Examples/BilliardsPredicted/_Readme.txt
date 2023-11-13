@@ -1,5 +1,6 @@
 Advanced multiplayer Billiards demo with Prediction.
 Mouse drag the white ball to apply force.
+PredictedRigidbody syncInterval is intentionally set pretty high so we can see when it corrects.
 
 If you are a beginner, start with the basic Billiards demo instead.
 If you are advanced, this demo shows how to use Mirror's prediction features for physics / FPS games.

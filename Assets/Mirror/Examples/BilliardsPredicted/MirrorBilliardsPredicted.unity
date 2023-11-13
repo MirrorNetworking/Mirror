@@ -213,8 +213,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9021b6cc314944290986ab6feb48db79, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  height: 150
+  height: 250
   maxLogCount: 50
+  showInEditor: 0
   hotKey: 293
 --- !u!114 &88936779
 MonoBehaviour:
