@@ -75,6 +75,7 @@ namespace Mirror.PredictedRigidbody
         public bool oneFrameAhead = true;
 
         [Header("Smoothing")]
+        [Tooltip("Enable this to use Rigidbody's MovePosition/Rotation instead of directly setting .position/.rotation. This is recommended!")]
         public bool smoothCorrection = true;
 
         [Header("Debugging")]
