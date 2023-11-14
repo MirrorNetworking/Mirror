@@ -100,6 +100,10 @@ namespace Mirror
         // this gives much better and immediately accurate results.
         // -> snapshot interpolation timeline tries to emulate a server timeline without hard offset corrections.
         // -> predictedTime does have hard offset corrections, so might as well use Time.time directly for this.
+        //
+        // note that predictedTime over unreliable is enough!
+        // even with reliable components, it gives better results than if we were
+        // to implemented predictedTime over reliable channel.
         public static double predictedTime
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
