@@ -8,7 +8,7 @@ namespace Mirror
     // have a common interface.
     public interface PredictedState
     {
-        public double timestamp { get; }
+        double timestamp { get; }
 
         // predicted states should have absolute and delta values, for example:
         //   Vector3 position;
@@ -16,7 +16,7 @@ namespace Mirror
         // when inserting a correction between this one and the one before,
         // we need to adjust the delta:
         //   positionDelta *= multiplier;
-        public void AdjustDeltas(float multiplier);
+        void AdjustDeltas(float multiplier);
     }
 
     public static class Prediction
