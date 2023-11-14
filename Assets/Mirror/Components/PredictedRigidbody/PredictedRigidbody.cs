@@ -15,7 +15,6 @@ namespace Mirror.PredictedRigidbody
         public Vector3    positionDelta; // delta to get from last to this position
         public Vector3    position;
 
-
         public Quaternion rotation; // TODO delta rotation?
 
         public Vector3 velocityDelta; // delta to get from last to this velocity
