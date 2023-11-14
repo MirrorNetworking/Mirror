@@ -19,7 +19,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       # Do Not Enable Caching --- Library needs to be recompiled every time because Weaver
       # Leaving this here for posterity to ensure we never turn this on.

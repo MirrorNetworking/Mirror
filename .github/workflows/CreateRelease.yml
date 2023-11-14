@@ -9,7 +9,7 @@ jobs:
 
     steps:
     - name: Checkout Repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Merge Master into AssetStoreRelease
       uses: devmasx/merge-branch@master
@@ -26,7 +26,7 @@ jobs:
         git pull origin AssetStoreRelease
 
     - name: Set up .NET Core
-      uses: actions/setup-dotnet@v1
+      uses: actions/setup-dotnet@v3
 
     - name: Install dotnet-script
       run: |
