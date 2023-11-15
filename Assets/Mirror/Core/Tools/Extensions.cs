@@ -35,6 +35,21 @@ namespace Mirror
             }
         }
 
+        // smaller version of our GetStableHashCode.
+        // careful, this significantly increases chance of collisions.
+        public static ushort GetStableHashCode16(this string text)
+        {
+            // deterministic hash
+            int hash = GetStableHashCode(text);
+
+            // Gets the 32bit fnv1a hash
+            // To get it down to 16bit but still reduce hash collisions we cant just cast it to ushort
+            // Instead we take the highest 16bits of the 32bit hash and fold them with xor into the lower 16bits
+            // This will create a more uniform 16bit hash, the method is described in:
+            // http://www.isthe.com/chongo/tech/comp/fnv/ in section "Changing the FNV hash size - xor-folding"
+            return (ushort)((hash >> 16) ^ hash);
+        }
+
         // previously in DotnetCompatibility.cs
         // leftover from the UNET days. supposedly for windows store?
         internal static string GetMethodName(this Delegate func)
