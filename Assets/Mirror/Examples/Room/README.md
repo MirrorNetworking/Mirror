@@ -1,9 +1,9 @@
 # Room Example
 
 In Build Settings, remove all scenes and add all of the scenes from the Examples\Room\Scenes folder in the following order:
--	OfflineScene
--	RoomScene
--	OnlineScene
+-	MirrorRoomOffline
+-	MirrorRoomGame
+-	MirrorRoomOnline
 
 If you opened the Offline scene before doing the above steps, you may have to reassign the scenes to the NetworkRoomManagerExt component of the RoomManager scene object.
 
