@@ -130,7 +130,7 @@ namespace Mirror
                 // messages' timestamp and only send a message number.
                 // This way client's can't just modify the timestamp.
                 // predictedTime parameter is 0 because the server doesn't predict.
-                int sceneHash = SceneManager.GetActiveScene().name.GetStableHashCode();
+                ushort sceneHash = SceneManager.GetActiveScene().name.GetStableHashCode16();
                 NetworkPingMessage pingMessage = new NetworkPingMessage(sceneHash, NetworkTime.localTime, 0);
                 Send(pingMessage, Channels.Unreliable);
                 lastPingTime = NetworkTime.localTime;

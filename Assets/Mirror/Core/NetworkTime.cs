@@ -146,7 +146,7 @@ namespace Mirror
                 // send raw predicted time without the offset applied yet.
                 // we then apply the offset to it after.
                 // include scene name (as hash)
-                int sceneHash = SceneManager.GetActiveScene().name.GetStableHashCode();
+                ushort sceneHash = SceneManager.GetActiveScene().name.GetStableHashCode16();
                 NetworkPingMessage pingMessage = new NetworkPingMessage
                 (
                     sceneHash,

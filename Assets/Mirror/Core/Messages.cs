@@ -109,8 +109,8 @@ namespace Mirror
         // this way we can disregard messages from before a scene change.
         // otherwise a 30s loading pause would cause super high RTT after:
         // https://github.com/MirrorNetworking/Mirror/issues/3576
-        // (4 byte hash instead of N byte string to minimize bandwidth)
-        public int sceneHash;
+        // (2 byte hash instead of N byte string to minimize bandwidth)
+        public ushort sceneHash;
 
         // local time is used to calculate round trip time,
         // and to calculate the predicted time offset.
@@ -119,7 +119,7 @@ namespace Mirror
         // predicted time is sent to compare the final error, for debugging only
         public double predictedTimeAdjusted;
 
-        public NetworkPingMessage(int sceneHash, double localTime, double predictedTimeAdjusted)
+        public NetworkPingMessage(ushort sceneHash, double localTime, double predictedTimeAdjusted)
         {
             this.sceneHash = sceneHash;
             this.localTime = localTime;
@@ -135,8 +135,8 @@ namespace Mirror
         // this way we can disregard messages from before a scene change.
         // otherwise a 30s loading pause would cause super high RTT after:
         // https://github.com/MirrorNetworking/Mirror/issues/3576
-        // (4 byte hash instead of N byte string to minimize bandwidth)
-        public int sceneHash;
+        // (2 byte hash instead of N byte string to minimize bandwidth)
+        public ushort sceneHash;
 
         // local time is used to calculate round trip time.
         public double localTime;
@@ -145,7 +145,7 @@ namespace Mirror
         public double predictionErrorUnadjusted;
         public double predictionErrorAdjusted; // for debug purposes
 
-        public NetworkPongMessage(int sceneHash, double localTime, double predictionErrorUnadjusted, double predictionErrorAdjusted)
+        public NetworkPongMessage(ushort sceneHash, double localTime, double predictionErrorUnadjusted, double predictionErrorAdjusted)
         {
             this.sceneHash = sceneHash;
             this.localTime = localTime;
