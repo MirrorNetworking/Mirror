@@ -7,29 +7,33 @@ using UnityEngine.Serialization;
 namespace Mirror.SimpleWeb
 {
     [Serializable]
-    public struct ClientPortSettings
+    public struct ClientWebsocketSettings
     {
-        public ClientPortOptions Options;
+        public WebsocketPortOption websocketPortOption;
+        public WebsocketPathOption websocketPathOption;
         public ushort CustomPort;
+        public string CustomPath;
     }
-
-    public enum ClientPortOptions
+    public enum WebsocketPortOption
     {
-        DefaultPort,
-        SameAsServer,
-        CustomPort,
+        DefaultSameAsServer,
+        MatchWebpageProtocol,
+        CustomPort
+    }
+    public enum WebsocketPathOption
+    {
+        DefaultWebsocketPath,
+        CustomPath
     }
     [DisallowMultipleComponent]
     public class SimpleWebTransport : Transport, PortTransport
     {
+        public ushort Port { get => port; set => port=value; }
         public const string NormalScheme = "ws";
         public const string SecureScheme = "wss";
 
         [Tooltip("Port to use for server and client")]
         public ushort port = 7778;
-        public ushort Port { get => port; set => port=value; }
-
-        public ClientPortSettings clientPortSettings;
 
         [Tooltip("Protect against allocation attacks by keeping the max message size small. Otherwise an attacker might send multiple fake packets with 2GB headers, causing the server to run out of memory after allocating multiple large packets.")]
         public int maxMessageSize = 16 * 1024;
@@ -61,6 +65,9 @@ namespace Mirror.SimpleWeb
             "This gives time for mirror to finish adding message to queue so that less groups need to be made.\n" +
             "If WaitBeforeSend is true then BatchSend Will also be set to true")]
         public bool waitBeforeSend = true;
+
+        [Header("Client settings")]
+        public ClientWebsocketSettings clientWebsocketSettings;
 
         [Header("Ssl Settings")]
         [Tooltip("Sets connect scheme to wss. Useful when client needs to connect using wss when TLS is outside of transport.\nNOTE: if sslEnabled is true clientUseWss is also true")]
@@ -139,14 +146,23 @@ namespace Mirror.SimpleWeb
                 Host = hostname,
             };
 
-            switch (clientPortSettings.Options) {
-                case ClientPortOptions.CustomPort:
-                    builder.Port = clientPortSettings.CustomPort;
+            switch (clientWebsocketSettings.websocketPortOption) {
+                case WebsocketPortOption.CustomPort:
+                    builder.Port = clientWebsocketSettings.CustomPort;
                     break;
-                case ClientPortOptions.DefaultPort:
+                case WebsocketPortOption.MatchWebpageProtocol:
                     break; // not including a port in the builder allows the webpage to drive the port (https://github.com/MirrorNetworking/Mirror/pull/3477)
-                default: // default case handles ClientPortOption.SameAsServerPort
+                default: // default case handles ClientWebsocketPortOption.SameAsServerPort
                     builder.Port = Port;
+                    break;
+            }
+            switch (clientWebsocketSettings.websocketPathOption)
+            {
+                case WebsocketPathOption.CustomPath:
+                    builder.Path = clientWebsocketSettings.CustomPath;
+                    break;
+                default: // default case handles ClientWebsocketPathOption.DefaultWebsocketPath
+                    builder.Path = "/";
                     break;
             }
 
