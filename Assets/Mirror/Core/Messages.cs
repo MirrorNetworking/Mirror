@@ -105,6 +105,13 @@ namespace Mirror
     // whoever wants to measure rtt, sends this to the other end.
     public struct NetworkPingMessage : NetworkMessage
     {
+        // ping messages are stamped with scene name (as hash).
+        // this way we can disregard messages from before a scene change.
+        // otherwise a 30s loading pause would cause super high RTT after:
+        // https://github.com/MirrorNetworking/Mirror/issues/3576
+        // (4 byte hash instead of N byte string to minimize bandwidth)
+        public int sceneHash;
+
         // local time is used to calculate round trip time,
         // and to calculate the predicted time offset.
         public double localTime;
@@ -112,8 +119,9 @@ namespace Mirror
         // predicted time is sent to compare the final error, for debugging only
         public double predictedTimeAdjusted;
 
-        public NetworkPingMessage(double localTime, double predictedTimeAdjusted)
+        public NetworkPingMessage(int sceneHash, double localTime, double predictedTimeAdjusted)
         {
+            this.sceneHash = sceneHash;
             this.localTime = localTime;
             this.predictedTimeAdjusted = predictedTimeAdjusted;
         }
@@ -123,6 +131,13 @@ namespace Mirror
     // we can use this to calculate rtt.
     public struct NetworkPongMessage : NetworkMessage
     {
+        // ping messages are stamped with scene name (as hash).
+        // this way we can disregard messages from before a scene change.
+        // otherwise a 30s loading pause would cause super high RTT after:
+        // https://github.com/MirrorNetworking/Mirror/issues/3576
+        // (4 byte hash instead of N byte string to minimize bandwidth)
+        public int sceneHash;
+
         // local time is used to calculate round trip time.
         public double localTime;
 
@@ -130,8 +145,9 @@ namespace Mirror
         public double predictionErrorUnadjusted;
         public double predictionErrorAdjusted; // for debug purposes
 
-        public NetworkPongMessage(double localTime, double predictionErrorUnadjusted, double predictionErrorAdjusted)
+        public NetworkPongMessage(int sceneHash, double localTime, double predictionErrorUnadjusted, double predictionErrorAdjusted)
         {
+            this.sceneHash = sceneHash;
             this.localTime = localTime;
             this.predictionErrorUnadjusted = predictionErrorUnadjusted;
             this.predictionErrorAdjusted = predictionErrorAdjusted;
