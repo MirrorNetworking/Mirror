@@ -1,7 +1,7 @@
 // Useful for Text Meshes that should face the camera.
 using UnityEngine;
 
-namespace Mirror.Examples.Tanks
+namespace Mirror.Examples.Common
 {
     public class FaceCamera : MonoBehaviour
     {
