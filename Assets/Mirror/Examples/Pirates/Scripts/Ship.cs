@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.AI;
 
-namespace Mirror.Examples.Tanks
+namespace Mirror.Examples.Pirates
 {
     public class Ship : NetworkBehaviour
     {
