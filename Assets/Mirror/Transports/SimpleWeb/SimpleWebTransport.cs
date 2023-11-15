@@ -6,6 +6,12 @@ using UnityEngine.Serialization;
 
 namespace Mirror.SimpleWeb
 {
+    public enum ClientPortOption
+    {
+        SameAsServerPort,
+        DefaultWebpagePort,
+        SpecifyClientPort
+    }
     [DisallowMultipleComponent]
     public class SimpleWebTransport : Transport, PortTransport
     {
@@ -16,11 +22,14 @@ namespace Mirror.SimpleWeb
         public ushort port = 7778;
         public ushort Port { get => port; set => port=value; }
 
-        [Tooltip("Tells the client to use the default port. This is useful when connecting to reverse proxy rather than directly to websocket server")]
-        public bool ClientUseDefaultPort;
+        [FormerlySerializedAs("ClientUseDefaultPort")]
+        [Tooltip("Customize the port the client connects to (default is the same websocket server port). This is useful when connecting to reverse proxy rather than directly to websocket server")]
+        public bool CustomizeClientPort;
+        [HideInInspector]
+        public ClientPortOption clientPortOption;
 
-        [Tooltip("Specifies what port the client should use. This is useful for reverse proxy scenarios that don't use port 80 or 443")]
-        public int UserSpecifiedPort = null;
+        [HideInInspector]
+        public ushort UserSpecifiedPort;
 
         [Tooltip("Protect against allocation attacks by keeping the max message size small. Otherwise an attacker might send multiple fake packets with 2GB headers, causing the server to run out of memory after allocating multiple large packets.")]
         public int maxMessageSize = 16 * 1024;
@@ -129,11 +138,18 @@ namespace Mirror.SimpleWeb
                 Scheme = GetClientScheme(),
                 Host = hostname,
             };
-            if (!ClientUseDefaultPort && UserSpecifiedPort)
-                builder.Port = UserSpecifiedPort;
-            // https://github.com/MirrorNetworking/Mirror/pull/3477
-            else if (!ClientUseDefaultPort)
-                builder.Port = Port;
+
+            switch (clientPortOption)
+            {
+                case ClientPortOption.SpecifyClientPort:
+                    builder.Port = UserSpecifiedPort;
+                    break;
+                case ClientPortOption.DefaultWebpagePort:
+                    break; // not including a port in the builder allows the webpage to drive the port (https://github.com/MirrorNetworking/Mirror/pull/3477)
+                default: // default case handles ClientPortOption.SameAsServerPort
+                    builder.Port = Port;
+                    break;
+            }
 
             ClientConnect(builder.Uri);
         }
