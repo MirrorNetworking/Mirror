@@ -17,6 +17,7 @@ namespace Mirror
             // instead of invoking it directly, we enqueue and process next update.
             // this way we can simulate a similar call flow as with remote clients.
             // the closer we get to simulating host as remote, the better!
+            // both directions do this, so [Command] and [Rpc] behave the same way.
 
             //Debug.Log($"Enqueue {BitConverter.ToString(segment.Array, segment.Offset, segment.Count)}");
             NetworkWriterPooled writer = NetworkWriterPool.Get();
