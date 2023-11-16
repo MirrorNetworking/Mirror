@@ -12,14 +12,12 @@ namespace Mirror
 
         public override string address => "localhost";
 
-        // Send stage two: serialized NetworkMessage as ArraySegment<byte>
         internal override void Send(ArraySegment<byte> segment, int channelId = Channels.Reliable)
         {
-            // get a writer to copy the message into since the segment is only
-            // valid until returning.
-            // => pooled writer will be returned to pool when dequeuing.
-            // => WriteBytes instead of WriteArraySegment because the latter
-            //    includes a 4 bytes header. we just want to write raw.
+            // instead of invoking it directly, we enqueue and process next update.
+            // this way we can simulate a similar call flow as with remote clients.
+            // the closer we get to simulating host as remote, the better!
+
             //Debug.Log($"Enqueue {BitConverter.ToString(segment.Array, segment.Offset, segment.Count)}");
             NetworkWriterPooled writer = NetworkWriterPool.Get();
             writer.WriteBytes(segment.Array, segment.Offset, segment.Count);
