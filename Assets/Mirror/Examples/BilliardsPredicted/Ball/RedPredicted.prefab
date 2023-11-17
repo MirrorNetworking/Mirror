@@ -167,5 +167,6 @@ MonoBehaviour:
   positionSensitivity: 0.01
   stateHistoryLimit: 32
   correctionThreshold: 0.1
-  smoothCorrection: 1
+  oneFrameAhead: 1
+  correctionMode: 2
   lineTime: 10

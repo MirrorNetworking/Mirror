@@ -57,6 +57,7 @@ namespace Mirror.PredictedRigidbody
     {
         Set,               // rigidbody.position/rotation = ...
         Move,              // rigidbody.MovePosition/Rotation
+        DeltaInterpolation // save correction delta, apply it over a few frames
     }
 
     [RequireComponent(typeof(Rigidbody))]
@@ -83,6 +84,7 @@ namespace Mirror.PredictedRigidbody
         [Header("Smoothing")]
         [Tooltip("Configure how to apply the corrected state.")]
         public CorrectionMode correctionMode = CorrectionMode.Move;
+        Vector3 deltaCorrection_Position = Vector3.zero;
 
         [Header("Debugging")]
         public float lineTime = 10;
@@ -116,7 +118,35 @@ namespace Mirror.PredictedRigidbody
         void FixedUpdate()
         {
             // record client state every FixedUpdate
-            if (isClient) RecordState();
+            if (isClient)
+            {
+                ApplyDeltaCorrection();
+                RecordState();
+            }
+        }
+
+        void ApplyDeltaCorrection()
+        {
+            if (correctionMode != CorrectionMode.DeltaInterpolation) return;
+
+            // interpolating to the corrected position would cancel out any
+            // current trajectory, i.e. rolling billiard balls shouldn't be
+            // hard interrupted.
+            //
+            // instead, we save the delta and apply it to the existing
+            // trajectory over a few frames.
+            if (deltaCorrection_Position != Vector3.zero)
+            {
+                // apply only a little bit each frame
+                // TODO don't hardcode the amount
+                // TODO depend on deltatime?
+                Vector3 step = deltaCorrection_Position / 10;
+                rb.MovePosition(rb.position + step);
+                deltaCorrection_Position -= step;
+
+                // debug draw the correction step
+                Debug.DrawLine(rb.position, rb.position + step, Color.yellow, lineTime);
+            }
         }
 
         void ApplyState(Vector3 position, Quaternion rotation, Vector3 velocity)
@@ -127,14 +157,27 @@ namespace Mirror.PredictedRigidbody
             {
                 rb.MovePosition(position);
                 rb.MoveRotation(rotation);
+                rb.velocity = velocity;
             }
             else if (correctionMode == CorrectionMode.Set)
             {
                 rb.position = position;
                 rb.rotation = rotation;
+                rb.velocity = velocity;
+            }
+            else if (correctionMode == CorrectionMode.DeltaInterpolation)
+            {
+                // interpolating to the corrected position would cancel out any
+                // current trajectory, i.e. rolling billiard balls shouldn't be
+                // hard interrupted.
+                //
+                // instead, we save the delta and apply it to the existing
+                // trajectory over a few frames.
+                deltaCorrection_Position = position - rb.position;
+                // TODO delta rotation?
+                // TODO delta velocity?
             }
 
-            rb.velocity = velocity;
         }
 
         // record state at NetworkTime.time on client
