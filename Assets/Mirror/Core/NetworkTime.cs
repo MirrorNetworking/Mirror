@@ -7,7 +7,6 @@
 using System;
 using System.Runtime.CompilerServices;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 #if !UNITY_2020_3_OR_NEWER
 using Stopwatch = System.Diagnostics.Stopwatch;
 #endif
@@ -145,11 +144,8 @@ namespace Mirror
             {
                 // send raw predicted time without the offset applied yet.
                 // we then apply the offset to it after.
-                // include scene name (as hash)
-                ushort sceneHash = SceneManager.GetActiveScene().name.GetStableHashCode16();
                 NetworkPingMessage pingMessage = new NetworkPingMessage
                 (
-                    sceneHash,
                     localTime,
                     predictedTime
                 );
@@ -179,7 +175,6 @@ namespace Mirror
             // Debug.Log($"OnServerPing conn:{conn}");
             NetworkPongMessage pongMessage = new NetworkPongMessage
             (
-                message.sceneHash,
                 message.localTime,
                 unadjustedError,
                 adjustedError
@@ -194,13 +189,6 @@ namespace Mirror
         {
             // prevent attackers from sending timestamps which are in the future
             if (message.localTime > localTime) return;
-
-            // ping messages are stamped with scene name (as hash).
-            // this way we can disregard messages from before a scene change.
-            // otherwise a 30s loading pause would cause super high RTT after:
-            // https://github.com/MirrorNetworking/Mirror/issues/3576
-            int sceneHash = SceneManager.GetActiveScene().name.GetStableHashCode();
-            if (message.sceneHash != sceneHash) return;
 
             // how long did this message take to come back
             double newRtt = localTime - message.localTime;
@@ -222,7 +210,6 @@ namespace Mirror
             // Debug.Log($"OnClientPing conn:{conn}");
             NetworkPongMessage pongMessage = new NetworkPongMessage
             (
-                message.sceneHash,
                 message.localTime,
                 0, 0 // server doesn't predict
             );
