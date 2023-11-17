@@ -53,6 +53,12 @@ namespace Mirror.PredictedRigidbody
         }
     }
 
+    public enum CorrectionMode
+    {
+        Set,               // rigidbody.position/rotation = ...
+        Move,              // rigidbody.MovePosition/Rotation
+    }
+
     [RequireComponent(typeof(Rigidbody))]
     public class PredictedRigidbody : NetworkBehaviour
     {
@@ -75,8 +81,8 @@ namespace Mirror.PredictedRigidbody
         public bool oneFrameAhead = true;
 
         [Header("Smoothing")]
-        [Tooltip("Enable this to use Rigidbody's MovePosition/Rotation instead of directly setting .position/.rotation. This is recommended!")]
-        public bool smoothCorrection = true;
+        [Tooltip("Configure how to apply the corrected state.")]
+        public CorrectionMode correctionMode = CorrectionMode.Move;
 
         [Header("Debugging")]
         public float lineTime = 10;
@@ -117,12 +123,12 @@ namespace Mirror.PredictedRigidbody
         {
             // Rigidbody .position teleports, while .MovePosition interpolates
             // TODO is this a good idea? what about next capture while it's interpolating?
-            if (smoothCorrection)
+            if (correctionMode == CorrectionMode.Move)
             {
                 rb.MovePosition(position);
                 rb.MoveRotation(rotation);
             }
-            else
+            else if (correctionMode == CorrectionMode.Set)
             {
                 rb.position = position;
                 rb.rotation = rotation;
