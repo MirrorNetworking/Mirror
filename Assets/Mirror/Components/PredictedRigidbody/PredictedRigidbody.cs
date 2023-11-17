@@ -84,6 +84,8 @@ namespace Mirror.PredictedRigidbody
         [Header("Smoothing")]
         [Tooltip("Configure how to apply the corrected state.")]
         public CorrectionMode correctionMode = CorrectionMode.Move;
+        [Range(1, 60)] // 0 would never correct, and too high would take too long. assuming 60 FPS, the limit here is 1 second
+        public int deltaCorrectionFrames = 10; // TODO depend on delta time / speed later in case frame rate varies
         Vector3 deltaCorrection_Position = Vector3.zero;
 
         [Header("Debugging")]
@@ -138,9 +140,8 @@ namespace Mirror.PredictedRigidbody
             if (deltaCorrection_Position != Vector3.zero)
             {
                 // apply only a little bit each frame
-                // TODO don't hardcode the amount
-                // TODO depend on deltatime?
-                Vector3 step = deltaCorrection_Position / 10;
+                // TODO depend on deltatime instead of hard frames
+                Vector3 step = deltaCorrection_Position / deltaCorrectionFrames;
                 rb.MovePosition(rb.position + step);
                 deltaCorrection_Position -= step;
 
