@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace Mirror
 {
@@ -130,8 +129,7 @@ namespace Mirror
                 // messages' timestamp and only send a message number.
                 // This way client's can't just modify the timestamp.
                 // predictedTime parameter is 0 because the server doesn't predict.
-                ushort sceneHash = SceneManager.GetActiveScene().name.GetStableHashCode16();
-                NetworkPingMessage pingMessage = new NetworkPingMessage(sceneHash, NetworkTime.localTime, 0);
+                NetworkPingMessage pingMessage = new NetworkPingMessage(NetworkTime.localTime, 0);
                 Send(pingMessage, Channels.Unreliable);
                 lastPingTime = NetworkTime.localTime;
             }
