@@ -9,37 +9,40 @@ namespace Mirror
     [CustomPropertyDrawer(typeof(ClientWebsocketSettings))]
     public class ClientWebsocketSettingsDrawer : PropertyDrawer
     {
+        private readonly string websocketPortOptionName = nameof(ClientWebsocketSettings.ClientPortOption);
+        private readonly string customPortName = nameof(ClientWebsocketSettings.CustomClientPort);
+        private readonly string websocketPathOptionName = nameof(ClientWebsocketSettings.ClientPathOption);
+        private readonly string customPathName = nameof(ClientWebsocketSettings.CustomClientPath);
+        private readonly GUIContent portOptionLabel =  new ("Client Port Option",
+            "Specify what port the client websocket connection uses (default same as server port)");
+        private readonly GUIContent pathOptionLabel = new("Client Path Option",
+            "Customize which path the client websocket connection uses (default no path)");
+
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
             property.isExpanded = true;
-
-            var portOptionHeight = EditorGUI.GetPropertyHeight(property.FindPropertyRelative(nameof(ClientWebsocketSettings.websocketPortOption)));
-            var portHeight = EditorGUI.GetPropertyHeight(property.FindPropertyRelative(nameof(ClientWebsocketSettings.CustomPort)));
-            var pathOptionHeight = EditorGUI.GetPropertyHeight(property.FindPropertyRelative(nameof(ClientWebsocketSettings.websocketPathOption)));
-            var pathHeight = EditorGUI.GetPropertyHeight(property.FindPropertyRelative(nameof(ClientWebsocketSettings.CustomPath)));
-            var spacing = EditorGUIUtility.standardVerticalSpacing;
-
-            return portOptionHeight + spacing + portHeight + spacing + pathOptionHeight + spacing + pathHeight;
+            return SumPropertyHeights(property, websocketPortOptionName, customPortName,
+                websocketPathOptionName, customPathName);
         }
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
-            var portOptionProp = property.FindPropertyRelative(nameof(ClientWebsocketSettings.websocketPortOption));
-            var portProp = property.FindPropertyRelative(nameof(ClientWebsocketSettings.CustomPort));
-            var pathOptionProp = property.FindPropertyRelative(nameof(ClientWebsocketSettings.websocketPathOption));
-            var pathProp = property.FindPropertyRelative(nameof(ClientWebsocketSettings.CustomPath));
+            position = DrawPortSettings(position, property);
+            DrawPathSettings(position, property);
+        }
 
+        private Rect DrawPortSettings(Rect position, SerializedProperty property)
+        {
+            var portOptionProp = property.FindPropertyRelative(websocketPortOptionName);
+            var portProp = property.FindPropertyRelative(customPortName);
             var portOptionHeight = EditorGUI.GetPropertyHeight(portOptionProp);
             var portHeight = EditorGUI.GetPropertyHeight(portProp);
-            var pathOptionHeight = EditorGUI.GetPropertyHeight(pathOptionProp);
-            var pathHeight = EditorGUI.GetPropertyHeight(pathProp);
             var spacing = EditorGUIUtility.standardVerticalSpacing;
-
             var wasEnabled = GUI.enabled;
-            
 
             position.height = portOptionHeight;
-            EditorGUI.PropertyField(position, portOptionProp);
+
+            EditorGUI.PropertyField(position, portOptionProp, portOptionLabel);
             position.y += spacing + portOptionHeight;
             position.height = portHeight;
 
@@ -56,29 +59,48 @@ namespace Mirror
                 }
 
                 GUI.enabled = false;
-                EditorGUI.IntField(position, new GUIContent("Websocket Port"), port);
+                EditorGUI.IntField(position, new GUIContent("Client Port"), port);
                 GUI.enabled = wasEnabled;
             }
             else
                 EditorGUI.PropertyField(position, portProp);
             position.y += spacing + portHeight;
+            return position;
+        }
+
+        private Rect DrawPathSettings(Rect position, SerializedProperty property)
+        {
+            var pathOptionProp = property.FindPropertyRelative(websocketPathOptionName);
+            var pathProp = property.FindPropertyRelative(customPathName);
+            var pathOptionHeight = EditorGUI.GetPropertyHeight(pathOptionProp);
+            var pathHeight = EditorGUI.GetPropertyHeight(pathProp);
+            var spacing = EditorGUIUtility.standardVerticalSpacing;
+            var wasEnabled = GUI.enabled;
 
             position.height = pathOptionHeight;
-            EditorGUI.PropertyField(position, pathOptionProp);
+            EditorGUI.PropertyField(position, pathOptionProp, pathOptionLabel);
             position.y += spacing + pathOptionHeight;
             position.height = pathHeight;
 
             var pathOption = (WebsocketPathOption)pathOptionProp.enumValueIndex;
-            var path = pathOption == WebsocketPathOption.DefaultWebsocketPath ? "/" : pathProp.stringValue;
-            if (pathOption == WebsocketPathOption.DefaultWebsocketPath)
+            var path = pathOption == WebsocketPathOption.DefaultNone ? "" : pathProp.stringValue;
+            if (pathOption == WebsocketPathOption.DefaultNone)
             {
                 GUI.enabled = false;
-                EditorGUI.TextField(position, new GUIContent("Websocket Path"), path);
+                EditorGUI.TextField(position, new GUIContent("Client Path"), path);
                 GUI.enabled = wasEnabled;
             }
             else
                 EditorGUI.PropertyField(position, pathProp);
-            
+            return position;
+        }
+
+        private float SumPropertyHeights(SerializedProperty property, params string[] propertyNames)
+        {
+            float totalHeight = 0;
+            foreach (var name in propertyNames)
+                totalHeight += EditorGUI.GetPropertyHeight(property.FindPropertyRelative(name)) + EditorGUIUtility.standardVerticalSpacing;
+            return totalHeight;
         }
     }
 #endif

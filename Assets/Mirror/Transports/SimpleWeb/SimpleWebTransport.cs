@@ -9,31 +9,32 @@ namespace Mirror.SimpleWeb
     [Serializable]
     public struct ClientWebsocketSettings
     {
-        public WebsocketPortOption websocketPortOption;
-        public WebsocketPathOption websocketPathOption;
-        public ushort CustomPort;
-        public string CustomPath;
+        public WebsocketPortOption ClientPortOption;
+        public WebsocketPathOption ClientPathOption;
+        public ushort CustomClientPort;
+        public string CustomClientPath;
     }
     public enum WebsocketPortOption
     {
         DefaultSameAsServer,
         MatchWebpageProtocol,
-        CustomPort
+        SpecifyPort
     }
     public enum WebsocketPathOption
     {
-        DefaultWebsocketPath,
-        CustomPath
+        DefaultNone,
+        SpecifyPath
     }
+
     [DisallowMultipleComponent]
     public class SimpleWebTransport : Transport, PortTransport
     {
-        public ushort Port { get => port; set => port=value; }
         public const string NormalScheme = "ws";
         public const string SecureScheme = "wss";
 
         [Tooltip("Port to use for server and client")]
         public ushort port = 7778;
+        public ushort Port { get => port; set => port=value; }
 
         [Tooltip("Protect against allocation attacks by keeping the max message size small. Otherwise an attacker might send multiple fake packets with 2GB headers, causing the server to run out of memory after allocating multiple large packets.")]
         public int maxMessageSize = 16 * 1024;
@@ -66,12 +67,7 @@ namespace Mirror.SimpleWeb
             "If WaitBeforeSend is true then BatchSend Will also be set to true")]
         public bool waitBeforeSend = true;
 
-        [Header("Client settings")]
-        public ClientWebsocketSettings clientWebsocketSettings;
-
         [Header("Ssl Settings")]
-        [Tooltip("Sets connect scheme to wss. Useful when client needs to connect using wss when TLS is outside of transport.\nNOTE: if sslEnabled is true clientUseWss is also true")]
-        public bool clientUseWss;
 
         [Tooltip("Requires wss connections on server, only to be used with SSL cert.json, never with reverse proxy.\nNOTE: if sslEnabled is true clientUseWss is also true")]
         public bool sslEnabled;
@@ -81,6 +77,11 @@ namespace Mirror.SimpleWeb
 
         [Tooltip("Protocols that SSL certificate is created to support.")]
         public SslProtocols sslProtocols = SslProtocols.Tls12;
+
+        [Header("Client settings")]
+        [Tooltip("Sets connect scheme to wss. Useful when client needs to connect using wss when TLS is outside of transport.\nNOTE: if sslEnabled is true clientUseWss is also true")]
+        public bool clientUseWss;
+        public ClientWebsocketSettings clientWebsocketSettings;
 
         [Header("Debug")]
         [Tooltip("Log functions uses ConditionalAttribute which will effect which log methods are allowed.")]
@@ -146,23 +147,25 @@ namespace Mirror.SimpleWeb
                 Host = hostname,
             };
 
-            switch (clientWebsocketSettings.websocketPortOption) {
-                case WebsocketPortOption.CustomPort:
-                    builder.Port = clientWebsocketSettings.CustomPort;
+            switch (clientWebsocketSettings.ClientPortOption) {
+                case WebsocketPortOption.SpecifyPort:
+                    builder.Port = clientWebsocketSettings.CustomClientPort;
                     break;
                 case WebsocketPortOption.MatchWebpageProtocol:
-                    break; // not including a port in the builder allows the webpage to drive the port (https://github.com/MirrorNetworking/Mirror/pull/3477)
-                default: // default case handles ClientWebsocketPortOption.SameAsServerPort
+                    // not including a port in the builder allows the webpage to drive the port
+                    // https://github.com/MirrorNetworking/Mirror/pull/3477
+                    break;
+                default: // default case handles ClientWebsocketPortOption.DefaultSameAsServerPort
                     builder.Port = Port;
                     break;
             }
-            switch (clientWebsocketSettings.websocketPathOption)
+
+            switch (clientWebsocketSettings.ClientPathOption)
             {
-                case WebsocketPathOption.CustomPath:
-                    builder.Path = clientWebsocketSettings.CustomPath;
+                case WebsocketPathOption.SpecifyPath:
+                    builder.Path = clientWebsocketSettings.CustomClientPath;
                     break;
                 default: // default case handles ClientWebsocketPathOption.DefaultWebsocketPath
-                    builder.Path = "/";
                     break;
             }
 
