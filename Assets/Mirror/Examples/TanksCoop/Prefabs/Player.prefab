@@ -25,6 +25,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4415124803507263412}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -32,7 +33,6 @@ Transform:
   m_Children:
   - {fileID: 3254954141432383832}
   m_Father: {fileID: 5328458565928408179}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &662729490405160656
 MeshFilter:
@@ -109,13 +109,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5815001218983416211}
+  serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0.39999998, z: 0.5}
   m_LocalScale: {x: 0.5, y: 0.1, z: 0.2}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 9057824595171805708}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &1800893346221236401
 MeshFilter:
@@ -182,7 +182,7 @@ GameObject:
   - component: {fileID: 1143206540915927667}
   - component: {fileID: 3175779197224890082}
   - component: {fileID: -4781897372705814228}
-  - component: {fileID: -7637534761064967928}
+  - component: {fileID: -1122083471338389313}
   - component: {fileID: 4559786975507373984}
   m_Layer: 0
   m_Name: Player
@@ -198,6 +198,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8872462076811691049}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 1.08, z: 0}
   m_LocalScale: {x: 0.2, y: 0.2, z: 0.2}
@@ -205,7 +206,6 @@ Transform:
   m_Children:
   - {fileID: 9057824595171805708}
   m_Father: {fileID: 0}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &8537344390966522168
 MonoBehaviour:
@@ -240,13 +240,13 @@ MonoBehaviour:
   syncMode: 0
   syncInterval: 0
   target: {fileID: 5328458565928408179}
-  clientAuthority: 0
   syncPosition: 1
   syncRotation: 1
   syncScale: 0
   interpolatePosition: 1
   interpolateRotation: 1
   interpolateScale: 0
+  coordinateSpace: 0
   sendIntervalMultiplier: 3
   timelineOffset: 1
   showGizmos: 0
@@ -265,9 +265,17 @@ CharacterController:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8872462076811691049}
   m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
   m_IsTrigger: 0
+  m_ProvidesContacts: 0
   m_Enabled: 0
-  serializedVersion: 2
+  serializedVersion: 3
   m_Height: 2
   m_Radius: 0.5
   m_SlopeLimit: 45
@@ -283,8 +291,17 @@ CapsuleCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8872462076811691049}
   m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
   m_IsTrigger: 0
+  m_ProvidesContacts: 0
   m_Enabled: 1
+  serializedVersion: 2
   m_Radius: 0.5
   m_Height: 2
   m_Direction: 1
@@ -296,10 +313,21 @@ Rigidbody:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8872462076811691049}
-  serializedVersion: 2
+  serializedVersion: 4
   m_Mass: 1
   m_Drag: 0
   m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
   m_UseGravity: 0
   m_IsKinematic: 1
   m_Interpolate: 0
@@ -320,7 +348,7 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
---- !u!114 &-7637534761064967928
+--- !u!114 &-1122083471338389313
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -329,12 +357,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 8872462076811691049}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 437b89bd23a4f4265a2a34e7bbcd5c43, type: 3}
+  m_Script: {fileID: 11500000, guid: a91a718a70d01b347b75cb768a6f1a92, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   syncDirection: 0
   syncMode: 0
-  syncInterval: 0.1
+  syncInterval: 0
   color:
     serializedVersion: 2
     rgba: 4278190080

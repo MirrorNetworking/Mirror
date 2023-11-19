@@ -1,16 +1,16 @@
 ﻿using UnityEngine;
 
-namespace Mirror.Examples.AdditiveLevels
+namespace Mirror.Examples.Common
 {
     public class RandomColor : NetworkBehaviour
     {
-        // Color32 packs to 4 bytes
-        [SyncVar(hook = nameof(SetColor))]
-        public Color32 color = Color.black;
-
         // Unity clones the material when GetComponent<Renderer>().material is called
         // Cache it here and destroy it in OnDestroy to prevent a memory leak
         Material cachedMaterial;
+
+        // Color32 packs to 4 bytes
+        [SyncVar(hook = nameof(SetColor))]
+        public Color32 color = Color.black;
 
         void SetColor(Color32 _, Color32 newColor)
         {
@@ -18,19 +18,17 @@ namespace Mirror.Examples.AdditiveLevels
             cachedMaterial.color = newColor;
         }
 
+        public override void OnStartServer()
+        {
+            // Only set the color once. Players may be respawned,
+            // and we don't want to keep changing their colors.
+            if (color == Color.black)
+                color = Random.ColorHSV(0f, 1f, 1f, 1f, 0.5f, 1f);
+        }
+
         void OnDestroy()
         {
             Destroy(cachedMaterial);
-        }
-
-        public override void OnStartServer()
-        {
-            base.OnStartServer();
-
-            // This script is on players that are respawned repeatedly
-            // so once the color has been set, don't change it.
-            if (color == Color.black)
-                color = Random.ColorHSV(0f, 1f, 1f, 1f, 0.5f, 1f);
         }
     }
 }
