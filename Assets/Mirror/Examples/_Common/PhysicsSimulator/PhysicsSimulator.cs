@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Mirror.Examples.AdditiveLevels
+namespace Mirror.Examples.Common
 {
     public class PhysicsSimulator : MonoBehaviour
     {
@@ -26,10 +26,9 @@ namespace Mirror.Examples.AdditiveLevels
             }
         }
 
+        [ServerCallback]
         void FixedUpdate()
         {
-            if (!NetworkServer.active) return;
-
             if (simulatePhysicsScene)
                 physicsScene.Simulate(Time.fixedDeltaTime);
 
