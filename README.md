@@ -104,6 +104,10 @@ Without any breaking changes, ever!
 
 ---
 ## Made with Mirror
+### [Plunder: Scourge of the Sea](https://store.steampowered.com/app/1797130/Plunder_Scourge_of_the_Sea/)
+[![plunder_smaller](https://cdn.akamai.steamstatic.com/steam/apps/1797130/header.jpg?t=1698422797)](https://store.steampowered.com/app/1797130/Plunder_Scourge_of_the_Sea/)\
+Pirate MMO focussed on character and ship progression in a world filled with quests and adventures. Solo, CO-OP or Massive battles against NPCs and Players. [Plunder](https://store.steampowered.com/app/1797130/Plunder_Scourge_of_the_Sea/) is being developed with Mirror.
+
 ### [Population: ONE](https://www.populationonevr.com/)
 [![Population: ONE](https://github.com/MirrorNetworking/Mirror/assets/16416509/dddc778b-a97f-452d-b5f8-6ec42c6da4f1)](https://www.populationonevr.com/)
 The [BigBoxVR](https://www.bigboxvr.com/) team started using Mirror in February 2019 for what eventually became one of the most popular Oculus Rift games.
@@ -122,12 +126,6 @@ Available for the [Meta Quest](https://www.oculus.com/experiences/quest/22360534
 
 ### [Nimoyd](https://www.nimoyd.com/)
 [![nimoyd_smaller](https://user-images.githubusercontent.com/16416509/178142672-340bac2c-628a-4610-bbf1-8f718cb5b033.jpg)](https://www.nimoyd.com/)
-Nudge Nudge Games' first title: the colorful, post-apocalyptic open world sandbox game [Nimoyd](https://store.steampowered.com/app/1313210/Nimoyd__Survival_Sandbox/) is being developed with Mirror.
-
-_Soon to be released for PC & mobile!_
-
-### [Plunder: Scourge of the Sea](https://store.steampowered.com/app/1797130/Plunder_Scourge_of_the_Sea/)
-[![nimoyd_smaller](https://cdn.akamai.steamstatic.com/steam/apps/1797130/header.jpg?t=1698422797)](https://store.steampowered.com/app/1797130/Plunder_Scourge_of_the_Sea/)
 Nudge Nudge Games' first title: the colorful, post-apocalyptic open world sandbox game [Nimoyd](https://store.steampowered.com/app/1313210/Nimoyd__Survival_Sandbox/) is being developed with Mirror.
 
 _Soon to be released for PC & mobile!_
