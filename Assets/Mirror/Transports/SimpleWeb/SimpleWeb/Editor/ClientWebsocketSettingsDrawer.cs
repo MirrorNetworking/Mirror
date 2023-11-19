@@ -1,11 +1,8 @@
-using Mirror.SimpleWeb;
 using UnityEditor;
 using UnityEngine;
 
-namespace Mirror
+namespace Mirror.SimpleWeb.Editor
 {
-#if UNITY_EDITOR
-
     [CustomPropertyDrawer(typeof(ClientWebsocketSettings))]
     public class ClientWebsocketSettingsDrawer : PropertyDrawer
     {
@@ -51,12 +48,10 @@ namespace Mirror
             {
                 var port = 0;
                 if (property.serializedObject.targetObject is SimpleWebTransport swt)
-                {
                     if (portOption == WebsocketPortOption.MatchWebpageProtocol)
                         port = swt.clientUseWss ? 443 : 80;
                     else
                         port = swt.port;
-                }
 
                 GUI.enabled = false;
                 EditorGUI.IntField(position, new GUIContent("Client Port"), port);
@@ -64,6 +59,7 @@ namespace Mirror
             }
             else
                 EditorGUI.PropertyField(position, portProp);
+
             position.y += spacing + portHeight;
             return position;
         }
@@ -92,6 +88,7 @@ namespace Mirror
             }
             else
                 EditorGUI.PropertyField(position, pathProp);
+
             return position;
         }
 
@@ -103,5 +100,4 @@ namespace Mirror
             return totalHeight;
         }
     }
-#endif
 }
