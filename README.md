@@ -126,6 +126,12 @@ Nudge Nudge Games' first title: the colorful, post-apocalyptic open world sandbo
 
 _Soon to be released for PC & mobile!_
 
+### [Plunder: Scourge of the Sea](https://store.steampowered.com/app/1797130/Plunder_Scourge_of_the_Sea/)
+[![nimoyd_smaller](https://cdn.akamai.steamstatic.com/steam/apps/1797130/header.jpg?t=1698422797)](https://store.steampowered.com/app/1797130/Plunder_Scourge_of_the_Sea/)
+Nudge Nudge Games' first title: the colorful, post-apocalyptic open world sandbox game [Nimoyd](https://store.steampowered.com/app/1313210/Nimoyd__Survival_Sandbox/) is being developed with Mirror.
+
+_Soon to be released for PC & mobile!_
+
 ### [Unleashed](https://www.unleashedgames.io/)
 [![unleashed](https://github.com/MirrorNetworking/Mirror/assets/16416509/ef3bcf74-8fa9-4d22-801d-4d29cb59a013)](https://www.unleashedgames.io/)
 From original devs of **World of Warcraft**, **Kingdoms of Amalur**, and **EverQuest** comes a new family friendly fantasy adventure. Fight against the forces of darkness, explore a world consumed by wild magic, and build a stronghold with your friends to increase your power in a new world.
