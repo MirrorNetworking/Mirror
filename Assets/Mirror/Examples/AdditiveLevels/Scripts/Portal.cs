@@ -27,7 +27,7 @@ namespace Mirror.Examples.AdditiveLevels
 
         public override void OnStartServer()
         {
-            labelText = Path.GetFileNameWithoutExtension(destinationScene);
+            labelText = Path.GetFileNameWithoutExtension(destinationScene).Replace("MirrorAdditiveLevels","");
 
             // Simple Regex to insert spaces before capitals, numbers
             labelText = Regex.Replace(labelText, @"\B[A-Z0-9]+", " $0");
