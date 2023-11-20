@@ -65,8 +65,8 @@ namespace Mirror.PredictedRigidbody
         Rigidbody rb;
         Vector3 lastPosition;
 
-        [Tooltip("Broadcast changes if position changed by more than ... meters.")]
-        public float positionSensitivity = 0.01f;
+        // [Tooltip("Broadcast changes if position changed by more than ... meters.")]
+        // public float positionSensitivity = 0.01f;
 
         // client keeps state history for correction & reconciliation
         [Header("State History")]
