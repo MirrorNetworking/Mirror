@@ -24,12 +24,12 @@ namespace Mirror.SimpleWeb.Editor
 
         private void DrawPortSettings(Rect position, SerializedProperty property)
         {
-            var portOptionProp = property.FindPropertyRelative(websocketPortOptionName);
-            var portProp = property.FindPropertyRelative(customPortName);
-            var portOptionHeight = EditorGUI.GetPropertyHeight(portOptionProp);
-            var portHeight = EditorGUI.GetPropertyHeight(portProp);
-            var spacing = EditorGUIUtility.standardVerticalSpacing;
-            var wasEnabled = GUI.enabled;
+            SerializedProperty portOptionProp = property.FindPropertyRelative(websocketPortOptionName);
+            SerializedProperty portProp = property.FindPropertyRelative(customPortName);
+            float portOptionHeight = EditorGUI.GetPropertyHeight(portOptionProp);
+            float portHeight = EditorGUI.GetPropertyHeight(portProp);
+            float spacing = EditorGUIUtility.standardVerticalSpacing;
+            bool wasEnabled = GUI.enabled;
 
             position.height = portOptionHeight;
 
@@ -37,10 +37,10 @@ namespace Mirror.SimpleWeb.Editor
             position.y += spacing + portOptionHeight;
             position.height = portHeight;
 
-            var portOption = (WebsocketPortOption)portOptionProp.enumValueIndex;
+            WebsocketPortOption portOption = (WebsocketPortOption)portOptionProp.enumValueIndex;
             if (portOption == WebsocketPortOption.MatchWebpageProtocol || portOption == WebsocketPortOption.DefaultSameAsServer)
             {
-                var port = 0;
+                int port = 0;
                 if (property.serializedObject.targetObject is SimpleWebTransport swt)
                     if (portOption == WebsocketPortOption.MatchWebpageProtocol)
                         port = swt.clientUseWss ? 443 : 80;
