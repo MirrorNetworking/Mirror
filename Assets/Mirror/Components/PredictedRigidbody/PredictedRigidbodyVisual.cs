@@ -18,6 +18,9 @@ namespace Mirror
 
         void LateUpdate()
         {
+            // if target gets network destroyed for any reason, destroy visual
+            if (targetRigidbody == null) Destroy(gameObject);
+
             // hard follow for now
             // transform.position = targetRigidbody.position;
             // transform.rotation = targetRigidbody.rotation;
