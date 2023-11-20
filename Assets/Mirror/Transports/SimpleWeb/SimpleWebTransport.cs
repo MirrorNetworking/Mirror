@@ -16,9 +16,6 @@ namespace Mirror.SimpleWeb
         public ushort port = 7778;
         public ushort Port { get => port; set => port=value; }
 
-        [Tooltip("Tells the client to use the default port. This is useful when connecting to reverse proxy rather than directly to websocket server")]
-        public bool ClientUseDefaultPort;
-
         [Tooltip("Protect against allocation attacks by keeping the max message size small. Otherwise an attacker might send multiple fake packets with 2GB headers, causing the server to run out of memory after allocating multiple large packets.")]
         public int maxMessageSize = 16 * 1024;
 
@@ -51,8 +48,6 @@ namespace Mirror.SimpleWeb
         public bool waitBeforeSend = true;
 
         [Header("Ssl Settings")]
-        [Tooltip("Sets connect scheme to wss. Useful when client needs to connect using wss when TLS is outside of transport.\nNOTE: if sslEnabled is true clientUseWss is also true")]
-        public bool clientUseWss;
 
         [Tooltip("Requires wss connections on server, only to be used with SSL cert.json, never with reverse proxy.\nNOTE: if sslEnabled is true clientUseWss is also true")]
         public bool sslEnabled;
@@ -62,6 +57,11 @@ namespace Mirror.SimpleWeb
 
         [Tooltip("Protocols that SSL certificate is created to support.")]
         public SslProtocols sslProtocols = SslProtocols.Tls12;
+
+        [Header("Client settings")]
+        [Tooltip("Sets connect scheme to wss. Useful when client needs to connect using wss when TLS is outside of transport.\nNOTE: if sslEnabled is true clientUseWss is also true")]
+        public bool clientUseWss;
+        public ClientWebsocketSettings clientWebsocketSettings;
 
         [Header("Debug")]
         [Tooltip("Log functions uses ConditionalAttribute which will effect which log methods are allowed.")]
@@ -126,9 +126,19 @@ namespace Mirror.SimpleWeb
                 Scheme = GetClientScheme(),
                 Host = hostname,
             };
-            // https://github.com/MirrorNetworking/Mirror/pull/3477
-            if (!ClientUseDefaultPort)
-                builder.Port = Port;
+
+            switch (clientWebsocketSettings.ClientPortOption) {
+                case WebsocketPortOption.SpecifyPort:
+                    builder.Port = clientWebsocketSettings.CustomClientPort;
+                    break;
+                case WebsocketPortOption.MatchWebpageProtocol:
+                    // not including a port in the builder allows the webpage to drive the port
+                    // https://github.com/MirrorNetworking/Mirror/pull/3477
+                    break;
+                default: // default case handles ClientWebsocketPortOption.DefaultSameAsServerPort
+                    builder.Port = Port;
+                    break;
+            }
 
             ClientConnect(builder.Uri);
         }
