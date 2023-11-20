@@ -16,10 +16,15 @@ namespace Mirror
             targetRigidbody = target.GetComponent<Rigidbody>();
         }
 
+        // always follow in late update, after update modified positions
         void LateUpdate()
         {
             // if target gets network destroyed for any reason, destroy visual
-            if (targetRigidbody == null) Destroy(gameObject);
+            if (targetRigidbody == null || target.gameObject == null)
+            {
+                Destroy(gameObject);
+                return;
+            }
 
             // hard follow for now
             // transform.position = targetRigidbody.position;
