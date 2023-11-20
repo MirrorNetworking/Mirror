@@ -6,9 +6,7 @@ namespace Mirror.SimpleWeb
     public struct ClientWebsocketSettings
     {
         public WebsocketPortOption ClientPortOption;
-        public WebsocketPathOption ClientPathOption;
         public ushort CustomClientPort;
-        public string CustomClientPath;
     }
     public enum WebsocketPortOption
     {
@@ -16,10 +14,4 @@ namespace Mirror.SimpleWeb
         MatchWebpageProtocol,
         SpecifyPort
     }
-    public enum WebsocketPathOption
-    {
-        DefaultNone,
-        SpecifyPath
-    }
-
 }

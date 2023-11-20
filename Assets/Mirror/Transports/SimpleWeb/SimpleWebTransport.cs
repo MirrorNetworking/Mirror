@@ -140,15 +140,6 @@ namespace Mirror.SimpleWeb
                     break;
             }
 
-            switch (clientWebsocketSettings.ClientPathOption)
-            {
-                case WebsocketPathOption.SpecifyPath:
-                    builder.Path = clientWebsocketSettings.CustomClientPath;
-                    break;
-                default: // default case handles ClientWebsocketPathOption.DefaultWebsocketPath
-                    break;
-            }
-
             ClientConnect(builder.Uri);
         }
 

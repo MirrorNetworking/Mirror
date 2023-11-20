@@ -8,27 +8,21 @@ namespace Mirror.SimpleWeb.Editor
     {
         private readonly string websocketPortOptionName = nameof(ClientWebsocketSettings.ClientPortOption);
         private readonly string customPortName = nameof(ClientWebsocketSettings.CustomClientPort);
-        private readonly string websocketPathOptionName = nameof(ClientWebsocketSettings.ClientPathOption);
-        private readonly string customPathName = nameof(ClientWebsocketSettings.CustomClientPath);
         private readonly GUIContent portOptionLabel =  new ("Client Port Option",
             "Specify what port the client websocket connection uses (default same as server port)");
-        private readonly GUIContent pathOptionLabel = new("Client Path Option",
-            "Customize which path the client websocket connection uses (default no path)");
 
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
             property.isExpanded = true;
-            return SumPropertyHeights(property, websocketPortOptionName, customPortName,
-                websocketPathOptionName, customPathName);
+            return SumPropertyHeights(property, websocketPortOptionName, customPortName);
         }
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
-            position = DrawPortSettings(position, property);
-            DrawPathSettings(position, property);
+            DrawPortSettings(position, property);
         }
 
-        private Rect DrawPortSettings(Rect position, SerializedProperty property)
+        private void DrawPortSettings(Rect position, SerializedProperty property)
         {
             var portOptionProp = property.FindPropertyRelative(websocketPortOptionName);
             var portProp = property.FindPropertyRelative(customPortName);
@@ -61,35 +55,6 @@ namespace Mirror.SimpleWeb.Editor
                 EditorGUI.PropertyField(position, portProp);
 
             position.y += spacing + portHeight;
-            return position;
-        }
-
-        private Rect DrawPathSettings(Rect position, SerializedProperty property)
-        {
-            var pathOptionProp = property.FindPropertyRelative(websocketPathOptionName);
-            var pathProp = property.FindPropertyRelative(customPathName);
-            var pathOptionHeight = EditorGUI.GetPropertyHeight(pathOptionProp);
-            var pathHeight = EditorGUI.GetPropertyHeight(pathProp);
-            var spacing = EditorGUIUtility.standardVerticalSpacing;
-            var wasEnabled = GUI.enabled;
-
-            position.height = pathOptionHeight;
-            EditorGUI.PropertyField(position, pathOptionProp, pathOptionLabel);
-            position.y += spacing + pathOptionHeight;
-            position.height = pathHeight;
-
-            var pathOption = (WebsocketPathOption)pathOptionProp.enumValueIndex;
-            var path = pathOption == WebsocketPathOption.DefaultNone ? "" : pathProp.stringValue;
-            if (pathOption == WebsocketPathOption.DefaultNone)
-            {
-                GUI.enabled = false;
-                EditorGUI.TextField(position, new GUIContent("Client Path"), path);
-                GUI.enabled = wasEnabled;
-            }
-            else
-                EditorGUI.PropertyField(position, pathProp);
-
-            return position;
         }
 
         private float SumPropertyHeights(SerializedProperty property, params string[] propertyNames)
