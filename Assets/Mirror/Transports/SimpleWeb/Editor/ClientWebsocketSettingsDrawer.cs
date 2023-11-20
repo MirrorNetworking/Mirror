@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace Mirror.SimpleWeb.Editor
 {
+#if UNITY_EDITOR
     [CustomPropertyDrawer(typeof(ClientWebsocketSettings))]
     public class ClientWebsocketSettingsDrawer : PropertyDrawer
     {
@@ -65,4 +66,5 @@ namespace Mirror.SimpleWeb.Editor
             return totalHeight;
         }
     }
+#endif
 }
