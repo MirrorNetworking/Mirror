@@ -23,7 +23,7 @@ namespace Mirror.SimpleWeb.Editor
             DrawPortSettings(position, property);
         }
 
-        private void DrawPortSettings(Rect position, SerializedProperty property)
+        void DrawPortSettings(Rect position, SerializedProperty property)
         {
             SerializedProperty portOptionProp = property.FindPropertyRelative(websocketPortOptionName);
             SerializedProperty portProp = property.FindPropertyRelative(customPortName);
@@ -58,7 +58,7 @@ namespace Mirror.SimpleWeb.Editor
             position.y += spacing + portHeight;
         }
 
-        private float SumPropertyHeights(SerializedProperty property, params string[] propertyNames)
+        float SumPropertyHeights(SerializedProperty property, params string[] propertyNames)
         {
             float totalHeight = 0;
             foreach (var name in propertyNames)
