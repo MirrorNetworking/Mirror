@@ -8,8 +8,8 @@ namespace Mirror
         public PredictedRigidbody target;
         Rigidbody targetRigidbody;
 
-        [Tooltip("How fast to interpolate to the target position, relative to how far we are away from it.")]
-        public float interpolationSpeed = 10;
+        [Tooltip("How fast to interpolate to the target position, relative to how far we are away from it.\nHigher value will be more jitter but sharper moves, lower value will be less jitter but a little too smooth / rounded moves.")]
+        public float interpolationSpeed = 15; // 10 is a little too low for billiards at least
 
         [Tooltip("Teleport if we are further than 'multiplier x collider size' behind.")]
         public float teleportDistanceMultiplier = 10;
@@ -48,6 +48,10 @@ namespace Mirror
             // smoothly interpolate to the target position.
             // speed relative to how far away we are
             float step = distance * interpolationSpeed;
+            // speed relative to how far away we are.
+            // => speed increases by distance² because the further away, the
+            //    sooner we need to catch the fuck up
+            // float step = (distance * distance) * interpolationSpeed;
             transform.position = Vector3.MoveTowards(transform.position, targetRigidbody.position, step * Time.deltaTime);
             transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRigidbody.rotation, step * Time.deltaTime);
         }

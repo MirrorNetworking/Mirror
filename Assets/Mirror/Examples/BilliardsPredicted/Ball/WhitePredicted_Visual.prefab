@@ -97,4 +97,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   target: {fileID: 0}
-  interpolationSpeed: 10
+  interpolationSpeed: 20
+  teleportDistanceMultiplier: 10
