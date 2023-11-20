@@ -11,6 +11,9 @@ namespace Mirror
         [Tooltip("How fast to interpolate to the target position, relative to how far we are away from it.")]
         public float interpolationSpeed = 10;
 
+        [Tooltip("Teleport if we are further than 'multiplier x velocity' behind.")]
+        public float teleportThreshold = 2;
+
         void Awake()
         {
             targetRigidbody = target.GetComponent<Rigidbody>();
@@ -26,7 +29,7 @@ namespace Mirror
                 return;
             }
 
-            // hard follow for now
+            // hard follow:
             // transform.position = targetRigidbody.position;
             // transform.rotation = targetRigidbody.rotation;
 
@@ -34,7 +37,7 @@ namespace Mirror
             // if we are further away than let's say one unit of velocity aka
             // what we would move in 1s, then teleport.
             float distance = Vector3.Distance(transform.position, targetRigidbody.position);
-            if (distance > targetRigidbody.velocity.magnitude)
+            if (distance > targetRigidbody.velocity.magnitude * teleportThreshold)
             {
                 transform.position = targetRigidbody.position;
                 transform.rotation = targetRigidbody.rotation;
