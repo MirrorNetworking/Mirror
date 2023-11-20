@@ -11,8 +11,8 @@ namespace Mirror
         [Tooltip("How fast to interpolate to the target position, relative to how far we are away from it.")]
         public float interpolationSpeed = 10;
 
-        [Tooltip("Teleport if we are further than 'multiplier x velocity' behind.")]
-        public float teleportThreshold = 2;
+        [Tooltip("Teleport if we are further than 'multiplier x collider size' behind.")]
+        public float teleportDistanceMultiplier = 10;
 
         void Awake()
         {
@@ -33,15 +33,15 @@ namespace Mirror
             // transform.position = targetRigidbody.position;
             // transform.rotation = targetRigidbody.rotation;
 
-            // we know that the rigidbody currently moves at 'velocity' m/s.
-            // if we are further away than let's say one unit of velocity aka
-            // what we would move in 1s, then teleport.
+            // if we are further than N colliders sizes behind, then teleport
+            float colliderSize = target.GetComponent<Collider>().bounds.size.magnitude;
+            float threshold = colliderSize * teleportDistanceMultiplier;
             float distance = Vector3.Distance(transform.position, targetRigidbody.position);
-            if (distance > targetRigidbody.velocity.magnitude * teleportThreshold)
+            if (distance > threshold)
             {
                 transform.position = targetRigidbody.position;
                 transform.rotation = targetRigidbody.rotation;
-                Debug.Log($"[PredictedRigidbodyVisual] Teleported because distance {distance:F2} > velocity {targetRigidbody.velocity.magnitude:F2}");
+                Debug.Log($"[PredictedRigidbodyVisual] Teleported because distance {distance:F2} > threshold {threshold:F2}");
                 return;
             }
 
