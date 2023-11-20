@@ -274,6 +274,7 @@ namespace Mirror.Tests.Rpcs
             // the object doesn't have a .connectionToServer (like a scene object)
             Assert.That(comp.connectionToServer, Is.Null);
             comp.CmdSendInt(0);
+            ProcessMessages();
             Assert.That(called, Is.EqualTo(1));
         }
     }
