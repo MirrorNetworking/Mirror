@@ -44,6 +44,7 @@ namespace Mirror.Tests.NetworkConnections
 
             connectionToServer.Send(new TestMessage());
             connectionToServer.Update();
+            connectionToClient.Update();
 
             Assert.True(invoked, "handler should have been invoked");
         }
