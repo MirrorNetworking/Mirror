@@ -6,9 +6,9 @@ namespace Mirror.SimpleWeb.Editor
     [CustomPropertyDrawer(typeof(ClientWebsocketSettings))]
     public class ClientWebsocketSettingsDrawer : PropertyDrawer
     {
-        private readonly string websocketPortOptionName = nameof(ClientWebsocketSettings.ClientPortOption);
-        private readonly string customPortName = nameof(ClientWebsocketSettings.CustomClientPort);
-        private readonly GUIContent portOptionLabel =  new ("Client Port Option",
+        readonly string websocketPortOptionName = nameof(ClientWebsocketSettings.ClientPortOption);
+        readonly string customPortName = nameof(ClientWebsocketSettings.CustomClientPort);
+        readonly GUIContent portOptionLabel =  new ("Client Port Option",
             "Specify what port the client websocket connection uses (default same as server port)");
 
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
