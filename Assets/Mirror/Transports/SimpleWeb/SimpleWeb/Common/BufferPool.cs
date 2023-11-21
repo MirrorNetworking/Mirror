@@ -60,7 +60,6 @@ namespace Mirror.SimpleWeb
             Release();
         }
 
-
         public void CopyTo(byte[] target, int offset)
         {
             if (count > (target.Length + offset))
@@ -141,13 +140,13 @@ namespace Mirror.SimpleWeb
         void IncrementCreated()
         {
             int next = Interlocked.Increment(ref _current);
-            // Log.Verbose($"[SimpleWebTransport] BufferBucket({arraySize}) count:{next}");
+            Log.Verbose($"[SimpleWebTransport] BufferBucket({arraySize}) count:{next}");
         }
         [Conditional("DEBUG")]
         void DecrementCreated()
         {
             int next = Interlocked.Decrement(ref _current);
-            // Log.Verbose($"[SimpleWebTransport] BufferBucket({arraySize}) count:{next}");
+            Log.Verbose($"[SimpleWebTransport] BufferBucket({arraySize}) count:{next}");
         }
     }
 
@@ -199,7 +198,6 @@ namespace Mirror.SimpleWeb
                 double size = smallest * Math.Pow(Math.E, each * i);
                 buckets[i] = new BufferBucket((int)Math.Ceiling(size));
             }
-
 
             Validate();
 

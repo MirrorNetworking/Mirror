@@ -9,7 +9,7 @@ namespace Mirror.SimpleWeb.Editor
     {
         readonly string websocketPortOptionName = nameof(ClientWebsocketSettings.ClientPortOption);
         readonly string customPortName = nameof(ClientWebsocketSettings.CustomClientPort);
-        readonly GUIContent portOptionLabel =  new ("Client Port Option",
+        readonly GUIContent portOptionLabel = new("Client Port Option",
             "Specify what port the client websocket connection uses (default same as server port)");
 
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
@@ -63,6 +63,7 @@ namespace Mirror.SimpleWeb.Editor
             float totalHeight = 0;
             foreach (var name in propertyNames)
                 totalHeight += EditorGUI.GetPropertyHeight(property.FindPropertyRelative(name)) + EditorGUIUtility.standardVerticalSpacing;
+
             return totalHeight;
         }
     }

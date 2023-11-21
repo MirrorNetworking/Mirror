@@ -14,7 +14,7 @@ namespace Mirror.SimpleWeb
 
         [Tooltip("Port to use for server and client")]
         public ushort port = 7778;
-        public ushort Port { get => port; set => port=value; }
+        public ushort Port { get => port; set => port = value; }
 
         [Tooltip("Protect against allocation attacks by keeping the max message size small. Otherwise an attacker might send multiple fake packets with 2GB headers, causing the server to run out of memory after allocating multiple large packets.")]
         public int maxMessageSize = 16 * 1024;
@@ -127,7 +127,8 @@ namespace Mirror.SimpleWeb
                 Host = hostname,
             };
 
-            switch (clientWebsocketSettings.ClientPortOption) {
+            switch (clientWebsocketSettings.ClientPortOption)
+            {
                 case WebsocketPortOption.SpecifyPort:
                     builder.Port = clientWebsocketSettings.CustomClientPort;
                     break;
@@ -148,7 +149,7 @@ namespace Mirror.SimpleWeb
             // connecting or connected
             if (ClientConnected())
             {
-                Debug.LogError("[SimpleWebTransport] Already Connected");
+                Log.Error("[SimpleWebTransport] Already Connected");
                 return;
             }
 
@@ -187,7 +188,7 @@ namespace Mirror.SimpleWeb
         {
             if (!ClientConnected())
             {
-                Debug.LogError("[SimpleWebTransport] Not Connected");
+                Log.Error("[SimpleWebTransport] Not Connected");
                 return;
             }
 
@@ -240,7 +241,7 @@ namespace Mirror.SimpleWeb
         public override void ServerStart()
         {
             if (ServerActive())
-                Debug.LogError("[SimpleWebTransport] Server Already Started");
+                Log.Error("[SimpleWebTransport] Server Already Started");
 
             SslConfig config = SslConfigLoader.Load(sslEnabled, sslCertJson, sslProtocols);
             server = new SimpleWebServer(serverMaxMessagesPerTick, TcpConfig, maxMessageSize, handshakeMaxSize, config);
@@ -259,7 +260,7 @@ namespace Mirror.SimpleWeb
         public override void ServerStop()
         {
             if (!ServerActive())
-                Debug.LogError("[SimpleWebTransport] Server Not Active");
+                Log.Error("[SimpleWebTransport] Server Not Active");
 
             server.Stop();
             server = null;
@@ -268,7 +269,7 @@ namespace Mirror.SimpleWeb
         public override void ServerDisconnect(int connectionId)
         {
             if (!ServerActive())
-                Debug.LogError("[SimpleWebTransport] Server Not Active");
+                Log.Error("[SimpleWebTransport] Server Not Active");
 
             server.KickClient(connectionId);
         }

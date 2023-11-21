@@ -105,9 +105,8 @@ namespace Mirror.SimpleWeb
 
         void AcceptHandshake(Stream stream, string msg)
         {
-            using (
-                ArrayBuffer keyBuffer = bufferPool.Take(KeyLength + Constants.HandshakeGUIDLength),
-                            responseBuffer = bufferPool.Take(ResponseLength))
+            using (ArrayBuffer keyBuffer = bufferPool.Take(KeyLength + Constants.HandshakeGUIDLength),
+                               responseBuffer = bufferPool.Take(ResponseLength))
             {
                 GetKey(msg, keyBuffer.array);
                 AppendGuid(keyBuffer.array);

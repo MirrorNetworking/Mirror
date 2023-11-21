@@ -10,11 +10,10 @@ namespace Mirror.SimpleWeb
 {
     internal sealed class Connection : IDisposable
     {
+        readonly object disposedLock = new object();
+
         public const int IdNotSet = -1;
-        private readonly object disposedLock = new object();
-
         public TcpClient client;
-
         public int connId = IdNotSet;
 
         /// <summary>
@@ -28,7 +27,6 @@ namespace Mirror.SimpleWeb
         /// </summary>
         public string remoteAddress;
 
-
         public Stream stream;
         public Thread receiveThread;
         public Thread sendThread;
@@ -37,7 +35,7 @@ namespace Mirror.SimpleWeb
         public ConcurrentQueue<ArrayBuffer> sendQueue = new ConcurrentQueue<ArrayBuffer>();
 
         public Action<Connection> onDispose;
-        private volatile bool hasDisposed;
+        volatile bool hasDisposed;
 
         public Connection(TcpClient client, Action<Connection> onDispose)
         {

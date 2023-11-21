@@ -253,7 +253,7 @@ namespace Mirror.SimpleWeb
             if (!connections.TryGetValue(id, out Connection conn))
             {
                 Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.WriteLine($"[SimpleWebTransport] Cant get request of connection {id} because connection was not found in dictionary.");
+                Console.WriteLine($"[SimpleWebTransport] Cannot get request of connection {id} because connection was not found in dictionary.");
                 Console.ResetColor();
                 return null;
             }
