@@ -705,6 +705,30 @@ namespace Mirror.Tests.NetworkReaderWriter
         }
 
         [Test]
+        public void TestLayerMask()
+        {
+            LayerMask originalLayerMask = new LayerMask();
+            originalLayerMask.value = 42;
+            NetworkWriter writer = new NetworkWriter();
+            writer.WriteLayerMask(originalLayerMask);
+
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+            LayerMask readLayerMask = reader.ReadLayerMask();
+            Assert.That(readLayerMask, Is.EqualTo(originalLayerMask));
+        }
+
+        [Test]
+        public void TestLayerMaskNullable()
+        {
+            LayerMask? input = null;
+            NetworkWriter writer = new NetworkWriter();
+            writer.WriteLayerMaskNullable(input);
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+            LayerMask? output = reader.ReadLayerMaskNullable();
+            Assert.That(output, Is.EqualTo(input));
+        }
+
+        [Test]
         public void TestMatrix4x4()
         {
             Matrix4x4[] inputs = {

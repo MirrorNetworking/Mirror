@@ -186,6 +186,19 @@ namespace Mirror
                 writer.WriteRay(value.Value);
         }
 
+        // LayerMask is a struct with properties instead of fields
+        public static void WriteLayerMask(this NetworkWriter writer, LayerMask layerMask)
+        {
+            // 32 layers as a flags enum, max value of 496, we only need a UShort.
+            writer.WriteUShort((ushort)layerMask.value);
+        }
+        public static void WriteLayerMaskNullable(this NetworkWriter writer, LayerMask? layerMask)
+        {
+            writer.WriteBool(layerMask.HasValue);
+            if (layerMask.HasValue)
+                writer.WriteLayerMask(layerMask.Value);
+        }
+
         public static void WriteMatrix4x4(this NetworkWriter writer, Matrix4x4 value) => writer.WriteBlittable(value);
         public static void WriteMatrix4x4Nullable(this NetworkWriter writer, Matrix4x4? value) => writer.WriteBlittableNullable(value);
 
