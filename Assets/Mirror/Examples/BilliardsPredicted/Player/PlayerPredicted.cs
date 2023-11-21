@@ -30,7 +30,12 @@ namespace Mirror.Examples.BilliardsPredicted
         void Awake()
         {
             // find the white ball once
+#if UNITY_2021_3_OR_NEWER
+            whiteBall = FindAnyObjectByType<WhiteBallPredicted>();
+#else
+            // Deprecated in Unity 2023.1
             whiteBall = FindObjectOfType<WhiteBallPredicted>();
+#endif
         }
 
         // apply force to white ball.
