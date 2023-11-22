@@ -149,7 +149,7 @@ namespace Mirror.SimpleWeb
             // connecting or connected
             if (ClientConnected())
             {
-                Log.Error("[SimpleWebTransport] Already Connected");
+                Log.Warn("[SimpleWebTransport] Already Connected");
                 return;
             }
 
@@ -241,7 +241,7 @@ namespace Mirror.SimpleWeb
         public override void ServerStart()
         {
             if (ServerActive())
-                Log.Error("[SimpleWebTransport] Server Already Started");
+                Log.Warn("[SimpleWebTransport] Server Already Started");
 
             SslConfig config = SslConfigLoader.Load(sslEnabled, sslCertJson, sslProtocols);
             server = new SimpleWebServer(serverMaxMessagesPerTick, TcpConfig, maxMessageSize, handshakeMaxSize, config);
@@ -259,19 +259,17 @@ namespace Mirror.SimpleWeb
 
         public override void ServerStop()
         {
-            if (!ServerActive())
-                Log.Error("[SimpleWebTransport] Server Not Active");
-
-            server.Stop();
-            server = null;
+            if (ServerActive())
+            {
+                server.Stop();
+                server = null;
+            }
         }
 
         public override void ServerDisconnect(int connectionId)
         {
-            if (!ServerActive())
-                Log.Error("[SimpleWebTransport] Server Not Active");
-
-            server.KickClient(connectionId);
+            if (ServerActive())
+                server.KickClient(connectionId);
         }
 
         public override void ServerSend(int connectionId, ArraySegment<byte> segment, int channelId)
