@@ -132,9 +132,11 @@ namespace Mirror
                 if (GUILayout.Button("Stop Single Player"))
                     manager.StopHost();
 #else
+                // stop host if host mode
                 if (GUILayout.Button("Stop Host"))
                     manager.StopHost();
 
+                // stop client if host mode, leaving server up
                 if (GUILayout.Button("Stop Client"))
                     manager.StopClient();
 #endif
