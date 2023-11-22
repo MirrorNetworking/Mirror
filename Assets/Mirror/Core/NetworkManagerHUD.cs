@@ -48,10 +48,18 @@ namespace Mirror
         {
             if (!NetworkClient.active)
             {
+#if UNITY_WEBGL
+                // cant be a server in webgl build
+                if (GUILayout.Button("Single Player"))
+                {
+                    NetworkServer.dontListen = true;
+                    manager.StartHost();
+                }
+#else
                 // Server + Client
-                if (Application.platform != RuntimePlatform.WebGLPlayer)
-                    if (GUILayout.Button("Host (Server + Client)"))
-                        manager.StartHost();
+                if (GUILayout.Button("Host (Server + Client)"))
+                    manager.StartHost();
+#endif
 
                 // Client + IP (+ PORT)
                 GUILayout.BeginHorizontal();
@@ -75,13 +83,13 @@ namespace Mirror
                 GUILayout.EndHorizontal();
 
                 // Server Only
-                if (Application.platform == RuntimePlatform.WebGLPlayer)
-                {
-                    // cant be a server in webgl build
-                    GUILayout.Box("(  WebGL cannot be server  )");
-                }
-                else
-                    if (GUILayout.Button("Server Only")) manager.StartServer();
+#if UNITY_WEBGL
+                // cant be a server in webgl build
+                GUILayout.Box("( WebGL cannot be server )");
+#else
+                if (GUILayout.Button("Server Only"))
+                    manager.StartServer();
+#endif
             }
             else
             {
@@ -120,7 +128,10 @@ namespace Mirror
             if (NetworkServer.active && NetworkClient.isConnected)
             {
                 GUILayout.BeginHorizontal();
-
+#if UNITY_WEBGL
+                if (GUILayout.Button("Stop Single Player"))
+                    manager.StopHost();
+#else
                 // stop host if host mode
                 if (GUILayout.Button("Stop Host"))
                     manager.StopHost();
@@ -128,7 +139,7 @@ namespace Mirror
                 // stop client if host mode, leaving server up
                 if (GUILayout.Button("Stop Client"))
                     manager.StopClient();
-
+#endif
                 GUILayout.EndHorizontal();
             }
             else if (NetworkClient.isConnected)
