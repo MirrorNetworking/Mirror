@@ -22,17 +22,21 @@ namespace Mirror
         void OnGUI()
         {
             GUILayout.BeginArea(new Rect(10 + offsetX, 40 + offsetY, 300, 9999));
+
             if (!NetworkClient.isConnected && !NetworkServer.active)
                 StartButtons();
             else
                 StatusLabels();
 
-            // client ready
-            if (NetworkClient.isConnected && !NetworkClient.ready && GUILayout.Button("Client Ready"))
+            if (NetworkClient.isConnected && !NetworkClient.ready)
             {
-                NetworkClient.Ready();
-                if (NetworkClient.localPlayer == null)
-                    NetworkClient.AddPlayer();
+                if (GUILayout.Button("Client Ready"))
+                {
+                    // client ready
+                    NetworkClient.Ready();
+                    if (NetworkClient.localPlayer == null)
+                        NetworkClient.AddPlayer();
+                }
             }
 
             StopButtons();
@@ -59,6 +63,7 @@ namespace Mirror
 
                 // Client + IP (+ PORT)
                 GUILayout.BeginHorizontal();
+
                 if (GUILayout.Button("Client"))
                     manager.StartClient();
 
@@ -74,6 +79,7 @@ namespace Mirror
                     if (ushort.TryParse(GUILayout.TextField(portTransport.Port.ToString()), out ushort port))
                         portTransport.Port = port;
                 }
+
                 GUILayout.EndHorizontal();
 
                 // Server Only
@@ -119,7 +125,6 @@ namespace Mirror
 
         void StopButtons()
         {
-            // stop host if host mode
             if (NetworkServer.active && NetworkClient.isConnected)
             {
                 GUILayout.BeginHorizontal();
