@@ -148,14 +148,12 @@ namespace Mirror
                 if (GUILayout.Button("Stop Client"))
                     manager.StopClient();
             }
-#if !UNITY_WEBGL
             else if (NetworkServer.active)
             {
                 // stop server if server-only
                 if (GUILayout.Button("Stop Server"))
                     manager.StopServer();
             }
-#endif
         }
     }
 }
