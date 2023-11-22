@@ -97,5 +97,13 @@ namespace Mirror.Examples.TanksCoop
             }
 
         }
+
+        public override void OnStopServer()
+        {
+            // To prevent a bug that can be caused on client host, when scenes do not reset during play,
+            // tank variables are set as "missing", which Unity does not count as null/empty.
+            objectOwner = null;
+            playerController = null;
+        }
     }
 }
