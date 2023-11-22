@@ -22,25 +22,20 @@ namespace Mirror
         void OnGUI()
         {
             GUILayout.BeginArea(new Rect(10 + offsetX, 40 + offsetY, 300, 9999));
-            if (!NetworkClient.isConnected && !NetworkServer.active)
-            {
-                StartButtons();
-            }
-            else
-            {
-                StatusLabels();
-            }
 
-            // client ready
+            if (!NetworkClient.isConnected && !NetworkServer.active)
+                StartButtons();
+            else
+                StatusLabels();
+
             if (NetworkClient.isConnected && !NetworkClient.ready)
             {
                 if (GUILayout.Button("Client Ready"))
                 {
+                    // client ready
                     NetworkClient.Ready();
                     if (NetworkClient.localPlayer == null)
-                    {
                         NetworkClient.AddPlayer();
-                    }
                 }
             }
 
@@ -55,19 +50,15 @@ namespace Mirror
             {
                 // Server + Client
                 if (Application.platform != RuntimePlatform.WebGLPlayer)
-                {
                     if (GUILayout.Button("Host (Server + Client)"))
-                    {
                         manager.StartHost();
-                    }
-                }
 
                 // Client + IP (+ PORT)
                 GUILayout.BeginHorizontal();
+
                 if (GUILayout.Button("Client"))
-                {
                     manager.StartClient();
-                }
+
                 manager.networkAddress = GUILayout.TextField(manager.networkAddress);
                 // only show a port field if we have a port transport
                 // we can't have "IP:PORT" in the address field since this only
@@ -78,10 +69,9 @@ namespace Mirror
                 {
                     // use TryParse in case someone tries to enter non-numeric characters
                     if (ushort.TryParse(GUILayout.TextField(portTransport.Port.ToString()), out ushort port))
-                    {
                         portTransport.Port = port;
-                    }
                 }
+
                 GUILayout.EndHorizontal();
 
                 // Server Only
@@ -91,18 +81,14 @@ namespace Mirror
                     GUILayout.Box("(  WebGL cannot be server  )");
                 }
                 else
-                {
                     if (GUILayout.Button("Server Only")) manager.StartServer();
-                }
             }
             else
             {
                 // Connecting
                 GUILayout.Label($"Connecting to {manager.networkAddress}..");
                 if (GUILayout.Button("Cancel Connection Attempt"))
-                {
                     manager.StopClient();
-                }
             }
         }
 
@@ -114,51 +100,48 @@ namespace Mirror
             //   Client: ...
             if (NetworkServer.active && NetworkClient.active)
             {
+                // host mode
                 GUILayout.Label($"<b>Host</b>: running via {Transport.active}");
             }
-            // server only
             else if (NetworkServer.active)
             {
+                // server only
                 GUILayout.Label($"<b>Server</b>: running via {Transport.active}");
             }
-            // client only
             else if (NetworkClient.isConnected)
             {
+                // client only
                 GUILayout.Label($"<b>Client</b>: connected to {manager.networkAddress} via {Transport.active}");
             }
         }
 
         void StopButtons()
         {
-            // stop host if host mode
             if (NetworkServer.active && NetworkClient.isConnected)
             {
                 GUILayout.BeginHorizontal();
+
+                // stop host if host mode
                 if (GUILayout.Button("Stop Host"))
-                {
                     manager.StopHost();
-                }
+
+                // stop client if host mode, leaving server up
                 if (GUILayout.Button("Stop Client"))
-                {
                     manager.StopClient();
-                }
+
                 GUILayout.EndHorizontal();
             }
-            // stop client if client-only
             else if (NetworkClient.isConnected)
             {
+                // stop client if client-only
                 if (GUILayout.Button("Stop Client"))
-                {
                     manager.StopClient();
-                }
             }
-            // stop server if server-only
             else if (NetworkServer.active)
             {
+                // stop server if server-only
                 if (GUILayout.Button("Stop Server"))
-                {
                     manager.StopServer();
-                }
             }
         }
     }
