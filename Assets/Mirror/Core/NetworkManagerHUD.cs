@@ -142,13 +142,13 @@ namespace Mirror
 #endif
                 GUILayout.EndHorizontal();
             }
-#if !UNITY_WEBGL
             else if (NetworkClient.isConnected)
             {
                 // stop client if client-only
                 if (GUILayout.Button("Stop Client"))
                     manager.StopClient();
             }
+#if !UNITY_WEBGL
             else if (NetworkServer.active)
             {
                 // stop server if server-only
