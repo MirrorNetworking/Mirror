@@ -337,9 +337,10 @@ namespace Mirror
         public override string ToString()
         {
             StringBuilder builder = new StringBuilder();
+            builder.Append("Multiplexer:");
 
             foreach (Transport transport in transports)
-                builder.AppendLine(transport.ToString());
+                builder.Append($" {transport}");
 
             return builder.ToString().Trim();
         }
