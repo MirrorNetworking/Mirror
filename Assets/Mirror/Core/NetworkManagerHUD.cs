@@ -150,9 +150,17 @@ namespace Mirror
             }
             else if (NetworkServer.active)
             {
+                GUILayout.BeginHorizontal();
+
                 // stop server if server-only
                 if (GUILayout.Button("Stop Server"))
                     manager.StopServer();
+
+                // start client if server-only, engaging host mode.
+                if (GUILayout.Button("Start Client"))
+                    manager.StartClient();
+
+                GUILayout.EndHorizontal();
             }
         }
     }

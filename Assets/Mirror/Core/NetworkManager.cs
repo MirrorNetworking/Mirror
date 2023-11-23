@@ -404,7 +404,20 @@ namespace Mirror
                 return;
             }
 
-            mode = NetworkManagerMode.ClientOnly;
+            if (string.IsNullOrWhiteSpace(networkAddress))
+            {
+                Debug.LogError("Must set the Network Address field in the manager");
+                return;
+            }
+
+            if (mode == NetworkManagerMode.ServerOnly)
+            {
+                mode = NetworkManagerMode.Host;
+                FinishStartHost();
+                return;
+            }
+            else
+                mode = NetworkManagerMode.ClientOnly;
 
             SetupClient();
 
@@ -413,11 +426,6 @@ namespace Mirror
 
             RegisterClientMessages();
 
-            if (string.IsNullOrWhiteSpace(networkAddress))
-            {
-                Debug.LogError("Must set the Network Address field in the manager");
-                return;
-            }
             // Debug.Log($"NetworkManager StartClient address:{networkAddress}");
 
             NetworkClient.Connect(networkAddress);
@@ -1276,6 +1284,9 @@ namespace Mirror
 
             // shutdown client
             NetworkClient.Shutdown();
+
+            foreach (NetworkIdentity identity in NetworkServer.spawned.Values)
+                identity.clientStarted = false;
 
             // Exit here if we're now in ServerOnly mode (StopClient called in Host mode).
             if (mode == NetworkManagerMode.ServerOnly) return;
