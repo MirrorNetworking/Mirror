@@ -21,7 +21,7 @@ namespace Mirror
 
         void OnGUI()
         {
-            GUILayout.BeginArea(new Rect(10 + offsetX, 40 + offsetY, 300, 9999));
+            GUILayout.BeginArea(new Rect(10 + offsetX, 40 + offsetY, 350, 9999));
 
             if (!NetworkClient.isConnected && !NetworkServer.active)
                 StartButtons();
@@ -78,6 +78,22 @@ namespace Mirror
                     // use TryParse in case someone tries to enter non-numeric characters
                     if (ushort.TryParse(GUILayout.TextField(portTransport.Port.ToString()), out ushort port))
                         portTransport.Port = port;
+                }
+
+                if (Transport.active is MultiplexTransport multiplexTransport)
+                {
+                    // Only deal with first transport that is available on this platform
+                    // Typically Kcp | Telepathy + SimpleWebTransport
+                    // Current Build Platform will determine which is available
+                    foreach (Transport transport in multiplexTransport.transports)
+                        if (transport.Available() && transport is PortTransport multiplexPortTransport)
+                        {
+                            // use TryParse in case someone tries to enter non-numeric characters
+                            if (ushort.TryParse(GUILayout.TextField(multiplexPortTransport.Port.ToString()), out ushort port))
+                                multiplexPortTransport.Port = port;
+
+                            break;
+                        }
                 }
 
                 GUILayout.EndHorizontal();
