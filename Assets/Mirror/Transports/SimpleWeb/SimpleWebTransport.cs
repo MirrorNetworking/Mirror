@@ -92,6 +92,8 @@ namespace Mirror.SimpleWeb
             Log.level = _logLevels;
         }
 
+        public override string ToString() => $"SWT [{port}]";
+
         void OnValidate()
         {
             Log.level = _logLevels;
