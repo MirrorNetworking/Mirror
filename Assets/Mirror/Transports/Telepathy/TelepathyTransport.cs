@@ -75,11 +75,12 @@ namespace Mirror
             Debug.Log("TelepathyTransport initialized!");
         }
 
-        public override bool Available()
-        {
-            // C#'s built in TCP sockets run everywhere except on WebGL
-            return Application.platform != RuntimePlatform.WebGLPlayer;
-        }
+        public override bool Available() =>
+#if UNITY_WEBGL
+            false;
+#else
+            true;
+#endif
 
         // client
         private void CreateClient()
@@ -250,25 +251,25 @@ namespace Mirror
             return serverMaxMessageSize;
         }
 
-        public override string ToString()
-        {
-            if (server != null && server.Active && server.listener != null)
-            {
-                // printing server.listener.LocalEndpoint causes an Exception
-                // in UWP + Unity 2019:
-                //   Exception thrown at 0x00007FF9755DA388 in UWF.exe:
-                //   Microsoft C++ exception: Il2CppExceptionWrapper at memory
-                //   location 0x000000E15A0FCDD0. SocketException: An address
-                //   incompatible with the requested protocol was used at
-                //   System.Net.Sockets.Socket.get_LocalEndPoint ()
-                // so let's use the regular port instead.
-                return $"Telepathy Server port: {port}";
-            }
-            else if (client != null && (client.Connecting || client.Connected))
-            {
-                return $"Telepathy Client port: {port}";
-            }
-            return "Telepathy (inactive/disconnected)";
-        }
+        public override string ToString() => $"Telepathy [{port}]";
+        //{
+        //    if (server != null && server.Active && server.listener != null)
+        //    {
+        //        // printing server.listener.LocalEndpoint causes an Exception
+        //        // in UWP + Unity 2019:
+        //        //   Exception thrown at 0x00007FF9755DA388 in UWF.exe:
+        //        //   Microsoft C++ exception: Il2CppExceptionWrapper at memory
+        //        //   location 0x000000E15A0FCDD0. SocketException: An address
+        //        //   incompatible with the requested protocol was used at
+        //        //   System.Net.Sockets.Socket.get_LocalEndPoint ()
+        //        // so let's use the regular port instead.
+        //        return $"Telepathy Server port: {port}";
+        //    }
+        //    else if (client != null && (client.Connecting || client.Connected))
+        //    {
+        //        return $"Telepathy Client port: {port}";
+        //    }
+        //    return "Telepathy (inactive/disconnected)";
+        //}
     }
 }

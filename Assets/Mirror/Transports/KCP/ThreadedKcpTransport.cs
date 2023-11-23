@@ -139,7 +139,11 @@ namespace kcp2k
 
         // all except WebGL
         public override bool Available() =>
-            Application.platform != RuntimePlatform.WebGLPlayer;
+#if UNITY_WEBGL
+            false;
+#else
+            true;
+#endif
 
         protected override void ThreadedClientConnect(string address) => client.Connect(address, Port);
         protected override void ThreadedClientConnect(Uri uri)

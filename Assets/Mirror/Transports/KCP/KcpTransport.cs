@@ -146,7 +146,11 @@ namespace kcp2k
 
         // all except WebGL
         public override bool Available() =>
-            Application.platform != RuntimePlatform.WebGLPlayer;
+#if UNITY_WEBGL
+            false;
+#else
+            true;
+#endif
 
         // client
         public override bool ClientConnected() => client.connected;
@@ -360,7 +364,7 @@ namespace kcp2k
             }
         }
 
-        public override string ToString() => "KCP";
+        public override string ToString() => $"KCP [{port}]";
     }
 }
 //#endif MIRROR <- commented out because MIRROR isn't defined on first import yet
