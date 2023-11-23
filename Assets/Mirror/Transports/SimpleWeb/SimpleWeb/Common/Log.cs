@@ -6,6 +6,29 @@ namespace Mirror.SimpleWeb
 {
     public static class Log
     {
+
+        // The.NET console color names map to the following approximate CSS color names:
+
+        // Black:       Black
+        // Blue:        Blue
+        // Cyan:        Aqua or Cyan
+        // DarkBlue:    DarkBlue
+        // DarkCyan:    DarkCyan
+        // DarkGray:    DarkGray
+        // DarkGreen:   DarkGreen
+        // DarkMagenta: DarkMagenta
+        // DarkRed:     DarkRed
+        // DarkYellow:  DarkOrange or DarkGoldenRod
+        // Gray:        Gray
+        // Green:       Green
+        // Magenta:     Magenta
+        // Red:         Red
+        // White:       White
+        // Yellow:      Yellow
+
+        // We can't use colors that are close to white or black because
+        // they won't show up well in the server console or browser console
+
         public enum Levels
         {
             none = 0,
