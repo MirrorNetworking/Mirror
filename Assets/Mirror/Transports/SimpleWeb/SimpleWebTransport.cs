@@ -7,23 +7,26 @@ using UnityEngine.Serialization;
 namespace Mirror.SimpleWeb
 {
     [DisallowMultipleComponent]
+    [HelpURL("https://mirror-networking.gitbook.io/docs/manual/transports/websockets-transport")]
     public class SimpleWebTransport : Transport, PortTransport
     {
         public const string NormalScheme = "ws";
         public const string SecureScheme = "wss";
 
-        [Tooltip("Port to use for server and client")]
-        public ushort port = 7778;
-        public ushort Port { get => port; set => port = value; }
-
         [Tooltip("Protect against allocation attacks by keeping the max message size small. Otherwise an attacker might send multiple fake packets with 2GB headers, causing the server to run out of memory after allocating multiple large packets.")]
         public int maxMessageSize = 16 * 1024;
 
+        [FormerlySerializedAs("handshakeMaxSize")]
         [Tooltip("Max size for http header send as handshake for websockets")]
-        public int handshakeMaxSize = 3000;
+        public int maxHandshakeSize = 3000;
 
-        [Tooltip("disables nagle algorithm. lowers CPU% and latency but increases bandwidth")]
-        public bool noDelay = true;
+        [FormerlySerializedAs("serverMaxMessagesPerTick")]
+        [Tooltip("Caps the number of messages the server will process per tick. Allows LateUpdate to finish to let the reset of unity continue in case more messages arrive before they are processed")]
+        public int serverMaxMsgsPerTick = 10000;
+
+        [FormerlySerializedAs("clientMaxMessagesPerTick")]
+        [Tooltip("Caps the number of messages the client will process per tick. Allows LateUpdate to finish to let the reset of unity continue in case more messages arrive before they are processed")]
+        public int clientMaxMsgsPerTick = 1000;
 
         [Tooltip("Send would stall forever if the network is cut off during a send, so we need a timeout (in milliseconds)")]
         public int sendTimeout = 5000;
@@ -31,13 +34,25 @@ namespace Mirror.SimpleWeb
         [Tooltip("How long without a message before disconnecting (in milliseconds)")]
         public int receiveTimeout = 20000;
 
-        [Tooltip("Caps the number of messages the server will process per tick. Allows LateUpdate to finish to let the reset of unity continue in case more messages arrive before they are processed")]
-        public int serverMaxMessagesPerTick = 10000;
+        [Tooltip("disables nagle algorithm. lowers CPU% and latency but increases bandwidth")]
+        public bool noDelay = true;
 
-        [Tooltip("Caps the number of messages the client will process per tick. Allows LateUpdate to finish to let the reset of unity continue in case more messages arrive before they are processed")]
-        public int clientMaxMessagesPerTick = 1000;
+        [Header("Obsolete SSL settings")]
+
+        [Tooltip("Requires wss connections on server, only to be used with SSL cert.json, never with reverse proxy.\nNOTE: if sslEnabled is true clientUseWss is forced true, even if not checked.")]
+        public bool sslEnabled;
+
+        [Tooltip("Protocols that SSL certificate is created to support.")]
+        public SslProtocols sslProtocols = SslProtocols.Tls12;
+
+        [Tooltip("Path to json file that contains path to cert and its password\nUse Json file so that cert password is not included in client builds\nSee Assets/Mirror/Transports/.cert.example.Json")]
+        public string sslCertJson = "./cert.json";
 
         [Header("Server settings")]
+
+        [Tooltip("Port to use for server")]
+        public ushort port = 7778;
+        public ushort Port { get => port; set => port = value; }
 
         [Tooltip("Groups messages in queue before calling Stream.Send")]
         public bool batchSend = true;
@@ -47,26 +62,16 @@ namespace Mirror.SimpleWeb
             "If WaitBeforeSend is true then BatchSend Will also be set to true")]
         public bool waitBeforeSend = true;
 
-        [Header("Ssl Settings")]
-
-        [Tooltip("Requires wss connections on server, only to be used with SSL cert.json, never with reverse proxy.\nNOTE: if sslEnabled is true clientUseWss is also true")]
-        public bool sslEnabled;
-
-        [Tooltip("Path to json file that contains path to cert and its password\nUse Json file so that cert password is not included in client builds\nSee Assets/Mirror/Transports/.cert.example.Json")]
-        public string sslCertJson = "./cert.json";
-
-        [Tooltip("Protocols that SSL certificate is created to support.")]
-        public SslProtocols sslProtocols = SslProtocols.Tls12;
-
         [Header("Client settings")]
+
         [Tooltip("Sets connect scheme to wss. Useful when client needs to connect using wss when TLS is outside of transport.\nNOTE: if sslEnabled is true clientUseWss is also true")]
         public bool clientUseWss;
         public ClientWebsocketSettings clientWebsocketSettings;
 
-        [Header("Debug")]
-        [Tooltip("Log functions uses ConditionalAttribute which will effect which log methods are allowed.")]
-        [FormerlySerializedAs("logLevels")]
-        [SerializeField] Log.Levels _logLevels = Log.Levels.warn;
+        [Header("Logging")]
+
+        [Tooltip("Choose minimum severity level for logging\nFlood level requires Debug build")]
+        [SerializeField] Log.Levels minimumLogLevel = Log.Levels.Warn;
 
         /// <summary>
         /// <para>Gets _logLevels field</para>
@@ -74,11 +79,11 @@ namespace Mirror.SimpleWeb
         /// </summary>
         public Log.Levels LogLevels
         {
-            get => _logLevels;
+            get => minimumLogLevel;
             set
             {
-                _logLevels = value;
-                Log.level = _logLevels;
+                minimumLogLevel = value;
+                Log.minLogLevel = minimumLogLevel;
             }
         }
 
@@ -89,14 +94,14 @@ namespace Mirror.SimpleWeb
 
         void Awake()
         {
-            Log.level = _logLevels;
+            Log.minLogLevel = minimumLogLevel;
         }
 
         public override string ToString() => $"SWT [{port}]";
 
         void OnValidate()
         {
-            Log.level = _logLevels;
+            Log.minLogLevel = minimumLogLevel;
         }
 
         public override bool Available() => true;
@@ -151,11 +156,11 @@ namespace Mirror.SimpleWeb
             // connecting or connected
             if (ClientConnected())
             {
-                Log.Warn("[SimpleWebTransport] Already Connected");
+                Log.Warn("[SWT-ClientConnect]: Already Connected");
                 return;
             }
 
-            client = SimpleWebClient.Create(maxMessageSize, clientMaxMessagesPerTick, TcpConfig);
+            client = SimpleWebClient.Create(maxMessageSize, clientMaxMsgsPerTick, TcpConfig);
             if (client == null)
                 return;
 
@@ -190,19 +195,19 @@ namespace Mirror.SimpleWeb
         {
             if (!ClientConnected())
             {
-                Log.Error("[SimpleWebTransport] Not Connected");
+                Log.Error("[SWT-ClientSend]: Not Connected");
                 return;
             }
 
             if (segment.Count > maxMessageSize)
             {
-                Log.Error("[SimpleWebTransport] Message greater than max size");
+                Log.Error("[SWT-ClientSend]: Message greater than max size");
                 return;
             }
 
             if (segment.Count == 0)
             {
-                Log.Error("[SimpleWebTransport] Message count was zero");
+                Log.Error("[SWT-ClientSend]: Message count was zero");
                 return;
             }
 
@@ -243,10 +248,10 @@ namespace Mirror.SimpleWeb
         public override void ServerStart()
         {
             if (ServerActive())
-                Log.Warn("[SimpleWebTransport] Server Already Started");
+                Log.Warn("[SWT-ServerStart]: Server Already Started");
 
             SslConfig config = SslConfigLoader.Load(sslEnabled, sslCertJson, sslProtocols);
-            server = new SimpleWebServer(serverMaxMessagesPerTick, TcpConfig, maxMessageSize, handshakeMaxSize, config);
+            server = new SimpleWebServer(serverMaxMsgsPerTick, TcpConfig, maxMessageSize, maxHandshakeSize, config);
 
             server.onConnect += OnServerConnected.Invoke;
             server.onDisconnect += OnServerDisconnected.Invoke;
@@ -278,19 +283,19 @@ namespace Mirror.SimpleWeb
         {
             if (!ServerActive())
             {
-                Log.Error("[SimpleWebTransport] Server Not Active", false);
+                Log.Error("[SWT-ServerSend]: Server Not Active");
                 return;
             }
 
             if (segment.Count > maxMessageSize)
             {
-                Log.Error("[SimpleWebTransport] Message greater than max size", false);
+                Log.Error("[SWT-ServerSend]: Message greater than max size");
                 return;
             }
 
             if (segment.Count == 0)
             {
-                Log.Error("[SimpleWebTransport] Message count was zero", false);
+                Log.Error("[SWT-ServerSend]: Message count was zero");
                 return;
             }
 
