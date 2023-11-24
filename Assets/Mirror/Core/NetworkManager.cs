@@ -413,6 +413,9 @@ namespace Mirror
             if (mode == NetworkManagerMode.ServerOnly)
             {
                 mode = NetworkManagerMode.Host;
+
+                // Redirect to FinishStartHost to do all the proper setup for host mode
+                // Exit here after that's completed, instead of proceeding as a remote client.
                 FinishStartHost();
                 return;
             }
