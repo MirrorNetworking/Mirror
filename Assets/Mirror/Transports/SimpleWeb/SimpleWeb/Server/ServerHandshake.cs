@@ -66,6 +66,7 @@ namespace Mirror.SimpleWeb
 
                 conn.request = new Request(msg);
                 conn.remoteAddress = conn.CalculateAddress();
+                Log.Info($"[SWT-ServerHandshake]: A client connected from {conn}");
 
                 return true;
             }
@@ -89,7 +90,7 @@ namespace Mirror.SimpleWeb
                 string msg = Encoding.ASCII.GetString(readBuffer.array, 0, readCount);
                 // GET isn't in the bytes we read here, so we need to add it back
                 msg = $"GET{msg}";
-                Log.Info($"[SWT-ServerHandshake]: Client Handshake Message:\r\n{msg}");
+                Log.Verbose($"[SWT-ServerHandshake]: Client Handshake Message:\r\n{msg}");
 
                 return msg;
             }

@@ -37,7 +37,7 @@ namespace Mirror.SimpleWeb
             listener = TcpListener.Create(port);
             listener.Start();
 
-            Log.Info($"[SWT-WebSocketServer]: Server Started on {port}!");
+            Log.Info($"[SWT-WebSocketServer]: Server Started on {port}!", ConsoleColor.Green);
 
             acceptThread = new Thread(acceptLoop);
             acceptThread.IsBackground = true;
@@ -78,7 +78,7 @@ namespace Mirror.SimpleWeb
                         //      this might not be a problem as HandshakeAndReceiveLoop checks for stop
                         //      and returns/disposes before sending message to queue
                         Connection conn = new Connection(client, AfterConnectionDisposed);
-                        Log.Info($"[SWT-WebSocketServer]: A client connected {conn}");
+                        Log.Verbose($"[SWT-WebSocketServer]: A client connected from {conn}");
 
                         // handshake needs its own thread as it needs to wait for message from client
                         Thread receiveThread = new Thread(() => HandshakeAndReceiveLoop(conn));
