@@ -80,7 +80,7 @@ namespace Mirror.SimpleWeb
 
                     if (read >= maxLength)
                     {
-                        Log.Error("[SimpleWebTransport] SafeReadTillMatch exceeded maxLength");
+                        Log.Error("[SWT-ReadHelper]: SafeReadTillMatch exceeded maxLength");
                         return null;
                     }
 

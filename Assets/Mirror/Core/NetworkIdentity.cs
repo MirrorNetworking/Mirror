@@ -93,6 +93,9 @@ namespace Mirror
         // for example: main player & pets are owned. monsters & npcs aren't.
         public bool isOwned { get; internal set; }
 
+        // public so NetworkManager can reset it from StopClient.
+        public bool clientStarted;
+
         /// <summary>The set of network connections (players) that can see this object.</summary>
         public readonly Dictionary<int, NetworkConnectionToClient> observers =
             new Dictionary<int, NetworkConnectionToClient>();
@@ -707,7 +710,6 @@ namespace Mirror
             }
         }
 
-        bool clientStarted;
         internal void OnStartClient()
         {
             if (clientStarted) return;

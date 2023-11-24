@@ -59,7 +59,6 @@ namespace Mirror.SimpleWeb
         /// </summary>
         public const int UlongPayloadLength = 127;
 
-
         /// <summary>
         /// Guid used for WebSocket Protocol
         /// </summary>
