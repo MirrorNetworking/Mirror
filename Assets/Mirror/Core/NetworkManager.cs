@@ -426,8 +426,6 @@ namespace Mirror
 
             RegisterClientMessages();
 
-            // Debug.Log($"NetworkManager StartClient address:{networkAddress}");
-
             NetworkClient.Connect(networkAddress);
 
             OnStartClient();
