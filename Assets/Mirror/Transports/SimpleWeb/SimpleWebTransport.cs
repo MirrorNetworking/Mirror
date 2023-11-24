@@ -67,7 +67,7 @@ namespace Mirror.SimpleWeb
         [Header("Debug")]
         [Tooltip("Log functions uses ConditionalAttribute which will effect which log methods are allowed.")]
         [FormerlySerializedAs("logLevels")]
-        [SerializeField] Log.Levels _logLevels = Log.Levels.warn;
+        [SerializeField] Log.Levels minimumLogLevel = Log.Levels.warn;
 
         /// <summary>
         /// <para>Gets _logLevels field</para>
@@ -75,11 +75,11 @@ namespace Mirror.SimpleWeb
         /// </summary>
         public Log.Levels LogLevels
         {
-            get => _logLevels;
+            get => minimumLogLevel;
             set
             {
-                _logLevels = value;
-                Log.level = _logLevels;
+                minimumLogLevel = value;
+                Log.level = minimumLogLevel;
             }
         }
 
@@ -90,14 +90,14 @@ namespace Mirror.SimpleWeb
 
         void Awake()
         {
-            Log.level = _logLevels;
+            Log.level = minimumLogLevel;
         }
 
         public override string ToString() => $"SWT [{port}]";
 
         void OnValidate()
         {
-            Log.level = _logLevels;
+            Log.level = minimumLogLevel;
         }
 
         public override bool Available() => true;
