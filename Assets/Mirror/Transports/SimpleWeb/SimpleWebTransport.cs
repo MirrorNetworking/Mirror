@@ -67,7 +67,7 @@ namespace Mirror.SimpleWeb
         [Header("Debug")]
         [Tooltip("Log functions uses ConditionalAttribute which will effect which log methods are allowed.")]
         [FormerlySerializedAs("logLevels")]
-        [SerializeField] Log.Levels minimumLogLevel = Log.Levels.warn;
+        [SerializeField] Log.Levels minimumLogLevel = Log.Levels.Warn;
 
         /// <summary>
         /// <para>Gets _logLevels field</para>

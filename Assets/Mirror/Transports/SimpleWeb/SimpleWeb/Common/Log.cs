@@ -30,15 +30,16 @@ namespace Mirror.SimpleWeb
 
         public enum Levels
         {
-            none = 0,
-            error = 1,
-            warn = 2,
-            info = 3,
-            verbose = 4,
+            Flood,
+            Verbose,
+            Info,
+            Warn,
+            Error,
+            None
         }
 
         public static ILogger logger = Debug.unityLogger;
-        public static Levels minLogLevel = Levels.none;
+        public static Levels minLogLevel = Levels.None;
 
         public static string BufferToString(byte[] buffer, int offset = 0, int? length = null)
         {
@@ -47,7 +48,7 @@ namespace Mirror.SimpleWeb
 
         public static void DumpBuffer(string label, byte[] buffer, int offset, int length)
         {
-            if (minLogLevel < Levels.verbose)
+            if (minLogLevel < Levels.Verbose)
                 return;
 
             logger.Log(LogType.Log, $"[SimpleWebTransport] VERBOSE: <color=cyan>{label}: {BufferToString(buffer, offset, length)}</color>");
@@ -55,7 +56,7 @@ namespace Mirror.SimpleWeb
 
         public static void DumpBuffer(string label, ArrayBuffer arrayBuffer)
         {
-            if (minLogLevel < Levels.verbose)
+            if (minLogLevel < Levels.Verbose)
                 return;
 
             logger.Log(LogType.Log, $"[SimpleWebTransport] VERBOSE: <color=cyan>{label}: {BufferToString(arrayBuffer.array, 0, arrayBuffer.count)}</color>");
@@ -63,7 +64,7 @@ namespace Mirror.SimpleWeb
 
         public static void Verbose(string msg, bool showColor = true)
         {
-            if (minLogLevel < Levels.verbose)
+            if (minLogLevel < Levels.Verbose)
                 return;
 
             if (showColor)
@@ -74,7 +75,7 @@ namespace Mirror.SimpleWeb
 
         public static void Info(string msg, bool showColor = true)
         {
-            if (minLogLevel < Levels.info)
+            if (minLogLevel < Levels.Info)
                 return;
 
             if (showColor)
@@ -85,7 +86,7 @@ namespace Mirror.SimpleWeb
 
         public static void InfoException(Exception e)
         {
-            if (minLogLevel < Levels.info)
+            if (minLogLevel < Levels.Info)
                 return;
 
 #if UNITY_SERVER
@@ -97,7 +98,7 @@ namespace Mirror.SimpleWeb
 
         public static void Warn(string msg, bool showColor = true)
         {
-            if (minLogLevel < Levels.warn)
+            if (minLogLevel < Levels.Warn)
                 return;
 
             if (showColor)
@@ -108,7 +109,7 @@ namespace Mirror.SimpleWeb
 
         public static void Error(string msg, bool showColor = true)
         {
-            if (minLogLevel < Levels.error)
+            if (minLogLevel < Levels.Error)
                 return;
 
             if (showColor)
