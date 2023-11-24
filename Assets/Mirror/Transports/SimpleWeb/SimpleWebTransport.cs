@@ -79,7 +79,7 @@ namespace Mirror.SimpleWeb
             set
             {
                 minimumLogLevel = value;
-                Log.level = minimumLogLevel;
+                Log.minLogLevel = minimumLogLevel;
             }
         }
 
@@ -90,14 +90,14 @@ namespace Mirror.SimpleWeb
 
         void Awake()
         {
-            Log.level = minimumLogLevel;
+            Log.minLogLevel = minimumLogLevel;
         }
 
         public override string ToString() => $"SWT [{port}]";
 
         void OnValidate()
         {
-            Log.level = minimumLogLevel;
+            Log.minLogLevel = minimumLogLevel;
         }
 
         public override bool Available() => true;
