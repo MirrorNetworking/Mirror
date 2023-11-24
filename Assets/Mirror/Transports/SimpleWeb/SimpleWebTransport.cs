@@ -7,6 +7,7 @@ using UnityEngine.Serialization;
 namespace Mirror.SimpleWeb
 {
     [DisallowMultipleComponent]
+    [HelpURL("https://mirror-networking.gitbook.io/docs/manual/transports/websockets-transport")]
     public class SimpleWebTransport : Transport, PortTransport
     {
         public const string NormalScheme = "ws";
