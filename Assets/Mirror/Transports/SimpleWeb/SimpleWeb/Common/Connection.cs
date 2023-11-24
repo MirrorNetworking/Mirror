@@ -91,12 +91,15 @@ namespace Mirror.SimpleWeb
 
         public override string ToString()
         {
+            // remoteAddress isn't set until after handshake
             if (hasDisposed)
                 return $"[Conn:{connId}, Disposed]";
+            else if (!string.IsNullOrWhiteSpace(remoteAddress))
+                return $"[Conn:{connId}, endPoint:{remoteAddress}]";
             else
                 try
                 {
-                    System.Net.EndPoint endpoint = client?.Client?.RemoteEndPoint;
+                    EndPoint endpoint = client?.Client?.RemoteEndPoint;
                     return $"[Conn:{connId}, endPoint:{endpoint}]";
                 }
                 catch (SocketException)
