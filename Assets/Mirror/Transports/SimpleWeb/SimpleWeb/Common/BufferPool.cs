@@ -236,13 +236,13 @@ namespace Mirror.SimpleWeb
         public ArrayBuffer Take(int size)
         {
             if (size > largest)
-                throw new ArgumentException($"Size ({size}) is greatest that largest ({largest})");
+                throw new ArgumentException($"Size ({size}) is greater than largest ({largest})");
 
             for (int i = 0; i < bucketCount; i++)
                 if (size <= buckets[i].arraySize)
                     return buckets[i].Take();
 
-            throw new ArgumentException($"Size ({size}) is greatest that largest ({largest})");
+            throw new ArgumentException($"Size ({size}) is greater than largest ({largest})");
         }
     }
 }
