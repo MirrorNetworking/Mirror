@@ -36,7 +36,7 @@ namespace Mirror.SimpleWeb
         public int serverMaxMessagesPerTick = 10000;
 
         [Tooltip("Caps the number of messages the client will process per tick. Allows LateUpdate to finish to let the reset of unity continue in case more messages arrive before they are processed")]
-        public int clientMaxMessagesPerTick = 1000;
+        public int clientMaxMsgsPerTick = 1000;
 
         [Header("Server settings")]
 
@@ -156,7 +156,7 @@ namespace Mirror.SimpleWeb
                 return;
             }
 
-            client = SimpleWebClient.Create(maxMessageSize, clientMaxMessagesPerTick, TcpConfig);
+            client = SimpleWebClient.Create(maxMessageSize, clientMaxMsgsPerTick, TcpConfig);
             if (client == null)
                 return;
 
