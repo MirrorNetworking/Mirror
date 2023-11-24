@@ -96,7 +96,7 @@ namespace Mirror.SimpleWeb
             else
                 try
                 {
-                    System.Net.EndPoint endpoint = client?.Client?.RemoteEndPoint;
+                    EndPoint endpoint = client?.Client?.RemoteEndPoint;
                     return $"[Conn:{connId}, endPoint:{endpoint}]";
                 }
                 catch (SocketException)
