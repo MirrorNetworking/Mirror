@@ -404,6 +404,12 @@ namespace Mirror
                 return;
             }
 
+            if (string.IsNullOrWhiteSpace(networkAddress))
+            {
+                Debug.LogError("Must set the Network Address field in the manager");
+                return;
+            }
+
             mode = NetworkManagerMode.ClientOnly;
 
             SetupClient();
@@ -412,13 +418,6 @@ namespace Mirror
             ConfigureHeadlessFrameRate();
 
             RegisterClientMessages();
-
-            if (string.IsNullOrWhiteSpace(networkAddress))
-            {
-                Debug.LogError("Must set the Network Address field in the manager");
-                return;
-            }
-            // Debug.Log($"NetworkManager StartClient address:{networkAddress}");
 
             NetworkClient.Connect(networkAddress);
 
