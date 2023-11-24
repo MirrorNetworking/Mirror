@@ -235,7 +235,8 @@ namespace Mirror.SimpleWeb
 
         public ArrayBuffer Take(int size)
         {
-            if (size > largest) { throw new ArgumentException($"Size ({size}) is greatest that largest ({largest})"); }
+            if (size > largest)
+                throw new ArgumentException($"Size ({size}) is greatest that largest ({largest})");
 
             for (int i = 0; i < bucketCount; i++)
                 if (size <= buckets[i].arraySize)
