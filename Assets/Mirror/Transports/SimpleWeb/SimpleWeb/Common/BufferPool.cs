@@ -243,7 +243,7 @@ namespace Mirror.SimpleWeb
                 if (size <= buckets[i].arraySize)
                     return buckets[i].Take();
 
-            throw new ArgumentException($"Size ({size}) is greatest that largest ({largest})");
+            throw new ArgumentException($"Size ({size}) is greater than largest ({largest})");
         }
     }
 }
