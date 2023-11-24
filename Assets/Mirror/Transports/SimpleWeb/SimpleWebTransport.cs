@@ -21,7 +21,7 @@ namespace Mirror.SimpleWeb
         public int maxMessageSize = 16 * 1024;
 
         [Tooltip("Max size for http header send as handshake for websockets")]
-        public int handshakeMaxSize = 3000;
+        public int maxHandshakeSize = 3000;
 
         [Tooltip("disables nagle algorithm. lowers CPU% and latency but increases bandwidth")]
         public bool noDelay = true;
@@ -247,7 +247,7 @@ namespace Mirror.SimpleWeb
                 Log.Warn("[SimpleWebTransport] Server Already Started");
 
             SslConfig config = SslConfigLoader.Load(sslEnabled, sslCertJson, sslProtocols);
-            server = new SimpleWebServer(serverMaxMessagesPerTick, TcpConfig, maxMessageSize, handshakeMaxSize, config);
+            server = new SimpleWebServer(serverMaxMessagesPerTick, TcpConfig, maxMessageSize, maxHandshakeSize, config);
 
             server.onConnect += OnServerConnected.Invoke;
             server.onDisconnect += OnServerDisconnected.Invoke;
