@@ -93,6 +93,8 @@ namespace Mirror.SimpleWeb
         {
             if (hasDisposed)
                 return $"[Conn:{connId}, Disposed]";
+            else if (!string.IsNullOrWhiteSpace(remoteAddress))
+                return $"[Conn:{connId}, endPoint:{remoteAddress}]";
             else
                 try
                 {
