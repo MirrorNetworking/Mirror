@@ -156,7 +156,7 @@ namespace Mirror.SimpleWeb
             // connecting or connected
             if (ClientConnected())
             {
-                Log.Warn("[SimpleWebTransport] Already Connected");
+                Log.Warn("[SWT-ClientConnect]: Already Connected");
                 return;
             }
 
@@ -195,19 +195,19 @@ namespace Mirror.SimpleWeb
         {
             if (!ClientConnected())
             {
-                Log.Error("[SimpleWebTransport] Not Connected");
+                Log.Error("[SWT-ClientSend]: Not Connected");
                 return;
             }
 
             if (segment.Count > maxMessageSize)
             {
-                Log.Error("[SimpleWebTransport] Message greater than max size");
+                Log.Error("[SWT-ClientSend]: Message greater than max size");
                 return;
             }
 
             if (segment.Count == 0)
             {
-                Log.Error("[SimpleWebTransport] Message count was zero");
+                Log.Error("[SWT-ClientSend]: Message count was zero");
                 return;
             }
 
@@ -248,7 +248,7 @@ namespace Mirror.SimpleWeb
         public override void ServerStart()
         {
             if (ServerActive())
-                Log.Warn("[SimpleWebTransport] Server Already Started");
+                Log.Warn("[SWT-ServerStart]: Server Already Started");
 
             SslConfig config = SslConfigLoader.Load(sslEnabled, sslCertJson, sslProtocols);
             server = new SimpleWebServer(serverMaxMsgsPerTick, TcpConfig, maxMessageSize, maxHandshakeSize, config);
@@ -283,19 +283,19 @@ namespace Mirror.SimpleWeb
         {
             if (!ServerActive())
             {
-                Log.Error("[SimpleWebTransport] Server Not Active", false);
+                Log.Error("[SWT-ServerSend]: Server Not Active");
                 return;
             }
 
             if (segment.Count > maxMessageSize)
             {
-                Log.Error("[SimpleWebTransport] Message greater than max size", false);
+                Log.Error("[SWT-ServerSend]: Message greater than max size");
                 return;
             }
 
             if (segment.Count == 0)
             {
-                Log.Error("[SimpleWebTransport] Message count was zero", false);
+                Log.Error("[SWT-ServerSend]: Message count was zero");
                 return;
             }
 

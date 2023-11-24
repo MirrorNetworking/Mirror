@@ -48,12 +48,12 @@ namespace Mirror.SimpleWeb
         /// </summary>
         public void Dispose()
         {
-            Log.Verbose($"[SimpleWebTransport] Dispose {ToString()}");
+            Log.Verbose($"[SWT-Connection]: Dispose {ToString()}");
 
             // check hasDisposed first to stop ThreadInterruptedException on lock
             if (hasDisposed) return;
 
-            Log.Info($"[SimpleWebTransport] Connection Close: {ToString()}");
+            Log.Verbose($"[SWT-Connection]: Connection Close: {ToString()}");
 
             lock (disposedLock)
             {
@@ -91,6 +91,7 @@ namespace Mirror.SimpleWeb
 
         public override string ToString()
         {
+            // remoteAddress isn't set until after handshake
             if (hasDisposed)
                 return $"[Conn:{connId}, Disposed]";
             else if (!string.IsNullOrWhiteSpace(remoteAddress))
