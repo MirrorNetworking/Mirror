@@ -7,7 +7,7 @@ namespace Mirror
 {
     // a transport that can listen to multiple underlying transport at the same time
     [DisallowMultipleComponent]
-    public class MultiplexTransport : Transport
+    public class MultiplexTransport : Transport, PortTransport
     {
         public Transport[] transports;
 
@@ -41,6 +41,22 @@ namespace Mirror
 
         // next multiplexed id counter. start at 1 because 0 is reserved for host.
         int nextMultiplexedId = 1;
+
+        public ushort Port
+        {
+            get
+            {
+                if (available is PortTransport portTransport)
+                    return portTransport.Port;
+                else
+                    return 0;
+            }
+            set
+            {
+                if (available is PortTransport portTransport)
+                    portTransport.Port = value;
+            }
+        }
 
         // add to bidirection lookup. returns the multiplexed connectionId.
         public int AddToLookup(int originalConnectionId, int transportIndex)

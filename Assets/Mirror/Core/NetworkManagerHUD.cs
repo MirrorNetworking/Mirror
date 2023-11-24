@@ -80,22 +80,6 @@ namespace Mirror
                         portTransport.Port = port;
                 }
 
-                if (Transport.active is MultiplexTransport multiplexTransport)
-                {
-                    // Only deal with first transport that is available on this platform
-                    // Typically Kcp | Telepathy + SimpleWebTransport
-                    // Current Build Platform will determine which is available
-                    foreach (Transport transport in multiplexTransport.transports)
-                        if (transport.Available() && transport is PortTransport multiplexPortTransport)
-                        {
-                            // use TryParse in case someone tries to enter non-numeric characters
-                            if (ushort.TryParse(GUILayout.TextField(multiplexPortTransport.Port.ToString()), out ushort port))
-                                multiplexPortTransport.Port = port;
-
-                            break;
-                        }
-                }
-
                 GUILayout.EndHorizontal();
 
                 // Server Only
