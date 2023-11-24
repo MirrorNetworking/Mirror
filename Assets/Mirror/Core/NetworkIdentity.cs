@@ -710,10 +710,8 @@ namespace Mirror
             }
         }
 
-        public bool clientStarted;
         internal void OnStartClient()
         {
-            //Debug.Log($"clientStarted {connectionToClient} {clientStarted}");
             if (clientStarted) return;
 
             clientStarted = true;
