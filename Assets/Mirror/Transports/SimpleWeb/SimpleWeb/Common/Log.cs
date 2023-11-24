@@ -6,7 +6,6 @@ namespace Mirror.SimpleWeb
 {
     public static class Log
     {
-
         // The.NET console color names map to the following approximate CSS color names:
 
         // Black:       Black
