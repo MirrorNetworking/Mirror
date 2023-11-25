@@ -39,6 +39,7 @@ namespace Mirror
         [FormerlySerializedAs("serverTickRate")]
         public int sendRate = 60;
 
+        // Deprecated 2023-11-25
         // Using SerializeField and HideInInspector to self-correct for being
         // replaced by headlessStartMode. This can be removed in the future.
         // See OnValidate() for how we handle this.
@@ -46,6 +47,7 @@ namespace Mirror
         [FormerlySerializedAs("autoStartServerBuild"), SerializeField, HideInInspector]
         public bool autoStartServerBuild = true;
 
+        // Deprecated 2023-11-25
         // Using SerializeField and HideInInspector to self-correct for being
         // replaced by headlessStartMode. This can be removed in the future.
         // See OnValidate() for how we handle this.
