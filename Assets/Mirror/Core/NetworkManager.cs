@@ -178,19 +178,15 @@ namespace Mirror
             // headlessStartMode defaults to DoNothing, so if the user had neither of these
             // set, then it will remain as DoNothing, and if they set headlessStartMode to
             // any selection in the inspector it won't get changed back.
-            //
+            if (autoStartServerBuild)
+                headlessStartMode = HeadlessStartOptions.AutoStartServer;
+            else if (autoConnectClientBuild)
+                headlessStartMode = HeadlessStartOptions.AutoStartClient;
+
             // Setting both to false here prevents this code from fighting with user
             // selection in the inspector, and they're both SerialisedField's.
-            if (autoStartServerBuild)
-            {
-                headlessStartMode = HeadlessStartOptions.AutoStartServer;
-                autoStartServerBuild = false;
-            }
-            else if (autoConnectClientBuild)
-            {
-                headlessStartMode = HeadlessStartOptions.AutoStartClient;
-                autoConnectClientBuild = false;
-            }
+            autoStartServerBuild = false;
+            autoConnectClientBuild = false;
 #pragma warning restore 618
 
             // always >= 0
