@@ -48,7 +48,7 @@ namespace Mirror
         {
             if (!NetworkClient.active)
             {
-#if UNITY_WEBGL
+#if !UNITY_EDITOR && UNITY_WEBGL
                 // cant be a server in webgl build
                 if (GUILayout.Button("Single Player"))
                 {
@@ -83,7 +83,7 @@ namespace Mirror
                 GUILayout.EndHorizontal();
 
                 // Server Only
-#if UNITY_WEBGL
+#if !UNITY_EDITOR && UNITY_WEBGL
                 // cant be a server in webgl build
                 GUILayout.Box("( WebGL cannot be server )");
 #else
@@ -128,7 +128,7 @@ namespace Mirror
             if (NetworkServer.active && NetworkClient.isConnected)
             {
                 GUILayout.BeginHorizontal();
-#if UNITY_WEBGL
+#if !UNITY_EDITOR && UNITY_WEBGL
                 if (GUILayout.Button("Stop Single Player"))
                     manager.StopHost();
 #else
