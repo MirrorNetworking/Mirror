@@ -42,19 +42,48 @@ namespace Mirror
         // next multiplexed id counter. start at 1 because 0 is reserved for host.
         int nextMultiplexedId = 1;
 
+        // prevent log flood from OnGUI or similar per-frame updates
+        bool alreadyWarned;
+
         public ushort Port
         {
             get
             {
-                if (available is PortTransport portTransport)
-                    return portTransport.Port;
-                else
-                    return 0;
+                foreach (Transport transport in transports)
+                    if (transport.Available() && transport is PortTransport portTransport)
+                        return portTransport.Port;
+
+                return 0;
             }
             set
             {
-                if (available is PortTransport portTransport)
-                    portTransport.Port = value;
+#if UNITY_SERVER
+                if (!alreadyWarned)
+                {
+                    alreadyWarned = true;
+#if DEBUG
+                    // Unity Editor or Debug build
+                    Debug.LogError($"MultiplexTransport: Server cannot set the same listen port for all transports! Set them directly instead.");
+#else
+                    // Release build
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine($"MultiplexTransport: Server cannot set the same listen port for all transports! Set them directly instead.");
+                    Console.ResetColor();
+#endif
+                }
+
+#else
+                // We can't set the same port for all transports because
+                // listen ports have to be different for each transport
+                // so we just set the first available one.
+                // This depends on the selected build platform.
+                foreach (Transport transport in transports)
+                    if (transport.Available() && transport is PortTransport portTransport)
+                    {
+                        portTransport.Port = value;
+                        break;
+                    }
+#endif
             }
         }
 
