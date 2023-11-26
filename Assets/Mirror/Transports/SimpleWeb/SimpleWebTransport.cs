@@ -50,28 +50,9 @@ namespace Mirror.SimpleWeb
 
         [Header("Server settings")]
 
-        ushort port = 7778;
-
         [Tooltip("Port to use for server")]
-        public ushort Port
-        {
-            get
-            {
-#if UNITY_WEBGL
-                return clientWebsocketSettings.CustomClientPort;
-#else
-                return port;
-#endif
-            }
-            set
-            {
-#if UNITY_WEBGL
-                clientWebsocketSettings.CustomClientPort = value;
-#else
-                port = value;
-#endif
-            }
-        }
+        public ushort port = 7778;
+        public ushort Port { get => port; set => port = value; }
 
         [Tooltip("Groups messages in queue before calling Stream.Send")]
         public bool batchSend = true;
