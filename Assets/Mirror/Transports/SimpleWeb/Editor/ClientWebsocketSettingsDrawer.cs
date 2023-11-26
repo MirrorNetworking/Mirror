@@ -46,7 +46,7 @@ namespace Mirror.SimpleWeb.Editor
                     if (portOption == WebsocketPortOption.MatchWebpageProtocol)
                         port = swt.clientUseWss ? 443 : 80;
                     else
-                        port = swt.port;
+                        port = swt.Port;
 
                 GUI.enabled = false;
                 EditorGUI.IntField(position, new GUIContent("Client Port"), port);
