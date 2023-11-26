@@ -252,22 +252,19 @@ namespace Mirror
             // We can't do this in Awake because Awake is for initialization
             // and some transports might not be ready until Start.
             //
-            // Note 1: It is intentional that selecting Dedicated Server in the
-            //         editor and clicking Play starts a server or client, depending
-            //         on the headlessStartMode. This is useful for debugging.
-            //
-            // Note 2: sendRate is applied in StartServer
-#if UNITY_SERVER
-            switch (headlessStartMode)
+            // Note: sendRate is applied in StartServer
+            if (Utils.IsHeadless() && !Application.isEditor)
             {
-                case HeadlessStartOptions.AutoStartServer:
-                    StartServer();
-                    break;
-                case HeadlessStartOptions.AutoStartClient:
-                    StartClient();
-                    break;
+                switch (headlessStartMode)
+                {
+                    case HeadlessStartOptions.AutoStartServer:
+                        StartServer();
+                        break;
+                    case HeadlessStartOptions.AutoStartClient:
+                        StartClient();
+                        break;
+                }
             }
-#endif
         }
 
         // make sure to call base.Update() when overwriting
