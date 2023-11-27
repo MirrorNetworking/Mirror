@@ -9,6 +9,7 @@ namespace Mirror
 {
     public enum PlayerSpawnMethod { Random, RoundRobin }
     public enum NetworkManagerMode { Offline, ServerOnly, ClientOnly, Host }
+    public enum HeadlessStartOptions { DoNothing, AutoStartServer, AutoStartClient }
 
     [DisallowMultipleComponent]
     [AddComponentMenu("Network/Network Manager")]
@@ -29,17 +30,30 @@ namespace Mirror
 
         /// <summary>Should the server auto-start when 'Server Build' is checked in build settings</summary>
         [Header("Headless Builds")]
-        [Tooltip("Should the server auto-start when 'Dedicated Server' platform is selected, or 'Server Build' is checked in build settings.")]
-        [FormerlySerializedAs("startOnHeadless")]
-        public bool autoStartServerBuild = true;
 
-        [Tooltip("Automatically connect the client in headless builds. Useful for CCU tests with bot clients.\n\nAddress may be passed as command line argument.\n\nMake sure that only 'autostartServer' or 'autoconnectClient' is enabled, not both!")]
-        public bool autoConnectClientBuild;
+        [Tooltip("Choose whether Server or Client should auto-start in headless builds")]
+        public HeadlessStartOptions headlessStartMode = HeadlessStartOptions.DoNothing;
 
         /// <summary>Server Update frequency, per second. Use around 60Hz for fast paced games like Counter-Strike to minimize latency. Use around 30Hz for games like WoW to minimize computations. Use around 1-10Hz for slow paced games like EVE.</summary>
         [Tooltip("Server & Client send rate per second. Use 60-100Hz for fast paced games like Counter-Strike to minimize latency. Use around 30Hz for games like WoW to minimize computations. Use around 1-10Hz for slow paced games like EVE.")]
         [FormerlySerializedAs("serverTickRate")]
         public int sendRate = 60;
+
+        // Deprecated 2023-11-25
+        // Using SerializeField and HideInInspector to self-correct for being
+        // replaced by headlessStartMode. This can be removed in the future.
+        // See OnValidate() for how we handle this.
+        [Obsolete("Deprecated - Use headlessStartMode instead.")]
+        [FormerlySerializedAs("autoStartServerBuild"), SerializeField, HideInInspector]
+        public bool autoStartServerBuild = true;
+
+        // Deprecated 2023-11-25
+        // Using SerializeField and HideInInspector to self-correct for being
+        // replaced by headlessStartMode. This can be removed in the future.
+        // See OnValidate() for how we handle this.
+        [Obsolete("Deprecated - Use headlessStartMode instead.")]
+        [FormerlySerializedAs("autoConnectClientBuild"), SerializeField, HideInInspector]
+        public bool autoConnectClientBuild;
 
         // client send rate follows server send rate to avoid errors for now
         /// <summary>Client Update frequency, per second. Use around 60Hz for fast paced games like Counter-Strike to minimize latency. Use around 30Hz for games like WoW to minimize computations. Use around 1-10Hz for slow paced games like EVE.</summary>
@@ -157,6 +171,24 @@ namespace Mirror
         // virtual so that inheriting classes' OnValidate() can call base.OnValidate() too
         public virtual void OnValidate()
         {
+#pragma warning disable 618
+            // autoStartServerBuild and autoConnectClientBuild are now obsolete, but to avoid
+            // a breaking change we'll set headlessStartMode to what the user had set before.
+            //
+            // headlessStartMode defaults to DoNothing, so if the user had neither of these
+            // set, then it will remain as DoNothing, and if they set headlessStartMode to
+            // any selection in the inspector it won't get changed back.
+            if (autoStartServerBuild)
+                headlessStartMode = HeadlessStartOptions.AutoStartServer;
+            else if (autoConnectClientBuild)
+                headlessStartMode = HeadlessStartOptions.AutoStartClient;
+
+            // Setting both to false here prevents this code from fighting with user
+            // selection in the inspector, and they're both SerialisedField's.
+            autoStartServerBuild = false;
+            autoConnectClientBuild = false;
+#pragma warning restore 618
+
             // always >= 0
             maxConnections = Mathf.Max(maxConnections, 0);
 
@@ -215,25 +247,22 @@ namespace Mirror
         // virtual so that inheriting classes' Start() can call base.Start() too
         public virtual void Start()
         {
-            // headless mode? then start the server
-            // can't do this in Awake because Awake is for initialization.
-            // some transports might not be ready until Start.
+            // Auto-start headless server or client.
             //
-            // (tick rate is applied in StartServer!)
+            // We can't do this in Awake because Awake is for initialization
+            // and some transports might not be ready until Start.
             //
-            // don't auto start in editor where we have a UI, only in builds.
-            // otherwise if we switch to 'Dedicated Server' target and press
-            // Play, it would auto start the server every time.
+            // Note: sendRate is applied in StartServer
             if (Utils.IsHeadless() && !Application.isEditor)
             {
-                if (autoStartServerBuild)
+                switch (headlessStartMode)
                 {
-                    StartServer();
-                }
-                // only start server or client, never both
-                else if (autoConnectClientBuild)
-                {
-                    StartClient();
+                    case HeadlessStartOptions.AutoStartServer:
+                        StartServer();
+                        break;
+                    case HeadlessStartOptions.AutoStartClient:
+                        StartClient();
+                        break;
                 }
             }
         }
