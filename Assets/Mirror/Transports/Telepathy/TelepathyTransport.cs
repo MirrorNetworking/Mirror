@@ -75,11 +75,13 @@ namespace Mirror
             Debug.Log("TelepathyTransport initialized!");
         }
 
-        public override bool Available()
-        {
-            // C#'s built in TCP sockets run everywhere except on WebGL
-            return Application.platform != RuntimePlatform.WebGLPlayer;
-        }
+        // C#'s built in TCP sockets run everywhere except on WebGL
+        public override bool Available() =>
+#if UNITY_WEBGL
+            false;
+#else
+            true;
+#endif
 
         // client
         private void CreateClient()
