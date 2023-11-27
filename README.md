@@ -1,22 +1,22 @@
 ![Mirror Logo](https://user-images.githubusercontent.com/16416509/119120944-6db26780-ba5f-11eb-9cdd-fc8500207f4d.png)
 <center>
 <a href="https://assetstore.unity.com/packages/tools/network/mirror-129321">
-    <img src="https://img.shields.io/badge/download-brightgreen.svg?style=for-the-badge&colorA=363a4f&colorB=f5a97f" alt="Download">
+    <img src="https://img.shields.io/badge/download-brightgreen.svg?style=for-the-badge&logo=unity&colorA=363a4f&colorB=f5a97f" alt="Download">
 </a>
 <a href="https://mirror-networking.com/showcase/">
-    <img src="https://img.shields.io/badge/showcase-brightgreen.svg?style=for-the-badge&colorA=363a4f&colorB=f5a97f" alt="Showcase">
+    <img src="https://img.shields.io/badge/showcase-brightgreen.svg?style=for-the-badge&logo=github&colorA=363a4f&colorB=f5a97f" alt="Showcase">
 </a>
 <a href="https://mirror-networking.gitbook.io/">
-    <img src="https://img.shields.io/badge/docs-brightgreen.svg?style=for-the-badge&colorA=363a4f&colorB=f5a97f" alt="Documentation">
+    <img src="https://img.shields.io/badge/docs-brightgreen.svg?style=for-the-badge&logo=gitbook&logoColor=white&colorA=363a4f&colorB=f5a97f" alt="Documentation">
 </a>
 <a href="https://mirror-networking.gitbook.io/docs/community-guides/video-tutorials">
-    <img src="https://img.shields.io/badge/video_tutorial-brightgreen.svg?style=for-the-badge&colorA=363a4f&colorB=f5a97f" alt="Video Tutorials">
+    <img src="https://img.shields.io/badge/video_tutorial-brightgreen.svg?style=for-the-badge&logo=youtube&colorA=363a4f&colorB=f5a97f" alt="Video Tutorials">
 </a>
 <a href="https://forum.unity.com/threads/mirror-networking-for-unity-aka-hlapi-community-edition.425437/">
-    <img src="https://img.shields.io/badge/forum-brightgreen.svg?style=for-the-badge&colorA=363a4f&colorB=f5a97f" alt="Forum">
+    <img src="https://img.shields.io/badge/forum-brightgreen.svg?style=for-the-badge&logo=unity&colorA=363a4f&colorB=f5a97f" alt="Forum">
 </a>
 <a href="https://trello.com/b/fgAE7Tud">
-    <img src="https://img.shields.io/badge/roadmap-blue.svg?style=for-the-badge&colorB=f5a97f" alt="Roadmap">
+    <img src="https://img.shields.io/badge/roadmap-brightgreen.svg?style=for-the-badge&logo=trello&colorA=363a4f&colorB=f5a97f" alt="Roadmap">
 </a>
 
 <br>
