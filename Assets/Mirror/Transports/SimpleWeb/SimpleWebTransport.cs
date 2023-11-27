@@ -144,7 +144,7 @@ namespace Mirror.SimpleWeb
                     // https://github.com/MirrorNetworking/Mirror/pull/3477
                     break;
                 default: // default case handles ClientWebsocketPortOption.DefaultSameAsServerPort
-                    builder.Port = Port;
+                    builder.Port = port;
                     break;
             }
 
