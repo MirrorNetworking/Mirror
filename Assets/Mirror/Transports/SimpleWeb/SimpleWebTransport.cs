@@ -176,11 +176,28 @@ namespace Mirror.SimpleWeb
 
             client.onData += (ArraySegment<byte> data) => OnClientDataReceived.Invoke(data, Channels.Reliable);
 
-            client.onError += (Exception e) =>
+            // We will not invoke OnClientError if minLogLevel is set to None
+            // We only send the full exception if minLogLevel is set to Verbose
+            switch (Log.minLogLevel)
             {
-                OnClientError.Invoke(TransportError.Unexpected, e.ToString());
-                ClientDisconnect();
-            };
+                case Log.Levels.Flood:
+                case Log.Levels.Verbose:
+                    client.onError += (Exception e) =>
+                    {
+                        OnClientError.Invoke(TransportError.Unexpected, e.ToString());
+                        ClientDisconnect();
+                    };
+                    break;
+                case Log.Levels.Info:
+                case Log.Levels.Warn:
+                case Log.Levels.Error:
+                    client.onError += (Exception e) =>
+                    {
+                        OnClientError.Invoke(TransportError.Unexpected, e.Message);
+                        ClientDisconnect();
+                    };
+                    break;
+            }
 
             client.Connect(uri);
         }
@@ -256,7 +273,29 @@ namespace Mirror.SimpleWeb
             server.onConnect += OnServerConnected.Invoke;
             server.onDisconnect += OnServerDisconnected.Invoke;
             server.onData += (int connId, ArraySegment<byte> data) => OnServerDataReceived.Invoke(connId, data, Channels.Reliable);
-            server.onError += (connId, exception) => OnServerError(connId, TransportError.Unexpected, exception.ToString());
+
+            // We will not invoke OnServerError if minLogLevel is set to None
+            // We only send the full exception if minLogLevel is set to Verbose
+            switch (Log.minLogLevel)
+            {
+                case Log.Levels.Flood:
+                case Log.Levels.Verbose:
+                    server.onError += (connId, exception) =>
+                    {
+                        OnServerError(connId, TransportError.Unexpected, exception.ToString());
+                        ServerDisconnect(connId);
+                    };
+                    break;
+                case Log.Levels.Info:
+                case Log.Levels.Warn:
+                case Log.Levels.Error:
+                    server.onError += (connId, exception) =>
+                    {
+                        OnServerError(connId, TransportError.Unexpected, exception.Message);
+                        ServerDisconnect(connId);
+                    };
+                    break;
+            }
 
             SendLoopConfig.batchSend = batchSend || waitBeforeSend;
             SendLoopConfig.sleepBeforeSend = waitBeforeSend;
