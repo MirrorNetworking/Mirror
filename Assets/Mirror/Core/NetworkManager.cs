@@ -224,7 +224,7 @@ namespace Mirror
             // don't auto start in editor where we have a UI, only in builds.
             // otherwise if we switch to 'Dedicated Server' target and press
             // Play, it would auto start the server every time.
-            if (Utils.IsHeadless() && !Application.isEditor)
+            if (Utils.IsHeadless())
             {
                 if (autoStartServerBuild)
                 {
