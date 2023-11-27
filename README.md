@@ -1,15 +1,39 @@
 ![Mirror Logo](https://user-images.githubusercontent.com/16416509/119120944-6db26780-ba5f-11eb-9cdd-fc8500207f4d.png)
+<center>
+<a href="https://assetstore.unity.com/packages/tools/network/mirror-129321">
+    <img src="https://img.shields.io/badge/download-brightgreen.svg?style=for-the-badge" alt="Download">
+</a>
+<a href="https://mirror-networking.com/showcase/">
+    <img src="https://img.shields.io/badge/showcase-brightgreen.svg?style=for-the-badge" alt="Showcase">
+</a>
+<a href="https://mirror-networking.gitbook.io/">
+    <img src="https://img.shields.io/badge/docs-brightgreen.svg?style=for-the-badge" alt="Documentation">
+</a>
+<a href="https://forum.unity.com/threads/mirror-networking-for-unity-aka-hlapi-community-edition.425437/">
+    <img src="https://img.shields.io/badge/forum-brightgreen.svg?style=for-the-badge" alt="Forum">
+</a>
+<a href="https://mirror-networking.gitbook.io/docs/community-guides/video-tutorials">
+    <img src="https://img.shields.io/badge/video_tutorial-brightgreen.svg?style=for-the-badge" alt="Video Tutorials">
+</a>
+<a href="https://trello.com/b/fgAE7Tud">
+    <img src="https://img.shields.io/badge/roadmap-blue.svg?style=for-the-badge" alt="Roadmap">
+</a>
 
-[![Download](https://img.shields.io/badge/asset_store-brightgreen.svg)](https://assetstore.unity.com/packages/tools/network/mirror-129321)
-[![Documentation](https://img.shields.io/badge/docs-brightgreen.svg)](https://mirror-networking.gitbook.io/)
-[![Showcase](https://img.shields.io/badge/showcase-brightgreen.svg)](https://mirror-networking.com/showcase/)
-[![Video Tutorials](https://img.shields.io/badge/video_tutorial-brightgreen.svg)](https://mirror-networking.gitbook.io/docs/community-guides/video-tutorials)
-[![Forum](https://img.shields.io/badge/forum-brightgreen.svg)](https://forum.unity.com/threads/mirror-networking-for-unity-aka-hlapi-community-edition.425437/)
-[![Build](https://img.shields.io/appveyor/ci/vis2k73562/hlapi-community-edition/Mirror.svg)](https://ci.appveyor.com/project/vis2k73562/hlapi-community-edition/branch/mirror)
-[![Discord](https://img.shields.io/discord/343440455738064897.svg)](https://discordapp.com/invite/xVW4nU4C34)
-[![release](https://img.shields.io/github/release/vis2k/Mirror.svg)](https://github.com/vis2k/Mirror/releases/latest)
-[![License: MIT](https://img.shields.io/badge/License-MIT-brightgreen.svg)](https://github.com/vis2k/Mirror/blob/master/LICENSE)
-[![Roadmap](https://img.shields.io/badge/roadmap-blue.svg)](https://trello.com/b/fgAE7Tud)
+<br>
+
+<a href="https://github.com/vis2k/Mirror/blob/master/LICENSE">
+    <img src="https://img.shields.io/badge/License-MIT-brightgreen.svg?style=for-the-badge" alt="License: MIT">
+</a>
+<a href="https://ci.appveyor.com/project/vis2k73562/hlapi-community-edition/branch/mirror">
+    <img src="https://img.shields.io/appveyor/ci/vis2k73562/hlapi-community-edition/Mirror.svg?style=for-the-badge" alt="Build">
+</a>
+<a href="https://discordapp.com/invite/xVW4nU4C34">
+    <img src="https://img.shields.io/discord/343440455738064897.svg?style=for-the-badge" alt="Discord">
+</a>
+<a href="https://github.com/vis2k/Mirror/releases/latest">
+    <img src="https://img.shields.io/github/release/vis2k/Mirror.svg?style=for-the-badge" alt="release">
+</a>
+</center>
 
 **It's only the dreamers who ever move mountains.**
 
