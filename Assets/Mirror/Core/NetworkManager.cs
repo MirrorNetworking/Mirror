@@ -252,8 +252,10 @@ namespace Mirror
             // We can't do this in Awake because Awake is for initialization
             // and some transports might not be ready until Start.
             //
-            // Note: sendRate is applied in StartServer
-            if (Utils.IsHeadless() && !Application.isEditor)
+            // don't auto start in editor where we have a UI, only in builds.
+            // otherwise if we switch to 'Dedicated Server' target and press
+            // Play, it would auto start the server every time.
+            if (Utils.IsHeadless())
             {
                 switch (headlessStartMode)
                 {
