@@ -133,7 +133,7 @@ namespace kcp2k
             if (statisticsLog)
                 InvokeRepeating(nameof(OnLogStatistics), 1, 1);
 
-            Debug.Log("KcpTransport initialized!");
+            Log.Info("KcpTransport initialized!");
         }
 
         protected virtual void OnValidate()
@@ -344,7 +344,7 @@ namespace kcp2k
                 log += $"  ReceiveQueue: {GetTotalReceiveQueue()}\n";
                 log += $"  SendBuffer: {GetTotalSendBuffer()}\n";
                 log += $"  ReceiveBuffer: {GetTotalReceiveBuffer()}\n\n";
-                Debug.Log(log);
+                Log.Info(log);
             }
 
             if (ClientConnected())
@@ -356,7 +356,7 @@ namespace kcp2k
                 log += $"  ReceiveQueue: {client.ReceiveQueueCount}\n";
                 log += $"  SendBuffer: {client.SendBufferCount}\n";
                 log += $"  ReceiveBuffer: {client.ReceiveBufferCount}\n\n";
-                Debug.Log(log);
+                Log.Info(log);
             }
         }
 

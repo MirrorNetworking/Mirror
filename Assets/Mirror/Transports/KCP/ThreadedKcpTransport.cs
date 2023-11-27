@@ -122,7 +122,7 @@ namespace kcp2k
             // it'll be used by the created thread immediately.
             base.Awake();
 
-            Debug.Log("ThreadedKcpTransport initialized!");
+            Log.Info("ThreadedKcpTransport initialized!");
         }
 
         protected virtual void OnValidate()
@@ -300,7 +300,7 @@ namespace kcp2k
                 log += $"  ReceiveQueue: {GetTotalReceiveQueue()}\n";
                 log += $"  SendBuffer: {GetTotalSendBuffer()}\n";
                 log += $"  ReceiveBuffer: {GetTotalReceiveBuffer()}\n\n";
-                Debug.Log(log);
+                Log.Info(log);
             }
 
             if (ClientConnected())
@@ -312,7 +312,7 @@ namespace kcp2k
                 log += $"  ReceiveQueue: {client.peer.ReceiveQueueCount}\n";
                 log += $"  SendBuffer: {client.peer.SendBufferCount}\n";
                 log += $"  ReceiveBuffer: {client.peer.ReceiveBufferCount}\n\n";
-                Debug.Log(log);
+                Log.Info(log);
             }
             */
         }
