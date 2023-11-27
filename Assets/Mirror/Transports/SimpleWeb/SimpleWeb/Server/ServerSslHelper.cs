@@ -29,8 +29,6 @@ namespace Mirror.SimpleWeb
 
         public ServerSslHelper(SslConfig sslConfig)
         {
-            Console.Clear();
-
             config = sslConfig;
             if (config.enabled)
             {
