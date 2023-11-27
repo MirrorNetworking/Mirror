@@ -1,5 +1,5 @@
 ![Mirror Logo](https://user-images.githubusercontent.com/16416509/119120944-6db26780-ba5f-11eb-9cdd-fc8500207f4d.png)
-<center>
+<p align="center">
 <a href="https://assetstore.unity.com/packages/tools/network/mirror-129321"><img src="https://img.shields.io/badge/download-brightgreen.svg?style=for-the-badge&logo=unity&colorA=363a4f&colorB=f5a97f" alt="Download"></a>
 <a href="https://mirror-networking.com/showcase/"><img src="https://img.shields.io/badge/showcase-brightgreen.svg?style=for-the-badge&logo=github&colorA=363a4f&colorB=f5a97f" alt="Showcase"></a>
 <a href="https://mirror-networking.gitbook.io/"><img src="https://img.shields.io/badge/docs-brightgreen.svg?style=for-the-badge&logo=gitbook&logoColor=white&colorA=363a4f&colorB=f5a97f" alt="Documentation"></a>
@@ -11,7 +11,7 @@
 <a href="https://ci.appveyor.com/project/vis2k73562/hlapi-community-edition/branch/mirror"><img src="https://img.shields.io/appveyor/ci/vis2k73562/hlapi-community-edition/Mirror.svg?style=for-the-badge&colorA=363a4f&colorB=f5a97f" alt="Build"></a>
 <a href="https://github.com/vis2k/Mirror/releases/latest"><img src="https://img.shields.io/github/release/vis2k/Mirror.svg?style=for-the-badge&colorA=363a4f&colorB=f5a97f" alt="release"></a>
 <a href="https://discordapp.com/invite/xVW4nU4C34"><img src="https://img.shields.io/discord/343440455738064897.svg?style=for-the-badge&colorA=363a4f&colorB=f5a97f" alt="Discord"></a>
-</center>
+</p>
 
 **It's only the dreamers who ever move mountains.**
 
