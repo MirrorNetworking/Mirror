@@ -63,7 +63,7 @@ namespace Mirror
                     alreadyWarned = true;
 #if DEBUG
                     // Unity Editor or Debug build
-                    Debug.LogError($"MultiplexTransport: Server cannot set the same listen port for all transports! Set them directly instead.");
+                    Debug.LogWarning($"MultiplexTransport: Server cannot set the same listen port for all transports! Set them directly instead.");
 #else
                     // Release build
                     Console.ForegroundColor = ConsoleColor.Red;
