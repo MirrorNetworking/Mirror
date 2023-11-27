@@ -37,7 +37,7 @@ namespace Mirror.SimpleWeb
             listener = TcpListener.Create(port);
             listener.Start();
 
-            Log.Info($"[SWT-WebSocketServer]: Server Started on {port}!", ConsoleColor.Green);
+            Log.Verbose($"[SWT-WebSocketServer]: Server Started on {port}");
 
             acceptThread = new Thread(acceptLoop);
             acceptThread.IsBackground = true;
@@ -53,7 +53,7 @@ namespace Mirror.SimpleWeb
             listener?.Stop();
             acceptThread = null;
 
-            Log.Info($"[SWT-WebSocketServer]: Server stopped...closing all connections.");
+            Log.Verbose($"[SWT-WebSocketServer]: Server stopped...closing all connections.");
 
             // make copy so that foreach doesn't break if values are removed
             Connection[] connectionsCopy = connections.Values.ToArray();

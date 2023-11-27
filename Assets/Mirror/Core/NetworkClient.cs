@@ -1703,7 +1703,7 @@ namespace Mirror
             // only if in world
             if (!ready) return;
 
-            GUILayout.BeginArea(new Rect(10, 5, 1000, 50));
+            GUILayout.BeginArea(new Rect(10, 5, 1020, 50));
 
             GUILayout.BeginHorizontal("Box");
             GUILayout.Label("Snapshot Interp.:");
