@@ -252,21 +252,27 @@ namespace Mirror
             // We can't do this in Awake because Awake is for initialization
             // and some transports might not be ready until Start.
             //
-            // don't auto start in editor where we have a UI, only in builds.
-            // otherwise if we switch to 'Dedicated Server' target and press
-            // Play, it would auto start the server every time.
-            if (Utils.IsHeadless())
+            // Note 1: It is intentional that selecting Dedicated Server in the
+            //         editor and clicking Play starts a server or client, depending
+            //         on the headlessStartMode. This is useful for debugging, but
+            //         it's only available starting with Unity 2021.
+            //
+            //         Unity 2019 / 2020 don't have Dedicated Server target yet and there's
+            //         no way to detect if Server Build is checked in Build Settings, so 
+            //         these Unity versions will never auto-start a server in Play Mode.
+            //
+            // Note 2: sendRate is applied in StartServer
+#if UNITY_SERVER
+            switch (headlessStartMode)
             {
-                switch (headlessStartMode)
-                {
-                    case HeadlessStartOptions.AutoStartServer:
-                        StartServer();
-                        break;
-                    case HeadlessStartOptions.AutoStartClient:
-                        StartClient();
-                        break;
-                }
+                case HeadlessStartOptions.AutoStartServer:
+                    StartServer();
+                    break;
+                case HeadlessStartOptions.AutoStartClient:
+                    StartClient();
+                    break;
             }
+#endif
         }
 
         // make sure to call base.Update() when overwriting
