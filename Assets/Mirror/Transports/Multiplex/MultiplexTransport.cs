@@ -285,17 +285,16 @@ namespace Mirror
 
                 if (transport is PortTransport portTransport)
                 {
-                    if (Utils.IsHeadless())
-                    {
-                        Console.ForegroundColor = ConsoleColor.Green;
-                        Console.WriteLine($"Server listening on port {portTransport.Port}");
-                        Console.ResetColor();
-                    }
-                    else
-                    {
-                        Debug.Log($"Server listening on port {portTransport.Port}");
-                    }
+#if !DEBUG && (UNITY_SERVER || UNITY_WEBGL)
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.WriteLine($"Server listening on port {portTransport.Port}");
+                    Console.ResetColor();
+#else
+                    Debug.Log($"Server listening on port {portTransport.Port}");
+#endif
                 }
+                else
+                    Debug.Log("Server started listening");
             }
         }
 
@@ -304,7 +303,7 @@ namespace Mirror
             foreach (Transport transport in transports)
                 transport.ServerStop();
         }
-        #endregion
+#endregion
 
         public override int GetMaxPacketSize(int channelId = 0)
         {

@@ -251,11 +251,10 @@ namespace Mirror
             OnRoomServerDisconnect(conn);
             base.OnServerDisconnect(conn);
 
-            if (Utils.IsHeadless())
-            {
-                if (numPlayers < 1)
-                    StopServer();
-            }
+#if UNITY_SERVER
+            if (numPlayers < 1)
+                StopServer();
+#endif
         }
 
         // Sequential index used in round-robin deployment of players into instances and score positioning
