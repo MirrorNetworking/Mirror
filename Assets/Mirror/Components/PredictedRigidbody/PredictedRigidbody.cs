@@ -88,6 +88,12 @@ namespace Mirror
         [Tooltip("After creating the visual interpolation object, replace this object's renderer materials with the ghost (ideally transparent) material.")]
         public Material ghostMaterial;
 
+        [Tooltip("How fast to interpolate to the target position, relative to how far we are away from it.\nHigher value will be more jitter but sharper moves, lower value will be less jitter but a little too smooth / rounded moves.")]
+        public float interpolationSpeed = 15; // 10 is a little too low for billiards at least
+
+        [Tooltip("Teleport if we are further than 'multiplier x collider size' behind.")]
+        public float teleportDistanceMultiplier = 10;
+
         [Header("Debugging")]
         public float lineTime = 10;
 
@@ -112,9 +118,10 @@ namespace Mirror
             visualCopy.transform.localScale = transform.localScale;
 
             // add the PredictedRigidbodyVisual component
-            // TODO allow customizing that component's properties via this component?
             PredictedRigidbodyVisual visualRigidbody = visualCopy.AddComponent<PredictedRigidbodyVisual>();
             visualRigidbody.target = this;
+            visualRigidbody.interpolationSpeed = interpolationSpeed;
+            visualRigidbody.teleportDistanceMultiplier = teleportDistanceMultiplier;
 
             // copy the rendering components
             if (GetComponent<MeshRenderer>() != null)

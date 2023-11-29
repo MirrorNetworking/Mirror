@@ -8,11 +8,9 @@ namespace Mirror
         public PredictedRigidbody target;
         Rigidbody targetRigidbody;
 
-        [Tooltip("How fast to interpolate to the target position, relative to how far we are away from it.\nHigher value will be more jitter but sharper moves, lower value will be less jitter but a little too smooth / rounded moves.")]
-        public float interpolationSpeed = 15; // 10 is a little too low for billiards at least
-
-        [Tooltip("Teleport if we are further than 'multiplier x collider size' behind.")]
-        public float teleportDistanceMultiplier = 10;
+        // settings are applied in the other PredictedRigidbody component and then copied here.
+        [HideInInspector] public float interpolationSpeed = 15; // 10 is a little too low for billiards at least
+        [HideInInspector] public float teleportDistanceMultiplier = 10;
 
         // we add this component manually from PredictedRigidbody.
         // so assign this in Start. target isn't set in Awake yet.
