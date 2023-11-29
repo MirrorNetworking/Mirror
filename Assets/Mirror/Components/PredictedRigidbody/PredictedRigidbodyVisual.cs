@@ -14,7 +14,9 @@ namespace Mirror
         [Tooltip("Teleport if we are further than 'multiplier x collider size' behind.")]
         public float teleportDistanceMultiplier = 10;
 
-        void Awake()
+        // we add this component manually from PredictedRigidbody.
+        // so assign this in Start. target isn't set in Awake yet.
+        void Start()
         {
             targetRigidbody = target.GetComponent<Rigidbody>();
         }

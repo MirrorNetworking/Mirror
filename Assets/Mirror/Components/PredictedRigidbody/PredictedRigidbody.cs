@@ -84,12 +84,65 @@ namespace Mirror
         [Tooltip("Configure how to apply the corrected state.")]
         public CorrectionMode correctionMode = CorrectionMode.Move;
 
+        [Header("Visual Interpolation")]
+        [Tooltip("After creating the visual interpolation object, replace this object's renderer materials with the ghost (ideally transparent) material.")]
+        public Material ghostMaterial;
+
         [Header("Debugging")]
         public float lineTime = 10;
+
+        // visually interpolated GameObject copy for smoothing
+        protected GameObject visualCopy;
 
         void Awake()
         {
             rb = GetComponent<Rigidbody>();
+        }
+
+        // instantiate a visually-only copy of the gameobject to apply smoothing.
+        // on clients, where players are watching.
+        // create & destroy methods are virtual so games with a different
+        // rendering setup / hierarchy can inject their own copying code here.
+        protected virtual void CreateVisualCopy()
+        {
+            // create an empty GameObject with the same name + _Visual
+            visualCopy = new GameObject($"{name}_Visual");
+            visualCopy.transform.position = transform.position;
+            visualCopy.transform.rotation = transform.rotation;
+            visualCopy.transform.localScale = transform.localScale;
+
+            // add the PredictedRigidbodyVisual component
+            // TODO allow customizing that component's properties via this component?
+            PredictedRigidbodyVisual visualRigidbody = visualCopy.AddComponent<PredictedRigidbodyVisual>();
+            visualRigidbody.target = this;
+
+            // copy the rendering components
+            MeshFilter meshFilter = visualCopy.AddComponent<MeshFilter>();
+            meshFilter.mesh = GetComponent<MeshFilter>().mesh;
+
+            MeshRenderer meshRenderer = visualCopy.AddComponent<MeshRenderer>();
+            meshRenderer.material = GetComponent<MeshRenderer>().material;
+
+            // replace this object's materials with the ghost material
+            foreach (Renderer rend in GetComponentsInChildren<Renderer>())
+                rend.material = ghostMaterial;
+        }
+
+        protected virtual void DestroyVisualCopy()
+        {
+            if (visualCopy != null) Destroy(visualCopy);
+        }
+
+        public override void OnStartClient()
+        {
+            // create the visual copy
+            CreateVisualCopy();
+        }
+
+        void OnDestroy()
+        {
+            // destroy the visual copy that we created in OnStartClient
+            if (isClient) DestroyVisualCopy();
         }
 
         void UpdateServer()
