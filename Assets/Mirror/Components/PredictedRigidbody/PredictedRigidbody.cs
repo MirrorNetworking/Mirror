@@ -158,17 +158,12 @@ namespace Mirror
             if (visualCopy != null) Destroy(visualCopy);
         }
 
-        public override void OnStartClient()
-        {
-            // create the visual copy
-            CreateVisualCopy();
-        }
+        // creater visual copy only on clients, where players are watching.
+        public override void OnStartClient() => CreateVisualCopy();
 
-        void OnDestroy()
-        {
-            // destroy the visual copy that we created in OnStartClient
-            if (isClient) DestroyVisualCopy();
-        }
+        // destroy visual copy only in OnStopClient().
+        // OnDestroy() wouldn't be called for scene objects that are only disabled instead of destroyed.
+        public override void OnStopClient() => DestroyVisualCopy();
 
         void UpdateServer()
         {
