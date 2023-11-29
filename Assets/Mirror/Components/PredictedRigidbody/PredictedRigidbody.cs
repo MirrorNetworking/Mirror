@@ -117,11 +117,16 @@ namespace Mirror
             visualRigidbody.target = this;
 
             // copy the rendering components
-            MeshFilter meshFilter = visualCopy.AddComponent<MeshFilter>();
-            meshFilter.mesh = GetComponent<MeshFilter>().mesh;
+            if (GetComponent<MeshRenderer>() != null)
+            {
+                MeshFilter meshFilter = visualCopy.AddComponent<MeshFilter>();
+                meshFilter.mesh = GetComponent<MeshFilter>().mesh;
 
-            MeshRenderer meshRenderer = visualCopy.AddComponent<MeshRenderer>();
-            meshRenderer.material = GetComponent<MeshRenderer>().material;
+                MeshRenderer meshRenderer = visualCopy.AddComponent<MeshRenderer>();
+                meshRenderer.material = GetComponent<MeshRenderer>().material;
+            }
+            // if we didn't find a renderer, show a warning
+            else Debug.LogWarning($"PredictedRigidbody: {name} found no renderer to copy onto the visual object. If you are using a custom setup, please overwrite PredictedRigidbody.CreateVisualCopy().");
 
             // replace this object's materials with the ghost material
             foreach (Renderer rend in GetComponentsInChildren<Renderer>())
