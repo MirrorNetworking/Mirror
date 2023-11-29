@@ -85,6 +85,9 @@ namespace Mirror
         public CorrectionMode correctionMode = CorrectionMode.Move;
 
         [Header("Visual Interpolation")]
+        [Tooltip("After creating the visual interpolation object, keep showing the original Rigidbody with a ghost (transparent) material for debugging.")]
+        public bool showGhost = true;
+
         [Tooltip("After creating the visual interpolation object, replace this object's renderer materials with the ghost (ideally transparent) material.")]
         public Material ghostMaterial;
 
@@ -135,9 +138,19 @@ namespace Mirror
             // if we didn't find a renderer, show a warning
             else Debug.LogWarning($"PredictedRigidbody: {name} found no renderer to copy onto the visual object. If you are using a custom setup, please overwrite PredictedRigidbody.CreateVisualCopy().");
 
-            // replace this object's materials with the ghost material
+            // replace this renderer's materials with the ghost (if enabled)
             foreach (Renderer rend in GetComponentsInChildren<Renderer>())
-                rend.material = ghostMaterial;
+            {
+                if (showGhost)
+                {
+                    rend.material = ghostMaterial;
+                }
+                else
+                {
+                    rend.enabled = false;
+                }
+
+            }
         }
 
         protected virtual void DestroyVisualCopy()
