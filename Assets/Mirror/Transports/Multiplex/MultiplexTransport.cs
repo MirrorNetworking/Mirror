@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using UnityEngine;
 
@@ -86,14 +85,6 @@ namespace Mirror
                     }
 #endif
             }
-        }
-
-        void OnValidate()
-        {
-            // Warn user if SimpleWebTransport is not the last transport in the
-            // list to prevent confusion from having transports out of order.
-            if (transports.Length > 1 && transports.Any(transport => transport is SimpleWeb.SimpleWebTransport) && transports.Last() is not SimpleWeb.SimpleWebTransport)
-                Debug.LogFormat(LogType.Warning, LogOption.NoStacktrace, gameObject, "MultiplexTransport: SimpleWebTransport should be the last transport in the list.");
         }
 
         // add to bidirection lookup. returns the multiplexed connectionId.
