@@ -732,6 +732,7 @@ GameObject:
   - component: {fileID: 1282001519}
   - component: {fileID: 1282001521}
   - component: {fileID: 1282001522}
+  - component: {fileID: 1282001523}
   m_Layer: 0
   m_Name: NetworkManager
   m_TagString: Untagged
@@ -782,12 +783,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   dontDestroyOnLoad: 1
   runInBackground: 1
-  autoStartServerBuild: 1
-  autoConnectClientBuild: 0
+  headlessStartMode: 1
   sendRate: 120
+  autoStartServerBuild: 0
+  autoConnectClientBuild: 0
   offlineScene: 
   onlineScene: 
-  transport: {fileID: 1282001521}
+  transport: {fileID: 1282001523}
   networkAddress: localhost
   maxConnections: 2
   disconnectInactiveConnections: 0
@@ -800,6 +802,7 @@ MonoBehaviour:
   spawnPrefabs:
   - {fileID: 3429911415116987808, guid: ecbb35e2a01c0427ebb0b4b6ed146c70, type: 3}
   - {fileID: 3429911415116987808, guid: 8b8303075efb94c0e9478abfb2e558df, type: 3}
+  exceptionsDisconnect: 1
   snapshotSettings:
     bufferTimeMultiplier: 2
     bufferLimit: 32
@@ -858,6 +861,24 @@ MonoBehaviour:
   padding: 2
   width: 180
   height: 25
+--- !u!114 &1282001523
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1282001517}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 96b149f511061407fb54895c057b7736, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  wrap: {fileID: 1282001521}
+  latency: 25
+  jitter: 0
+  jitterSpeed: 0
+  unreliableLoss: 0
+  unreliableScramble: 0
 --- !u!1001 &1321391581
 PrefabInstance:
   m_ObjectHideFlags: 0
