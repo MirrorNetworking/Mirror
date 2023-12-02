@@ -349,7 +349,7 @@ namespace Mirror
         [Command(channel = Channels.Unreliable)]
         void CmdClientToServerSyncCompress(Vector3? position, uint? rotation, Vector3? scale)
         {
-            OnClientToServerSync(position, Compression.DecompressQuaternion((uint)rotation), scale);
+            OnClientToServerSync(position, rotation.HasValue ? Compression.DecompressQuaternion((uint)rotation) : target.rotation, scale);
             //For client authority, immediately pass on the client snapshot to all other
             //clients instead of waiting for server to send its snapshots.
             if (syncDirection == SyncDirection.ClientToServer)
