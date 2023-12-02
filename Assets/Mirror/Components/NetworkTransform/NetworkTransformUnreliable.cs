@@ -126,9 +126,6 @@ namespace Mirror
 #endif
 
 #if onlySyncOnChange_BANDWIDTH_SAVING
-<<<<<<< Updated upstream
-                RpcServerToClientSync(
-=======
                 if (compressRotation)
                 {
                     //if (snapshot.rotation == null)
@@ -145,17 +142,12 @@ namespace Mirror
                 else
                 {
                     RpcServerToClientSync(
->>>>>>> Stashed changes
                     // only sync what the user wants to sync
                     syncPosition && positionChanged ? snapshot.position : default(Vector3?),
                     syncRotation && rotationChanged ? snapshot.rotation : default(Quaternion?),
                     syncScale && scaleChanged ? snapshot.scale : default(Vector3?)
-<<<<<<< Updated upstream
-                );
-=======
                     );
                 }
->>>>>>> Stashed changes
 #else
                 RpcServerToClientSync(
                     // only sync what the user wants to sync
@@ -247,14 +239,6 @@ namespace Mirror
 #endif
 
 #if onlySyncOnChange_BANDWIDTH_SAVING
-<<<<<<< Updated upstream
-                CmdClientToServerSync(
-                    // only sync what the user wants to sync
-                    syncPosition && positionChanged ? snapshot.position : default(Vector3?),
-                    syncRotation && rotationChanged ? snapshot.rotation : default(Quaternion?),
-                    syncScale && scaleChanged ? snapshot.scale : default(Vector3?)
-                );
-=======
                 if (compressRotation)
                 {
                     CmdClientToServerSyncCompress(
@@ -273,7 +257,6 @@ namespace Mirror
                    syncScale && scaleChanged ? snapshot.scale : default(Vector3?)
                     );
                 }
->>>>>>> Stashed changes
 #else
                 CmdClientToServerSync(
                     // only sync what the user wants to sync
@@ -365,8 +348,6 @@ namespace Mirror
                 RpcServerToClientSync(position, rotation, scale);
         }
 
-<<<<<<< Updated upstream
-=======
         // cmd /////////////////////////////////////////////////////////////////
         // only unreliable. see comment above of this file.
         [Command(channel = Channels.Unreliable)]
@@ -379,7 +360,6 @@ namespace Mirror
                 RpcServerToClientSyncCompress(position, rotation, scale);
         }
 
->>>>>>> Stashed changes
         // local authority client sends sync message to server for broadcasting
         protected virtual void OnClientToServerSync(Vector3? position, Quaternion? rotation, Vector3? scale)
         {
@@ -409,8 +389,6 @@ namespace Mirror
         [ClientRpc(channel = Channels.Unreliable)]
         void RpcServerToClientSync(Vector3? position, Quaternion? rotation, Vector3? scale) =>
             OnServerToClientSync(position, rotation, scale);
-<<<<<<< Updated upstream
-=======
 
         // rpc /////////////////////////////////////////////////////////////////
         // only unreliable. see comment above of this file.
@@ -418,7 +396,6 @@ namespace Mirror
         void RpcServerToClientSyncCompress(Vector3? position, uint? rotation, Vector3? scale) =>
         // OnServerToClientSync(position, Compression.DecompressQuaternion((uint)rotation), scale);
         OnServerToClientSync(position, rotation.HasValue ? Compression.DecompressQuaternion((uint)rotation) : target.rotation, scale);
->>>>>>> Stashed changes
 
         // server broadcasts sync message to all clients
         protected virtual void OnServerToClientSync(Vector3? position, Quaternion? rotation, Vector3? scale)
