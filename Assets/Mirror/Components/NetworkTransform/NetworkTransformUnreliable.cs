@@ -131,11 +131,14 @@ namespace Mirror
 #if onlySyncOnChange_BANDWIDTH_SAVING
                 if (compressPosition && compressRotation)
                 {
+                    //Debug.Log("snapshot.position.x:" + snapshot.position.x);
+                    //Debug.Log("(short?)snapshot.position.x:" + (short?)snapshot.position.x);
+                    //Debug.Log("ShortRoundAndMultiply(snapshot.position.x):" + ShortRoundAndMultiply(snapshot.position.x));
                     RpcServerToClientSyncCompressPosition(
                             // only sync what the user wants to sync
-                            syncPosition && positionChanged ? (short?)snapshot.position.x : default(short?),
-                        syncPosition && positionChanged ? (short?)snapshot.position.y : default(short?),
-                        syncPosition && positionChanged ? (short?)snapshot.position.z : default(short?),
+                            syncPosition && positionChanged ? ShortRoundAndMultiply(snapshot.position.x) : default(short?),
+                        syncPosition && positionChanged ? ShortRoundAndMultiply(snapshot.position.y) : default(short?),
+                        syncPosition && positionChanged ? ShortRoundAndMultiply(snapshot.position.z) : default(short?),
                             syncRotation && rotationChanged ? Compression.CompressQuaternion(snapshot.rotation) : default(uint?),
                             syncScale && scaleChanged ? snapshot.scale : default(Vector3?)
                         );
@@ -251,10 +254,12 @@ namespace Mirror
 #if onlySyncOnChange_BANDWIDTH_SAVING
                 if (compressPosition && compressRotation)
                 {
+                    //Debug.Log("snapshot.position.x:" + snapshot.position.x);
+                    //Debug.Log("(short?)snapshot.position.x:" + (short?)snapshot.position.x);
                     CmdClientToServerSyncCompressPosition(
-                        syncPosition && positionChanged ? (short?)snapshot.position.x : default(short?),
-                        syncPosition && positionChanged ? (short?)snapshot.position.y : default(short?),
-                        syncPosition && positionChanged ? (short?)snapshot.position.z : default(short?),
+                        syncPosition && positionChanged ? ShortRoundAndMultiply(snapshot.position.x) : default(short?),
+                        syncPosition && positionChanged ? ShortRoundAndMultiply(snapshot.position.y) : default(short?),
+                        syncPosition && positionChanged ? ShortRoundAndMultiply(snapshot.position.z) : default(short?),
                         syncRotation && rotationChanged ? Compression.CompressQuaternion(snapshot.rotation) : default(uint?),
                         syncScale && scaleChanged ? snapshot.scale : default(Vector3?)
                     );
@@ -387,9 +392,9 @@ namespace Mirror
         {
             //OnClientToServerSync(new Vector3((float)positionX, (float)positionY, (float)positionZ), rotation.HasValue ? Compression.DecompressQuaternion((uint)rotation) : target.rotation, scale);
             OnClientToServerSync(
-                new Vector3(positionX.HasValue ? (float)positionX : target.position.x,
-                    positionX.HasValue ? (float)positionY : target.position.y,
-                    positionX.HasValue ? (float)positionZ : target.position.z),
+                new Vector3(positionX.HasValue ? ShortRoundAndDivide(positionX) : target.position.x,
+                    positionX.HasValue ? ShortRoundAndDivide(positionY) : target.position.y,
+                    positionX.HasValue ? ShortRoundAndDivide(positionZ) : target.position.z),
                 rotation.HasValue ? Compression.DecompressQuaternion((uint)rotation) : target.rotation,
                 scale);
             //For client authority, immediately pass on the client snapshot to all other
@@ -474,6 +479,15 @@ namespace Mirror
             }
 #endif
             AddSnapshot(clientSnapshots, NetworkClient.connection.remoteTimeStamp + timeStampAdjustment + offset, position, rotation, scale);
+        }
+
+        public short ShortRoundAndMultiply(float _value)
+        {
+            return (short)(_value * 100);
+        }
+        public float ShortRoundAndDivide(short? _value)
+        {
+            return (float)(_value / 100.0f);
         }
     }
 }
