@@ -390,8 +390,7 @@ namespace Mirror
         // only unreliable. see comment above of this file.
         [ClientRpc(channel = Channels.Unreliable)]
         void RpcServerToClientSyncCompress(Vector3? position, uint? rotation, Vector3? scale) =>
-        // OnServerToClientSync(position, Compression.DecompressQuaternion((uint)rotation), scale);
-        OnServerToClientSync(position, rotation.HasValue ? Compression.DecompressQuaternion((uint)rotation) : target.rotation, scale);
+            OnServerToClientSync(position, rotation.HasValue ? Compression.DecompressQuaternion((uint)rotation) : target.rotation, scale);
 
         // server broadcasts sync message to all clients
         protected virtual void OnServerToClientSync(Vector3? position, Quaternion? rotation, Vector3? scale)
