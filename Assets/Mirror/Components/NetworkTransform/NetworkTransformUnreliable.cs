@@ -493,7 +493,7 @@ namespace Mirror
         }
         public bool ShortValidCheck(float _value)
         {
-            if (_value * 100 < short.MaxValue)
+            if (_value * 100 < short.MaxValue && _value * 100 > short.MinValue)
             {
                 return true;
             }
