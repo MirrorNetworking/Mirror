@@ -401,18 +401,18 @@ namespace Mirror
             if (compressRotation)
             {
                 SyncDataCompressed syncData = new SyncDataCompressed(
-                    syncPosition ? target.localPosition : new Vector3?(),
-                    syncRotation ? Compression.CompressQuaternion(target.localRotation) : new uint?(),
-                    syncScale ? target.localScale : new Vector3?()
+                    syncPosition && positionChanged ? target.localPosition : new Vector3?(),
+                    syncRotation && rotationChanged ? Compression.CompressQuaternion(target.localRotation) : new uint?(),
+                    syncScale && scaleChanged ? target.localScale : new Vector3?()
                 );
                 SerializeAndSend<SyncDataCompressed>(syncData, fromServer);
             }
             else
             {
                 SyncData syncData = new SyncData(
-                    syncPosition ? target.localPosition : new Vector3?(),
-                    syncRotation ? target.localRotation : new Quaternion?(),
-                    syncScale ? target.localScale : new Vector3?()
+                    syncPosition && positionChanged ? target.localPosition : new Vector3?(),
+                    syncRotation && rotationChanged ? target.localRotation : new Quaternion?(),
+                    syncScale && scaleChanged ? target.localScale : new Vector3?()
                 );
                 SerializeAndSend<SyncData>(syncData, fromServer);
             }
