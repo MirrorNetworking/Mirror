@@ -10,9 +10,11 @@ namespace Mirror
     {
         // only sync when changed hack /////////////////////////////////////////
 #if onlySyncOnChange_BANDWIDTH_SAVING
-        [Header("Sync Only If Changed")]
+        [Header("Bandwidth Savings")]
         [Tooltip("When true, changes are not sent unless greater than sensitivity values below.")]
         public bool onlySyncOnChange = true;
+        [Tooltip("Apply smallest-three quaternion compression. This is lossy, you can disable it if the small rotation inaccuracies are noticeable in your project.")]
+        public bool compressRotation = true;
 
         uint sendIntervalCounter = 0;
         double lastSendIntervalTime = double.MinValue;
@@ -64,17 +66,17 @@ namespace Mirror
 
         protected virtual void CheckLastSendTime()
         {
-			// We check interval every frame, and then send if interval is reached.
-			// So by the time sendIntervalCounter == sendIntervalMultiplier, data is sent,
-			// thus we reset the counter here.
-			// This fixes previous issue of, if sendIntervalMultiplier = 1, we send every frame,
-			// because intervalCounter is always = 1 in the previous version.
+            // We check interval every frame, and then send if interval is reached.
+            // So by the time sendIntervalCounter == sendIntervalMultiplier, data is sent,
+            // thus we reset the counter here.
+            // This fixes previous issue of, if sendIntervalMultiplier = 1, we send every frame,
+            // because intervalCounter is always = 1 in the previous version.
 
-			if (sendIntervalCounter == sendIntervalMultiplier)
-				sendIntervalCounter = 0;
+            if (sendIntervalCounter == sendIntervalMultiplier)
+                sendIntervalCounter = 0;
 
-			// timeAsDouble not available in older Unity versions.
-			if (AccurateInterval.Elapsed(NetworkTime.localTime, NetworkServer.sendInterval, ref lastSendIntervalTime))
+            // timeAsDouble not available in older Unity versions.
+            if (AccurateInterval.Elapsed(NetworkTime.localTime, NetworkServer.sendInterval, ref lastSendIntervalTime))
                 sendIntervalCounter++;
         }
 
@@ -124,12 +126,36 @@ namespace Mirror
 #endif
 
 #if onlySyncOnChange_BANDWIDTH_SAVING
+<<<<<<< Updated upstream
                 RpcServerToClientSync(
+=======
+                if (compressRotation)
+                {
+                    //if (snapshot.rotation == null)
+                    //{
+                    //    snapshot.rotation = target.rotation;
+                    //}
+                        RpcServerToClientSyncCompress(
+                            // only sync what the user wants to sync
+                            syncPosition && positionChanged ? snapshot.position : default(Vector3?),
+                            syncRotation && rotationChanged ? Compression.CompressQuaternion(snapshot.rotation) : default(uint?),
+                            syncScale && scaleChanged ? snapshot.scale : default(Vector3?)
+                        );
+                }
+                else
+                {
+                    RpcServerToClientSync(
+>>>>>>> Stashed changes
                     // only sync what the user wants to sync
                     syncPosition && positionChanged ? snapshot.position : default(Vector3?),
                     syncRotation && rotationChanged ? snapshot.rotation : default(Quaternion?),
                     syncScale && scaleChanged ? snapshot.scale : default(Vector3?)
+<<<<<<< Updated upstream
                 );
+=======
+                    );
+                }
+>>>>>>> Stashed changes
 #else
                 RpcServerToClientSync(
                     // only sync what the user wants to sync
@@ -221,12 +247,33 @@ namespace Mirror
 #endif
 
 #if onlySyncOnChange_BANDWIDTH_SAVING
+<<<<<<< Updated upstream
                 CmdClientToServerSync(
                     // only sync what the user wants to sync
                     syncPosition && positionChanged ? snapshot.position : default(Vector3?),
                     syncRotation && rotationChanged ? snapshot.rotation : default(Quaternion?),
                     syncScale && scaleChanged ? snapshot.scale : default(Vector3?)
                 );
+=======
+                if (compressRotation)
+                {
+                    CmdClientToServerSyncCompress(
+                        // only sync what the user wants to sync
+                        syncPosition && positionChanged ? snapshot.position : default(Vector3?),
+                        syncRotation && rotationChanged ? Compression.CompressQuaternion(snapshot.rotation) : default(uint?),
+                        syncScale && scaleChanged ? snapshot.scale : default(Vector3?)
+                    );
+                }
+                else
+                {
+                    CmdClientToServerSync(
+                   // only sync what the user wants to sync
+                   syncPosition && positionChanged ? snapshot.position : default(Vector3?),
+                   syncRotation && rotationChanged ? snapshot.rotation : default(Quaternion?),
+                   syncScale && scaleChanged ? snapshot.scale : default(Vector3?)
+                    );
+                }
+>>>>>>> Stashed changes
 #else
                 CmdClientToServerSync(
                     // only sync what the user wants to sync
@@ -278,7 +325,7 @@ namespace Mirror
             {
                 if (syncPosition) writer.WriteVector3(GetPosition());
                 if (syncRotation) writer.WriteQuaternion(GetRotation());
-                if (syncScale)    writer.WriteVector3(GetScale());
+                if (syncScale) writer.WriteVector3(GetScale());
             }
         }
 
@@ -291,7 +338,7 @@ namespace Mirror
             {
                 if (syncPosition) SetPosition(reader.ReadVector3());
                 if (syncRotation) SetRotation(reader.ReadQuaternion());
-                if (syncScale)       SetScale(reader.ReadVector3());
+                if (syncScale) SetScale(reader.ReadVector3());
             }
         }
 
@@ -318,6 +365,21 @@ namespace Mirror
                 RpcServerToClientSync(position, rotation, scale);
         }
 
+<<<<<<< Updated upstream
+=======
+        // cmd /////////////////////////////////////////////////////////////////
+        // only unreliable. see comment above of this file.
+        [Command(channel = Channels.Unreliable)]
+        void CmdClientToServerSyncCompress(Vector3? position, uint? rotation, Vector3? scale)
+        {
+            OnClientToServerSync(position, Compression.DecompressQuaternion((uint)rotation), scale);
+            //For client authority, immediately pass on the client snapshot to all other
+            //clients instead of waiting for server to send its snapshots.
+            if (syncDirection == SyncDirection.ClientToServer)
+                RpcServerToClientSyncCompress(position, rotation, scale);
+        }
+
+>>>>>>> Stashed changes
         // local authority client sends sync message to server for broadcasting
         protected virtual void OnClientToServerSync(Vector3? position, Quaternion? rotation, Vector3? scale)
         {
@@ -347,6 +409,16 @@ namespace Mirror
         [ClientRpc(channel = Channels.Unreliable)]
         void RpcServerToClientSync(Vector3? position, Quaternion? rotation, Vector3? scale) =>
             OnServerToClientSync(position, rotation, scale);
+<<<<<<< Updated upstream
+=======
+
+        // rpc /////////////////////////////////////////////////////////////////
+        // only unreliable. see comment above of this file.
+        [ClientRpc(channel = Channels.Unreliable)]
+        void RpcServerToClientSyncCompress(Vector3? position, uint? rotation, Vector3? scale) =>
+        // OnServerToClientSync(position, Compression.DecompressQuaternion((uint)rotation), scale);
+        OnServerToClientSync(position, rotation.HasValue ? Compression.DecompressQuaternion((uint)rotation) : target.rotation, scale);
+>>>>>>> Stashed changes
 
         // server broadcasts sync message to all clients
         protected virtual void OnServerToClientSync(Vector3? position, Quaternion? rotation, Vector3? scale)
