@@ -129,11 +129,11 @@ namespace Mirror
 #endif
 
 #if onlySyncOnChange_BANDWIDTH_SAVING
-                if (compressPosition && compressRotation)
+                if (compressPosition && compressRotation
+                    && ShortValidCheck(snapshot.position.x)
+                    && ShortValidCheck(snapshot.position.y)
+                    && ShortValidCheck(snapshot.position.z))
                 {
-                    //Debug.Log("snapshot.position.x:" + snapshot.position.x);
-                    //Debug.Log("(short?)snapshot.position.x:" + (short?)snapshot.position.x);
-                    //Debug.Log("ShortRoundAndMultiply(snapshot.position.x):" + ShortRoundAndMultiply(snapshot.position.x));
                     RpcServerToClientSyncCompressPosition(
                             // only sync what the user wants to sync
                             syncPosition && positionChanged ? ShortRoundAndMultiply(snapshot.position.x) : default(short?),
@@ -252,11 +252,13 @@ namespace Mirror
 #endif
 
 #if onlySyncOnChange_BANDWIDTH_SAVING
-                if (compressPosition && compressRotation)
+                if (compressPosition && compressRotation
+                    && ShortValidCheck(snapshot.position.x)
+                    && ShortValidCheck(snapshot.position.y)
+                    && ShortValidCheck(snapshot.position.z))
                 {
-                    //Debug.Log("snapshot.position.x:" + snapshot.position.x);
-                    //Debug.Log("(short?)snapshot.position.x:" + (short?)snapshot.position.x);
                     CmdClientToServerSyncCompressPosition(
+                        // only sync what the user wants to sync
                         syncPosition && positionChanged ? ShortRoundAndMultiply(snapshot.position.x) : default(short?),
                         syncPosition && positionChanged ? ShortRoundAndMultiply(snapshot.position.y) : default(short?),
                         syncPosition && positionChanged ? ShortRoundAndMultiply(snapshot.position.z) : default(short?),
@@ -488,6 +490,17 @@ namespace Mirror
         public float ShortRoundAndDivide(short? _value)
         {
             return (float)(_value / 100.0f);
+        }
+        public bool ShortValidCheck(float _value)
+        {
+            if (_value * 100 < short.MaxValue)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
     }
 }
