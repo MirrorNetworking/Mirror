@@ -27,6 +27,9 @@ namespace Mirror
         public float rotationSensitivity = 0.01f;
         public float scaleSensitivity = 0.01f;
 
+        [Tooltip("Apply smallest-three quaternion compression. This is lossy, you can disable it if the small rotation inaccuracies are noticeable in your project.")]
+        public bool compressRotation = true;
+
         protected bool positionChanged;
         protected bool rotationChanged;
         protected bool scaleChanged;
@@ -395,13 +398,24 @@ namespace Mirror
         // REMEMBER: SerializeAndSend() must be called within the override.
         protected virtual void ConstructSyncData(bool fromServer)
         {
-            SyncData syncData = new SyncData(
-                syncPosition ? target.localPosition : new Vector3?(),
-                syncRotation ? target.localRotation : new Quaternion?(),
-                syncScale ? target.localScale : new Vector3?()
-            );
-
-            SerializeAndSend<SyncData>(syncData, fromServer);
+            if (compressRotation)
+            {
+                SyncDataCompressed syncData = new SyncDataCompressed(
+                    syncPosition ? target.localPosition : new Vector3?(),
+                    syncRotation ? Compression.CompressQuaternion(target.localRotation) : new uint?(),
+                    syncScale ? target.localScale : new Vector3?()
+                );
+                SerializeAndSend<SyncDataCompressed>(syncData, fromServer);
+            }
+            else
+            {
+                SyncData syncData = new SyncData(
+                    syncPosition ? target.localPosition : new Vector3?(),
+                    syncRotation ? target.localRotation : new Quaternion?(),
+                    syncScale ? target.localScale : new Vector3?()
+                );
+                SerializeAndSend<SyncData>(syncData, fromServer);
+            }
         }
 
         // This is to extract position/rotation/scale data from payload. Override
@@ -412,10 +426,20 @@ namespace Mirror
         {
             using (NetworkReaderPooled reader = NetworkReaderPool.Get(receivedPayload))
             {
-                SyncData syncData = reader.Read<SyncData>();
-                position = syncData.position;
-                rotation = syncData.rotation;
-                scale = syncData.scale;
+                if (compressRotation)
+                {
+                    SyncDataCompressed syncData = reader.Read<SyncDataCompressed>();
+                    position = syncData.position;
+                    rotation = Compression.DecompressQuaternion((uint)syncData.rotation);
+                    scale = syncData.scale;
+                }
+                else
+                {
+                    SyncData syncData = reader.Read<SyncData>();
+                    position = syncData.position;
+                    rotation = syncData.rotation;
+                    scale = syncData.scale;
+                }
             }
         }
 
@@ -506,6 +530,20 @@ namespace Mirror
         }
     }
 
+    public struct SyncDataCompressed
+    {
+        public Vector3? position;
+        public uint? rotation;
+        public Vector3? scale;
+
+        public SyncDataCompressed(Vector3? position, uint? rotation, Vector3? scale)
+        {
+            this.position = position;
+            this.rotation = rotation;
+            this.scale = scale;
+        }
+    }
+
     public static class CustomReaderWriter
     {
         public static void WriteSyncData(this NetworkWriter writer, SyncData syncData)
@@ -520,6 +558,24 @@ namespace Mirror
             return new SyncData(
                 reader.ReadVector3Nullable(),
                 reader.ReadQuaternionNullable(),
+                reader.ReadVector3Nullable()
+            );
+        }
+
+
+
+        public static void WriteSyncDataCompressed(this NetworkWriter writer, SyncDataCompressed syncData)
+        {
+            writer.WriteVector3Nullable(syncData.position);
+            writer.WriteUIntNullable(syncData.rotation);
+            writer.WriteVector3Nullable(syncData.scale);
+        }
+
+        public static SyncDataCompressed ReadSyncDataCompressed(this NetworkReader reader)
+        {
+            return new SyncDataCompressed(
+                reader.ReadVector3Nullable(),
+                reader.ReadUIntNullable(),
                 reader.ReadVector3Nullable()
             );
         }
