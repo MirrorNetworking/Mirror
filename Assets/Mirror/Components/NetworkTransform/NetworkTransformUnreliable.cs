@@ -128,10 +128,6 @@ namespace Mirror
 #if onlySyncOnChange_BANDWIDTH_SAVING
                 if (compressRotation)
                 {
-                    //if (snapshot.rotation == null)
-                    //{
-                    //    snapshot.rotation = target.rotation;
-                    //}
                         RpcServerToClientSyncCompress(
                             // only sync what the user wants to sync
                             syncPosition && positionChanged ? snapshot.position : default(Vector3?),
