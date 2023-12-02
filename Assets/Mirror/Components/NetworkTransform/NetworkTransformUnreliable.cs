@@ -1,6 +1,7 @@
 // NetworkTransform V2 by mischa (2021-07)
 // comment out the below line to quickly revert the onlySyncOnChange feature
 #define onlySyncOnChange_BANDWIDTH_SAVING
+using System;
 using UnityEngine;
 
 namespace Mirror
@@ -13,6 +14,8 @@ namespace Mirror
         [Header("Bandwidth Savings")]
         [Tooltip("When true, changes are not sent unless greater than sensitivity values below.")]
         public bool onlySyncOnChange = true;
+        [Tooltip("Apply rounding to 2 decimal places, and short variable limits.")]
+        public bool compressPosition= true;
         [Tooltip("Apply smallest-three quaternion compression. This is lossy, you can disable it if the small rotation inaccuracies are noticeable in your project.")]
         public bool compressRotation = true;
 
@@ -126,7 +129,18 @@ namespace Mirror
 #endif
 
 #if onlySyncOnChange_BANDWIDTH_SAVING
-                if (compressRotation)
+                if (compressPosition && compressRotation)
+                {
+                    RpcServerToClientSyncCompressPosition(
+                            // only sync what the user wants to sync
+                            syncPosition && positionChanged ? (short?)snapshot.position.x : default(short?),
+                        syncPosition && positionChanged ? (short?)snapshot.position.y : default(short?),
+                        syncPosition && positionChanged ? (short?)snapshot.position.z : default(short?),
+                            syncRotation && rotationChanged ? Compression.CompressQuaternion(snapshot.rotation) : default(uint?),
+                            syncScale && scaleChanged ? snapshot.scale : default(Vector3?)
+                        );
+                }
+                else if (compressRotation)
                 {
                         RpcServerToClientSyncCompress(
                             // only sync what the user wants to sync
@@ -235,7 +249,17 @@ namespace Mirror
 #endif
 
 #if onlySyncOnChange_BANDWIDTH_SAVING
-                if (compressRotation)
+                if (compressPosition && compressRotation)
+                {
+                    CmdClientToServerSyncCompressPosition(
+                        syncPosition && positionChanged ? (short?)snapshot.position.x : default(short?),
+                        syncPosition && positionChanged ? (short?)snapshot.position.y : default(short?),
+                        syncPosition && positionChanged ? (short?)snapshot.position.z : default(short?),
+                        syncRotation && rotationChanged ? Compression.CompressQuaternion(snapshot.rotation) : default(uint?),
+                        syncScale && scaleChanged ? snapshot.scale : default(Vector3?)
+                    );
+                }
+                else if (compressRotation)
                 {
                     CmdClientToServerSyncCompress(
                         // only sync what the user wants to sync
@@ -356,6 +380,24 @@ namespace Mirror
                 RpcServerToClientSyncCompress(position, rotation, scale);
         }
 
+        // cmd /////////////////////////////////////////////////////////////////
+        // only unreliable. see comment above of this file.
+        [Command(channel = Channels.Unreliable)]
+        void CmdClientToServerSyncCompressPosition(short? positionX, short? positionY, short? positionZ, uint? rotation, Vector3? scale)
+        {
+            //OnClientToServerSync(new Vector3((float)positionX, (float)positionY, (float)positionZ), rotation.HasValue ? Compression.DecompressQuaternion((uint)rotation) : target.rotation, scale);
+            OnClientToServerSync(
+                new Vector3(positionX.HasValue ? (float)positionX : target.position.x,
+                    positionX.HasValue ? (float)positionY : target.position.y,
+                    positionX.HasValue ? (float)positionZ : target.position.z),
+                rotation.HasValue ? Compression.DecompressQuaternion((uint)rotation) : target.rotation,
+                scale);
+            //For client authority, immediately pass on the client snapshot to all other
+            //clients instead of waiting for server to send its snapshots.
+            if (syncDirection == SyncDirection.ClientToServer)
+                RpcServerToClientSyncCompressPosition(positionX, positionY, positionZ, rotation, scale);
+        }
+
         // local authority client sends sync message to server for broadcasting
         protected virtual void OnClientToServerSync(Vector3? position, Quaternion? rotation, Vector3? scale)
         {
@@ -391,6 +433,17 @@ namespace Mirror
         [ClientRpc(channel = Channels.Unreliable)]
         void RpcServerToClientSyncCompress(Vector3? position, uint? rotation, Vector3? scale) =>
             OnServerToClientSync(position, rotation.HasValue ? Compression.DecompressQuaternion((uint)rotation) : target.rotation, scale);
+
+        // rpc /////////////////////////////////////////////////////////////////
+        // only unreliable. see comment above of this file.
+        [ClientRpc(channel = Channels.Unreliable)]
+        void RpcServerToClientSyncCompressPosition(short? positionX, short? positionY, short? positionZ, uint? rotation, Vector3? scale) =>
+            OnServerToClientSync(
+                new Vector3(positionX.HasValue ? (float)positionX : target.position.x,
+                    positionX.HasValue ? (float)positionY : target.position.y,
+                    positionX.HasValue ? (float)positionZ : target.position.z),
+                rotation.HasValue ? Compression.DecompressQuaternion((uint)rotation) : target.rotation,
+                scale);
 
         // server broadcasts sync message to all clients
         protected virtual void OnServerToClientSync(Vector3? position, Quaternion? rotation, Vector3? scale)
