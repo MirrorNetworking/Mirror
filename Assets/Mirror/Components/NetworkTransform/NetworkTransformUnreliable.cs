@@ -1,6 +1,7 @@
 // NetworkTransform V2 by mischa (2021-07)
 // comment out the below line to quickly revert the onlySyncOnChange feature
 #define onlySyncOnChange_BANDWIDTH_SAVING
+using System;
 using UnityEngine;
 
 namespace Mirror
@@ -124,12 +125,13 @@ namespace Mirror
 #endif
 
 #if onlySyncOnChange_BANDWIDTH_SAVING
-                RpcServerToClientSync(
-                    // only sync what the user wants to sync
-                    syncPosition && positionChanged ? snapshot.position : default(Vector3?),
-                    syncRotation && rotationChanged ? snapshot.rotation : default(Quaternion?),
-                    syncScale && scaleChanged ? snapshot.scale : default(Vector3?)
-                );
+                ConstructSyncData(true);
+                //RpcServerToClientSync(
+                //    // only sync what the user wants to sync
+                //    syncPosition && positionChanged ? snapshot.position : default(Vector3?),
+                //    syncRotation && rotationChanged ? snapshot.rotation : default(Quaternion?),
+                //    syncScale && scaleChanged ? snapshot.scale : default(Vector3?)
+                //);
 #else
                 RpcServerToClientSync(
                     // only sync what the user wants to sync
@@ -150,6 +152,22 @@ namespace Mirror
                     lastSnapshot = snapshot;
                 }
 #endif
+            }
+        }
+
+        protected virtual void SerializeAndSend<T>(T syncData, bool fromServer)
+        {
+            using (NetworkWriterPooled writer = NetworkWriterPool.Get())
+            {
+                writer.Write<T>(syncData);
+                if (fromServer)
+                {
+                    RpcServerToClientSync(writer.ToArraySegment());
+                }
+                else
+                {
+                    CmdClientToServerSync(writer.ToArraySegment());
+                }
             }
         }
 
@@ -221,12 +239,13 @@ namespace Mirror
 #endif
 
 #if onlySyncOnChange_BANDWIDTH_SAVING
-                CmdClientToServerSync(
-                    // only sync what the user wants to sync
-                    syncPosition && positionChanged ? snapshot.position : default(Vector3?),
-                    syncRotation && rotationChanged ? snapshot.rotation : default(Quaternion?),
-                    syncScale && scaleChanged ? snapshot.scale : default(Vector3?)
-                );
+                ConstructSyncData(false);
+                //CmdClientToServerSync(
+                //    // only sync what the user wants to sync
+                //    syncPosition && positionChanged ? snapshot.position : default(Vector3?),
+                //    syncRotation && rotationChanged ? snapshot.rotation : default(Quaternion?),
+                //    syncScale && scaleChanged ? snapshot.scale : default(Vector3?)
+                //);
 #else
                 CmdClientToServerSync(
                     // only sync what the user wants to sync
@@ -308,18 +327,33 @@ namespace Mirror
 #endif
         // cmd /////////////////////////////////////////////////////////////////
         // only unreliable. see comment above of this file.
+        //[Command(channel = Channels.Unreliable)]
+        //void CmdClientToServerSync(Vector3? position, Quaternion? rotation, Vector3? scale)
+        //{
+            //OnClientToServerSync(position, rotation, scale);
+            //For client authority, immediately pass on the client snapshot to all other
+            //clients instead of waiting for server to send its snapshots.
+            //if (syncDirection == SyncDirection.ClientToServer)
+            //    RpcServerToClientSync(position, rotation, scale);
+       // }
+
         [Command(channel = Channels.Unreliable)]
-        void CmdClientToServerSync(Vector3? position, Quaternion? rotation, Vector3? scale)
+        void CmdClientToServerSync(ArraySegment<byte> payload)
         {
-            OnClientToServerSync(position, rotation, scale);
+            OnClientToServerSync(payload);
+            //OnClientToServerSync(position, rotation, scale);
             //For client authority, immediately pass on the client snapshot to all other
             //clients instead of waiting for server to send its snapshots.
             if (syncDirection == SyncDirection.ClientToServer)
-                RpcServerToClientSync(position, rotation, scale);
+                RpcServerToClientSync(payload);
         }
 
-        // local authority client sends sync message to server for broadcasting
+        // temporary kept as Tests rely on it
         protected virtual void OnClientToServerSync(Vector3? position, Quaternion? rotation, Vector3? scale)
+        {
+        }
+        // local authority client sends sync message to server for broadcasting
+        protected virtual void OnClientToServerSync(ArraySegment<byte> receivedPayload)
         {
             // only apply if in client authority mode
             if (syncDirection != SyncDirection.ClientToServer) return;
@@ -339,17 +373,70 @@ namespace Mirror
                     Reset();
             }
 #endif
+            DeconstructSyncData(receivedPayload, out Vector3? position, out Quaternion? rotation, out Vector3? scale);
+            // position, rotation, scale can have no value if same as last time.
+            // saves bandwidth.
+            // but we still need to feed it to snapshot interpolation. we can't
+            // just have gaps in there if nothing has changed. for example, if
+            //   client sends snapshot at t=0
+            //   client sends nothing for 10s because not moved
+            //   client sends snapshot at t=10
+            // then the server would assume that it's one super slow move and
+            // replay it for 10 seconds.
+            if (!position.HasValue) position = target.localPosition;
+            if (!rotation.HasValue) rotation = target.localRotation;
+            if (!scale.HasValue) scale = target.localScale;
+
             AddSnapshot(serverSnapshots, connectionToClient.remoteTimeStamp + timeStampAdjustment + offset, position, rotation, scale);
+        }
+
+        // Create data to send. This can be overriden and changing SyncData in 
+        // case there is a different implementation like compression, etc. 
+        // REMEMBER: SerializeAndSend() must be called within the override.
+        protected virtual void ConstructSyncData(bool fromServer)
+        {
+            SyncData syncData = new SyncData(
+                syncPosition ? target.localPosition : new Vector3?(),
+                syncRotation ? target.localRotation : new Quaternion?(),
+                syncScale ? target.localScale : new Vector3?()
+            );
+
+            SerializeAndSend<SyncData>(syncData, fromServer);
+        }
+
+        // This is to extract position/rotation/scale data from payload. Override
+        // Construct and Deconstruct if you are implementing a different SyncData logic.
+        // Note however that snapshot interpolation still requires the basic 3 data
+        // position, rotation and scale, which are computed from here.   
+        protected virtual void DeconstructSyncData(ArraySegment<byte> receivedPayload, out Vector3? position, out Quaternion? rotation, out Vector3? scale)
+        {
+            using (NetworkReaderPooled reader = NetworkReaderPool.Get(receivedPayload))
+            {
+                SyncData syncData = reader.Read<SyncData>();
+                position = syncData.position;
+                rotation = syncData.rotation;
+                scale = syncData.scale;
+            }
         }
 
         // rpc /////////////////////////////////////////////////////////////////
         // only unreliable. see comment above of this file.
-        [ClientRpc(channel = Channels.Unreliable)]
-        void RpcServerToClientSync(Vector3? position, Quaternion? rotation, Vector3? scale) =>
-            OnServerToClientSync(position, rotation, scale);
+        //[ClientRpc(channel = Channels.Unreliable)]
+        //void RpcServerToClientSync(Vector3? position, Quaternion? rotation, Vector3? scale) =>
+        //    OnServerToClientSync(position, rotation, scale);
 
-        // server broadcasts sync message to all clients
+        [ClientRpc(channel = Channels.Unreliable)]
+        void RpcServerToClientSync(ArraySegment<byte> payload)
+        {
+            OnServerToClientSync(payload);
+        }
+
+        // temporary kept as Tests rely on it
         protected virtual void OnServerToClientSync(Vector3? position, Quaternion? rotation, Vector3? scale)
+        {
+        }
+        // server broadcasts sync message to all clients
+        protected virtual void OnServerToClientSync(ArraySegment<byte> receivedPayload)
         {
             // in host mode, the server sends rpcs to all clients.
             // the host client itself will receive them too.
@@ -376,7 +463,66 @@ namespace Mirror
                     Reset();
             }
 #endif
+            DeconstructSyncData(receivedPayload, out Vector3? position, out Quaternion? rotation, out Vector3? scale);
+            // position, rotation, scale can have no value if same as last time.
+            // saves bandwidth.
+            // but we still need to feed it to snapshot interpolation. we can't
+            // just have gaps in there if nothing has changed. for example, if
+            //   client sends snapshot at t=0
+            //   client sends nothing for 10s because not moved
+            //   client sends snapshot at t=10
+            // then the server would assume that it's one super slow move and
+            // replay it for 10 seconds.
+            if (!position.HasValue) position = target.localPosition;
+            if (!rotation.HasValue) rotation = target.localRotation;
+            if (!scale.HasValue) scale = target.localScale;
+
             AddSnapshot(clientSnapshots, NetworkClient.connection.remoteTimeStamp + timeStampAdjustment + offset, position, rotation, scale);
         }
+
+       
     }
+
+    //SyncData is the struct used to construct a payload to send to server/clients
+    //for use with the NetworkTransform. You can amend this to suit your needs for eg
+    //if you are only using delta, or some form of compression, and your payload can be
+    //byte[] or anything serializable.
+    //Override Construct/Deconstruct methods in VariantNetworkTransformBase to
+    //populate payload or retrieve position/rotation/scale data from payload.
+    //Feel free to add new data types but remember to include custom reader/writer classes.
+
+    [Serializable]
+    public struct SyncData
+    {
+        public Vector3? position;
+        public Quaternion? rotation;
+        public Vector3? scale;
+
+        public SyncData(Vector3? position, Quaternion? rotation, Vector3? scale)
+        {
+            this.position = position;
+            this.rotation = rotation;
+            this.scale = scale;
+        }
+    }
+
+    public static class CustomReaderWriter
+    {
+        public static void WriteSyncData(this NetworkWriter writer, SyncData syncData)
+        {
+            writer.WriteVector3Nullable(syncData.position);
+            writer.WriteQuaternionNullable(syncData.rotation);
+            writer.WriteVector3Nullable(syncData.scale);
+        }
+
+        public static SyncData ReadSyncData(this NetworkReader reader)
+        {
+            return new SyncData(
+                reader.ReadVector3Nullable(),
+                reader.ReadQuaternionNullable(),
+                reader.ReadVector3Nullable()
+            );
+        }
+    }
+    
 }
