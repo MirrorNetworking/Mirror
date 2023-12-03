@@ -4,28 +4,30 @@ using UnityEngine;
 namespace Mirror
 {
     [InitializeOnLoad]
+    // This editor script cleans up deleted files and folders from previous Mirror versions
+    // because the Unity Asset Store doesn't delete them (instead orphaning them upon package upgrade)
     public static class Janitor
     {
-        private const string MirrorVersionKey = "Mirror_Package_Version_Key";
+        private const string JanitorVersionKey = "Mirror_Janitor_Version";
         static Janitor()
         {
-            string currentVersion = GetCurrentPackageVersion();
-            string storedVersion = EditorPrefs.GetString(MirrorVersionKey, "");
+            string currentVersion = GetJanitorVersion();
+            string storedVersion = EditorPrefs.GetString(JanitorVersionKey, "");
             if (currentVersion != storedVersion)
             {
-                // Assumption: The package has been updated and thus cleaning should occur
                 CleanUp();
-                EditorPrefs.SetString(MirrorVersionKey, currentVersion);
+                EditorPrefs.SetString(JanitorVersionKey, currentVersion);
             }
         }
-        static string GetCurrentPackageVersion()
+        static string GetJanitorVersion()
         {
-            return "v86.7.2"; // What is a good way of getting the current Mirror package version?
+            return "1"; // increment this when adding new cleanups
         }
         static void CleanUp()
         {
             // pathsToRemove is only initialized if the package has been updated
             // to avoid unnecessary allocations
+            // note: GetJanitorVersion value should change when adding new paths
             string[] pathsToRemove = {
                 "Assets/Mirror/Core/Empty",
                 "Assets/Mirror/Transports/Telepathy/Telepathy/Empty",
