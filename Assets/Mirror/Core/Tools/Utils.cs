@@ -51,7 +51,7 @@ namespace Mirror
 #endif
 
         // detect WebGL mode
-        public static bool IsWebGL() =>
+        public const bool IsWebGL =
 #if UNITY_WEBGL
             true;
 #else
@@ -59,7 +59,7 @@ namespace Mirror
 #endif
 
         // detect Debug mode
-        public static bool IsDebug() =>
+        public const bool IsDebug =
 #if DEBUG
             true;
 #else
