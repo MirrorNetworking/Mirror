@@ -6,9 +6,11 @@ namespace Mirror
     [AddComponentMenu("Network/Network Transform (Unreliable)")]
     public class NetworkTransformUnreliable : NetworkTransformBase
     {
-        [Header("Sync Only If Changed")]
+        [Header("Bandwidth Savings")]
         [Tooltip("When true, changes are not sent unless greater than sensitivity values below.")]
         public bool onlySyncOnChange = true;
+        [Tooltip("Apply smallest-three quaternion compression. This is lossy, you can disable it if the small rotation inaccuracies are noticeable in your project.")]
+        public bool compressRotation = true;
 
         uint sendIntervalCounter = 0;
         double lastSendIntervalTime = double.MinValue;
@@ -116,12 +118,24 @@ namespace Mirror
                 cachedSnapshotComparison = CompareSnapshots(snapshot);
                 if (cachedSnapshotComparison && hasSentUnchangedPosition && onlySyncOnChange) { return; }
 
-                RpcServerToClientSync(
+                if (compressRotation)
+                {
+                    RpcServerToClientSyncCompressRotation(
+                        // only sync what the user wants to sync
+                        syncPosition && positionChanged ? snapshot.position : default(Vector3?),
+                        syncRotation && rotationChanged ? Compression.CompressQuaternion(snapshot.rotation) : default(uint?),
+                        syncScale && scaleChanged ? snapshot.scale : default(Vector3?)
+                    );
+                }
+                else
+                {
+                    RpcServerToClientSync(
                     // only sync what the user wants to sync
                     syncPosition && positionChanged ? snapshot.position : default(Vector3?),
                     syncRotation && rotationChanged ? snapshot.rotation : default(Quaternion?),
                     syncScale && scaleChanged ? snapshot.scale : default(Vector3?)
-                );
+                    );
+                }
 
                 if (cachedSnapshotComparison)
                 {
@@ -200,12 +214,24 @@ namespace Mirror
                 cachedSnapshotComparison = CompareSnapshots(snapshot);
                 if (cachedSnapshotComparison && hasSentUnchangedPosition && onlySyncOnChange) { return; }
 
-                CmdClientToServerSync(
-                    // only sync what the user wants to sync
-                    syncPosition && positionChanged ? snapshot.position : default(Vector3?),
-                    syncRotation && rotationChanged ? snapshot.rotation : default(Quaternion?),
-                    syncScale && scaleChanged ? snapshot.scale : default(Vector3?)
-                );
+                if (compressRotation)
+                {
+                    CmdClientToServerSyncCompressRotation(
+                        // only sync what the user wants to sync
+                        syncPosition && positionChanged ? snapshot.position : default(Vector3?),
+                        syncRotation && rotationChanged ? Compression.CompressQuaternion(snapshot.rotation) : default(uint?),
+                        syncScale && scaleChanged ? snapshot.scale : default(Vector3?)
+                    );
+                }
+                else
+                {
+                    CmdClientToServerSync(
+                        // only sync what the user wants to sync
+                        syncPosition && positionChanged ? snapshot.position : default(Vector3?),
+                        syncRotation && rotationChanged ? snapshot.rotation : default(Quaternion?),
+                        syncScale && scaleChanged ? snapshot.scale : default(Vector3?)
+                    );
+                }
 
                 if (cachedSnapshotComparison)
                 {
@@ -286,6 +312,18 @@ namespace Mirror
                 RpcServerToClientSync(position, rotation, scale);
         }
 
+        // cmd /////////////////////////////////////////////////////////////////
+        // only unreliable. see comment above of this file.
+        [Command(channel = Channels.Unreliable)]
+        void CmdClientToServerSyncCompressRotation(Vector3? position, uint? rotation, Vector3? scale)
+        {
+            OnClientToServerSync(position, rotation.HasValue ? Compression.DecompressQuaternion((uint)rotation) : target.rotation, scale);
+            //For client authority, immediately pass on the client snapshot to all other
+            //clients instead of waiting for server to send its snapshots.
+            if (syncDirection == SyncDirection.ClientToServer)
+                RpcServerToClientSyncCompressRotation(position, rotation, scale);
+        }
+
         // local authority client sends sync message to server for broadcasting
         protected virtual void OnClientToServerSync(Vector3? position, Quaternion? rotation, Vector3? scale)
         {
@@ -315,6 +353,12 @@ namespace Mirror
         [ClientRpc(channel = Channels.Unreliable)]
         void RpcServerToClientSync(Vector3? position, Quaternion? rotation, Vector3? scale) =>
             OnServerToClientSync(position, rotation, scale);
+
+        // rpc /////////////////////////////////////////////////////////////////
+        // only unreliable. see comment above of this file.
+        [ClientRpc(channel = Channels.Unreliable)]
+        void RpcServerToClientSyncCompressRotation(Vector3? position, uint? rotation, Vector3? scale) =>
+            OnServerToClientSync(position, rotation.HasValue ? Compression.DecompressQuaternion((uint)rotation) : target.rotation, scale);
 
         // server broadcasts sync message to all clients
         protected virtual void OnServerToClientSync(Vector3? position, Quaternion? rotation, Vector3? scale)
