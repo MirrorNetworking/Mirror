@@ -226,10 +226,10 @@ namespace Mirror
                 else
                 {
                     CmdClientToServerSync(
-                   // only sync what the user wants to sync
-                   syncPosition && positionChanged ? snapshot.position : default(Vector3?),
-                   syncRotation && rotationChanged ? snapshot.rotation : default(Quaternion?),
-                   syncScale && scaleChanged ? snapshot.scale : default(Vector3?)
+                        // only sync what the user wants to sync
+                        syncPosition && positionChanged ? snapshot.position : default(Vector3?),
+                        syncRotation && rotationChanged ? snapshot.rotation : default(Quaternion?),
+                        syncScale && scaleChanged ? snapshot.scale : default(Vector3?)
                     );
                 }
 
