@@ -125,9 +125,9 @@ namespace Mirror
         // this is set by a virtual function in NetworkManager,
         // which allows users to overwrite it with their own estimations.
         public static ConnectionQuality connectionQuality = ConnectionQuality.ESTIMATING;
+        public static ConnectionQuality lastConnectionQuality = ConnectionQuality.ESTIMATING;
         public static float connectionQualityInterval = 3;
         public static event Action<ConnectionQuality> onConnectionQualityChanged;
-        static ConnectionQuality lastConnectionQuality = ConnectionQuality.ESTIMATING;
         static double lastConnectionQualityUpdate;
 
         // initialization //////////////////////////////////////////////////////
