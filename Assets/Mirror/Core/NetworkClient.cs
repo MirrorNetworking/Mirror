@@ -33,6 +33,12 @@ namespace Mirror
         public static float sendInterval => sendRate < int.MaxValue ? 1f / sendRate : 0; // for 30 Hz, that's 33ms
         static double lastSendTime;
 
+        // Connection Quality
+        static public float connectionQualityInterval = 3;
+        static double lastConnectionQualityUpdate;
+        static ConnectionQuality lastConnectionQuality = ConnectionQuality.ESTIMATING;
+        public static event Action<ConnectionQuality> onConnectionQualityChanged;
+
         // For security, it is recommended to disconnect a player if a networked
         // action triggers an exception\nThis could prevent components being
         // accessed in an undefined state, which may be an attack vector for
@@ -1508,6 +1514,22 @@ namespace Mirror
                     AccurateInterval.Elapsed(NetworkTime.localTime, sendInterval, ref lastSendTime))
                 {
                     Broadcast();
+                }
+
+                // only recalculate every few seconds
+                // we don't want to fire Good->Bad->Good->Bad hundreds of times per second.
+                if (NetworkTime.time > lastConnectionQualityUpdate + connectionQualityInterval)
+                {
+                    lastConnectionQualityUpdate = NetworkTime.time;
+                    connectionQuality = ConnectionQualityHeuristics.Simple(NetworkTime.rtt, NetworkTime.rttVariance);
+
+                    if (lastConnectionQuality != connectionQuality)
+                    {
+                        // Invoke the event before assigning the new value
+                        // so the event handler compare old and new values.
+                        onConnectionQualityChanged?.Invoke(connectionQuality);
+                        lastConnectionQuality = connectionQuality;
+                    }
                 }
             }
 

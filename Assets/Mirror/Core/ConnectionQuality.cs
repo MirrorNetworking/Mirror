@@ -4,13 +4,15 @@ using UnityEngine;
 
 namespace Mirror
 {
+    // These are in order of worst to best quality intentionally.
+    // Don't change the order...it is used for displaying connection quality
     public enum ConnectionQuality : byte
     {
-        EXCELLENT,  // ideal experience for high level competitors
-        GOOD,       // very playable for everyone but high level competitors
-        FAIR,       // very noticeable latency, not very enjoyable anymore
-        POOR,       // unplayable
         ESTIMATING, // still estimating
+        POOR,       // unplayable
+        FAIR,       // very noticeable latency, not very enjoyable anymore
+        GOOD,       // very playable for everyone but high level competitors
+        EXCELLENT   // ideal experience for high level competitors
     }
 
     // provide different heuristics for users to choose from.

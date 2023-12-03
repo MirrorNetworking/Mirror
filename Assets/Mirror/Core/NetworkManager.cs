@@ -279,29 +279,6 @@ namespace Mirror
         public virtual void LateUpdate()
         {
             UpdateScene();
-            UpdateConnectionQuality();
-        }
-
-        // Connection Quality //////////////////////////////////////////////////
-        // uses 'pragmatic' version based on snapshot interpolation by default.
-        void UpdateConnectionQuality()
-        {
-            if (!NetworkClient.active) return;
-
-            // only recalculate every few seconds
-            // we don't want to fire Good->Bad->Good->Bad hundreds of times per second.
-            if (NetworkTime.time < lastConnectionQualityUpdate + connectionQualityInterval) return;
-            lastConnectionQualityUpdate = NetworkTime.time;
-
-            // recaclulate connection quality
-            CalculateConnectionQuality();
-
-            // call event if changed
-            if (NetworkClient.connectionQuality != lastConnectionQuality)
-            {
-                OnConnectionQualityChanged(lastConnectionQuality, NetworkClient.connectionQuality);
-                lastConnectionQuality = NetworkClient.connectionQuality;
-            }
         }
 
         ////////////////////////////////////////////////////////////////////////
@@ -1422,21 +1399,6 @@ namespace Mirror
 
         /// <summary>Called on clients when disconnected from a server.</summary>
         public virtual void OnClientDisconnect() { }
-
-        /// <summary>Called on client when connection quality is calculated. Override to use your own measurements.</summary>
-        public virtual void CalculateConnectionQuality()
-        {
-            // NetworkClient.connectionQuality = ConnectionQualityHeuristics.Pragmatic(NetworkClient.initialBufferTime, NetworkClient.bufferTime);
-            NetworkClient.connectionQuality = ConnectionQualityHeuristics.Simple(NetworkTime.rtt, NetworkTime.rttVariance);
-        }
-
-        /// <summary>Called on client when connection quality changes. Override to show your own warnings or UI visuals.</summary>
-        public virtual void OnConnectionQualityChanged(ConnectionQuality previous, ConnectionQuality current)
-        {
-            // logging the change is very useful to track down user's lag reports.
-            // we want to include as much detail as possible for debugging.
-            Debug.Log($"[Mirror] Connection Quality changed from {previous} to {current}:\n  rtt={(NetworkTime.rtt * 1000):F1}ms\n  rttVar={(NetworkTime.rttVariance * 1000):F1}ms\n  bufferTime={(NetworkClient.bufferTime * 1000):F1}ms");
-        }
 
         /// <summary>Called on client when transport raises an exception.</summary>
         public virtual void OnClientError(TransportError error, string reason) { }
