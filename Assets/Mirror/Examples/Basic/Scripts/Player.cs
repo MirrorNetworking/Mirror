@@ -56,6 +56,7 @@ namespace Mirror.Examples.Basic
         // This is called by the hook of playerData SyncVar above
         void PlayerDataChanged(ushort _, ushort newPlayerData)
         {
+            Debug.Log($"Player {playerNumber} data changed to {newPlayerData}");
             OnPlayerDataChanged?.Invoke(newPlayerData);
         }
 
