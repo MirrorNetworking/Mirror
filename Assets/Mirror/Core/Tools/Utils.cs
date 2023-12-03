@@ -50,6 +50,22 @@ namespace Mirror
             SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null;
 #endif
 
+        // detect WebGL mode
+        public static bool IsWebGL() =>
+#if UNITY_WEBGL
+            true;
+#else
+            false;
+#endif
+
+        // detect Debug mode
+        public static bool IsDebug() =>
+#if DEBUG
+            true;
+#else
+            false;
+#endif
+
         public static uint GetTrueRandomUInt()
         {
             // use Crypto RNG to avoid having time based duplicates
