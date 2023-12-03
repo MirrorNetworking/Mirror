@@ -29,9 +29,9 @@ namespace Mirror
         // used to know if the first two snapshots are old enough to start.
         public double localTime { get; set; }
 
-        public Vector3    position;
+        public Vector3 position;
         public Quaternion rotation;
-        public Vector3    scale;
+        public Vector3 scale;
 
         public TransformSnapshot(double remoteTime, double localTime, Vector3 position, Quaternion rotation, Vector3 scale)
         {

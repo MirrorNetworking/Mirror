@@ -126,7 +126,7 @@ namespace Mirror
 
         // get local/world scale
         protected virtual Vector3 GetScale() =>
-            coordinateSpace == CoordinateSpace.Local ? target.localScale    : target.lossyScale;
+            coordinateSpace == CoordinateSpace.Local ? target.localScale : target.lossyScale;
 
         // set local/world position
         protected virtual void SetPosition(Vector3 position)
@@ -154,7 +154,7 @@ namespace Mirror
             // Unity doesn't support setting world scale.
             // OnValidate disables syncScale in world mode.
             // else
-                // target.lossyScale = scale; // TODO
+            // target.lossyScale = scale; // TODO
         }
 
         // construct a snapshot of the current state
@@ -186,7 +186,7 @@ namespace Mirror
 
             if (!position.HasValue) position = snapshots.Count > 0 ? snapshots.Values[snapshots.Count - 1].position : GetPosition();
             if (!rotation.HasValue) rotation = snapshots.Count > 0 ? snapshots.Values[snapshots.Count - 1].rotation : GetRotation();
-            if (!scale.HasValue)    scale    = snapshots.Count > 0 ? snapshots.Values[snapshots.Count - 1].scale    : GetScale();
+            if (!scale.HasValue) scale = snapshots.Count > 0 ? snapshots.Values[snapshots.Count - 1].scale : GetScale();
 
             // insert transform snapshot
             SnapshotInterpolation.InsertIfNotExists(
@@ -225,7 +225,7 @@ namespace Mirror
             // interpolate parts
             if (syncPosition) SetPosition(interpolatePosition ? interpolated.position : endGoal.position);
             if (syncRotation) SetRotation(interpolateRotation ? interpolated.rotation : endGoal.rotation);
-            if (syncScale)       SetScale(interpolateScale    ? interpolated.scale    : endGoal.scale);
+            if (syncScale) SetScale(interpolateScale ? interpolated.scale : endGoal.scale);
         }
 
         // client->server teleport to force position without interpolation.
