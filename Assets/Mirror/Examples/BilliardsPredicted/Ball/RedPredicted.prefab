@@ -66,7 +66,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 4260669eb9d994f8c96cd5be23e52164, type: 2}
+  - {fileID: 2100000, guid: 919ef8af6341a428380e25d2f2ced7f9, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -100,6 +100,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9b91ecbcc199f4492b9a91e820070131, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  clientStarted: 0
   sceneId: 0
   _assetId: 776221176
   serverOnly: 0
@@ -164,8 +165,9 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0.1
-  positionSensitivity: 0.01
   stateHistoryLimit: 32
   correctionThreshold: 0.1
-  smoothCorrection: 1
+  oneFrameAhead: 1
+  correctionMode: 1
+  ghostMaterial: {fileID: 2100000, guid: 411a48b4a197d4924bec3e3809bc9320, type: 2}
   lineTime: 10

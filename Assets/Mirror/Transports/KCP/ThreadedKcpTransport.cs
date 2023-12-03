@@ -138,6 +138,8 @@ namespace kcp2k
         void OnDisable() => enabledCopy = true;
 
         // all except WebGL
+        // Do not change this back to using Application.platform
+        // because that doesn't work in the Editor!
         public override bool Available() =>
 #if UNITY_WEBGL
             false;

@@ -64,17 +64,17 @@ namespace Mirror
 
         protected virtual void CheckLastSendTime()
         {
-			// We check interval every frame, and then send if interval is reached.
-			// So by the time sendIntervalCounter == sendIntervalMultiplier, data is sent,
-			// thus we reset the counter here.
-			// This fixes previous issue of, if sendIntervalMultiplier = 1, we send every frame,
-			// because intervalCounter is always = 1 in the previous version.
+            // We check interval every frame, and then send if interval is reached.
+            // So by the time sendIntervalCounter == sendIntervalMultiplier, data is sent,
+            // thus we reset the counter here.
+            // This fixes previous issue of, if sendIntervalMultiplier = 1, we send every frame,
+            // because intervalCounter is always = 1 in the previous version.
 
-			if (sendIntervalCounter == sendIntervalMultiplier)
-				sendIntervalCounter = 0;
+            if (sendIntervalCounter == sendIntervalMultiplier)
+                sendIntervalCounter = 0;
 
-			// timeAsDouble not available in older Unity versions.
-			if (AccurateInterval.Elapsed(NetworkTime.localTime, NetworkServer.sendInterval, ref lastSendIntervalTime))
+            // timeAsDouble not available in older Unity versions.
+            if (AccurateInterval.Elapsed(NetworkTime.localTime, NetworkServer.sendInterval, ref lastSendIntervalTime))
                 sendIntervalCounter++;
         }
 
@@ -278,7 +278,7 @@ namespace Mirror
             {
                 if (syncPosition) writer.WriteVector3(GetPosition());
                 if (syncRotation) writer.WriteQuaternion(GetRotation());
-                if (syncScale)    writer.WriteVector3(GetScale());
+                if (syncScale) writer.WriteVector3(GetScale());
             }
         }
 
@@ -291,7 +291,7 @@ namespace Mirror
             {
                 if (syncPosition) SetPosition(reader.ReadVector3());
                 if (syncRotation) SetRotation(reader.ReadQuaternion());
-                if (syncScale)       SetScale(reader.ReadVector3());
+                if (syncScale) SetScale(reader.ReadVector3());
             }
         }
 
