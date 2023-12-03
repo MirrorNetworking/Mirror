@@ -138,8 +138,14 @@ namespace kcp2k
         void OnDisable() => enabledCopy = true;
 
         // all except WebGL
+        // Do not change this back to using Application.platform
+        // because that doesn't work in the Editor!
         public override bool Available() =>
-            Application.platform != RuntimePlatform.WebGLPlayer;
+#if UNITY_WEBGL
+            false;
+#else
+            true;
+#endif
 
         protected override void ThreadedClientConnect(string address) => client.Connect(address, Port);
         protected override void ThreadedClientConnect(Uri uri)

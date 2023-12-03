@@ -145,8 +145,14 @@ namespace kcp2k
         }
 
         // all except WebGL
+        // Do not change this back to using Application.platform
+        // because that doesn't work in the Editor!
         public override bool Available() =>
-            Application.platform != RuntimePlatform.WebGLPlayer;
+#if UNITY_WEBGL
+            false;
+#else
+            true;
+#endif
 
         // client
         public override bool ClientConnected() => client.connected;
