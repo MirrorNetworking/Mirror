@@ -136,6 +136,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9b91ecbcc199f4492b9a91e820070131, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  clientStarted: 0
   sceneId: 0
   _assetId: 1707196853
   serverOnly: 0
@@ -157,13 +158,13 @@ MonoBehaviour:
   syncMode: 0
   syncInterval: 0
   target: {fileID: 4822224316094678}
-  clientAuthority: 0
   syncPosition: 1
   syncRotation: 1
   syncScale: 0
   interpolatePosition: 1
   interpolateRotation: 1
   interpolateScale: 0
+  coordinateSpace: 0
   sendIntervalMultiplier: 3
   timelineOffset: 1
   showGizmos: 0
@@ -297,12 +298,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 1480027675339556}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 218520098fbe58b4b8f0963ef41953f7, type: 3}
+  m_Script: {fileID: 11500000, guid: a91a718a70d01b347b75cb768a6f1a92, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   syncDirection: 0
   syncMode: 0
-  syncInterval: 0.1
+  syncInterval: 0
   color:
     serializedVersion: 2
     rgba: 4278190080

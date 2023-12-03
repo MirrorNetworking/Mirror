@@ -34,13 +34,21 @@ namespace Mirror
     public static class Utils
     {
         // detect headless / dedicated server mode
-        // in Unity 2019/2020, we need to check if there is no graphics device.
-        // in Unity 2021+, we could check for the #if UNITY_SERVER define.
-        // checking graphics device is safest.
-        // => it works on all Unity versions.
-        // => it keeps all the code active instead of ifdefing it out.
+        // SystemInfo.graphicsDeviceType is never null in the editor.
+        // UNITY_SERVER works in builds for all Unity versions 2019 LTS and later.
+        // For Unity 2019 / 2020, there is no way to detect Server Build checkbox
+        //    state in Build Settings, so they never auto-start headless server / client.
+        // UNITY_SERVER works in the editor in Unity 2021 LTS and later
+        //    because that's when Dedicated Server platform was added.
+        // It is intentional for editor play mode to auto-start headless server / client
+        //    when Dedicated Server platform is selected in the editor so that editor
+        //    acts like a headless build to every extent possible for testing / debugging.
         public static bool IsHeadless() =>
+#if UNITY_SERVER
+            true;
+#else
             SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null;
+#endif
 
         public static uint GetTrueRandomUInt()
         {

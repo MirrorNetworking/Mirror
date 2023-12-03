@@ -323,7 +323,7 @@ namespace kcp2k
             */
         }
 
-        public override string ToString() => "ThreadedKCP";
+        public override string ToString() => $"ThreadedKCP {port}";
     }
 }
 //#endif MIRROR <- commented out because MIRROR isn't defined on first import yet
