@@ -33,12 +33,6 @@ namespace Mirror
         public static float sendInterval => sendRate < int.MaxValue ? 1f / sendRate : 0; // for 30 Hz, that's 33ms
         static double lastSendTime;
 
-        // Connection Quality
-        static public float connectionQualityInterval = 3;
-        static double lastConnectionQualityUpdate;
-        static ConnectionQuality lastConnectionQuality = ConnectionQuality.ESTIMATING;
-        public static event Action<ConnectionQuality> onConnectionQualityChanged;
-
         // For security, it is recommended to disconnect a player if a networked
         // action triggers an exception\nThis could prevent components being
         // accessed in an undefined state, which may be an attack vector for
@@ -131,6 +125,10 @@ namespace Mirror
         // this is set by a virtual function in NetworkManager,
         // which allows users to overwrite it with their own estimations.
         public static ConnectionQuality connectionQuality = ConnectionQuality.ESTIMATING;
+        public static float connectionQualityInterval = 3;
+        public static event Action<ConnectionQuality> onConnectionQualityChanged;
+        static ConnectionQuality lastConnectionQuality = ConnectionQuality.ESTIMATING;
+        static double lastConnectionQualityUpdate;
 
         // initialization //////////////////////////////////////////////////////
         static void AddTransportHandlers()
