@@ -136,8 +136,6 @@ namespace Mirror
 
         [Header("Connection Quality")]
         public float connectionQualityInterval = 3;
-        double lastConnectionQualityUpdate;
-        ConnectionQuality lastConnectionQuality = ConnectionQuality.ESTIMATING;
 
         [Header("Debug")]
         public bool timeInterpolationGui = false;
@@ -299,6 +297,7 @@ namespace Mirror
         {
             NetworkServer.tickRate = sendRate;
             NetworkClient.snapshotSettings = snapshotSettings;
+            NetworkClient.connectionQualityInterval = connectionQualityInterval;
         }
 
         // full server setup code, without spawning objects yet
