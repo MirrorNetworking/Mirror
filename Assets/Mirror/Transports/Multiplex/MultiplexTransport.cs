@@ -57,9 +57,9 @@ namespace Mirror
             }
             set
             {
-#if UNITY_SERVER
-                if (!alreadyWarned)
+                if (Utils.IsHeadless() && !alreadyWarned)
                 {
+                    // prevent log flood from OnGUI or similar per-frame updates
                     alreadyWarned = true;
 #if DEBUG
                     // Unity Editor or Debug build
@@ -72,18 +72,19 @@ namespace Mirror
 #endif
                 }
 
-#else
-                // We can't set the same port for all transports because
-                // listen ports have to be different for each transport
-                // so we just set the first available one.
-                // This depends on the selected build platform.
-                foreach (Transport transport in transports)
-                    if (transport.Available() && transport is PortTransport portTransport)
-                    {
-                        portTransport.Port = value;
-                        break;
-                    }
-#endif
+                else
+                {
+                    // We can't set the same port for all transports because
+                    // listen ports have to be different for each transport
+                    // so we just set the first available one.
+                    // This depends on the selected build platform.
+                    foreach (Transport transport in transports)
+                        if (transport.Available() && transport is PortTransport portTransport)
+                        {
+                            portTransport.Port = value;
+                            break;
+                        }
+                }
             }
         }
 
