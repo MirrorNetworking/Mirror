@@ -61,15 +61,18 @@ namespace Mirror
                 {
                     // prevent log flood from OnGUI or similar per-frame updates
                     alreadyWarned = true;
-#if DEBUG
-                    // Unity Editor or Debug build
-                    Debug.LogWarning($"MultiplexTransport: Server cannot set the same listen port for all transports! Set them directly instead.");
-#else
-                    // Release build
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine($"MultiplexTransport: Server cannot set the same listen port for all transports! Set them directly instead.");
-                    Console.ResetColor();
-#endif
+                    if (Utils.IsDebug)
+                    {
+                        // Unity Editor or Debug build
+                        Debug.LogWarning($"MultiplexTransport: Server cannot set the same listen port for all transports! Set them directly instead.");
+                    }
+                    else
+                    {
+                        // Release build
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine($"MultiplexTransport: Server cannot set the same listen port for all transports! Set them directly instead.");
+                        Console.ResetColor();
+                    }
                 }
 
                 else
