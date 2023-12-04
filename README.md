@@ -40,7 +40,7 @@ Mirror comes with everything you need to build your virtual worlds.
 | 🐌 **Latency Simulation**        | Simulate latency, packet loss & jitter locally.                                            | **Stable**       |
 | 🧲 **Batching**                  | Minimize message overhead via batching automatically.                                      | **Stable**       |
 | 💌 **RPCs & SyncVars**           | Synced vars and remote function calls built in & safe.                                     | **Stable**       |
-| 🙅‍♀️**Allocation Free**         | Free of runtime allocations and no GC (except for some Transports).                        | **Stable**       |
+| 🙅‍♀️**Allocation Free**         | Free of runtime allocations and no GC (except Transports).                                 | **Stable**       |
 | 👩‍🍼 **Child NetworkBehaviours** | Put networked components on anything.                                                      | **Stable**       |
 | 🛞  **Transform & Physics**  | Transform & Physics sync build in.                                                         | **Stable**       |
 | 🪚️ **IL Post Processing**       | Zero overhead [Rpcs] and [Commands] via IL post processing!                                | **Stable**       |
