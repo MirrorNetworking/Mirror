@@ -30,8 +30,8 @@ Mirror is **[stable](https://mirror-networking.gitbook.io/docs/general/tests)**,
 ---
 ## Features
 
-Mirror comes with everything you need to build your virtual worlds.<br>
-Our solutions like modular Transports & Interest Management are now the standard across many Unity netcodes.<br>
+Mirror comes with a wide variety of features to support all game genres.<br>
+Many of our modular approaches like Transports and modular Interest Management are now the norm across all Unity netcodes!<br>
 
 | Feature                       | Description                                                        | Status          |
 |-------------------------------|--------------------------------------------------------------------|-----------------|
