@@ -57,6 +57,7 @@ Many of our features quickly became the norm across all Unity netcodes!<br>
 | ❤️ **Community**              | Join our Discord with nearly 15.000 developers world wide!  |                 |
 | 🧜🏻‍♀️ **Long Term Support** | Maintained since 2014 with optional LTS version!            |                 |
 |                               |                                                             |                 |
+| 🦖 **Deterministic Physics**  | Open source deterministic physics for C# & Unity!          | **Researching** |
 | 📐 **Bitpacking**             | Optimized compression (bools as 1 bit etc.)                 | **Researching** |
 | 🔒 **Encryption**             | Secure communication with end-to-end encryption.            | **Researching** |
 
