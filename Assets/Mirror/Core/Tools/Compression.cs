@@ -174,21 +174,7 @@ namespace Mirror
 
         const float QuaternionMinRange = -0.707107f;
         const float QuaternionMaxRange =  0.707107f;
-        const ushort TenBitsMax = 0x3FF;
-
-        // helper function to access 'nth' component of quaternion
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static float QuaternionElement(Quaternion q, int element)
-        {
-            switch (element)
-            {
-                case 0: return q.x;
-                case 1: return q.y;
-                case 2: return q.z;
-                case 3: return q.w;
-                default: return 0;
-            }
-        }
+        const ushort TenBitsMax = 0b11_1111_1111;
 
         // note: assumes normalized quaternions
         public static uint CompressQuaternion(Quaternion q)
@@ -206,7 +192,7 @@ namespace Mirror
             // [largest] always positive by negating the entire quaternion if
             // [largest] is negative. in quaternion space (x,y,z,w) and
             // (-x,-y,-z,-w) represent the same rotation."
-            if (QuaternionElement(q, largestIndex) < 0)
+            if (q[largestIndex] < 0)
                 withoutLargest = -withoutLargest;
 
             // put index & three floats into one integer.
@@ -293,11 +279,46 @@ namespace Mirror
         }
 
         // varint compression //////////////////////////////////////////////////
+        // helper function to predict varint size for a given number.
+        // useful when checking if a message + size header will fit, etc.
+        public static int VarUIntSize(ulong value)
+        {
+            if (value <= 240)
+                return 1;
+            if (value <= 2287)
+                return 2;
+            if (value <= 67823)
+                return 3;
+            if (value <= 16777215)
+                return 4;
+            if (value <= 4294967295)
+                return 5;
+            if (value <= 1099511627775)
+                return 6;
+            if (value <= 281474976710655)
+                return 7;
+            if (value <= 72057594037927935)
+                return 8;
+            return 9;
+        }
+
+        // helper function to predict varint size for a given number.
+        // useful when checking if a message + size header will fit, etc.
+        public static int VarIntSize(long value)
+        {
+            // CompressVarInt zigzags it first
+            ulong zigzagged = (ulong)((value >> 63) ^ (value << 1));
+            return VarUIntSize(zigzagged);
+        }
+
         // compress ulong varint.
         // same result for ulong, uint, ushort and byte. only need one function.
         // NOT an extension. otherwise weaver might accidentally use it.
         public static void CompressVarUInt(NetworkWriter writer, ulong value)
         {
+            // straight forward implementation:
+            // keep this for understanding & debugging.
+            /*
             if (value <= 240)
             {
                 writer.WriteByte((byte)value);
@@ -378,6 +399,81 @@ namespace Mirror
                 writer.WriteByte((byte)((value >> 40) & 0xFF));
                 writer.WriteByte((byte)((value >> 48) & 0xFF));
                 writer.WriteByte((byte)((value >> 56) & 0xFF));
+            }
+            */
+
+            // faster implementation writes multiple bytes at once.
+            // avoids extra Space, WriteBlittable overhead.
+            // VarInt is in hot path, performance matters here.
+            if (value <= 240)
+            {
+                byte a = (byte)value;
+                writer.WriteByte(a);
+                return;
+            }
+            if (value <= 2287)
+            {
+                byte a = (byte)(((value - 240) >> 8) + 241);
+                byte b = (byte)((value - 240) & 0xFF);
+                writer.WriteUShort((ushort)(b << 8 | a));
+                return;
+            }
+            if (value <= 67823)
+            {
+                byte a = (byte)249;
+                byte b = (byte)((value - 2288) >> 8);
+                byte c = (byte)((value - 2288) & 0xFF);
+                writer.WriteByte(a);
+                writer.WriteUShort((ushort)(c << 8 | b));
+                return;
+            }
+            if (value <= 16777215)
+            {
+                byte a = (byte)250;
+                uint b = (uint)(value << 8);
+                writer.WriteUInt(b | a);
+                return;
+            }
+            if (value <= 4294967295)
+            {
+                byte a = (byte)251;
+                uint b = (uint)value;
+                writer.WriteByte(a);
+                writer.WriteUInt(b);
+                return;
+            }
+            if (value <= 1099511627775)
+            {
+                byte a = (byte)252;
+                byte b = (byte)(value & 0xFF);
+                uint c = (uint)(value >> 8);
+                writer.WriteUShort((ushort)(b << 8 | a));
+                writer.WriteUInt(c);
+                return;
+            }
+            if (value <= 281474976710655)
+            {
+                byte a = (byte)253;
+                byte b = (byte)(value & 0xFF);
+                byte c = (byte)((value >> 8) & 0xFF);
+                uint d = (uint)(value >> 16);
+                writer.WriteByte(a);
+                writer.WriteUShort((ushort)(c << 8 | b));
+                writer.WriteUInt(d);
+                return;
+            }
+            if (value <= 72057594037927935)
+            {
+                byte a = 254;
+                ulong b = value << 8;
+                writer.WriteULong(b | a);
+                return;
+            }
+
+            // all others
+            {
+                writer.WriteByte(255);
+                writer.WriteULong(value);
             }
         }
 

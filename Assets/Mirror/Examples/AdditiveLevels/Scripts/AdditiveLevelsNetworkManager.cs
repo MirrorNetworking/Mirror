@@ -141,7 +141,7 @@ namespace Mirror.Examples.AdditiveLevels
         public override void OnClientSceneChanged()
         {
             // Only call the base method if not in a transition.
-            // This will be called from DoTransition after setting doingTransition to false
+            // This will be called from LoadAdditive / UnloadAdditive after setting isInTransition to false
             // but will also be called first by Mirror when the scene loading finishes.
             if (!isInTransition)
                 base.OnClientSceneChanged();

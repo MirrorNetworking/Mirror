@@ -9,6 +9,7 @@ namespace Mirror
 {
     public enum PlayerSpawnMethod { Random, RoundRobin }
     public enum NetworkManagerMode { Offline, ServerOnly, ClientOnly, Host }
+    public enum HeadlessStartOptions { DoNothing, AutoStartServer, AutoStartClient }
 
     [DisallowMultipleComponent]
     [AddComponentMenu("Network/Network Manager")]
@@ -29,31 +30,30 @@ namespace Mirror
 
         /// <summary>Should the server auto-start when 'Server Build' is checked in build settings</summary>
         [Header("Headless Builds")]
-        [Tooltip("Should the server auto-start when 'Server Build' is checked in build settings")]
-        [FormerlySerializedAs("startOnHeadless")]
-        public bool autoStartServerBuild = true;
 
-        [Tooltip("Automatically connect the client in headless builds. Useful for CCU tests with bot clients.\n\nAddress may be passed as command line argument.\n\nMake sure that only 'autostartServer' or 'autoconnectClient' is enabled, not both!")]
-        public bool autoConnectClientBuild;
+        [Tooltip("Choose whether Server or Client should auto-start in headless builds")]
+        public HeadlessStartOptions headlessStartMode = HeadlessStartOptions.DoNothing;
 
         /// <summary>Server Update frequency, per second. Use around 60Hz for fast paced games like Counter-Strike to minimize latency. Use around 30Hz for games like WoW to minimize computations. Use around 1-10Hz for slow paced games like EVE.</summary>
-        [Tooltip("Server & Client send rate per second. Use around 60Hz for fast paced games like Counter-Strike to minimize latency. Use around 30Hz for games like WoW to minimize computations. Use around 1-10Hz for slow paced games like EVE.")]
+        [Tooltip("Server & Client send rate per second. Use 60-100Hz for fast paced games like Counter-Strike to minimize latency. Use around 30Hz for games like WoW to minimize computations. Use around 1-10Hz for slow paced games like EVE.")]
         [FormerlySerializedAs("serverTickRate")]
-        public int sendRate = 30;
+        public int sendRate = 60;
 
-        // Deprecated 2022-10-31
-        [Obsolete("NetworkManager.serverTickRate was renamed to sendRate because that's what it configures for both server & client now.")]
-        public int serverTickRate => sendRate;
+        // Deprecated 2023-11-25
+        // Using SerializeField and HideInInspector to self-correct for being
+        // replaced by headlessStartMode. This can be removed in the future.
+        // See OnValidate() for how we handle this.
+        [Obsolete("Deprecated - Use headlessStartMode instead.")]
+        [FormerlySerializedAs("autoStartServerBuild"), SerializeField, HideInInspector]
+        public bool autoStartServerBuild = true;
 
-        // tick rate is in Hz.
-        // convert to interval in seconds for convenience where needed.
-        //
-        // send interval is 1 / sendRate.
-        // but for tests we need a way to set it to exactly 0.
-        // 1 / int.max would not be exactly 0, so handel that manually.
-        // Deprecated 2022-10-06
-        [Obsolete("NetworkManager.serverTickInterval was moved to NetworkServer.tickInterval for consistency.")]
-        public float serverTickInterval => NetworkServer.tickInterval;
+        // Deprecated 2023-11-25
+        // Using SerializeField and HideInInspector to self-correct for being
+        // replaced by headlessStartMode. This can be removed in the future.
+        // See OnValidate() for how we handle this.
+        [Obsolete("Deprecated - Use headlessStartMode instead.")]
+        [FormerlySerializedAs("autoConnectClientBuild"), SerializeField, HideInInspector]
+        public bool autoConnectClientBuild;
 
         // client send rate follows server send rate to avoid errors for now
         /// <summary>Client Update frequency, per second. Use around 60Hz for fast paced games like Counter-Strike to minimize latency. Use around 30Hz for games like WoW to minimize computations. Use around 1-10Hz for slow paced games like EVE.</summary>
@@ -88,6 +88,15 @@ namespace Mirror
         [Tooltip("Maximum number of concurrent connections.")]
         public int maxConnections = 100;
 
+        // Mirror global disconnect inactive option, independent of Transport.
+        // not all Transports do this properly, and it's easiest to configure this just once.
+        // this is very useful for some projects, keep it.
+        [Tooltip("When enabled, the server automatically disconnects inactive connections after the configured timeout.")]
+        public bool disconnectInactiveConnections;
+
+        [Tooltip("Timeout in seconds for server to automatically disconnect inactive connections if 'disconnectInactiveConnections' is enabled.")]
+        public float disconnectInactiveTimeout = 60f;
+
         [Header("Authentication")]
         [Tooltip("Authentication component attached to this object")]
         public NetworkAuthenticator authenticator;
@@ -118,8 +127,17 @@ namespace Mirror
         public static List<Transform> startPositions = new List<Transform>();
         public static int startPositionIndex;
 
+        [Header("Security")]
+        [Tooltip("For security, it is recommended to disconnect a player if a networked action triggers an exception\nThis could prevent components being accessed in an undefined state, which may be an attack vector for exploits.\nHowever, some games may want to allow exceptions in order to not interrupt the player's experience.")]
+        public bool exceptionsDisconnect = true; // security by default
+
         [Header("Snapshot Interpolation")]
         public SnapshotInterpolationSettings snapshotSettings = new SnapshotInterpolationSettings();
+
+        [Header("Connection Quality")]
+        public float connectionQualityInterval = 3;
+        double lastConnectionQualityUpdate;
+        ConnectionQuality lastConnectionQuality = ConnectionQuality.ESTIMATING;
 
         [Header("Debug")]
         public bool timeInterpolationGui = false;
@@ -153,6 +171,24 @@ namespace Mirror
         // virtual so that inheriting classes' OnValidate() can call base.OnValidate() too
         public virtual void OnValidate()
         {
+#pragma warning disable 618
+            // autoStartServerBuild and autoConnectClientBuild are now obsolete, but to avoid
+            // a breaking change we'll set headlessStartMode to what the user had set before.
+            //
+            // headlessStartMode defaults to DoNothing, so if the user had neither of these
+            // set, then it will remain as DoNothing, and if they set headlessStartMode to
+            // any selection in the inspector it won't get changed back.
+            if (autoStartServerBuild)
+                headlessStartMode = HeadlessStartOptions.AutoStartServer;
+            else if (autoConnectClientBuild)
+                headlessStartMode = HeadlessStartOptions.AutoStartClient;
+
+            // Setting both to false here prevents this code from fighting with user
+            // selection in the inspector, and they're both SerialisedField's.
+            autoStartServerBuild = false;
+            autoConnectClientBuild = false;
+#pragma warning restore 618
+
             // always >= 0
             maxConnections = Mathf.Max(maxConnections, 0);
 
@@ -165,7 +201,7 @@ namespace Mirror
             // This avoids the mysterious "Replacing existing prefab with assetId ... Old prefab 'Player', New prefab 'Player'" warning.
             if (playerPrefab != null && spawnPrefabs.Contains(playerPrefab))
             {
-                Debug.LogWarning("NetworkManager - Player Prefab should not be added to Registered Spawnable Prefabs list...removed it.");
+                Debug.LogWarning("NetworkManager - Player Prefab doesn't need to be in Spawnable Prefabs list too. Removing it.");
                 spawnPrefabs.Remove(playerPrefab);
             }
         }
@@ -211,22 +247,26 @@ namespace Mirror
         // virtual so that inheriting classes' Start() can call base.Start() too
         public virtual void Start()
         {
-            // headless mode? then start the server
-            // can't do this in Awake because Awake is for initialization.
-            // some transports might not be ready until Start.
+            // Auto-start headless server or client.
             //
-            // (tick rate is applied in StartServer!)
-#if UNITY_SERVER
-            if (autoStartServerBuild)
+            // We can't do this in Awake because Awake is for initialization
+            // and some transports might not be ready until Start.
+            //
+            // don't auto start in editor where we have a UI, only in builds.
+            // otherwise if we switch to 'Dedicated Server' target and press
+            // Play, it would auto start the server every time.
+            if (Utils.IsHeadless())
             {
-                StartServer();
+                switch (headlessStartMode)
+                {
+                    case HeadlessStartOptions.AutoStartServer:
+                        StartServer();
+                        break;
+                    case HeadlessStartOptions.AutoStartClient:
+                        StartClient();
+                        break;
+                }
             }
-            // only start server or client, never both
-            else if (autoConnectClientBuild)
-            {
-                StartClient();
-            }
-#endif
         }
 
         // make sure to call base.Update() when overwriting
@@ -239,7 +279,32 @@ namespace Mirror
         public virtual void LateUpdate()
         {
             UpdateScene();
+            UpdateConnectionQuality();
         }
+
+        // Connection Quality //////////////////////////////////////////////////
+        // uses 'pragmatic' version based on snapshot interpolation by default.
+        void UpdateConnectionQuality()
+        {
+            if (!NetworkClient.active) return;
+
+            // only recalculate every few seconds
+            // we don't want to fire Good->Bad->Good->Bad hundreds of times per second.
+            if (NetworkTime.time < lastConnectionQualityUpdate + connectionQualityInterval) return;
+            lastConnectionQualityUpdate = NetworkTime.time;
+
+            // recaclulate connection quality
+            CalculateConnectionQuality();
+
+            // call event if changed
+            if (NetworkClient.connectionQuality != lastConnectionQuality)
+            {
+                OnConnectionQualityChanged(lastConnectionQuality, NetworkClient.connectionQuality);
+                lastConnectionQuality = NetworkClient.connectionQuality;
+            }
+        }
+
+        ////////////////////////////////////////////////////////////////////////
 
         // keep the online scene change check in a separate function.
         // only change scene if the requested online scene is not blank, and is not already loaded.
@@ -247,10 +312,6 @@ namespace Mirror
             !string.IsNullOrWhiteSpace(onlineScene) &&
             !Utils.IsSceneActive(onlineScene) &&
             onlineScene != offlineScene;
-
-        // Deprecated 2022-12-12
-        [Obsolete("NetworkManager.IsSceneActive moved to Utils.IsSceneActive")]
-        public static bool IsSceneActive(string scene) => Utils.IsSceneActive(scene);
 
         // NetworkManager exposes some NetworkServer/Client configuration.
         // we apply it every Update() in order to avoid two sources of truth.
@@ -268,6 +329,11 @@ namespace Mirror
         {
             // Debug.Log("NetworkManager SetupServer");
             InitializeSingleton();
+
+            // apply settings before initializing anything
+            NetworkServer.disconnectInactiveConnections = disconnectInactiveConnections;
+            NetworkServer.disconnectInactiveTimeout = disconnectInactiveTimeout;
+            NetworkServer.exceptionsDisconnect = exceptionsDisconnect;
 
             if (runInBackground)
                 Application.runInBackground = true;
@@ -345,6 +411,10 @@ namespace Mirror
         {
             InitializeSingleton();
 
+            // apply settings before initializing anything
+            NetworkClient.exceptionsDisconnect = exceptionsDisconnect;
+            // NetworkClient.sendRate = clientSendRate;
+
             if (runInBackground)
                 Application.runInBackground = true;
 
@@ -354,15 +424,22 @@ namespace Mirror
                 authenticator.OnClientAuthenticated.AddListener(OnClientAuthenticated);
             }
 
-            // NetworkClient.sendRate = clientSendRate;
         }
 
         /// <summary>Starts the client, connects it to the server with networkAddress.</summary>
         public void StartClient()
         {
+            // Do checks and short circuits before setting anything up.
+            // If / when we retry, we won't have conflict issues.
             if (NetworkClient.active)
             {
                 Debug.LogWarning("Client already started.");
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(networkAddress))
+            {
+                Debug.LogError("Must set the Network Address field in the manager");
                 return;
             }
 
@@ -374,13 +451,6 @@ namespace Mirror
             ConfigureHeadlessFrameRate();
 
             RegisterClientMessages();
-
-            if (string.IsNullOrWhiteSpace(networkAddress))
-            {
-                Debug.LogError("Must set the Network Address field in the manager");
-                return;
-            }
-            // Debug.Log($"NetworkManager StartClient address:{networkAddress}");
 
             NetworkClient.Connect(networkAddress);
 
@@ -646,10 +716,11 @@ namespace Mirror
         // useful for headless benchmark clients.
         public virtual void ConfigureHeadlessFrameRate()
         {
-#if UNITY_SERVER
-            Application.targetFrameRate = sendRate;
-            // Debug.Log($"Server Tick Rate set to {Application.targetFrameRate} Hz.");
-#endif
+            if (Utils.IsHeadless())
+            {
+                Application.targetFrameRate = sendRate;
+                // Debug.Log($"Server Tick Rate set to {Application.targetFrameRate} Hz.");
+            }
         }
 
         bool InitializeSingleton()
@@ -1356,6 +1427,21 @@ namespace Mirror
 
         /// <summary>Called on clients when disconnected from a server.</summary>
         public virtual void OnClientDisconnect() { }
+
+        /// <summary>Called on client when connection quality is calculated. Override to use your own measurements.</summary>
+        public virtual void CalculateConnectionQuality()
+        {
+            // NetworkClient.connectionQuality = ConnectionQualityHeuristics.Pragmatic(NetworkClient.initialBufferTime, NetworkClient.bufferTime);
+            NetworkClient.connectionQuality = ConnectionQualityHeuristics.Simple(NetworkTime.rtt, NetworkTime.rttVariance);
+        }
+
+        /// <summary>Called on client when connection quality changes. Override to show your own warnings or UI visuals.</summary>
+        public virtual void OnConnectionQualityChanged(ConnectionQuality previous, ConnectionQuality current)
+        {
+            // logging the change is very useful to track down user's lag reports.
+            // we want to include as much detail as possible for debugging.
+            Debug.Log($"[Mirror] Connection Quality changed from {previous} to {current}:\n  rtt={(NetworkTime.rtt * 1000):F1}ms\n  rttVar={(NetworkTime.rttVariance * 1000):F1}ms\n  bufferTime={(NetworkClient.bufferTime * 1000):F1}ms");
+        }
 
         /// <summary>Called on client when transport raises an exception.</summary>
         public virtual void OnClientError(TransportError error, string reason) { }

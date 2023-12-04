@@ -5,7 +5,7 @@ using UnityEngine.TestTools;
 
 namespace Mirror.Tests.Runtime.ClientSceneTests
 {
-    public class ClientSceneTests_LocalPlayer : ClientSceneTestsBase
+    public class ClientSceneTests_LocalPlayer : NetworkClientTestsBase
     {
         [SetUp]
         public override void SetUp()

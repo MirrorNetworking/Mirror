@@ -14,7 +14,7 @@
 // we need a custom resolver for ILPostProcessor.
 #if UNITY_2020_3_OR_NEWER
 using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -26,12 +26,23 @@ namespace Mirror.Weaver
     class ILPostProcessorAssemblyResolver : IAssemblyResolver
     {
         readonly string[] assemblyReferences;
-        readonly Dictionary<string, AssemblyDefinition> assemblyCache =
-            new Dictionary<string, AssemblyDefinition>();
+
+        // originally we used Dictionary + lock.
+        // Resolve() is called thousands of times for large projects.
+        // ILPostProcessor is multithreaded, so best to use ConcurrentDictionary without the lock here.
+        readonly ConcurrentDictionary<string, AssemblyDefinition> assemblyCache =
+            new ConcurrentDictionary<string, AssemblyDefinition>();
+
+        // Resolve() calls FindFile() every time.
+        // thousands of times for String => mscorlib alone in large projects.
+        // cache the results! ILPostProcessor is multithreaded, so use a ConcurrentDictionary here.
+        readonly ConcurrentDictionary<string, string> fileNameCache =
+            new ConcurrentDictionary<string, string>();
+
         readonly ICompiledAssembly compiledAssembly;
         AssemblyDefinition selfAssembly;
 
-        Logger Log;
+        readonly Logger Log;
 
         public ILPostProcessorAssemblyResolver(ICompiledAssembly compiledAssembly, Logger Log)
         {
@@ -54,56 +65,76 @@ namespace Mirror.Weaver
         public AssemblyDefinition Resolve(AssemblyNameReference name) =>
             Resolve(name, new ReaderParameters(ReadingMode.Deferred));
 
+        // here is an example on when this is called:
+        //   Player : NetworkBehaviour has a [SyncVar] of type String.
+        //     Weaver's SyncObjectInitializer checks if ImplementsSyncObject()
+        //       which needs to resolve the type 'String' from mscorlib.
+        //         Resolve() lives in CecilX.MetadataResolver.Resolve()
+        //           which calls assembly_resolver.Resolve().
+        //             which uses our ILPostProcessorAssemblyResolver here.
+        //
+        // for large projects, this is called thousands of times for mscorlib alone.
+        // initially ILPostProcessorAssemblyResolver took 30x longer than with CompilationFinishedHook.
+        // we need to cache and speed up everything we can here!
         public AssemblyDefinition Resolve(AssemblyNameReference name, ReaderParameters parameters)
         {
-            lock (assemblyCache)
+            if (name.Name == compiledAssembly.Name)
+                return selfAssembly;
+
+            // cache FindFile.
+            // in large projects, this is called thousands(!) of times for String=>mscorlib alone.
+            // reduces a single String=>mscorlib resolve from 0.771ms to 0.015ms.
+            // => 50x improvement in TypeReference.Resolve() speed!
+            // => 22x improvement in Weaver speed!
+            if (!fileNameCache.TryGetValue(name.Name, out string fileName))
             {
-                if (name.Name == compiledAssembly.Name)
-                    return selfAssembly;
-
-                string fileName = FindFile(name);
-                if (fileName == null)
-                {
-                    // returning null will throw exceptions in our weaver where.
-                    // let's make it obvious why we returned null for easier debugging.
-                    // NOTE: if this fails for "System.Private.CoreLib":
-                    //       ILPostProcessorReflectionImporter fixes it!
-                    Log.Warning($"ILPostProcessorAssemblyResolver.Resolve: Failed to find file for {name}");
-                    return null;
-                }
-
-                DateTime lastWriteTime = File.GetLastWriteTime(fileName);
-
-                string cacheKey = fileName + lastWriteTime;
-
-                if (assemblyCache.TryGetValue(cacheKey, out AssemblyDefinition result))
-                    return result;
-
-                parameters.AssemblyResolver = this;
-
-                MemoryStream ms = MemoryStreamFor(fileName);
-
-                string pdb = fileName + ".pdb";
-                if (File.Exists(pdb))
-                    parameters.SymbolStream = MemoryStreamFor(pdb);
-
-                AssemblyDefinition assemblyDefinition = AssemblyDefinition.ReadAssembly(ms, parameters);
-                assemblyCache.Add(cacheKey, assemblyDefinition);
-                return assemblyDefinition;
+                fileName = FindFile(name.Name);
+                fileNameCache.TryAdd(name.Name, fileName);
             }
+
+            if (fileName == null)
+            {
+                // returning null will throw exceptions in our weaver where.
+                // let's make it obvious why we returned null for easier debugging.
+                // NOTE: if this fails for "System.Private.CoreLib":
+                //       ILPostProcessorReflectionImporter fixes it!
+                Log.Warning($"ILPostProcessorAssemblyResolver.Resolve: Failed to find file for {name}");
+                return null;
+            }
+
+            // try to get cached assembly by filename + writetime
+            DateTime lastWriteTime = File.GetLastWriteTime(fileName);
+            string cacheKey = fileName + lastWriteTime;
+            if (assemblyCache.TryGetValue(cacheKey, out AssemblyDefinition result))
+                return result;
+
+            // otherwise resolve and cache a new assembly
+            parameters.AssemblyResolver = this;
+            MemoryStream ms = MemoryStreamFor(fileName);
+
+            string pdb = fileName + ".pdb";
+            if (File.Exists(pdb))
+                parameters.SymbolStream = MemoryStreamFor(pdb);
+
+            AssemblyDefinition assemblyDefinition = AssemblyDefinition.ReadAssembly(ms, parameters);
+            assemblyCache.TryAdd(cacheKey, assemblyDefinition);
+            return assemblyDefinition;
         }
 
         // find assemblyname in assembly's references
-        string FindFile(AssemblyNameReference name)
+        string FindFile(string name)
         {
-            string fileName = assemblyReferences.FirstOrDefault(r => Path.GetFileName(r) == name.Name + ".dll");
-            if (fileName != null)
-                return fileName;
+            // perhaps the type comes from a .dll or .exe
+            // check both in one call without Linq instead of iterating twice like originally
+            foreach (string r in assemblyReferences)
+            {
+                if (Path.GetFileNameWithoutExtension(r) == name)
+                    return r;
+            }
 
-            // perhaps the type comes from an exe instead
-            fileName = assemblyReferences.FirstOrDefault(r => Path.GetFileName(r) == name.Name + ".exe");
-            if (fileName != null)
-                return fileName;
+            // this is called thousands(!) of times.
+            // constructing strings only once saves ~0.1ms per call for mscorlib.
+            string dllName = name + ".dll";
 
             // Unfortunately the current ICompiledAssembly API only provides direct references.
             // It is very much possible that a postprocessor ends up investigating a type in a directly
@@ -114,7 +145,7 @@ namespace Mirror.Weaver
             // got passed, and if we find the file in there, we resolve to it.
             foreach (string parentDir in assemblyReferences.Select(Path.GetDirectoryName).Distinct())
             {
-                string candidate = Path.Combine(parentDir, name.Name + ".dll");
+                string candidate = Path.Combine(parentDir, dllName);
                 if (File.Exists(candidate))
                     return candidate;
             }
@@ -122,8 +153,9 @@ namespace Mirror.Weaver
             return null;
         }
 
-        // open file as MemoryStream
-        // attempts multiple times, not sure why..
+        // open file as MemoryStream.
+        // ILPostProcessor is multithreaded.
+        // retry a few times in case another thread is still accessing the file.
         static MemoryStream MemoryStreamFor(string fileName)
         {
             return Retry(10, TimeSpan.FromSeconds(1), () =>

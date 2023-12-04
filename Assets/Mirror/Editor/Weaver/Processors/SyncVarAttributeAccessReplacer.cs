@@ -11,7 +11,7 @@ namespace Mirror.Weaver
     public static class SyncVarAttributeAccessReplacer
     {
         // process the module
-        public static void Process(ModuleDefinition moduleDef, SyncVarAccessLists syncVarAccessLists)
+        public static void Process(Logger Log, ModuleDefinition moduleDef, SyncVarAccessLists syncVarAccessLists)
         {
             DateTime startTime = DateTime.Now;
 
@@ -20,31 +20,31 @@ namespace Mirror.Weaver
             {
                 if (td.IsClass)
                 {
-                    ProcessClass(syncVarAccessLists, td);
+                    ProcessClass(Log, syncVarAccessLists, td);
                 }
             }
 
             Console.WriteLine($"  ProcessSitesModule {moduleDef.Name} elapsed time:{(DateTime.Now - startTime)}");
         }
 
-        static void ProcessClass(SyncVarAccessLists syncVarAccessLists, TypeDefinition td)
+        static void ProcessClass(Logger Log, SyncVarAccessLists syncVarAccessLists, TypeDefinition td)
         {
             //Console.WriteLine($"    ProcessClass {td}");
 
             // process all methods in this class
             foreach (MethodDefinition md in td.Methods)
             {
-                ProcessMethod(syncVarAccessLists, md);
+                ProcessMethod(Log, syncVarAccessLists, md);
             }
 
             // processes all nested classes in this class recursively
             foreach (TypeDefinition nested in td.NestedTypes)
             {
-                ProcessClass(syncVarAccessLists, nested);
+                ProcessClass(Log, syncVarAccessLists, nested);
             }
         }
 
-        static void ProcessMethod(SyncVarAccessLists syncVarAccessLists, MethodDefinition md)
+        static void ProcessMethod(Logger Log, SyncVarAccessLists syncVarAccessLists, MethodDefinition md)
         {
             // process all references to replaced members with properties
             //Log.Warning($"      ProcessSiteMethod {md}");
@@ -67,32 +67,64 @@ namespace Mirror.Weaver
                 for (int i = 0; i < md.Body.Instructions.Count;)
                 {
                     Instruction instr = md.Body.Instructions[i];
-                    i += ProcessInstruction(syncVarAccessLists, md, instr, i);
+                    i += ProcessInstruction(Log, syncVarAccessLists, md, instr, i);
                 }
             }
         }
 
-        static int ProcessInstruction(SyncVarAccessLists syncVarAccessLists, MethodDefinition md, Instruction instr, int iCount)
+        static int ProcessInstruction(Logger Log, SyncVarAccessLists syncVarAccessLists, MethodDefinition md, Instruction instr, int iCount)
         {
             // stfld (sets value of a field)?
-            if (instr.OpCode == OpCodes.Stfld && instr.Operand is FieldDefinition opFieldst)
+            if (instr.OpCode == OpCodes.Stfld)
             {
-                ProcessSetInstruction(syncVarAccessLists, md, instr, opFieldst);
+                // operand is a FieldDefinition in the same assembly?
+                if (instr.Operand is FieldDefinition opFieldst)
+                {
+                    ProcessSetInstruction(syncVarAccessLists, md, instr, opFieldst);
+                }
+                // operand is a FieldReference in another assembly?
+                // this is not supported just yet.
+                // compilation error is better than silently failing SyncVar serialization at runtime.
+                // https://github.com/MirrorNetworking/Mirror/issues/3525
+                else if (instr.Operand is FieldReference opFieldstRef)
+                {
+                    // resolve it from the other assembly
+                    FieldDefinition field = opFieldstRef.Resolve();
+
+                    // [SyncVar]?
+                    if (field.HasCustomAttribute<SyncVarAttribute>())
+                    {
+                        // ILPostProcessor would need to Process() the assembly's
+                        // references before processing this one.
+                        // we can not control the order.
+                        // instead, Log an error to suggest adding a SetSyncVar(value) function.
+                        // this is a very easy solution for a very rare edge case.
+                        Log.Error($"'[SyncVar] {opFieldstRef.Name}' in '{md.Module.Name}' is modified by '{md.FullName}' in '{field.Module.Name}'. Modifying a [SyncVar] from another assembly is not supported. Please add a: 'public void Set{opFieldstRef.Name}(value) {{ this.{opFieldstRef.Name} = value; }}' function in '{opFieldstRef.DeclaringType.Name}' and call this function from '{md.FullName}' instead.");
+                    }
+                }
             }
 
             // ldfld (load value of a field)?
-            if (instr.OpCode == OpCodes.Ldfld && instr.Operand is FieldDefinition opFieldld)
+            if (instr.OpCode == OpCodes.Ldfld)
             {
-                // this instruction gets the value of a field. cache the field reference.
-                ProcessGetInstruction(syncVarAccessLists, md, instr, opFieldld);
+                // operand is a FieldDefinition in the same assembly?
+                if (instr.Operand is FieldDefinition opFieldld)
+                {
+                    // this instruction gets the value of a field. cache the field reference.
+                    ProcessGetInstruction(syncVarAccessLists, md, instr, opFieldld);
+                }
             }
 
             // ldflda (load field address aka reference)
-            if (instr.OpCode == OpCodes.Ldflda && instr.Operand is FieldDefinition opFieldlda)
+            if (instr.OpCode == OpCodes.Ldflda)
             {
-                // watch out for initobj instruction
-                // see https://github.com/vis2k/Mirror/issues/696
-                return ProcessLoadAddressInstruction(syncVarAccessLists, md, instr, opFieldlda, iCount);
+                // operand is a FieldDefinition in the same assembly?
+                if (instr.Operand is FieldDefinition opFieldlda)
+                {
+                    // watch out for initobj instruction
+                    // see https://github.com/vis2k/Mirror/issues/696
+                    return ProcessLoadAddressInstruction(syncVarAccessLists, md, instr, opFieldlda, iCount);
+                }
             }
 
             // we processed one instruction (instr)

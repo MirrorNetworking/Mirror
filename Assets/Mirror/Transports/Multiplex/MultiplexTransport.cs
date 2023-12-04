@@ -289,7 +289,23 @@ namespace Mirror
             AddServerCallbacks();
 
             foreach (Transport transport in transports)
+            {
                 transport.ServerStart();
+
+                if (transport is PortTransport portTransport)
+                {
+                    if (Utils.IsHeadless())
+                    {
+                        Console.ForegroundColor = ConsoleColor.Green;
+                        Console.WriteLine($"Server listening on port {portTransport.Port}");
+                        Console.ResetColor();
+                    }
+                    else
+                    {
+                        Debug.Log($"Server listening on port {portTransport.Port}");
+                    }
+                }
+            }
         }
 
         public override void ServerStop()
@@ -330,9 +346,10 @@ namespace Mirror
         public override string ToString()
         {
             StringBuilder builder = new StringBuilder();
+            builder.Append("Multiplexer:");
 
             foreach (Transport transport in transports)
-                builder.AppendLine(transport.ToString());
+                builder.Append($" {transport}");
 
             return builder.ToString().Trim();
         }

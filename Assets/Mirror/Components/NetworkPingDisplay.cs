@@ -13,7 +13,7 @@ namespace Mirror
     {
         public Color color = Color.white;
         public int padding = 2;
-        public int width = 150;
+        public int width = 180;
         public int height = 25;
 
         void OnGUI()
@@ -21,12 +21,18 @@ namespace Mirror
             // only while client is active
             if (!NetworkClient.active) return;
 
-            // show rtt in bottom right corner, right aligned
+            // show stats in bottom right corner, right aligned
             GUI.color = color;
             Rect rect = new Rect(Screen.width - width - padding, Screen.height - height - padding, width, height);
+            GUILayout.BeginArea(rect);
             GUIStyle style = GUI.skin.GetStyle("Label");
             style.alignment = TextAnchor.MiddleRight;
-            GUI.Label(rect, $"RTT: {Math.Round(NetworkTime.rtt * 1000)}ms", style);
+            GUILayout.BeginHorizontal(style);
+                GUILayout.Label($"RTT: {Math.Round(NetworkTime.rtt * 1000)}ms");
+                GUI.color = NetworkClient.connectionQuality.ColorCode();
+                GUILayout.Label($"Q: {NetworkClient.connectionQuality}");
+            GUILayout.EndHorizontal();
+            GUILayout.EndArea();
             GUI.color = Color.white;
         }
     }

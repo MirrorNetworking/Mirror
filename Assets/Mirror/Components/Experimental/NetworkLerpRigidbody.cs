@@ -1,9 +1,11 @@
+using System;
 using UnityEngine;
 
 namespace Mirror.Experimental
 {
     [AddComponentMenu("Network/ Experimental/Network Lerp Rigidbody")]
     [HelpURL("https://mirror-networking.gitbook.io/docs/components/network-lerp-rigidbody")]
+    [Obsolete("Use the new NetworkRigidbodyReliable/Unreliable component with Snapshot Interpolation instead.")]
     public class NetworkLerpRigidbody : NetworkBehaviour
     {
         [Header("Settings")]
@@ -33,8 +35,9 @@ namespace Mirror.Experimental
 
         bool ClientWithAuthority => clientAuthority && isOwned;
 
-        void OnValidate()
+        protected override void OnValidate()
         {
+            base.OnValidate();
             if (target == null)
                 target = GetComponent<Rigidbody>();
         }

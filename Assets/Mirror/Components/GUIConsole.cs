@@ -37,8 +37,12 @@ namespace Mirror
         // and drawing would get slower and slower.
         public int maxLogCount = 50;
 
+        // Unity Editor has the Console window, we don't need to show it there.
+        // unless for testing, so keep it as option.
+        public bool showInEditor = false;
+
         // log as queue so we can remove the first entry easily
-        Queue<LogEntry> log = new Queue<LogEntry>();
+        readonly Queue<LogEntry> log = new Queue<LogEntry>();
 
         // hotkey to show/hide at runtime for easier debugging
         // (sometimes we need to temporarily hide/show it)
@@ -49,9 +53,14 @@ namespace Mirror
         bool visible;
         Vector2 scroll = Vector2.zero;
 
+        // only show at runtime, or if showInEditor is enabled
+        bool show => !Application.isEditor || showInEditor;
+
         void Awake()
         {
-            Application.logMessageReceived += OnLog;
+            // only show at runtime, or if showInEditor is enabled
+            if (show)
+                Application.logMessageReceived += OnLog;
         }
 
         // OnLog logs everything, even Debug.Log messages in release builds
@@ -90,7 +99,7 @@ namespace Mirror
 
         void Update()
         {
-            if (Input.GetKeyDown(hotKey))
+            if (show && Input.GetKeyDown(hotKey))
                 visible = !visible;
         }
 

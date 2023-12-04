@@ -7,8 +7,11 @@ namespace Mirror.Tests.Batching
     public class BatcherTests
     {
         Batcher batcher;
-        const int Threshold = 8 + 4; // 8 bytes timestamp + 4 bytes message
         NetworkWriter writer;
+
+        // threshold to test batcher with multiple batches.
+        // each batch can be 8 bytes timestamp + 8 bytes data
+        const int Threshold = 8 + 6;
 
         // timestamp and serialized timestamp for convenience
         const double TimeStamp = Math.PI;
@@ -21,11 +24,28 @@ namespace Mirror.Tests.Batching
         }
 
         // helper function to create a batch prefixed by timestamp
-        public static byte[] ConcatTimestamp(double tickTimeStamp, byte[] data)
+        public static byte[] MakeBatch(double tickTimeStamp, byte[] message)
         {
             NetworkWriter writer = new NetworkWriter();
             writer.WriteDouble(tickTimeStamp);
-            writer.WriteBytes(data, 0, data.Length);
+
+            Compression.CompressVarUInt(writer, (ulong)message.Length);
+            writer.WriteBytes(message, 0, message.Length);
+
+            return writer.ToArray();
+        }
+
+        public static byte[] MakeBatch(double tickTimeStamp, byte[] messageA, byte[] messageB)
+        {
+            NetworkWriter writer = new NetworkWriter();
+            writer.WriteDouble(tickTimeStamp);
+
+            Compression.CompressVarUInt(writer, (ulong)messageA.Length);
+            writer.WriteBytes(messageA, 0, messageA.Length);
+
+            Compression.CompressVarUInt(writer, (ulong)messageB.Length);
+            writer.WriteBytes(messageB, 0, messageB.Length);
+
             return writer.ToArray();
         }
 
@@ -67,7 +87,7 @@ namespace Mirror.Tests.Batching
             Assert.That(result, Is.EqualTo(true));
 
             // check result: <<tickTimeStamp:8, message>>
-            Assert.That(writer.ToArray().SequenceEqual(ConcatTimestamp(TimeStamp, message)));
+            Assert.That(writer.ToArray().SequenceEqual(MakeBatch(TimeStamp, message)));
         }
 
         [Test]
@@ -81,7 +101,7 @@ namespace Mirror.Tests.Batching
             Assert.That(result, Is.EqualTo(true));
 
             // check result: <<tickTimeStamp:8, message>>
-            Assert.That(writer.ToArray().SequenceEqual(ConcatTimestamp(TimeStamp, new byte[]{0x01, 0x02, 0x03})));
+            Assert.That(writer.ToArray().SequenceEqual(MakeBatch(TimeStamp, new byte[]{0x01, 0x02}, new byte[]{0x03})));
 
             // there should be no more batches to make
             Assert.That(batcher.GetBatch(writer), Is.False);
@@ -98,7 +118,7 @@ namespace Mirror.Tests.Batching
             Assert.That(result, Is.EqualTo(true));
 
             // check result: <<tickTimeStamp:8, message>>
-            Assert.That(writer.ToArray().SequenceEqual(ConcatTimestamp(TimeStamp, new byte[]{0x01, 0x02, 0x03, 0x04})));
+            Assert.That(writer.ToArray().SequenceEqual(MakeBatch(TimeStamp, new byte[]{0x01, 0x02}, new byte[]{0x03, 0x04})));
 
             // there should be no more batches to make
             Assert.That(batcher.GetBatch(writer), Is.False);
@@ -107,6 +127,7 @@ namespace Mirror.Tests.Batching
         [Test]
         public void MakeNextBatch_MultipleMessages_MoreThanOneBatch()
         {
+            // with header, that's 3 bytes per message = 8 bytes = over threshold
             batcher.AddMessage(new ArraySegment<byte>(new byte[]{0x01, 0x02}), TimeStamp);
             batcher.AddMessage(new ArraySegment<byte>(new byte[]{0x03, 0x04}), TimeStamp);
             batcher.AddMessage(new ArraySegment<byte>(new byte[]{0x05}), TimeStamp);
@@ -116,7 +137,7 @@ namespace Mirror.Tests.Batching
             Assert.That(result, Is.EqualTo(true));
 
             // check result: <<tickTimeStamp:8, message>>
-            Assert.That(writer.ToArray().SequenceEqual(ConcatTimestamp(TimeStamp, new byte[]{0x01, 0x02, 0x03, 0x04})));
+            Assert.That(writer.ToArray().SequenceEqual(MakeBatch(TimeStamp, new byte[]{0x01, 0x02}, new byte[]{0x03, 0x04})));
 
             // reset writer
             writer.Position = 0;
@@ -126,7 +147,7 @@ namespace Mirror.Tests.Batching
             Assert.That(result, Is.EqualTo(true));
 
             // check result: <<tickTimeStamp:8, message>>
-            Assert.That(writer.ToArray().SequenceEqual(ConcatTimestamp(TimeStamp, new byte[]{0x05})));
+            Assert.That(writer.ToArray().SequenceEqual(MakeBatch(TimeStamp, new byte[]{0x05})));
         }
 
         [Test]
@@ -142,7 +163,7 @@ namespace Mirror.Tests.Batching
             Assert.That(result, Is.EqualTo(true));
 
             // check result: <<tickTimeStamp:8, message>>
-            Assert.That(writer.ToArray().SequenceEqual(ConcatTimestamp(TimeStamp, new byte[]{0x01})));
+            Assert.That(writer.ToArray().SequenceEqual(MakeBatch(TimeStamp, new byte[]{0x01})));
 
             // reset writer
             writer.Position = 0;
@@ -152,7 +173,7 @@ namespace Mirror.Tests.Batching
             Assert.That(result, Is.EqualTo(true));
 
             // check result: <<tickTimeStamp:8, message>>
-            Assert.That(writer.ToArray().SequenceEqual(ConcatTimestamp(TimeStamp, new byte[]{0x02, 0x03, 0x04, 0x05})));
+            Assert.That(writer.ToArray().SequenceEqual(MakeBatch(TimeStamp, new byte[]{0x02, 0x03, 0x04, 0x05})));
 
             // reset writer
             writer.Position = 0;
@@ -162,7 +183,7 @@ namespace Mirror.Tests.Batching
             Assert.That(result, Is.EqualTo(true));
 
             // check result: <<tickTimeStamp:8, message>>
-            Assert.That(writer.ToArray().SequenceEqual(ConcatTimestamp(TimeStamp, new byte[]{0x06, 0x07})));
+            Assert.That(writer.ToArray().SequenceEqual(MakeBatch(TimeStamp, new byte[]{0x06, 0x07})));
         }
 
         // messages > threshold should simply be single batches.
@@ -181,7 +202,7 @@ namespace Mirror.Tests.Batching
             // result should be only the large message
             bool result = batcher.GetBatch(writer);
             Assert.That(result, Is.EqualTo(true));
-            Assert.That(writer.ToArray().SequenceEqual(ConcatTimestamp(TimeStamp, large)));
+            Assert.That(writer.ToArray().SequenceEqual(MakeBatch(TimeStamp, large)));
         }
 
         // messages > threshold should simply be single batches.
@@ -205,10 +226,10 @@ namespace Mirror.Tests.Batching
             batcher.AddMessage(new ArraySegment<byte>(new byte[]{0x03}), TimeStamp + 2);
             batcher.AddMessage(new ArraySegment<byte>(new byte[]{0x04}), TimeStamp + 2);
 
-            // first batch should be the two small messages
+            // first batch should be the two small messages with size headers
             bool result = batcher.GetBatch(writer);
             Assert.That(result, Is.EqualTo(true));
-            Assert.That(writer.ToArray().SequenceEqual(ConcatTimestamp(TimeStamp, new byte[]{0x01, 0x02})));
+            Assert.That(writer.ToArray().SequenceEqual(MakeBatch(TimeStamp, new byte[]{0x01}, new byte[]{0x02})));
 
             // reset writer
             writer.Position = 0;
@@ -216,7 +237,7 @@ namespace Mirror.Tests.Batching
             // second batch should be only the large message
             result = batcher.GetBatch(writer);
             Assert.That(result, Is.EqualTo(true));
-            Assert.That(writer.ToArray().SequenceEqual(ConcatTimestamp(TimeStamp + 1, large)));
+            Assert.That(writer.ToArray().SequenceEqual(MakeBatch(TimeStamp + 1, large)));
 
             // reset writer
             writer.Position = 0;
@@ -224,7 +245,44 @@ namespace Mirror.Tests.Batching
             // third batch be the two small messages
             result = batcher.GetBatch(writer);
             Assert.That(result, Is.EqualTo(true));
-            Assert.That(writer.ToArray().SequenceEqual(ConcatTimestamp(TimeStamp + 2, new byte[]{0x03, 0x04})));
+            Assert.That(writer.ToArray().SequenceEqual(MakeBatch(TimeStamp + 2, new byte[]{0x03}, new byte[]{0x04})));
+        }
+
+        // if a batch contains ABC,
+        // and unbatching only deserializes half of B,
+        // then C will end up corrupted,
+        // and nothing will indicate which message caused it.
+        // days & weeks were lost on this.
+        [Test]
+        public void MessageSerializationMismatch()
+        {
+            // batch with correct size
+            batcher.AddMessage(new ArraySegment<byte>(new byte[]{1}), TimeStamp);
+            batcher.AddMessage(new ArraySegment<byte>(new byte[]{2}), TimeStamp);
+            batcher.AddMessage(new ArraySegment<byte>(new byte[]{3}), TimeStamp);
+            Assert.That(batcher.GetBatch(writer), Is.True);
+
+            // feed batch to unbatcher
+            Unbatcher unbatcher = new Unbatcher();
+            unbatcher.AddBatch(writer);
+
+            // read A correctly
+            Assert.That(unbatcher.GetNextMessage(out ArraySegment<byte> message, out _), Is.True);
+            NetworkReader reader = new NetworkReader(message);
+            Assert.That(reader.ReadByte(), Is.EqualTo(1));
+
+            // read B only partially.
+            // this can happen if a NetworkMessage does custom serialization,
+            // and does early return in Deserialize.
+            // for example, SmoothSync.
+            Assert.That(unbatcher.GetNextMessage(out message, out _), Is.True);
+            // reader = new NetworkReader(message);
+            // Assert.That(reader.ReadByte(), Is.EqualTo(2));
+
+            // read C. this will be corrupted
+            Assert.That(unbatcher.GetNextMessage(out message, out _), Is.True);
+            reader = new NetworkReader(message);
+            Assert.That(reader.ReadByte(), Is.EqualTo(3));
         }
     }
 }

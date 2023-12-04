@@ -13,10 +13,6 @@ namespace Mirror
         // packet queue
         internal readonly Queue<NetworkWriterPooled> queue = new Queue<NetworkWriterPooled>();
 
-        // Deprecated 2023-02-23
-        [Obsolete("Use LocalConnectionToClient.address instead.")]
-        public string address => "localhost";
-
         // see caller for comments on why we need this
         bool connectedEventPending;
         bool disconnectedEventPending;
@@ -32,22 +28,15 @@ namespace Mirror
                 return;
             }
 
-            // OnTransportData assumes batching.
-            // so let's make a batch with proper timestamp prefix.
-            Batcher batcher = GetBatchForChannelId(channelId);
-            batcher.AddMessage(segment, NetworkTime.localTime);
+            // instead of invoking it directly, we enqueue and process next update.
+            // this way we can simulate a similar call flow as with remote clients.
+            // the closer we get to simulating host as remote, the better!
+            // both directions do this, so [Command] and [Rpc] behave the same way.
 
-            // flush it to the server's OnTransportData immediately.
-            // local connection to server always invokes immediately.
-            using (NetworkWriterPooled writer = NetworkWriterPool.Get())
-            {
-                // make a batch with our local time (double precision)
-                if (batcher.GetBatch(writer))
-                {
-                    NetworkServer.OnTransportData(connectionId, writer.ToArraySegment(), channelId);
-                }
-                else Debug.LogError("Local connection failed to make batch. This should never happen.");
-            }
+            //Debug.Log($"Enqueue {BitConverter.ToString(segment.Array, segment.Offset, segment.Count)}");
+            NetworkWriterPooled writer = NetworkWriterPool.Get();
+            writer.WriteBytes(segment.Array, segment.Offset, segment.Count);
+            connectionToClient.queue.Enqueue(writer);
         }
 
         internal override void Update()
