@@ -47,7 +47,7 @@ Mirror comes with everything you need to build your virtual worlds.
 |                                  |                                                                                            |                  |
 | 📏 **Snapshot Interpolation**    | Perfectly smooth movement for all platforms and all games.                                 | **Stable**       |
 | 🔫 **Lag Compensation**          | Roll back state to see what the player saw during input.                                   | **Preview**      |
-| 🏎 **Prediction**                | Clients apply input immediately and apply corrections if the server disagrees.             | **Preview**      |
+| 🏎 **Prediction**                | Clients inputs are applied immediately & corrected automatically.                          | **Preview**      |
 |                                  |                                                                                            |                  |
 | 🧙‍♂️ **General Purpose**        | Utilize Mirror for all your studio's projects. Any genre supported!                        |                  |
 | 🧘‍♀️ **Stable API**             | Long term stability of nearly 10 years instead of yearly breaking product upgrades!        |
