@@ -31,7 +31,7 @@ Mirror is **[stable](https://mirror-networking.gitbook.io/docs/general/tests)**,
 ## Features
 
 Mirror comes with a wide variety of features to support all game genres.<br>
-Many of our modular approaches like Transports and Interest Management are now the norm across all Unity netcodes!<br>
+Many of our features quickly became the norma across all Unity netcodes!<br>
 
 | Feature                       | Description                                                        | Status          |
 |-------------------------------|--------------------------------------------------------------------|-----------------|
@@ -59,8 +59,6 @@ Many of our modular approaches like Transports and Interest Management are now t
 |                               |                                                                    |                 |
 | 📐 **Bitpacking**             | Optimized compression (bools as 1 bit etc.)                        | **Researching** |
 | 🔒 **Encryption**             | Secure communication with end-to-end encryption.                   | **Researching** |
-
-After almost a decade of development, Mirror is almost feature complete!
 
 ---
 ## Architecture
