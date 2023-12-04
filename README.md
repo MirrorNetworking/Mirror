@@ -32,32 +32,32 @@ Mirror is **[stable](https://mirror-networking.gitbook.io/docs/general/tests)**,
 
 Mirror comes with everything you need to build your virtual worlds. 
 
-| Feature                               | Description                                                                                                                       | Status           |
-|---------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------|------------------|
-| 🎛 **Transports**                     | UDP, TCP, Websockets, Steam, Relay and more.                                                                                      | **Stable**       | 
-| 🪜 **Interest Management**            | Spatial Hashing & Distance Checker to partition the world.                                                                        | **Stable**       |
-| ↗️ **SyncDirection**                  | Server & Client Authority - per component with one click.                                                                         | **Stable**       |
-| 🐌 **Latency Simulation**             | Simulate latency, packet loss & jitter locally.                                                                                   | **Stable**       |
-| 🧲 **Batching**                       | Minimize message overhead via batching automatically.                                                                             | **Stable**       |
-| 💌 **Messages, RPCs, SyncVars**       | Low level messages and high level convenience features to sync state.                                                             | **Stable**       |
-| 🙅‍♀️**Allocation Free**              | Mirror is free of runtime allocations in order to avoid GC pauses, with the exception of some Transport's Socket send/recv calls. | **Stable**       |
-| 👩‍🍼 **Child NetworkBehaviours**     | Put networked components on anything.                                                                                             | **Stable**       |
-| 🛞  **Transform & Physics Sync**      | Transform & Physics sync build in.                                                                                                | **Stable**       |
-| 🪚️ **IL Post Processing**            | Zero overhead [Rpcs] and [Commands] via IL post processing!                                                                       | **Stable**       |
-|                                       |                                                                                                                                   |                  |
-| 📏 **Snapshot Interpolation**         | Perfectly smooth movement for all platforms and all games.                                                                        | **Stable**       |
-| 🔫 **Lag Compensation**               | Roll back state to see what the player saw during input.                                                                          | **Preview**      |
-| 🏎 **Prediction**                     | Clients apply input immediately and apply corrections if the server disagrees.                                                    | **Preview**      |
-|                                       |                                                                                                                                   |                  |
-| 🧙‍♂️ **General Purpose**             | Utilize Mirror for _all_ your game ideas. FPS, RTS, Cards, MMOs. Same stack for all of your studio's projects.                    |                  |
-| 🧘‍♀️ **Stable API**                  | Long term stability of nearly 10 years instead of yearly breaking product upgrades.                                               |
-| 🔬 **Battle Tested**                  | Mirror games are played by over 100 million players. It just works!                                                               |                  |
-| 💴 **Free & Open Source**             | MIT licensed without any restrictions. Minimize risk with source access at all times!                                             |                  |
-| ❤️ **Community**                      | Join our Discord with nearly 15.000 developers world wide!                                                                       |                  |
-| 🧜🏻‍♀️ **Long Term Support**         | Our codebase is maintained since 2014, with an optional LTS version for those who need it.                                        |                  |
-|                                       |                                                                                                                                   |                  |
-| 📐 **Bitpacking**                     | To save bandwidth, Bitpacking allows us to compress a 'bool' to 1 bit, 'float' to less than 32 bit with lower precision, etc.     | **Researching**  |
-| 🔒 **Encryption**                     | Secure player's communication with an end-to-end encrypted low level Transport.                                                   | **Researching**  |
+| Feature                           | Description                                                                                                                       | Status           |
+|-----------------------------------|-----------------------------------------------------------------------------------------------------------------------------------|------------------|
+| 🎛 **Transports**                 | UDP, TCP, Websockets, Steam, Relay and more.                                                                                      | **Stable**       | 
+| 🪜 **Interest Management**        | Spatial Hashing & Distance Checker to partition the world.                                                                        | **Stable**       |
+| ↗️ **SyncDirection**              | Server & Client Authority - per component with one click.                                                                         | **Stable**       |
+| 🐌 **Latency Simulation**         | Simulate latency, packet loss & jitter locally.                                                                                   | **Stable**       |
+| 🧲 **Batching**                   | Minimize message overhead via batching automatically.                                                                             | **Stable**       |
+| 💌 **RPCs & SyncVars**            | Synced vars and remote function calls built in & safe.                                                                            | **Stable**       |
+| 🙅‍♀️**Allocation Free**          | Mirror is free of runtime allocations in order to avoid GC pauses, with the exception of some Transport's Socket send/recv calls. | **Stable**       |
+| 👩‍🍼 **Child NetworkBehaviours** | Put networked components on anything.                                                                                             | **Stable**       |
+| 🛞  **Transform & Physics Sync**  | Transform & Physics sync build in.                                                                                                | **Stable**       |
+| 🪚️ **IL Post Processing**        | Zero overhead [Rpcs] and [Commands] via IL post processing!                                                                       | **Stable**       |
+|                                   |                                                                                                                                   |                  |
+| 📏 **Snapshot Interpolation**     | Perfectly smooth movement for all platforms and all games.                                                                        | **Stable**       |
+| 🔫 **Lag Compensation**           | Roll back state to see what the player saw during input.                                                                          | **Preview**      |
+| 🏎 **Prediction**                 | Clients apply input immediately and apply corrections if the server disagrees.                                                    | **Preview**      |
+|                                   |                                                                                                                                   |                  |
+| 🧙‍♂️ **General Purpose**         | Utilize Mirror for _all_ your game ideas. FPS, RTS, Cards, MMOs. Same stack for all of your studio's projects.                    |                  |
+| 🧘‍♀️ **Stable API**              | Long term stability of nearly 10 years instead of yearly breaking product upgrades.                                               |
+| 🔬 **Battle Tested**              | Mirror games are played by over 100 million players. It just works!                                                               |                  |
+| 💴 **Free & Open Source**         | MIT licensed without any restrictions. Minimize risk with source access at all times!                                             |                  |
+| ❤️ **Community**                  | Join our Discord with nearly 15.000 developers world wide!                                                                        |                  |
+| 🧜🏻‍♀️ **Long Term Support**     | Our codebase is maintained since 2014, with an optional LTS version for those who need it.                                        |                  |
+|                                   |                                                                                                                                   |                  |
+| 📐 **Bitpacking**                 | To save bandwidth, Bitpacking allows us to compress a 'bool' to 1 bit, 'float' to less than 32 bit with lower precision, etc.     | **Researching**  |
+| 🔒 **Encryption**                 | Secure player's communication with an end-to-end encrypted low level Transport.                                                   | **Researching**  |
 
 After almost a decade of development, Mirror is almost feature complete. 
 Afterwards we'll focus entirely on stability.
