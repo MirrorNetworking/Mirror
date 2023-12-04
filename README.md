@@ -49,15 +49,15 @@ Mirror comes with everything you need to build your virtual worlds.
 | 🔫 **Lag Compensation**           | Roll back state to see what the player saw during input.                                                                          | **Preview**      |
 | 🏎 **Prediction**                 | Clients apply input immediately and apply corrections if the server disagrees.                                                    | **Preview**      |
 |                                   |                                                                                                                                   |                  |
-| 🧙‍♂️ **General Purpose**         | Utilize Mirror for _all_ your game ideas. FPS, RTS, Cards, MMOs. Same stack for all of your studio's projects.                    |                  |
-| 🧘‍♀️ **Stable API**              | Long term stability of nearly 10 years instead of yearly breaking product upgrades.                                               |
+| 🧙‍♂️ **General Purpose**         | Utilize Mirror for all your studio's projects. Any genre supported!                                                               |                  |
+| 🧘‍♀️ **Stable API**              | Long term stability of nearly 10 years instead of yearly breaking product upgrades!                                               |
 | 🔬 **Battle Tested**              | Mirror games are played by over 100 million players. It just works!                                                               |                  |
 | 💴 **Free & Open Source**         | MIT licensed without any restrictions. Minimize risk with source access at all times!                                             |                  |
 | ❤️ **Community**                  | Join our Discord with nearly 15.000 developers world wide!                                                                        |                  |
 | 🧜🏻‍♀️ **Long Term Support**     | Our codebase is maintained since 2014, with an optional LTS version for those who need it.                                        |                  |
 |                                   |                                                                                                                                   |                  |
-| 📐 **Bitpacking**                 | To save bandwidth, Bitpacking allows us to compress a 'bool' to 1 bit, 'float' to less than 32 bit with lower precision, etc.     | **Researching**  |
-| 🔒 **Encryption**                 | Secure player's communication with an end-to-end encrypted low level Transport.                                                   | **Researching**  |
+| 📐 **Bitpacking**                 | Optimized compression (bools as 1 bit etc.)                                                                                       | **Researching**  |
+| 🔒 **Encryption**                 | Secure communication with end-to-end encryption.                                                                                  | **Researching**  |
 
 After almost a decade of development, Mirror is almost feature complete. 
 Afterwards we'll focus entirely on stability.
