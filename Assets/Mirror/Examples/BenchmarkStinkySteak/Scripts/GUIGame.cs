@@ -1,4 +1,5 @@
 using Mirror;
+using StinkySteak.NetcodeBenchmark;
 using UnityEngine;
 
 namespace StinkySteak.MirrorBenchmark
@@ -50,11 +51,11 @@ namespace StinkySteak.MirrorBenchmark
 
             if (_networkManager.mode == NetworkManagerMode.ServerOnly)
             {
-                _textLatency.SetText("Latency: 0ms (Server)");
+                _textLatency.text= ("Latency: 0ms (Server)"); // MIRROR CHANGE: TextMeshPro -> TextMesh
                 return;
             }
 
-            _textLatency.SetText("Latency: {0}ms", (float)NetworkTime.rtt * 1_000);
+            _textLatency.text = ($"Latency: {NetworkTime.rtt * 1_000}ms"); // MIRROR CHANGE: TextMeshPro -> TextMesh
         }
     }
 }
