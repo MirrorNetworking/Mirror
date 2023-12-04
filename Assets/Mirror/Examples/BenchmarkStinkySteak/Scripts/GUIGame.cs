@@ -24,15 +24,19 @@ namespace StinkySteak.MirrorBenchmark
             }
         }
 
-        protected override void StartClient()
+        // MIRROR CHANGE: OnGUI instead of Canvas + TextMeshPro
+        protected override void OnCustomGUI()
         {
-            _networkManager.StartClient();
+            if (GUILayout.Button("Start Client"))
+            {
+                _networkManager.StartClient();
+            }
+            if (GUILayout.Button("Start Server"))
+            {
+                _networkManager.StartServer();
+            }
         }
-
-        protected override void StartServer()
-        {
-            _networkManager.StartServer();
-        }
+        // END MIRROR CHANGE
 
         protected override void StressTest(StressTestEssential stressTest)
         {
@@ -51,11 +55,11 @@ namespace StinkySteak.MirrorBenchmark
 
             if (_networkManager.mode == NetworkManagerMode.ServerOnly)
             {
-                _textLatency.text= ("Latency: 0ms (Server)"); // MIRROR CHANGE: TextMeshPro -> TextMesh
+                _textLatency = ("Latency: 0ms (Server)"); // MIRROR CHANGE: Canvas + TextMeshPro -> OnGUI
                 return;
             }
 
-            _textLatency.text = ($"Latency: {NetworkTime.rtt * 1_000}ms"); // MIRROR CHANGE: TextMeshPro -> TextMesh
+            _textLatency = ($"Latency: {NetworkTime.rtt * 1_000}ms"); // MIRROR CHANGE: Canvas + TextMeshPro -> OnGUI
         }
     }
 }
