@@ -42,8 +42,8 @@ Many of our features quickly became the norm across all Unity netcodes!<br>
 | 🧲 **Batching**               | Minimize message overhead via batching automatically.       | **Stable**      |
 | 💌 **RPCs & SyncVars**        | Synced vars and remote function calls built in & safe.      | **Stable**      |
 | 🙅‍♀️**Allocation Free**      | Free of runtime allocations and no GC (except Transports).  | **Stable**      |
+| 🛞  **Transform & Physics**   | Transform & Physics sync built in.                          | **Stable**      |
 | 👩‍🍼 **Child Components**    | Put networked components on anything.                       | **Stable**      |
-| 🛞  **Transform & Physics**   | Transform & Physics sync build in.                          | **Stable**      |
 | 🪚️ **IL Post Processing**    | Zero overhead [Rpcs] and [Commands] via IL post processing! | **Stable**      |
 |                               |                                                             |                 |
 | 📏 **Snapshot Interp.**       | Perfectly smooth movement for all platforms and all games.  | **Stable**      |
@@ -57,7 +57,7 @@ Many of our features quickly became the norm across all Unity netcodes!<br>
 | ❤️ **Community**              | Join our Discord with nearly 15.000 developers world wide!  |                 |
 | 🧜🏻‍♀️ **Long Term Support** | Maintained since 2014 with optional LTS version!            |                 |
 |                               |                                                             |                 |
-| 🦖 **Deterministic Physics**  | Open source deterministic physics for C# & Unity!          | **Researching** |
+| 🦖 **Deterministic Physics**  | Open source deterministic physics for C# & Unity!           | **Researching** |
 | 📐 **Bitpacking**             | Optimized compression (bools as 1 bit etc.)                 | **Researching** |
 | 🔒 **Encryption**             | Secure communication with end-to-end encryption.            | **Researching** |
 
