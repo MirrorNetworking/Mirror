@@ -187,7 +187,7 @@ After their successful [Kickstarter](https://www.kickstarter.com/projects/untame
 [![Zooba](https://user-images.githubusercontent.com/16416509/178141846-60805ad5-5a6e-4840-8744-5194756c2a6d.jpg)](https://play.google.com/store/apps/details?id=com.wildlife.games.battle.royale.free.zooba&gl=US)
 [Wildlife Studio's](https://wildlifestudios.com/) hit Zooba made it to rank #5 of the largest battle royal shooters in the U.S. mobile market.
 
-The game has over **50 million** downloads on [Google Play](https://play.google.com/store/apps/details?id=com.wildlife.games.battle.royale.free.zooba&gl=US), with Wildlife Studios as one of the top 10 largest mobile gaming companies in the world.
+The game has over **100 million** downloads on [Google Play](https://play.google.com/store/apps/details?id=com.wildlife.games.battle.royale.free.zooba&gl=US), with Wildlife Studios as one of the top 10 largest mobile gaming companies in the world.
 
 ### [Portals](https://theportal.to/)
 [![Portals](https://user-images.githubusercontent.com/9826063/209373815-8e6288ba-22fc-4cee-8867-19f587188827.png)](https://theportal.to/)
