@@ -28,6 +28,38 @@ Mirror is **[stable](https://mirror-networking.gitbook.io/docs/general/tests)**,
 **Made in 🇩🇪🇺🇸🇬🇧🇸🇬🇹🇼 with ❤️**.
 
 ---
+## Features
+
+Mirror comes with everything you need to build your virtual worlds. 
+
+| Feature                      | Description                                                                                                                                                     | Status         |
+|------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------|
+| **Transports**               | Mirror was the first Unity netcode to support interchangeable low level transports for packet sending & receiving: UDP, TCP, Websockets, Steam, Relay and more. | **Stable**     | 
+| **Interest Management**      | Partition the world into interest areas for each player, with interchangeable components like Distance & Spatial Hashing.                                       | **Stable**     |
+| **SyncDirection**            | Sync components from Server->Client or Client->Server. Configurable in the Inspector for each component.                                                        | **Stable**     |
+| **Latency Simulation**       | Wrap any Transport with Latency Simulation to simulate latency, packet loss and jitter locally.                                                                 | **Stable**     |
+| **Batching**                 | Minimize message overhead by automatically batching small messages into large messages.                                                                         | **Stable**     |
+| **Messages, Rpcs, SyncVars** | Mirror provides different networking constructs to sync state across the network.                                                                               | **Stable**     |
+| **Allocation Free**          | Mirror is free of runtime allocations in order to avoid GC pauses, with the exception of some Transport's Socket send/recv calls.                               | **Stable**     |
+| **Child NetworkBehaviours**  | Mirror supports NetworkBehaviour components on root objects and their children.                                                                                 | **Stable**     |
+| **Transform & Physics Sync** | Sync regular Transforms and even Physics simulations with NetworkTransform & NetworkRigidbody.                                                                  | **Stable**     |
+| **IL Post Processing**       | Zero overhead [Rpcs] and [Commands] thanks to IL code post processing during compilation.                                                                       | **Stable**     |
+| ---                          | ---                                                                                                                                                             | ---            |
+| **Snapshot Interpolation**   | Perfectly(!) smooth movement sync thanks to version 5 of our Snapshot Interpolation algorithm, battle tested in many games.                                     | **Stable**     |
+| **Lag Compensation**         | Back to the past: roll back state and hit test against what the player saw at the time of input.                                                                | **Preview**    |
+| **Prediction**               | Mirror is the first free open source netcode for Unity that supports Prediction: clients apply input immediately without latency, server corrects as needed.    | **Preview**    |
+| ---                          | ---                                                                                                                                                             | ---            |
+| **Battle Tested**            | Our codebase has been used in production for almost a decade. You won't encounter any surprises, _it just works_.                                               | ---            |
+| **Free & Open Source**       | Mirror is MIT licensed, you can use and modify it to your needs entirely without restrictions. Everything is 100% pure C# code.                                 |                |
+| **Long Term Support**        | Our codebase is maintained since 2014, with an optional LTS version for those who need it.                                                                      |                |
+| ---                          | ---                                                                                                                                                             | ---            |
+| **Bitpacking**               | To save bandwidth, Bitpacking allows us to compress a 'bool' to 1 bit, 'float' to less than 32 bit with lower precision, etc.                                   | In Development |
+| **Encyrption**               | Secure player's communication with an end-to-end encrypted low level Transport.                                                                                 | Researching    |
+
+After almost a decade of development, Mirror is almost feature complete. 
+Afterwards we'll focus entirely on stability.
+
+---
 ## Architecture
 The **Server & Client** are **ONE project** in order to achieve maximum productivity.
 
