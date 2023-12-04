@@ -30,8 +30,8 @@ Mirror is **[stable](https://mirror-networking.gitbook.io/docs/general/tests)**,
 ---
 ## Features
 
-Mirror comes with everything you need to build your virtual worlds. 
-Mirror was behind many solutions like Transports & Interest Management Components which are now standard across all Unity netcodes!
+Mirror comes with everything you need to build your virtual worlds.<br>
+Our solutions like modular Transports & Interest Management are now the standard across many Unity netcodes.<br>
 
 | Feature                       | Description                                                        | Status          |
 |-------------------------------|--------------------------------------------------------------------|-----------------|
@@ -60,8 +60,7 @@ Mirror was behind many solutions like Transports & Interest Management Component
 | 📐 **Bitpacking**             | Optimized compression (bools as 1 bit etc.)                        | **Researching** |
 | 🔒 **Encryption**             | Secure communication with end-to-end encryption.                   | **Researching** |
 
-After almost a decade of development, Mirror is almost feature complete. 
-Afterwards we'll focus entirely on stability.
+After almost a decade of development, Mirror is almost feature complete!
 
 ---
 ## Architecture
