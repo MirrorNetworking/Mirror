@@ -16,7 +16,7 @@ namespace StinkySteak.NetcodeBenchmark
 
         public static SinRandomMoveWrapper CreateDefault()
         {
-            SinRandomMoveWrapper wrapper = new();
+            SinRandomMoveWrapper wrapper = new SinRandomMoveWrapper();
             wrapper._minSpeed = 1f;
             wrapper._maxSpeed = 1f;
             wrapper._amplitude = 1f;

@@ -18,7 +18,7 @@ namespace StinkySteak.NetcodeBenchmark
 
         public static SinMoveYWrapper CreateDefault()
         {
-            SinMoveYWrapper wrapper = new();
+            SinMoveYWrapper wrapper = new SinMoveYWrapper();
             wrapper._minSpeed = 0.5f;
             wrapper._maxSpeed = 1f;
             wrapper._minAmplitude = 0.5f;
