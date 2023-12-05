@@ -6,7 +6,8 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Codice.Utils;
+// using Codice.Utils; // MIRROR CHANGE
+using Edgegap.Codice.Utils; // MIRROR CHANGE
 using UnityEngine;
 
 namespace Edgegap.Editor.Api
@@ -30,7 +31,7 @@ namespace Edgegap.Editor.Api
                 : ApiEnvironment.Console.GetApiUrl();
         #endregion // Vars
 
-        
+
         /// <param name="apiEnvironment">"console" || "staging-console"?</param>
         /// <param name="apiToken">Without the "token " prefix, although we'll clear this if present</param>
         /// <param name="logLevel">You may want more-verbose logs other than errs</param>
@@ -45,14 +46,14 @@ namespace Edgegap.Editor.Api
             this._httpClient.DefaultRequestHeaders.Accept.Add(
                 new MediaTypeWithQualityHeaderValue("application/json"));
 
-            string cleanedApiToken = apiToken.Replace("token ", ""); // We already prefixed token below 
+            string cleanedApiToken = apiToken.Replace("token ", ""); // We already prefixed token below
             this._httpClient.DefaultRequestHeaders.Authorization =
                 new AuthenticationHeaderValue("token", cleanedApiToken);
 
             this.LogLevel = logLevel;
         }
 
-        
+
         #region HTTP Requests
         /// <summary>
         /// POST | We already added "https://api.edgegap.com/" (or similar) BaseAddress via constructor.
@@ -70,7 +71,7 @@ namespace Edgegap.Editor.Api
 
             if (IsLogLevelDebug)
                 Debug.Log($"PostAsync to: `{uri}` with json: `{json}`");
-            
+
             try
             {
                 return await ExecuteRequestAsync(() => _httpClient.PostAsync(uri, stringContent));
@@ -81,7 +82,7 @@ namespace Edgegap.Editor.Api
                 throw;
             }
         }
-        
+
         /// <summary>
         /// PATCH | We already added "https://api.edgegap.com/" (or similar) BaseAddress via constructor.
         /// </summary>
@@ -95,13 +96,13 @@ namespace Edgegap.Editor.Api
         {
             StringContent stringContent = CreateStringContent(json);
             Uri uri = new Uri(_httpClient.BaseAddress, relativePath); // Normalize PATCH uri: Can't end with `/`.
-            
+
             if (IsLogLevelDebug)
                 Debug.Log($"PatchAsync to: `{uri}` with json: `{json}`");
-            
+
             // (!) As of 11/15/2023, .PatchAsync() is "unsupported by Unity" -- so we manually set the verb and SendAsync()
             // Create the request manually
-            HttpRequestMessage patchRequest = new HttpRequestMessage(new HttpMethod("PATCH"), uri) 
+            HttpRequestMessage patchRequest = new HttpRequestMessage(new HttpMethod("PATCH"), uri)
             {
                 Content = stringContent,
             };
@@ -116,7 +117,7 @@ namespace Edgegap.Editor.Api
                 throw;
             }
         }
-        
+
         /// <summary>
         /// GET | We already added "https://api.edgegap.com/" (or similar) BaseAddress via constructor.
         /// </summary>
@@ -133,8 +134,8 @@ namespace Edgegap.Editor.Api
             string completeRelativeUri = prepareEdgegapUriWithQuery(
                 relativePath,
                 customQuery);
-            
-            if (IsLogLevelDebug) 
+
+            if (IsLogLevelDebug)
                 Debug.Log($"GetAsync to: `{completeRelativeUri} with customQuery: `{customQuery}`");
 
             try
@@ -147,7 +148,7 @@ namespace Edgegap.Editor.Api
                 throw;
             }
         }
-        
+
         /// <summary>
         /// DELETE | We already added "https://api.edgegap.com/" (or similar) BaseAddress via constructor.
         /// </summary>
@@ -164,8 +165,8 @@ namespace Edgegap.Editor.Api
             string completeRelativeUri = prepareEdgegapUriWithQuery(
                 relativePath,
                 customQuery);
-            
-            if (IsLogLevelDebug) 
+
+            if (IsLogLevelDebug)
                 Debug.Log($"DeleteAsync to: `{completeRelativeUri} with customQuery: `{customQuery}`");
 
             try
@@ -178,13 +179,13 @@ namespace Edgegap.Editor.Api
                 throw;
             }
         }
-        
+
         /// <summary>POST || GET</summary>
         /// <param name="requestFunc"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         private static async Task<HttpResponseMessage> ExecuteRequestAsync(
-            Func<Task<HttpResponseMessage>> requestFunc, 
+            Func<Task<HttpResponseMessage>> requestFunc,
             CancellationToken cancellationToken = default)
         {
             HttpResponseMessage response = null;
@@ -210,7 +211,7 @@ namespace Edgegap.Editor.Api
                 Debug.LogError($"Unexpected error occurred: {e.Message}");
                 return null;
             }
-            
+
             // Check for a successful status code
             if (response == null)
             {
@@ -225,22 +226,22 @@ namespace Edgegap.Editor.Api
                     $"{httpMethod} | {response.RequestMessage.RequestUri}` - " +
                     $"{response.Content?.ReadAsStringAsync().Result}");
             }
-    
+
             return response;
         }
         #endregion // HTTP Requests
-        
-        
+
+
         #region Utils
         /// <summary>Creates a UTF-8 encoded application/json + json obj</summary>
         /// <param name="json">Arbitrary json obj</param>
         /// <returns></returns>
         private StringContent CreateStringContent(string json = "{}") =>
             new (json, Encoding.UTF8, "application/json");
-        
+
         private static HttpResponseMessage CreateUnknown500Err() =>
             new(HttpStatusCode.InternalServerError); // 500 - Unknown
-        
+
         /// <summary>
         /// Merges Edgegap-required query params (source) -> merges with custom query -> normalizes.
         /// </summary>

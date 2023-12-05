@@ -39,7 +39,7 @@
                 <ui:Foldout text="&lt;b&gt;Container Registry&lt;/b&gt;" name="ContainerRegistryFoldout" class="text-edgegap" style="flex-grow: 1; padding-bottom: 0; padding-top: 0; padding-right: 0; padding-left: 0;">
                     <ui:VisualElement name="ContainerPortRow" class="container-row" style="flex-grow: 1; align-items: center; flex-direction: row; justify-content: flex-start; align-self: auto;">
                         <ui:TextField name="ContainerRegistryPortNumTxt" label="Port" tooltip="1024~49151 (Default `7770`)" value="7770" view-data-key="ContainerRegistryPortNumTxt" keyboard-type="NumberPad" class="text-edgegap" style="width: 250px;" />
-                        <ui:EnumField type="Edgegap.Editor.Api.Models.ProtocolType, Assembly-CSharp-Editor" name="ContainerRegistryProtocolTypeEnumField" view-data-key="ContainerRegistryProtocolTypeEnumField" style="width: 137px;" />
+                        <ui:VisualElement name="MIRROR_CHANGE_PORT_HARDCODED" class="MIRROR_CHANGE_PORT_HARDCODED" />
                     </ui:VisualElement>
                     <ui:VisualElement name="ContainerNewVersionTagRow" class="container-row" style="flex-grow: 1; align-items: center; flex-direction: row; justify-content: flex-start; align-self: auto;">
                         <ui:TextField name="ContainerNewVersionTagTxt" label="New Version Tag" tooltip="eg: &quot;latest&quot; (default), &quot;v1.0.0&quot;, &quot;1.0.0&quot;" value="latest" view-data-key="ContainerNewVersionTagTxt" class="text-edgegap" />

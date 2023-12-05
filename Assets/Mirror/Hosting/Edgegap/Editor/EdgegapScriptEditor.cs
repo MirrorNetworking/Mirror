@@ -1,1 +1,25 @@
-﻿// MIRROR CHANGE: removed 2023-11-06 because it doesn't seem to do anything.
+﻿using UnityEditor;
+using UnityEngine.UIElements;
+using Edgegap;
+
+[CustomEditor(typeof(EdgegapToolScript))]
+public class EdgegapPluginScriptEditor : Editor
+{
+    VisualElement _serverDataContainer;
+
+    private void OnEnable()
+    {
+        _serverDataContainer = EdgegapServerDataManager.GetServerDataVisualTree();
+        EdgegapServerDataManager.RegisterServerDataContainer(_serverDataContainer);
+    }
+
+    private void OnDisable()
+    {
+        EdgegapServerDataManager.DeregisterServerDataContainer(_serverDataContainer);
+    }
+
+    public override VisualElement CreateInspectorGUI()
+    {
+        return _serverDataContainer;
+    }
+}

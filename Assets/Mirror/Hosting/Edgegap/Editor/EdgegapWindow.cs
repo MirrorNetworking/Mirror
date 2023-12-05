@@ -78,7 +78,8 @@ namespace Edgegap
         StyleSheet _serverDataStylesheet;
         List<VisualElement> _serverDataContainers = new List<VisualElement>();
 
-        [MenuItem("Edgegap/Edgegap Hosting")] // MIRROR CHANGE
+        [Obsolete("See EdgegapWindowV2.ShowEdgegapToolWindow()")]
+        // [MenuItem("Edgegap/Server Management")]
         public static void ShowEdgegapToolWindow()
         {
             EdgegapWindow window = GetWindow<EdgegapWindow>();
@@ -924,7 +925,7 @@ namespace Edgegap
             serverDataTree.styleSheets.Add(_serverDataStylesheet);
 
             bool hasServerData = EdgegapServerDataManager._serverData != null;
-            bool isReady = hasServerData && EdgegapServerDataManager._serverData.GetServerStatus().IsOneOf(ServerStatus.Ready, ServerStatus.Error);
+            bool isReady = hasServerData && EdgegapServerDataManager. _serverData.GetServerStatus().IsOneOf(ServerStatus.Ready, ServerStatus.Error);
 
             if (hasServerData)
             {

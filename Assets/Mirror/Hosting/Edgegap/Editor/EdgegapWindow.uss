@@ -25,7 +25,9 @@
     padding-top: 8px;
     padding-bottom: 8px;
     -unity-text-align: middle-center;
+    /* MIRROR CHANGE: disable hardcoded font path
     -unity-font: url('project://database/Assets/Edgegap/Editor/Fonts/Src/BaronNeue.otf?fileID=12800000&guid=fb67205c672fbb04d829783b9f771fc9&type=3#BaronNeue');
+    */
 }
 
 .text--muted {
@@ -117,7 +119,9 @@
 .text-edgegap {
     font-size: 11px;
     color: rgb(222, 222, 222);
+    /* MIRROR CHANGE: disable hardcoded font path
     -unity-font-definition: url('project://database/Assets/Edgegap/Editor/Fonts/Spartan-Regular%20SDF.asset?fileID=11400000&guid=8b0fb2c68be09174f8ea5057b27a545c&type=2#Spartan-Regular SDF');
+    */
 }
 
 .text-btnTxt {
@@ -177,7 +181,9 @@ Toggle > #unity-checkmark {
 
 .unity-text-field__input > TextElement {
     color: rgb(255, 255, 255);
+    /* MIRROR CHANGE: disable hardcoded font path
     -unity-font-definition: url('project://database/Assets/Edgegap/Editor/Fonts/UbuntuMono-R%20SDF.asset?fileID=11400000&guid=2635d61c9807d6c46bcb00a3d8645b37&type=2#UbuntuMono-R SDF');
+    */
     font-size: 12px;
     white-space: nowrap;
     text-overflow: clip;
