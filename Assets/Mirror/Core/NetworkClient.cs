@@ -1520,7 +1520,6 @@ namespace Mirror
                 }
 
                 UpdateConnectionQuality();
-
             }
 
             // Connection Quality //////////////////////////////////////////////////
