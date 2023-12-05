@@ -46,8 +46,9 @@ namespace Mirror
 
         // hotkey to show/hide at runtime for easier debugging
         // (sometimes we need to temporarily hide/show it)
-        // => F12 makes sense. nobody can find ^ in other games.
-        public KeyCode hotKey = KeyCode.F12;
+        // Default is BackQuote, because F keys are already assigned in browsers
+        [Tooltip("Hotkey to show/hide the console at runtime\nBack Quote is usually on the left above Tab\nChange with caution - F keys are generally already taken in Browsers")]
+        public KeyCode hotKey = KeyCode.BackQuote;
 
         // GUI
         bool visible;
