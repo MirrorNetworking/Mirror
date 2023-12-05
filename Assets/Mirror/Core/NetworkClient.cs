@@ -126,6 +126,7 @@ namespace Mirror
         // which allows users to overwrite it with their own estimations.
         public static ConnectionQuality connectionQuality = ConnectionQuality.ESTIMATING;
         public static ConnectionQuality lastConnectionQuality = ConnectionQuality.ESTIMATING;
+        public static ConnectionQualityMethod connectionQualityMethod = ConnectionQualityMethod.Simple;
         public static float connectionQualityInterval = 3;
         static double lastConnectionQualityUpdate;
 
@@ -1531,7 +1532,16 @@ namespace Mirror
                 if (connectionQualityInterval > 0 && NetworkTime.time > lastConnectionQualityUpdate + connectionQualityInterval)
                 {
                     lastConnectionQualityUpdate = NetworkTime.time;
-                    connectionQuality = ConnectionQualityHeuristics.Simple(NetworkTime.rtt, NetworkTime.rttVariance);
+
+                    switch (connectionQualityMethod)
+                    {
+                        case ConnectionQualityMethod.Simple:
+                            connectionQuality = ConnectionQualityHeuristics.Simple(NetworkTime.rtt, NetworkTime.rttVariance);
+                            break;
+                        case ConnectionQualityMethod.Pragmatic:
+                            connectionQuality = ConnectionQualityHeuristics.Pragmatic(NetworkTime.rtt, NetworkTime.rttVariance);
+                            break;
+                    }
 
                     if (lastConnectionQuality != connectionQuality)
                     {

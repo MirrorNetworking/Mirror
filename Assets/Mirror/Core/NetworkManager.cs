@@ -135,6 +135,9 @@ namespace Mirror
         public SnapshotInterpolationSettings snapshotSettings = new SnapshotInterpolationSettings();
 
         [Header("Connection Quality")]
+        [Tooltip("Method to use for connection quality evaluation.\nSimple: based on rtt and jitter.\nPragmatic: based on snapshot interpolation adjustment.")]
+        public ConnectionQualityMethod connectionQualityMethod;
+
         [Tooltip("Interval in seconds to evaluate connection quality.\nSet to 0 to disable connection quality evaluation.")]
         [Range(0, 60)]
         public float connectionQualityInterval = 3;
@@ -300,6 +303,7 @@ namespace Mirror
             NetworkServer.tickRate = sendRate;
             NetworkClient.snapshotSettings = snapshotSettings;
             NetworkClient.connectionQualityInterval = connectionQualityInterval;
+            NetworkClient.connectionQualityMethod = connectionQualityMethod;
         }
 
         // full server setup code, without spawning objects yet

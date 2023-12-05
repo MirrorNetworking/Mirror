@@ -13,6 +13,12 @@ namespace Mirror
         EXCELLENT   // ideal experience for high level competitors
     }
 
+    public enum ConnectionQualityMethod : byte
+    {
+        Simple,     // simple estimation based on rtt and jitter
+        Pragmatic   // based on snapshot interpolation adjustment
+    }
+
     // provide different heuristics for users to choose from.
     // simple heuristics to get started.
     // this will be iterated on over time based on user feedback.
