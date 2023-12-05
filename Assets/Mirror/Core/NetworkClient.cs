@@ -1539,7 +1539,7 @@ namespace Mirror
                             connectionQuality = ConnectionQualityHeuristics.Simple(NetworkTime.rtt, NetworkTime.rttVariance);
                             break;
                         case ConnectionQualityMethod.Pragmatic:
-                            connectionQuality = ConnectionQualityHeuristics.Pragmatic(NetworkTime.rtt, NetworkTime.rttVariance);
+                            connectionQuality = ConnectionQualityHeuristics.Pragmatic(initialBufferTime, bufferTime);
                             break;
                     }
 
