@@ -135,9 +135,9 @@ namespace Mirror
         public SnapshotInterpolationSettings snapshotSettings = new SnapshotInterpolationSettings();
 
         [Header("Connection Quality")]
+        [Tooltip("Interval in seconds to evaluate connection quality.\nSet to 0 to disable connection quality evaluation.")]
+        [Range(0, 60)]
         public float connectionQualityInterval = 3;
-        double lastConnectionQualityUpdate;
-        ConnectionQuality lastConnectionQuality = ConnectionQuality.ESTIMATING;
 
         [Header("Debug")]
         public bool timeInterpolationGui = false;
@@ -279,29 +279,6 @@ namespace Mirror
         public virtual void LateUpdate()
         {
             UpdateScene();
-            UpdateConnectionQuality();
-        }
-
-        // Connection Quality //////////////////////////////////////////////////
-        // uses 'pragmatic' version based on snapshot interpolation by default.
-        void UpdateConnectionQuality()
-        {
-            if (!NetworkClient.active) return;
-
-            // only recalculate every few seconds
-            // we don't want to fire Good->Bad->Good->Bad hundreds of times per second.
-            if (NetworkTime.time < lastConnectionQualityUpdate + connectionQualityInterval) return;
-            lastConnectionQualityUpdate = NetworkTime.time;
-
-            // recaclulate connection quality
-            CalculateConnectionQuality();
-
-            // call event if changed
-            if (NetworkClient.connectionQuality != lastConnectionQuality)
-            {
-                OnConnectionQualityChanged(lastConnectionQuality, NetworkClient.connectionQuality);
-                lastConnectionQuality = NetworkClient.connectionQuality;
-            }
         }
 
         ////////////////////////////////////////////////////////////////////////
@@ -322,6 +299,7 @@ namespace Mirror
         {
             NetworkServer.tickRate = sendRate;
             NetworkClient.snapshotSettings = snapshotSettings;
+            NetworkClient.connectionQualityInterval = connectionQualityInterval;
         }
 
         // full server setup code, without spawning objects yet
@@ -410,6 +388,11 @@ namespace Mirror
         void SetupClient()
         {
             InitializeSingleton();
+
+#pragma warning disable 618
+            // Remove when OnConnectionQualityChanged is removed.
+            NetworkClient.onConnectionQualityChanged += OnConnectionQualityChanged;
+#pragma warning restore 618
 
             // apply settings before initializing anything
             NetworkClient.exceptionsDisconnect = exceptionsDisconnect;
@@ -679,6 +662,11 @@ namespace Mirror
             //     NetworkClient.OnTransportDisconnect
             //   NetworkManager.OnClientDisconnect
             NetworkClient.Disconnect();
+
+#pragma warning disable 618
+            // Remove when OnConnectionQualityChanged is removed.
+            NetworkClient.onConnectionQualityChanged -= OnConnectionQualityChanged;
+#pragma warning restore 618
 
             // UNET invoked OnDisconnected cleanup immediately.
             // let's keep it for now, in case any projects depend on it.
@@ -1423,14 +1411,17 @@ namespace Mirror
         /// <summary>Called on clients when disconnected from a server.</summary>
         public virtual void OnClientDisconnect() { }
 
-        /// <summary>Called on client when connection quality is calculated. Override to use your own measurements.</summary>
+        // Deprecated 2023-12-05
+        /// <summary>Deprecated: NetworkClient handles this now.</summary>
+        [Obsolete("NetworkClient handles this now.")]
         public virtual void CalculateConnectionQuality()
         {
-            // NetworkClient.connectionQuality = ConnectionQualityHeuristics.Pragmatic(NetworkClient.initialBufferTime, NetworkClient.bufferTime);
-            NetworkClient.connectionQuality = ConnectionQualityHeuristics.Simple(NetworkTime.rtt, NetworkTime.rttVariance);
+            // Moved to NetworkClient
         }
 
-        /// <summary>Called on client when connection quality changes. Override to show your own warnings or UI visuals.</summary>
+        // Deprecated 2023-12-05
+        /// <summary>Deprecated: NetworkClient handles this now.</summary>
+        [Obsolete("This will be removed. Subscribe to NetworkClient.onConnectionQualityChanged in your own code")]
         public virtual void OnConnectionQualityChanged(ConnectionQuality previous, ConnectionQuality current)
         {
             // logging the change is very useful to track down user's lag reports.
