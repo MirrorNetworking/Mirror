@@ -1,9 +1,16 @@
 ﻿using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Edgegap
 {
+    [Obsolete("Use UpdateAppVersionRequest")]
     public struct AppVersionUpdatePatchData
     {
+
         [JsonProperty("docker_repository")]
         public string DockerRegistry;
 
@@ -12,5 +19,6 @@ namespace Edgegap
 
         [JsonProperty("docker_tag")]
         public string DockerTag;
+
     }
 }
