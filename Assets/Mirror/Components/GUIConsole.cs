@@ -31,7 +31,8 @@ namespace Mirror
 
     public class GUIConsole : MonoBehaviour
     {
-        public int height = 150;
+        public int height = 80;
+        public int offsetY = 40;
 
         // only keep the recent 'n' entries. otherwise memory would grow forever
         // and drawing would get slower and slower.
@@ -108,7 +109,12 @@ namespace Mirror
         {
             if (!visible) return;
 
-            scroll = GUILayout.BeginScrollView(scroll, "Box", GUILayout.Width(Screen.width), GUILayout.Height(height));
+            // If this offset is changed, also change width in NetworkManagerHUD::OnGUI
+            int offsetX = 300 + 20;
+
+            GUILayout.BeginArea(new Rect(offsetX, offsetY, Screen.width - offsetX - 10, height));
+
+            scroll = GUILayout.BeginScrollView(scroll, "Box", GUILayout.Width(Screen.width - offsetX - 10), GUILayout.Height(height));
             foreach (LogEntry entry in log)
             {
                 if (entry.type == LogType.Error || entry.type == LogType.Exception)
@@ -120,6 +126,8 @@ namespace Mirror
                 GUI.color = Color.white;
             }
             GUILayout.EndScrollView();
+
+            GUILayout.EndArea();
         }
     }
 }
