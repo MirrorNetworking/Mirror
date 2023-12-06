@@ -284,7 +284,6 @@ ENTRYPOINT [ ""/root/build/ServerBuild"", ""-batchmode"", ""-nographics""]
             string repoPasswordToken,
             Action<string> onStatusUpdate)
         {
-            string output = null;
             string error = null;
             await RunCommand_DockerLogin(registryUrl, repoUsername, repoPasswordToken, onStatusUpdate, msg => error = msg); // MIRROR CHANGE
             if (error.Contains("ERROR"))

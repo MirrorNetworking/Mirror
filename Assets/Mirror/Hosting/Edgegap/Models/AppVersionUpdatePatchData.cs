@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Edgegap
 {
-    [Obsolete("Use UpdateAppVersionRequest")]
+    //[Obsolete("Use UpdateAppVersionRequest")] // MIRROR CHANGE: commented this out to avoid import warnings
     public struct AppVersionUpdatePatchData
     {
 

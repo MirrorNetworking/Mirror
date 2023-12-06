@@ -39,13 +39,13 @@ namespace Edgegap.Editor
         /// When running a Docker-based "Build & Push" flow, skip building the Unity server binary
         /// (great for testing push flow). Default false.
         /// </summary>
-        public const bool SKIP_SERVER_BUILD_WHEN_PUSHING = false;
-        
+        public static readonly bool SKIP_SERVER_BUILD_WHEN_PUSHING = false; // MIRROR CHANGE: 'const' changed to 'static readonly' to avoid 'unreachable code detected' warning
+
         /// <summary>
         /// When running a Docker-based "Build & Push" flow, skip building the Docker image
         /// (great for testing registry login mechanics). Default false.
         /// </summary>
-        public const bool SKIP_DOCKER_IMAGE_BUILD_WHEN_PUSHING = false;
+        public static readonly bool SKIP_DOCKER_IMAGE_BUILD_WHEN_PUSHING = false; // MIRROR CHANGE: 'const' changed to 'static readonly' to avoid 'unreachable code detected' warning
         #endregion // Debug
 
         
@@ -165,7 +165,8 @@ namespace Edgegap.Editor
         #endregion // UI Element Ids
         
 
-        [Obsolete("Hard-coded; not from UI. TODO: Get from UI")]
+
+        //[Obsolete("Hard-coded; not from UI. TODO: Get from UI")] // MIRROR CHANGE: comment this out to avoid import warnings
         public const ApiEnvironment API_ENVIRONMENT = ApiEnvironment.Console;
     }
 }
