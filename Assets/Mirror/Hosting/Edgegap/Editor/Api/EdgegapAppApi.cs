@@ -35,8 +35,8 @@ namespace Edgegap.Editor.Api
         public async Task<EdgegapHttpResult<GetCreateAppResult>> CreateApp(CreateAppRequest request)
         {
             HttpResponseMessage response = await PostAsync("v1/app", request.ToString());
-            EdgegapHttpResult<GetCreateAppResult> result = new(response);
-            
+            EdgegapHttpResult<GetCreateAppResult> result = new EdgegapHttpResult<GetCreateAppResult>(response); // MIRROR CHANGE: 'new()' not supported in Unity 2020
+
             bool isSuccess = response.StatusCode == HttpStatusCode.OK; // 200
             if (!isSuccess)
                 return result;
@@ -56,8 +56,8 @@ namespace Edgegap.Editor.Api
         public async Task<EdgegapHttpResult<GetCreateAppResult>> GetApp(string appName)
         {
             HttpResponseMessage response = await GetAsync($"v1/app/{appName}");
-            EdgegapHttpResult<GetCreateAppResult> result = new(response);
-            
+            EdgegapHttpResult<GetCreateAppResult> result = new EdgegapHttpResult<GetCreateAppResult>(response); // MIRROR CHANGE: 'new()' not supported in Unity 2020
+
             bool isSuccess = response.StatusCode == HttpStatusCode.OK; // 200
             if (!isSuccess)
                 return result;
@@ -78,8 +78,8 @@ namespace Edgegap.Editor.Api
         {
             string relativePath = $"v1/app/{request.AppName}/version/{request.VersionName}";
             HttpResponseMessage response = await PatchAsync(relativePath, request.ToString());
-            EdgegapHttpResult<UpsertAppVersionResult> result = new(response);
-            
+            EdgegapHttpResult<UpsertAppVersionResult> result = new EdgegapHttpResult<UpsertAppVersionResult>(response); // MIRROR CHANGE: 'new()' not supported in Unity 2020
+
             bool isSuccess = response.StatusCode == HttpStatusCode.OK; // 200
             if (!isSuccess)
                 return result;
@@ -101,7 +101,7 @@ namespace Edgegap.Editor.Api
         {
             string relativePath = $"v1/app/{request.AppName}/version";
             HttpResponseMessage response = await PostAsync(relativePath, request.ToString());
-            EdgegapHttpResult<UpsertAppVersionResult> result = new(response);
+            EdgegapHttpResult<UpsertAppVersionResult> result = new EdgegapHttpResult<UpsertAppVersionResult>(response); // MIRROR CHANGE: 'new()' not supported in Unity 2020
 
             bool isSuccess = response.StatusCode == HttpStatusCode.OK; // 200
 

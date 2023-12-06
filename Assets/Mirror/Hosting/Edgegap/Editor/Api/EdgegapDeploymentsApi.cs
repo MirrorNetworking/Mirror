@@ -38,8 +38,8 @@ namespace Edgegap.Editor.Api
             CreateDeploymentRequest request)
         {
             HttpResponseMessage response = await PostAsync("v1/deploy", request.ToString());
-            EdgegapHttpResult<CreateDeploymentResult> result = new(response);
-            
+            EdgegapHttpResult<CreateDeploymentResult> result = new EdgegapHttpResult<CreateDeploymentResult>(response); // MIRROR CHANGE: 'new()' not supported in Unity 2020
+
             bool isSuccess = response.StatusCode == HttpStatusCode.OK; // 200
             if (!isSuccess)
                 return result;
@@ -62,8 +62,8 @@ namespace Edgegap.Editor.Api
         public async Task<EdgegapHttpResult<GetDeploymentStatusResult>> GetDeploymentStatusAsync(string requestId)
         {
             HttpResponseMessage response = await GetAsync($"v1/status/{requestId}");
-            EdgegapHttpResult<GetDeploymentStatusResult> result = new(response);
-            
+            EdgegapHttpResult<GetDeploymentStatusResult> result = new EdgegapHttpResult<GetDeploymentStatusResult>(response); // MIRROR CHANGE: 'new()' not supported in Unity 2020
+
             bool isSuccess = response.StatusCode == HttpStatusCode.OK; // 200
             if (!isSuccess)
                 return result;
@@ -86,8 +86,8 @@ namespace Edgegap.Editor.Api
         public async Task<EdgegapHttpResult<StopActiveDeploymentResult>> StopActiveDeploymentAsync(string requestId)
         {
             HttpResponseMessage response = await DeleteAsync($"v1/stop/{requestId}");
-            EdgegapHttpResult<StopActiveDeploymentResult> result = new(response);
-            
+            EdgegapHttpResult<StopActiveDeploymentResult> result = new EdgegapHttpResult<StopActiveDeploymentResult>(response); // MIRROR CHANGE: 'new()' not supported in Unity 2020
+
             bool isSuccess = response.StatusCode == HttpStatusCode.OK; // 200
             if (!isSuccess)
                 return result;
@@ -137,7 +137,7 @@ namespace Edgegap.Editor.Api
             Assert.IsTrue(!string.IsNullOrEmpty(requestId)); // Validate
             
             EdgegapHttpResult<GetDeploymentStatusResult> statusResponse = null;
-            CancellationTokenSource cts = new(TimeSpan.FromMinutes(
+            CancellationTokenSource cts = new CancellationTokenSource (TimeSpan.FromMinutes( // MIRROR CHANGE: 'new()' not supported in Unity 2020
                 EdgegapWindowMetadata.DEPLOYMENT_AWAIT_READY_STATUS_TIMEOUT_MINS));
             bool isReady = false;
             
@@ -159,7 +159,7 @@ namespace Edgegap.Editor.Api
             TimeSpan pollInterval)
         {
             EdgegapHttpResult<StopActiveDeploymentResult> deleteResponse = null;
-            CancellationTokenSource cts = new(TimeSpan.FromMinutes(
+            CancellationTokenSource cts = new CancellationTokenSource(TimeSpan.FromMinutes( // MIRROR CHANGE: 'new()' not supported in Unity 2020
                 EdgegapWindowMetadata.DEPLOYMENT_AWAIT_READY_STATUS_TIMEOUT_MINS));
             bool isStopped = false;
             

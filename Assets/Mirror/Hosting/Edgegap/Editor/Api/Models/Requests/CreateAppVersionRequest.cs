@@ -181,7 +181,7 @@ namespace Edgegap.Editor.Api.Models.Requests
             this.PrivateToken = containerRegistryPasswordToken;
             this.Ports = new AppPortsData[]
             {
-                new()
+                new AppPortsData() // MIRROR CHANGE: 'new()' not supported in Unity 2020
                 {
                     Port = portNum,
                     ProtocolStr = protocolType.ToString(),

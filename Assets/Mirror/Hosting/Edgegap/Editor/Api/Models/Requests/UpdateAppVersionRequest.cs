@@ -108,8 +108,8 @@ namespace Edgegap.Editor.Api.Models.Requests
         // public SessionConfigData SessionConfig { get; set; }
        
         [JsonProperty("probe")]
-        public ProbeData Probe { get; set; } = new();
-       
+        public ProbeData Probe { get; set; } = new ProbeData(); // MIRROR CHANGE: 'new()' not supported in Unity 2020
+
         [JsonProperty("envs")]
         public EnvsData[] Envs { get; set; } = {};
        

@@ -34,8 +34,8 @@ namespace Edgegap.Editor.Api
         public async Task<EdgegapHttpResult<GetYourPublicIpResult>> GetYourPublicIp()
         {
             HttpResponseMessage response = await GetAsync("v1/ip");
-            EdgegapHttpResult<GetYourPublicIpResult> result = new(response);
-            
+            EdgegapHttpResult<GetYourPublicIpResult> result = new EdgegapHttpResult<GetYourPublicIpResult>(response); // MIRROR CHANGE: 'new()' not supported in Unity 2020
+
             bool isSuccess = response.StatusCode == HttpStatusCode.OK; // 200
             if (!isSuccess)
                 return result;

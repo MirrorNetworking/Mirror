@@ -18,7 +18,7 @@ namespace Edgegap.Editor.Api
     public abstract class EdgegapApiBase
     {
         #region Vars
-        private readonly HttpClient _httpClient = new(); // Base address set
+        private readonly HttpClient _httpClient = new HttpClient(); // Base address set // MIRROR CHANGE: Unity 2020 support
         protected ApiEnvironment SelectedApiEnvironment { get; }
         protected EdgegapWindowMetadata.LogLevel LogLevel { get; set; }
         protected bool IsLogLevelDebug => LogLevel == EdgegapWindowMetadata.LogLevel.Debug;
@@ -237,10 +237,10 @@ namespace Edgegap.Editor.Api
         /// <param name="json">Arbitrary json obj</param>
         /// <returns></returns>
         private StringContent CreateStringContent(string json = "{}") =>
-            new (json, Encoding.UTF8, "application/json");
+            new StringContent(json, Encoding.UTF8, "application/json"); // MIRROR CHANGE: 'new()' not supported in Unity 2020
 
         private static HttpResponseMessage CreateUnknown500Err() =>
-            new(HttpStatusCode.InternalServerError); // 500 - Unknown
+            new HttpResponseMessage(HttpStatusCode.InternalServerError); // 500 - Unknown // MIRROR CHANGE: 'new()' not supported in Unity 2020
 
         /// <summary>
         /// Merges Edgegap-required query params (source) -> merges with custom query -> normalizes.

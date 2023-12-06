@@ -28,8 +28,8 @@ namespace Edgegap.Editor.Api
         {
             string json = new JObject { ["source"] = "unity" }.ToString();
             HttpResponseMessage response = await PostAsync("v1/wizard/init-quick-start", json);
-            EdgegapHttpResult result = new(response);
-            
+            EdgegapHttpResult result = new EdgegapHttpResult(response); // MIRROR CHANGE: 'new()' not supported in Unity 2020
+
             return result;
         }
         
@@ -43,8 +43,8 @@ namespace Edgegap.Editor.Api
         public async Task<EdgegapHttpResult<GetRegistryCredentialsResult>> GetRegistryCredentials()
         {
             HttpResponseMessage response = await GetAsync("v1/wizard/registry-credentials");
-            EdgegapHttpResult<GetRegistryCredentialsResult> result = new(response);
-            
+            EdgegapHttpResult<GetRegistryCredentialsResult> result = new EdgegapHttpResult<GetRegistryCredentialsResult>(response); // MIRROR CHANGE: 'new()' not supported in Unity 2020
+
             return result;
         }
         #endregion // API Methods

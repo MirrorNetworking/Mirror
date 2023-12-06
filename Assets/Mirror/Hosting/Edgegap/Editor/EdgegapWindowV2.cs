@@ -36,7 +36,7 @@ namespace Edgegap.Editor
         private string _appIconBase64Str;
         private ApiEnvironment _apiEnvironment; // TODO: Swap out hard-coding with UI element?
         private GetRegistryCredentialsResult _credentials;
-        private static readonly Regex _appNameAllowedCharsRegex = new(@"^[a-zA-Z0-9_\-+\.]*$");
+        private static readonly Regex _appNameAllowedCharsRegex = new Regex(@"^[a-zA-Z0-9_\-+\.]*$"); // MIRROR CHANGE: 'new()' not supported in Unity 2020
         private GetCreateAppResult _loadedApp;
         /// <summary>TODO: Make this a list</summary>
         private GetDeploymentStatusResult _lastKnownDeployment;
@@ -769,7 +769,7 @@ namespace Edgegap.Editor
                 Texture2D texture = new Texture2D(2, 2);
                 texture.LoadImage(imageBytes);
 
-                Rect rect = new(
+                Rect rect = new Rect( // MIRROR CHANGE: 'new()' not supported in Unity 2020
                     x: 0.0f,
                     y: 0.0f,
                     texture.width,
@@ -998,7 +998,7 @@ namespace Edgegap.Editor
             _apiTokenVerifyBtn.SetEnabled(false);
 
             EdgegapAppApi appApi = getAppApi();
-            CreateAppRequest createAppRequest = new(
+            CreateAppRequest createAppRequest = new CreateAppRequest( // MIRROR CHANGE: 'new()' not supported in Unity 2020
                 _appNameInput.value,
                 isActive: true,
                 getBase64StrFromSprite(_appIconSpriteObj) ?? "");
@@ -1173,7 +1173,7 @@ namespace Edgegap.Editor
                 // Get (+cache) external IP async, required to create a deployment. Prioritize cache.
                 _userExternalIp = await getExternalIpAddress();
 
-                CreateDeploymentRequest createDeploymentReq = new(
+                CreateDeploymentRequest createDeploymentReq = new CreateDeploymentRequest( // MIRROR CHANGE: 'new()' not supported in Unity 2020
                     _appNameInput.value,
                     _containerNewTagVersionInput.value,
                     _userExternalIp);
@@ -1370,22 +1370,22 @@ namespace Edgegap.Editor
         }
 
         #region Api Builders
-        private EdgegapDeploymentsApi getDeployApi() => new(
+        private EdgegapDeploymentsApi getDeployApi() => new EdgegapDeploymentsApi( // MIRROR CHANGE: 'new()' not supported in Unity 2020
             EdgegapWindowMetadata.API_ENVIRONMENT,
             _apiTokenInput.value.Trim(),
             EdgegapWindowMetadata.LOG_LEVEL);
 
-        private EdgegapIpApi getIpApi() => new(
+        private EdgegapIpApi getIpApi() => new EdgegapIpApi( // MIRROR CHANGE: 'new()' not supported in Unity 2020
             EdgegapWindowMetadata.API_ENVIRONMENT,
             _apiTokenInput.value.Trim(),
             EdgegapWindowMetadata.LOG_LEVEL);
 
-        private EdgegapWizardApi getWizardApi() => new(
+        private EdgegapWizardApi getWizardApi() => new EdgegapWizardApi( // MIRROR CHANGE: 'new()' not supported in Unity 2020
             EdgegapWindowMetadata.API_ENVIRONMENT,
             _apiTokenInput.value.Trim(),
             EdgegapWindowMetadata.LOG_LEVEL);
 
-        private EdgegapAppApi getAppApi() => new(
+        private EdgegapAppApi getAppApi() => new EdgegapAppApi( // MIRROR CHANGE: 'new()' not supported in Unity 2020
             EdgegapWindowMetadata.API_ENVIRONMENT,
             _apiTokenInput.value.Trim(),
             EdgegapWindowMetadata.LOG_LEVEL);
@@ -1550,14 +1550,14 @@ namespace Edgegap.Editor
 
                 AppPortsData[] ports =
                 {
-                    new()
+                    new AppPortsData() // MIRROR CHANGE: 'new()' not supported in Unity 2020
                     {
                         Port = int.Parse(_containerPortNumInput.value), // OnInputChange clamps + validates,
                         ProtocolStr = _containerTransportTypeEnumInput.value.ToString(),
                     },
                 };
 
-                UpdateAppVersionRequest updateAppVerReq = new(_appNameInput.value)
+                UpdateAppVersionRequest updateAppVerReq = new UpdateAppVersionRequest(_appNameInput.value) // MIRROR CHANGE: 'new()' not supported in Unity 2020
                 {
                     VersionName = _containerNewTagVersionInput.value,
                     DockerImage = imageName,
