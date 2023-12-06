@@ -635,6 +635,8 @@ namespace Edgegap
 
         void SyncObjectWithForm()
         {
+            if (_apiKeyInput == null) return; // MIRROR CHANGE: fix NRE when this is called before UI elements were assgned
+
             _apiKey = _apiKeyInput.value;
             _apiEnvironment = (ApiEnvironment)_apiEnvironmentSelect.value;
             _appName = _appNameInput.value;
