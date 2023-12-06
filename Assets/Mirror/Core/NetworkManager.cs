@@ -29,10 +29,13 @@ namespace Mirror
         public bool runInBackground = true;
 
         /// <summary>Should the server auto-start when 'Server Build' is checked in build settings</summary>
-        [Header("Headless Builds")]
+        [Header("Auto-Start Options")]
 
         [Tooltip("Choose whether Server or Client should auto-start in headless builds")]
         public HeadlessStartOptions headlessStartMode = HeadlessStartOptions.DoNothing;
+
+        [Tooltip("Headless Start Mode in Editor\nwhen enabled, headless start mode will be used in editor as well.")]
+        public bool editorAutoStart;
 
         /// <summary>Server Update frequency, per second. Use around 60Hz for fast paced games like Counter-Strike to minimize latency. Use around 30Hz for games like WoW to minimize computations. Use around 1-10Hz for slow paced games like EVE.</summary>
         [Tooltip("Server & Client send rate per second. Use 60-100Hz for fast paced games like Counter-Strike to minimize latency. Use around 30Hz for games like WoW to minimize computations. Use around 1-10Hz for slow paced games like EVE.")]
@@ -256,20 +259,20 @@ namespace Mirror
             // We can't do this in Awake because Awake is for initialization
             // and some transports might not be ready until Start.
             //
-            // don't auto start in editor where we have a UI, only in builds.
-            // otherwise if we switch to 'Dedicated Server' target and press
-            // Play, it would auto start the server every time.
+            // Auto-starting in Editor is useful for debugging, so that can
+            // be enabled with editorAutoStart.
             if (Utils.IsHeadless())
             {
-                switch (headlessStartMode)
-                {
-                    case HeadlessStartOptions.AutoStartServer:
-                        StartServer();
-                        break;
-                    case HeadlessStartOptions.AutoStartClient:
-                        StartClient();
-                        break;
-                }
+                if (!Application.isEditor || editorAutoStart)
+                    switch (headlessStartMode)
+                    {
+                        case HeadlessStartOptions.AutoStartServer:
+                            StartServer();
+                            break;
+                        case HeadlessStartOptions.AutoStartClient:
+                            StartClient();
+                            break;
+                    }
             }
         }
 
