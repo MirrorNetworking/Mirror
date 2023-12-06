@@ -194,7 +194,6 @@ namespace Edgegap.Editor
             // clipboard button
             VisualElement copyElement = rootVisualElement.Q<VisualElement>("DeploymentConnectionCopyUrlBtn");
             copyElement.style.backgroundImage = ClipboardImage;
-
         }
 
         // END MIRROR CHANGE
