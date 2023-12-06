@@ -6,6 +6,7 @@ MonoImporter:
   defaultReferences:
   - m_ViewDataDictionary: {instanceID: 0}
   - LogoImage: {fileID: 2800000, guid: b7012da4ebf9008458abc3ef9a741f3c, type: 3}
+  - ClipboardImage: {fileID: 2800000, guid: caa516cdb721dd143bbc8000ca78d50a, type: 3}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

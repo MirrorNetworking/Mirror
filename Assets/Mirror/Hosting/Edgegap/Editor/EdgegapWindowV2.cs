@@ -109,6 +109,7 @@ namespace Edgegap.Editor
 
         // MIRROR CHANGE: images are dragged into the script in inspector and assigned to the UI at runtime. this way we don't need to hardcode it.
         public Texture2D LogoImage;
+        public Texture2D ClipboardImage;
         // END MIRROR CHANGE
 
         [MenuItem("Edgegap/Edgegap Hosting")] // MIRROR CHANGE: more obvious title
@@ -187,8 +188,13 @@ namespace Edgegap.Editor
         void AssignImages()
         {
             // header logo
-            VisualElement element = rootVisualElement.Q<VisualElement>("header-logo-img");
-            element.style.backgroundImage = LogoImage;
+            VisualElement logoElement = rootVisualElement.Q<VisualElement>("header-logo-img");
+            logoElement.style.backgroundImage = LogoImage;
+
+            // clipboard button
+            VisualElement copyElement = rootVisualElement.Q<VisualElement>("DeploymentConnectionCopyUrlBtn");
+            copyElement.style.backgroundImage = ClipboardImage;
+
         }
 
         // END MIRROR CHANGE
