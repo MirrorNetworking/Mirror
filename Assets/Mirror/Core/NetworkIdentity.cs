@@ -375,7 +375,12 @@ namespace Mirror
             {
                 // always log the next child component so it's easy to fix.
                 // if there are multiple, then after removing it'll log the next.
-                Debug.LogError($"'{name}' has another NetworkIdentity component on '{identities[1].name}'. There should only be one NetworkIdentity, and it must be on the root object. Please remove the other one.");
+                //
+                // ignore test prefabs so users aren't greeted with this error
+                // when opening Mirror from Github for the first time.
+                // (hardcoding this is still better than the annoying error)
+                if (name != "PrefabWithChildrenForClientScene")
+                    Debug.LogError($"'{name}' has another NetworkIdentity component on '{identities[1].name}'. There should only be one NetworkIdentity, and it must be on the root object. Please remove the other one.");
             }
         }
 
