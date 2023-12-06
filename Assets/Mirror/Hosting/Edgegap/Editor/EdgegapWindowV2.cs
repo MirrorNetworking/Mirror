@@ -263,6 +263,8 @@ namespace Edgegap.Editor
         /// </summary>
         private void assertVisualElementKeys()
         {
+            // MIRROR CHANGE: this doesn't compile in Unity 2019
+            /*
             try
             {
                 Assert.IsTrue(_apiTokenInput is { name: EdgegapWindowMetadata.API_TOKEN_TXT_ID },
@@ -375,6 +377,7 @@ namespace Edgegap.Editor
                 Debug.LogError(e.Message);
                 _postAuthContainer.SetEnabled(false);
             }
+            */ // END MIRROR CHANGE
         }
 
         /// <summary>
