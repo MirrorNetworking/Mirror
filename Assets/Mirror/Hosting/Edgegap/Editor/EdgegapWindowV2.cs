@@ -107,6 +107,10 @@ namespace Edgegap.Editor
             Path.GetDirectoryName(AssetDatabase.GetAssetPath(MonoScript.FromScriptableObject(this)));
         // END MIRROR CHANGE
 
+        // MIRROR CHANGE: images are dragged into the script in inspector and assigned to the UI at runtime. this way we don't need to hardcode it.
+        public Texture2D LogoImage;
+        // END MIRROR CHANGE
+
         [MenuItem("Edgegap/Edgegap Hosting")] // MIRROR CHANGE: more obvious title
         public static void ShowEdgegapToolWindow()
         {
@@ -165,6 +169,7 @@ namespace Edgegap.Editor
             registerClickCallbacks();
             registerFieldCallbacks();
             initToggleDynamicUi();
+            AssignImages(); // MIRROR CHANGE
         }
 
         private void closeDisableGroups()
@@ -177,6 +182,16 @@ namespace Edgegap.Editor
             _containerRegistryFoldout.SetEnabled(false);
             _deploymentsFoldout.SetEnabled(false);
         }
+
+        // MIRROR CHANGE: assign images to the UI at runtime instead of hardcoding it
+        void AssignImages()
+        {
+            // header logo
+            VisualElement element = rootVisualElement.Q<VisualElement>("header-logo-img");
+            element.style.backgroundImage = LogoImage;
+        }
+
+        // END MIRROR CHANGE
 
         /// <summary>Set fields referencing UI Builder's fields. In order of appearance from top-to-bottom.</summary>
         private void setVisualElementsToFields()

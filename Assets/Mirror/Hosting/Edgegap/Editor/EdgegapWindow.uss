@@ -15,7 +15,9 @@
     width: 400px;
     top: -10px;
     right: -150px;
+    /* MIRROR CHANGE: disable hardcoded image path. this is inserted from the script now.
     background-image: url('project://database/Assets/Edgegap/Editor/Images/logo_transparent_400_alpha25.png?fileID=21300000&guid=b7012da4ebf9008458abc3ef9a741f3c&type=3#logo_transparent_400_alpha25');
+    */
     -unity-background-scale-mode: scale-and-crop;
 }
 
