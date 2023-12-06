@@ -263,7 +263,7 @@ namespace Mirror
             // be enabled with editorAutoStart.
             if (Utils.IsHeadless())
             {
-                if (!Utils.IsEditor || editorAutoStart)
+                if (!Application.isEditor || editorAutoStart)
                     switch (headlessStartMode)
                     {
                         case HeadlessStartOptions.AutoStartServer:

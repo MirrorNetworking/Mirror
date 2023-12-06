@@ -50,14 +50,6 @@ namespace Mirror
             SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null;
 #endif
 
-        // detect Editor mode
-        public const bool IsEditor =
-#if UNITY_EDITOR
-            true;
-#else
-            false;
-#endif
-
         // detect WebGL mode
         public const bool IsWebGL =
 #if UNITY_WEBGL
