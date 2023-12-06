@@ -135,6 +135,12 @@ namespace Edgegap.Editor
 
         public async void CreateGUI()
         {
+            // the UI requires 'GroupBox', which is not available in Unity 2019/2020.
+            // showing it will break all of Unity's Editor UIs, not just this one.
+            // instead, show a warning that the Edgegap plugin only works on Unity 2021+
+#if !UNITY_2021_3_OR_NEWER
+            Debug.LogWarning("The Edgegap Hosting plugin requires UIToolkit in Unity 2021.3 or newer. Please upgrade your Unity version to use this.");
+#else
             // Get UI elements from UI Builder
             rootVisualElement.Clear();
             _visualTree.CloneTree(rootVisualElement);
@@ -145,6 +151,7 @@ namespace Edgegap.Editor
             await syncFormWithObjectDynamicAsync(); // API calls
 
             IsInitd = true;
+#endif
         }
 
         /// <summary>The user closed the window. Save the data.</summary>
