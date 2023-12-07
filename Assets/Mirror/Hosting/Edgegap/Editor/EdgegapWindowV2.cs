@@ -34,7 +34,9 @@ namespace Edgegap.Editor
         private bool _isContainerRegistryReady;
         private Sprite _appIconSpriteObj;
         private string _appIconBase64Str;
+ #pragma warning disable CS0414 // MIRROR CHANGE: hide unused warning
         private ApiEnvironment _apiEnvironment; // TODO: Swap out hard-coding with UI element?
+ #pragma warning restore CS0414 // END MIRROR CHANGE
         private GetRegistryCredentialsResult _credentials;
         private static readonly Regex _appNameAllowedCharsRegex = new Regex(@"^[a-zA-Z0-9_\-+\.]*$"); // MIRROR CHANGE: 'new()' not supported in Unity 2020
         private GetCreateAppResult _loadedApp;
