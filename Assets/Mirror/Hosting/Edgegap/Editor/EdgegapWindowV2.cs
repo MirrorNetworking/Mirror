@@ -1315,7 +1315,10 @@ namespace Edgegap.Editor
             Debug.Log("(!) Check your deployments here: https://app.edgegap.com/deployment-management/deployments/list");
 
             // Shake "need more servers" btn on 403
-            bool reachedNumDeploymentsHardcap = result is { IsResultCode403: true };
+            // MIRROR CHANGE: use old C# syntax that is supported in Unity 2019
+            // bool reachedNumDeploymentsHardcap = result is { IsResultCode403: true };
+            bool reachedNumDeploymentsHardcap = result != null && result.IsResultCode403;
+            // END MIRROR CHANGE
             if (reachedNumDeploymentsHardcap)
                 shakeNeedMoreGameServersBtn();
         }
