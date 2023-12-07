@@ -127,17 +127,19 @@ namespace Edgegap.Editor
         #region Unity Funcs
         protected void OnEnable()
         {
+#if UNITY_2021_3_OR_NEWER // MIRROR CHANGE: only load stylesheet in supported Unity versions, otherwise it shows errors in U2020
             // Set root VisualElement and style: V2 still uses EdgegapWindow.[uxml|uss]
             // BEGIN MIRROR CHANGE
             _visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>($"{StylesheetPath}/EdgegapWindow.uxml");
             StyleSheet styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>($"{StylesheetPath}/EdgegapWindow.uss");
             // END MIRROR CHANGE
             rootVisualElement.styleSheets.Add(styleSheet);
+#endif
         }
 
         public async void CreateGUI()
         {
-            // the UI requires 'GroupBox', which is not available in Unity 2019/2020.
+            // MIRROR CHANGE: the UI requires 'GroupBox', which is not available in Unity 2019/2020.
             // showing it will break all of Unity's Editor UIs, not just this one.
             // instead, show a warning that the Edgegap plugin only works on Unity 2021+
 #if !UNITY_2021_3_OR_NEWER
@@ -159,9 +161,11 @@ namespace Edgegap.Editor
         /// <summary>The user closed the window. Save the data.</summary>
         protected void OnDisable()
         {
+#if UNITY_2021_3_OR_NEWER // MIRROR CHANGE: only load stylesheet in supported Unity versions, otherwise it shows errors in U2020
             unregisterClickEvents();
             unregisterFieldCallbacks();
             SyncObjectWithForm();
+#endif
         }
         #endregion // Unity Funcs
 
