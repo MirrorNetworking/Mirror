@@ -1112,6 +1112,8 @@ namespace Edgegap.Editor
 
         private void openDocumentationWebsite()
         {
+            // MIRROR CHANGE
+            /*
             string documentationUrl = _apiEnvironment.GetDocumentationUrl();
 
             if (!string.IsNullOrEmpty(documentationUrl))
@@ -1122,6 +1124,11 @@ namespace Edgegap.Editor
                 Debug.LogWarning($"Could not open documentation for api environment " +
                     $"{apiEnvName}: No documentation URL.");
             }
+            */
+
+            // link to our step by step guide
+            Application.OpenURL("https://mirror-networking.gitbook.io/docs/hosting/edgegap-hosting-plugin-guide");
+            // END MIRROR CHANGE
         }
 
         /// <summary>
