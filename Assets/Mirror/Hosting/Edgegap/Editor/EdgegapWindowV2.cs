@@ -137,7 +137,9 @@ namespace Edgegap.Editor
 #endif
         }
 
+#pragma warning disable CS1998 // MIRROR CHANGE: disable async warning in U2020
         public async void CreateGUI()
+#pragma warning restore CS1998 // END MIRROR CHANGE
         {
             // MIRROR CHANGE: the UI requires 'GroupBox', which is not available in Unity 2019/2020.
             // showing it will break all of Unity's Editor UIs, not just this one.
