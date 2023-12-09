@@ -33,33 +33,34 @@ Mirror is **[stable](https://mirror-networking.gitbook.io/docs/general/tests)**,
 Mirror comes with a wide variety of features to support all game genres.<br>
 Many of our features quickly became the norm across all Unity netcodes!<br>
 
-| Feature                       | Description                                                 | Status          |
-|-------------------------------|-------------------------------------------------------------|-----------------|
-| 🎛 **Transports**             | UDP, TCP, Websockets, Steam, Relay and more.                | **Stable**      | 
-| 🪜 **Interest Management**    | Spatial Hashing & Distance Checker to partition the world.  | **Stable**      |
-| ↗️ **SyncDirection**          | Server & Client Authority - per component with one click.   | **Stable**      |
-| 🐌 **Latency Simulation**     | Simulate latency, packet loss & jitter locally.             | **Stable**      |
-| 🧲 **Batching**               | Minimize message overhead via batching automatically.       | **Stable**      |
-| 💌 **RPCs & SyncVars**        | Synced vars and remote function calls built in & safe.      | **Stable**      |
-| 🙅‍♀️**Allocation Free**      | Free of runtime allocations and no GC (except Transports).  | **Stable**      |
-| 🛞  **Transform & Physics**   | Transform & Physics sync built in.                          | **Stable**      |
-| 👩‍🍼 **Child Components**    | Put networked components on anything.                       | **Stable**      |
-| 🪚️ **IL Post Processing**    | Zero overhead [Rpcs] and [Commands] via IL post processing! | **Stable**      |
-|                               |                                                             |                 |
-| 📏 **Snapshot Interp.**       | Perfectly smooth movement for all platforms and all games.  | **Stable**      |
-| 🔫 **Lag Compensation**       | Roll back state to see what the player saw during input.    | **Preview**     |
-| 🏎 **Prediction**             | Inputs are applied immediately & corrected automatically.   | **Preview**     |
-|                               |                                                             |                 |
-| 🧙‍♂️ **General Purpose**     | Mirror supports all genres for all your games!              |                 |
-| 🧘‍♀️ **Stable API**          | Long term (10 years)  stability instead of new versions!    |
-| 🔬 **Battle Tested**          | Mirror servers over 100 million players. It just works!     |                 |
-| 💴 **Free & Open Source**     | MIT licensed without any restrictions to minimize risk!     |                 |
-| ❤️ **Community**              | Join our Discord with nearly 15.000 developers world wide!  |                 |
-| 🧜🏻‍♀️ **Long Term Support** | Maintained since 2014 with optional LTS version!            |                 |
-|                               |                                                             |                 |
-| 🦖 **Deterministic Physics**  | Open source deterministic physics for C# & Unity!           | **Researching** |
-| 📐 **Bitpacking**             | Optimized compression (bools as 1 bit etc.)                 | **Researching** |
-| 🔒 **Encryption**             | Secure communication with end-to-end encryption.            | **Researching** |
+| Feature                       | Description                                                                                                                                                   | Status          |
+|-------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------|
+| 🎛 **Transports**             | UDP, TCP, Websockets, Steam, Relay and more.                                                                                                                  | **Stable**      | 
+| 🪜 **Interest Management**    | Spatial Hashing & Distance Checker to partition the world.                                                                                                    | **Stable**      |
+| ↗️ **SyncDirection**          | Server & Client Authority - per component with one click.                                                                                                     | **Stable**      |
+| 🐌 **Latency Simulation**     | Simulate latency, packet loss & jitter locally.                                                                                                               | **Stable**      |
+| 🧲 **Batching**               | Minimize message overhead via batching automatically.                                                                                                         | **Stable**      |
+| 💌 **RPCs & SyncVars**        | Synced vars and remote function calls built in & safe.                                                                                                        | **Stable**      |
+| 🙅‍♀️**Allocation Free**      | Free of runtime allocations and no GC (except Transports).                                                                                                    | **Stable**      |
+| 🛞  **Transform & Physics**   | Transform & Physics sync built in.                                                                                                                            | **Stable**      |
+| 👩‍🍼 **Child Components**    | Put networked components on anything.                                                                                                                         | **Stable**      |
+| 🪚️ **IL Post Processing**    | Zero overhead [Rpcs] and [Commands] via IL post processing!                                                                                                   | **Stable**      |
+| ☁️ **Two Click Hosting**      | (Optional) <a href="https://mirror-networking.gitbook.io/docs/hosting/edgegap-hosting-plugin-guide">Build & Push</a> directly from Unity Editor to the Cloud. | **Preview**     |
+|                               |                                                                                                                                                               |                 |
+| 📏 **Snapshot Interp.**       | Perfectly smooth movement for all platforms and all games.                                                                                                    | **Stable**      |
+| 🔫 **Lag Compensation**       | Roll back state to see what the player saw during input.                                                                                                      | **Preview**     |
+| 🏎 **Prediction**             | Inputs are applied immediately & corrected automatically.                                                                                                     | **Preview**     |
+|                               |                                                                                                                                                               |                 |
+| 🧙‍♂️ **General Purpose**     | Mirror supports all genres for all your games!                                                                                                                |                 |
+| 🧘‍♀️ **Stable API**          | Long term (10 years)  stability instead of new versions!                                                                                                      |
+| 🔬 **Battle Tested**          | Mirror servers over 100 million players. It just works!                                                                                                       |                 |
+| 💴 **Free & Open Source**     | MIT licensed without any restrictions to minimize risk!                                                                                                       |                 |
+| ❤️ **Community**              | Join our Discord with nearly 15.000 developers world wide!                                                                                                    |                 |
+| 🧜🏻‍♀️ **Long Term Support** | Maintained since 2014 with optional LTS version!                                                                                                              |                 |
+|                               |                                                                                                                                                               |                 |
+| 🦖 **Deterministic Physics**  | Open source deterministic physics for C# & Unity!                                                                                                             | **Researching** |
+| 📐 **Bitpacking**             | Optimized compression (bools as 1 bit etc.)                                                                                                                   | **Researching** |
+| 🔒 **Encryption**             | Secure communication with end-to-end encryption.                                                                                                              | **Researching** |
 
 ---
 ## Architecture

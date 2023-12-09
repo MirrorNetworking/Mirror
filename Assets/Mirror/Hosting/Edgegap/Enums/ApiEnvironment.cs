@@ -55,10 +55,10 @@ namespace Edgegap
             switch (apiEnvironment)
             {
                 case ApiEnvironment.Staging:
-                    apiUrl = "https://staging-docs.edgegap.com";
+                    apiUrl = "https://staging-docs.edgegap.com/docs";
                     break;
                 case ApiEnvironment.Console:
-                    apiUrl = "https://docs.edgegap.com";
+                    apiUrl = "https://docs.edgegap.com/docs";
                     break;
                 default:
                     apiUrl = null;

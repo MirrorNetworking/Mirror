@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 namespace IO.Swagger.Model {
 
   /// <summary>
-  /// 
+  ///
   /// </summary>
   [DataContract]
   public class ApiModelContainercrashdata {
