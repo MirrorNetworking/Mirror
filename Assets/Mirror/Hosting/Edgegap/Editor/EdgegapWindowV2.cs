@@ -164,6 +164,10 @@ namespace Edgegap.Editor
         protected void OnDisable()
         {
 #if UNITY_2021_3_OR_NEWER // MIRROR CHANGE: only load stylesheet in supported Unity versions, otherwise it shows errors in U2020
+            // MIRROR CHANGE: sometimes this is called without having been registered, throwing NRE
+            if (_debugBtn == null) return;
+            // END MIRROR CHANGE
+
             unregisterClickEvents();
             unregisterFieldCallbacks();
             SyncObjectWithForm();
