@@ -1,0 +1,14 @@
+# Created by Kenney (www.kenney.nl)
+
+newmtl metal
+Kd 1 1 1
+map_Kd Textures/metal.png
+
+newmtl windows
+Kd 1 1 1
+map_Kd Textures/windows.png
+
+newmtl wall_metal
+Kd 1 1 1
+map_Kd Textures/wall_metal.png
+

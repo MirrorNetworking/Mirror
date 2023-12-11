@@ -1,0 +1,14 @@
+# Created by Kenney (www.kenney.nl)
+
+newmtl wall_metal
+Kd 1 1 1
+map_Kd Textures/wall_metal.png
+
+newmtl wall
+Kd 1 1 1
+map_Kd Textures/wall.png
+
+newmtl roof
+Kd 1 1 1
+map_Kd Textures/roof.png
+

@@ -1,0 +1,10 @@
+# Created by Kenney (www.kenney.nl)
+
+newmtl concrete
+Kd 1 1 1
+map_Kd Textures/concrete.png
+
+newmtl roof_plates
+Kd 1 1 1
+map_Kd Textures/roof_plates.png
+

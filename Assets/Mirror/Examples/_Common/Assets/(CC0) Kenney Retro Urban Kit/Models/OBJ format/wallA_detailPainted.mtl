@@ -1,0 +1,13 @@
+# Created by Kenney (www.kenney.nl)
+
+newmtl _defaultMat
+Kd 1 1 1
+
+newmtl concrete
+Kd 1 1 1
+map_Kd Textures/concrete.png
+
+newmtl wall
+Kd 1 1 1
+map_Kd Textures/wall.png
+

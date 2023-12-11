@@ -1,0 +1,10 @@
+# Created by Kenney (www.kenney.nl)
+
+newmtl metal
+Kd 1 1 1
+map_Kd Textures/metal.png
+
+newmtl signs
+Kd 1 1 1
+map_Kd Textures/signs.png
+

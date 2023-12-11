@@ -1,0 +1,51 @@
+# Created by Kenney (www.kenney.nl)
+
+mtllib wallB_roofSlant.mtl
+
+g wallB_roofSlant
+
+v 0.5 0.5 -0.5
+v 0.5 0 -0.5
+v 0.5 0.5 0.5
+v 0.5 0 0.5
+v -0.5 0 -0.5
+v -0.5 0 0.5
+
+vn 1 0 0
+vn 0 0 -1
+vn 0 0 1
+vn -0.4472136 0.8944272 0
+vn 0 -1 0
+
+vt 11 1.5
+vt 11 1
+vt 10 1.5
+vt 10 1
+vt 12 1
+vt 9 1
+vt -1 -7
+vt 1.332268E-15 -7
+vt -1 -8
+vt 1.332268E-15 -8
+vt -15 -10
+vt -15 -11
+vt -16 -10
+vt -16 -11
+
+usemtl wall_metal
+
+f 3/3/1 2/2/1 1/1/1
+f 2/2/1 3/3/1 4/4/1
+f 1/1/2 2/2/2 5/5/2
+f 3/3/3 6/6/3 4/4/3
+
+usemtl roof_plates
+
+f 5/9/4 3/8/4 1/7/4
+f 3/8/4 5/9/4 6/10/4
+
+usemtl concrete
+
+f 6/13/5 2/12/5 4/11/5
+f 2/12/5 6/13/5 5/14/5
+
