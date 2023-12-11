@@ -1,6 +1,0 @@
-# Created by Kenney (www.kenney.nl)
-
-newmtl dirt
-Kd 1 1 1
-map_Kd Textures/dirt.png
-
