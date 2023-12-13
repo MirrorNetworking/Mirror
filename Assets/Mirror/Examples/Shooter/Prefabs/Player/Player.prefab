@@ -374,10 +374,10 @@ MonoBehaviour:
   state: 0
   moveDir: {x: 0, y: 0, z: 0}
   rotationSpeed: 150
-  walkSpeed: 5
+  walkSpeed: 7
   walkAcceleration: 15
   walkDeceleration: 20
-  runSpeed: 8
+  runSpeed: 15
   runStepLength: 0.7
   runStepInterval: 3
   runCycleLegOffset: 0.2
