@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 9218028109690592579}
   - component: {fileID: 6343870862122068361}
   - component: {fileID: 5748951928199329039}
+  - component: {fileID: 4550810294507347349}
   m_Layer: 0
   m_Name: detailBarrier_typeB
   m_TagString: Untagged
@@ -99,3 +100,19 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 2893083459245283827, guid: 20d7549b24b314254a8583a2f236dcda, type: 3}
+--- !u!54 &4550810294507347349
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4830401421768853596}
+  serializedVersion: 2
+  m_Mass: 50
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 1
