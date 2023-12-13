@@ -19731,12 +19731,12 @@ MonoBehaviour:
   runInBackground: 1
   headlessStartMode: 1
   editorAutoStart: 0
-  sendRate: 60
+  sendRate: 120
   autoStartServerBuild: 0
   autoConnectClientBuild: 0
   offlineScene: 
   onlineScene: 
-  transport: {fileID: 0}
+  transport: {fileID: 1006358717}
   networkAddress: localhost
   maxConnections: 100
   disconnectInactiveConnections: 0
@@ -19744,7 +19744,7 @@ MonoBehaviour:
   authenticator: {fileID: 0}
   playerPrefab: {fileID: 0}
   autoCreatePlayer: 1
-  playerSpawnMethod: 0
+  playerSpawnMethod: 1
   spawnPrefabs: []
   exceptionsDisconnect: 1
   snapshotSettings:
@@ -19760,7 +19760,7 @@ MonoBehaviour:
     deliveryTimeEmaDuration: 2
   evaluationMethod: 0
   evaluationInterval: 3
-  timeInterpolationGui: 0
+  timeInterpolationGui: 1
 --- !u!4 &1006358719
 Transform:
   m_ObjectHideFlags: 0
