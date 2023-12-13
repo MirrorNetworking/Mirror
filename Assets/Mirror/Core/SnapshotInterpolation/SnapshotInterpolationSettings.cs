@@ -16,6 +16,9 @@ namespace Mirror
         [Tooltip("Local simulation is behind by sendInterval * multiplier seconds.\n\nThis guarantees that we always have enough snapshots in the buffer to mitigate lags & jitter.\n\nIncrease this if the simulation isn't smooth. By default, it should be around 2.")]
         public double bufferTimeMultiplier = 2;
 
+        [Tooltip("If a client can't process snapshots fast enough, don't store too many.")]
+        public int bufferLimit = 32;
+
         // catchup /////////////////////////////////////////////////////////////
         // catchup thresholds in 'frames'.
         // half a frame might be too aggressive.
@@ -63,6 +66,5 @@ namespace Mirror
 
         [Tooltip("Dynamic adjustment is computed over n-second exponential moving average standard deviation.")]
         public int deliveryTimeEmaDuration = 2;   // 1-2s recommended to capture average delivery time
-
     }
 }

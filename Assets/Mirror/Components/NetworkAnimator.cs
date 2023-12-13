@@ -13,8 +13,8 @@ namespace Mirror
     /// <para>If the object has authority on the server, then it should be animated on the server and state information will be sent to all clients. This is common for objects not related to a specific client, such as an enemy unit.</para>
     /// <para>The NetworkAnimator synchronizes all animation parameters of the selected Animator. It does not automatically synchronize triggers. The function SetTrigger can by used by an object with authority to fire an animation trigger on other clients.</para>
     /// </remarks>
+    // [RequireComponent(typeof(NetworkIdentity))] disabled to allow child NetworkBehaviours
     [AddComponentMenu("Network/Network Animator")]
-    [RequireComponent(typeof(NetworkIdentity))]
     [HelpURL("https://mirror-networking.gitbook.io/docs/components/network-animator")]
     public class NetworkAnimator : NetworkBehaviour
     {

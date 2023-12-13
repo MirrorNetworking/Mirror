@@ -58,4 +58,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 884ed76587eb5854abe6b428b791fdcd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  subScene: Assets/Mirror/Examples/AdditiveScenes/Scenes/SubScene.unity
+  subScene: Assets/Mirror/Examples/AdditiveScenes/Scenes/MirrorAdditiveScenesSubScene.unity

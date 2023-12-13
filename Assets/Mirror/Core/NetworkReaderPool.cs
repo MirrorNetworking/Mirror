@@ -18,7 +18,6 @@ namespace Mirror
         );
 
         /// <summary>Get the next reader in the pool. If pool is empty, creates a new Reader</summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static NetworkReaderPooled Get(byte[] bytes)
         {
             // grab from pool & set buffer
@@ -28,7 +27,6 @@ namespace Mirror
         }
 
         /// <summary>Get the next reader in the pool. If pool is empty, creates a new Reader</summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static NetworkReaderPooled Get(ArraySegment<byte> segment)
         {
             // grab from pool & set buffer

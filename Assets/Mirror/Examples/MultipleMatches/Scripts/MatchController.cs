@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -34,7 +33,12 @@ namespace Mirror.Examples.MultipleMatch
 
         void Awake()
         {
-            canvasController = FindObjectOfType<CanvasController>();
+#if UNITY_2021_3_OR_NEWER
+            canvasController = GameObject.FindAnyObjectByType<CanvasController>();
+#else
+            // Deprecated in Unity 2023.1
+            canvasController = GameObject.FindObjectOfType<CanvasController>();
+#endif
         }
 
         public override void OnStartServer()

@@ -123,7 +123,16 @@ namespace Mirror.Weaver
                 ParameterDefinition param = md.Parameters[index];
                 if (param.IsOut)
                 {
-                    TypeReference elementType = param.ParameterType.GetElementType();
+                    // this causes IL2CPP build issues with generic out parameters:
+                    // https://github.com/MirrorNetworking/Mirror/issues/3482
+                    // TypeReference elementType = param.ParameterType.GetElementType();
+                    //
+                    // instead we need to use ElementType not GetElementType()
+                    //   GetElementType() will get the element type of the inner elementType
+                    //   which will return wrong type for arrays and generic
+                    // credit: JamesFrowen
+                    ByReferenceType byRefType = (ByReferenceType)param.ParameterType;
+                    TypeReference elementType = byRefType.ElementType;
 
                     md.Body.Variables.Add(new VariableDefinition(elementType));
                     md.Body.InitLocals = true;

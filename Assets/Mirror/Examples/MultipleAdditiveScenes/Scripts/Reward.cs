@@ -2,16 +2,18 @@ using UnityEngine;
 
 namespace Mirror.Examples.MultipleAdditiveScenes
 {
-    [RequireComponent(typeof(RandomColor))]
+    [RequireComponent(typeof(Common.RandomColor))]
     public class Reward : NetworkBehaviour
     {
         public bool available = true;
-        public RandomColor randomColor;
+        public Common.RandomColor randomColor;
 
-        void OnValidate()
+        protected override void OnValidate()
         {
+            base.OnValidate();
+
             if (randomColor == null)
-                randomColor = GetComponent<RandomColor>();
+                randomColor = GetComponent<Common.RandomColor>();
         }
 
         [ServerCallback]
@@ -21,10 +23,8 @@ namespace Mirror.Examples.MultipleAdditiveScenes
                 ClaimPrize(other.gameObject);
         }
 
-        // This is called from PlayerController.CmdClaimPrize which is invoked by PlayerController.OnControllerColliderHit
-        // This only runs on the server
         [ServerCallback]
-        public void ClaimPrize(GameObject player)
+        void ClaimPrize(GameObject player)
         {
             if (available)
             {

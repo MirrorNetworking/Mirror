@@ -53,6 +53,9 @@ namespace Mirror.Weaver
 
         public MethodReference readNetworkBehaviourGeneric;
 
+        public TypeReference weaverFuseType;
+        public MethodReference weaverFuseMethod;
+
         // attributes
         public TypeDefinition initializeOnLoadMethodAttribute;
         public TypeDefinition runtimeInitializeOnLoadMethodAttribute;
@@ -74,6 +77,9 @@ namespace Mirror.Weaver
 
             TypeReference ActionType = Import(typeof(Action<,>));
             ActionT_T = Resolvers.ResolveMethod(ActionType, assembly, Log, ".ctor", ref WeavingFailed);
+
+            weaverFuseType = Import(typeof(WeaverFuse));
+            weaverFuseMethod = Resolvers.ResolveMethod(weaverFuseType, assembly, Log, "Weaved", ref WeavingFailed);
 
             TypeReference NetworkServerType = Import(typeof(NetworkServer));
             NetworkServerGetActive = Resolvers.ResolveMethod(NetworkServerType, assembly, Log, "get_active", ref WeavingFailed);

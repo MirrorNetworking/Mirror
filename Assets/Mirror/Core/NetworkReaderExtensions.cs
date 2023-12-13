@@ -78,6 +78,22 @@ namespace Mirror
             return reader.encoding.GetString(data.Array, data.Offset, data.Count);
         }
 
+        public static byte[] ReadBytes(this NetworkReader reader, int count)
+        {
+            // prevent allocation attacks with a reasonable limit.
+            //   server shouldn't allocate too much on client devices.
+            //   client shouldn't allocate too much on server in ClientToServer [SyncVar]s.
+            if (count > NetworkReader.AllocationLimit)
+            {
+                // throw EndOfStream for consistency with ReadBlittable when out of data
+                throw new EndOfStreamException($"NetworkReader attempted to allocate {count} bytes, which is larger than the allowed limit of {NetworkReader.AllocationLimit} bytes.");
+            }
+
+            byte[] bytes = new byte[count];
+            reader.ReadBytes(bytes, count);
+            return bytes;
+        }
+
         /// <exception cref="T:OverflowException">if count is invalid</exception>
         public static byte[] ReadBytesAndSize(this NetworkReader reader)
         {
@@ -87,16 +103,9 @@ namespace Mirror
             // Use checked() to force it to throw OverflowException if data is invalid
             return count == 0 ? null : reader.ReadBytes(checked((int)(count - 1u)));
         }
-
-        public static byte[] ReadBytes(this NetworkReader reader, int count)
-        {
-            byte[] bytes = new byte[count];
-            reader.ReadBytes(bytes, count);
-            return bytes;
-        }
-
+        // Reads ArraySegment and size header
         /// <exception cref="T:OverflowException">if count is invalid</exception>
-        public static ArraySegment<byte> ReadBytesAndSizeSegment(this NetworkReader reader)
+        public static ArraySegment<byte> ReadArraySegmentAndSize(this NetworkReader reader)
         {
             // count = 0 means the array was null
             // otherwise count - 1 is the length of the array
@@ -140,6 +149,18 @@ namespace Mirror
         // Ray is a struct with properties instead of fields
         public static Ray ReadRay(this NetworkReader reader) => new Ray(reader.ReadVector3(), reader.ReadVector3());
         public static Ray? ReadRayNullable(this NetworkReader reader) => reader.ReadBool() ? ReadRay(reader) : default(Ray?);
+
+        // LayerMask is a struct with properties instead of fields
+        public static LayerMask ReadLayerMask(this NetworkReader reader)
+        {
+            // LayerMask doesn't have a constructor that takes an initial value.
+            // 32 layers as a flags enum, max value of 496, we only need a UShort.
+            LayerMask layerMask = default;
+            layerMask.value = reader.ReadUShort();
+            return layerMask;
+        }
+
+        public static LayerMask? ReadLayerMaskNullable(this NetworkReader reader) => reader.ReadBool() ? ReadLayerMask(reader) : default(LayerMask?);
 
         public static Matrix4x4 ReadMatrix4x4(this NetworkReader reader) => reader.ReadBlittable<Matrix4x4>();
         public static Matrix4x4? ReadMatrix4x4Nullable(this NetworkReader reader) => reader.ReadBlittableNullable<Matrix4x4>();
@@ -244,8 +265,19 @@ namespace Mirror
         public static List<T> ReadList<T>(this NetworkReader reader)
         {
             int length = reader.ReadInt();
-            if (length < 0)
-                return null;
+
+            // 'null' is encoded as '-1'
+            if (length < 0) return null;
+
+            // prevent allocation attacks with a reasonable limit.
+            //   server shouldn't allocate too much on client devices.
+            //   client shouldn't allocate too much on server in ClientToServer [SyncVar]s.
+            if (length > NetworkReader.AllocationLimit)
+            {
+                // throw EndOfStream for consistency with ReadBlittable when out of data
+                throw new EndOfStreamException($"NetworkReader attempted to allocate a List<{typeof(T)}> {length} elements, which is larger than the allowed limit of {NetworkReader.AllocationLimit}.");
+            }
+
             List<T> result = new List<T>(length);
             for (int i = 0; i < length; i++)
             {
@@ -278,19 +310,21 @@ namespace Mirror
         {
             int length = reader.ReadInt();
 
-            //  we write -1 for null
-            if (length < 0)
-                return null;
+            // 'null' is encoded as '-1'
+            if (length < 0) return null;
 
-            // todo throw an exception for other negative values (we never write them, likely to be attacker)
-
-            // this assumes that a reader for T reads at least 1 bytes
-            // we can't know the exact size of T because it could have a user created reader
-            // NOTE: don't add to length as it could overflow if value is int.max
-            if (length > reader.Remaining)
+            // prevent allocation attacks with a reasonable limit.
+            //   server shouldn't allocate too much on client devices.
+            //   client shouldn't allocate too much on server in ClientToServer [SyncVar]s.
+            if (length > NetworkReader.AllocationLimit)
             {
-                throw new EndOfStreamException($"Received array that is too large: {length}");
+                // throw EndOfStream for consistency with ReadBlittable when out of data
+                throw new EndOfStreamException($"NetworkReader attempted to allocate an Array<{typeof(T)}> with {length} elements, which is larger than the allowed limit of {NetworkReader.AllocationLimit}.");
             }
+
+            // we can't check if reader.Remaining < length,
+            // because we don't know sizeof(T) since it's a managed type.
+            // if (length > reader.Remaining) throw new EndOfStreamException($"Received array that is too large: {length}");
 
             T[] result = new T[length];
             for (int i = 0; i < length; i++)
@@ -308,9 +342,6 @@ namespace Mirror
 
         public static Texture2D ReadTexture2D(this NetworkReader reader)
         {
-            // TODO allocation protection when sending textures to server.
-            //      currently can allocate 32k x 32k x 4 byte = 3.8 GB
-
             // support 'null' textures for [SyncVar]s etc.
             // https://github.com/vis2k/Mirror/issues/3144
             short width = reader.ReadShort();
@@ -318,6 +349,19 @@ namespace Mirror
 
             // read height
             short height = reader.ReadShort();
+
+            // prevent allocation attacks with a reasonable limit.
+            //   server shouldn't allocate too much on client devices.
+            //   client shouldn't allocate too much on server in ClientToServer [SyncVar]s.
+            // log an error and return default.
+            // we don't want attackers to be able to trigger exceptions.
+            int totalSize = width * height;
+            if (totalSize > NetworkReader.AllocationLimit)
+            {
+                Debug.LogWarning($"NetworkReader attempted to allocate a Texture2D with total size (width * height) of {totalSize}, which is larger than the allowed limit of {NetworkReader.AllocationLimit}.");
+                return null;
+            }
+
             Texture2D texture2D = new Texture2D(width, height);
 
             // read pixel content

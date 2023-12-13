@@ -8,7 +8,7 @@ namespace Mirror.Tests
     /// Used by both runtime and edit time tests
     /// </summary>
     [TestFixture]
-    public abstract class ClientSceneTests_RegisterPrefabBase : ClientSceneTestsBase
+    public abstract class ClientSceneTests_RegisterPrefabBase : NetworkClientTestsBase
     {
         [Test]
         [TestCase(RegisterPrefabOverload.Prefab, false)]
