@@ -4,6 +4,7 @@ namespace Mirror.Examples.Shooter
 {
     public class Player : NetworkBehaviour
     {
+        /*
         [Header("Camera")]
         public Transform cameraMount;
         Vector3 initialCameraPosition;
@@ -35,6 +36,6 @@ namespace Mirror.Examples.Shooter
             cam.transform.SetParent(null, true);
             cam.transform.position = initialCameraPosition;
             cam.transform.rotation = initialCameraRotation;
-        }
+        }*/
     }
 }
