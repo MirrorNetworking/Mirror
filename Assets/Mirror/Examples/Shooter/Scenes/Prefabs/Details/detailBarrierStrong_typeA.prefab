@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 2695205624778686294}
   - component: {fileID: 181195623129779100}
   - component: {fileID: 1531832815331776282}
+  - component: {fileID: 2679768077048849372}
   m_Layer: 0
   m_Name: detailBarrierStrong_typeA
   m_TagString: Untagged
@@ -97,3 +98,19 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 0.664, y: 0.332, z: 0.24899998}
   m_Center: {x: 0, y: 0.166, z: 0}
+--- !u!54 &2679768077048849372
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1838383466223118921}
+  serializedVersion: 2
+  m_Mass: 500
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 1
