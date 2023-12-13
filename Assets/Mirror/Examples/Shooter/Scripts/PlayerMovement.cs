@@ -47,7 +47,7 @@ namespace Mirror.Examples.Shooter
         [Range(0f, 1f)] public float runStepLength = 0.7f;
         public float runStepInterval = 3;
         public float runCycleLegOffset = 0.2f; //specific to the character in sample assets, will need to be modified to work with others
-        public KeyCode runKey = KeyCode.LeftShift;
+        public KeyCode walkKey = KeyCode.LeftShift;
         float stepCycle;
         float nextStep;
 
@@ -181,8 +181,8 @@ namespace Mirror.Examples.Shooter
         // helper function to get move or walk speed depending on key press & endurance
         float GetWalkOrRunSpeed()
         {
-            bool runRequested = Input.GetKey(runKey);
-            return runRequested ? runSpeed : walkSpeed;
+            bool walkRequested = Input.GetKey(walkKey);
+            return walkRequested ? walkSpeed : runSpeed;
         }
 
         void ApplyFallDamage()
