@@ -8,7 +8,7 @@ namespace Mirror.Examples.Shooter
     // MoveState as byte for minimal bandwidth (otherwise it's int by default)
     // note: distinction between WALKING and RUNNING in case we need to know the
     //       difference somewhere (e.g. for endurance recovery)
-    public enum MoveState : byte {IDLE, WALKING, RUNNING, CROUCHING, CRAWLING, AIRBORNE, CLIMBING, SWIMMING}
+    public enum MoveState : byte {IDLE, WALKING, RUNNING, CROUCHING, AIRBORNE, CLIMBING}
 
     [RequireComponent(typeof(CharacterController2k))]
     [RequireComponent(typeof(AudioSource))]
@@ -58,24 +58,6 @@ namespace Mirror.Examples.Shooter
         public KeyCode crouchKey = KeyCode.C;
         bool crouchKeyPressed;
 
-        [Header("Crawling")]
-        public float crawlSpeed = 1;
-        public float crawlAcceleration = 5; // set to maxint for instant speed
-        public float crawlDeceleration = 10; // feels best if higher than acceleration
-        public KeyCode crawlKey = KeyCode.V;
-        bool crawlKeyPressed;
-
-        [Header("Swimming")]
-        public float swimSpeed = 4;
-        public float swimAcceleration = 15; // set to maxint for instant speed
-        public float swimDeceleration = 20; // feels best if higher than acceleration
-        public float swimSurfaceOffset = 0.25f;
-        Collider waterCollider;
-        bool inWater => waterCollider != null; // standing in water / touching it?
-        bool underWater; // deep enough in water so we need to swim?
-        [Range(0, 1)] public float underwaterThreshold = 0.9f; // percent of body that need to be underwater to start swimming
-        public LayerMask canStandInWaterCheckLayers = Physics.DefaultRaycastLayers; // set this to everything except water layer
-
         [Header("Jumping")]
         public float jumpSpeed = 7;
         [HideInInspector] public float jumpLeg;
@@ -93,11 +75,6 @@ namespace Mirror.Examples.Shooter
         [Header("Climbing")]
         public float climbSpeed = 3;
         Collider ladderCollider;
-
-        [Header("Mounted")]
-        public float mountedRotationSpeed = 100;
-        public float mountedAcceleration = 15; // set to maxint for instant speed
-        public float mountedDeceleration = 20; // feels best if higher than acceleration
 
         [Header("Physics")]
         public float gravityMultiplier = 2;
@@ -159,11 +136,6 @@ namespace Mirror.Examples.Shooter
             return crouchKeyPressed;
         }
 
-        bool EventCrawlToggle()
-        {
-            return crawlKeyPressed;
-        }
-
         bool EventFalling()
         {
             // use minimum fall magnitude so walking down steps isn't detected as
@@ -175,27 +147,6 @@ namespace Mirror.Examples.Shooter
         bool EventLanded()
         {
             return controller.isGrounded;
-        }
-
-        bool EventUnderWater()
-        {
-            // we can't really make it player position dependent, because he might
-            // swim to the surface at which point it might be detected as standing
-            // in water but not being under water, etc.
-            if (inWater) // in water and valid water collider?
-            {
-                // raycasting from water to the bottom at the position of the player
-                // seems like a very precise solution
-                Vector3 origin = new Vector3(transform.position.x,
-                                             waterCollider.bounds.max.y,
-                                             transform.position.z);
-                float distance = controllerCollider.height * underwaterThreshold;
-                Debug.DrawLine(origin, origin + Vector3.down * distance, Color.cyan);
-
-                // we are underwater if the raycast doesn't hit anything
-                return !Utils.RaycastWithout(origin, Vector3.down, out RaycastHit hit, distance, gameObject, canStandInWaterCheckLayers);
-            }
-            return false;
         }
 
         bool EventLadderEnter()
@@ -310,22 +261,10 @@ namespace Mirror.Examples.Shooter
                 if (controller.TrySetHeight(controller.defaultHeight * 0.5f, true, true, false))
                     return MoveState.CROUCHING;
             }
-            else if (EventCrawlToggle())
-            {
-                // rescale capsule
-                if (controller.TrySetHeight(controller.defaultHeight * 0.25f, true, true, false))
-                    return MoveState.CRAWLING;
-            }
             else if (EventLadderEnter())
             {
                 EnterLadder();
                 return MoveState.CLIMBING;
-            }
-            else if (EventUnderWater())
-            {
-                // rescale capsule
-                if (controller.TrySetHeight(controller.defaultHeight * 0.25f, true, true, false))
-                    return MoveState.SWIMMING;
             }
             else if (inputDir != Vector2.zero)
             {
@@ -374,27 +313,10 @@ namespace Mirror.Examples.Shooter
                     return MoveState.CROUCHING;
                 }
             }
-            else if (EventCrawlToggle())
-            {
-                // rescale capsule
-                if (controller.TrySetHeight(controller.defaultHeight * 0.25f, true, true, false))
-                {
-                    // limit speed to crawl speed so we don't decelerate from run speed
-                    // to crawl speed (hence crawling too fast for a short time)
-                    horizontalSpeed = Mathf.Min(horizontalSpeed, crawlSpeed);
-                    return MoveState.CRAWLING;
-                }
-            }
             else if (EventLadderEnter())
             {
                 EnterLadder();
                 return MoveState.CLIMBING;
-            }
-            else if (EventUnderWater())
-            {
-                // rescale capsule
-                if (controller.TrySetHeight(controller.defaultHeight * 0.25f, true, true, false))
-                    return MoveState.SWIMMING;
             }
             // go to idle after fully decelerating (y doesn't matter)
             else if (moveDir.x == 0 && moveDir.z == 0)
@@ -445,17 +367,6 @@ namespace Mirror.Examples.Shooter
                     return MoveState.IDLE;
                 }
             }
-            else if (EventCrawlToggle())
-            {
-                // rescale capsule
-                if (controller.TrySetHeight(controller.defaultHeight * 0.25f, true, true, false))
-                {
-                    // limit speed to crawl speed so we don't decelerate from run speed
-                    // to crawl speed (hence crawling too fast for a short time)
-                    horizontalSpeed = Mathf.Min(horizontalSpeed, crawlSpeed);
-                    return MoveState.CRAWLING;
-                }
-            }
             else if (EventLadderEnter())
             {
                 // rescale capsule if possible
@@ -463,91 +374,11 @@ namespace Mirror.Examples.Shooter
                 {
                     EnterLadder();
                     return MoveState.CLIMBING;
-                }
-            }
-            else if (EventUnderWater())
-            {
-                // rescale capsule
-                if (controller.TrySetHeight(controller.defaultHeight * 0.25f, true, true, false))
-                {
-                    return MoveState.SWIMMING;
                 }
             }
 
             ProgressStepCycle(inputDir, crouchSpeed);
             return MoveState.CROUCHING;
-        }
-
-        MoveState UpdateCRAWLING(Vector2 inputDir, Vector3 desiredDir)
-        {
-            // QE key rotation
-            RotateWithKeys();
-
-            // move with acceleration (feels better)
-            horizontalSpeed = AccelerateSpeed(inputDir, horizontalSpeed, crawlSpeed, inputDir != Vector2.zero ? crawlAcceleration : crawlDeceleration);
-            moveDir.x = desiredDir.x * horizontalSpeed;
-            moveDir.y = ApplyGravity(moveDir.y);
-            moveDir.z = desiredDir.z * horizontalSpeed;
-
-            if (EventFalling())
-            {
-                // rescale capsule if possible
-                if (controller.TrySetHeight(controller.defaultHeight * 1f, true, true, false))
-                {
-                    sprintingBeforeAirborne = false;
-                    return MoveState.AIRBORNE;
-                }
-            }
-            else if (EventJumpRequested())
-            {
-                // stop crawling when pressing jump key. this feels better than
-                // jumping from the crawling state.
-
-                // rescale capsule if possible
-                if (controller.TrySetHeight(controller.defaultHeight * 1f, true, true, false))
-                {
-                    return MoveState.IDLE;
-                }
-            }
-            else if (EventCrouchToggle())
-            {
-                // rescale capsule if possible
-                if (controller.TrySetHeight(controller.defaultHeight * 0.5f, true, true, false))
-                {
-                    // limit speed to crouch speed so we don't decelerate from run speed
-                    // to crouch speed (hence crouching too fast for a short time)
-                    horizontalSpeed = Mathf.Min(horizontalSpeed, crouchSpeed);
-                    return MoveState.CROUCHING;
-                }
-            }
-            else if (EventCrawlToggle())
-            {
-                // rescale capsule if possible
-                if (controller.TrySetHeight(controller.defaultHeight * 1f, true, true, false))
-                {
-                    return MoveState.IDLE;
-                }
-            }
-            else if (EventLadderEnter())
-            {
-                // rescale capsule if possible
-                if (controller.TrySetHeight(controller.defaultHeight * 1f, true, true, false))
-                {
-                    EnterLadder();
-                    return MoveState.CLIMBING;
-                }
-            }
-            else if (EventUnderWater())
-            {
-                // rescale capsule
-                if (controller.TrySetHeight(controller.defaultHeight * 0.25f, true, true, false))
-                {
-                    return MoveState.SWIMMING;
-                }
-            }
-
-            ProgressStepCycle(inputDir, crawlSpeed);
-            return MoveState.CRAWLING;
         }
 
         MoveState UpdateAIRBORNE(Vector2 inputDir, Vector3 desiredDir)
@@ -576,14 +407,6 @@ namespace Mirror.Examples.Shooter
             {
                 EnterLadder();
                 return MoveState.CLIMBING;
-            }
-            else if (EventUnderWater())
-            {
-                // rescale capsule
-                if (controller.TrySetHeight(controller.defaultHeight * 0.25f, true, true, false))
-                {
-                    return MoveState.SWIMMING;
-                }
             }
 
             return MoveState.AIRBORNE;
@@ -617,53 +440,10 @@ namespace Mirror.Examples.Shooter
             return MoveState.CLIMBING;
         }
 
-        MoveState UpdateSWIMMING(Vector2 inputDir, Vector3 desiredDir)
-        {
-            // ladder under / above water?
-            if (EventLadderEnter())
-            {
-                // rescale capsule if possible
-                if (controller.TrySetHeight(controller.defaultHeight * 1f, true, true, false))
-                {
-                    EnterLadder();
-                    return MoveState.CLIMBING;
-                }
-            }
-            // not under water anymore?
-            else if (!EventUnderWater())
-            {
-                // rescale capsule if possible
-                if (controller.TrySetHeight(controller.defaultHeight * 1f, true, true, false))
-                {
-                    return MoveState.IDLE;
-                }
-            }
-
-            // QE key rotation
-            RotateWithKeys();
-
-            // move with acceleration (feels better)
-            horizontalSpeed = AccelerateSpeed(inputDir, horizontalSpeed, swimSpeed, inputDir != Vector2.zero ? swimAcceleration : swimDeceleration);
-            moveDir.x = desiredDir.x * horizontalSpeed;
-            moveDir.z = desiredDir.z * horizontalSpeed;
-
-            // gravitate toward surface
-            if (waterCollider != null)
-            {
-                float surface = waterCollider.bounds.max.y;
-                float surfaceDirection = surface - controller.bounds.min.y - swimSurfaceOffset;
-                moveDir.y = surfaceDirection * swimSpeed;
-            }
-            else moveDir.y = 0;
-
-            return MoveState.SWIMMING;
-        }
-
         // use Update to check Input
         void Update()
         {
             if (!jumpKeyPressed) jumpKeyPressed = Input.GetButtonDown("Jump");
-            if (!crawlKeyPressed) crawlKeyPressed = Input.GetKeyDown(crawlKey);
             if (!crouchKeyPressed) crouchKeyPressed = Input.GetKeyDown(crouchKey);
         }
 
@@ -682,10 +462,8 @@ namespace Mirror.Examples.Shooter
             else if (state == MoveState.WALKING)          state = UpdateWALKINGandRUNNING(inputDir, desiredDir);
             else if (state == MoveState.RUNNING)          state = UpdateWALKINGandRUNNING(inputDir, desiredDir);
             else if (state == MoveState.CROUCHING)        state = UpdateCROUCHING(inputDir, desiredDir);
-            else if (state == MoveState.CRAWLING)         state = UpdateCRAWLING(inputDir, desiredDir);
             else if (state == MoveState.AIRBORNE)         state = UpdateAIRBORNE(inputDir, desiredDir);
             else if (state == MoveState.CLIMBING)         state = UpdateCLIMBING(inputDir, desiredDir);
-            else if (state == MoveState.SWIMMING)         state = UpdateSWIMMING(inputDir, desiredDir);
             else Debug.LogError("Unhandled Movement State: " + state);
 
             // cache this move's state to detect landing etc. next time
@@ -703,7 +481,6 @@ namespace Mirror.Examples.Shooter
 
             // reset keys no matter what
             jumpKeyPressed = false;
-            crawlKeyPressed = false;
             crouchKeyPressed = false;
         }
 
@@ -775,23 +552,6 @@ namespace Mirror.Examples.Shooter
             // move picked sound to index 0 so it's not picked next time
             footstepSounds[n] = footstepSounds[0];
             footstepSounds[0] = feetAudio.clip;
-        }
-
-        void OnTriggerEnter(Collider co)
-        {
-            // touching ladder? then set ladder collider
-            if (co.CompareTag("Ladder"))
-                ladderCollider = co;
-            // touching water? then set water collider
-            else if (co.CompareTag("Water"))
-                waterCollider = co;
-        }
-
-        void OnTriggerExit(Collider co)
-        {
-            // not touching water anymore? then clear water collider
-            if (co.CompareTag("Water"))
-                waterCollider = null;
         }
     }
 }

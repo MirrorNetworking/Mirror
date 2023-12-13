@@ -56,22 +56,6 @@ namespace Mirror.Examples.Shooter
         // zooming out puts camera target slightly above head for easier aiming
         public float crouchOriginMultiplier = 0.65f;
 
-        [Header("Offsets - Crawling")]
-        public Vector2 firstPersonOffsetCrawling = Vector2.zero;
-        public Vector2 thirdPersonOffsetCrawling = Vector2.up;
-        public Vector2 thirdPersonOffsetCrawlingMultiplier = Vector2.zero;
-        // scale offset by distance so that 100% zoom in = first person and
-        // zooming out puts camera target slightly above head for easier aiming
-        public float crawlOriginMultiplier = 0.65f;
-
-        [Header("Offsets - Swimming")]
-        public Vector2 firstPersonOffsetSwimming = Vector2.zero;
-        public Vector2 thirdPersonOffsetSwimming = Vector2.up;
-        public Vector2 thirdPersonOffsetSwimmingMultiplier = Vector2.zero;
-        // scale offset by distance so that 100% zoom in = first person and
-        // zooming out puts camera target slightly above head for easier aiming
-        public float swimOriginMultiplier = 0.65f;
-
         // look directions /////////////////////////////////////////////////////////
         // * for first person, all we need is the camera.forward
         //
@@ -240,16 +224,6 @@ namespace Mirror.Examples.Shooter
                     origin = headLocal * crouchOriginMultiplier;
                     offset = firstPersonOffsetCrouching;
                 }
-                else if (movement.state == MoveState.CRAWLING)
-                {
-                    origin = headLocal * crawlOriginMultiplier;
-                    offset = firstPersonOffsetCrawling;
-                }
-                else if (movement.state == MoveState.SWIMMING)
-                {
-                    origin = headLocal;
-                    offset = firstPersonOffsetSwimming;
-                }
                 else
                 {
                     origin = headLocal;
@@ -271,18 +245,6 @@ namespace Mirror.Examples.Shooter
                     origin = originalCameraPosition * crouchOriginMultiplier;
                     offsetBase = thirdPersonOffsetCrouching;
                     offsetMult = thirdPersonOffsetCrouchingMultiplier;
-                }
-                else if (movement.state == MoveState.CRAWLING)
-                {
-                    origin = originalCameraPosition * crawlOriginMultiplier;
-                    offsetBase = thirdPersonOffsetCrawling;
-                    offsetMult = thirdPersonOffsetCrawlingMultiplier;
-                }
-                else if (movement.state == MoveState.SWIMMING)
-                {
-                    origin = originalCameraPosition * swimOriginMultiplier;
-                    offsetBase = thirdPersonOffsetSwimming;
-                    offsetMult = thirdPersonOffsetSwimmingMultiplier;
                 }
                 else
                 {
