@@ -8,25 +8,33 @@ namespace Mirror.Examples.Shooter
         public Transform cameraMount;
         Vector3 initialCameraPosition;
         Quaternion initialCameraRotation;
+        Camera cam;
+
+        protected virtual void Awake()
+        {
+            // find main camera once
+            cam = Camera.main;
+        }
 
         public override void OnStartLocalPlayer()
         {
             // remember initial camera position/rotation
-            initialCameraPosition = Camera.main.transform.position;
-            initialCameraRotation = Camera.main.transform.rotation;
+            initialCameraPosition = cam.transform.position;
+            initialCameraRotation = cam.transform.rotation;
 
             // move main camera into camera mount
-            Camera.main.transform.SetParent(cameraMount, false);
-            Camera.main.transform.localPosition = Vector3.zero;
-            Camera.main.transform.localRotation = Quaternion.identity;
+            cam.transform.SetParent(cameraMount, false);
+            cam.transform.localPosition = Vector3.zero;
+            cam.transform.localRotation = Quaternion.identity;
         }
 
         public override void OnStopLocalPlayer()
         {
-            // move the camera back to the original point
-            Camera.main.transform.SetParent(null, true);
-            Camera.main.transform.position = initialCameraPosition;
-            Camera.main.transform.rotation = initialCameraRotation;
+            // move the camera back to the original point.
+            // otherwise it would be destroyed when stopping the game (and player)
+            cam.transform.SetParent(null, true);
+            cam.transform.position = initialCameraPosition;
+            cam.transform.rotation = initialCameraRotation;
         }
     }
 }
