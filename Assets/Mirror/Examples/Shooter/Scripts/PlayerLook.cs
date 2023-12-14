@@ -19,11 +19,7 @@ namespace Mirror.Examples.Shooter
         // head position is useful for raycasting etc.
         public Transform firstPersonParent;
         public Vector3 headPosition => firstPersonParent.position;
-        public Transform freeLookParent;
-
         Vector3 originalCameraPosition;
-
-        public KeyCode freeLookKey = KeyCode.LeftAlt;
 
         // the layer mask to use when trying to detect view blocking
         // (this way we dont zoom in all the way when standing in another entity)
@@ -165,30 +161,13 @@ namespace Mirror.Examples.Shooter
                 float yExtra = Input.GetAxis("Mouse Y") * YSensitivity;
 
                 // use mouse to rotate character
-                // (but use camera freelook parent while climbing so player isn't rotated
-                //  while climbing)
-                // (no free look in first person)
-                if (movement.state == MoveState.CLIMBING ||
-                    (Input.GetKey(freeLookKey) && distance > 0))
-                {
-                    // set to freelook parent already?
-                    if (camera.transform.parent != freeLookParent)
-                        InitializeFreeLook();
+                // set to player parent already?
+                if (camera.transform.parent != transform)
+                    InitializeForcedLook();
 
-                    // rotate freelooktarget for horizontal, rotate camera for vertical
-                    freeLookParent.Rotate(new Vector3(0, xExtra, 0));
-                    camera.transform.Rotate(new Vector3(-yExtra, 0, 0));
-                }
-                else
-                {
-                    // set to player parent already?
-                    if (camera.transform.parent != transform)
-                        InitializeForcedLook();
-
-                    // rotate character for horizontal, rotate camera for vertical
-                    transform.Rotate(new Vector3(0, xExtra, 0));
-                    camera.transform.Rotate(new Vector3(-yExtra, 0, 0));
-                }
+                // rotate character for horizontal, rotate camera for vertical
+                transform.Rotate(new Vector3(0, xExtra, 0));
+                camera.transform.Rotate(new Vector3(-yExtra, 0, 0));
             }
         }
 
@@ -284,18 +263,6 @@ namespace Mirror.Examples.Shooter
         }
 
         // free look mode //////////////////////////////////////////////////////////
-        public bool IsFreeLooking()
-        {
-            return camera != null && // camera isn't initialized while loading players in charselection
-                   camera.transform.parent == freeLookParent;
-        }
-
-        public void InitializeFreeLook()
-        {
-            camera.transform.SetParent(freeLookParent, false);
-            freeLookParent.localRotation = Quaternion.identity; // initial rotation := where we look at right now
-        }
-
         public void InitializeForcedLook()
         {
             camera.transform.SetParent(transform, false);

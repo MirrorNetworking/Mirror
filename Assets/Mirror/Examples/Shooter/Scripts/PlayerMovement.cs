@@ -216,16 +216,12 @@ namespace Mirror.Examples.Shooter
 
         void EnterLadder()
         {
-            // make player look directly at ladder forward. but we also initialize
-            // freelook manually already to overwrite the initial rotation, so
-            // that in the end, the camera keeps looking at the same angle even
-            // though we did modify transform.forward.
+            // make player look directly at ladder forward.
             // note: even though we set the rotation perfectly here, there's
             //       still one frame where it seems to interpolate between the
             //       new and the old rotation, which causes 1 odd camera frame.
             //       this could be avoided by overwriting transform.forward once
             //       more in LateUpdate.
-            look.InitializeFreeLook();
             transform.forward = ladderCollider.transform.forward;
         }
 
