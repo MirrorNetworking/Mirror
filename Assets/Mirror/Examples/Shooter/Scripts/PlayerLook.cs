@@ -131,7 +131,8 @@ namespace Mirror.Examples.Shooter
         }
 
         ////////////////////////////////////////////////////////////////////////////
-        void Update()
+        // Update camera position after everything else was updated
+        void LateUpdate()
         {
             // escape unlocks cursor
             if (Input.GetKeyDown(KeyCode.Escape))
@@ -160,11 +161,7 @@ namespace Mirror.Examples.Shooter
                 transform.Rotate(new Vector3(0, xExtra, 0));
                 camera.transform.Rotate(new Vector3(-yExtra, 0, 0));
             }
-        }
 
-        // Update camera position after everything else was updated
-        void LateUpdate()
-        {
             // clamp camera rotation automatically. this way we can rotate it to
             // whatever we like in Update, and LateUpdate will correct it.
             camera.transform.localRotation = Utils.ClampRotationAroundXAxis(camera.transform.localRotation, MinimumX, MaximumX);
