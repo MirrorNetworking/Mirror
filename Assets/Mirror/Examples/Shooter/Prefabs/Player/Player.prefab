@@ -377,8 +377,8 @@ MonoBehaviour:
   jumpLeg: 0
   airborneAcceleration: 15
   airborneDeceleration: 20
-  fallMinimumMagnitude: 50
-  fallDamageMinimumMagnitude: 13
+  fallMinimumMagnitude: 9
+  fallDamageMinimumMagnitude: 42
   fallDamageMultiplier: 2
   lastFall: {x: 0, y: 0, z: 0}
   climbSpeed: 3

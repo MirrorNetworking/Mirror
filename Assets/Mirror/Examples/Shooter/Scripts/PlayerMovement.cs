@@ -175,7 +175,7 @@ namespace Mirror.Examples.Shooter
             if(fallMagnitude >= fallDamageMinimumMagnitude)
             {
                 int damage = Mathf.RoundToInt(fallMagnitude * fallDamageMultiplier);
-                Debug.LogWarning("Fall Damage: " + damage);
+                Debug.Log($"Fall with magnitude={fallMagnitude} damage={damage}");
             }
         }
 
