@@ -12,7 +12,7 @@ namespace Mirror.Examples.Shooter
 
     [RequireComponent(typeof(CharacterController2k))]
     [RequireComponent(typeof(AudioSource))]
-    public class PlayerMovement : MonoBehaviour
+    public class PlayerMovement : NetworkBehaviour
     {
         // components to be assigned in inspector
         [Header("Components")]
@@ -28,7 +28,7 @@ namespace Mirror.Examples.Shooter
     #pragma warning restore CS0109 // member does not hide accessible member
 
         [Header("State")]
-        public MoveState state = MoveState.IDLE;
+        [SyncVar] public MoveState state = MoveState.IDLE;
         [HideInInspector] public Vector3 moveDir;
 
         [Header("Walking")]
@@ -336,7 +336,10 @@ namespace Mirror.Examples.Shooter
         // use Update to check Input
         void Update()
         {
-            if (!jumpKeyPressed) jumpKeyPressed = Input.GetButtonDown("Jump");
+            if (isLocalPlayer)
+            {
+                if (!jumpKeyPressed) jumpKeyPressed = Input.GetButtonDown("Jump");
+            }
 
             SetAnimations();
         }
@@ -345,6 +348,8 @@ namespace Mirror.Examples.Shooter
         // (using Update causes strange movement speeds in builds otherwise)
         void FixedUpdate()
         {
+            if (!isLocalPlayer) return;
+
             // get input and desired direction based on camera and ground
             Vector2 inputDir = GetInputDirection();
             Vector3 desiredDir = GetDesiredDirection(inputDir);

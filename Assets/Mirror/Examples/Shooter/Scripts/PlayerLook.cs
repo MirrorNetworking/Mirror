@@ -2,7 +2,7 @@
 
 namespace Mirror.Examples.Shooter
 {
-    public class PlayerLook : MonoBehaviour
+    public class PlayerLook : NetworkBehaviour
     {
         [Header("Components")]
     #pragma warning disable CS0109 // member does not hide accessible member
@@ -112,11 +112,12 @@ namespace Mirror.Examples.Shooter
         void Awake()
         {
             camera = Camera.main;
-            Cursor.lockState = CursorLockMode.Locked;
         }
 
-        void Start()
+        public override void OnStartLocalPlayer()
         {
+            Cursor.lockState = CursorLockMode.Locked;
+
             // set camera parent to player
             camera.transform.SetParent(transform, false);
 
@@ -134,6 +135,8 @@ namespace Mirror.Examples.Shooter
         // Update camera position after everything else was updated
         void LateUpdate()
         {
+            if (!isLocalPlayer) return;
+
             // escape unlocks cursor
             if (Input.GetKeyDown(KeyCode.Escape))
             {
