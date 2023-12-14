@@ -336,7 +336,7 @@ MonoBehaviour:
   firstPersonParent: {fileID: 5741080586963324589}
   viewBlockingLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 1
   zoomSpeed: 0.5
   distance: 0
   minDistance: 0
