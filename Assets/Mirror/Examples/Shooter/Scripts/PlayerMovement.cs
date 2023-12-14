@@ -19,7 +19,6 @@ namespace Mirror.Examples.Shooter
         public Animator animator;
         public CharacterController2k controller;
         public AudioSource feetAudio;
-        public PlayerLook look;
         // the collider for the character controller. NOT the hips collider. this
         // one is NOT affected by animations and generally a better choice for state
         // machine logic.
@@ -31,11 +30,6 @@ namespace Mirror.Examples.Shooter
         [Header("State")]
         public MoveState state = MoveState.IDLE;
         [HideInInspector] public Vector3 moveDir;
-
-        // it's useful to have both strafe movement (WASD) and rotations (QE)
-        // => like in WoW, it more fun to play this way.
-        [Header("Rotation")]
-        public float rotationSpeed = 150;
 
         [Header("Walking")]
         public float walkSpeed = 5;
