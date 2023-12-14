@@ -25,7 +25,7 @@ Transform:
   m_GameObject: {fileID: 165799639608584427}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.8333334, z: 0.441}
+  m_LocalPosition: {x: 0, y: 1.25, z: 0.441}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -374,7 +374,7 @@ MonoBehaviour:
   firstPersonOffsetCrouching: {x: 0, y: 0}
   thirdPersonOffsetCrouching: {x: 0, y: 0.5}
   thirdPersonOffsetCrouchingMultiplier: {x: 0, y: 0}
-  crouchOriginMultiplier: 0.65
+  crouchOriginMultiplier: 0.6
 --- !u!114 &-8650763063470423008
 MonoBehaviour:
   m_ObjectHideFlags: 0
