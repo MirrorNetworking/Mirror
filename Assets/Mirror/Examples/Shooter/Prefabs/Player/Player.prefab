@@ -24,7 +24,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 165799639608584427}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.25, z: 0.441}
+  m_LocalPosition: {x: 0, y: 2.046, z: 0.441}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -329,7 +329,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3f380ddcf720745159256fd28850e60b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  movement: {fileID: -8650763063470423008}
   XSensitivity: 2
   YSensitivity: 2
   MinimumX: -90
@@ -348,10 +347,6 @@ MonoBehaviour:
   firstPersonOffsetStanding: {x: 0, y: 0}
   thirdPersonOffsetStanding: {x: 0, y: 1}
   thirdPersonOffsetStandingMultiplier: {x: 0, y: 0}
-  firstPersonOffsetCrouching: {x: 0, y: 0}
-  thirdPersonOffsetCrouching: {x: 0, y: 0.5}
-  thirdPersonOffsetCrouchingMultiplier: {x: 0, y: 0}
-  crouchOriginMultiplier: 0.6
 --- !u!114 &-8650763063470423008
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -367,11 +362,9 @@ MonoBehaviour:
   animator: {fileID: 2595088222176891379}
   controller: {fileID: -1774763014265066545}
   feetAudio: {fileID: -3946790939204706219}
-  look: {fileID: -8494711255715996189}
   controllerCollider: {fileID: -1369090521221337779}
   state: 0
   moveDir: {x: 0, y: 0, z: 0}
-  rotationSpeed: 150
   walkSpeed: 7
   walkAcceleration: 15
   walkDeceleration: 20
@@ -380,10 +373,6 @@ MonoBehaviour:
   runStepInterval: 3
   runCycleLegOffset: 0.2
   walkKey: 304
-  crouchSpeed: 1.5
-  crouchAcceleration: 5
-  crouchDeceleration: 10
-  crouchKey: 99
   jumpSpeed: 12
   jumpLeg: 0
   airborneAcceleration: 15
