@@ -5,7 +5,6 @@ namespace Mirror.Examples.Shooter
     public class PlayerLook : MonoBehaviour
     {
         [Header("Components")]
-        public PlayerMovement movement;
     #pragma warning disable CS0109 // member does not hide accessible member
         new Camera camera;
     #pragma warning restore CS0109 // member does not hide accessible member
@@ -43,14 +42,6 @@ namespace Mirror.Examples.Shooter
         public Vector2 firstPersonOffsetStanding = Vector2.zero;
         public Vector2 thirdPersonOffsetStanding = Vector2.up;
         public Vector2 thirdPersonOffsetStandingMultiplier = Vector2.zero;
-
-        [Header("Offsets - Crouching")]
-        public Vector2 firstPersonOffsetCrouching = Vector2.zero;
-        public Vector2 thirdPersonOffsetCrouching = Vector2.up / 2;
-        public Vector2 thirdPersonOffsetCrouchingMultiplier = Vector2.zero;
-        // scale offset by distance so that 100% zoom in = first person and
-        // zooming out puts camera target slightly above head for easier aiming
-        public float crouchOriginMultiplier = 0.65f;
 
         // look directions /////////////////////////////////////////////////////////
         // * for first person, all we need is the camera.forward
@@ -195,19 +186,8 @@ namespace Mirror.Examples.Shooter
                 // -> gets rid of the idle->run head change effect that was odd
                 // -> gets rid of upper body culling issues when looking downwards
                 Vector3 headLocal = transform.InverseTransformPoint(headPosition);
-                Vector3 origin = Vector3.zero;
-                Vector3 offset = Vector3.zero;
-
-                if (movement.state == MoveState.CROUCHING)
-                {
-                    origin = headLocal * crouchOriginMultiplier;
-                    offset = firstPersonOffsetCrouching;
-                }
-                else
-                {
-                    origin = headLocal;
-                    offset = firstPersonOffsetStanding;
-                }
+                Vector3 origin = headLocal;
+                Vector3 offset = firstPersonOffsetStanding;
 
                 // set final position
                 Vector3 target = transform.TransformPoint(origin + offset);
@@ -215,22 +195,9 @@ namespace Mirror.Examples.Shooter
             }
             else // third person
             {
-                Vector3 origin = Vector3.zero;
-                Vector3 offsetBase = Vector3.zero;
-                Vector3 offsetMult = Vector3.zero;
-
-                if (movement.state == MoveState.CROUCHING)
-                {
-                    origin = originalCameraPosition * crouchOriginMultiplier;
-                    offsetBase = thirdPersonOffsetCrouching;
-                    offsetMult = thirdPersonOffsetCrouchingMultiplier;
-                }
-                else
-                {
-                    origin = originalCameraPosition;
-                    offsetBase = thirdPersonOffsetStanding;
-                    offsetMult = thirdPersonOffsetStandingMultiplier;
-                }
+                Vector3 origin = originalCameraPosition;
+                Vector3 offsetBase = thirdPersonOffsetStanding;
+                Vector3 offsetMult = thirdPersonOffsetStandingMultiplier;
 
                 Vector3 target = transform.TransformPoint(origin + offsetBase + offsetMult * distance);
                 Vector3 newPosition = target - (camera.transform.rotation * Vector3.forward * distance);

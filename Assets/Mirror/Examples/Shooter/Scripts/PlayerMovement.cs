@@ -8,7 +8,7 @@ namespace Mirror.Examples.Shooter
     // MoveState as byte for minimal bandwidth (otherwise it's int by default)
     // note: distinction between WALKING and RUNNING in case we need to know the
     //       difference somewhere (e.g. for endurance recovery)
-    public enum MoveState : byte {IDLE, WALKING, RUNNING, CROUCHING, AIRBORNE, CLIMBING}
+    public enum MoveState : byte {IDLE, WALKING, RUNNING, AIRBORNE, CLIMBING}
 
     [RequireComponent(typeof(CharacterController2k))]
     [RequireComponent(typeof(AudioSource))]
@@ -44,13 +44,6 @@ namespace Mirror.Examples.Shooter
         public KeyCode walkKey = KeyCode.LeftShift;
         float stepCycle;
         float nextStep;
-
-        [Header("Crouching")]
-        public float crouchSpeed = 1.5f;
-        public float crouchAcceleration = 5; // set to maxint for instant speed
-        public float crouchDeceleration = 10; // feels best if higher than acceleration
-        public KeyCode crouchKey = KeyCode.C;
-        bool crouchKeyPressed;
 
         [Header("Jumping")]
         public float jumpSpeed = 7;
@@ -123,11 +116,6 @@ namespace Mirror.Examples.Shooter
             return isGroundedWithinTolerance &&
                    controller.slidingState == SlidingState.NONE &&
                    jumpKeyPressed;
-        }
-
-        bool EventCrouchToggle()
-        {
-            return crouchKeyPressed;
         }
 
         bool EventFalling()
@@ -245,12 +233,6 @@ namespace Mirror.Examples.Shooter
                 PlayJumpSound();
                 return MoveState.AIRBORNE;
             }
-            else if (EventCrouchToggle())
-            {
-                // rescale capsule
-                if (controller.TrySetHeight(controller.defaultHeight * 0.5f, true, true, false))
-                    return MoveState.CROUCHING;
-            }
             else if (EventLadderEnter())
             {
                 EnterLadder();
@@ -292,17 +274,6 @@ namespace Mirror.Examples.Shooter
                 PlayJumpSound();
                 return MoveState.AIRBORNE;
             }
-            else if (EventCrouchToggle())
-            {
-                // rescale capsule
-                if (controller.TrySetHeight(controller.defaultHeight * 0.5f, true, true, false))
-                {
-                    // limit speed to crouch speed so we don't decelerate from run speed
-                    // to crouch speed (hence crouching too fast for a short time)
-                    horizontalSpeed = Mathf.Min(horizontalSpeed, crouchSpeed);
-                    return MoveState.CROUCHING;
-                }
-            }
             else if (EventLadderEnter())
             {
                 EnterLadder();
@@ -316,59 +287,6 @@ namespace Mirror.Examples.Shooter
 
             ProgressStepCycle(inputDir, speed);
             return speed == walkSpeed ? MoveState.WALKING : MoveState.RUNNING;
-        }
-
-        MoveState UpdateCROUCHING(Vector2 inputDir, Vector3 desiredDir)
-        {
-            // QE key rotation
-            RotateWithKeys();
-
-            // move with acceleration (feels better)
-            horizontalSpeed = AccelerateSpeed(inputDir, horizontalSpeed, crouchSpeed, inputDir != Vector2.zero ? crouchAcceleration : crouchDeceleration);
-            moveDir.x = desiredDir.x * horizontalSpeed;
-            moveDir.y = ApplyGravity(moveDir.y);
-            moveDir.z = desiredDir.z * horizontalSpeed;
-
-            if (EventFalling())
-            {
-                // rescale capsule if possible
-                if (controller.TrySetHeight(controller.defaultHeight * 1f, true, true, false))
-                {
-                    sprintingBeforeAirborne = false;
-                    return MoveState.AIRBORNE;
-                }
-            }
-            else if (EventJumpRequested())
-            {
-                // stop crouching when pressing jump key. this feels better than
-                // jumping from the crouching state.
-
-                // rescale capsule if possible
-                if (controller.TrySetHeight(controller.defaultHeight * 1f, true, true, false))
-                {
-                    return MoveState.IDLE;
-                }
-            }
-            else if (EventCrouchToggle())
-            {
-                // rescale capsule if possible
-                if (controller.TrySetHeight(controller.defaultHeight * 1f, true, true, false))
-                {
-                    return MoveState.IDLE;
-                }
-            }
-            else if (EventLadderEnter())
-            {
-                // rescale capsule if possible
-                if (controller.TrySetHeight(controller.defaultHeight * 1f, true, true, false))
-                {
-                    EnterLadder();
-                    return MoveState.CLIMBING;
-                }
-            }
-
-            ProgressStepCycle(inputDir, crouchSpeed);
-            return MoveState.CROUCHING;
         }
 
         MoveState UpdateAIRBORNE(Vector2 inputDir, Vector3 desiredDir)
@@ -434,7 +352,6 @@ namespace Mirror.Examples.Shooter
         void Update()
         {
             if (!jumpKeyPressed) jumpKeyPressed = Input.GetButtonDown("Jump");
-            if (!crouchKeyPressed) crouchKeyPressed = Input.GetKeyDown(crouchKey);
         }
 
         // CharacterController movement is physics based and requires FixedUpdate.
@@ -451,7 +368,6 @@ namespace Mirror.Examples.Shooter
             if (state == MoveState.IDLE)                  state = UpdateIDLE(inputDir, desiredDir);
             else if (state == MoveState.WALKING)          state = UpdateWALKINGandRUNNING(inputDir, desiredDir);
             else if (state == MoveState.RUNNING)          state = UpdateWALKINGandRUNNING(inputDir, desiredDir);
-            else if (state == MoveState.CROUCHING)        state = UpdateCROUCHING(inputDir, desiredDir);
             else if (state == MoveState.AIRBORNE)         state = UpdateAIRBORNE(inputDir, desiredDir);
             else if (state == MoveState.CLIMBING)         state = UpdateCLIMBING(inputDir, desiredDir);
             else Debug.LogError("Unhandled Movement State: " + state);
@@ -474,7 +390,6 @@ namespace Mirror.Examples.Shooter
 
             // reset keys no matter what
             jumpKeyPressed = false;
-            crouchKeyPressed = false;
 
             SetAnimations();
         }
@@ -554,7 +469,6 @@ namespace Mirror.Examples.Shooter
 
         void SetAnimations()
         {
-            animator.SetBool("Crouching", false);
             animator.SetBool("Jumping", false);
             animator.SetBool("Moving", false);
 
@@ -568,10 +482,6 @@ namespace Mirror.Examples.Shooter
             else if (state == MoveState.AIRBORNE)
             {
                 animator.SetBool("Jumping", true);
-            }
-            else if (state == MoveState.CROUCHING)
-            {
-                animator.SetBool("Crouching", true);
             }
             else if (state == MoveState.RUNNING || state == MoveState.WALKING)
             {
