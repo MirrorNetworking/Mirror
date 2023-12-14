@@ -366,14 +366,14 @@ MonoBehaviour:
   state: 0
   moveDir: {x: 0, y: 0, z: 0}
   walkSpeed: 7
-  walkAcceleration: 15
-  walkDeceleration: 20
+  walkAcceleration: 100
+  walkDeceleration: 100
   runSpeed: 15
   runStepLength: 0.7
   runStepInterval: 3
   runCycleLegOffset: 0.2
   walkKey: 304
-  jumpSpeed: 12
+  jumpSpeed: 25
   jumpLeg: 0
   airborneAcceleration: 15
   airborneDeceleration: 20
@@ -382,7 +382,7 @@ MonoBehaviour:
   fallDamageMultiplier: 2
   lastFall: {x: 0, y: 0, z: 0}
   climbSpeed: 3
-  gravityMultiplier: 2
+  gravityMultiplier: 12
   footstepSounds: []
   jumpSound: {fileID: 0}
   landSound: {fileID: 0}
