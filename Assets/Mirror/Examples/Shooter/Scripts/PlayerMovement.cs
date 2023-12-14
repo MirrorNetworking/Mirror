@@ -469,6 +469,7 @@ namespace Mirror.Examples.Shooter
 
         void SetAnimations()
         {
+            animator.speed = 1.0f;
             animator.SetBool("Jumping", false);
             animator.SetBool("Moving", false);
 
@@ -485,6 +486,9 @@ namespace Mirror.Examples.Shooter
             }
             else if (state == MoveState.RUNNING || state == MoveState.WALKING)
             {
+                // adjust run animation speed based on real speed (walk/run)
+                float multiplier = state == MoveState.RUNNING ? 1 : (walkSpeed / runSpeed);
+                animator.speed = multiplier;
                 animator.SetBool("Moving", true);
             }
         }
