@@ -485,6 +485,8 @@ namespace Mirror.Examples.Shooter
             // reset keys no matter what
             jumpKeyPressed = false;
             crouchKeyPressed = false;
+
+            SetAnimations();
         }
 
         void OnGUI()
@@ -558,6 +560,33 @@ namespace Mirror.Examples.Shooter
             // move picked sound to index 0 so it's not picked next time
             footstepSounds[n] = footstepSounds[0];
             footstepSounds[0] = feetAudio.clip;
+        }
+
+        void SetAnimations()
+        {
+            animator.SetBool("Crouching", false);
+            animator.SetBool("Jumping", false);
+            animator.SetBool("Moving", false);
+
+            if (state == MoveState.IDLE)
+            {
+            }
+            else if (state == MoveState.CLIMBING)
+            {
+                animator.SetBool("Moving", true);
+            }
+            else if (state == MoveState.AIRBORNE)
+            {
+                animator.SetBool("Jumping", true);
+            }
+            else if (state == MoveState.CROUCHING)
+            {
+                animator.SetBool("Crouching", true);
+            }
+            else if (state == MoveState.RUNNING || state == MoveState.WALKING)
+            {
+                animator.SetBool("Moving", true);
+            }
         }
     }
 }
