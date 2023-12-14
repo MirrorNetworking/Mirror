@@ -368,7 +368,7 @@ MonoBehaviour:
   walkSpeed: 7
   walkAcceleration: 100
   walkDeceleration: 100
-  runSpeed: 15
+  runSpeed: 18
   runStepLength: 0.7
   runStepInterval: 3
   runCycleLegOffset: 0.2
