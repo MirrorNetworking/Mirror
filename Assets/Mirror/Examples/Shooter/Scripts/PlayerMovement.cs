@@ -92,8 +92,9 @@ namespace Mirror.Examples.Shooter
         {
             // get input direction while alive and while not typing in chat
             // (otherwise 0 so we keep falling even if we die while jumping etc.)
-            float horizontal = Input.GetAxis("Horizontal");
-            float vertical = Input.GetAxis("Vertical");
+            // => 'Raw' because otherwise running takes almost a second to stop!
+            float horizontal = Input.GetAxisRaw("Horizontal");
+            float vertical = Input.GetAxisRaw("Vertical");
             return new Vector2(horizontal, vertical).normalized;
         }
 
