@@ -12,6 +12,9 @@ GameObject:
   - component: {fileID: 3710363772341533006}
   - component: {fileID: 1484265349409262980}
   - component: {fileID: 7309553623417923166}
+  - component: {fileID: 8319031896194243118}
+  - component: {fileID: 6422192410705204065}
+  - component: {fileID: 6847861608261770208}
   m_Layer: 0
   m_Name: roadDirt_corner
   m_TagString: Untagged
@@ -98,3 +101,42 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1.9999999, y: 0, z: 1.9999999}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!65 &8319031896194243118
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1124166013803981905}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 1.9999999, y: 0.049999997, z: 0.4986475}
+  m_Center: {x: 0, y: 0.024999999, z: -0.7506763}
+--- !u!65 &6422192410705204065
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1124166013803981905}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.5069206, y: 0.049999997, z: 1.9999999}
+  m_Center: {x: 0.7465397, y: 0.024999999, z: 0}
+--- !u!65 &6847861608261770208
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1124166013803981905}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.43692493, y: 0.049999997, z: 0.42563057}
+  m_Center: {x: -0.78153753, y: 0.024999999, z: 0.7871846}

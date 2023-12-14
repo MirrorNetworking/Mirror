@@ -12,6 +12,8 @@ GameObject:
   - component: {fileID: 96770157603182212}
   - component: {fileID: 2788639372404793934}
   - component: {fileID: 5286088043875096145}
+  - component: {fileID: 113756556241331219}
+  - component: {fileID: 6053245495126672274}
   m_Layer: 0
   m_Name: roadAsphalt_straight
   m_TagString: Untagged
@@ -98,3 +100,29 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 0, z: 1.9999999}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!65 &113756556241331219
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4446109238618784667}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.99999994, y: 0.049999997, z: 0.5013349}
+  m_Center: {x: 0, y: 0.024999999, z: 0.74933255}
+--- !u!65 &6053245495126672274
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4446109238618784667}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.99999994, y: 0.049999997, z: 0.4961928}
+  m_Center: {x: 0, y: 0.024999999, z: -0.7519035}
