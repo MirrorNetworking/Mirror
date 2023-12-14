@@ -352,6 +352,8 @@ namespace Mirror.Examples.Shooter
         void Update()
         {
             if (!jumpKeyPressed) jumpKeyPressed = Input.GetButtonDown("Jump");
+
+            SetAnimations();
         }
 
         // CharacterController movement is physics based and requires FixedUpdate.
@@ -390,8 +392,6 @@ namespace Mirror.Examples.Shooter
 
             // reset keys no matter what
             jumpKeyPressed = false;
-
-            SetAnimations();
         }
 
         void OnGUI()
