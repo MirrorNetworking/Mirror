@@ -345,7 +345,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 51
   firstPersonOffsetStanding: {x: 0, y: 0}
-  thirdPersonOffsetStanding: {x: 0, y: 1}
+  thirdPersonOffsetStanding: {x: 0, y: 0.5}
   thirdPersonOffsetStandingMultiplier: {x: 0, y: 0}
 --- !u!114 &-8650763063470423008
 MonoBehaviour:
