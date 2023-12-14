@@ -189,13 +189,6 @@ namespace Mirror.Examples.Shooter
             return Mathf.MoveTowards(currentSpeed, desiredSpeed, acceleration * Time.fixedDeltaTime);
         }
 
-        // rotate with QE keys
-        void RotateWithKeys()
-        {
-            // float horizontal2 = Input.GetAxis("Horizontal2");
-            // transform.Rotate(Vector3.up * horizontal2 * rotationSpeed * Time.fixedDeltaTime);
-        }
-
         void EnterLadder()
         {
             // make player look directly at ladder forward.
@@ -209,9 +202,6 @@ namespace Mirror.Examples.Shooter
 
         MoveState UpdateIDLE(Vector2 inputDir, Vector3 desiredDir)
         {
-            // QE key rotation
-            RotateWithKeys();
-
             // decelerate from last move (e.g. from jump)
             // (moveDir.xz can be set to 0 to have an interruption when landing)
             horizontalSpeed = AccelerateSpeed(inputDir, horizontalSpeed, 0, walkDeceleration);
@@ -248,9 +238,6 @@ namespace Mirror.Examples.Shooter
 
         MoveState UpdateWALKINGandRUNNING(Vector2 inputDir, Vector3 desiredDir)
         {
-            // QE key rotation
-            RotateWithKeys();
-
             // walk or run?
             float speed = GetWalkOrRunSpeed();
 
@@ -291,9 +278,6 @@ namespace Mirror.Examples.Shooter
 
         MoveState UpdateAIRBORNE(Vector2 inputDir, Vector3 desiredDir)
         {
-            // QE key rotation
-            RotateWithKeys();
-
             // max speed depends on what we did before jumping/falling
             float speed = sprintingBeforeAirborne ? runSpeed : walkSpeed;
 
