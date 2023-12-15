@@ -154,7 +154,7 @@ namespace Mirror.Examples.Shooter
                 // gravity needs to be * Time.fixedDeltaTime even though we multiply
                 // the final controller.Move * Time.fixedDeltaTime too, because the
                 // unit is 9.81m/s²
-                return moveDirY + Physics.gravity.y * gravityMultiplier * Time.fixedDeltaTime;
+                return moveDirY + Physics.gravity.y * gravityMultiplier * Time.deltaTime;
             // if grounded then apply no force. the new OpenCharacterController
             // doesn't need a ground stick force. it would only make the character
             // slide on all uneven surfaces.
@@ -187,7 +187,7 @@ namespace Mirror.Examples.Shooter
             float desiredSpeed = inputDir.magnitude * targetSpeed;
 
             // accelerate speed
-            return Mathf.MoveTowards(currentSpeed, desiredSpeed, acceleration * Time.fixedDeltaTime);
+            return Mathf.MoveTowards(currentSpeed, desiredSpeed, acceleration * Time.deltaTime);
         }
 
         void EnterLadder()
@@ -333,55 +333,51 @@ namespace Mirror.Examples.Shooter
             return MoveState.CLIMBING;
         }
 
-        // use Update to check Input
+        // usually it's best practice to apply physics in FixedUpdate.
+        // however, since controller.Move() does not interpolate, using only
+        // FixedUpdate would look noticably jitter in first person view.
+        // let's try Update + Time.deltaTime instead of Time.fixedDeltaTime.
         void Update()
         {
             if (isLocalPlayer)
             {
+                // get input and desired direction based on camera and ground
+                Vector2 inputDir = GetInputDirection();
+                Vector3 desiredDir = GetDesiredDirection(inputDir);
+                Debug.DrawLine(transform.position, transform.position + desiredDir, Color.blue);
+                Debug.DrawLine(transform.position, transform.position + desiredDir, Color.cyan);
                 if (!jumpKeyPressed) jumpKeyPressed = Input.GetButtonDown("Jump");
+
+                // update state machine
+                if (state == MoveState.IDLE)                  state = UpdateIDLE(inputDir, desiredDir);
+                else if (state == MoveState.WALKING)          state = UpdateWALKINGandRUNNING(inputDir, desiredDir);
+                else if (state == MoveState.RUNNING)          state = UpdateWALKINGandRUNNING(inputDir, desiredDir);
+                else if (state == MoveState.AIRBORNE)         state = UpdateAIRBORNE(inputDir, desiredDir);
+                else if (state == MoveState.CLIMBING)         state = UpdateCLIMBING(inputDir, desiredDir);
+                else Debug.LogError("Unhandled Movement State: " + state);
+
+                // cache this move's state to detect landing etc. next time
+                if (!controller.isGrounded) lastFall = controller.velocity;
+
+                // move depending on latest moveDir changes
+                Debug.DrawLine(transform.position, transform.position + moveDir * Time.deltaTime, Color.magenta);
+                controller.Move(moveDir * Time.deltaTime); // note: returns CollisionFlags if needed
+
+                // calculate which leg is behind, so as to leave that leg trailing in the jump animation
+                // (This code is reliant on the specific run cycle offset in our animations,
+                // and assumes one leg passes the other at the normalized clip times of 0.0 and 0.5)
+                if (animator != null)
+                {
+                    float runCycle = Mathf.Repeat(animator.GetCurrentAnimatorStateInfo(0).normalizedTime + runCycleLegOffset, 1);
+                    jumpLeg = (runCycle < 0.5f ? 1 : -1);// * move.z;
+                }
+
+                // reset keys no matter what
+                jumpKeyPressed = false;
             }
 
+            // update animations for everyone
             SetAnimations();
-        }
-
-        // CharacterController movement is physics based and requires FixedUpdate.
-        // (using Update causes strange movement speeds in builds otherwise)
-        void FixedUpdate()
-        {
-            if (!isLocalPlayer) return;
-
-            // get input and desired direction based on camera and ground
-            Vector2 inputDir = GetInputDirection();
-            Vector3 desiredDir = GetDesiredDirection(inputDir);
-            Debug.DrawLine(transform.position, transform.position + desiredDir, Color.blue);
-            Debug.DrawLine(transform.position, transform.position + desiredDir, Color.cyan);
-
-            // update state machine
-            if (state == MoveState.IDLE)                  state = UpdateIDLE(inputDir, desiredDir);
-            else if (state == MoveState.WALKING)          state = UpdateWALKINGandRUNNING(inputDir, desiredDir);
-            else if (state == MoveState.RUNNING)          state = UpdateWALKINGandRUNNING(inputDir, desiredDir);
-            else if (state == MoveState.AIRBORNE)         state = UpdateAIRBORNE(inputDir, desiredDir);
-            else if (state == MoveState.CLIMBING)         state = UpdateCLIMBING(inputDir, desiredDir);
-            else Debug.LogError("Unhandled Movement State: " + state);
-
-            // cache this move's state to detect landing etc. next time
-            if (!controller.isGrounded) lastFall = controller.velocity;
-
-            // move depending on latest moveDir changes
-            Debug.DrawLine(transform.position, transform.position + moveDir * Time.fixedDeltaTime, Color.magenta);
-            controller.Move(moveDir * Time.fixedDeltaTime); // note: returns CollisionFlags if needed
-
-            // calculate which leg is behind, so as to leave that leg trailing in the jump animation
-            // (This code is reliant on the specific run cycle offset in our animations,
-            // and assumes one leg passes the other at the normalized clip times of 0.0 and 0.5)
-            if (animator != null)
-            {
-                float runCycle = Mathf.Repeat(animator.GetCurrentAnimatorStateInfo(0).normalizedTime + runCycleLegOffset, 1);
-                jumpLeg = (runCycle < 0.5f ? 1 : -1);// * move.z;
-            }
-
-            // reset keys no matter what
-            jumpKeyPressed = false;
         }
 
         void OnGUI()
@@ -429,7 +425,7 @@ namespace Mirror.Examples.Shooter
             if (controller.velocity.sqrMagnitude > 0 && (inputDir.x != 0 || inputDir.y != 0))
             {
                 stepCycle += (controller.velocity.magnitude + (speed*(state == MoveState.WALKING ? 1 : runStepLength)))*
-                             Time.fixedDeltaTime;
+                             Time.deltaTime;
             }
 
             if (stepCycle > nextStep)
