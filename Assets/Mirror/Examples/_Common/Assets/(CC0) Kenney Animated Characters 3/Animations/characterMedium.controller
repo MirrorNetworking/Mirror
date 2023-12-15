@@ -17,9 +17,9 @@ AnimatorStateTransition:
   m_Mute: 0
   m_IsExit: 0
   serializedVersion: 3
-  m_TransitionDuration: 0.1
+  m_TransitionDuration: 0.10000008
   m_TransitionOffset: 0
-  m_ExitTime: 0.765625
+  m_ExitTime: 0.9031581
   m_HasExitTime: 0
   m_HasFixedDuration: 1
   m_InterruptionSource: 0
@@ -259,16 +259,19 @@ AnimatorStateTransition:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: 
-  m_Conditions: []
+  m_Conditions:
+  - m_ConditionMode: 2
+    m_ConditionEvent: Jumping
+    m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 4105780504779945269}
   m_Solo: 0
   m_Mute: 0
   m_IsExit: 0
   serializedVersion: 3
-  m_TransitionDuration: 0.12955108
+  m_TransitionDuration: 0.11590999
   m_TransitionOffset: 0
-  m_ExitTime: 0.89654773
+  m_ExitTime: 0.77665246
   m_HasExitTime: 0
   m_HasFixedDuration: 1
   m_InterruptionSource: 0
@@ -457,7 +460,7 @@ AnimatorStateTransition:
   serializedVersion: 3
   m_TransitionDuration: 0.09180528
   m_TransitionOffset: 0
-  m_ExitTime: 0.8769093
+  m_ExitTime: 0.82594776
   m_HasExitTime: 0
   m_HasFixedDuration: 1
   m_InterruptionSource: 0
