@@ -16,6 +16,7 @@ namespace Mirror.Examples.Shooter
         public float MaximumX = 90;
 
         // head position is useful for raycasting etc.
+        [Tooltip("Camera will be mounted to this in first person view. Highly recommended to position this at (0,Y,0), otherwise at (0,Y,0.5) etc. there might be jitter since the camera is not only rotated, but also moved.")]
         public Transform firstPersonParent;
         public Vector3 headPosition => firstPersonParent.position;
         Vector3 originalCameraPosition;
