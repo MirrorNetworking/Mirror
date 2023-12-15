@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace Mirror.Examples.Shooter
 {
@@ -130,6 +131,16 @@ namespace Mirror.Examples.Shooter
 
             // remember original camera position
             originalCameraPosition = camera.transform.localPosition;
+        }
+
+        void OnDestroy()
+        {
+            // LateUpdate may lock the cursor.
+            // always free it in OnDestroy so players can use the UI after disconnects.
+            if (isLocalPlayer)
+            {
+                Cursor.lockState = CursorLockMode.None;
+            }
         }
 
         ////////////////////////////////////////////////////////////////////////////
