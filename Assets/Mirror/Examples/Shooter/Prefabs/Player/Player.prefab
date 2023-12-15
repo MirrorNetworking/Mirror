@@ -389,7 +389,7 @@ MonoBehaviour:
   fallDamageMultiplier: 2
   lastFall: {x: 0, y: 0, z: 0}
   climbSpeed: 3
-  gravityMultiplier: 12
+  gravityMultiplier: 9
   footstepSounds: []
   jumpSound: {fileID: 0}
   landSound: {fileID: 0}
