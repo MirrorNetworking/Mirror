@@ -93,7 +93,8 @@ namespace Mirror
         public Material ghostMaterial;
 
         [Tooltip("How fast to interpolate to the target position, relative to how far we are away from it.\nHigher value will be more jitter but sharper moves, lower value will be less jitter but a little too smooth / rounded moves.")]
-        public float interpolationSpeed = 15; // 10 is a little too low for billiards at least
+        public float positionInterpolationSpeed = 15; // 10 is a little too low for billiards at least
+        public float rotationInterpolationSpeed = 10;
 
         [Tooltip("Teleport if we are further than 'multiplier x collider size' behind.")]
         public float teleportDistanceMultiplier = 10;
@@ -124,7 +125,8 @@ namespace Mirror
             // add the PredictedRigidbodyVisual component
             PredictedRigidbodyVisual visualRigidbody = visualCopy.AddComponent<PredictedRigidbodyVisual>();
             visualRigidbody.target = this;
-            visualRigidbody.interpolationSpeed = interpolationSpeed;
+            visualRigidbody.positionInterpolationSpeed = positionInterpolationSpeed;
+            visualRigidbody.rotationInterpolationSpeed = rotationInterpolationSpeed;
             visualRigidbody.teleportDistanceMultiplier = teleportDistanceMultiplier;
 
             // copy the rendering components

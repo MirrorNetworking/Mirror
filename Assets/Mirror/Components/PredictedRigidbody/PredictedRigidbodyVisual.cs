@@ -11,7 +11,8 @@ namespace Mirror
         Rigidbody targetRigidbody;
 
         // settings are applied in the other PredictedRigidbody component and then copied here.
-        [HideInInspector] public float interpolationSpeed = 15; // 10 is a little too low for billiards at least
+        [HideInInspector] public float positionInterpolationSpeed = 15; // 10 is a little too low for billiards at least
+        [HideInInspector] public float rotationInterpolationSpeed = 10;
         [HideInInspector] public float teleportDistanceMultiplier = 10;
 
         // we add this component manually from PredictedRigidbody.
@@ -49,13 +50,16 @@ namespace Mirror
 
             // smoothly interpolate to the target position.
             // speed relative to how far away we are
-            float step = distance * interpolationSpeed;
+            float positionStep = distance * positionInterpolationSpeed;
             // speed relative to how far away we are.
             // => speed increases by distance² because the further away, the
             //    sooner we need to catch the fuck up
-            // float step = (distance * distance) * interpolationSpeed;
-            transform.position = Vector3.MoveTowards(transform.position, targetRigidbody.position, step * Time.deltaTime);
-            transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRigidbody.rotation, step * Time.deltaTime);
+            // float positionStep = (distance * distance) * interpolationSpeed;
+            transform.position = Vector3.MoveTowards(transform.position, targetRigidbody.position, positionStep * Time.deltaTime);
+
+            // smoothly interpolate to the target rotation.
+            // Quaternion.RotateTowards doesn't seem to work at all, so let's use SLerp.
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRigidbody.rotation, rotationInterpolationSpeed * Time.deltaTime);
         }
     }
 }
