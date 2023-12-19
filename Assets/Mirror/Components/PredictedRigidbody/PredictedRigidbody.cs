@@ -88,6 +88,7 @@ namespace Mirror
         [Header("Visual Interpolation")]
         [Tooltip("After creating the visual interpolation object, keep showing the original Rigidbody with a ghost (transparent) material for debugging.")]
         public bool showGhost = true;
+        public float ghostDistanceThreshold = 0.1f;
 
         [Tooltip("After creating the visual interpolation object, replace this object's renderer materials with the ghost (ideally transparent) material.")]
         public Material ghostMaterial;
@@ -204,9 +205,23 @@ namespace Mirror
             SetDirty();
         }
 
+        void UpdateClient()
+        {
+            // only show ghost while interpolating towards the object.
+            // if we are 'inside' the object then don't show ghost.
+            // otherwise it just looks like z-fighting the whole time.
+            // TODO optimize this later
+            bool insideTarget = Vector3.Distance(transform.position, visualCopy.transform.position) <= ghostDistanceThreshold;
+            foreach (MeshRenderer rend in GetComponentsInChildren<MeshRenderer>())
+            {
+                rend.enabled = !insideTarget;
+            }
+        }
+
         void Update()
         {
             if (isServer) UpdateServer();
+            if (isClient) UpdateClient();
         }
 
         void FixedUpdate()
