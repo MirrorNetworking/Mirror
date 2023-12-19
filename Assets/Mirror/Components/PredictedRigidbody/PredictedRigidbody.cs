@@ -128,13 +128,13 @@ namespace Mirror
             visualRigidbody.teleportDistanceMultiplier = teleportDistanceMultiplier;
 
             // copy the rendering components
-            if (GetComponent<MeshRenderer>() != null)
+            if (TryGetComponent(out MeshRenderer originalMeshRenderer))
             {
                 MeshFilter meshFilter = visualCopy.AddComponent<MeshFilter>();
                 meshFilter.mesh = GetComponent<MeshFilter>().mesh;
 
                 MeshRenderer meshRenderer = visualCopy.AddComponent<MeshRenderer>();
-                meshRenderer.material = GetComponent<MeshRenderer>().material;
+                meshRenderer.material = originalMeshRenderer.material;
             }
             // if we didn't find a renderer, show a warning
             else Debug.LogWarning($"PredictedRigidbody: {name} found no renderer to copy onto the visual object. If you are using a custom setup, please overwrite PredictedRigidbody.CreateVisualCopy().");
