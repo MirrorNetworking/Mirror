@@ -144,7 +144,16 @@ namespace Mirror
             {
                 if (showGhost)
                 {
-                    rend.material = ghostMaterial;
+                    // renderers often have multiple materials. replace all.
+                    if (rend.materials != null)
+                    {
+                        Material[] materials = rend.materials;
+                        for (int i = 0; i < materials.Length; ++i)
+                        {
+                            materials[i] = ghostMaterial;
+                        }
+                        rend.materials = materials; // need to reassign to see it in effect
+                    }
                 }
                 else
                 {
