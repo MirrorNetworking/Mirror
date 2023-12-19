@@ -473,5 +473,13 @@ namespace Mirror
             // compare state without deltas
             CompareState(timestamp, new RigidbodyState(timestamp, Vector3.zero, position, rotation, Vector3.zero, velocity));
         }
+
+        protected override void OnValidate()
+        {
+            base.OnValidate();
+
+            // force syncDirection to be ServerToClient
+            syncDirection = SyncDirection.ServerToClient;
+        }
     }
 }
