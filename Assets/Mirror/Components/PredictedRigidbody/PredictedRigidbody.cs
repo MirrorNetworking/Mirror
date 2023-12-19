@@ -135,6 +135,17 @@ namespace Mirror
 
                 MeshRenderer meshRenderer = visualCopy.AddComponent<MeshRenderer>();
                 meshRenderer.material = originalMeshRenderer.material;
+
+                // renderers often have multiple materials. copy all.
+                if (originalMeshRenderer.materials != null)
+                {
+                    Material[] materials = new Material[originalMeshRenderer.materials.Length];
+                    for (int i = 0; i < materials.Length; ++i)
+                    {
+                        materials[i] = originalMeshRenderer.materials[i];
+                    }
+                    meshRenderer.materials = materials; // need to reassign to see it in effect
+                }
             }
             // if we didn't find a renderer, show a warning
             else Debug.LogWarning($"PredictedRigidbody: {name} found no renderer to copy onto the visual object. If you are using a custom setup, please overwrite PredictedRigidbody.CreateVisualCopy().");
