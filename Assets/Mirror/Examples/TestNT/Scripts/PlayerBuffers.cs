@@ -23,8 +23,9 @@ namespace TestNT
         public int serverSnapCount;
         public int clientSnapCount;
 
-        private void OnValidate()
+        protected override void OnValidate()
         {
+            base.OnValidate();
             NTRCustomSendInterval = GetComponent<NTRCustomSendInterval>();
             NetworkTransformReliable = GetComponent<NetworkTransformReliable>();
 

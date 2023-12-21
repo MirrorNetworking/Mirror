@@ -25,8 +25,9 @@ namespace TestNT
             gameObject.name = newValue;
         }
 
-        void OnValidate()
+        protected override void OnValidate()
         {
+            base.OnValidate();
             this.enabled = false;
         }
 

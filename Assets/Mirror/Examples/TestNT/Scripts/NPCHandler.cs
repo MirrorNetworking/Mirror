@@ -9,8 +9,9 @@ namespace TestNT
     {
         readonly static List<GameObject> NpcList = new List<GameObject>();
 
-        void OnValidate()
+        protected override void OnValidate()
         {
+            base.OnValidate();
             this.enabled = false;
         }
 
