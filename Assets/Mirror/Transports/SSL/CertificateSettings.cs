@@ -3,6 +3,7 @@ using System.IO;
 using System.Security.Cryptography.X509Certificates;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Mirror
 {
@@ -13,7 +14,7 @@ namespace Mirror
         public string CertificatePath = "";
 
         [Tooltip("Is the certificate private key file password protected? (default: false)")]
-        public bool CertificatePasswordProtected;
+        public bool PasswordProtected;
 
         [Tooltip(
             "Path to a file that just contains the password for the certificate file (pass in either a relative path or an absolute path)")]
@@ -23,7 +24,7 @@ namespace Mirror
         {
             get
             {
-                if (CertificatePasswordProtected)
+                if (PasswordProtected)
                 {
                     return NewPasswordProtectedCertificate();
                 }
@@ -97,8 +98,67 @@ namespace Mirror
     }
 
 #if UNITY_EDITOR
-    // [CustomPropertyDrawer(typeof(CertificateSettings))]
-    public class CertificateSettingsDrawer: PropertyDrawer
-    {}
+    [CustomPropertyDrawer(typeof(CertificateSettings))]
+    public class CertificateSettingsDrawer : PropertyDrawer
+    {
+        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+        {
+            EditorGUI.BeginProperty(position, label, property);
+
+            position.height = EditorGUIUtility.singleLineHeight;
+            EditorGUI.LabelField(position, label);
+
+            position.y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
+
+            int originalIndent = EditorGUI.indentLevel;
+            EditorGUI.indentLevel++;
+
+            Rect certPathRect = new Rect(position.x, position.y, position.width - 60, EditorGUIUtility.singleLineHeight); // Reduce width for button
+            Rect certBrowseRect = new Rect(position.x + position.width - 60, position.y, 60, EditorGUIUtility.singleLineHeight); // Button rect
+            Rect certPasswordProtectedRect = new Rect(position.x, position.y + EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing, position.width, EditorGUIUtility.singleLineHeight);
+
+            SerializedProperty certPath = property.FindPropertyRelative(nameof(CertificateSettings.CertificatePath));
+            EditorGUI.PropertyField(certPathRect, certPath);
+
+            if (GUI.Button(certBrowseRect, "Browse"))
+            {
+                string path = EditorUtility.OpenFilePanel("Select Certificate File", "", "pfx,crt,cert,pem");
+                if (!string.IsNullOrEmpty(path))
+                {
+                    certPath.stringValue = path;
+                }
+            }
+
+            SerializedProperty certPasswordProtected = property.FindPropertyRelative(nameof(CertificateSettings.PasswordProtected));
+            EditorGUI.PropertyField(certPasswordProtectedRect, certPasswordProtected);
+
+            if (certPasswordProtected.boolValue)
+            {
+                position.y += (EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing) * 2;
+                Rect passwordFilePathRect = new Rect(position.x, position.y, position.width, EditorGUIUtility.singleLineHeight);
+                SerializedProperty passwordFilePath = property.FindPropertyRelative(nameof(CertificateSettings.PasswordFilePath));
+                EditorGUI.PropertyField(passwordFilePathRect, passwordFilePath);
+                Rect passwordBrowseRect = new Rect(position.x + position.width - 60, position.y, 60, EditorGUIUtility.singleLineHeight); // Button rect
+                if (GUI.Button(passwordBrowseRect, "Browse"))
+                {
+                    string path = EditorUtility.OpenFilePanel("Select Password File", "", "");
+                    if (!string.IsNullOrEmpty(path))
+                    {
+                        passwordFilePath.stringValue = path;
+                    }
+                }
+            }
+
+            EditorGUI.indentLevel = originalIndent;
+
+            EditorGUI.EndProperty();
+        }
+
+        public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
+        {
+            bool certPasswordProtected = property.FindPropertyRelative(nameof(CertificateSettings.PasswordProtected)).boolValue;
+            return certPasswordProtected ? (EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing) * 4 : (EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing) * 3;
+        }
+    }
 #endif
 }

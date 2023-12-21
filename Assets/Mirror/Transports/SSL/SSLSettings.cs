@@ -39,10 +39,4 @@ namespace Mirror
             return true;
         }
     }
-
-#if UNITY_EDITOR
-    // [CustomPropertyDrawer(typeof(SSLSettings))]
-    public class SSLSettingsDrawer: PropertyDrawer
-    {}
-#endif
 }
