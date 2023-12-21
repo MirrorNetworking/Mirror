@@ -1,43 +1,61 @@
 using System;
 using System.IO;
+using System.Net.Security;
+using System.Net.Sockets;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using UnityEngine;
 
 namespace Mirror
 {
-    public class Certificates : MonoBehaviour
+    public class Certificate : MonoBehaviour
     {
+        public SSLSettings sslSettings;
         public CertificateSettings certificateSettings;
+    }
+
+    [Serializable]
+    public class SSLSettings
+    {
+        [Tooltip("Enable SSL for mirror transport components? (default: false)")]
+        public bool SSLEnabled;
+
+        [Tooltip("Protocol to use for ssl (default: TLS 1.2)")]
+        public SslProtocols SSLProtocol = SslProtocols.Tls12;
+
+        public Stream CreateStream(NetworkStream stream, X509Certificate2 certificate)
+        {
+            SslStream sslStream = new(stream, true, AcceptClient);
+            sslStream.AuthenticateAsServer(certificate, false, SSLProtocol, false);
+
+            return sslStream;
+        }
+
+        // Always accept client
+        private bool AcceptClient(object sender, X509Certificate certificate, X509Chain chain,
+            SslPolicyErrors sslPolicyErrors)
+        {
+            return true;
+        }
     }
 
     [Serializable]
     public class CertificateSettings
     {
-        [Tooltip("Enable SSL for Mirror Transport components? (default: false)")]
-        public bool SSLEnabled;
-
-        [Tooltip("Protocol to use for the certificate (default: TLS 1.2)")]
-        public SslProtocols CertificateProtocol = SslProtocols.Tls12;
-
         [Tooltip("Path to the certificate file (pass in either a relative path or an absolute path)")]
         public string CertificatePath = "";
 
         [Tooltip("Is the certificate private key file password protected? (default: false)")]
         public bool CertificatePasswordProtected;
 
-        [Tooltip("Path to a file that just contains the password for the certificate file (pass in either a relative path or an absolute path)")]
+        [Tooltip(
+            "Path to a file that just contains the password for the certificate file (pass in either a relative path or an absolute path)")]
         public string PasswordFilePath = "";
 
         public X509Certificate2 Certificate
         {
             get
             {
-                if (SSLEnabled == false)
-                {
-                    Debug.LogError("SSL is not enabled but a certificate is being requested");
-                    return null;
-                }
                 if (CertificatePasswordProtected)
                 {
                     return NewPasswordProtectedCertificate();
@@ -46,7 +64,7 @@ namespace Mirror
             }
         }
 
-        X509Certificate2 NewPasswordProtectedCertificate()
+        private X509Certificate2 NewPasswordProtectedCertificate()
         {
             if (!ValidateCertificatePath(CertificatePath))
             {
@@ -62,7 +80,7 @@ namespace Mirror
             return new X509Certificate2(CertificatePath, password);
         }
 
-        X509Certificate2 NewCertificate()
+        private X509Certificate2 NewCertificate()
         {
             if (!ValidateCertificatePath(CertificatePath))
             {
@@ -72,7 +90,7 @@ namespace Mirror
             return new X509Certificate2(CertificatePath);
         }
 
-        static bool ValidatePasswordFilePath(string passwordFilePath)
+        private static bool ValidatePasswordFilePath(string passwordFilePath)
         {
             if (string.IsNullOrEmpty(passwordFilePath))
             {
@@ -88,7 +106,7 @@ namespace Mirror
             return true;
         }
 
-        static bool ValidateCertificatePath(string certificatePath)
+        private static bool ValidateCertificatePath(string certificatePath)
         {
             if (string.IsNullOrEmpty(certificatePath))
             {
