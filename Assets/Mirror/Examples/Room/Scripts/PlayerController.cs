@@ -4,7 +4,7 @@ namespace Mirror.Examples.NetworkRoom
 {
     [RequireComponent(typeof(CapsuleCollider))]
     [RequireComponent(typeof(CharacterController))]
-    [RequireComponent(typeof(NetworkTransformUnreliable))]
+    [RequireComponent(typeof(NetworkTransformReliable))]
     [RequireComponent(typeof(Rigidbody))]
     public class PlayerController : NetworkBehaviour
     {

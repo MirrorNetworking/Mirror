@@ -7,7 +7,7 @@ namespace Mirror
 {
     // a transport that can listen to multiple underlying transport at the same time
     [DisallowMultipleComponent]
-    public class MultiplexTransport : Transport
+    public class MultiplexTransport : Transport, PortTransport
     {
         public Transport[] transports;
 
@@ -41,6 +41,44 @@ namespace Mirror
 
         // next multiplexed id counter. start at 1 because 0 is reserved for host.
         int nextMultiplexedId = 1;
+
+        // prevent log flood from OnGUI or similar per-frame updates
+        bool alreadyWarned;
+
+        public ushort Port
+        {
+            get
+            {
+                foreach (Transport transport in transports)
+                    if (transport.Available() && transport is PortTransport portTransport)
+                        return portTransport.Port;
+
+                return 0;
+            }
+            set
+            {
+                if (Utils.IsHeadless() && !alreadyWarned)
+                {
+                    // prevent log flood from OnGUI or similar per-frame updates
+                    alreadyWarned = true;
+                    Debug.LogWarning($"MultiplexTransport: Server cannot set the same listen port for all transports! Set them directly instead.");
+                }
+
+                else
+                {
+                    // We can't set the same port for all transports because
+                    // listen ports have to be different for each transport
+                    // so we just set the first available one.
+                    // This depends on the selected build platform.
+                    foreach (Transport transport in transports)
+                        if (transport.Available() && transport is PortTransport portTransport)
+                        {
+                            portTransport.Port = value;
+                            break;
+                        }
+                }
+            }
+        }
 
         // add to bidirection lookup. returns the multiplexed connectionId.
         public int AddToLookup(int originalConnectionId, int transportIndex)
