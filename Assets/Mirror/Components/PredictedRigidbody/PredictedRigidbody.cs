@@ -88,12 +88,14 @@ namespace Mirror
         [Header("Visual Interpolation")]
         [Tooltip("After creating the visual interpolation object, keep showing the original Rigidbody with a ghost (transparent) material for debugging.")]
         public bool showGhost = true;
+        public float ghostDistanceThreshold = 0.1f;
 
         [Tooltip("After creating the visual interpolation object, replace this object's renderer materials with the ghost (ideally transparent) material.")]
         public Material ghostMaterial;
 
         [Tooltip("How fast to interpolate to the target position, relative to how far we are away from it.\nHigher value will be more jitter but sharper moves, lower value will be less jitter but a little too smooth / rounded moves.")]
-        public float interpolationSpeed = 15; // 10 is a little too low for billiards at least
+        public float positionInterpolationSpeed = 15; // 10 is a little too low for billiards at least
+        public float rotationInterpolationSpeed = 10;
 
         [Tooltip("Teleport if we are further than 'multiplier x collider size' behind.")]
         public float teleportDistanceMultiplier = 10;
@@ -124,17 +126,29 @@ namespace Mirror
             // add the PredictedRigidbodyVisual component
             PredictedRigidbodyVisual visualRigidbody = visualCopy.AddComponent<PredictedRigidbodyVisual>();
             visualRigidbody.target = this;
-            visualRigidbody.interpolationSpeed = interpolationSpeed;
+            visualRigidbody.positionInterpolationSpeed = positionInterpolationSpeed;
+            visualRigidbody.rotationInterpolationSpeed = rotationInterpolationSpeed;
             visualRigidbody.teleportDistanceMultiplier = teleportDistanceMultiplier;
 
             // copy the rendering components
-            if (GetComponent<MeshRenderer>() != null)
+            if (TryGetComponent(out MeshRenderer originalMeshRenderer))
             {
                 MeshFilter meshFilter = visualCopy.AddComponent<MeshFilter>();
                 meshFilter.mesh = GetComponent<MeshFilter>().mesh;
 
                 MeshRenderer meshRenderer = visualCopy.AddComponent<MeshRenderer>();
-                meshRenderer.material = GetComponent<MeshRenderer>().material;
+                meshRenderer.material = originalMeshRenderer.material;
+
+                // renderers often have multiple materials. copy all.
+                if (originalMeshRenderer.materials != null)
+                {
+                    Material[] materials = new Material[originalMeshRenderer.materials.Length];
+                    for (int i = 0; i < materials.Length; ++i)
+                    {
+                        materials[i] = originalMeshRenderer.materials[i];
+                    }
+                    meshRenderer.materials = materials; // need to reassign to see it in effect
+                }
             }
             // if we didn't find a renderer, show a warning
             else Debug.LogWarning($"PredictedRigidbody: {name} found no renderer to copy onto the visual object. If you are using a custom setup, please overwrite PredictedRigidbody.CreateVisualCopy().");
@@ -144,7 +158,16 @@ namespace Mirror
             {
                 if (showGhost)
                 {
-                    rend.material = ghostMaterial;
+                    // renderers often have multiple materials. replace all.
+                    if (rend.materials != null)
+                    {
+                        Material[] materials = rend.materials;
+                        for (int i = 0; i < materials.Length; ++i)
+                        {
+                            materials[i] = ghostMaterial;
+                        }
+                        rend.materials = materials; // need to reassign to see it in effect
+                    }
                 }
                 else
                 {
@@ -182,9 +205,23 @@ namespace Mirror
             SetDirty();
         }
 
+        void UpdateClient()
+        {
+            // only show ghost while interpolating towards the object.
+            // if we are 'inside' the object then don't show ghost.
+            // otherwise it just looks like z-fighting the whole time.
+            // TODO optimize this later
+            bool insideTarget = Vector3.Distance(transform.position, visualCopy.transform.position) <= ghostDistanceThreshold;
+            foreach (MeshRenderer rend in GetComponentsInChildren<MeshRenderer>())
+            {
+                rend.enabled = !insideTarget;
+            }
+        }
+
         void Update()
         {
             if (isServer) UpdateServer();
+            if (isClient) UpdateClient();
         }
 
         void FixedUpdate()
@@ -452,6 +489,14 @@ namespace Mirror
 
             // compare state without deltas
             CompareState(timestamp, new RigidbodyState(timestamp, Vector3.zero, position, rotation, Vector3.zero, velocity));
+        }
+
+        protected override void OnValidate()
+        {
+            base.OnValidate();
+
+            // force syncDirection to be ServerToClient
+            syncDirection = SyncDirection.ServerToClient;
         }
     }
 }
