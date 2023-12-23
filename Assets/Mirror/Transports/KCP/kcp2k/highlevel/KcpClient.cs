@@ -187,19 +187,6 @@ namespace kcp2k
             SendData(segment, channel);
         }
 
-        public override void Disconnect()
-        {
-            // only if connected
-            // otherwise we end up in a deadlock because of an open Mirror bug:
-            // https://github.com/vis2k/Mirror/issues/2353
-            if (!connected) return;
-
-            // call Disconnect and let the connection handle it.
-            // DO NOT set it to null yet. it needs to be updated a few more
-            // times first. let the connection handle it!
-            base.Disconnect();
-        }
-
         // insert raw IO. usually from socket.Receive.
         // offset is useful for relays, where we may parse a header and then
         // feed the rest to kcp.
