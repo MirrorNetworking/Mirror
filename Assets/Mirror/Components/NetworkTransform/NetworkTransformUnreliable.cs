@@ -317,7 +317,7 @@ namespace Mirror
         [Command(channel = Channels.Unreliable)]
         void CmdClientToServerSyncCompressRotation(Vector3? position, uint? rotation, Vector3? scale)
         {
-            OnClientToServerSync(position, rotation.HasValue ? Compression.DecompressQuaternion((uint)rotation) : target.rotation, scale);
+            OnClientToServerSync(position, rotation.HasValue ? Compression.DecompressQuaternion((uint)rotation) : GetRotation(), scale);
             //For client authority, immediately pass on the client snapshot to all other
             //clients instead of waiting for server to send its snapshots.
             if (syncDirection == SyncDirection.ClientToServer)
@@ -358,7 +358,7 @@ namespace Mirror
         // only unreliable. see comment above of this file.
         [ClientRpc(channel = Channels.Unreliable)]
         void RpcServerToClientSyncCompressRotation(Vector3? position, uint? rotation, Vector3? scale) =>
-            OnServerToClientSync(position, rotation.HasValue ? Compression.DecompressQuaternion((uint)rotation) : target.rotation, scale);
+            OnServerToClientSync(position, rotation.HasValue ? Compression.DecompressQuaternion((uint)rotation) : GetRotation(), scale);
 
         // server broadcasts sync message to all clients
         protected virtual void OnServerToClientSync(Vector3? position, Quaternion? rotation, Vector3? scale)
