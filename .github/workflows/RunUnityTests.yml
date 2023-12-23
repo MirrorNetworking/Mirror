@@ -31,7 +31,7 @@ jobs:
       #    key: Library-${{ matrix.unityVersion }}
 
       - name: Run editor Tests
-        uses: game-ci/unity-test-runner@v3
+        uses: game-ci/unity-test-runner@main
 
         # We can use the same license for all Unity versions
         env:
