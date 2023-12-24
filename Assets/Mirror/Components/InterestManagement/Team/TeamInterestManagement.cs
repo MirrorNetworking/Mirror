@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Mirror
@@ -65,13 +65,20 @@ namespace Mirror
             foreach (KeyValuePair<string, HashSet<NetworkTeam>> kvp in teamObjects)
                 foreach (NetworkTeam networkTeam in kvp.Value)
                 {
-                    string networkTeamId = networkTeam.teamId;
-                    //if (!lastObjectTeam.TryGetValue(networkTeam.netIdentity, out NetworkTeam currentTeam))
-                    //    continue;
+                    if (!lastObjectTeam.TryGetValue(networkTeam.netIdentity, out NetworkTeam currentTeam))
+                        continue;
 
                     // Null / Empty string is never a valid teamId
+                    // Remove the object from this team
+                    string networkTeamId = networkTeam.teamId;
+                    if (string.IsNullOrWhiteSpace(networkTeamId))
+                    {
+                        UpdateTeamObjects(networkTeam.netIdentity, networkTeam, null);
+                        continue;
+                    }
+
                     // Nothing to do if teamId hasn't changed
-                    if (string.IsNullOrWhiteSpace(networkTeamId) || networkTeamId == kvp.Key)
+                    if (networkTeamId == kvp.Key)
                         continue;
 
                     // Mark new/old Teams as dirty so they get rebuilt
@@ -79,7 +86,7 @@ namespace Mirror
 
                     // This object is in a new team so observers in the prior team
                     // and the new team need to rebuild their respective observers lists.
-                    UpdateTeamObjects(networkTeam.netIdentity, networkTeam, networkTeam);
+                    UpdateTeamObjects(networkTeam.netIdentity, currentTeam, networkTeam);
                 }
 
             // rebuild all dirty teams
@@ -89,21 +96,31 @@ namespace Mirror
             dirtyTeams.Clear();
         }
 
-        void UpdateDirtyTeams(string newTeam, NetworkTeam currentTeam)
+        void UpdateDirtyTeams(string newTeamId, NetworkTeam currentTeam)
         {
             // Null / Empty string is never a valid teamId
             if (!string.IsNullOrWhiteSpace(currentTeam.teamId))
                 dirtyTeams.Add(currentTeam.teamId);
 
-            dirtyTeams.Add(newTeam);
+            dirtyTeams.Add(newTeamId);
         }
 
-        void UpdateTeamObjects(NetworkIdentity netIdentity, NetworkTeam newTeam, NetworkTeam currentTeam)
+        void UpdateTeamObjects(NetworkIdentity netIdentity, NetworkTeam currentTeam, NetworkTeam newTeam)
         {
-            // Remove this object from the hashset of the team it just left
             // string.Empty is never a valid teamId
+            // Remove this object from the hashset of the team it just left
             if (!string.IsNullOrWhiteSpace(currentTeam.teamId))
+            {
                 teamObjects[currentTeam.teamId].Remove(currentTeam);
+                lastObjectTeam.Remove(netIdentity);
+                return;
+            }
+
+            if (newTeam == null)
+            {
+                lastObjectTeam.Remove(netIdentity);
+                return;
+            }
 
             // Set this to the new team this object just entered
             lastObjectTeam[netIdentity] = newTeam;
