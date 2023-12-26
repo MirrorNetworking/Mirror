@@ -48,12 +48,14 @@ jobs:
         
       - name: Archive test results
         uses: actions/upload-artifact@v3
+        if: always()
         with:
           name: Test Results ${{ matrix.unityVersion }}
           path: artifacts
 
       - name: Publish test results
         uses: MirrorNetworking/nunit-reporter@master
+        if: always()
         with:
           reportTitle: Test Report ${{ matrix.unityVersion }}
           path: "artifacts/*.xml"
