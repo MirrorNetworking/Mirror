@@ -7,18 +7,22 @@ namespace Mirror
     [AddComponentMenu("Network/ Interest Management/ Match/Match Interest Management")]
     public class MatchInterestManagement : InterestManagement
     {
-        readonly Dictionary<Guid, HashSet<NetworkMatch>> matchObjects = new Dictionary<Guid, HashSet<NetworkMatch>>();
-        readonly Dictionary<NetworkIdentity, NetworkMatch> lastObjectMatch = new Dictionary<NetworkIdentity, NetworkMatch>();
+        readonly Dictionary<Guid, HashSet<NetworkMatch>> matchObjects =
+            new Dictionary<Guid, HashSet<NetworkMatch>>();
+
+        readonly Dictionary<NetworkIdentity, NetworkMatch> lastObjectMatch =
+            new Dictionary<NetworkIdentity, NetworkMatch>();
+
         readonly HashSet<Guid> dirtyMatches = new HashSet<Guid>();
 
         [ServerCallback]
         public override void OnSpawned(NetworkIdentity identity)
         {
-            if (!identity.TryGetComponent(out NetworkMatch identityNetworkMatch))
+            if (!identity.TryGetComponent(out NetworkMatch networkMatch))
                 return;
 
-            Guid networkMatchId = identityNetworkMatch.matchId;
-            lastObjectMatch[identity] = identityNetworkMatch;
+            Guid networkMatchId = networkMatch.matchId;
+            lastObjectMatch[identity] = networkMatch;
 
             // Guid.Empty is never a valid matchId...do not add to matchObjects collection
             if (networkMatchId == Guid.Empty)
@@ -31,7 +35,7 @@ namespace Mirror
                 matchObjects.Add(networkMatchId, objects);
             }
 
-            objects.Add(identityNetworkMatch);
+            objects.Add(networkMatch);
 
             // Match ID could have been set in NetworkBehaviour::OnStartServer on this object.
             // Since that's after OnCheckObserver is called it would be missed, so force Rebuild here.
