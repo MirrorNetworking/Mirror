@@ -10,7 +10,7 @@ namespace Mirror.Examples.CharacterSelection
         // Either of these allow selecting character after spawning in too.
         public bool SpawnAsCharacter = true;
 
-        public static new NetworkManagerCharacterSelection singleton { get; private set; }
+        public static new NetworkManagerCharacterSelection singleton => (NetworkManagerCharacterSelection)NetworkManager.singleton;
         private CharacterData characterData;
 
         public override void Awake()
@@ -22,7 +22,6 @@ namespace Mirror.Examples.CharacterSelection
                 return;
             }
             base.Awake();
-            singleton = this;
         }
 
         public struct CreateCharacterMessage : NetworkMessage
