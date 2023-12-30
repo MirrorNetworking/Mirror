@@ -153,13 +153,11 @@ namespace Mirror
             if (!identity.TryGetComponent(out NetworkMatch networkMatch))
                 return;
 
-            Guid matchId = networkMatch.matchId;
-
             // Guid.Empty is never a valid matchId
-            if (matchId == Guid.Empty)
+            if (networkMatch.matchId == Guid.Empty)
                 return;
 
-            if (!matchObjects.TryGetValue(matchId, out HashSet<NetworkMatch> objects))
+            if (!matchObjects.TryGetValue(networkMatch.matchId, out HashSet<NetworkMatch> objects))
                 return;
 
             // Add everything in the hashset for this object's current match
