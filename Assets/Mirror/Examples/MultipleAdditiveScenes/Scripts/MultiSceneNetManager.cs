@@ -27,18 +27,6 @@ namespace Mirror.Examples.MultipleAdditiveScenes
         // Sequential index used in round-robin deployment of players into instances and score positioning
         int clientIndex;
 
-        public static new MultiSceneNetManager singleton { get; private set; }
-
-        /// <summary>
-        /// Runs on both Server and Client
-        /// Networking is NOT initialized when this fires
-        /// </summary>
-        public override void Awake()
-        {
-            base.Awake();
-            singleton = this;
-        }
-
         #region Server System Callbacks
 
         /// <summary>
