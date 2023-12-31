@@ -9,7 +9,25 @@ namespace Mirror
     [HelpURL("https://mirror-networking.gitbook.io/docs/guides/interest-management")]
     public class NetworkMatch : NetworkBehaviour
     {
+        private Guid _matchId;
+
         ///<summary>Set this to the same value on all networked objects that belong to a given match</summary>
-        public Guid matchId;
+        public Guid matchId
+        {
+            get => _matchId;
+            set
+            {
+                if (!NetworkServer.active)
+                    throw new InvalidOperationException("matchId can only be set at runtime on active server");
+
+                if (_matchId == value)
+                    return;
+
+                _matchId = value;
+
+                if (NetworkServer.aoi is MatchInterestManagement matchInterestManagement)
+                    matchInterestManagement.OnMatchChanged(this);
+            }
+        }
     }
 }
