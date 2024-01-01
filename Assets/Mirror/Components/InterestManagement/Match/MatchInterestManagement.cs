@@ -64,11 +64,10 @@ namespace Mirror
             {
                 HashSet<NetworkMatch> matchSet = matchObjects[oldMatch];
                 matchSet.Remove(match);
+
                 // clean up empty entries in the dict
                 if (matchSet.Count == 0)
-                {
                     matchObjects.Remove(oldMatch);
-                }
             }
 
             // Make sure this new match is in the dictionary
