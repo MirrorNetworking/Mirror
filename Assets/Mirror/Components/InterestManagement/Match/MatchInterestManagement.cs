@@ -10,9 +10,6 @@ namespace Mirror
         readonly Dictionary<Guid, HashSet<NetworkMatch>> matchObjects =
             new Dictionary<Guid, HashSet<NetworkMatch>>();
 
-        readonly Dictionary<NetworkIdentity, NetworkMatch> lastObjectMatch =
-            new Dictionary<NetworkIdentity, NetworkMatch>();
-
         readonly HashSet<Guid> dirtyMatches = new HashSet<Guid>();
 
         // LateUpdate so that all spawns/despawns/changes are done
@@ -38,17 +35,14 @@ namespace Mirror
 
         // called by NetworkMatch.matchId setter
         [ServerCallback]
-        internal void OnMatchChanged(NetworkMatch networkMatch)
+        internal void OnMatchChanged(NetworkMatch networkMatch, Guid oldMatch)
         {
             // Mark new/old matches as dirty so they get rebuilt
             UpdateDirtyMatches(networkMatch.matchId, networkMatch);
 
-            if (lastObjectMatch.TryGetValue(networkMatch.netIdentity, out NetworkMatch currentMatch))
-            {
-                // This object is in a new match so observers in the prior match
-                // and the new match need to rebuild their respective observers lists.
-                UpdateMatchObjects(networkMatch.netIdentity, networkMatch, currentMatch);
-            }
+            // This object is in a new match so observers in the prior match
+            // and the new match need to rebuild their respective observers lists.
+            UpdateMatchObjects(networkMatch, oldMatch);
         }
 
         [ServerCallback]
@@ -62,22 +56,26 @@ namespace Mirror
         }
 
         [ServerCallback]
-        void UpdateMatchObjects(NetworkIdentity netIdentity, NetworkMatch newMatch, NetworkMatch currentMatch)
+        void UpdateMatchObjects(NetworkMatch match, Guid oldMatch)
         {
             // Remove this object from the hashset of the match it just left
             // Guid.Empty is never a valid matchId
-            if (currentMatch.matchId != Guid.Empty)
-                matchObjects[currentMatch.matchId].Remove(currentMatch);
+            if (oldMatch != Guid.Empty)
+            {
+                HashSet<NetworkMatch> matchSet = matchObjects[oldMatch];
+                matchSet.Remove(match);
 
-            // Set this to the new match this object just entered
-            lastObjectMatch[netIdentity] = newMatch;
+                // clean up empty entries in the dict
+                if (matchSet.Count == 0)
+                    matchObjects.Remove(oldMatch);
+            }
 
             // Make sure this new match is in the dictionary
-            if (!matchObjects.ContainsKey(newMatch.matchId))
-                matchObjects[newMatch.matchId] = new HashSet<NetworkMatch>();
+            if (!matchObjects.ContainsKey(match.matchId))
+                matchObjects[match.matchId] = new HashSet<NetworkMatch>();
 
             // Add this object to the hashset of the new match
-            matchObjects[newMatch.matchId].Add(newMatch);
+            matchObjects[match.matchId].Add(match);
         }
 
         [ServerCallback]
@@ -87,7 +85,6 @@ namespace Mirror
                 return;
 
             Guid networkMatchId = networkMatch.matchId;
-            lastObjectMatch[identity] = networkMatch;
 
             // Guid.Empty is never a valid matchId...do not add to matchObjects collection
             if (networkMatchId == Guid.Empty)
@@ -115,9 +112,8 @@ namespace Mirror
             // Multiple objects could be destroyed in same frame and we don't
             // want to rebuild for each one...let LateUpdate do it once.
             // We must add the current match to dirtyMatches for LateUpdate to rebuild it.
-            if (lastObjectMatch.TryGetValue(identity, out NetworkMatch currentMatch))
+            if (identity.TryGetComponent(out NetworkMatch currentMatch))
             {
-                lastObjectMatch.Remove(identity);
                 if (currentMatch.matchId != Guid.Empty && matchObjects.TryGetValue(currentMatch.matchId, out HashSet<NetworkMatch> objects) && objects.Remove(currentMatch))
                     dirtyMatches.Add(currentMatch.matchId);
             }

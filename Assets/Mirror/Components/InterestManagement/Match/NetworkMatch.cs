@@ -23,10 +23,11 @@ namespace Mirror
                 if (_matchId == value)
                     return;
 
+                Guid oldMatch = _matchId;
                 _matchId = value;
 
                 if (NetworkServer.aoi is MatchInterestManagement matchInterestManagement)
-                    matchInterestManagement.OnMatchChanged(this);
+                    matchInterestManagement.OnMatchChanged(this, oldMatch);
             }
         }
     }
