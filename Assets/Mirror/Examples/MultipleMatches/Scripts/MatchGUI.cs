@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -25,14 +25,13 @@ namespace Mirror.Examples.MultipleMatch
             // Deprecated in Unity 2023.1
             canvasController = GameObject.FindObjectOfType<CanvasController>();
 #endif
-            toggleButton.onValueChanged.AddListener(delegate { OnToggleClicked(); });
         }
 
         [ClientCallback]
-        public void OnToggleClicked()
+        public void OnToggleClicked(bool isOn)
         {
-            canvasController.SelectMatch(toggleButton.isOn ? matchId : Guid.Empty);
-            image.color = toggleButton.isOn ? new Color(0f, 1f, 0f, 0.5f) : new Color(1f, 1f, 1f, 0.2f);
+            canvasController.SelectMatch(isOn ? matchId : Guid.Empty);
+            image.color = isOn ? new Color(0f, 1f, 0f, 0.5f) : new Color(1f, 1f, 1f, 0.2f);
         }
 
         [ClientCallback]
