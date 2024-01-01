@@ -7,6 +7,9 @@ namespace Mirror
     [AddComponentMenu("Network/ Interest Management/ Match/Match Interest Management")]
     public class MatchInterestManagement : InterestManagement
     {
+        [Header("Debug Info - Do Not Modify")]
+        public byte matchCount;
+
         readonly Dictionary<Guid, HashSet<NetworkMatch>> matchObjects =
             new Dictionary<Guid, HashSet<NetworkMatch>>();
 
@@ -20,9 +23,19 @@ namespace Mirror
             // dirtyMatches will be empty if no matches changed members
             // by spawning or destroying or changing matchId in this frame.
             foreach (Guid dirtyMatch in dirtyMatches)
+            {
+                // rebuild always, even if matchObjects[dirtyMatch] is empty.
+                // Players might have left the match, but they may still be spawned.
                 RebuildMatchObservers(dirtyMatch);
 
+                // clean up empty entries in the dict
+                if (matchObjects[dirtyMatch].Count == 0)
+                    matchObjects.Remove(dirtyMatch);
+            }
+
             dirtyMatches.Clear();
+
+            matchCount = (byte)matchObjects.Count;
         }
 
         [ServerCallback]
@@ -54,10 +67,6 @@ namespace Mirror
             {
                 HashSet<NetworkMatch> matchSet = matchObjects[oldMatch];
                 matchSet.Remove(networkMatch);
-
-                // clean up empty entries in the dict
-                if (matchSet.Count == 0)
-                    matchObjects.Remove(oldMatch);
             }
 
             // Make sure this new match is in the dictionary
