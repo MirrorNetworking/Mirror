@@ -38,32 +38,22 @@ namespace Mirror
         internal void OnMatchChanged(NetworkMatch networkMatch, Guid oldMatch)
         {
             // Mark new/old matches as dirty so they get rebuilt
-            UpdateDirtyMatches(networkMatch.matchId, networkMatch);
+
+            // Guid.Empty is never a valid matchId
+            if (networkMatch.matchId != Guid.Empty)
+                dirtyMatches.Add(networkMatch.matchId);
+
+            dirtyMatches.Add(networkMatch.matchId);
 
             // This object is in a new match so observers in the prior match
             // and the new match need to rebuild their respective observers lists.
-            UpdateMatchObjects(networkMatch, oldMatch);
-        }
 
-        [ServerCallback]
-        void UpdateDirtyMatches(Guid newMatch, NetworkMatch currentMatch)
-        {
-            // Guid.Empty is never a valid matchId
-            if (currentMatch.matchId != Guid.Empty)
-                dirtyMatches.Add(currentMatch.matchId);
-
-            dirtyMatches.Add(newMatch);
-        }
-
-        [ServerCallback]
-        void UpdateMatchObjects(NetworkMatch match, Guid oldMatch)
-        {
             // Remove this object from the hashset of the match it just left
             // Guid.Empty is never a valid matchId
             if (oldMatch != Guid.Empty)
             {
                 HashSet<NetworkMatch> matchSet = matchObjects[oldMatch];
-                matchSet.Remove(match);
+                matchSet.Remove(networkMatch);
 
                 // clean up empty entries in the dict
                 if (matchSet.Count == 0)
@@ -71,11 +61,11 @@ namespace Mirror
             }
 
             // Make sure this new match is in the dictionary
-            if (!matchObjects.ContainsKey(match.matchId))
-                matchObjects[match.matchId] = new HashSet<NetworkMatch>();
+            if (!matchObjects.ContainsKey(networkMatch.matchId))
+                matchObjects[networkMatch.matchId] = new HashSet<NetworkMatch>();
 
             // Add this object to the hashset of the new match
-            matchObjects[match.matchId].Add(match);
+            matchObjects[networkMatch.matchId].Add(networkMatch);
         }
 
         [ServerCallback]
