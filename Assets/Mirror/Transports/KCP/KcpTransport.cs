@@ -6,6 +6,7 @@ using UnityEngine;
 using Mirror;
 using Unity.Collections;
 using UnityEngine.Serialization;
+using ReadOnlyAttribute = Mirror.ReadOnlyAttribute;
 
 namespace kcp2k
 {
