@@ -375,18 +375,11 @@ namespace Mirror
             {
                 for (int i = 0; i < animator.layerCount; i++)
                 {
-                    if (animator.IsInTransition(i))
-                    {
-                        AnimatorStateInfo st = animator.GetNextAnimatorStateInfo(i);
-                        writer.WriteInt(st.fullPathHash);
-                        writer.WriteFloat(st.normalizedTime);
-                    }
-                    else
-                    {
-                        AnimatorStateInfo st = animator.GetCurrentAnimatorStateInfo(i);
-                        writer.WriteInt(st.fullPathHash);
-                        writer.WriteFloat(st.normalizedTime);
-                    }
+                    AnimatorStateInfo st = animator.IsInTransition(i)
+                        ? animator.GetNextAnimatorStateInfo(i)
+                        : animator.GetCurrentAnimatorStateInfo(i);
+                    writer.WriteInt(st.fullPathHash);
+                    writer.WriteFloat(st.normalizedTime);
                     writer.WriteFloat(animator.GetLayerWeight(i));
                 }
                 WriteParameters(writer, initialState);
