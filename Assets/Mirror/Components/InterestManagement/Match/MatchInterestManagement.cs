@@ -113,7 +113,9 @@ namespace Mirror
             // We must add the current match to dirtyMatches for LateUpdate to rebuild it.
             if (identity.TryGetComponent(out NetworkMatch currentMatch))
             {
-                if (currentMatch.matchId != Guid.Empty && matchObjects.TryGetValue(currentMatch.matchId, out HashSet<NetworkMatch> objects) && objects.Remove(currentMatch))
+                if (currentMatch.matchId != Guid.Empty &&
+                    matchObjects.TryGetValue(currentMatch.matchId, out HashSet<NetworkMatch> objects) &&
+                    objects.Remove(currentMatch))
                     dirtyMatches.Add(currentMatch.matchId);
             }
         }
