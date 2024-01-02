@@ -8,7 +8,8 @@ namespace Mirror
     public class MatchInterestManagement : InterestManagement
     {
         [Header("Debug Info - Do Not Modify")]
-        public byte matchCount;
+        [ReadOnly]
+        public ushort matchCount;
 
         readonly Dictionary<Guid, HashSet<NetworkMatch>> matchObjects =
             new Dictionary<Guid, HashSet<NetworkMatch>>();
@@ -35,7 +36,7 @@ namespace Mirror
 
             dirtyMatches.Clear();
 
-            matchCount = (byte)matchObjects.Count;
+            matchCount = (ushort)matchObjects.Count;
         }
 
         [ServerCallback]
@@ -50,14 +51,6 @@ namespace Mirror
         [ServerCallback]
         internal void OnMatchChanged(NetworkMatch networkMatch, Guid oldMatch)
         {
-            // Mark new/old matches as dirty so they get rebuilt
-
-            // Guid.Empty is never a valid matchId
-            if (networkMatch.matchId != Guid.Empty)
-                dirtyMatches.Add(networkMatch.matchId);
-
-            dirtyMatches.Add(networkMatch.matchId);
-
             // This object is in a new match so observers in the prior match
             // and the new match need to rebuild their respective observers lists.
 
@@ -65,9 +58,15 @@ namespace Mirror
             // Guid.Empty is never a valid matchId
             if (oldMatch != Guid.Empty)
             {
-                HashSet<NetworkMatch> matchSet = matchObjects[oldMatch];
-                matchSet.Remove(networkMatch);
+                dirtyMatches.Add(oldMatch);
+                matchObjects[oldMatch].Remove(networkMatch);
             }
+
+            // Guid.Empty is never a valid matchId
+            if (networkMatch.matchId == Guid.Empty)
+                return;
+
+            dirtyMatches.Add(networkMatch.matchId);
 
             // Make sure this new match is in the dictionary
             if (!matchObjects.ContainsKey(networkMatch.matchId))
