@@ -382,7 +382,7 @@ namespace Mirror
                     writer.WriteFloat(st.normalizedTime);
                     writer.WriteFloat(animator.GetLayerWeight(i));
                 }
-                WriteParameters(writer, initialState);
+                WriteParameters(writer, true);
             }
         }
 
