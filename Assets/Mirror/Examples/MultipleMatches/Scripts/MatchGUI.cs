@@ -14,8 +14,8 @@ namespace Mirror.Examples.MultipleMatch
         public Text matchName;
         public Text playerCount;
 
-        [Header("Diagnostics - Do Not Modify")]
-        public CanvasController canvasController;
+        [Header("Diagnostics")]
+        [ReadOnly, SerializeField] internal CanvasController canvasController;
 
         public void Awake()
         {
