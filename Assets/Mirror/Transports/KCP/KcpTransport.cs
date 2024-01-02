@@ -3,7 +3,6 @@ using System;
 using System.Linq;
 using System.Net;
 using Mirror;
-using ReadOnlyAttribute = Mirror.ReadOnlyAttribute;
 using UnityEngine;
 using UnityEngine.Serialization;
 
