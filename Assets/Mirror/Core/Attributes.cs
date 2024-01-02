@@ -88,5 +88,4 @@ namespace Mirror
     /// </summary>
     [AttributeUsage(AttributeTargets.Field)]
     public class ReadOnlyAttribute : PropertyAttribute { }
-
 }
