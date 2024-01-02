@@ -71,7 +71,7 @@ namespace Mirror
             }
         }
 
-        void Awake()
+        void Initialize()
         {
             // store the animator parameters in a variable - the "Animator.parameters" getter allocates
             // a new parameter array every time it is accessed so we should avoid doing it in a loop
@@ -86,6 +86,12 @@ namespace Mirror
             transitionHash = new int[animator.layerCount];
             layerWeight = new float[animator.layerCount];
         }
+
+        // fix https://github.com/MirrorNetworking/Mirror/issues/2810
+        // both Awake and Enable need to initialize arrays.
+        // in case users call SetActive(false) -> SetActive(true).
+        void Awake() => Initialize();
+        void Enable() => Initialize();
 
         void FixedUpdate()
         {
