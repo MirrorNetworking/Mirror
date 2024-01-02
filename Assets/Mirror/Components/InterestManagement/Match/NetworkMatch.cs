@@ -26,6 +26,7 @@ namespace Mirror
                 Guid oldMatch = _matchId;
                 _matchId = value;
 
+                // Only inform the AOI if this netIdentity has been spawned (isServer) and only if using a MatchInterestManagement
                 if (isServer && NetworkServer.aoi is MatchInterestManagement matchInterestManagement)
                     matchInterestManagement.OnMatchChanged(this, oldMatch);
             }
