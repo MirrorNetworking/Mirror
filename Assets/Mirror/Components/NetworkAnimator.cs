@@ -373,7 +373,15 @@ namespace Mirror
             base.OnSerialize(writer, initialState);
             if (initialState)
             {
-                for (int i = 0; i < animator.layerCount; i++)
+                // fix: https://github.com/MirrorNetworking/Mirror/issues/2852
+                // serialize layerCount to be 100% sure we deserialize correct amount of bytes.
+                // (255 layers should be enough for everyone, write it as byte)
+                byte layerCount = (byte)animator.layerCount;
+                writer.WriteByte(layerCount);
+
+                // iterate on byte count. if it's >256, it won't break
+                // serialization - just not serialize excess layers.
+                for (int i = 0; i < layerCount; i++)
                 {
                     AnimatorStateInfo st = animator.IsInTransition(i)
                         ? animator.GetNextAnimatorStateInfo(i)
@@ -391,7 +399,17 @@ namespace Mirror
             base.OnDeserialize(reader, initialState);
             if (initialState)
             {
-                for (int i = 0; i < animator.layerCount; i++)
+                // fix: https://github.com/MirrorNetworking/Mirror/issues/2852
+                // serialize layerCount to be 100% sure we deserialize correct amount of bytes.
+                // mismatch shows error to make this super easy to debug.
+                byte layerCount = reader.ReadByte();
+                if (layerCount != animator.layerCount)
+                {
+                    Debug.LogError($"NetworkAnimator: serialized layer count={layerCount} does not match expected layer count={animator.layerCount}. Are you changing animators at runtime?");
+                    return;
+                }
+
+                for (int i = 0; i < layerCount; i++)
                 {
                     int stateHash = reader.ReadInt();
                     float normalizedTime = reader.ReadFloat();
