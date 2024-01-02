@@ -71,7 +71,7 @@ namespace Mirror
             }
         }
 
-        void Awake()
+        void Initialize()
         {
             // store the animator parameters in a variable - the "Animator.parameters" getter allocates
             // a new parameter array every time it is accessed so we should avoid doing it in a loop
@@ -86,6 +86,12 @@ namespace Mirror
             transitionHash = new int[animator.layerCount];
             layerWeight = new float[animator.layerCount];
         }
+
+        // fix https://github.com/MirrorNetworking/Mirror/issues/2810
+        // both Awake and Enable need to initialize arrays.
+        // in case users call SetActive(false) -> SetActive(true).
+        void Awake() => Initialize();
+        void Enable() => Initialize();
 
         void FixedUpdate()
         {
@@ -369,21 +375,14 @@ namespace Mirror
             {
                 for (int i = 0; i < animator.layerCount; i++)
                 {
-                    if (animator.IsInTransition(i))
-                    {
-                        AnimatorStateInfo st = animator.GetNextAnimatorStateInfo(i);
-                        writer.WriteInt(st.fullPathHash);
-                        writer.WriteFloat(st.normalizedTime);
-                    }
-                    else
-                    {
-                        AnimatorStateInfo st = animator.GetCurrentAnimatorStateInfo(i);
-                        writer.WriteInt(st.fullPathHash);
-                        writer.WriteFloat(st.normalizedTime);
-                    }
+                    AnimatorStateInfo st = animator.IsInTransition(i)
+                        ? animator.GetNextAnimatorStateInfo(i)
+                        : animator.GetCurrentAnimatorStateInfo(i);
+                    writer.WriteInt(st.fullPathHash);
+                    writer.WriteFloat(st.normalizedTime);
                     writer.WriteFloat(animator.GetLayerWeight(i));
                 }
-                WriteParameters(writer, initialState);
+                WriteParameters(writer, true);
             }
         }
 
@@ -396,7 +395,9 @@ namespace Mirror
                 {
                     int stateHash = reader.ReadInt();
                     float normalizedTime = reader.ReadFloat();
-                    animator.SetLayerWeight(i, reader.ReadFloat());
+                    float weight = reader.ReadFloat();
+
+                    animator.SetLayerWeight(i, weight);
                     animator.Play(stateHash, i, normalizedTime);
                 }
 
