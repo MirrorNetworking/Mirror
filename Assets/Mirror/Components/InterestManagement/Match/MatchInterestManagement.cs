@@ -7,7 +7,7 @@ namespace Mirror
     [AddComponentMenu("Network/ Interest Management/ Match/Match Interest Management")]
     public class MatchInterestManagement : InterestManagement
     {
-        [Header("Debug Info")]
+        [Header("Diagnostics")]
         [ReadOnly, SerializeField]
         internal ushort matchCount;
 
