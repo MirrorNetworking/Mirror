@@ -7,9 +7,9 @@ namespace Mirror
     [AddComponentMenu("Network/ Interest Management/ Match/Match Interest Management")]
     public class MatchInterestManagement : InterestManagement
     {
-        [Header("Debug Info - Do Not Modify")]
-        [ReadOnly]
-        public ushort matchCount;
+        [Header("Debug Info")]
+        [ReadOnly, SerializeField]
+        internal ushort matchCount;
 
         readonly Dictionary<Guid, HashSet<NetworkMatch>> matchObjects =
             new Dictionary<Guid, HashSet<NetworkMatch>>();
