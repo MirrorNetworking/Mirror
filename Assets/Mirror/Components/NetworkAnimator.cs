@@ -396,6 +396,7 @@ namespace Mirror
                     int stateHash = reader.ReadInt();
                     float normalizedTime = reader.ReadFloat();
                     float weight = reader.ReadFloat();
+
                     animator.SetLayerWeight(i, weight);
                     animator.Play(stateHash, i, normalizedTime);
                 }
