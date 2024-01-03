@@ -308,9 +308,18 @@ namespace Mirror
 
         bool WriteParameters(NetworkWriter writer, bool forceAll = false)
         {
+            // fix: https://github.com/MirrorNetworking/Mirror/issues/2852
+            // serialize parameterCount to be 100% sure we deserialize correct amount of bytes.
+            // (255 parameters should be enough for everyone, write it as byte)
+            byte parameterCount = (byte)parameters.Length;
+            writer.WriteByte(parameterCount);
+
             ulong dirtyBits = forceAll ? (~0ul) : NextDirtyBits();
             writer.WriteULong(dirtyBits);
-            for (int i = 0; i < parameters.Length; i++)
+
+            // iterate on byte count. if it's >256, it won't break
+            // serialization - just not serialize excess layers.
+            for (int i = 0; i < parameterCount; i++)
             {
                 if ((dirtyBits & (1ul << i)) == 0)
                     continue;
@@ -337,11 +346,20 @@ namespace Mirror
 
         void ReadParameters(NetworkReader reader)
         {
+            // fix: https://github.com/MirrorNetworking/Mirror/issues/2852
+            // serialize parameterCount to be 100% sure we deserialize correct amount of bytes.
+            // mismatch shows error to make this super easy to debug.
+            byte parameterCount = reader.ReadByte();
+            if (parameterCount != parameters.Length)
+            {
+                Debug.LogError($"NetworkAnimator: serialized parameter count={parameterCount} does not match expected parameter count={parameters.Length}. Are you changing animators at runtime?");
+                return;
+            }
+
             bool animatorEnabled = animator.enabled;
             // need to read values from NetworkReader even if animator is disabled
-
             ulong dirtyBits = reader.ReadULong();
-            for (int i = 0; i < parameters.Length; i++)
+            for (int i = 0; i < parameterCount; i++)
             {
                 if ((dirtyBits & (1ul << i)) == 0)
                     continue;
@@ -373,7 +391,15 @@ namespace Mirror
             base.OnSerialize(writer, initialState);
             if (initialState)
             {
-                for (int i = 0; i < animator.layerCount; i++)
+                // fix: https://github.com/MirrorNetworking/Mirror/issues/2852
+                // serialize layerCount to be 100% sure we deserialize correct amount of bytes.
+                // (255 layers should be enough for everyone, write it as byte)
+                byte layerCount = (byte)animator.layerCount;
+                writer.WriteByte(layerCount);
+
+                // iterate on byte count. if it's >256, it won't break
+                // serialization - just not serialize excess layers.
+                for (int i = 0; i < layerCount; i++)
                 {
                     AnimatorStateInfo st = animator.IsInTransition(i)
                         ? animator.GetNextAnimatorStateInfo(i)
@@ -391,7 +417,17 @@ namespace Mirror
             base.OnDeserialize(reader, initialState);
             if (initialState)
             {
-                for (int i = 0; i < animator.layerCount; i++)
+                // fix: https://github.com/MirrorNetworking/Mirror/issues/2852
+                // serialize layerCount to be 100% sure we deserialize correct amount of bytes.
+                // mismatch shows error to make this super easy to debug.
+                byte layerCount = reader.ReadByte();
+                if (layerCount != animator.layerCount)
+                {
+                    Debug.LogError($"NetworkAnimator: serialized layer count={layerCount} does not match expected layer count={animator.layerCount}. Are you changing animators at runtime?");
+                    return;
+                }
+
+                for (int i = 0; i < layerCount; i++)
                 {
                     int stateHash = reader.ReadInt();
                     float normalizedTime = reader.ReadFloat();
