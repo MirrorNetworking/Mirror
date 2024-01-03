@@ -480,6 +480,18 @@ namespace Mirror
                 NetworkMessages.Pack(message, writer);
                 ArraySegment<byte> segment = writer.ToArraySegment();
 
+                // validate packet size immediately.
+                // we know how much can fit into one batch at max.
+                // if it's larger, log an error immediately with the type <T>.
+                // previously we only logged in Update() when processing batches,
+                // but there we don't have type information anymore.
+                int max = NetworkMessages.MaxMessageSize(channelId);
+                if (writer.Position > max)
+                {
+                    Debug.LogError($"NetworkServer.SendToAll: message of type {typeof(T)} with a size of {writer.Position} bytes is larger than the max allowed message size in one batch: {max}.\nThe message was dropped, please make it smaller.");
+                    return;
+                }
+
                 // filter and then send to all internet connections at once
                 // -> makes code more complicated, but is HIGHLY worth it to
                 //    avoid allocations, allow for multicast, etc.
@@ -526,6 +538,18 @@ namespace Mirror
                 NetworkMessages.Pack(message, writer);
                 ArraySegment<byte> segment = writer.ToArraySegment();
 
+                // validate packet size immediately.
+                // we know how much can fit into one batch at max.
+                // if it's larger, log an error immediately with the type <T>.
+                // previously we only logged in Update() when processing batches,
+                // but there we don't have type information anymore.
+                int max = NetworkMessages.MaxMessageSize(channelId);
+                if (writer.Position > max)
+                {
+                    Debug.LogError($"NetworkServer.SendToObservers: message of type {typeof(T)} with a size of {writer.Position} bytes is larger than the max allowed message size in one batch: {max}.\nThe message was dropped, please make it smaller.");
+                    return;
+                }
+
                 foreach (NetworkConnectionToClient conn in identity.observers.Values)
                 {
                     conn.Send(segment, channelId);
@@ -549,6 +573,18 @@ namespace Mirror
                 // pack message only once
                 NetworkMessages.Pack(message, writer);
                 ArraySegment<byte> segment = writer.ToArraySegment();
+
+                // validate packet size immediately.
+                // we know how much can fit into one batch at max.
+                // if it's larger, log an error immediately with the type <T>.
+                // previously we only logged in Update() when processing batches,
+                // but there we don't have type information anymore.
+                int max = NetworkMessages.MaxMessageSize(channelId);
+                if (writer.Position > max)
+                {
+                    Debug.LogError($"NetworkServer.SendToReadyObservers: message of type {typeof(T)} with a size of {writer.Position} bytes is larger than the max allowed message size in one batch: {max}.\nThe message was dropped, please make it smaller.");
+                    return;
+                }
 
                 int count = 0;
                 foreach (NetworkConnectionToClient conn in identity.observers.Values)

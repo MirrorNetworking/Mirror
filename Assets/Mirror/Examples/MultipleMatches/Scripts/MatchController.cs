@@ -22,14 +22,14 @@ namespace Mirror.Examples.MultipleMatch
         public Text winCountLocal;
         public Text winCountOpponent;
 
-        [Header("Diagnostics - Do Not Modify")]
-        public CanvasController canvasController;
-        public NetworkIdentity player1;
-        public NetworkIdentity player2;
-        public NetworkIdentity startingPlayer;
+        [Header("Diagnostics")]
+        [ReadOnly, SerializeField] internal CanvasController canvasController;
+        [ReadOnly, SerializeField] internal NetworkIdentity player1;
+        [ReadOnly, SerializeField] internal NetworkIdentity player2;
+        [ReadOnly, SerializeField] internal NetworkIdentity startingPlayer;
 
         [SyncVar(hook = nameof(UpdateGameUI))]
-        public NetworkIdentity currentPlayer;
+        [ReadOnly, SerializeField] internal NetworkIdentity currentPlayer;
 
         void Awake()
         {
