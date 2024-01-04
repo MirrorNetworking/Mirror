@@ -106,7 +106,7 @@ namespace Mirror
         [ServerCallback]
         public override void OnDestroyed(NetworkIdentity identity)
         {
-            // Don't RebuildSceneObservers here - that will happen in Update.
+            // Don't RebuildSceneObservers here - that will happen in LateUpdate.
             // Multiple objects could be destroyed in same frame and we don't
             // want to rebuild for each one...let LateUpdate do it once.
             // We must add the current match to dirtyMatches for LateUpdate to rebuild it.
@@ -151,6 +151,7 @@ namespace Mirror
             if (networkMatch.matchId == Guid.Empty)
                 return;
 
+            // Abort if this match hasn't been created yet by OnSpawned or OnMatchChanged
             if (!matchObjects.TryGetValue(networkMatch.matchId, out HashSet<NetworkMatch> objects))
                 return;
 
