@@ -9,7 +9,7 @@ namespace Mirror
     [HelpURL("https://mirror-networking.gitbook.io/docs/guides/interest-management")]
     public class NetworkMatch : NetworkBehaviour
     {
-        private Guid _matchId;
+        Guid _matchId;
 
         ///<summary>Set this to the same value on all networked objects that belong to a given match</summary>
         public Guid matchId
