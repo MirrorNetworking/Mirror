@@ -633,21 +633,15 @@ namespace Mirror
                 HandleAnimParamsMsg(networkReader);
         }
 
-        [ClientRpc]
+        [ClientRpc(includeOwner = false)]
         void RpcOnAnimationTriggerClientMessage(int hash)
         {
-            // host/owner handles this before it is sent
-            if (isServer || (clientAuthority && isOwned)) return;
-
             HandleAnimTriggerMsg(hash);
         }
 
-        [ClientRpc]
+        [ClientRpc(includeOwner = false)]
         void RpcOnAnimationResetTriggerClientMessage(int hash)
         {
-            // host/owner handles this before it is sent
-            if (isServer || (clientAuthority && isOwned)) return;
-
             HandleAnimResetTriggerMsg(hash);
         }
 
