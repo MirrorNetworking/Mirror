@@ -108,7 +108,7 @@ namespace Mirror.Examples.MultipleMatch
             mpd.currentScore = mpd.currentScore | cellValue;
             matchPlayerData[currentPlayer] = mpd;
 
-            boardScore = boardScore | cellValue;
+            boardScore |= cellValue;
 
             if (CheckWinner(mpd.currentScore))
             {
