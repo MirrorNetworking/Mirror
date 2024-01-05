@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Mirror.Examples.TanksCoop
+namespace Mirror.Examples.TankTheftAuto
 {
     [RequireComponent(typeof(CapsuleCollider))]
     [RequireComponent(typeof(CharacterController))]
