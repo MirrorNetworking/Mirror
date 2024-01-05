@@ -3,7 +3,7 @@ using UnityEngine.SceneManagement;
 
 // This sets up the scene camera for the local player
 
-namespace Mirror.Examples.TanksTheftAuto
+namespace Mirror.Examples.TankTheftAuto
 {
     public class PlayerCamera : NetworkBehaviour
     {

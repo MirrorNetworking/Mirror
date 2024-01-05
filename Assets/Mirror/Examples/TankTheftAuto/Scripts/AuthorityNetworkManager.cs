@@ -1,6 +1,6 @@
 using System.Linq;
 
-namespace Mirror.Examples.TanksTheftAuto
+namespace Mirror.Examples.TankTheftAuto
 {
     public class AuthorityNetworkManager : NetworkManager
     {

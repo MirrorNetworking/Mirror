@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.AI;
 
-namespace Mirror.Examples.TanksTheftAuto
+namespace Mirror.Examples.TankTheftAuto
 {
     public class TankController : NetworkBehaviour
     {
