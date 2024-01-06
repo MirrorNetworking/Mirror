@@ -89,6 +89,8 @@ namespace Mirror
         [Tooltip("After creating the visual interpolation object, keep showing the original Rigidbody with a ghost (transparent) material for debugging.")]
         public bool showGhost = true;
         public float ghostDistanceThreshold = 0.1f;
+        public float ghostEnabledCheckInterval = 0.2f;
+        double lastGhostEnabledCheckTime = 0;
 
         [Tooltip("After creating the visual interpolation object, replace this object's renderer materials with the ghost (ideally transparent) material.")]
         public Material ghostMaterial;
@@ -192,6 +194,12 @@ namespace Mirror
         {
             // only if visual copy was already created
             if (visualCopy == null || originalRenderers == null) return;
+
+            // enough to run this in a certain interval.
+            // doing this every update would be overkill.
+            // this is only for debug purposes anyway.
+            if (NetworkTime.localTime < lastGhostEnabledCheckTime + ghostEnabledCheckInterval) return;
+            lastGhostEnabledCheckTime = NetworkTime.localTime;
 
             // only show ghost while interpolating towards the object.
             // if we are 'inside' the object then don't show ghost.
