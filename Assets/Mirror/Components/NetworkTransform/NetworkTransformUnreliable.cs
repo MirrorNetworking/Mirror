@@ -12,7 +12,7 @@ namespace Mirror
         // Testing under really bad network conditions, 2%-5% packet loss and 250-1200ms ping, 5 proved to eliminate any twitching, however this should not be the default as it is a rare case Developers may want to cover.
         [Tooltip("How much time, as a multiple of send interval, has passed before clearing buffers.\nA larger buffer means more delay, but results in smoother movement.\nExample: 1 for faster responses minimal smoothing, 5 covers bad pings but has noticable delay, 3 is recommended for balanced results,.")]
         public float bufferResetMultiplier = 3;
-        [Tooltip("Detect and send only changed data (such as Position X and Z, not the full X Y Z. Lowers network data at cost of extra calculations.")]
+        [Tooltip("Detect and send only changed data, such as Position X and Z, not the full Vector3 of X Y Z. Lowers network data at cost of extra calculations.")]
         public bool changedDetection = true;
 
         [Header("Sensitivity"), Tooltip("Sensitivity of changes needed before an updated state is sent over the network")]
