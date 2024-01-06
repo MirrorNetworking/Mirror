@@ -105,6 +105,7 @@ namespace Mirror
 
         // visually interpolated GameObject copy for smoothing
         protected GameObject visualCopy;
+        protected MeshRenderer[] originalRenderers;
 
         void Awake()
         {
@@ -153,8 +154,13 @@ namespace Mirror
             // if we didn't find a renderer, show a warning
             else Debug.LogWarning($"PredictedRigidbody: {name} found no renderer to copy onto the visual object. If you are using a custom setup, please overwrite PredictedRigidbody.CreateVisualCopy().");
 
+            // find renderers in children.
+            // this will be used a lot later, so only find them once when
+            // creating the visual copy here.
+            originalRenderers = GetComponentsInChildren<MeshRenderer>();
+
             // replace this renderer's materials with the ghost (if enabled)
-            foreach (Renderer rend in GetComponentsInChildren<Renderer>())
+            foreach (MeshRenderer rend in originalRenderers)
             {
                 if (showGhost)
                 {
@@ -184,15 +190,17 @@ namespace Mirror
 
         protected virtual void UpdateVisualCopy()
         {
+            // only if visual copy was already created
+            if (visualCopy == null || originalRenderers == null) return;
+
             // only show ghost while interpolating towards the object.
             // if we are 'inside' the object then don't show ghost.
             // otherwise it just looks like z-fighting the whole time.
-            // TODO optimize this later
+            // => iterated the renderers we found when creating the visual copy.
+            //    we don't want to GetComponentsInChildren every time here!
             bool insideTarget = Vector3.Distance(transform.position, visualCopy.transform.position) <= ghostDistanceThreshold;
-            foreach (MeshRenderer rend in GetComponentsInChildren<MeshRenderer>())
-            {
+            foreach (MeshRenderer rend in originalRenderers)
                 rend.enabled = !insideTarget;
-            }
         }
 
         // creater visual copy only on clients, where players are watching.
