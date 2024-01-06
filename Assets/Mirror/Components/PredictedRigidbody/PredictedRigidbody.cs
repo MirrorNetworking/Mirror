@@ -182,6 +182,19 @@ namespace Mirror
             if (visualCopy != null) Destroy(visualCopy);
         }
 
+        protected virtual void UpdateVisualCopy()
+        {
+            // only show ghost while interpolating towards the object.
+            // if we are 'inside' the object then don't show ghost.
+            // otherwise it just looks like z-fighting the whole time.
+            // TODO optimize this later
+            bool insideTarget = Vector3.Distance(transform.position, visualCopy.transform.position) <= ghostDistanceThreshold;
+            foreach (MeshRenderer rend in GetComponentsInChildren<MeshRenderer>())
+            {
+                rend.enabled = !insideTarget;
+            }
+        }
+
         // creater visual copy only on clients, where players are watching.
         public override void OnStartClient() => CreateVisualCopy();
 
@@ -207,15 +220,7 @@ namespace Mirror
 
         void UpdateClient()
         {
-            // only show ghost while interpolating towards the object.
-            // if we are 'inside' the object then don't show ghost.
-            // otherwise it just looks like z-fighting the whole time.
-            // TODO optimize this later
-            bool insideTarget = Vector3.Distance(transform.position, visualCopy.transform.position) <= ghostDistanceThreshold;
-            foreach (MeshRenderer rend in GetComponentsInChildren<MeshRenderer>())
-            {
-                rend.enabled = !insideTarget;
-            }
+            UpdateVisualCopy();
         }
 
         void Update()
