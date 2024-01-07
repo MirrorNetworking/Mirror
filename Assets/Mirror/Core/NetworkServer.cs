@@ -315,7 +315,7 @@ namespace Mirror
                 // Ignore commands that may have been in flight before client received NotReadyMessage message.
                 // Unreliable messages may be out of order, so don't spam warnings for those.
                 if (channelId == Channels.Reliable)
-                    Debug.LogWarning("Command received while client is not ready.\nThis may be ignored if client intentionally set NotReady.");
+                    Debug.LogWarning($"Command received while client is not ready.\nThis may be ignored if client intentionally set NotReady. Problematic method name{msg.methodName}");
                 return;
             }
 

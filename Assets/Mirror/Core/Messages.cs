@@ -37,6 +37,7 @@ namespace Mirror
         public uint netId;
         public byte componentIndex;
         public ushort functionHash;
+		public string methodName;
         // the parameters for the Cmd function
         // -> ArraySegment to avoid unnecessary allocations
         public ArraySegment<byte> payload;

@@ -379,6 +379,7 @@ namespace Mirror
                 componentIndex = ComponentIndex,
                 // type+func so Inventory.RpcUse != Equipment.RpcUse
                 functionHash = (ushort)functionHashCode,
+				 methodName = functionFullName,
                 // segment to avoid reader allocations
                 payload = writer.ToArraySegment()
             };
