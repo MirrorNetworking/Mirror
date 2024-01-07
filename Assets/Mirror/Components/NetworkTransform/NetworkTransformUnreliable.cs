@@ -1,4 +1,5 @@
 // NetworkTransform V2 by mischa (2021-07)
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Mirror
@@ -562,7 +563,7 @@ namespace Mirror
                     Reset();
             }
 
-            UpdateSyncData(ref syncData);
+            UpdateSyncData(ref syncData, serverSnapshots);
 
             AddSnapshot(serverSnapshots, connectionToClient.remoteTimeStamp + timeStampAdjustment + offset, syncData.position, syncData.quatRotation, syncData.scale);
         }
@@ -599,18 +600,18 @@ namespace Mirror
                     Reset();
             }
 
-            UpdateSyncData(ref syncData);
+            UpdateSyncData(ref syncData, clientSnapshots);
 
             AddSnapshot(clientSnapshots, NetworkClient.connection.remoteTimeStamp + timeStampAdjustment + offset, syncData.position, syncData.quatRotation, syncData.scale);
         }
 
-        protected virtual void UpdateSyncData(ref SyncData syncData)
+        protected virtual void UpdateSyncData(ref SyncData syncData, SortedList<double, TransformSnapshot> snapshots)
         {
             if (syncData.changedDataByte == Changed.None || syncData.changedDataByte == Changed.CompressRot)
             {
-                syncData.position = GetPosition();
-                syncData.quatRotation = GetRotation();
-                syncData.scale = GetScale();
+                syncData.position = snapshots.Count > 0 ? snapshots.Values[snapshots.Count - 1].position : GetPosition();
+                syncData.quatRotation = snapshots.Count > 0 ? snapshots.Values[snapshots.Count - 1].rotation : GetRotation();
+                syncData.scale = snapshots.Count > 0 ? snapshots.Values[snapshots.Count - 1].scale : GetScale();
             }
             else
             {
@@ -618,25 +619,25 @@ namespace Mirror
                 // because if not syncing position, NT will not apply any position data
                 // to the target during Apply().
 
-                syncData.position.x = (syncData.changedDataByte & Changed.PosX) > 0 ? syncData.position.x : GetPosition().x;
-                syncData.position.y = (syncData.changedDataByte & Changed.PosY) > 0 ? syncData.position.y : GetPosition().y;
-                syncData.position.z = (syncData.changedDataByte & Changed.PosZ) > 0 ? syncData.position.z : GetPosition().z;
+                syncData.position.x = (syncData.changedDataByte & Changed.PosX) > 0 ? syncData.position.x : (snapshots.Count > 0 ? snapshots.Values[snapshots.Count - 1].position.x : GetPosition().x);
+                syncData.position.y = (syncData.changedDataByte & Changed.PosY) > 0 ? syncData.position.y : (snapshots.Count > 0 ? snapshots.Values[snapshots.Count - 1].position.y : GetPosition().y);
+                syncData.position.z = (syncData.changedDataByte & Changed.PosZ) > 0 ? syncData.position.z : (snapshots.Count > 0 ? snapshots.Values[snapshots.Count - 1].position.z : GetPosition().z);
 
                 // If compressRot is true, we already have the Quat in syncdata.
                 if ((syncData.changedDataByte & Changed.CompressRot) == 0)
                 {
-                    syncData.vecRotation.x = (syncData.changedDataByte & Changed.RotX) > 0 ? syncData.vecRotation.x : GetRotation().eulerAngles.x;
-                    syncData.vecRotation.y = (syncData.changedDataByte & Changed.RotY) > 0 ? syncData.vecRotation.y : GetRotation().eulerAngles.y;
-                    syncData.vecRotation.z = (syncData.changedDataByte & Changed.RotZ) > 0 ? syncData.vecRotation.z : GetRotation().eulerAngles.z;
+                    syncData.vecRotation.x = (syncData.changedDataByte & Changed.RotX) > 0 ? syncData.vecRotation.x : (snapshots.Count > 0 ? snapshots.Values[snapshots.Count - 1].rotation.eulerAngles.x : GetRotation().eulerAngles.x);
+                    syncData.vecRotation.y = (syncData.changedDataByte & Changed.RotY) > 0 ? syncData.vecRotation.y : (snapshots.Count > 0 ? snapshots.Values[snapshots.Count - 1].rotation.eulerAngles.y : GetRotation().eulerAngles.y); ;
+                    syncData.vecRotation.z = (syncData.changedDataByte & Changed.RotZ) > 0 ? syncData.vecRotation.z : (snapshots.Count > 0 ? snapshots.Values[snapshots.Count - 1].rotation.eulerAngles.z : GetRotation().eulerAngles.z);
 
                     syncData.quatRotation = Quaternion.Euler(syncData.vecRotation);
                 }
                 else
                 {
-                    syncData.quatRotation = (syncData.changedDataByte & Changed.RotX) > 0 ? syncData.quatRotation : GetRotation();
+                    syncData.quatRotation = (syncData.changedDataByte & Changed.RotX) > 0 ? syncData.quatRotation : (snapshots.Count > 0 ? snapshots.Values[snapshots.Count - 1].rotation : GetRotation());
                 }
 
-                syncData.scale = (syncData.changedDataByte & Changed.Scale) > 0 ? syncData.scale : GetScale();
+                syncData.scale = (syncData.changedDataByte & Changed.Scale) > 0 ? syncData.scale : (snapshots.Count > 0 ? snapshots.Values[snapshots.Count - 1].scale : GetScale());
             }
         }
 
