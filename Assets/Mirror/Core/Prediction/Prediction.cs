@@ -121,7 +121,10 @@ namespace Mirror
             //
             double previousDeltaTime = after.timestamp - before.timestamp;     // 3.0 - 1.0 = 2.0
             double correctedDeltaTime = after.timestamp - corrected.timestamp; // 3.0 - 2.5 = 0.5
-            double multiplier = correctedDeltaTime / previousDeltaTime;        // 0.5 / 2.0 = 0.25
+
+            // fix multiplier becoming NaN if previousDeltaTime is 0:
+            // double multiplier = correctedDeltaTime / previousDeltaTime;
+            double multiplier = previousDeltaTime != 0 ? correctedDeltaTime / previousDeltaTime : 0; // 0.5 / 2.0 = 0.25
 
             // recalculate 'after.delta' with the multiplier
             after.AdjustDeltas((float)multiplier);
