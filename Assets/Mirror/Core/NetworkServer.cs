@@ -315,7 +315,19 @@ namespace Mirror
                 // Ignore commands that may have been in flight before client received NotReadyMessage message.
                 // Unreliable messages may be out of order, so don't spam warnings for those.
                 if (channelId == Channels.Reliable)
+                {
+                    // Attempt to identify the target object, component, and method to narrow down the cause of the error.
+                    if (spawned.TryGetValue(msg.netId, out NetworkIdentity netIdentity))
+                        if (netIdentity.NetworkBehaviours.Length > msg.componentIndex && netIdentity.NetworkBehaviours[msg.componentIndex] is NetworkBehaviour component)
+                            if (RemoteProcedureCalls.GetInvokerForHash(msg.functionHash, RemoteCallType.Command, out Invoker invoker))
+                            {
+                                string cmdName = invoker.function.GetMethodName().Replace("InvokeUserCode_", "");
+                                Debug.LogWarning($"Command {cmdName} received for {netIdentity.name} [netId={msg.netId}] component {component.name} [index={msg.componentIndex}] when client not ready.\nThis may be ignored if client intentionally set NotReady.");
+                                return;
+                            }
+
                     Debug.LogWarning("Command received while client is not ready.\nThis may be ignored if client intentionally set NotReady.");
+                }
                 return;
             }
 
@@ -326,7 +338,7 @@ namespace Mirror
                 // for example, NetworkTransform.
                 // let's not spam the console for unreliable out of order messages.
                 if (channelId == Channels.Reliable)
-                    Debug.LogWarning($"Spawned object not found when handling Command message [netId={msg.netId}]");
+                    Debug.LogWarning($"Spawned object not found when handling Command message {identity.name} [netId={msg.netId}]");
                 return;
             }
 
@@ -336,7 +348,16 @@ namespace Mirror
             bool requiresAuthority = RemoteProcedureCalls.CommandRequiresAuthority(msg.functionHash);
             if (requiresAuthority && identity.connectionToClient != conn)
             {
-                Debug.LogWarning($"Command for object without authority [netId={msg.netId}]");
+                // Attempt to identify the component and method to narrow down the cause of the error.
+                if (identity.NetworkBehaviours.Length > msg.componentIndex && identity.NetworkBehaviours[msg.componentIndex] is NetworkBehaviour component)
+                    if (RemoteProcedureCalls.GetInvokerForHash(msg.functionHash, RemoteCallType.Command, out Invoker invoker))
+                    {
+                        string cmdName = invoker.function.GetMethodName().Replace("InvokeUserCode_", "");
+                        Debug.LogWarning($"Command {cmdName} received for {identity.name} [netId={msg.netId}] component {component.name} [index={msg.componentIndex}] without authority");
+                        return;
+                    }
+
+                Debug.LogWarning($"Command received for {identity.name} [netId={msg.netId}] without authority");
                 return;
             }
 
@@ -375,7 +396,7 @@ namespace Mirror
                 // RemoveClientAuthority is called, so not malicious.
                 // Don't disconnect, just log the warning.
                 else
-                    Debug.LogWarning($"EntityStateMessage from {connection} for {identity} without authority.");
+                    Debug.LogWarning($"EntityStateMessage from {connection} for {identity.name} without authority.");
             }
             // no warning. don't spam server logs.
             // else Debug.LogWarning($"Did not find target for sync message for {message.netId} . Note: this can be completely normal because UDP messages may arrive out of order, so this message might have arrived after a Destroy message.");
@@ -982,7 +1003,7 @@ namespace Mirror
         {
             if (!player.TryGetComponent(out NetworkIdentity identity))
             {
-                Debug.LogWarning($"AddPlayer: playerGameObject has no NetworkIdentity. Please add a NetworkIdentity to {player}");
+                Debug.LogWarning($"AddPlayer: player GameObject has no NetworkIdentity. Please add a NetworkIdentity to {player}");
                 return false;
             }
 
@@ -1451,7 +1472,7 @@ namespace Mirror
             // https://github.com/MirrorNetworking/Mirror/pull/3205
             if (spawned.ContainsKey(identity.netId))
             {
-                Debug.LogWarning($"{identity} with netId={identity.netId} was already spawned.", identity.gameObject);
+                Debug.LogWarning($"{identity.name} [netId={identity.netId}] was already spawned.", identity.gameObject);
                 return;
             }
 
