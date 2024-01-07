@@ -1090,7 +1090,7 @@ namespace Mirror
 
         /// <summary>Removes the player object from the connection</summary>
         // destroyServerObject: Indicates whether the server object should be destroyed
-        public static void RemovePlayerForConnection(NetworkConnection conn, bool destroyServerObject)
+        public static void RemovePlayerForConnection(NetworkConnectionToClient conn, bool destroyServerObject)
         {
             if (conn.identity != null)
             {
