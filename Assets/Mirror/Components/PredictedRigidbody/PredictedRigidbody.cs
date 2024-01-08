@@ -85,6 +85,9 @@ namespace Mirror
         [Tooltip("Configure how to apply the corrected state.")]
         public CorrectionMode correctionMode = CorrectionMode.Move;
 
+        [Tooltip("Server & Client would sometimes fight over the final position at rest. Instead, hard snap into black below a certain velocity threshold.")]
+        public float snapThreshold = 2;
+
         [Header("Visual Interpolation")]
         [Tooltip("After creating the visual interpolation object, keep showing the original Rigidbody with a ghost (transparent) material for debugging.")]
         public bool showGhost = true;
@@ -331,6 +334,19 @@ namespace Mirror
             // helps to compare with the interpolated/applied correction locally.
             // TODO don't hardcode length?
             Debug.DrawLine(corrected.position, corrected.position + corrected.velocity * 0.1f, Color.white, lineTime);
+
+            // fix rigidbodies seemingly dancing in place instead of coming to rest.
+            // hard snap to the position below a threshold velocity.
+            // this is fine because the visual object still smoothly interpolates to it.
+            if (rb.velocity.magnitude <= snapThreshold)
+            {
+                Debug.Log($"Prediction: snapped {name} into place because velocity {rb.velocity.magnitude:F3} <= {snapThreshold:F3}");
+                stateHistory.Clear();
+                rb.position = corrected.position;
+                rb.rotation = corrected.rotation;
+                rb.velocity = Vector3.zero;
+                return;
+            }
 
             // now go through the history:
             // 1. skip all states before the inserted / corrected entry
