@@ -22,7 +22,9 @@ namespace Mirror
         // [Tooltip("Broadcast changes if position changed by more than ... meters.")]
         // public float positionSensitivity = 0.01f;
 
-        // client keeps state history for correction & reconciliation
+        // client keeps state history for correction & reconciliation.
+        // this needs to be a SortedList because we need to be able to insert inbetween.
+        // RingBuffer would be faster iteration, but can't do insertions.
         [Header("State History")]
         public int stateHistoryLimit = 32; // 32 x 50 ms = 1.6 seconds is definitely enough
         readonly SortedList<double, RigidbodyState> stateHistory = new SortedList<double, RigidbodyState>();
