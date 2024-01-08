@@ -421,7 +421,7 @@ namespace Mirror
             }
             else
             {
-                newRotation = serverSnapshots.Count > 0 ? serverSnapshots.Values[serverSnapshots.Count - 1].rotation : GetRotation();
+                newRotation = clientSnapshots.Count > 0 ? clientSnapshots.Values[clientSnapshots.Count - 1].rotation : GetRotation();
             }
             OnServerToClientSync(position, newRotation, scale);
         }
