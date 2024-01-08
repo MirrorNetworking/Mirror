@@ -227,6 +227,7 @@ namespace Mirror
         }
 
         // record state at NetworkTime.time on client
+        double lastRecordedPredictedTime = 0;
         void RecordState()
         {
             // NetworkTime.time is always behind by bufferTime.
@@ -236,8 +237,12 @@ namespace Mirror
 
             // TODO FixedUpdate may run twice in the same frame / NetworkTime.time.
             // for now, simply don't record if already recorded there.
-            if (stateHistory.ContainsKey(predictedTime))
-                return;
+            // previously we checked ContainsKey which is O(logN) for SortedList
+            //   if (stateHistory.ContainsKey(predictedTime))
+            //       return;
+            // instead, simply store the last recorded time and don't insert if same.
+            if (predictedTime == lastRecordedPredictedTime) return;
+            lastRecordedPredictedTime = predictedTime;
 
             // keep state history within limit
             if (stateHistory.Count >= stateHistoryLimit)
