@@ -235,7 +235,7 @@ namespace Mirror
             // use predictedTime to record state, otherwise we would record in the past.
             double predictedTime = NetworkTime.predictedTime;
 
-            // TODO FixedUpdate may run twice in the same frame / NetworkTime.time.
+            // FixedUpdate may run twice in the same frame / NetworkTime.time.
             // for now, simply don't record if already recorded there.
             // previously we checked ContainsKey which is O(logN) for SortedList
             //   if (stateHistory.ContainsKey(predictedTime))
