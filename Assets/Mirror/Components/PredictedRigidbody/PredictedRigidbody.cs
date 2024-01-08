@@ -250,7 +250,8 @@ namespace Mirror
 
         void FixedUpdate()
         {
-            // record client state every FixedUpdate
+            // on clients we record the current state every FixedUpdate.
+            // this is cheap, and allows us to keep a dense history.
             if (isClient) RecordState();
         }
 
