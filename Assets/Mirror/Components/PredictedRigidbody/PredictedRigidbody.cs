@@ -341,13 +341,13 @@ namespace Mirror
                 return;
             }
 
-            // insert the corrected state and adjust 'after.delta' to the inserted.
-            Prediction.InsertCorrection(stateHistory, stateHistoryLimit, corrected, before, after);
-
             // show the received correction position + velocity for debugging.
             // helps to compare with the interpolated/applied correction locally.
             // TODO don't hardcode length?
             Debug.DrawLine(corrected.position, corrected.position + corrected.velocity * 0.1f, Color.white, lineTime);
+
+            // insert the corrected state and adjust 'after.delta' to the inserted.
+            Prediction.InsertCorrection(stateHistory, stateHistoryLimit, corrected, before, after);
 
             // now go through the history:
             // 1. skip all states before the inserted / corrected entry
