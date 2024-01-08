@@ -392,7 +392,7 @@ namespace Mirror
             // log, draw & apply the final position.
             // always do this here, not when iterating above, in case we aren't iterating.
             // for example, on same machine with near zero latency.
-            Debug.Log($"Correcting {name}: {correctedCount} / {stateHistory.Count} states to final position from: {rb.position} to: {last.position}");
+            // Debug.Log($"Correcting {name}: {correctedCount} / {stateHistory.Count} states to final position from: {rb.position} to: {last.position}");
             Debug.DrawLine(rb.position, last.position, Color.green, lineTime);
             ApplyState(last.position, last.rotation, last.velocity);
         }
