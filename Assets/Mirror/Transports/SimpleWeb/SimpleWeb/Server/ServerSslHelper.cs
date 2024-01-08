@@ -22,7 +22,7 @@ namespace Mirror.SimpleWeb
             this.sslProtocols = sslProtocols;
         }
     }
-    internal class ServerSslHelper
+    internal class ServerSslHelper: ICreateStream
     {
         readonly SslConfig config;
         readonly X509Certificate2 certificate;
@@ -37,14 +37,14 @@ namespace Mirror.SimpleWeb
             }
         }
 
-        internal bool TryCreateStream(Connection conn)
+        public bool TryCreateStream(IConnection conn)
         {
-            NetworkStream stream = conn.client.GetStream();
+            NetworkStream stream = conn.Client.GetStream();
             if (config.enabled)
             {
                 try
                 {
-                    conn.stream = CreateStream(stream);
+                    conn.Stream = CreateStream(stream);
                     return true;
                 }
                 catch (Exception e)
@@ -55,7 +55,7 @@ namespace Mirror.SimpleWeb
             }
             else
             {
-                conn.stream = stream;
+                conn.Stream = stream;
                 return true;
             }
         }

@@ -23,7 +23,7 @@ namespace Mirror.SimpleWeb
             // use max because bufferpool is used for both messages and handshake
             int max = Math.Max(maxMessageSize, handshakeMaxSize);
             bufferPool = new BufferPool(5, 20, max);
-            server = new WebSocketServer(tcpConfig, maxMessageSize, handshakeMaxSize, sslConfig, bufferPool);
+            server = new WebSocketServer(tcpConfig, maxMessageSize, handshakeMaxSize,  bufferPool, new ServerSslHelper(sslConfig));
         }
 
         public void Start(ushort port)

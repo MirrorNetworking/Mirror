@@ -17,17 +17,17 @@ namespace Mirror.SimpleWeb
         Thread acceptThread;
         bool serverStopped;
         readonly ServerHandshake handShake;
-        readonly ServerSslHelper sslHelper;
+        readonly ICreateStream streamCreator;
         readonly BufferPool bufferPool;
         readonly ConcurrentDictionary<int, Connection> connections = new ConcurrentDictionary<int, Connection>();
 
         int _idCounter = 0;
 
-        public WebSocketServer(TcpConfig tcpConfig, int maxMessageSize, int handshakeMaxSize, SslConfig sslConfig, BufferPool bufferPool)
+        public WebSocketServer(TcpConfig tcpConfig, int maxMessageSize, int handshakeMaxSize, BufferPool bufferPool, ICreateStream streamCreator)
         {
             this.tcpConfig = tcpConfig;
             this.maxMessageSize = maxMessageSize;
-            sslHelper = new ServerSslHelper(sslConfig);
+            this.streamCreator = streamCreator;
             this.bufferPool = bufferPool;
             handShake = new ServerHandshake(this.bufferPool, handshakeMaxSize);
         }
@@ -105,7 +105,7 @@ namespace Mirror.SimpleWeb
         {
             try
             {
-                bool success = sslHelper.TryCreateStream(conn);
+                bool success = streamCreator.TryCreateStream(conn);
                 if (!success)
                 {
                     Log.Warn($"[SWT-WebSocketServer]: Failed to create SSL Stream {conn}");

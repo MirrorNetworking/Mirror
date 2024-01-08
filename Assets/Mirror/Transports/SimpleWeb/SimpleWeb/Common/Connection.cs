@@ -8,12 +8,18 @@ using System.Threading;
 
 namespace Mirror.SimpleWeb
 {
-    internal sealed class Connection : IDisposable
+    public interface IConnection
+    {
+        public TcpClient Client { get; }
+        public Stream Stream { get; set; }
+    }
+    internal sealed class Connection : IConnection, IDisposable
     {
         readonly object disposedLock = new object();
 
         public const int IdNotSet = -1;
         public TcpClient client;
+        public TcpClient Client => client;
         public int connId = IdNotSet;
 
         /// <summary>
@@ -28,6 +34,12 @@ namespace Mirror.SimpleWeb
         public string remoteAddress;
 
         public Stream stream;
+        public Stream Stream
+        {
+            get => stream;
+            set => stream = value;
+        }
+
         public Thread receiveThread;
         public Thread sendThread;
 
