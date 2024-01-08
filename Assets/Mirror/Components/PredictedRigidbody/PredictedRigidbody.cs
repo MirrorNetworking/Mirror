@@ -328,14 +328,6 @@ namespace Mirror
             // Vector3 liveVelocityDelta = rb.velocity - newest.velocity;
             // TODO rotation delta?
 
-            // insert the corrected state and adjust 'after.delta' to the inserted.
-            Prediction.InsertCorrection(stateHistory, stateHistoryLimit, corrected, before, after);
-
-            // show the received correction position + velocity for debugging.
-            // helps to compare with the interpolated/applied correction locally.
-            // TODO don't hardcode length?
-            Debug.DrawLine(corrected.position, corrected.position + corrected.velocity * 0.1f, Color.white, lineTime);
-
             // fix rigidbodies seemingly dancing in place instead of coming to rest.
             // hard snap to the position below a threshold velocity.
             // this is fine because the visual object still smoothly interpolates to it.
@@ -348,6 +340,14 @@ namespace Mirror
                 rb.velocity = Vector3.zero;
                 return;
             }
+
+            // insert the corrected state and adjust 'after.delta' to the inserted.
+            Prediction.InsertCorrection(stateHistory, stateHistoryLimit, corrected, before, after);
+
+            // show the received correction position + velocity for debugging.
+            // helps to compare with the interpolated/applied correction locally.
+            // TODO don't hardcode length?
+            Debug.DrawLine(corrected.position, corrected.position + corrected.velocity * 0.1f, Color.white, lineTime);
 
             // now go through the history:
             // 1. skip all states before the inserted / corrected entry
