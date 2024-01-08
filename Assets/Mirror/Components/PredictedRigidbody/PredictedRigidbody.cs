@@ -12,13 +12,13 @@ namespace Mirror
 
         // we want to store position delta (last + delta = current), and current.
         // this way we can apply deltas on top of corrected positions to get the corrected final position.
-        public Vector3    positionDelta; // delta to get from last to this position
-        public Vector3    position;
+        public Vector3    positionDelta { get; set; } // delta to get from last to this position
+        public Vector3    position { get; set; }
 
         public Quaternion rotation; // TODO delta rotation?
 
-        public Vector3 velocityDelta; // delta to get from last to this velocity
-        public Vector3 velocity;
+        public Vector3 velocityDelta { get; set; } // delta to get from last to this velocity
+        public Vector3 velocity { get; set; }
 
         public RigidbodyState(
             double timestamp,
@@ -346,55 +346,15 @@ namespace Mirror
             // TODO don't hardcode length?
             Debug.DrawLine(corrected.position, corrected.position + corrected.velocity * 0.1f, Color.white, lineTime);
 
-            // insert the corrected state and adjust 'after.delta' to the inserted.
-            Prediction.InsertCorrection(stateHistory, stateHistoryLimit, corrected, before, after);
-
-            // now go through the history:
-            // 1. skip all states before the inserted / corrected entry
-            // 3. apply all deltas after timestamp
-            // 4. recalculate corrected position based on inserted + sum(deltas)
-            // 5. apply rigidbody correction
-            RigidbodyState last = corrected;
-            int correctedCount = 0; // for debugging
-            for (int i = 0; i < stateHistory.Count; ++i)
-            {
-                double key = stateHistory.Keys[i];
-                RigidbodyState entry = stateHistory.Values[i];
-
-                // skip all states before (and including) the corrected entry
-                // TODO InsertCorrection() above should return the inserted index to skip faster.
-                if (key <= corrected.timestamp)
-                    continue;
-
-                // this state is after the inserted state.
-                // correct it's absolute position based on last + delta.
-                entry.position = last.position + entry.positionDelta;
-                // TODO rotation
-                entry.velocity = last.velocity + entry.velocityDelta;
-
-                // save the corrected entry into history.
-                // if we don't, then corrections for [i+1] would compare the
-                // uncorrected state and attempt to correct again, resulting in
-                // noticeable jitter and displacements.
-                //
-                // not saving it would also result in objects flying towards
-                // infinity when using sendInterval = 0.
-                stateHistory[entry.timestamp] = entry;
-
-                // debug draw the corrected state
-                // Debug.DrawLine(last.position, entry.position, Color.cyan, lineTime);
-
-                // save last
-                last = entry;
-                correctedCount += 1;
-            }
+            // insert the corrected state and correct all reapply the deltas after it.
+            RigidbodyState recomputed = Prediction.CorrectHistory(stateHistory, stateHistoryLimit, corrected, before, after, out int correctedAmount);
 
             // log, draw & apply the final position.
             // always do this here, not when iterating above, in case we aren't iterating.
             // for example, on same machine with near zero latency.
-            // Debug.Log($"Correcting {name}: {correctedCount} / {stateHistory.Count} states to final position from: {rb.position} to: {last.position}");
-            Debug.DrawLine(rb.position, last.position, Color.green, lineTime);
-            ApplyState(last.position, last.rotation, last.velocity);
+            // Debug.Log($"Correcting {name}: {correctedAmount} / {stateHistory.Count} states to final position from: {rb.position} to: {last.position}");
+            Debug.DrawLine(rb.position, recomputed.position, Color.green, lineTime);
+            ApplyState(recomputed.position, recomputed.rotation, recomputed.velocity);
         }
 
         // compare client state with server state at timestamp.

@@ -10,6 +10,13 @@ namespace Mirror
     {
         double timestamp { get; }
 
+        // use Vector3 for both Rigidbody3D and Rigidbody2D, that's fine
+        Vector3 position { get; set; }
+        Vector3 positionDelta { get; set; }
+
+        Vector3 velocity { get; set; }
+        Vector3 velocityDelta { get; set; }
+
         // predicted states should have absolute and delta values, for example:
         //   Vector3 position;
         //   Vector3 positionDelta; // from last to here
@@ -131,6 +138,69 @@ namespace Mirror
 
             // write the adjusted 'after' value into the history buffer
             stateHistory[after.timestamp] = after;
+        }
+
+        // client may need to correct parts of the history after receiving server state.
+        // CorrectHistory inserts the correction at[i], then corrects [i..n].
+        // in other words, it inserts the absolute value and reapplies the deltas
+        // that the client moved since then.
+        public static T CorrectHistory<T>(
+            SortedList<double, T> stateHistory,
+            int stateHistoryLimit,
+            T corrected,            // corrected state with timestamp
+            T before,               // state in history before the correction
+            T after,                // state in history after the correction
+            out int correctedAmount) // for debugging
+            where T: PredictedState
+        {
+            // insert the corrected state and adjust 'after.delta' to the inserted.
+            InsertCorrection(stateHistory, stateHistoryLimit, corrected, before, after);
+
+            // now go through the history:
+            // 1. skip all states before the inserted / corrected entry
+            // 3. apply all deltas after timestamp
+            // 4. recalculate corrected position based on inserted + sum(deltas)
+            // 5. apply rigidbody correction
+            T last = corrected;
+            correctedAmount = 0; // for debugging
+            for (int i = 0; i < stateHistory.Count; ++i)
+            {
+                double key = stateHistory.Keys[i];
+                T entry = stateHistory.Values[i];
+
+                // skip all states before (and including) the corrected entry
+                //
+                // ideally InsertCorrection() above should return the inserted
+                // index to skip faster. but SortedList.Insert doesn't return an
+                // index. would need binary search.
+                if (key <= corrected.timestamp)
+                    continue;
+
+                // this state is after the inserted state.
+                // correct it's absolute position based on last + delta.
+                entry.position = last.position + entry.positionDelta;
+                // TODO rotation
+                entry.velocity = last.velocity + entry.velocityDelta;
+
+                // save the corrected entry into history.
+                // if we don't, then corrections for [i+1] would compare the
+                // uncorrected state and attempt to correct again, resulting in
+                // noticeable jitter and displacements.
+                //
+                // not saving it would also result in objects flying towards
+                // infinity when using sendInterval = 0.
+                stateHistory[entry.timestamp] = entry;
+
+                // debug draw the corrected state
+                // Debug.DrawLine(last.position, entry.position, Color.cyan, lineTime);
+
+                // save last
+                last = entry;
+                correctedAmount += 1;
+            }
+
+            // return the recomputed state after all deltas were applied to the correction
+            return last;
         }
     }
 }
