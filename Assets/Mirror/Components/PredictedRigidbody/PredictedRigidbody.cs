@@ -86,7 +86,7 @@ namespace Mirror
         public CorrectionMode correctionMode = CorrectionMode.Move;
 
         [Tooltip("Server & Client would sometimes fight over the final position at rest. Instead, hard snap into black below a certain velocity threshold.")]
-        public float snapThreshold = 2;
+        public float snapThreshold = 0.5f; // adjust with log messages ('snap'). '2' works, but '0.5' is fine too.
 
         [Header("Visual Interpolation")]
         [Tooltip("After creating the visual interpolation object, keep showing the original Rigidbody with a ghost (transparent) material for debugging.")]
