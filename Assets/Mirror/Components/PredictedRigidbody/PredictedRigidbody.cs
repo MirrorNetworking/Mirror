@@ -37,6 +37,9 @@ namespace Mirror
         public int stateHistoryLimit = 32; // 32 x 50 ms = 1.6 seconds is definitely enough
         readonly SortedList<double, RigidbodyState> stateHistory = new SortedList<double, RigidbodyState>();
 
+        [Tooltip("(Optional) performance optimization where received state is compared to the LAST recorded state first, before sampling the whole history.\n\nThis can save significant traversal overhead for idle objects with a tiny chance of missing corrections for objects which revisisted the same position in the recent history twice.")]
+        public bool compareLastFirst = true;
+
         [Header("Reconciliation")]
         [Tooltip("Correction threshold in meters. For example, 0.1 means that if the client is off by more than 10cm, it gets corrected.")]
         public double correctionThreshold = 0.10;
@@ -339,6 +342,28 @@ namespace Mirror
             // sampling would fail, if we haven't recorded anything in a while.
             // to solve this, always record the current state when receiving a server state.
             RecordState();
+
+            // OPTIONAL performance optimization when comparing idle objects.
+            // even idle objects will have a history of ~32 entries.
+            // sampling & traversing through them is unnecessarily costly.
+            // instead, compare against the last recorded state first.
+            // => this is technically not 100% correct if an object runs in
+            //    circles where it may revisit the same position twice.
+            // => but practically, objects that didn't move will have their
+            //    whole history look like the last inserted state.
+            // => comparing against that is free and gives us a significant
+            //    performance saving vs. a tiny chance of incorrect results due
+            //    to objects running in circles.
+            // if this ever causes issues, feel free to disable it.
+            if (compareLastFirst)
+            {
+                float differenceToLast = Vector3.Distance(state.position, lastRecorded.position);
+                if (differenceToLast < correctionThreshold)
+                {
+                    // Debug.Log($"CompareState for {name}: taking optimized early return!");
+                    return;
+                }
+            }
 
             // find the two closest client states between timestamp
             if (!Prediction.Sample(stateHistory, timestamp, out RigidbodyState before, out RigidbodyState after, out double t))
