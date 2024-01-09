@@ -236,8 +236,9 @@ namespace Mirror
             rb.velocity = velocity;
         }
 
-        // record state at NetworkTime.time on client
-        double lastRecordedPredictedTime = 0;
+        // manually store last recorded so we can easily check against this
+        // without traversing the SortedList.
+        RigidbodyState lastRecorded;
         void RecordState()
         {
             // NetworkTime.time is always behind by bufferTime.
@@ -251,8 +252,7 @@ namespace Mirror
             //   if (stateHistory.ContainsKey(predictedTime))
             //       return;
             // instead, simply store the last recorded time and don't insert if same.
-            if (predictedTime == lastRecordedPredictedTime) return;
-            lastRecordedPredictedTime = predictedTime;
+            if (predictedTime == lastRecorded.timestamp) return;
 
             // keep state history within limit
             if (stateHistory.Count >= stateHistoryLimit)
@@ -271,15 +271,19 @@ namespace Mirror
                 Debug.DrawLine(last.position, rb.position, Color.red, lineTime);
             }
 
-            // add state to history
-            stateHistory.Add(
+            // create state to insert
+            RigidbodyState state = new RigidbodyState(
                 predictedTime,
-                new RigidbodyState(
-                    predictedTime,
-                    positionDelta, rb.position,
-                    rb.rotation,
-                    velocityDelta, rb.velocity)
+                positionDelta, rb.position,
+                rb.rotation,
+                velocityDelta, rb.velocity
             );
+
+            // add state to history
+            stateHistory.Add(predictedTime, state);
+
+            // manually remember last inserted state for faster .Last comparisons
+            lastRecorded = state;
         }
 
         void ApplyCorrection(RigidbodyState corrected, RigidbodyState before, RigidbodyState after)
