@@ -850,6 +850,14 @@ namespace Mirror
                 return;
             }
 
+            // Throw error if called from client
+            // Allow changing scene while stopping the server
+            if (!NetworkServer.active && newSceneName != offlineScene)
+            {
+                Debug.LogError("ServerChangeScene can only be called on an active server.");
+                return;
+            }
+
             // Debug.Log($"ServerChangeScene {newSceneName}");
             NetworkServer.SetAllClientsNotReady();
             networkSceneName = newSceneName;
