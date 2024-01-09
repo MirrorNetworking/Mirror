@@ -3,7 +3,6 @@ using System.IO;
 using System.Security.Cryptography.X509Certificates;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace Mirror
 {
@@ -32,6 +31,11 @@ namespace Mirror
             }
         }
 
+        public string CertPassword()
+        {
+            return File.ReadAllText(PasswordFilePath);
+        }
+
         private X509Certificate2 NewPasswordProtectedCertificate()
         {
             if (!ValidateCertificatePath(CertificatePath))
@@ -44,7 +48,7 @@ namespace Mirror
                 Debug.LogError("Password file path is invalid (" + PasswordFilePath + "). Unable to create certificate.");
                 return null;
             }
-            string password = File.ReadAllText(PasswordFilePath);
+            string password = CertPassword();
             return new X509Certificate2(CertificatePath, password);
         }
 

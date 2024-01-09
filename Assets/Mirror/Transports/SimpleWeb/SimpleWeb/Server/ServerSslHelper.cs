@@ -22,7 +22,7 @@ namespace Mirror.SimpleWeb
             this.sslProtocols = sslProtocols;
         }
     }
-    internal class ServerSslHelper: ICreateStream
+    public class ServerSslHelper: ICreateStream
     {
         readonly SslConfig config;
         readonly X509Certificate2 certificate;

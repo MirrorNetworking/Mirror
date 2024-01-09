@@ -269,16 +269,14 @@ namespace Mirror.SimpleWeb
             if (ServerActive())
                 Log.Warn("[SWT-ServerStart]: Server Already Started");
 
-            SslConfig config;
             if (transportSecurity && transportSecurity.enabled)
-            {
-                config = transportSecurity.GetSslSettings();
-            }
+                server = new SimpleWebServer(serverMaxMsgsPerTick, TcpConfig, maxMessageSize, maxHandshakeSize, transportSecurity);
             else
             {
-                config = new SslConfig(false, "", "", System.Security.Authentication.SslProtocols.None);
+                SslConfig sslConfig = new SslConfig(false, "", "", System.Security.Authentication.SslProtocols.None);
+                ServerSslHelper serverSslHelper = new ServerSslHelper(sslConfig);
+                server = new SimpleWebServer(serverMaxMsgsPerTick, TcpConfig, maxMessageSize, maxHandshakeSize, serverSslHelper);
             }
-            server = new SimpleWebServer(serverMaxMsgsPerTick, TcpConfig, maxMessageSize, maxHandshakeSize, config);
 
             server.onConnect += OnServerConnected.Invoke;
             server.onDisconnect += OnServerDisconnected.Invoke;
