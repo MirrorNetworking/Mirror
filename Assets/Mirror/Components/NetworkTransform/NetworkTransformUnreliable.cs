@@ -311,6 +311,7 @@ namespace Mirror
         [Command(channel = Channels.Unreliable)]
         void CmdClientToServerSyncCompressRotation(Vector3? position, uint? rotation, Vector3? scale)
         {
+            // A fix to not apply current interpolated GetRotation when receiving null/unchanged value, instead use last sent snapshot rotation.
             Quaternion newRotation;
             if (rotation.HasValue)
             {
@@ -362,6 +363,7 @@ namespace Mirror
         [ClientRpc(channel = Channels.Unreliable)]
         void RpcServerToClientSyncCompressRotation(Vector3? position, uint? rotation, Vector3? scale)
         {
+            // A fix to not apply current interpolated GetRotation when receiving null/unchanged value, instead use last sent snapshot rotation.
             Quaternion newRotation;
             if (rotation.HasValue)
             {
