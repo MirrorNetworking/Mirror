@@ -1,5 +1,13 @@
-// make sure to use a reasonable sync interval.
-// for example, correcting every 100ms seems reasonable.
+// PredictedRigidbody which stores & indidvidually rewinds history per Rigidbody.
+//
+// This brings significant performance savings because:
+// - if a scene has 1000 objects
+// - and a player interacts with say 3 objects at a time
+// - Physics.Simulate() would resimulate 1000 objects
+// - where as this component only resimulates the 3 changed objects
+//
+// The downside is that history rewinding is done manually via Vector math,
+// instead of real physics. It's not 100% correct - but it sure is fast!
 using System;
 using System.Collections.Generic;
 using UnityEngine;
