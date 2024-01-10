@@ -319,10 +319,10 @@ namespace Mirror
                     // Attempt to identify the target object, component, and method to narrow down the cause of the error.
                     if (spawned.TryGetValue(msg.netId, out NetworkIdentity netIdentity))
                         if (msg.componentIndex < netIdentity.NetworkBehaviours.Length && netIdentity.NetworkBehaviours[msg.componentIndex] is NetworkBehaviour component)
-                            if (RemoteProcedureCalls.GetInvokerForHash(msg.functionHash, RemoteCallType.Command, out Invoker invoker))
+                            if (RemoteProcedureCalls.GetFunctionMethodName(msg.functionHash, out string methodName))
                             {
-                                string cmdName = invoker.function.GetMethodName().Replace("InvokeUserCode_", "");
-                                Debug.LogWarning($"Command {cmdName} received for {netIdentity.name} [netId={msg.netId}] component {component.name} [index={msg.componentIndex}] when client not ready.\nThis may be ignored if client intentionally set NotReady.");
+                                //string cmdName = invoker.function.GetMethodName().Replace("InvokeUserCode_", "");
+                                Debug.LogWarning($"Command {methodName} received for {netIdentity.name} [netId={msg.netId}] component {component.name} [index={msg.componentIndex}] when client not ready.\nThis may be ignored if client intentionally set NotReady.");
                                 return;
                             }
 
@@ -350,10 +350,10 @@ namespace Mirror
             {
                 // Attempt to identify the component and method to narrow down the cause of the error.
                 if (msg.componentIndex < identity.NetworkBehaviours.Length && identity.NetworkBehaviours[msg.componentIndex] is NetworkBehaviour component)
-                    if (RemoteProcedureCalls.GetInvokerForHash(msg.functionHash, RemoteCallType.Command, out Invoker invoker))
+                    if (RemoteProcedureCalls.GetFunctionMethodName(msg.functionHash, out string methodName))
                     {
-                        string cmdName = invoker.function.GetMethodName().Replace("InvokeUserCode_", "");
-                        Debug.LogWarning($"Command {cmdName} received for {identity.name} [netId={msg.netId}] component {component.name} [index={msg.componentIndex}] without authority");
+                        //string cmdName = invoker.function.GetMethodName().Replace("InvokeUserCode_", "");
+                        Debug.LogWarning($"Command {methodName} received for {identity.name} [netId={msg.netId}] component {component.name} [index={msg.componentIndex}] without authority");
                         return;
                     }
 
