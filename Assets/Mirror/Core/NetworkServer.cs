@@ -321,7 +321,6 @@ namespace Mirror
                         if (msg.componentIndex < netIdentity.NetworkBehaviours.Length && netIdentity.NetworkBehaviours[msg.componentIndex] is NetworkBehaviour component)
                             if (RemoteProcedureCalls.GetFunctionMethodName(msg.functionHash, out string methodName))
                             {
-                                //string cmdName = invoker.function.GetMethodName().Replace("InvokeUserCode_", "");
                                 Debug.LogWarning($"Command {methodName} received for {netIdentity.name} [netId={msg.netId}] component {component.name} [index={msg.componentIndex}] when client not ready.\nThis may be ignored if client intentionally set NotReady.");
                                 return;
                             }
@@ -352,7 +351,6 @@ namespace Mirror
                 if (msg.componentIndex < identity.NetworkBehaviours.Length && identity.NetworkBehaviours[msg.componentIndex] is NetworkBehaviour component)
                     if (RemoteProcedureCalls.GetFunctionMethodName(msg.functionHash, out string methodName))
                     {
-                        //string cmdName = invoker.function.GetMethodName().Replace("InvokeUserCode_", "");
                         Debug.LogWarning($"Command {methodName} received for {identity.name} [netId={msg.netId}] component {component.name} [index={msg.componentIndex}] without authority");
                         return;
                     }
