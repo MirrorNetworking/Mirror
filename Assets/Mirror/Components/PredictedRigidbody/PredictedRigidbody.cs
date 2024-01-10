@@ -273,6 +273,19 @@ namespace Mirror
 
         void ApplyState(Vector3 position, Quaternion rotation, Vector3 velocity)
         {
+            // fix rigidbodies seemingly dancing in place instead of coming to rest.
+            // hard snap to the position below a threshold velocity.
+            // this is fine because the visual object still smoothly interpolates to it.
+            if (rb.velocity.magnitude <= snapThreshold)
+            {
+                Debug.Log($"Prediction: snapped {name} into place because velocity {rb.velocity.magnitude:F3} <= {snapThreshold:F3}");
+                stateHistory.Clear();
+                rb.position = position;
+                rb.rotation = rotation;
+                rb.velocity = Vector3.zero;
+                return;
+            }
+
             // Rigidbody .position teleports, while .MovePosition interpolates
             // TODO is this a good idea? what about next capture while it's interpolating?
             if (correctionMode == CorrectionMode.Move)
@@ -286,50 +299,8 @@ namespace Mirror
                 rb.rotation = rotation;
             }
 
+            // there's only one way to set velocity
             rb.velocity = velocity;
-        }
-
-        void ApplyCorrection(RigidbodyState corrected, RigidbodyState before, RigidbodyState after)
-        {
-            // TODO merge this with CompareState iteration!
-
-            // first, remember the delta between last recorded state and current live state.
-            // before we potentially correct 'last' in history.
-            // TODO we always record the current state in CompareState now.
-            //      applying live delta may not be necessary anymore.
-            //      this should always be '0' now.
-            // RigidbodyState newest = stateHistory.Values[stateHistory.Count - 1];
-            // Vector3 livePositionDelta = rb.position - newest.position;
-            // Vector3 liveVelocityDelta = rb.velocity - newest.velocity;
-            // TODO rotation delta?
-
-            // fix rigidbodies seemingly dancing in place instead of coming to rest.
-            // hard snap to the position below a threshold velocity.
-            // this is fine because the visual object still smoothly interpolates to it.
-            if (rb.velocity.magnitude <= snapThreshold)
-            {
-                Debug.Log($"Prediction: snapped {name} into place because velocity {rb.velocity.magnitude:F3} <= {snapThreshold:F3}");
-                stateHistory.Clear();
-                rb.position = corrected.position;
-                rb.rotation = corrected.rotation;
-                rb.velocity = Vector3.zero;
-                return;
-            }
-
-            // show the received correction position + velocity for debugging.
-            // helps to compare with the interpolated/applied correction locally.
-            // TODO don't hardcode length?
-            Debug.DrawLine(corrected.position, corrected.position + corrected.velocity * 0.1f, Color.white, lineTime);
-
-            // insert the corrected state and correct all reapply the deltas after it.
-            RigidbodyState recomputed = Prediction.CorrectHistory(stateHistory, stateHistoryLimit, corrected, before, after, out int correctedAmount);
-
-            // log, draw & apply the final position.
-            // always do this here, not when iterating above, in case we aren't iterating.
-            // for example, on same machine with near zero latency.
-            // Debug.Log($"Correcting {name}: {correctedAmount} / {stateHistory.Count} states to final position from: {rb.position} to: {last.position}");
-            Debug.DrawLine(rb.position, recomputed.position, Color.green, lineTime);
-            ApplyState(recomputed.position, recomputed.rotation, recomputed.velocity);
         }
 
         // compare client state with server state at timestamp.
@@ -382,7 +353,7 @@ namespace Mirror
             if (state.timestamp < oldest.timestamp)
             {
                 Debug.LogWarning($"Hard correcting client because the client is too far behind the server. History of size={stateHistory.Count} @ t={timestamp:F3} oldest={oldest.timestamp:F3} newest={newest.timestamp:F3}. This would cause the client to be out of sync as long as it's behind.");
-                ApplyCorrection(state, state, state);
+                ApplyState(state.position, state.rotation, state.velocity);
                 return;
             }
 
@@ -403,7 +374,7 @@ namespace Mirror
                 {
                     double ahead = state.timestamp - newest.timestamp;
                     Debug.Log($"Hard correction because the client is ahead of the server by {(ahead*1000):F1}ms. History of size={stateHistory.Count} @ t={timestamp:F3} oldest={oldest.timestamp:F3} newest={newest.timestamp:F3}. This can happen when latency is near zero, and is fine unless it shows jitter.");
-                    ApplyCorrection(state, state, state);
+                    ApplyState(state.position, state.rotation, state.velocity);
                 }
                 return;
             }
@@ -414,7 +385,7 @@ namespace Mirror
                 // something went very wrong. sampling should've worked.
                 // hard correct to recover the error.
                 Debug.LogError($"Failed to sample history of size={stateHistory.Count} @ t={timestamp:F3} oldest={oldest.timestamp:F3} newest={newest.timestamp:F3}. This should never happen because the timestamp is within history.");
-                ApplyCorrection(state, state, state);
+                ApplyState(state.position, state.rotation, state.velocity);
                 return;
             }
 
@@ -430,7 +401,20 @@ namespace Mirror
             if (difference >= correctionThreshold)
             {
                 // Debug.Log($"CORRECTION NEEDED FOR {name} @ {timestamp:F3}: client={interpolated.position} server={state.position} difference={difference:F3}");
-                ApplyCorrection(state, before, after);
+
+                // show the received correction position + velocity for debugging.
+                // helps to compare with the interpolated/applied correction locally.
+                Debug.DrawLine(state.position, state.position + state.velocity * 0.1f, Color.white, lineTime);
+
+                // insert the corrected state and correct all reapply the deltas after it.
+                RigidbodyState recomputed = Prediction.CorrectHistory(stateHistory, stateHistoryLimit, state, before, after, out int correctedAmount);
+
+                // log, draw & apply the final position.
+                // always do this here, not when iterating above, in case we aren't iterating.
+                // for example, on same machine with near zero latency.
+                // Debug.Log($"Correcting {name}: {correctedAmount} / {stateHistory.Count} states to final position from: {rb.position} to: {last.position}");
+                Debug.DrawLine(rb.position, recomputed.position, Color.green, lineTime);
+                ApplyState(recomputed.position, recomputed.rotation, recomputed.velocity);
             }
         }
 
