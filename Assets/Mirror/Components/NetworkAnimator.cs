@@ -91,7 +91,7 @@ namespace Mirror
         // both Awake and Enable need to initialize arrays.
         // in case users call SetActive(false) -> SetActive(true).
         void Awake() => Initialize();
-        void Enable() => Initialize();
+        void OnEnable() => Initialize();
 
         void FixedUpdate()
         {
