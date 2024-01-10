@@ -336,17 +336,10 @@ namespace Mirror
         // apply correction if necessary.
         void CompareState(double timestamp, RigidbodyState state)
         {
-            // we only capture state every 'interval' milliseconds.
-            // so the newest entry in 'history' may be up to 'interval' behind 'now'.
-            // if there's no latency, we may receive a server state for 'now'.
-            // sampling would fail, if we haven't recorded anything in a while.
-            // to solve this, always record the current state when receiving a server state.
-            RecordState();
-
             // OPTIONAL performance optimization when comparing idle objects.
             // even idle objects will have a history of ~32 entries.
             // sampling & traversing through them is unnecessarily costly.
-            // instead, compare against the last recorded state first.
+            // instead, compare directly against the current rigidbody position!
             // => this is technically not 100% correct if an object runs in
             //    circles where it may revisit the same position twice.
             // => but practically, objects that didn't move will have their
@@ -354,16 +347,29 @@ namespace Mirror
             // => comparing against that is free and gives us a significant
             //    performance saving vs. a tiny chance of incorrect results due
             //    to objects running in circles.
+            // => the RecordState() call below is expensive too, so we want to
+            //    do this before even recording the latest state. the only way
+            //    to do this (in case last recorded state is too old), is to
+            //    compare against live rigidbody.position without any recording.
+            //    this is as fast as it gets for skipping idle objects.
+            //
             // if this ever causes issues, feel free to disable it.
             if (compareLastFirst)
             {
-                float differenceToLast = Vector3.Distance(state.position, lastRecorded.position);
+                float differenceToLast = Vector3.Distance(state.position, rb.position);
                 if (differenceToLast < correctionThreshold)
                 {
                     // Debug.Log($"CompareState for {name}: taking optimized early return!");
                     return;
                 }
             }
+
+            // we only capture state every 'interval' milliseconds.
+            // so the newest entry in 'history' may be up to 'interval' behind 'now'.
+            // if there's no latency, we may receive a server state for 'now'.
+            // sampling would fail, if we haven't recorded anything in a while.
+            // to solve this, always record the current state when receiving a server state.
+            RecordState();
 
             // find the two closest client states between timestamp
             if (!Prediction.Sample(stateHistory, timestamp, out RigidbodyState before, out RigidbodyState after, out double t))
