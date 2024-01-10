@@ -354,14 +354,10 @@ namespace Mirror
             //    this is as fast as it gets for skipping idle objects.
             //
             // if this ever causes issues, feel free to disable it.
-            if (compareLastFirst)
+            if (compareLastFirst && Vector3.Distance(state.position, rb.position) < correctionThreshold)
             {
-                float differenceToLast = Vector3.Distance(state.position, rb.position);
-                if (differenceToLast < correctionThreshold)
-                {
-                    // Debug.Log($"CompareState for {name}: taking optimized early return!");
-                    return;
-                }
+                // Debug.Log($"CompareState for {name}: taking optimized early return!");
+                return;
             }
 
             // we only capture state every 'interval' milliseconds.
