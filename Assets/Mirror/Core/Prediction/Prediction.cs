@@ -183,7 +183,7 @@ namespace Mirror
                 //
                 // not saving it would also result in objects flying towards
                 // infinity when using sendInterval = 0.
-                stateHistory[entry.timestamp] = entry;
+                stateHistory[key] = entry;
 
                 // debug draw the corrected state
                 // Debug.DrawLine(last.position, entry.position, Color.cyan, lineTime);
