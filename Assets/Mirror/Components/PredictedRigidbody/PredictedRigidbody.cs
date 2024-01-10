@@ -1,58 +1,19 @@
-// make sure to use a reasonable sync interval.
-// for example, correcting every 100ms seems reasonable.
+// PredictedRigidbody which stores & indidvidually rewinds history per Rigidbody.
+//
+// This brings significant performance savings because:
+// - if a scene has 1000 objects
+// - and a player interacts with say 3 objects at a time
+// - Physics.Simulate() would resimulate 1000 objects
+// - where as this component only resimulates the 3 changed objects
+//
+// The downside is that history rewinding is done manually via Vector math,
+// instead of real physics. It's not 100% correct - but it sure is fast!
 using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace Mirror
 {
-    struct RigidbodyState : PredictedState
-    {
-        public double timestamp { get; private set; }
-
-        // we want to store position delta (last + delta = current), and current.
-        // this way we can apply deltas on top of corrected positions to get the corrected final position.
-        public Vector3    positionDelta; // delta to get from last to this position
-        public Vector3    position;
-
-        public Quaternion rotation; // TODO delta rotation?
-
-        public Vector3 velocityDelta; // delta to get from last to this velocity
-        public Vector3 velocity;
-
-        public RigidbodyState(
-            double timestamp,
-            Vector3 positionDelta, Vector3 position,
-            Quaternion rotation,
-            Vector3 velocityDelta, Vector3 velocity)
-        {
-            this.timestamp     = timestamp;
-            this.positionDelta = positionDelta;
-            this.position      = position;
-            this.rotation      = rotation;
-            this.velocityDelta = velocityDelta;
-            this.velocity      = velocity;
-        }
-
-        // adjust the deltas after inserting a correction between this one and the previous one.
-        public void AdjustDeltas(float multiplier)
-        {
-            positionDelta = Vector3.Lerp(Vector3.zero, positionDelta, multiplier);
-            // TODO if we have have a rotation delta, then scale it here too
-            velocityDelta = Vector3.Lerp(Vector3.zero, velocityDelta, multiplier);
-        }
-
-        public static RigidbodyState Interpolate(RigidbodyState a, RigidbodyState b, float t)
-        {
-            return new RigidbodyState
-            {
-                position = Vector3.Lerp(a.position, b.position, t),
-                rotation = Quaternion.Slerp(a.rotation, b.rotation, t),
-                velocity = Vector3.Lerp(a.velocity, b.velocity, t)
-            };
-        }
-    }
-
     public enum CorrectionMode
     {
         Set,               // rigidbody.position/rotation = ...
@@ -69,10 +30,15 @@ namespace Mirror
         // [Tooltip("Broadcast changes if position changed by more than ... meters.")]
         // public float positionSensitivity = 0.01f;
 
-        // client keeps state history for correction & reconciliation
+        // client keeps state history for correction & reconciliation.
+        // this needs to be a SortedList because we need to be able to insert inbetween.
+        // RingBuffer would be faster iteration, but can't do insertions.
         [Header("State History")]
         public int stateHistoryLimit = 32; // 32 x 50 ms = 1.6 seconds is definitely enough
         readonly SortedList<double, RigidbodyState> stateHistory = new SortedList<double, RigidbodyState>();
+
+        [Tooltip("(Optional) performance optimization where received state is compared to the LAST recorded state first, before sampling the whole history.\n\nThis can save significant traversal overhead for idle objects with a tiny chance of missing corrections for objects which revisisted the same position in the recent history twice.")]
+        public bool compareLastFirst = true;
 
         [Header("Reconciliation")]
         [Tooltip("Correction threshold in meters. For example, 0.1 means that if the client is off by more than 10cm, it gets corrected.")]
@@ -84,6 +50,9 @@ namespace Mirror
         [Header("Smoothing")]
         [Tooltip("Configure how to apply the corrected state.")]
         public CorrectionMode correctionMode = CorrectionMode.Move;
+
+        [Tooltip("Server & Client would sometimes fight over the final position at rest. Instead, hard snap into black below a certain velocity threshold.")]
+        public float snapThreshold = 0.5f; // adjust with log messages ('snap'). '2' works, but '0.5' is fine too.
 
         [Header("Visual Interpolation")]
         [Tooltip("After creating the visual interpolation object, keep showing the original Rigidbody with a ghost (transparent) material for debugging.")]
@@ -247,7 +216,8 @@ namespace Mirror
 
         void FixedUpdate()
         {
-            // record client state every FixedUpdate
+            // on clients we record the current state every FixedUpdate.
+            // this is cheap, and allows us to keep a dense history.
             if (isClient) RecordState();
         }
 
@@ -269,7 +239,9 @@ namespace Mirror
             rb.velocity = velocity;
         }
 
-        // record state at NetworkTime.time on client
+        // manually store last recorded so we can easily check against this
+        // without traversing the SortedList.
+        RigidbodyState lastRecorded;
         void RecordState()
         {
             // NetworkTime.time is always behind by bufferTime.
@@ -277,10 +249,13 @@ namespace Mirror
             // use predictedTime to record state, otherwise we would record in the past.
             double predictedTime = NetworkTime.predictedTime;
 
-            // TODO FixedUpdate may run twice in the same frame / NetworkTime.time.
+            // FixedUpdate may run twice in the same frame / NetworkTime.time.
             // for now, simply don't record if already recorded there.
-            if (stateHistory.ContainsKey(predictedTime))
-                return;
+            // previously we checked ContainsKey which is O(logN) for SortedList
+            //   if (stateHistory.ContainsKey(predictedTime))
+            //       return;
+            // instead, simply store the last recorded time and don't insert if same.
+            if (predictedTime == lastRecorded.timestamp) return;
 
             // keep state history within limit
             if (stateHistory.Count >= stateHistoryLimit)
@@ -299,15 +274,19 @@ namespace Mirror
                 Debug.DrawLine(last.position, rb.position, Color.red, lineTime);
             }
 
-            // add state to history
-            stateHistory.Add(
+            // create state to insert
+            RigidbodyState state = new RigidbodyState(
                 predictedTime,
-                new RigidbodyState(
-                    predictedTime,
-                    positionDelta, rb.position,
-                    rb.rotation,
-                    velocityDelta, rb.velocity)
+                positionDelta, rb.position,
+                rb.rotation,
+                velocityDelta, rb.velocity
             );
+
+            // add state to history
+            stateHistory.Add(predictedTime, state);
+
+            // manually remember last inserted state for faster .Last comparisons
+            lastRecorded = state;
         }
 
         void ApplyCorrection(RigidbodyState corrected, RigidbodyState before, RigidbodyState after)
@@ -324,60 +303,33 @@ namespace Mirror
             // Vector3 liveVelocityDelta = rb.velocity - newest.velocity;
             // TODO rotation delta?
 
-            // insert the corrected state and adjust 'after.delta' to the inserted.
-            Prediction.InsertCorrection(stateHistory, stateHistoryLimit, corrected, before, after);
+            // fix rigidbodies seemingly dancing in place instead of coming to rest.
+            // hard snap to the position below a threshold velocity.
+            // this is fine because the visual object still smoothly interpolates to it.
+            if (rb.velocity.magnitude <= snapThreshold)
+            {
+                Debug.Log($"Prediction: snapped {name} into place because velocity {rb.velocity.magnitude:F3} <= {snapThreshold:F3}");
+                stateHistory.Clear();
+                rb.position = corrected.position;
+                rb.rotation = corrected.rotation;
+                rb.velocity = Vector3.zero;
+                return;
+            }
 
             // show the received correction position + velocity for debugging.
             // helps to compare with the interpolated/applied correction locally.
             // TODO don't hardcode length?
             Debug.DrawLine(corrected.position, corrected.position + corrected.velocity * 0.1f, Color.white, lineTime);
 
-            // now go through the history:
-            // 1. skip all states before the inserted / corrected entry
-            // 3. apply all deltas after timestamp
-            // 4. recalculate corrected position based on inserted + sum(deltas)
-            // 5. apply rigidbody correction
-            RigidbodyState last = corrected;
-            int correctedCount = 0; // for debugging
-            for (int i = 0; i < stateHistory.Count; ++i)
-            {
-                double key = stateHistory.Keys[i];
-                RigidbodyState entry = stateHistory.Values[i];
-
-                // skip all states before (and including) the corrected entry
-                // TODO InsertCorrection() above should return the inserted index to skip faster.
-                if (key <= corrected.timestamp)
-                    continue;
-
-                // this state is after the inserted state.
-                // correct it's absolute position based on last + delta.
-                entry.position = last.position + entry.positionDelta;
-                // TODO rotation
-                entry.velocity = last.velocity + entry.velocityDelta;
-
-                // save the corrected entry into history.
-                // if we don't, then corrections for [i+1] would compare the
-                // uncorrected state and attempt to correct again, resulting in
-                // noticeable jitter and displacements.
-                //
-                // not saving it would also result in objects flying towards
-                // infinity when using sendInterval = 0.
-                stateHistory[entry.timestamp] = entry;
-
-                // debug draw the corrected state
-                // Debug.DrawLine(last.position, entry.position, Color.cyan, lineTime);
-
-                // save last
-                last = entry;
-                correctedCount += 1;
-            }
+            // insert the corrected state and correct all reapply the deltas after it.
+            RigidbodyState recomputed = Prediction.CorrectHistory(stateHistory, stateHistoryLimit, corrected, before, after, out int correctedAmount);
 
             // log, draw & apply the final position.
             // always do this here, not when iterating above, in case we aren't iterating.
             // for example, on same machine with near zero latency.
-            Debug.Log($"Correcting {name}: {correctedCount} / {stateHistory.Count} states to final position from: {rb.position} to: {last.position}");
-            Debug.DrawLine(rb.position, last.position, Color.green, lineTime);
-            ApplyState(last.position, last.rotation, last.velocity);
+            // Debug.Log($"Correcting {name}: {correctedAmount} / {stateHistory.Count} states to final position from: {rb.position} to: {last.position}");
+            Debug.DrawLine(rb.position, recomputed.position, Color.green, lineTime);
+            ApplyState(recomputed.position, recomputed.rotation, recomputed.velocity);
         }
 
         // compare client state with server state at timestamp.
@@ -390,6 +342,28 @@ namespace Mirror
             // sampling would fail, if we haven't recorded anything in a while.
             // to solve this, always record the current state when receiving a server state.
             RecordState();
+
+            // OPTIONAL performance optimization when comparing idle objects.
+            // even idle objects will have a history of ~32 entries.
+            // sampling & traversing through them is unnecessarily costly.
+            // instead, compare against the last recorded state first.
+            // => this is technically not 100% correct if an object runs in
+            //    circles where it may revisit the same position twice.
+            // => but practically, objects that didn't move will have their
+            //    whole history look like the last inserted state.
+            // => comparing against that is free and gives us a significant
+            //    performance saving vs. a tiny chance of incorrect results due
+            //    to objects running in circles.
+            // if this ever causes issues, feel free to disable it.
+            if (compareLastFirst)
+            {
+                float differenceToLast = Vector3.Distance(state.position, lastRecorded.position);
+                if (differenceToLast < correctionThreshold)
+                {
+                    // Debug.Log($"CompareState for {name}: taking optimized early return!");
+                    return;
+                }
+            }
 
             // find the two closest client states between timestamp
             if (!Prediction.Sample(stateHistory, timestamp, out RigidbodyState before, out RigidbodyState after, out double t))
