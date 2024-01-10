@@ -315,7 +315,18 @@ namespace Mirror
                 // Ignore commands that may have been in flight before client received NotReadyMessage message.
                 // Unreliable messages may be out of order, so don't spam warnings for those.
                 if (channelId == Channels.Reliable)
+                {
+                    // Attempt to identify the target object, component, and method to narrow down the cause of the error.
+                    if (spawned.TryGetValue(msg.netId, out NetworkIdentity netIdentity))
+                        if (msg.componentIndex < netIdentity.NetworkBehaviours.Length && netIdentity.NetworkBehaviours[msg.componentIndex] is NetworkBehaviour component)
+                            if (RemoteProcedureCalls.GetFunctionMethodName(msg.functionHash, out string methodName))
+                            {
+                                Debug.LogWarning($"Command {methodName} received for {netIdentity.name} [netId={msg.netId}] component {component.name} [index={msg.componentIndex}] when client not ready.\nThis may be ignored if client intentionally set NotReady.");
+                                return;
+                            }
+
                     Debug.LogWarning("Command received while client is not ready.\nThis may be ignored if client intentionally set NotReady.");
+                }
                 return;
             }
 
@@ -336,7 +347,15 @@ namespace Mirror
             bool requiresAuthority = RemoteProcedureCalls.CommandRequiresAuthority(msg.functionHash);
             if (requiresAuthority && identity.connectionToClient != conn)
             {
-                Debug.LogWarning($"Command for object without authority [netId={msg.netId}]");
+                // Attempt to identify the component and method to narrow down the cause of the error.
+                if (msg.componentIndex < identity.NetworkBehaviours.Length && identity.NetworkBehaviours[msg.componentIndex] is NetworkBehaviour component)
+                    if (RemoteProcedureCalls.GetFunctionMethodName(msg.functionHash, out string methodName))
+                    {
+                        Debug.LogWarning($"Command {methodName} received for {identity.name} [netId={msg.netId}] component {component.name} [index={msg.componentIndex}] without authority");
+                        return;
+                    }
+
+                Debug.LogWarning($"Command received for {identity.name} [netId={msg.netId}] without authority");
                 return;
             }
 
