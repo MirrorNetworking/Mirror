@@ -412,7 +412,8 @@ namespace Mirror
                 Prediction.InsertCorrection(stateHistory, stateHistoryLimit, state, before, after);
 
                 // insert the corrected state and correct all reapply the deltas after it.
-                RigidbodyState recomputed = Prediction.CorrectHistory(stateHistory, state, out int correctedAmount);
+                RigidbodyState recomputed = Prediction.CorrectHistory(stateHistory, state, afterIndex);
+                int correctedAmount = stateHistory.Count - afterIndex;
 
                 // log, draw & apply the final position.
                 // always do this here, not when iterating above, in case we aren't iterating.

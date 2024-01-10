@@ -150,50 +150,25 @@ namespace Mirror
         public static T CorrectHistory<T>(
             SortedList<double, T> stateHistory,
             T corrected,                        // corrected state with timestamp
-            out int correctedAmount)            // for debugging
+            int startIndex)                     // first state after the inserted correction
             where T: PredictedState
         {
-            // now go through the history:
-            // 1. skip all states before the inserted / corrected entry
-            // 3. apply all deltas after timestamp
-            // 4. recalculate corrected position based on inserted + sum(deltas)
-            // 5. apply rigidbody correction
+            // start iterating right after the inserted state at startIndex
             T last = corrected;
-            correctedAmount = 0; // for debugging
-            for (int i = 0; i < stateHistory.Count; ++i)
+            for (int i = startIndex; i < stateHistory.Count; ++i)
             {
                 double key = stateHistory.Keys[i];
                 T entry = stateHistory.Values[i];
 
-                // skip all states before (and including) the corrected entry
-                //
-                // ideally InsertCorrection() above should return the inserted
-                // index to skip faster. but SortedList.Insert doesn't return an
-                // index. would need binary search.
-                if (key <= corrected.timestamp)
-                    continue;
-
-                // this state is after the inserted state.
-                // correct it's absolute position based on last + delta.
+                // correct absolute position based on last + delta.
                 entry.position = last.position + entry.positionDelta;
-                // TODO rotation
-                entry.velocity = last.velocity + entry.velocityDelta;
+                entry.velocity = last.velocity + entry.velocityDelta; // TODO rotation too?
 
                 // save the corrected entry into history.
-                // if we don't, then corrections for [i+1] would compare the
-                // uncorrected state and attempt to correct again, resulting in
-                // noticeable jitter and displacements.
-                //
-                // not saving it would also result in objects flying towards
-                // infinity when using sendInterval = 0.
                 stateHistory[key] = entry;
-
-                // debug draw the corrected state
-                // Debug.DrawLine(last.position, entry.position, Color.cyan, lineTime);
 
                 // save last
                 last = entry;
-                correctedAmount += 1;
             }
 
             // return the recomputed state after all deltas were applied to the correction
