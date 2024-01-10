@@ -318,7 +318,7 @@ namespace Mirror
                 {
                     // Attempt to identify the target object, component, and method to narrow down the cause of the error.
                     if (spawned.TryGetValue(msg.netId, out NetworkIdentity netIdentity))
-                        if (netIdentity.NetworkBehaviours.Length > msg.componentIndex && netIdentity.NetworkBehaviours[msg.componentIndex] is NetworkBehaviour component)
+                        if (msg.componentIndex < netIdentity.NetworkBehaviours.Length && netIdentity.NetworkBehaviours[msg.componentIndex] is NetworkBehaviour component)
                             if (RemoteProcedureCalls.GetInvokerForHash(msg.functionHash, RemoteCallType.Command, out Invoker invoker))
                             {
                                 string cmdName = invoker.function.GetMethodName().Replace("InvokeUserCode_", "");
