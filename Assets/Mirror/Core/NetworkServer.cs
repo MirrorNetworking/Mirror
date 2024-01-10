@@ -349,7 +349,7 @@ namespace Mirror
             if (requiresAuthority && identity.connectionToClient != conn)
             {
                 // Attempt to identify the component and method to narrow down the cause of the error.
-                if (identity.NetworkBehaviours.Length > msg.componentIndex && identity.NetworkBehaviours[msg.componentIndex] is NetworkBehaviour component)
+                if (msg.componentIndex < identity.NetworkBehaviours.Length && identity.NetworkBehaviours[msg.componentIndex] is NetworkBehaviour component)
                     if (RemoteProcedureCalls.GetInvokerForHash(msg.functionHash, RemoteCallType.Command, out Invoker invoker))
                     {
                         string cmdName = invoker.function.GetMethodName().Replace("InvokeUserCode_", "");
