@@ -371,60 +371,54 @@ namespace Mirror
             // to solve this, always record the current state when receiving a server state.
             RecordState();
 
+            // correction requires at least 2 existing states for 'before' and 'after'.
+            // if we don't have two yet, drop this state and try again next time once we recorded more.
+            if (stateHistory.Count < 2) return;
+
+            RigidbodyState oldest = stateHistory.Values[0];
+            RigidbodyState newest = stateHistory.Values[stateHistory.Count - 1];
+
+            // edge case: is the state older than the oldest state in history?
+            // this can happen if the client gets so far behind the server
+            // that it doesn't have a recored history to sample from.
+            // in that case, we should hard correct the client.
+            // otherwise it could be out of sync as long as it's too far behind.
+            if (state.timestamp < oldest.timestamp)
+            {
+                Debug.LogWarning($"Hard correcting client because the client is too far behind the server. History of size={stateHistory.Count} @ t={timestamp:F3} oldest={oldest.timestamp:F3} newest={newest.timestamp:F3}. This would cause the client to be out of sync as long as it's behind.");
+                ApplyCorrection(state, state, state);
+                return;
+            }
+
+            // edge case: is it newer than the newest state in history?
+            // this can happen if client's predictedTime predicts too far ahead of the server.
+            // in that case, log a warning for now but still apply the correction.
+            // otherwise it could be out of sync as long as it's too far ahead.
+            //
+            // for example, when running prediction on the same machine with near zero latency.
+            // when applying corrections here, this looks just fine on the local machine.
+            if (newest.timestamp < state.timestamp)
+            {
+                // the correction is for a state in the future.
+                // we clamp it to 'now'.
+                // but only correct if off by threshold.
+                // TODO maybe we should interpolate this back to 'now'?
+                if (Vector3.Distance(state.position, rb.position) >= correctionThreshold)
+                {
+                    double ahead = state.timestamp - newest.timestamp;
+                    Debug.Log($"Hard correction because the client is ahead of the server by {(ahead*1000):F1}ms. History of size={stateHistory.Count} @ t={timestamp:F3} oldest={oldest.timestamp:F3} newest={newest.timestamp:F3}. This can happen when latency is near zero, and is fine unless it shows jitter.");
+                    ApplyCorrection(state, state, state);
+                }
+                return;
+            }
+
             // find the two closest client states between timestamp
             if (!Prediction.Sample(stateHistory, timestamp, out RigidbodyState before, out RigidbodyState after, out double t))
             {
-                // if we failed to sample, that could indicate a problem.
-                // first, if the client didn't record 'limit' entries yet, then
-                // let it keep recording. it'll be fine.
-                if (stateHistory.Count < stateHistoryLimit) return;
-
-                // if we are already at the recording limit and still can't
-                // sample, then that's a problem.
-                // there are two cases to consider.
-                RigidbodyState oldest = stateHistory.Values[0];
-                RigidbodyState newest = stateHistory.Values[stateHistory.Count - 1];
-
-                // is the state older than the oldest state in history?
-                // this can happen if the client gets so far behind the server
-                // that it doesn't have a recored history to sample from.
-                // in that case, we should hard correct the client.
-                // otherwise it could be out of sync as long as it's too far behind.
-                if (state.timestamp < oldest.timestamp)
-                {
-                    Debug.LogWarning($"Hard correcting client because the client is too far behind the server. History of size={stateHistory.Count} @ t={timestamp:F3} oldest={oldest.timestamp:F3} newest={newest.timestamp:F3}. This would cause the client to be out of sync as long as it's behind.");
-                    ApplyCorrection(state, state, state);
-                }
-                // is it newer than the newest state in history?
-                // this can happen if client's predictedTime predicts too far ahead of the server.
-                // in that case, log a warning for now but still apply the correction.
-                // otherwise it could be out of sync as long as it's too far ahead.
-                //
-                // for example, when running prediction on the same machine with near zero latency.
-                // when applying corrections here, this looks just fine on the local machine.
-                else if (newest.timestamp < state.timestamp)
-                {
-                    // the correction is for a state in the future.
-                    // we clamp it to 'now'.
-                    // but only correct if off by threshold.
-                    // TODO maybe we should interpolate this back to 'now'?
-                    if (Vector3.Distance(state.position, rb.position) >= correctionThreshold)
-                    {
-                        double ahead = state.timestamp - newest.timestamp;
-                        Debug.Log($"Hard correction because the client is ahead of the server by {(ahead*1000):F1}ms. History of size={stateHistory.Count} @ t={timestamp:F3} oldest={oldest.timestamp:F3} newest={newest.timestamp:F3}. This can happen when latency is near zero, and is fine unless it shows jitter.");
-                        ApplyCorrection(state, state, state);
-                    }
-                }
-                // otherwise something went very wrong. sampling should've worked.
+                // something went very wrong. sampling should've worked.
                 // hard correct to recover the error.
-                else
-                {
-                    // TODO
-                    Debug.LogError($"Failed to sample history of size={stateHistory.Count} @ t={timestamp:F3} oldest={oldest.timestamp:F3} newest={newest.timestamp:F3}. This should never happen because the timestamp is within history.");
-                    ApplyCorrection(state, state, state);
-                }
-
-                // either way, nothing more to do here
+                Debug.LogError($"Failed to sample history of size={stateHistory.Count} @ t={timestamp:F3} oldest={oldest.timestamp:F3} newest={newest.timestamp:F3}. This should never happen because the timestamp is within history.");
+                ApplyCorrection(state, state, state);
                 return;
             }
 
