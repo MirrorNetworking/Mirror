@@ -101,6 +101,17 @@ namespace Mirror.RemoteCalls
         internal static void RemoveDelegate(ushort hash) =>
             remoteCallDelegates.Remove(hash);
 
+        internal static bool GetFunctionMethodName(ushort functionHash, out string methodName)
+        {
+            if (remoteCallDelegates.TryGetValue(functionHash, out Invoker invoker))
+            {
+                methodName = invoker.function.GetMethodName().Replace(InvokeRpcPrefix, "");
+                return true;
+            }
+            methodName = "";
+            return false;
+        }
+
         // note: no need to throw an error if not found.
         // an attacker might just try to call a cmd with an rpc's hash etc.
         // returning false is enough.
