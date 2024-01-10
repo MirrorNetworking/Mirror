@@ -337,7 +337,7 @@ namespace Mirror
                 // for example, NetworkTransform.
                 // let's not spam the console for unreliable out of order messages.
                 if (channelId == Channels.Reliable)
-                    Debug.LogWarning($"Spawned object not found when handling Command message {identity.name} [netId={msg.netId}]");
+                    Debug.LogWarning($"Spawned object not found when handling Command message {identity.name} netId={msg.netId}");
                 return;
             }
 
