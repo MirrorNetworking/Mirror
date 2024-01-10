@@ -380,7 +380,7 @@ namespace Mirror
             }
 
             // find the two closest client states between timestamp
-            if (!Prediction.Sample(stateHistory, timestamp, out RigidbodyState before, out RigidbodyState after, out double t))
+            if (!Prediction.Sample(stateHistory, timestamp, out RigidbodyState before, out RigidbodyState after, out int afterIndex, out double t))
             {
                 // something went very wrong. sampling should've worked.
                 // hard correct to recover the error.
