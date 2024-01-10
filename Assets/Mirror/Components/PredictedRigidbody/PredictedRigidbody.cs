@@ -221,24 +221,6 @@ namespace Mirror
             if (isClient) RecordState();
         }
 
-        void ApplyState(Vector3 position, Quaternion rotation, Vector3 velocity)
-        {
-            // Rigidbody .position teleports, while .MovePosition interpolates
-            // TODO is this a good idea? what about next capture while it's interpolating?
-            if (correctionMode == CorrectionMode.Move)
-            {
-                rb.MovePosition(position);
-                rb.MoveRotation(rotation);
-            }
-            else if (correctionMode == CorrectionMode.Set)
-            {
-                rb.position = position;
-                rb.rotation = rotation;
-            }
-
-            rb.velocity = velocity;
-        }
-
         // manually store last recorded so we can easily check against this
         // without traversing the SortedList.
         RigidbodyState lastRecorded;
@@ -287,6 +269,24 @@ namespace Mirror
 
             // manually remember last inserted state for faster .Last comparisons
             lastRecorded = state;
+        }
+
+        void ApplyState(Vector3 position, Quaternion rotation, Vector3 velocity)
+        {
+            // Rigidbody .position teleports, while .MovePosition interpolates
+            // TODO is this a good idea? what about next capture while it's interpolating?
+            if (correctionMode == CorrectionMode.Move)
+            {
+                rb.MovePosition(position);
+                rb.MoveRotation(rotation);
+            }
+            else if (correctionMode == CorrectionMode.Set)
+            {
+                rb.position = position;
+                rb.rotation = rotation;
+            }
+
+            rb.velocity = velocity;
         }
 
         void ApplyCorrection(RigidbodyState corrected, RigidbodyState before, RigidbodyState after)
