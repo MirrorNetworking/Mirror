@@ -52,7 +52,7 @@ namespace Mirror.Weaver
             // skip static constructor, "MirrorProcessed", "InvokeUserCode_"
             if (md.Name == ".cctor" ||
                 md.Name == NetworkBehaviourProcessor.ProcessedFunctionName ||
-                md.Name.StartsWith(Weaver.InvokeRpcPrefix))
+                md.Name.StartsWith(RemoteCalls.RemoteProcedureCalls.InvokeRpcPrefix))
                 return;
 
             // skip abstract
