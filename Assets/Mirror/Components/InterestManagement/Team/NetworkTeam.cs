@@ -10,7 +10,7 @@ namespace Mirror
     public class NetworkTeam : NetworkBehaviour
     {
         [SerializeField, ReadOnly]
-        [Tooltip("Set teamId at runtime to the same value on all networked objects that belong to a given team")]
+        [Tooltip("Set teamId on Server at runtime to the same value on all networked objects that belong to a given team")]
         string _teamId;
 
         public string teamId
@@ -34,6 +34,6 @@ namespace Mirror
         }
 
         [Tooltip("When enabled this object is visible to all clients. Typically this would be true for player objects")]
-        [SyncVar] public bool forceShown;
+        public bool forceShown;
     }
 }
