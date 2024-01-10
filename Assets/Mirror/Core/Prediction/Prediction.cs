@@ -146,16 +146,10 @@ namespace Mirror
         // that the client moved since then.
         public static T CorrectHistory<T>(
             SortedList<double, T> stateHistory,
-            int stateHistoryLimit,
-            T corrected,            // corrected state with timestamp
-            T before,               // state in history before the correction
-            T after,                // state in history after the correction
-            out int correctedAmount) // for debugging
+            T corrected,                        // corrected state with timestamp
+            out int correctedAmount)            // for debugging
             where T: PredictedState
         {
-            // insert the corrected state and adjust 'after.delta' to the inserted.
-            InsertCorrection(stateHistory, stateHistoryLimit, corrected, before, after);
-
             // now go through the history:
             // 1. skip all states before the inserted / corrected entry
             // 3. apply all deltas after timestamp
