@@ -9,9 +9,10 @@ namespace Mirror
     [HelpURL("https://mirror-networking.gitbook.io/docs/guides/interest-management")]
     public class NetworkTeam : NetworkBehaviour
     {
+        [SerializeField, ReadOnly]
+        [Tooltip("Set teamId at runtime to the same value on all networked objects that belong to a given team")]
         string _teamId;
 
-        [SerializeField, Tooltip("Set this to the same value on all networked objects that belong to a given team")]
         public string teamId
         {
             get => _teamId;
