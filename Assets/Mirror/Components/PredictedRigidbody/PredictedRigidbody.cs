@@ -303,9 +303,9 @@ namespace Mirror
             rb.velocity = velocity;
         }
 
-        // compare client state with server state at timestamp.
-        // apply correction if necessary.
-        void CompareState(double timestamp, RigidbodyState state)
+        // process a received server state.
+        // compares it against our history and applies corrections if needed.
+        void OnReceivedState(double timestamp, RigidbodyState state)
         {
             // OPTIONAL performance optimization when comparing idle objects.
             // even idle objects will have a history of ~32 entries.
@@ -327,7 +327,7 @@ namespace Mirror
             // if this ever causes issues, feel free to disable it.
             if (compareLastFirst && Vector3.Distance(state.position, rb.position) < correctionThreshold)
             {
-                // Debug.Log($"CompareState for {name}: taking optimized early return!");
+                // Debug.Log($"OnReceivedState for {name}: taking optimized early return!");
                 return;
             }
 
@@ -467,8 +467,8 @@ namespace Mirror
             Quaternion rotation = reader.ReadQuaternion();
             Vector3 velocity    = reader.ReadVector3();
 
-            // compare state without deltas
-            CompareState(timestamp, new RigidbodyState(timestamp, Vector3.zero, position, rotation, Vector3.zero, velocity));
+            // process received state
+            OnReceivedState(timestamp, new RigidbodyState(timestamp, Vector3.zero, position, rotation, Vector3.zero, velocity));
         }
 
         protected override void OnValidate()
