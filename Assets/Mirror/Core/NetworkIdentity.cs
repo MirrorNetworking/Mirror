@@ -94,6 +94,7 @@ namespace Mirror
         public bool isOwned { get; internal set; }
 
         // public so NetworkManager can reset it from StopClient.
+        [NonSerialized]
         public bool clientStarted;
 
         /// <summary>The set of network connections (players) that can see this object.</summary>
