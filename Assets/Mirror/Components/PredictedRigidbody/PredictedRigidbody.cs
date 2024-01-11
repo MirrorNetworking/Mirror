@@ -43,6 +43,8 @@ namespace Mirror
         [Header("Reconciliation")]
         [Tooltip("Correction threshold in meters. For example, 0.1 means that if the client is off by more than 10cm, it gets corrected.")]
         public double positionCorrectionThreshold = 0.10;
+        [Tooltip("Correction threshold in degrees. For example, 5 means that if the client is off by more than 5 degrees, it gets corrected.")]
+        public double rotationCorrectionThreshold = 5;
 
         [Tooltip("Applying server corrections one frame ahead gives much better results. We don't know why yet, so this is an option for now.")]
         public bool oneFrameAhead = true;
@@ -327,7 +329,8 @@ namespace Mirror
             //
             // if this ever causes issues, feel free to disable it.
             if (compareLastFirst &&
-                Vector3.Distance(state.position, rb.position) < positionCorrectionThreshold)
+                Vector3.Distance(state.position, rb.position) < positionCorrectionThreshold &&
+                Quaternion.Angle(state.rotation, rb.rotation) < rotationCorrectionThreshold)
             {
                 // Debug.Log($"OnReceivedState for {name}: taking optimized early return!");
                 return;
@@ -396,11 +399,13 @@ namespace Mirror
 
             // calculate the difference between where we were and where we should be
             // TODO only position for now. consider rotation etc. too later
-            float difference = Vector3.Distance(state.position, interpolated.position);
+            float positionDifference = Vector3.Distance(state.position, interpolated.position);
+            float rotationDifference = Quaternion.Angle(state.rotation, interpolated.rotation);
             // Debug.Log($"Sampled history of size={stateHistory.Count} @ {timestamp:F3}: client={interpolated.position} server={state.position} difference={difference:F3} / {correctionThreshold:F3}");
 
             // too far off? then correct it
-            if (difference >= positionCorrectionThreshold)
+            if (positionDifference >= positionCorrectionThreshold ||
+                rotationDifference >= rotationCorrectionThreshold)
             {
                 // Debug.Log($"CORRECTION NEEDED FOR {name} @ {timestamp:F3}: client={interpolated.position} server={state.position} difference={difference:F3}");
 

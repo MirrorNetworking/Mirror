@@ -137,7 +137,10 @@ namespace Mirror
 
             // recalculate 'after.delta' with the multiplier
             after.positionDelta = Vector3.Lerp(Vector3.zero, after.positionDelta, (float)multiplier);
-            after.velocityDelta = Vector3.Lerp(Vector3.zero, after.velocityDelta, (float)multiplier); // TODO rotation too?
+            after.velocityDelta = Vector3.Lerp(Vector3.zero, after.velocityDelta, (float)multiplier);
+            // rotation deltas aren't working yet. instead, we apply the corrected rotation to all entries after the correction below.
+            // this at least syncs the rotations and looks quite decent, compared to not syncing!
+            //   after.rotationDelta = Quaternion.Slerp(Quaternion.identity, after.rotationDelta, (float)multiplier);
 
             // changes aren't saved until we overwrite them in the history
             stateHistory[after.timestamp] = after;
@@ -151,7 +154,11 @@ namespace Mirror
 
                 // correct absolute position based on last + delta.
                 entry.position = last.position + entry.positionDelta;
-                entry.velocity = last.velocity + entry.velocityDelta; // TODO rotation too?
+                entry.velocity = last.velocity + entry.velocityDelta;
+                // rotation deltas aren't working yet. instead, we apply the corrected rotation to all entries after the correction.
+                // this at least syncs the rotations and looks quite decent, compared to not syncing!
+                //   entry.rotation = entry.rotationDelta * last.rotation; // quaternions add delta by multiplying in this order
+                entry.rotation = corrected.rotation;
 
                 // save the corrected entry into history.
                 stateHistory[key] = entry;
