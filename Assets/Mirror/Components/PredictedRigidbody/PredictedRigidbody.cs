@@ -406,18 +406,14 @@ namespace Mirror
                 // helps to compare with the interpolated/applied correction locally.
                 Debug.DrawLine(state.position, state.position + state.velocity * 0.1f, Color.white, lineTime);
 
-                // insert the corrected state and adjust the next state's delta.
-                // this is because deltas are always relative to the previous
-                // state. and since we inserted another, we need to readjust.
-                Prediction.InsertCorrection(stateHistory, stateHistoryLimit, state, before, after);
-
-                // insert the corrected state and correct all reapply the deltas after it.
-                RigidbodyState recomputed = Prediction.CorrectHistory(stateHistory, state, afterIndex);
-                int correctedAmount = stateHistory.Count - afterIndex;
+                // insert the correction and correct the history on top of it.
+                // returns the final recomputed state after rewinding.
+                RigidbodyState recomputed = Prediction.CorrectHistory(stateHistory, stateHistoryLimit, state, before, after, afterIndex);
 
                 // log, draw & apply the final position.
                 // always do this here, not when iterating above, in case we aren't iterating.
                 // for example, on same machine with near zero latency.
+                // int correctedAmount = stateHistory.Count - afterIndex;
                 // Debug.Log($"Correcting {name}: {correctedAmount} / {stateHistory.Count} states to final position from: {rb.position} to: {last.position}");
                 Debug.DrawLine(rb.position, recomputed.position, Color.green, lineTime);
                 ApplyState(recomputed.position, recomputed.rotation, recomputed.velocity);
