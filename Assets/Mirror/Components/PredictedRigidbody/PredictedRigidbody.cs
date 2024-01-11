@@ -42,7 +42,7 @@ namespace Mirror
 
         [Header("Reconciliation")]
         [Tooltip("Correction threshold in meters. For example, 0.1 means that if the client is off by more than 10cm, it gets corrected.")]
-        public double correctionThreshold = 0.10;
+        public double positionCorrectionThreshold = 0.10;
 
         [Tooltip("Applying server corrections one frame ahead gives much better results. We don't know why yet, so this is an option for now.")]
         public bool oneFrameAhead = true;
@@ -324,7 +324,8 @@ namespace Mirror
             //    this is as fast as it gets for skipping idle objects.
             //
             // if this ever causes issues, feel free to disable it.
-            if (compareLastFirst && Vector3.Distance(state.position, rb.position) < correctionThreshold)
+            if (compareLastFirst &&
+                Vector3.Distance(state.position, rb.position) < positionCorrectionThreshold)
             {
                 // Debug.Log($"OnReceivedState for {name}: taking optimized early return!");
                 return;
@@ -369,7 +370,7 @@ namespace Mirror
                 // we clamp it to 'now'.
                 // but only correct if off by threshold.
                 // TODO maybe we should interpolate this back to 'now'?
-                if (Vector3.Distance(state.position, rb.position) >= correctionThreshold)
+                if (Vector3.Distance(state.position, rb.position) >= positionCorrectionThreshold)
                 {
                     double ahead = state.timestamp - newest.timestamp;
                     Debug.Log($"Hard correction because the client is ahead of the server by {(ahead*1000):F1}ms. History of size={stateHistory.Count} @ t={timestamp:F3} oldest={oldest.timestamp:F3} newest={newest.timestamp:F3}. This can happen when latency is near zero, and is fine unless it shows jitter.");
@@ -397,7 +398,7 @@ namespace Mirror
             // Debug.Log($"Sampled history of size={stateHistory.Count} @ {timestamp:F3}: client={interpolated.position} server={state.position} difference={difference:F3} / {correctionThreshold:F3}");
 
             // too far off? then correct it
-            if (difference >= correctionThreshold)
+            if (difference >= positionCorrectionThreshold)
             {
                 // Debug.Log($"CORRECTION NEEDED FOR {name} @ {timestamp:F3}: client={interpolated.position} server={state.position} difference={difference:F3}");
 
