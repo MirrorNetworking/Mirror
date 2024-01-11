@@ -144,9 +144,8 @@ namespace Mirror
         }
 
         // client may need to correct parts of the history after receiving server state.
-        // CorrectHistory inserts the correction at[i], then corrects [i..n].
-        // in other words, it inserts the absolute value and reapplies the deltas
-        // that the client moved since then.
+        // CorrectHistory inserts the entries from [i..n] based on 'corrected'.
+        // in other words, readjusts the deltas that the client moved since then.
         public static T CorrectHistory<T>(
             SortedList<double, T> stateHistory,
             T corrected,                        // corrected state with timestamp
