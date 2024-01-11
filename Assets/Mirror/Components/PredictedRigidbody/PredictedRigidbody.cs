@@ -20,7 +20,6 @@ namespace Mirror
         Move,              // rigidbody.MovePosition/Rotation
     }
 
-    [Obsolete("Prediction is under development, do not use this yet.")]
     [RequireComponent(typeof(Rigidbody))]
     public class PredictedRigidbody : NetworkBehaviour
     {
