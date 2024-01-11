@@ -150,7 +150,6 @@ namespace Mirror
                 {
                     rend.enabled = false;
                 }
-
             }
         }
 
