@@ -35,13 +35,13 @@ namespace Mirror
             double timestamp, // current server time
             out T before,
             out T after,
-            out int afterIndex, // so corrections can skip the entries before
+            out int afterIndex,
             out double t)     // interpolation factor
         {
             before = default;
             after  = default;
-            afterIndex = -1;
             t = 0;
+            afterIndex = -1;
 
             // can't sample an empty history
             // interpolation needs at least two entries.
@@ -55,31 +55,36 @@ namespace Mirror
                 return false;
             }
 
-            // iterate through the history, starting at 1 so we can always have 'prev'
-            for (int i = 1; i < history.Count; ++i)
-            {
-                double previousTimestamp = history.Keys[i-1];
-                double entryTimestamp = history.Keys[i];
-                T prev = history.Values[i-1];
-                T entry = history.Values[i];
-
+            // iterate through the history
+            // TODO this needs to be faster than O(N)
+            //      search around that area.
+            //      should be O(1) most of the time, unless sampling was off.
+            int index = 0; // manually count when iterating. easier than for-int loop.
+            KeyValuePair<double, T> prev = new KeyValuePair<double, T>();
+            foreach (KeyValuePair<double, T> entry in history) {
                 // exact match?
-                if (entryTimestamp == timestamp) {
-                    before = entry;
-                    after = entry;
-                    afterIndex = i;
-                    t = Mathd.InverseLerp(entryTimestamp, entryTimestamp, timestamp);
+                if (timestamp == entry.Key)
+                {
+                    before = entry.Value;
+                    after = entry.Value;
+                    afterIndex = index;
+                    t = Mathd.InverseLerp(entry.Key, entry.Key, timestamp);
                     return true;
                 }
 
                 // did we check beyond timestamp? then return the previous two.
-                if (entryTimestamp > timestamp) {
-                    before = prev;
-                    after = entry;
-                    afterIndex = i;
-                    t = Mathd.InverseLerp(previousTimestamp, entryTimestamp, timestamp);
+                if (entry.Key > timestamp)
+                {
+                    before = prev.Value;
+                    after = entry.Value;
+                    afterIndex = index;
+                    t = Mathd.InverseLerp(prev.Key, entry.Key, timestamp);
                     return true;
                 }
+
+                // remember the last
+                prev = entry;
+                index += 1;
             }
 
             return false;
