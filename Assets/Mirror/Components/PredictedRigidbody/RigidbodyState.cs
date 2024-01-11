@@ -12,7 +12,8 @@ namespace Mirror
         public Vector3    positionDelta { get; set; } // delta to get from last to this position
         public Vector3    position { get; set; }
 
-        public Quaternion rotation; // TODO delta rotation?
+        public Quaternion rotationDelta { get; set; } // delta to get from last to this rotation
+        public Quaternion rotation { get; set; }
 
         public Vector3 velocityDelta { get; set; } // delta to get from last to this velocity
         public Vector3 velocity { get; set; }
@@ -20,12 +21,13 @@ namespace Mirror
         public RigidbodyState(
             double timestamp,
             Vector3 positionDelta, Vector3 position,
-            Quaternion rotation,
+            Quaternion rotationDelta, Quaternion rotation,
             Vector3 velocityDelta, Vector3 velocity)
         {
             this.timestamp     = timestamp;
             this.positionDelta = positionDelta;
             this.position      = position;
+            this.rotationDelta = rotationDelta;
             this.rotation      = rotation;
             this.velocityDelta = velocityDelta;
             this.velocity      = velocity;

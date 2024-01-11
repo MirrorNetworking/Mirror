@@ -245,11 +245,13 @@ namespace Mirror
             // calculate delta to previous state (if any)
             Vector3 positionDelta = Vector3.zero;
             Vector3 velocityDelta = Vector3.zero;
+            Quaternion rotationDelta = Quaternion.identity;
             if (stateHistory.Count > 0)
             {
                 RigidbodyState last = stateHistory.Values[stateHistory.Count - 1];
                 positionDelta = rb.position - last.position;
                 velocityDelta = rb.velocity - last.velocity;
+                rotationDelta = rb.rotation * Quaternion.Inverse(last.rotation); // this is how you calculate a quaternion delta
 
                 // debug draw the recorded state
                 Debug.DrawLine(last.position, rb.position, Color.red, lineTime);
@@ -259,7 +261,7 @@ namespace Mirror
             RigidbodyState state = new RigidbodyState(
                 predictedTime,
                 positionDelta, rb.position,
-                rb.rotation,
+                rotationDelta, rb.rotation,
                 velocityDelta, rb.velocity
             );
 
@@ -465,7 +467,7 @@ namespace Mirror
             Vector3 velocity    = reader.ReadVector3();
 
             // process received state
-            OnReceivedState(timestamp, new RigidbodyState(timestamp, Vector3.zero, position, rotation, Vector3.zero, velocity));
+            OnReceivedState(timestamp, new RigidbodyState(timestamp, Vector3.zero, position, Quaternion.identity, rotation, Vector3.zero, velocity));
         }
 
         protected override void OnValidate()
