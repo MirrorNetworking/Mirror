@@ -273,6 +273,10 @@ namespace Mirror
             lastRecorded = state;
         }
 
+        // optional user callbacks, in case people need to know about events.
+        protected virtual void OnSnappedIntoPlace() {}
+        protected virtual void OnCorrected() {}
+
         void ApplyState(Vector3 position, Quaternion rotation, Vector3 velocity)
         {
             // fix rigidbodies seemingly dancing in place instead of coming to rest.
@@ -285,6 +289,9 @@ namespace Mirror
                 rb.position = position;
                 rb.rotation = rotation;
                 rb.velocity = Vector3.zero;
+
+                // user callback
+                OnSnappedIntoPlace();
                 return;
             }
 
@@ -423,6 +430,9 @@ namespace Mirror
                 // Debug.Log($"Correcting {name}: {correctedAmount} / {stateHistory.Count} states to final position from: {rb.position} to: {last.position}");
                 Debug.DrawLine(rb.position, recomputed.position, Color.green, lineTime);
                 ApplyState(recomputed.position, recomputed.rotation, recomputed.velocity);
+
+                // user callback
+                OnCorrected();
             }
         }
 
