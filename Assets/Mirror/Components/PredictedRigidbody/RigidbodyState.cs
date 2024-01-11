@@ -31,14 +31,6 @@ namespace Mirror
             this.velocity      = velocity;
         }
 
-        // adjust the deltas after inserting a correction between this one and the previous one.
-        public void AdjustDeltas(float multiplier)
-        {
-            positionDelta = Vector3.Lerp(Vector3.zero, positionDelta, multiplier);
-            // TODO if we have have a rotation delta, then scale it here too
-            velocityDelta = Vector3.Lerp(Vector3.zero, velocityDelta, multiplier);
-        }
-
         public static RigidbodyState Interpolate(RigidbodyState a, RigidbodyState b, float t)
         {
             return new RigidbodyState

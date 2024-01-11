@@ -16,14 +16,6 @@ namespace Mirror
 
         Vector3 velocity { get; set; }
         Vector3 velocityDelta { get; set; }
-
-        // predicted states should have absolute and delta values, for example:
-        //   Vector3 position;
-        //   Vector3 positionDelta; // from last to here
-        // when inserting a correction between this one and the one before,
-        // we need to adjust the delta:
-        //   positionDelta *= multiplier;
-        void AdjustDeltas(float multiplier);
     }
 
     public static class Prediction
@@ -90,17 +82,16 @@ namespace Mirror
             return false;
         }
 
-        // when receiving a correction from the server, we want to insert it
-        // into the client's state history.
-        // -> if there's already a state at timestamp, replace
-        // -> otherwise insert and adjust the next state's delta
-        // TODO test coverage
-        public static void InsertCorrection<T>(
+        // inserts a server state into the client's history.
+        // readjust the deltas of the states after the inserted one.
+        // returns the corrected final position.
+        public static T CorrectHistory<T>(
             SortedList<double, T> stateHistory,
             int stateHistoryLimit,
-            T corrected, // corrected state with timestamp
-            T before,    // state in history before the correction
-            T after)     // state in history after the correction
+            T corrected,     // corrected state with timestamp
+            T before,        // state in history before the correction
+            T after,         // state in history after the correction
+            int afterIndex) // index of the 'after' value so we don't need to find it again here
             where T: PredictedState
         {
             // respect the limit
@@ -142,24 +133,15 @@ namespace Mirror
             double multiplier = previousDeltaTime != 0 ? correctedDeltaTime / previousDeltaTime : 0; // 0.5 / 2.0 = 0.25
 
             // recalculate 'after.delta' with the multiplier
-            after.AdjustDeltas((float)multiplier);
+            after.positionDelta = Vector3.Lerp(Vector3.zero, after.positionDelta, (float)multiplier);
+            after.velocityDelta = Vector3.Lerp(Vector3.zero, after.velocityDelta, (float)multiplier); // TODO rotation too?
 
-            // write the adjusted 'after' value into the history buffer
+            // changes aren't saved until we overwrite them in the history
             stateHistory[after.timestamp] = after;
-        }
 
-        // client may need to correct parts of the history after receiving server state.
-        // CorrectHistory inserts the entries from [i..n] based on 'corrected'.
-        // in other words, readjusts the deltas that the client moved since then.
-        public static T CorrectHistory<T>(
-            SortedList<double, T> stateHistory,
-            T corrected,                        // corrected state with timestamp
-            int startIndex)                     // first state after the inserted correction
-            where T: PredictedState
-        {
-            // start iterating right after the inserted state at startIndex
+            // second step: readjust all absolute values by rewinding client's delta moves on top of it.
             T last = corrected;
-            for (int i = startIndex; i < stateHistory.Count; ++i)
+            for (int i = afterIndex; i < stateHistory.Count; ++i)
             {
                 double key = stateHistory.Keys[i];
                 T entry = stateHistory.Values[i];
@@ -175,7 +157,7 @@ namespace Mirror
                 last = entry;
             }
 
-            // return the recomputed state after all deltas were applied to the correction
+            // third step: return the final recomputed state.
             return last;
         }
     }
