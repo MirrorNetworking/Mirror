@@ -291,11 +291,10 @@ namespace Mirror
 
         internal static uint GetNextNetworkId()
         {
-            if (poolNetworkIds && netIdPool.TryPeek(out NetworkIdPool entry) && entry.timeAvailable < NetworkTime.time)
+            if (poolNetworkIds && netIdPool.Count > 0 && netIdPool.Peek().timeAvailable < NetworkTime.time)
             {
+                NetworkIdPool entry = netIdPool.Dequeue();
                 //Debug.LogFormat(LogType.Log, LogOption.NoStacktrace, null, $"[GetNextNetworkId] Reusing NetworkId {entry.poolNetId}.");
-
-                netIdPool.Dequeue();
                 return entry.poolNetId;
             }
 
