@@ -3,7 +3,6 @@ using UnityEngine;
 
 namespace Mirror
 {
-    [Obsolete("Prediction is under development, do not use this yet.")]
     public class PredictedRigidbodyVisual : MonoBehaviour
     {
         [Tooltip("The predicted rigidbody to follow.")]
