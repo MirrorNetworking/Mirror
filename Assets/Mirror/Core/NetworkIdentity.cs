@@ -264,17 +264,52 @@ namespace Mirror
 
         internal static void ResetServerStatics()
         {
+            poolNetworkIds = true;
+            reuseDelay = 1;
+
+            netIdPool.Clear();
             nextNetworkId = 1;
         }
 
         /// <summary>Gets the NetworkIdentity from the sceneIds dictionary with the corresponding id</summary>
         public static NetworkIdentity GetSceneIdentity(ulong id) => sceneIds[id];
 
+        #region NetworkID Handling
+
+        internal static bool poolNetworkIds = true;
+        internal static byte reuseDelay = 1;
+
+        internal struct NetworkIdPool
+        {
+            public uint poolNetId;
+            public double timeAvailable;
+        }
+
+        // pool of NetworkIds that can be reused
+        internal static readonly Queue<NetworkIdPool> netIdPool = new Queue<NetworkIdPool>();
         static uint nextNetworkId = 1;
-        internal static uint GetNextNetworkId() => nextNetworkId++;
+
+        internal static uint GetNextNetworkId()
+        {
+            if (poolNetworkIds && netIdPool.TryPeek(out NetworkIdPool entry) && entry.timeAvailable < NetworkTime.time)
+            {
+                //Debug.LogFormat(LogType.Log, LogOption.NoStacktrace, null, $"[GetNextNetworkId] Reusing NetworkId {entry.poolNetId}.");
+
+                netIdPool.Dequeue();
+                return entry.poolNetId;
+            }
+
+            return nextNetworkId++;
+        }
 
         /// <summary>Resets nextNetworkId = 1</summary>
-        public static void ResetNextNetworkId() => nextNetworkId = 1;
+        public static void ResetNextNetworkId()
+        {
+            netIdPool.Clear();
+            nextNetworkId = 1;
+        }
+
+        #endregion
 
         /// <summary>The delegate type for the clientAuthorityCallback.</summary>
         public delegate void ClientAuthorityCallback(NetworkConnectionToClient conn, NetworkIdentity identity, bool authorityState);
@@ -627,6 +662,9 @@ namespace Mirror
                 // Do not add logging to this (see above)
                 NetworkServer.Destroy(gameObject);
             }
+
+            if (isServer && poolNetworkIds && netId > 0)
+                netIdPool.Enqueue(new NetworkIdPool { poolNetId = netId, timeAvailable = NetworkTime.time + reuseDelay });
 
             if (isLocalPlayer)
             {
@@ -1298,7 +1336,14 @@ namespace Mirror
             isOwned = false;
             NotifyAuthority();
 
-            netId = 0;
+            if (netId > 0)
+            {
+                if (poolNetworkIds)
+                    netIdPool.Enqueue(new NetworkIdPool { poolNetId = netId, timeAvailable = NetworkTime.time + reuseDelay });
+
+                netId = 0;
+            }
+
             connectionToServer = null;
             connectionToClient = null;
 
