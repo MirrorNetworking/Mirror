@@ -352,7 +352,7 @@ namespace Mirror
             byte parameterCount = reader.ReadByte();
             if (parameterCount != parameters.Length)
             {
-                Debug.LogError($"NetworkAnimator: serialized parameter count={parameterCount} does not match expected parameter count={parameters.Length}. Are you changing animators at runtime?");
+                Debug.LogError($"NetworkAnimator: serialized parameter count={parameterCount} does not match expected parameter count={parameters.Length}. Are you changing animators at runtime?", gameObject);
                 return;
             }
 
@@ -423,7 +423,7 @@ namespace Mirror
                 byte layerCount = reader.ReadByte();
                 if (layerCount != animator.layerCount)
                 {
-                    Debug.LogError($"NetworkAnimator: serialized layer count={layerCount} does not match expected layer count={animator.layerCount}. Are you changing animators at runtime?");
+                    Debug.LogError($"NetworkAnimator: serialized layer count={layerCount} does not match expected layer count={animator.layerCount}. Are you changing animators at runtime?", gameObject);
                     return;
                 }
 
@@ -461,13 +461,13 @@ namespace Mirror
             {
                 if (!isClient)
                 {
-                    Debug.LogWarning("Tried to set animation in the server for a client-controlled animator");
+                    Debug.LogWarning("Tried to set animation in the server for a client-controlled animator", gameObject);
                     return;
                 }
 
                 if (!isOwned)
                 {
-                    Debug.LogWarning("Only the client with authority can set animations");
+                    Debug.LogWarning("Only the client with authority can set animations", gameObject);
                     return;
                 }
 
@@ -481,7 +481,7 @@ namespace Mirror
             {
                 if (!isServer)
                 {
-                    Debug.LogWarning("Tried to set animation in the client for a server-controlled animator");
+                    Debug.LogWarning("Tried to set animation in the client for a server-controlled animator", gameObject);
                     return;
                 }
 
@@ -508,13 +508,13 @@ namespace Mirror
             {
                 if (!isClient)
                 {
-                    Debug.LogWarning("Tried to reset animation in the server for a client-controlled animator");
+                    Debug.LogWarning("Tried to reset animation in the server for a client-controlled animator", gameObject);
                     return;
                 }
 
                 if (!isOwned)
                 {
-                    Debug.LogWarning("Only the client with authority can reset animations");
+                    Debug.LogWarning("Only the client with authority can reset animations", gameObject);
                     return;
                 }
 
@@ -528,7 +528,7 @@ namespace Mirror
             {
                 if (!isServer)
                 {
-                    Debug.LogWarning("Tried to reset animation in the client for a server-controlled animator");
+                    Debug.LogWarning("Tried to reset animation in the client for a server-controlled animator", gameObject);
                     return;
                 }
 
