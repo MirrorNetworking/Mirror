@@ -63,10 +63,10 @@ namespace Mirror
         // [Tooltip("Client broadcasts 'sendRate' times per second. Use around 60Hz for fast paced games like Counter-Strike to minimize latency. Use around 30Hz for games like WoW to minimize computations. Use around 1-10Hz for slow paced games like EVE.")]
         // public int clientSendRate = 30; // 33 ms
 
-        [Header("Network ID Pooling")]
+        [Header("Network ID Reuse")]
         [Tooltip("Reuse network IDs when objects are unspawned or destroyed?")]
-        public bool poolNetworkIds = true;
-        [Range(1, 30)]
+        public bool reuseNetworkIds = true;
+        [Range(1, 60)]
         [Tooltip("Delay in seconds before network IDs are reused")]
         public byte reuseDelay = 1;
 
@@ -329,7 +329,7 @@ namespace Mirror
             NetworkServer.exceptionsDisconnect = exceptionsDisconnect;
 
             // Setup reuseable network IDs
-            NetworkIdentity.poolNetworkIds = poolNetworkIds;
+            NetworkIdentity.reuseNetworkIds = reuseNetworkIds;
             NetworkIdentity.reuseDelay = reuseDelay;
 
             if (runInBackground)

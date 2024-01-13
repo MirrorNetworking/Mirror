@@ -264,7 +264,7 @@ namespace Mirror
 
         internal static void ResetServerStatics()
         {
-            poolNetworkIds = true;
+            reuseNetworkIds = true;
             reuseDelay = 1;
 
             netIdPool.Clear();
@@ -276,7 +276,7 @@ namespace Mirror
 
         #region NetworkID Handling
 
-        internal static bool poolNetworkIds = true;
+        internal static bool reuseNetworkIds = true;
         internal static byte reuseDelay = 1;
 
         internal struct NetworkIdPool
@@ -291,7 +291,7 @@ namespace Mirror
 
         internal static uint GetNextNetworkId()
         {
-            if (poolNetworkIds && netIdPool.Count > 0 && netIdPool.Peek().timeAvailable < NetworkTime.time)
+            if (reuseNetworkIds && netIdPool.Count > 0 && netIdPool.Peek().timeAvailable < NetworkTime.time)
             {
                 NetworkIdPool entry = netIdPool.Dequeue();
                 //Debug.LogFormat(LogType.Log, LogOption.NoStacktrace, null, $"[GetNextNetworkId] Reusing NetworkId {entry.poolNetId}.");
@@ -662,7 +662,7 @@ namespace Mirror
                 NetworkServer.Destroy(gameObject);
             }
 
-            if (isServer && poolNetworkIds && netId > 0)
+            if (isServer && reuseNetworkIds && netId > 0)
                 netIdPool.Enqueue(new NetworkIdPool { poolNetId = netId, timeAvailable = NetworkTime.time + reuseDelay });
 
             if (isLocalPlayer)
@@ -1337,7 +1337,7 @@ namespace Mirror
 
             if (netId > 0)
             {
-                if (poolNetworkIds)
+                if (reuseNetworkIds)
                     netIdPool.Enqueue(new NetworkIdPool { poolNetId = netId, timeAvailable = NetworkTime.time + reuseDelay });
 
                 netId = 0;
