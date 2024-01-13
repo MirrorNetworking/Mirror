@@ -35,6 +35,7 @@ namespace Mirror
         [Header("State History")]
         public int stateHistoryLimit = 32; // 32 x 50 ms = 1.6 seconds is definitely enough
         readonly SortedList<double, RigidbodyState> stateHistory = new SortedList<double, RigidbodyState>();
+        public float recordInterval = 0.050f;
 
         [Tooltip("(Optional) performance optimization where received state is compared to the LAST recorded state first, before sampling the whole history.\n\nThis can save significant traversal overhead for idle objects with a tiny chance of missing corrections for objects which revisisted the same position in the recent history twice.")]
         public bool compareLastFirst = true;
@@ -224,8 +225,14 @@ namespace Mirror
         // manually store last recorded so we can easily check against this
         // without traversing the SortedList.
         RigidbodyState lastRecorded;
+        double lastRecordTime;
         void RecordState()
         {
+            // instead of recording every fixedupdate, let's record in an interval.
+            // we don't want to record every tiny move and correct too hard.
+            if (NetworkTime.time < lastRecordTime + recordInterval) return;
+            lastRecordTime = NetworkTime.time;
+
             // NetworkTime.time is always behind by bufferTime.
             // prediction aims to be on the exact same server time (immediately).
             // use predictedTime to record state, otherwise we would record in the past.
