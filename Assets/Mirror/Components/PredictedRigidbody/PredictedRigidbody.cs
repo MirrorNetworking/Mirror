@@ -63,7 +63,8 @@ namespace Mirror
         public float ghostEnabledCheckInterval = 0.2f;
 
         [Tooltip("After creating the visual interpolation object, replace this object's renderer materials with the ghost (ideally transparent) material.")]
-        public Material ghostMaterial;
+        public Material localGhostMaterial;
+        public Material remoteGhostMaterial;
 
         [Tooltip("How fast to interpolate to the target position, relative to how far we are away from it.\nHigher value will be more jitter but sharper moves, lower value will be less jitter but a little too smooth / rounded moves.")]
         public float positionInterpolationSpeed = 15; // 10 is a little too low for billiards at least
@@ -80,6 +81,9 @@ namespace Mirror
         protected GameObject physicsCopy;
         Rigidbody physicsCopyRigidbody; // caching to avoid GetComponent
         Collider physicsCopyCollider; // caching to avoid GetComponent
+
+        // we also create one extra ghost for the exact known server state.
+        protected GameObject remoteCopy;
 
         void Awake()
         {
@@ -158,7 +162,7 @@ namespace Mirror
             }
         }
 
-        protected virtual void CopyRenderersAsGhost(GameObject destination)
+        protected virtual void CopyRenderersAsGhost(GameObject destination, Material material)
         {
             if (TryGetComponent(out MeshRenderer originalMeshRenderer))
             {
@@ -174,7 +178,7 @@ namespace Mirror
                     Material[] materials = new Material[originalMeshRenderer.materials.Length];
                     for (int i = 0; i < materials.Length; ++i)
                     {
-                        materials[i] = ghostMaterial;
+                        materials[i] = material;
                     }
                     meshRenderer.materials = materials; // need to reassign to see it in effect
                 }
@@ -188,7 +192,7 @@ namespace Mirror
         // it's best to separate the physics instead of separating the renderers.
         // some projects have complex rendering / animation setups which we can't touch.
         // besides, Rigidbody+Collider are two components, where as renders may be many.
-        protected virtual void SeparatePhysics()
+        protected virtual void CreateGhosts()
         {
             // skip if already separated
             if (physicsCopy != null) return;
@@ -202,8 +206,10 @@ namespace Mirror
             physicsCopy.transform.localScale = transform.localScale;
 
             // add the PredictedRigidbodyPhysical component
-            PredictedRigidbodyPhysics physicsRigidbody = physicsCopy.AddComponent<PredictedRigidbodyPhysics>();
-            physicsRigidbody.target = this;
+            PredictedRigidbodyPhysicsGhost physicsGhostRigidbody = physicsCopy.AddComponent<PredictedRigidbodyPhysicsGhost>();
+            physicsGhostRigidbody.target = this;
+            physicsGhostRigidbody.ghostDistanceThreshold = ghostDistanceThreshold;
+            physicsGhostRigidbody.ghostEnabledCheckInterval = ghostEnabledCheckInterval;
 
             // move the rigidbody component to the physics GameObject
             MoveRigidbody(physicsCopy);
@@ -217,21 +223,31 @@ namespace Mirror
             // show ghost by copying all renderers / materials with ghost material applied
             if (showGhost)
             {
-                CopyRenderersAsGhost(physicsCopy);
-                physicsRigidbody.ghostDistanceThreshold = ghostDistanceThreshold;
-                physicsRigidbody.ghostEnabledCheckInterval = ghostEnabledCheckInterval;
+                // one for the locally predicted rigidbody
+                CopyRenderersAsGhost(physicsCopy, localGhostMaterial);
+                physicsGhostRigidbody.ghostDistanceThreshold = ghostDistanceThreshold;
+                physicsGhostRigidbody.ghostEnabledCheckInterval = ghostEnabledCheckInterval;
+
+                // one for the latest remote state for comparison
+                remoteCopy = new GameObject($"{name}_Remote");
+                PredictedRigidbodyRemoteGhost predictedGhost = remoteCopy.AddComponent<PredictedRigidbodyRemoteGhost>();
+                predictedGhost.target = this;
+                predictedGhost.ghostDistanceThreshold = ghostDistanceThreshold;
+                predictedGhost.ghostEnabledCheckInterval = ghostEnabledCheckInterval;
+                CopyRenderersAsGhost(remoteCopy, remoteGhostMaterial);
             }
 
             // cache components to avoid GetComponent calls at runtime
             physicsCopyRigidbody = physicsCopy.GetComponent<Rigidbody>();
             physicsCopyCollider = physicsCopy.GetComponent<Collider>();
-            if (physicsRigidbody == null) throw new Exception("SeparatePhysics: couldn't find final Rigidbody.");
+            if (physicsGhostRigidbody == null) throw new Exception("SeparatePhysics: couldn't find final Rigidbody.");
             if (physicsCopyCollider == null) throw new Exception("SeparatePhysics: couldn't find final Collider.");
         }
 
-        protected virtual void DestroyPhysicsCopy()
+        protected virtual void DestroyCopies()
         {
             if (physicsCopy != null) Destroy(physicsCopy);
+            if (remoteCopy != null) Destroy(remoteCopy);
         }
 
         protected virtual void SmoothFollowPhysicsCopy()
@@ -270,12 +286,12 @@ namespace Mirror
         public override void OnStartClient()
         {
             // OnDeserialize may have already created this
-            if (physicsCopy == null) SeparatePhysics();
+            if (physicsCopy == null) CreateGhosts();
         }
 
         // destroy visual copy only in OnStopClient().
         // OnDestroy() wouldn't be called for scene objects that are only disabled instead of destroyed.
-        public override void OnStopClient() => DestroyPhysicsCopy();
+        public override void OnStopClient() => DestroyCopies();
 
         void UpdateServer()
         {
@@ -411,6 +427,14 @@ namespace Mirror
         // compares it against our history and applies corrections if needed.
         void OnReceivedState(double timestamp, RigidbodyState state)
         {
+            // always update remote state ghost
+            if (remoteCopy != null)
+            {
+                remoteCopy.transform.position = state.position;
+                remoteCopy.transform.rotation = state.rotation;
+                remoteCopy.transform.localScale = transform.localScale;
+            }
+
             // OPTIONAL performance optimization when comparing idle objects.
             // even idle objects will have a history of ~32 entries.
             // sampling & traversing through them is unnecessarily costly.
@@ -556,7 +580,7 @@ namespace Mirror
         {
             // this may be called before OnStartClient.
             // in that case, separate physics first before applying state.
-            if (physicsCopy == null) SeparatePhysics();
+            if (physicsCopy == null) CreateGhosts();
 
             // deserialize data
             // we want to know the time on the server when this was sent, which is remoteTimestamp.

@@ -1,11 +1,9 @@
-// Prediction moves out the Rigidbody & Collider into a separate object.
-// This way the main (visual) object can smoothly follow it, instead of hard.
-using System;
+// simply ghost object that always follows last received server state.
 using UnityEngine;
 
 namespace Mirror
 {
-    public class PredictedRigidbodyPhysics : MonoBehaviour
+    public class PredictedRigidbodyRemoteGhost : MonoBehaviour
     {
         [Tooltip("The predicted rigidbody owner.")]
         public PredictedRigidbody target;
@@ -16,14 +14,10 @@ namespace Mirror
         public float ghostEnabledCheckInterval = 0.2f;
         double lastGhostEnabledCheckTime = 0;
 
-        // cache
-        Collider co;
-
         // we add this component manually from PredictedRigidbody.
         // so assign this in Start. target isn't set in Awake yet.
         void Start()
         {
-            co = GetComponent<Collider>();
             ghost = GetComponent<MeshRenderer>();
         }
 
@@ -54,19 +48,6 @@ namespace Mirror
         {
             // if owner gets network destroyed for any reason, destroy visual
             if (target == null || target.gameObject == null) Destroy(gameObject);
-        }
-
-        // also show a yellow gizmo for the predicted & corrected physics.
-        // in case we can't renderer ghosts, at least we have this.
-        void OnDrawGizmos()
-        {
-            if (co != null)
-            {
-                // show the client's predicted & corrected physics in yellow
-                Bounds bounds = co.bounds;
-                Gizmos.color = Color.yellow;
-                Gizmos.DrawWireCube(bounds.center, bounds.size);
-            }
         }
     }
 }
