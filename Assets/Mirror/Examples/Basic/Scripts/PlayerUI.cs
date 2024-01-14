@@ -10,6 +10,7 @@ namespace Mirror.Examples.Basic
 
         [Header("Child Text Objects")]
         public Text playerNameText;
+        [LabelText("Test")]
         public Text playerDataText;
 
         // Sets a highlight color for the local player

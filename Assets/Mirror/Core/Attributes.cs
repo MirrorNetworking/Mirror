@@ -88,4 +88,18 @@ namespace Mirror
     /// </summary>
     [AttributeUsage(AttributeTargets.Field)]
     public class ReadOnlyAttribute : PropertyAttribute {}
+
+    /// <summary>
+    /// Used to customize the label of a field in the inspector
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Field)]
+    public class LabelTextAttribute : Attribute
+    {
+        public string LabelText { get; private set; }
+
+        public LabelTextAttribute(string labelText)
+        {
+            LabelText = labelText;
+        }
+    }
 }
