@@ -195,13 +195,13 @@ namespace Mirror
 
         float DrawNetworkIDPool(float initialX, float Y)
         {
-            if (NetworkIdentity.netIdPool.Count > 0)
+            if (NetworkIdentity.netIdQueue.Count > 0)
             {
                 Rect poolRect = new Rect(initialX, Y + 10, 200, 20);
-                GUI.Label(poolRect, new GUIContent("Network ID Pool"), styles.componentName);
+                GUI.Label(poolRect, new GUIContent("Network ID Queue"), styles.componentName);
                 poolRect.x += 20;
                 poolRect.y += poolRect.height;
-                foreach (var entry in NetworkIdentity.netIdPool)
+                foreach (var entry in NetworkIdentity.netIdQueue)
                 {
                     GUI.Label(poolRect, $"[{entry.poolNetId}] {entry.timeAvailable:0.000}", styles.labelStyle);
                     poolRect.y += poolRect.height;
