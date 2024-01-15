@@ -626,6 +626,11 @@ namespace Mirror
 
             // force syncDirection to be ServerToClient
             syncDirection = SyncDirection.ServerToClient;
+
+            // state should be synced immediately for now.
+            // later when we have prediction fully dialed in,
+            // then we can maybe relax this a bit.
+            syncInterval = 0;
         }
     }
 }
