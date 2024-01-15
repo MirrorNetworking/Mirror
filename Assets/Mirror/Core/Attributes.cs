@@ -93,7 +93,7 @@ namespace Mirror
     /// Used to customize the label of a field in the inspector
     /// </summary>
     [AttributeUsage(AttributeTargets.Field)]
-    public class LabelTextAttribute : Attribute
+    public class LabelTextAttribute : PropertyAttribute
     {
         public string LabelText { get; private set; }
 
