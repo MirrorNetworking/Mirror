@@ -388,7 +388,7 @@ namespace Mirror
         protected virtual void OnSnappedIntoPlace() {}
         protected virtual void OnCorrected() {}
 
-        void ApplyState(Vector3 position, Quaternion rotation, Vector3 velocity)
+        void ApplyState(double timestamp, Vector3 position, Quaternion rotation, Vector3 velocity)
         {
             // fix rigidbodies seemingly dancing in place instead of coming to rest.
             // hard snap to the position below a threshold velocity.
@@ -396,7 +396,6 @@ namespace Mirror
             if (physicsCopyRigidbody.velocity.magnitude <= snapThreshold)
             {
                 Debug.Log($"Prediction: snapped {name} into place because velocity {physicsCopyRigidbody.velocity.magnitude:F3} <= {snapThreshold:F3}");
-                stateHistory.Clear();
                 // apply server state immediately.
                 // important to apply velocity as well, instead of Vector3.zero.
                 // in case an object is still slightly moving, we don't want it
@@ -404,6 +403,16 @@ namespace Mirror
                 physicsCopyRigidbody.position = position;
                 physicsCopyRigidbody.rotation = rotation;
                 physicsCopyRigidbody.velocity = velocity;
+
+                // clear history and insert the exact state we just applied.
+                // this makes future corrections more accurate.
+                stateHistory.Clear();
+                stateHistory.Add(timestamp, new RigidbodyState(
+                    timestamp,
+                    Vector3.zero, position,
+                    Quaternion.identity, rotation,
+                    Vector3.zero, velocity
+                ));
 
                 // user callback
                 OnSnappedIntoPlace();
@@ -487,7 +496,7 @@ namespace Mirror
             if (state.timestamp < oldest.timestamp)
             {
                 Debug.LogWarning($"Hard correcting client because the client is too far behind the server. History of size={stateHistory.Count} @ t={timestamp:F3} oldest={oldest.timestamp:F3} newest={newest.timestamp:F3}. This would cause the client to be out of sync as long as it's behind.");
-                ApplyState(state.position, state.rotation, state.velocity);
+                ApplyState(state.timestamp, state.position, state.rotation, state.velocity);
                 return;
             }
 
@@ -508,7 +517,7 @@ namespace Mirror
                 {
                     double ahead = state.timestamp - newest.timestamp;
                     Debug.Log($"Hard correction because the client is ahead of the server by {(ahead*1000):F1}ms. History of size={stateHistory.Count} @ t={timestamp:F3} oldest={oldest.timestamp:F3} newest={newest.timestamp:F3}. This can happen when latency is near zero, and is fine unless it shows jitter.");
-                    ApplyState(state.position, state.rotation, state.velocity);
+                    ApplyState(state.timestamp, state.position, state.rotation, state.velocity);
                 }
                 return;
             }
@@ -519,7 +528,7 @@ namespace Mirror
                 // something went very wrong. sampling should've worked.
                 // hard correct to recover the error.
                 Debug.LogError($"Failed to sample history of size={stateHistory.Count} @ t={timestamp:F3} oldest={oldest.timestamp:F3} newest={newest.timestamp:F3}. This should never happen because the timestamp is within history.");
-                ApplyState(state.position, state.rotation, state.velocity);
+                ApplyState(state.timestamp, state.position, state.rotation, state.velocity);
                 return;
             }
 
@@ -552,7 +561,7 @@ namespace Mirror
                 // int correctedAmount = stateHistory.Count - afterIndex;
                 // Debug.Log($"Correcting {name}: {correctedAmount} / {stateHistory.Count} states to final position from: {rb.position} to: {last.position}");
                 Debug.DrawLine(physicsCopyRigidbody.position, recomputed.position, Color.green, lineTime);
-                ApplyState(recomputed.position, recomputed.rotation, recomputed.velocity);
+                ApplyState(recomputed.timestamp, recomputed.position, recomputed.rotation, recomputed.velocity);
 
                 // user callback
                 OnCorrected();
