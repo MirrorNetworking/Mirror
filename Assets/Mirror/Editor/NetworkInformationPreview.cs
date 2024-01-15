@@ -198,12 +198,12 @@ namespace Mirror
             if (NetworkIdentity.netIdQueue.Count > 0)
             {
                 Rect poolRect = new Rect(initialX, Y + 10, 200, 20);
-                GUI.Label(poolRect, new GUIContent("Network ID Queue"), styles.componentName);
+                GUI.Label(poolRect, new GUIContent("Network ID Queue"), styles.labelStyle);
                 poolRect.x += 20;
                 poolRect.y += poolRect.height;
                 foreach (var entry in NetworkIdentity.netIdQueue)
                 {
-                    GUI.Label(poolRect, $"[{entry.poolNetId}] {entry.timeAvailable:0.000}", styles.labelStyle);
+                    GUI.Label(poolRect, $"[{entry.poolNetId}] {entry.timeAvailable:0.000}", styles.componentName);
                     poolRect.y += poolRect.height;
                     Y = poolRect.y;
                 }
