@@ -53,8 +53,8 @@ namespace Mirror
         [Tooltip("Configure how to apply the corrected state.")]
         public CorrectionMode correctionMode = CorrectionMode.Move;
 
-        [Tooltip("Server & Client would sometimes fight over the final position at rest. Instead, hard snap into black below a certain velocity threshold.")]
-        public float snapThreshold = 0.5f; // adjust with log messages ('snap'). '2' works, but '0.5' is fine too.
+        [Tooltip("Snap to the server state directly when velocity is < threshold. This is useful to reduce jitter/fighting effects before coming to rest.\nNote this applies position, rotation and velocity(!) so it's still smooth.")]
+        public float snapThreshold = 2; // 0.5 has too much fighting-at-rest, 2 seems ideal.
 
         [Header("Visual Interpolation")]
         [Tooltip("After creating the visual interpolation object, keep showing the original Rigidbody with a ghost (transparent) material for debugging.")]
