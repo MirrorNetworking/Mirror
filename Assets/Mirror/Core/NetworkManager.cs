@@ -94,7 +94,6 @@ namespace Mirror
         // Mirror global disconnect inactive option, independent of Transport.
         // not all Transports do this properly, and it's easiest to configure this just once.
         // this is very useful for some projects, keep it.
-        [LabelText("Test")]
         [Tooltip("When enabled, the server automatically disconnects inactive connections after the configured timeout.")]
         public bool disconnectInactiveConnections;
 

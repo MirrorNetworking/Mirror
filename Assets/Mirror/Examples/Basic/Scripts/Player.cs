@@ -14,7 +14,6 @@ namespace Mirror.Examples.Basic
         static readonly List<Player> playersList = new List<Player>();
 
         [Header("Player UI")]
-        [LabelText("Test")]
         public GameObject playerUIPrefab;
 
         GameObject playerUIObject;
