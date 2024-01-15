@@ -175,7 +175,7 @@ MonoBehaviour:
   rotationCorrectionThreshold: 5
   oneFrameAhead: 1
   correctionMode: 1
-  snapThreshold: 0.5
+  snapThreshold: 2
   showGhost: 1
   ghostDistanceThreshold: 0.1
   ghostEnabledCheckInterval: 0.2
