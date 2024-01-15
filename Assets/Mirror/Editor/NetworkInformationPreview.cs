@@ -113,7 +113,7 @@ namespace Mirror
 
             Y = DrawObservers(identity, initialX, Y);
 
-            Y = DrawNetworkIDPool(initialX, Y);
+            Y = DrawNetworkIDQueue(initialX, Y);
 
             _ = DrawOwner(identity, initialX, Y);
 
@@ -193,19 +193,19 @@ namespace Mirror
             return Y;
         }
 
-        float DrawNetworkIDPool(float initialX, float Y)
+        float DrawNetworkIDQueue(float initialX, float Y)
         {
             if (NetworkIdentity.netIdQueue.Count > 0)
             {
-                Rect poolRect = new Rect(initialX, Y + 10, 200, 20);
-                GUI.Label(poolRect, new GUIContent("Network ID Queue"), styles.labelStyle);
-                poolRect.x += 20;
-                poolRect.y += poolRect.height;
+                Rect netIdRect = new Rect(initialX, Y + 10, 200, 20);
+                GUI.Label(netIdRect, new GUIContent("Network ID Queue"), styles.labelStyle);
+                netIdRect.x += 20;
+                netIdRect.y += netIdRect.height;
                 foreach (var entry in NetworkIdentity.netIdQueue)
                 {
-                    GUI.Label(poolRect, $"[{entry.poolNetId}] {entry.timeAvailable:0.000}", styles.componentName);
-                    poolRect.y += poolRect.height;
-                    Y = poolRect.y;
+                    GUI.Label(netIdRect, $"[{entry.reusableNetId}] {entry.timeAvailable:0.000}", styles.componentName);
+                    netIdRect.y += netIdRect.height;
+                    Y = netIdRect.y;
                 }
             }
 

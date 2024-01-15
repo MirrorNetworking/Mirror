@@ -274,28 +274,28 @@ namespace Mirror
         /// <summary>Gets the NetworkIdentity from the sceneIds dictionary with the corresponding id</summary>
         public static NetworkIdentity GetSceneIdentity(ulong id) => sceneIds[id];
 
-        #region NetworkID Handling
+        #region Network ID Reuse
 
         internal static bool reuseNetworkIds = true;
         internal static byte reuseDelay = 1;
 
-        internal struct NetworkIdPool
+        internal struct ReusableNetworkId
         {
-            public uint poolNetId;
+            public uint reusableNetId;
             public double timeAvailable;
         }
 
         // pool of NetworkIds that can be reused
-        internal static readonly Queue<NetworkIdPool> netIdQueue = new Queue<NetworkIdPool>();
+        internal static readonly Queue<ReusableNetworkId> netIdQueue = new Queue<ReusableNetworkId>();
         static uint nextNetworkId = 1;
 
         internal static uint GetNextNetworkId()
         {
             if (reuseNetworkIds && netIdQueue.Count > 0 && netIdQueue.Peek().timeAvailable < NetworkTime.time)
             {
-                NetworkIdPool entry = netIdQueue.Dequeue();
+                ReusableNetworkId entry = netIdQueue.Dequeue();
                 //Debug.LogFormat(LogType.Log, LogOption.NoStacktrace, null, $"[GetNextNetworkId] Reusing NetworkId {entry.poolNetId}.");
-                return entry.poolNetId;
+                return entry.reusableNetId;
             }
 
             return nextNetworkId++;
@@ -663,7 +663,7 @@ namespace Mirror
             }
 
             if (isServer && reuseNetworkIds && netId > 0)
-                netIdQueue.Enqueue(new NetworkIdPool { poolNetId = netId, timeAvailable = NetworkTime.time + reuseDelay });
+                netIdQueue.Enqueue(new ReusableNetworkId { reusableNetId = netId, timeAvailable = NetworkTime.time + reuseDelay });
 
             if (isLocalPlayer)
             {
@@ -1338,7 +1338,7 @@ namespace Mirror
             if (netId > 0)
             {
                 if (reuseNetworkIds)
-                    netIdQueue.Enqueue(new NetworkIdPool { poolNetId = netId, timeAvailable = NetworkTime.time + reuseDelay });
+                    netIdQueue.Enqueue(new ReusableNetworkId { reusableNetId = netId, timeAvailable = NetworkTime.time + reuseDelay });
 
                 netId = 0;
             }
