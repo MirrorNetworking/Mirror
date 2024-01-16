@@ -6,8 +6,17 @@ using System;
 namespace Mirror
 {
     [AddComponentMenu("Network/Hybrid NetworkTransform")]
-    public class HybridNetworkTransform : NetworkTransformBase
+    public class HybridNetworkTransform : NetworkBehaviour
     {
+        // target transform to sync. can be on a child.
+        // TODO this field is kind of unnecessary since we now support child NetworkBehaviours
+        [Header("Target")]
+        [Tooltip("The Transform component to sync. May be on on this GameObject, or on a child.")]
+        public Transform target;
+
+
+        [SerializeField] protected SyncSettings syncSettings;        
+
         [Header("Full Send Interval Multiplier")]
         [Tooltip("Check/Sync every multiple of Network Manager send interval (= 1 / NM Send Rate), instead of every send interval.\n(30 NM send rate, and 3 interval, is a send every 0.1 seconds)\nA larger interval means less network sends, which has a variety of upsides. The drawbacks are delays and lower accuracy, you should find a nice balance between not sending too much, but the results looking good for your particular scenario.")]
         [Range(1, 120)]
@@ -26,7 +35,27 @@ namespace Mirror
         [Range(1, 120)]
         public uint deltaSendIntervalMultiplier = 1;    
         private uint deltaSendIntervalCounter = 0;
-        double lastDeltaSendIntervalTime = double.MinValue;    
+        double lastDeltaSendIntervalTime = double.MinValue;
+
+        [Header("Timeline Offset")]
+        [Tooltip("Add a small timeline offset to account for decoupled arrival of NetworkTime and NetworkTransform snapshots.\nfixes: https://github.com/MirrorNetworking/Mirror/issues/3427")]
+        public bool timelineOffset = false;
+
+        // Ninja's Notes on offset & mulitplier:
+        //
+        // In a no multiplier scenario:
+        // 1. Snapshots are sent every frame (frame being 1 NM send interval).
+        // 2. Time Interpolation is set to be 'behind' by 2 frames times.
+        // In theory where everything works, we probably have around 2 snapshots before we need to interpolate snapshots. From NT perspective, we should always have around 2 snapshots ready, so no stutter.
+        //
+        // In a multiplier scenario:
+        // 1. Snapshots are sent every 10 frames.
+        // 2. Time Interpolation remains 'behind by 2 frames'.
+        // When everything works, we are receiving NT snapshots every 10 frames, but start interpolating after 2.
+        // Even if I assume we had 2 snapshots to begin with to start interpolating (which we don't), by the time we reach 13th frame, we are out of snapshots, and have to wait 7 frames for next snapshot to come. This is the reason why we absolutely need the timestamp adjustment. We are starting way too early to interpolate.
+        //
+        protected double timeStampAdjustment => NetworkServer.sendInterval * (deltaSendIntervalMultiplier - 1);
+        protected double offset => timelineOffset ? NetworkServer.sendInterval * deltaSendIntervalMultiplier : 0;            
 
         [Header("Rotation")]
         [Tooltip("Sensitivity of changes needed before an updated state is sent over the network")]
@@ -39,29 +68,32 @@ namespace Mirror
         [Range(0.00_01f, 1f)]                   // disallow 0 division. 1mm to 1m precision is enough range.
         public float scalePrecision = 0.01f; // 1 cm
 
-        [SerializeField] protected SyncSettings syncSettings;
 
-        protected override void OnEnable()
-        {
-            base.OnEnable();
-            
-            // NTBase has options to sync pos/rot/scale. Sync Settings has the same ability
-            // If sync settings is not set, we use NTBase's settings.
-            if (syncSettings == SyncSettings.None)
-                syncSettings = InitSyncSettings();
-        }
+        // interpolation is on by default, but can be disabled to jump to
+        // the destination immediately. some projects need this.
+        [Header("Interpolation")]
+        [Tooltip("Set to false to have a snap-like effect on position movement.")]
+        public bool interpolatePosition = true;
+        [Tooltip("Set to false to have a snap-like effect on rotations.")]
+        public bool interpolateRotation = true;
+        [Tooltip("Set to false to remove scale smoothing. Example use-case: Instant flipping of sprites that use -X and +X for direction.")]
+        public bool interpolateScale = true;        
+        
+        // CoordinateSpace ///////////////////////////////////////////////////////////
+        [Header("Coordinate Space")]
+        [Tooltip("Local by default. World may be better when changing hierarchy, or non-NetworkTransforms root position/rotation/scale values.")]
+        public CoordinateSpace coordinateSpace = CoordinateSpace.Local;        
 
-        protected virtual SyncSettings InitSyncSettings()
-        {
-            SyncSettings syncSettings = SyncSettings.None;
+        protected bool IsClientWithAuthority => isClient && authority;
+        public readonly SortedList<double, TransformSnapshot> clientSnapshots = new SortedList<double, TransformSnapshot>(16);
+        public readonly SortedList<double, TransformSnapshot> serverSnapshots = new SortedList<double, TransformSnapshot>(16);        
 
-            if (syncPosition) syncSettings |= (SyncSettings.SyncPosX | SyncSettings.SyncPosY | SyncSettings.SyncPosZ);
-            if (syncRotation) syncSettings |= SyncSettings.SyncRot;
-            if (syncScale) syncSettings |= SyncSettings.SyncScale;
-            if (compressRotation) syncSettings |= SyncSettings.CompressRot;
-
-            return syncSettings;
-        }
+        private bool syncPosition => (syncSettings & SyncSettings.SyncPosX) > 0 
+                                    || (syncSettings & SyncSettings.SyncPosY) > 0
+                                    || (syncSettings & SyncSettings.SyncPosZ) > 0;
+        
+        private bool syncRotation => (syncSettings & SyncSettings.SyncRot) > 0;
+        private bool syncScale => (syncSettings & SyncSettings.SyncScale) > 0;
 
         protected override void OnValidate()
         {
@@ -130,7 +162,23 @@ namespace Mirror
             // interpolate & apply
             TransformSnapshot computed = TransformSnapshot.Interpolate(from, to, t);
             Apply(computed, to);
-        }        
+        }
+
+        protected virtual void Apply(TransformSnapshot interpolated, TransformSnapshot endGoal)
+        {
+            // local position/rotation for VR support
+            //
+            // if syncPosition/Rotation/Scale is disabled then we received nulls
+            // -> current position/rotation/scale would've been added as snapshot
+            // -> we still interpolated
+            // -> but simply don't apply it. if the user doesn't want to sync
+            //    scale, then we should not touch scale etc.
+
+            // interpolate parts
+            if (syncPosition) SetPosition(interpolatePosition ? interpolated.position : endGoal.position);
+            if (syncRotation) SetRotation(interpolateRotation ? interpolated.rotation : endGoal.rotation);
+            if (syncScale) SetScale(interpolateScale ? interpolated.scale : endGoal.scale);
+        }                
     #endregion
 
     #region Initial State Serialization
@@ -161,6 +209,7 @@ namespace Mirror
         }
     #endregion
 
+    #region Update
         void LateUpdate()
         {
             // if server then always sync to others.
@@ -209,6 +258,41 @@ namespace Mirror
                 else if (deltaSendIntervalCounter == deltaSendIntervalMultiplier) ServerBroadcastDelta();
             }
         }
+
+        void UpdateClientBroadcast()
+        {
+            // https://github.com/vis2k/Mirror/pull/2992/
+            if (!NetworkClient.ready) return;
+
+            // send to server each 'sendInterval'
+            // NetworkTime.localTime for double precision until Unity has it too
+            //
+            // IMPORTANT:
+            // snapshot interpolation requires constant sending.
+            // DO NOT only send if position changed. for example:
+            // ---
+            // * client sends first position at t=0
+            // * ... 10s later ...
+            // * client moves again, sends second position at t=10
+            // ---
+            // * server gets first position at t=0
+            // * server gets second position at t=10
+            // * server moves from first to second within a time of 10s
+            //   => would be a super slow move, instead of a wait & move.
+            //
+            // IMPORTANT:
+            // DO NOT send nulls if not changed 'since last send' either. we
+            // send unreliable and don't know which 'last send' the other end
+            // received successfully.
+            CheckLastSendTime();
+
+            if (syncDirection == SyncDirection.ServerToClient) return;
+
+            if (fullSendIntervalCounter == fullSendIntervalMultiplier) ClientBroadcastFull();
+            else if (deltaSendIntervalCounter == deltaSendIntervalMultiplier) ClientBroadcastDelta();
+        }
+    #endregion
+
     #region Server Broadcast Full
         protected virtual void ServerBroadcastFull()
         {
@@ -299,79 +383,6 @@ namespace Mirror
 
 
     #endregion
-        /*
-            if (sendIntervalCounter == sendIntervalMultiplier && // same interval as time interpolation!
-                (syncDirection == SyncDirection.ServerToClient || IsClientWithAuthority))
-            {
-                // send snapshot without timestamp.
-                // receiver gets it from batch timestamp to save bandwidth.
-                TransformSnapshot snapshot = Construct();
-                cachedSnapshotComparison = CompareSnapshots(snapshot);
-                if (cachedSnapshotComparison && hasSentUnchangedPosition && onlySyncOnChange) { return; }
-
-                if (compressRotation)
-                {
-                    RpcServerToClientSyncCompressRotation(
-                        // only sync what the user wants to sync
-                        syncPosition && positionChanged ? snapshot.position : default(Vector3?),
-                        syncRotation && rotationChanged ? Compression.CompressQuaternion(snapshot.rotation) : default(uint?),
-                        syncScale && scaleChanged ? snapshot.scale : default(Vector3?)
-                    );
-                }
-                else
-                {
-                    RpcServerToClientSync(
-                    // only sync what the user wants to sync
-                    syncPosition && positionChanged ? snapshot.position : default(Vector3?),
-                    syncRotation && rotationChanged ? snapshot.rotation : default(Quaternion?),
-                    syncScale && scaleChanged ? snapshot.scale : default(Vector3?)
-                    );
-                }
-
-                if (cachedSnapshotComparison)
-                {
-                    hasSentUnchangedPosition = true;
-                }
-                else
-                {
-                    hasSentUnchangedPosition = false;
-                    lastSnapshot = snapshot;
-                }
-            }
-        }*/
-
-        void UpdateClientBroadcast()
-        {
-            // https://github.com/vis2k/Mirror/pull/2992/
-            if (!NetworkClient.ready) return;
-
-            // send to server each 'sendInterval'
-            // NetworkTime.localTime for double precision until Unity has it too
-            //
-            // IMPORTANT:
-            // snapshot interpolation requires constant sending.
-            // DO NOT only send if position changed. for example:
-            // ---
-            // * client sends first position at t=0
-            // * ... 10s later ...
-            // * client moves again, sends second position at t=10
-            // ---
-            // * server gets first position at t=0
-            // * server gets second position at t=10
-            // * server moves from first to second within a time of 10s
-            //   => would be a super slow move, instead of a wait & move.
-            //
-            // IMPORTANT:
-            // DO NOT send nulls if not changed 'since last send' either. we
-            // send unreliable and don't know which 'last send' the other end
-            // received successfully.
-            CheckLastSendTime();
-
-            if (syncDirection == SyncDirection.ServerToClient) return;
-
-            if (fullSendIntervalCounter == fullSendIntervalMultiplier) ClientBroadcastFull();
-            else if (deltaSendIntervalCounter == deltaSendIntervalMultiplier) ClientBroadcastDelta();
-        }
 
     #region Client Broadcast Full
         protected virtual void ClientBroadcastFull()
@@ -421,7 +432,7 @@ namespace Mirror
             QuantizedSnapshot currentQuantized = ConstructQuantizedSnapshot(currentFull.position, currentFull.rotation, currentFull.scale);
 
             SyncDataDelta syncDataDelta = DeriveDelta(currentQuantized);
-            Debug.Log($"Client sending sync data delta index: {syncDataDelta.fullSyncDataIndex}");
+
             CmdClientToServerSyncDelta(syncDataDelta);            
         }
 
@@ -442,7 +453,6 @@ namespace Mirror
             // protect against ever growing buffer size attacks
             if (serverSnapshots.Count >= connectionToClient.snapshotBufferSizeLimit) return;  
 
-            //if (!isLocalPlayer) Debug.Log($"delta index received: {delta.fullSyncDataIndex}, last received {lastReceivedFullSyncData.fullSyncDataIndex}");
             if (delta.fullSyncDataIndex != lastReceivedFullSyncData.fullSyncDataIndex) return;
             
             double timestamp = connectionToClient.remoteTimeStamp;
@@ -454,6 +464,7 @@ namespace Mirror
             AddSnapshot(serverSnapshots, timestamp + timeStampAdjustment + offset, position, rotation, scale);                      
         }
     #endregion
+    
         protected virtual SyncDataFull ConstructFullSyncData(bool updateIndex)
         {
             return new SyncDataFull(
@@ -568,6 +579,36 @@ namespace Mirror
             scale = Compression.ScaleToFloat(lastReceivedFullQuantized.scale + delta.scale, scalePrecision);
         }
 
+        protected void AddSnapshot(SortedList<double, TransformSnapshot> snapshots, double timeStamp, Vector3? position, Quaternion? rotation, Vector3? scale)
+        {
+            // position, rotation, scale can have no value if same as last time.
+            // saves bandwidth.
+            // but we still need to feed it to snapshot interpolation. we can't
+            // just have gaps in there if nothing has changed. for example, if
+            //   client sends snapshot at t=0
+            //   client sends nothing for 10s because not moved
+            //   client sends snapshot at t=10
+            // then the server would assume that it's one super slow move and
+            // replay it for 10 seconds.
+
+            if (!position.HasValue) position = snapshots.Count > 0 ? snapshots.Values[snapshots.Count - 1].position : GetPosition();
+            if (!rotation.HasValue) rotation = snapshots.Count > 0 ? snapshots.Values[snapshots.Count - 1].rotation : GetRotation();
+            if (!scale.HasValue) scale = snapshots.Count > 0 ? snapshots.Values[snapshots.Count - 1].scale : GetScale();
+
+            // insert transform snapshot
+            SnapshotInterpolation.InsertIfNotExists(
+                snapshots,
+                NetworkClient.snapshotSettings.bufferLimit,
+                new TransformSnapshot(
+                    timeStamp, // arrival remote timestamp. NOT remote time.
+                    NetworkTime.localTime, // Unity 2019 doesn't have timeAsDouble yet
+                    position.Value,
+                    rotation.Value,
+                    scale.Value
+                )
+            );
+        }        
+
         protected virtual void CheckLastSendTime()
         {
             // We check interval every frame, and then send if interval is reached.
@@ -586,6 +627,50 @@ namespace Mirror
             
             if (AccurateInterval.Elapsed(NetworkTime.localTime, NetworkServer.sendInterval, ref lastDeltaSendIntervalTime))
                 deltaSendIntervalCounter++;
-        }   
+        }
+
+    #region Snapshot Functions
+        // snapshot functions //////////////////////////////////////////////////
+        // get local/world position
+        protected virtual Vector3 GetPosition() =>
+            coordinateSpace == CoordinateSpace.Local ? target.localPosition : target.position;
+
+        // get local/world rotation
+        protected virtual Quaternion GetRotation() =>
+            coordinateSpace == CoordinateSpace.Local ? target.localRotation : target.rotation;
+
+        // get local/world scale
+        protected virtual Vector3 GetScale() =>
+            coordinateSpace == CoordinateSpace.Local ? target.localScale : target.lossyScale;
+
+        // set local/world position
+        protected virtual void SetPosition(Vector3 position)
+        {
+            if (coordinateSpace == CoordinateSpace.Local)
+                target.localPosition = position;
+            else
+                target.position = position;
+        }     
+
+        // set local/world rotation
+        protected virtual void SetRotation(Quaternion rotation)
+        {
+            if (coordinateSpace == CoordinateSpace.Local)
+                target.localRotation = rotation;
+            else
+                target.rotation = rotation;
+        }
+
+        // set local/world position
+        protected virtual void SetScale(Vector3 scale)
+        {
+            if (coordinateSpace == CoordinateSpace.Local)
+                target.localScale = scale;
+            // Unity doesn't support setting world scale.
+            // OnValidate disables syncScale in world mode.
+            // else
+            // target.lossyScale = scale; // TODO
+        }        
+    #endregion      
     }
 }
