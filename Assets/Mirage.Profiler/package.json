@@ -1,0 +1,16 @@
+{
+    "name": "com.james-frowen.mirage-profiler",
+    "displayName": "Mirage Profiler",
+    "version": "1.1.0-mirror.11",
+    "unity": "2021.3",
+    "description": "Network profiler for Mirage",
+    "author": "James Frowen",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/James-Frowen/Mirage.Profiler"
+    },
+    "dependencies": {
+        "com.unity.profiling.core": "1.0.2"
+    },
+    "samples": []
+}
