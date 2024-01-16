@@ -5,7 +5,7 @@ using System;
 
 namespace Mirror
 {
-    [AddComponentMenu("Network/Network Transform (Unreliable)")]
+    [AddComponentMenu("Network/Hybrid NetworkTransform")]
     public class HybridNetworkTransform : NetworkTransformBase
     {
         [Header("Full Send Interval Multiplier")]
@@ -47,7 +47,7 @@ namespace Mirror
             
             // NTBase has options to sync pos/rot/scale. Sync Settings has the same ability
             // If sync settings is not set, we use NTBase's settings.
-            if (syncSettings != SyncSettings.None)
+            if (syncSettings == SyncSettings.None)
                 syncSettings = InitSyncSettings();
         }
 
@@ -66,9 +66,10 @@ namespace Mirror
         protected override void OnValidate()
         {
             base.OnValidate();
-            if ((syncSettings & (SyncSettings.CompressRot | SyncSettings.UseEulerAngles)) > 0) syncSettings &= ~SyncSettings.CompressRot;
+            if ((syncSettings & (SyncSettings.CompressRot & SyncSettings.UseEulerAngles)) > 0) syncSettings &= ~SyncSettings.CompressRot;
 
-            fullSendIntervalMultiplier = Math.Max(deltaSendIntervalMultiplier, fullSendIntervalMultiplier) +1;
+            deltaSendIntervalMultiplier = Math.Min(deltaSendIntervalMultiplier, fullSendIntervalMultiplier);
+            fullSendIntervalMultiplier = Math.Max(deltaSendIntervalMultiplier, fullSendIntervalMultiplier);
         }
 
         #region Apply Interpolation
