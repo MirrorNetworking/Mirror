@@ -189,9 +189,13 @@ namespace Mirror
             // (Spawn message wouldn't sync NTChild positions either)
             if (initialState)
             {
-                if (syncPosition) writer.WriteVector3(GetPosition());
-                if (syncRotation) writer.WriteQuaternion(GetRotation());
-                if (syncScale) writer.WriteVector3(GetScale());
+                if (lastSentFullSyncIndex == 0) lastSentFullSyncData = ConstructFullSyncData(true);
+                writer.WriteByte(lastSentFullSyncIndex);
+                if (syncPosition) writer.WriteVector3(lastSentFullSyncData.position);
+                if (syncRotation) writer.WriteQuaternion(lastSentFullSyncData.rotation);
+                if (syncScale) writer.WriteVector3(lastSentFullSyncData.scale);
+
+                lastSentFullQuantized = ConstructQuantizedSnapshot(lastSentFullSyncData.position, lastReceivedFullSyncData.rotation, lastReceivedFullSyncData.scale);
             }
         }
 
@@ -202,9 +206,19 @@ namespace Mirror
             // (Spawn message wouldn't sync NTChild positions either)
             if (initialState)
             {
-                if (syncPosition) SetPosition(reader.ReadVector3());
-                if (syncRotation) SetRotation(reader.ReadQuaternion());
-                if (syncScale) SetScale(reader.ReadVector3());
+                byte index = reader.ReadByte();
+
+                Vector3 position = GetPosition();
+                Quaternion rotation = GetRotation();
+                Vector3 scale = GetScale();
+                if (syncPosition) position = reader.ReadVector3();
+                if (syncRotation) rotation = reader.ReadQuaternion();
+                if (syncScale) scale = reader.ReadVector3();
+
+                SyncDataFull syncData = new SyncDataFull(index, syncSettings, position, rotation, scale);
+                
+                if (isServer) OnClientToServerSyncFull(syncData);
+                else if (isClient) OnServerToClientSyncFull(syncData);
             }
         }
     #endregion
@@ -333,17 +347,22 @@ namespace Mirror
             // TODO, if we are syncing full by pos axis, we need to maybe
             // use current non-synced axis instead of giving it a 0.
             lastReceivedFullSyncData = syncData;
-            lastReceivedFullQuantized = ConstructQuantizedSnapshot(syncData.position, syncData.rotation, syncData.scale);
+            CleanUpFullSyncDataPositionSync(ref lastReceivedFullSyncData);
+            lastReceivedFullQuantized = ConstructQuantizedSnapshot(lastReceivedFullSyncData.position, lastReceivedFullSyncData.rotation, lastReceivedFullSyncData.scale);
 
             // We don't care if we are adding 'default' to any field because 
             // syncing is checked again in Apply before applying the changes.
-            AddSnapshot(clientSnapshots, timestamp + timeStampAdjustment + offset, syncData.position, syncData.rotation, syncData.scale);
+            AddSnapshot(clientSnapshots, timestamp + timeStampAdjustment + offset, lastReceivedFullSyncData.position, lastReceivedFullSyncData.rotation, lastReceivedFullSyncData.scale);
         }
+
     #endregion
 
     #region Server Broadcast Delta
         protected virtual void ServerBroadcastDelta()
         {
+            // If we have not sent a full sync, we don't send delta.
+            
+            if (lastSentFullSyncIndex == 0) return;
             SyncDataFull currentFull = ConstructFullSyncData(false);
             QuantizedSnapshot currentQuantized = ConstructQuantizedSnapshot(currentFull.position, currentFull.rotation, currentFull.scale);
 
@@ -417,17 +436,21 @@ namespace Mirror
 
             // See Server's issue
             lastReceivedFullSyncData = syncData;
-            lastReceivedFullQuantized = ConstructQuantizedSnapshot(syncData.position, syncData.rotation, syncData.scale);
+            CleanUpFullSyncDataPositionSync(ref lastReceivedFullSyncData);
+            lastReceivedFullQuantized = ConstructQuantizedSnapshot(lastReceivedFullSyncData.position, lastReceivedFullSyncData.rotation, lastReceivedFullSyncData.scale);
 
             // We don't care if we are adding 'default' to any field because 
             // syncing is checked again in Apply before applying the changes.
-            AddSnapshot(serverSnapshots, timestamp + timeStampAdjustment + offset, syncData.position, syncData.rotation, syncData.scale);
+            AddSnapshot(serverSnapshots, timestamp + timeStampAdjustment + offset, lastReceivedFullSyncData.position, lastReceivedFullSyncData.rotation, lastReceivedFullSyncData.scale);
         }
     #endregion
 
     #region Client Broadcast Delta
         protected virtual void ClientBroadcastDelta()
         {
+            // If we have not sent a full sync, we don't send delta.
+            if (lastSentFullSyncIndex == 0) return;            
+            
             SyncDataFull currentFull = ConstructFullSyncData(false);
             QuantizedSnapshot currentQuantized = ConstructQuantizedSnapshot(currentFull.position, currentFull.rotation, currentFull.scale);
 
@@ -464,7 +487,7 @@ namespace Mirror
             AddSnapshot(serverSnapshots, timestamp + timeStampAdjustment + offset, position, rotation, scale);                      
         }
     #endregion
-    
+
         protected virtual SyncDataFull ConstructFullSyncData(bool updateIndex)
         {
             return new SyncDataFull(
@@ -670,7 +693,19 @@ namespace Mirror
             // OnValidate disables syncScale in world mode.
             // else
             // target.lossyScale = scale; // TODO
-        }        
+        }       
+
+
+        // If we did not sync certain position axis, we need to fill it up in syncData
+        // with the current axis value.
+        protected virtual void CleanUpFullSyncDataPositionSync(ref SyncDataFull syncData)
+        {
+            Vector3 currentPosition = GetPosition();
+
+            if ((syncSettings & SyncSettings.SyncPosX) == 0) syncData.position.x = currentPosition.x;
+            if ((syncSettings & SyncSettings.SyncPosY) == 0) syncData.position.y = currentPosition.y;
+            if ((syncSettings & SyncSettings.SyncPosZ) == 0) syncData.position.z = currentPosition.z;
+        }         
     #endregion      
     }
 }
