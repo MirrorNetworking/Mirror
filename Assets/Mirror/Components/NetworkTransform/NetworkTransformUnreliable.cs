@@ -511,7 +511,7 @@ namespace Mirror
                         // Here we set all Rot enum flags, to tell us if there was a change in rotation
                         // when using compression. If no change, we don't write the compressed Quat.
                         change |= Changed.CompressRot;
-                        change |= Changed.RotX; change |= Changed.RotY; change |= Changed.RotZ;
+                        change |= Changed.Rot;
                     }
                     else
                     {
