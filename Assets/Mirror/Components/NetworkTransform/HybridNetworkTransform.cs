@@ -88,12 +88,12 @@ namespace Mirror
         public readonly SortedList<double, TransformSnapshot> clientSnapshots = new SortedList<double, TransformSnapshot>(16);
         public readonly SortedList<double, TransformSnapshot> serverSnapshots = new SortedList<double, TransformSnapshot>(16);        
 
-        private bool syncPosition => (syncSettings & SyncSettings.SyncPosX) > 0 
+        protected bool syncPosition => (syncSettings & SyncSettings.SyncPosX) > 0 
                                     || (syncSettings & SyncSettings.SyncPosY) > 0
                                     || (syncSettings & SyncSettings.SyncPosZ) > 0;
         
-        private bool syncRotation => (syncSettings & SyncSettings.SyncRot) > 0;
-        private bool syncScale => (syncSettings & SyncSettings.SyncScale) > 0;
+        protected bool syncRotation => (syncSettings & SyncSettings.SyncRot) > 0;
+        protected bool syncScale => (syncSettings & SyncSettings.SyncScale) > 0;
 
         protected override void OnValidate()
         {
@@ -195,7 +195,7 @@ namespace Mirror
                 if (syncRotation) writer.WriteQuaternion(lastSentFullSyncData.rotation);
                 if (syncScale) writer.WriteVector3(lastSentFullSyncData.scale);
 
-                lastSentFullQuantized = ConstructQuantizedSnapshot(lastSentFullSyncData.position, lastReceivedFullSyncData.rotation, lastReceivedFullSyncData.scale);
+                lastSentFullQuantized = ConstructQuantizedSnapshot(lastSentFullSyncData.position, lastSentFullSyncData.rotation, lastSentFullSyncData.scale);
             }
         }
 
