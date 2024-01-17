@@ -294,9 +294,9 @@ namespace Mirror
             // Older Unity versions don't have TryPeek.
             if (reuseNetworkIds && netIdQueue.Count > 0 && netIdQueue.Peek().timeAvailable < NetworkTime.time)
             {
-                ReusableNetworkId entry = netIdQueue.Dequeue();
-                //Debug.LogFormat(LogType.Log, LogOption.NoStacktrace, null, $"[GetNextNetworkId] Reusing NetworkId {entry.reusableNetId}.");
-                return entry.reusableNetId;
+                ReusableNetworkId nextNetId = netIdQueue.Dequeue();
+                Debug.LogFormat(LogType.Log, LogOption.NoStacktrace, null, $"[GetNextNetworkId] Reusing NetworkId {nextNetId.reusableNetId}.");
+                return nextNetId.reusableNetId;
             }
 
             return nextNetworkId++;
