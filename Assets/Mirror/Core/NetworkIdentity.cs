@@ -291,10 +291,11 @@ namespace Mirror
 
         internal static uint GetNextNetworkId()
         {
+            // Older Unity versions don't have TryPeek.
             if (reuseNetworkIds && netIdQueue.Count > 0 && netIdQueue.Peek().timeAvailable < NetworkTime.time)
             {
                 ReusableNetworkId entry = netIdQueue.Dequeue();
-                //Debug.LogFormat(LogType.Log, LogOption.NoStacktrace, null, $"[GetNextNetworkId] Reusing NetworkId {entry.poolNetId}.");
+                //Debug.LogFormat(LogType.Log, LogOption.NoStacktrace, null, $"[GetNextNetworkId] Reusing NetworkId {entry.reusableNetId}.");
                 return entry.reusableNetId;
             }
 
