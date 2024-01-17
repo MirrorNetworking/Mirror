@@ -489,15 +489,14 @@ namespace Mirror
         protected virtual Changed CompareChangedSnapshots(TransformSnapshot currentSnapshot)
         {
             Changed change = Changed.None;
-
             if (syncPosition)
             {
                 bool positionChanged = Vector3.SqrMagnitude(lastSnapshot.position - currentSnapshot.position) > positionSensitivity * positionSensitivity;
                 if (positionChanged)
                 {
-                    if (lastSnapshot.position.x != currentSnapshot.position.x) change |= Changed.PosX;
-                    if (lastSnapshot.position.y != currentSnapshot.position.y) change |= Changed.PosY;
-                    if (lastSnapshot.position.z != currentSnapshot.position.z) change |= Changed.PosZ;
+                    if (Mathf.Abs(lastSnapshot.position.x - currentSnapshot.position.x) > positionSensitivity) change |= Changed.PosX;
+                    if (Mathf.Abs(lastSnapshot.position.y - currentSnapshot.position.y) > positionSensitivity) change |= Changed.PosY;
+                    if (Mathf.Abs(lastSnapshot.position.z - currentSnapshot.position.z) > positionSensitivity) change |= Changed.PosZ;
                 }
             }
 
@@ -515,9 +514,9 @@ namespace Mirror
                     }
                     else
                     {
-                        if (lastSnapshot.rotation.eulerAngles.x != currentSnapshot.rotation.eulerAngles.x) change |= Changed.RotX;
-                        if (lastSnapshot.rotation.eulerAngles.y != currentSnapshot.rotation.eulerAngles.y) change |= Changed.RotY;
-                        if (lastSnapshot.rotation.eulerAngles.z != currentSnapshot.rotation.eulerAngles.z) change |= Changed.RotZ;
+                        if (Mathf.Abs(lastSnapshot.rotation.eulerAngles.x - currentSnapshot.rotation.eulerAngles.x) > rotationSensitivity) change |= Changed.RotX;
+                        if (Mathf.Abs(lastSnapshot.rotation.eulerAngles.y - currentSnapshot.rotation.eulerAngles.y) > rotationSensitivity) change |= Changed.RotY;
+                        if (Mathf.Abs(lastSnapshot.rotation.eulerAngles.z - currentSnapshot.rotation.eulerAngles.z) > rotationSensitivity) change |= Changed.RotZ;
                     }
 
                 }
