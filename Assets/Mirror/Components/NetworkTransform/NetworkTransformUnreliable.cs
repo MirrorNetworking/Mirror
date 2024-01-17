@@ -469,7 +469,7 @@ namespace Mirror
 
             if (compressRotation)
             {
-                if ((change & Changed.RotX) > 0) lastSnapshot.rotation = currentSnapshot.rotation;
+                if ((change & Changed.Rot) > 0) lastSnapshot.rotation = currentSnapshot.rotation;
             }
             else
             {
@@ -489,6 +489,7 @@ namespace Mirror
         protected virtual Changed CompareChangedSnapshots(TransformSnapshot currentSnapshot)
         {
             Changed change = Changed.None;
+
             if (syncPosition)
             {
                 bool positionChanged = Vector3.SqrMagnitude(lastSnapshot.position - currentSnapshot.position) > positionSensitivity * positionSensitivity;
@@ -507,10 +508,10 @@ namespace Mirror
                     bool rotationChanged = Quaternion.Angle(lastSnapshot.rotation, currentSnapshot.rotation) > rotationSensitivity;
                     if (rotationChanged)
                     {
-                        // Here we piggy back on Changed.RotX enum to tell us if there was a change in rotation
+                        // Here we set all Rot enum flags, to tell us if there was a change in rotation
                         // when using compression. If no change, we don't write the compressed Quat.
                         change |= Changed.CompressRot;
-                        change |= Changed.RotX;
+                        change |= Changed.RotX; change |= Changed.RotY; change |= Changed.RotZ;
                     }
                     else
                     {
@@ -634,7 +635,7 @@ namespace Mirror
                 }
                 else
                 {
-                    syncData.quatRotation = (syncData.changedDataByte & Changed.RotX) > 0 ? syncData.quatRotation : (snapshots.Count > 0 ? snapshots.Values[snapshots.Count - 1].rotation : GetRotation());
+                    syncData.quatRotation = (syncData.changedDataByte & Changed.Rot) > 0 ? syncData.quatRotation : (snapshots.Count > 0 ? snapshots.Values[snapshots.Count - 1].rotation : GetRotation());
                 }
 
                 syncData.scale = (syncData.changedDataByte & Changed.Scale) > 0 ? syncData.scale : (snapshots.Count > 0 ? snapshots.Values[snapshots.Count - 1].scale : GetScale());

@@ -84,7 +84,7 @@ namespace Mirror
             // Write rotation
             if ((syncData.changedDataByte & Changed.CompressRot) > 0)
             {
-                if((syncData.changedDataByte & Changed.RotX) > 0)
+                if((syncData.changedDataByte & Changed.Rot) > 0)
                 {
                     writer.WriteUInt(Compression.CompressQuaternion(syncData.quatRotation));
                 }
@@ -149,7 +149,7 @@ namespace Mirror
             Vector3 scale = (changedData & Changed.Scale) == Changed.Scale ? reader.ReadVector3() : new Vector3();
 
             SyncData _syncData = (changedData & Changed.CompressRot) > 0 ? new SyncData(changedData, position, quatRotation, scale) : new SyncData(changedData, position, vecRotation, scale);
- 
+
             return _syncData;
         }
     }
