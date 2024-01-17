@@ -295,7 +295,7 @@ namespace Mirror
             if (reuseNetworkIds && netIdQueue.Count > 0 && netIdQueue.Peek().timeAvailable < NetworkTime.time)
             {
                 ReusableNetworkId nextNetId = netIdQueue.Dequeue();
-                Debug.LogFormat(LogType.Log, LogOption.NoStacktrace, null, $"[GetNextNetworkId] Reusing NetworkId {nextNetId.reusableNetId}.");
+                //Debug.LogFormat(LogType.Log, LogOption.NoStacktrace, null, $"[GetNextNetworkId] Reusing NetworkId {nextNetId.reusableNetId}.");
                 return nextNetId.reusableNetId;
             }
 
