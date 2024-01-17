@@ -501,28 +501,27 @@ namespace Mirror
             }
 
             if (syncRotation)
-            {
-                bool rotationChanged = Quaternion.Angle(lastSnapshot.rotation, currentSnapshot.rotation) > rotationSensitivity;
-                if (rotationChanged)
+            { 
+                if (compressRotation)
                 {
-                    // Here we piggy back on Changed.RotX enum to tell us if there was a change in rotation
-                    // when using compression. If no change, we don't write the compressed Quat.
-                    if (compressRotation)
+                    bool rotationChanged = Quaternion.Angle(lastSnapshot.rotation, currentSnapshot.rotation) > rotationSensitivity;
+                    if (rotationChanged)
                     {
-                        change |= Changed.CompressRot; // To be removed later.
+                        // Here we piggy back on Changed.RotX enum to tell us if there was a change in rotation
+                        // when using compression. If no change, we don't write the compressed Quat.
+                        change |= Changed.CompressRot;
                         change |= Changed.RotX;
                     }
                     else
                     {
-                        if (Mathf.Abs(lastSnapshot.rotation.eulerAngles.x - currentSnapshot.rotation.eulerAngles.x) > rotationSensitivity) change |= Changed.RotX;
-                        if (Mathf.Abs(lastSnapshot.rotation.eulerAngles.y - currentSnapshot.rotation.eulerAngles.y) > rotationSensitivity) change |= Changed.RotY;
-                        if (Mathf.Abs(lastSnapshot.rotation.eulerAngles.z - currentSnapshot.rotation.eulerAngles.z) > rotationSensitivity) change |= Changed.RotZ;
+                        change |= Changed.CompressRot;
                     }
-
                 }
                 else
                 {
-                    if (compressRotation) change |= Changed.CompressRot; // To be removed later.
+                    if (Mathf.Abs(lastSnapshot.rotation.eulerAngles.x - currentSnapshot.rotation.eulerAngles.x) > rotationSensitivity) change |= Changed.RotX;
+                    if (Mathf.Abs(lastSnapshot.rotation.eulerAngles.y - currentSnapshot.rotation.eulerAngles.y) > rotationSensitivity) change |= Changed.RotY;
+                    if (Mathf.Abs(lastSnapshot.rotation.eulerAngles.z - currentSnapshot.rotation.eulerAngles.z) > rotationSensitivity) change |= Changed.RotZ;
                 }
             }
 
