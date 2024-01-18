@@ -502,10 +502,12 @@ namespace Mirror
         protected virtual QuantizedSnapshot ConstructQuantizedSnapshot(Vector3 position, Quaternion rotation, Vector3 scale)
         {
             Compression.ScaleToLong(position, positionPrecision, out Vector3Long positionQuantized);
+            Compression.ScaleToLong(rotation.eulerAngles, rotationSensitivity, out Vector3Long eulRotation);
             Compression.ScaleToLong(scale, scalePrecision, out Vector3Long scaleQuantized);
             return new QuantizedSnapshot(
                 positionQuantized,
                 rotation,
+                eulRotation,
                 scaleQuantized
             );    
         }

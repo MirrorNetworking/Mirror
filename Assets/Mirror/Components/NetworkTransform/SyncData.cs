@@ -2,10 +2,37 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-//using Unity.VisualScripting;
 
 namespace Mirror
 {
+    public struct SyncDataFullMsg : NetworkMessage
+    {
+        public uint netId;
+        public byte componentId;
+        public SyncDataFull syncData;
+
+        public SyncDataFullMsg(uint netId, byte componentId, SyncDataFull syncData)
+        {
+            this.netId = netId;
+            this.componentId = componentId;
+            this.syncData = syncData;
+        }
+    }
+
+    public struct SyncDataDeltaMsg : NetworkMessage
+    {
+        public uint netId;
+        public byte componentId;
+        public SyncDataDelta syncData;
+
+        public SyncDataDeltaMsg(uint netId, byte componentId, SyncDataDelta syncData)
+        {
+            this.netId = netId;
+            this.componentId = componentId;
+            this.syncData = syncData;
+        }        
+    }
+
     public struct SyncDataFull 
     {
         public byte fullSyncDataIndex;
@@ -51,11 +78,11 @@ namespace Mirror
         public Vector3Long rotationEuler;
         public Vector3Long scale;
 
-        public QuantizedSnapshot(Vector3Long position, Quaternion rotation, Vector3Long scale)
+        public QuantizedSnapshot(Vector3Long position, Quaternion rotation, Vector3Long eulRotation, Vector3Long scale)
         {
             this.position = position;
             this.rotation = rotation;
-            this.rotationEuler = new Vector3Long();
+            this.rotationEuler = eulRotation;
             this.scale = scale;
         }
     }
@@ -73,7 +100,7 @@ namespace Mirror
         RotZ = 1 << 6, 
         Scale = 1 << 7,
 
-
+        SendQuatCompressed = RotX,
     }
 
     [Flags]
@@ -148,7 +175,7 @@ namespace Mirror
 
             if ((syncData.deltaHeader & DeltaHeader.SendQuat) > 0)
             {
-                if ((syncData.deltaHeader & DeltaHeader.RotX) > 0) writer.WriteUInt(Compression.CompressQuaternion(syncData.quatRotation));
+                if ((syncData.deltaHeader & DeltaHeader.SendQuatCompressed) > 0) writer.WriteUInt(Compression.CompressQuaternion(syncData.quatRotation));
                 else writer.WriteQuaternion(syncData.quatRotation);
             }
             else
@@ -182,7 +209,7 @@ namespace Mirror
 
             if ((header & DeltaHeader.SendQuat) > 0)
             {
-                if ((header & DeltaHeader.RotX) > 0) quatRotation = Compression.DecompressQuaternion(reader.ReadUInt());
+                if ((header & DeltaHeader.SendQuatCompressed) > 0) quatRotation = Compression.DecompressQuaternion(reader.ReadUInt());
                 else quatRotation = reader.ReadQuaternion();
             }
             else
@@ -205,6 +232,40 @@ namespace Mirror
             }
 
             return new SyncDataDelta(index, header, position, quatRotation, eulRotation, scale);
+        }
+
+        public static void WriteSyncDataFullMsg(this NetworkWriter writer, SyncDataFullMsg msg)
+        {
+            Compression.CompressVarUInt(writer, msg.netId);
+            writer.WriteByte(msg.componentId);
+            writer.Write<SyncDataFull>(msg.syncData);
+        }
+
+        public static SyncDataFullMsg ReadSyncDataFullMsg(this NetworkReader reader)
+        {
+            uint netId = (uint)Compression.DecompressVarUInt(reader);
+            byte componentId = reader.ReadByte();
+
+            SyncDataFull syncData = reader.Read<SyncDataFull>();
+
+            return new SyncDataFullMsg(netId, componentId, syncData);
+        }
+
+        public static void WriteSyncDataDeltaMsg(this NetworkWriter writer, SyncDataDeltaMsg msg)
+        {
+            Compression.CompressVarUInt(writer, msg.netId);
+            writer.WriteByte(msg.componentId);
+            writer.Write<SyncDataDelta>(msg.syncData);
+        }
+
+        public static SyncDataDeltaMsg ReadSyncDataDeltaMsg(this NetworkReader reader)
+        {
+            uint netId = (uint)Compression.DecompressVarUInt(reader);
+            byte componentId = reader.ReadByte();
+
+            SyncDataDelta syncData = reader.Read<SyncDataDelta>();
+
+            return new SyncDataDeltaMsg(netId, componentId, syncData);
         }
     }
 }
