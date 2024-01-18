@@ -115,7 +115,7 @@ namespace Mirror
             base.OnStopClient();
             if (!registeredHandlers) RegisterClientHandlers();
                         
-            if (isOwned) CmdRegisteredHandler();
+            CmdRegisteredHandler();
         }
 
         protected virtual void RegisterServerHandlers()
@@ -133,13 +133,11 @@ namespace Mirror
             registeredHandlers = true;          
         }
 
-        [Command]
+        [Command(requiresAuthority = false)]
         private void CmdRegisteredHandler()
         {
             if (!registeredConnections.Contains(connectionToClient))
                 registeredConnections.Add(connectionToClient);
-            
-            Debug.Log($"Hashset cound {registeredConnections.Count}");
         }
     #endregion
 
