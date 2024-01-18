@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using UnityEditor.UIElements;
+using UnityEditor;
 
 namespace Mirror
 {
@@ -106,13 +108,11 @@ namespace Mirror
     #region Register Message Handlers
         public override void OnStartServer()
         {
-            base.OnStartServer();
             if (!registeredHandlers) RegisterServerHandlers();
         }
 
         public override void OnStartClient()
         {
-            base.OnStopClient();
             if (!registeredHandlers) RegisterClientHandlers();
                         
             CmdRegisteredHandler();
@@ -363,7 +363,7 @@ namespace Mirror
             SyncDataFullMsg msg = new SyncDataFullMsg(netId, ComponentIndex, lastSentFullSyncData);
             SendToReadyObservers(netIdentity, msg, false, Channels.Reliable); // will exclude owner be problematic?
 
-            //RpcServerToClientSyncFull(lastSentFullSyncData);
+            //NetworkServer.SendToReadyObservers(netIdentity, msg, false, Channels.Reliable); // will exclude owner be problematic?
         }
 
         private byte NextFullSyncIndex()
@@ -373,11 +373,6 @@ namespace Mirror
             
             return lastSentFullSyncIndex;
         }
-
-        /*[ClientRpc]
-        void RpcServerToClientSyncFull(SyncDataFull syncData) =>
-            OnServerToClientSyncFull(syncData);
-        */
 
         protected static void ServerToClientSyncFullHandler(SyncDataFullMsg msg)
         {
@@ -427,7 +422,9 @@ namespace Mirror
             
             SyncDataDeltaMsg msg = new SyncDataDeltaMsg(netId, ComponentIndex, syncDataDelta);
             SendToReadyObservers(netIdentity, msg, false, Channels.Unreliable); // will exclude owner be problematic?
-            //RpcServerToClientSyncDelta(syncDataDelta);
+
+            //NetworkServer.SendToReadyObservers(netIdentity, msg, false, Channels.Unreliable); // will exclude owner be problematic?
+            
         }
 
         /*[ClientRpc (channel = Channels.Unreliable)]
@@ -479,17 +476,7 @@ namespace Mirror
                 
             SyncDataFullMsg msg = new SyncDataFullMsg(netId, ComponentIndex, lastSentFullSyncData);
             NetworkClient.Send(msg, Channels.Reliable);    
-            //CmdClientToServerSyncFull(lastSentFullSyncData);
         }
-
-        /*[Command]
-        void CmdClientToServerSyncFull(SyncDataFull syncData) 
-        {
-            OnClientToServerSyncFull(syncData);
-
-            if (syncDirection == SyncDirection.ClientToServer)
-                RpcServerToClientSyncFull(syncData);
-        }*/
 
         protected static void ClientToServerSyncFullHandler(NetworkConnectionToClient conn, SyncDataFullMsg msg)
         {
@@ -508,6 +495,7 @@ namespace Mirror
 
             if (networkIdentity.NetworkBehaviours[msg.componentId].syncDirection == SyncDirection.ClientToServer)
                 nT.SendToReadyObservers(networkIdentity, msg, false, Channels.Reliable); // will exclude owner be problematic?
+                //NetworkServer.SendToReadyObservers(networkIdentity, msg, false, Channels.Reliable); // will exclude owner be problematic?
         }        
         
         protected virtual void OnClientToServerSyncFull(SyncDataFull syncData)
@@ -546,17 +534,7 @@ namespace Mirror
             
             SyncDataDeltaMsg msg = new SyncDataDeltaMsg(netId, ComponentIndex, syncDataDelta);
             NetworkClient.Send(msg, Channels.Unreliable);   
-            //CmdClientToServerSyncDelta(syncDataDelta);            
         }
-
-        /*[Command(channel = Channels.Unreliable)]
-        void CmdClientToServerSyncDelta(SyncDataDelta delta) 
-        {
-            OnClientToServerSyncDelta(delta);
-
-            if (syncDirection == SyncDirection.ClientToServer)
-                RpcServerToClientSyncDelta(delta);
-        }*/
 
         protected static void ClientToServerSyncDeltaHandler(NetworkConnectionToClient conn, SyncDataDeltaMsg msg)
         {
@@ -574,7 +552,8 @@ namespace Mirror
             nT.OnClientToServerSyncDelta(msg.syncData);
 
             if (networkIdentity.NetworkBehaviours[msg.componentId].syncDirection == SyncDirection.ClientToServer)
-                nT.SendToReadyObservers(networkIdentity, msg, false, Channels.Reliable); // will exclude owner be problematic?
+                nT.SendToReadyObservers(networkIdentity, msg, false, Channels.Unreliable); // will exclude owner be problematic?
+                //NetworkServer.SendToReadyObservers(networkIdentity, msg, false, Channels.Unreliable); // will exclude owner be problematic?
         }        
 
         protected virtual void OnClientToServerSyncDelta(SyncDataDelta delta)
@@ -837,6 +816,14 @@ namespace Mirror
             if ((syncSettings & SyncSettings.SyncPosY) == 0) syncData.position.y = currentPosition.y;
             if ((syncSettings & SyncSettings.SyncPosZ) == 0) syncData.position.z = currentPosition.z;
         }         
-    #endregion      
+    #endregion 
+
+
+#if UNITY_EDITOR
+        void OnGUI()
+        {
+            syncSettings = (SyncSettings)EditorGUILayout.EnumFlagsField(syncSettings);
+        }
+#endif         
     }
 }
