@@ -311,9 +311,9 @@ namespace Mirror
         }
 
         [ClientRpc]
-        void RpcReset()
+        void RpcResetState()
         {
-            Reset();
+            ResetState();
         }
 
         // common Teleport code for client->server and server->client
@@ -367,7 +367,7 @@ namespace Mirror
             // -> maybe add destination as first entry?
         }
 
-        public virtual void Reset()
+        public virtual void ResetState()
         {
             // disabled objects aren't updated anymore.
             // so let's clear the buffers.
@@ -375,9 +375,14 @@ namespace Mirror
             clientSnapshots.Clear();
         }
 
+        public virtual void Reset()
+        {
+            ResetState();
+        }
+
         protected virtual void OnEnable()
         {
-            Reset();
+            ResetState();
 
             if (NetworkServer.active)
                 NetworkIdentity.clientAuthorityCallback += OnClientAuthorityChanged;
@@ -385,7 +390,7 @@ namespace Mirror
 
         protected virtual void OnDisable()
         {
-            Reset();
+            ResetState();
 
             if (NetworkServer.active)
                 NetworkIdentity.clientAuthorityCallback -= OnClientAuthorityChanged;
@@ -403,8 +408,8 @@ namespace Mirror
 
             if (syncDirection == SyncDirection.ClientToServer)
             {
-                Reset();
-                RpcReset();
+                ResetState();
+                RpcResetState();
             }
         }
 
