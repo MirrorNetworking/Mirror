@@ -16,7 +16,7 @@ jobs:
           unityVersion: 2019.4.40f1
 
       - name: Upload License Request
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ steps.getManualLicenseFile.outputs.filePath }}
           path: ${{ steps.getManualLicenseFile.outputs.filePath }}

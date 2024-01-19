@@ -1,3 +1,5 @@
+// MIRROR CHANGE: disable this completely. otherwise InitUIElements can still throw NRE.
+/*
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -78,7 +80,8 @@ namespace Edgegap
         StyleSheet _serverDataStylesheet;
         List<VisualElement> _serverDataContainers = new List<VisualElement>();
 
-        [MenuItem("Edgegap/Edgegap Hosting")] // MIRROR CHANGE
+        [Obsolete("See EdgegapWindowV2.ShowEdgegapToolWindow()")]
+        // [MenuItem("Edgegap/Server Management")]
         public static void ShowEdgegapToolWindow()
         {
             EdgegapWindow window = GetWindow<EdgegapWindow>();
@@ -634,6 +637,8 @@ namespace Edgegap
 
         void SyncObjectWithForm()
         {
+            if (_apiKeyInput == null) return; // MIRROR CHANGE: fix NRE when this is called before UI elements were assgned
+
             _apiKey = _apiKeyInput.value;
             _apiEnvironment = (ApiEnvironment)_apiEnvironmentSelect.value;
             _appName = _appNameInput.value;
@@ -924,7 +929,7 @@ namespace Edgegap
             serverDataTree.styleSheets.Add(_serverDataStylesheet);
 
             bool hasServerData = EdgegapServerDataManager._serverData != null;
-            bool isReady = hasServerData && EdgegapServerDataManager._serverData.GetServerStatus().IsOneOf(ServerStatus.Ready, ServerStatus.Error);
+            bool isReady = hasServerData && EdgegapServerDataManager. _serverData.GetServerStatus().IsOneOf(ServerStatus.Ready, ServerStatus.Error);
 
             if (hasServerData)
             {
@@ -978,3 +983,4 @@ namespace Edgegap
         }
     }
 }
+*/

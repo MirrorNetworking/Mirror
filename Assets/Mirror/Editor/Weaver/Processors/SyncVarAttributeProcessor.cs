@@ -46,15 +46,26 @@ namespace Mirror.Weaver
             return FindHookMethod(td, syncVar, hookFunctionName, ref WeavingFailed);
         }
 
+        // Create a field definition for a field that will store the Action<T, T> delegate instance for the syncvar hook method (only instantiate delegate once)
+        public FieldDefinition CreateNewActionFieldDefinitionFromHookMethod(FieldDefinition syncVarField)
+        {
+            TypeReference actionRef = assembly.MainModule.ImportReference(typeof(Action<,>));
+            GenericInstanceType syncVarHookActionDelegateType = actionRef.MakeGenericInstanceType(syncVarField.FieldType, syncVarField.FieldType);
+            string syncVarHookDelegateFieldName = $"_Mirror_SyncVarHookDelegate_{syncVarField.Name}";
+            return new FieldDefinition(syncVarHookDelegateFieldName, FieldAttributes.Public, syncVarHookActionDelegateType);
+        }
+
         // push hook from GetHookMethod() onto the stack as a new Action<T,T>.
         // allows for reuse without handling static/virtual cases every time.
+        // perf warning: it is recommended to use this method only when generating IL to create a new Action<T, T>() in order to store it into a field
+        //               avoid using this to emit IL to instantiate a new action instance every single time one is needed for the same method
         public void GenerateNewActionFromHookMethod(FieldDefinition syncVar, ILProcessor worker, MethodDefinition hookMethod)
         {
             // IL_000a: ldarg.0
             // IL_000b: ldftn instance void Mirror.Examples.Tanks.Tank::ExampleHook(int32, int32)
             // IL_0011: newobj instance void class [netstandard]System.Action`2<int32, int32>::.ctor(object, native int)
 
-            // we support static hook sand instance hooks.
+            // we support static hooks and instance hooks.
             if (hookMethod.IsStatic)
             {
                 // for static hooks, we need to push 'null' first.
@@ -95,13 +106,21 @@ namespace Mirror.Weaver
 
             // call 'new Action<T,T>()' constructor to convert the function to an action
             // we need to make an instance of the generic Action<T,T>.
-            //
-            // TODO this allocates a new 'Action' for every SyncVar hook call.
-            //      we should allocate it once and store it somewhere in the future.
-            //      hooks are only called on the client though, so it's not too bad for now.
             TypeReference actionRef = assembly.MainModule.ImportReference(typeof(Action<,>));
             GenericInstanceType genericInstance = actionRef.MakeGenericInstanceType(syncVar.FieldType, syncVar.FieldType);
             worker.Emit(OpCodes.Newobj, weaverTypes.ActionT_T.MakeHostInstanceGeneric(assembly.MainModule, genericInstance));
+        }
+
+        // generates CIL to set an Action<T,T> instance field to a new Action<T,T>(hookMethod)
+        // this.hookDelegate = new Action<T, T>(HookMethod);
+        public void GenerateSyncVarHookDelegateInitializer(ILProcessor worker, FieldDefinition syncVar, FieldDefinition hookDelegate, MethodDefinition hookMethod)
+        {
+            // push this
+            worker.Emit(OpCodes.Ldarg_0);
+            // push new Action<T, T>(hookMethod)
+            GenerateNewActionFromHookMethod(syncVar, worker, hookMethod);
+            // set field
+            worker.Emit(OpCodes.Stfld, hookDelegate);
         }
 
         MethodDefinition FindHookMethod(TypeDefinition td, FieldDefinition syncVar, string hookFunctionName, ref bool WeavingFailed)
@@ -242,7 +261,7 @@ namespace Mirror.Weaver
         //   }
         //
         // the setter used to be manually IL generated, but we moved it to C# :)
-        public MethodDefinition GenerateSyncVarSetter(TypeDefinition td, FieldDefinition fd, string originalName, long dirtyBit, FieldDefinition netFieldId, ref bool WeavingFailed)
+        public MethodDefinition GenerateSyncVarSetter(TypeDefinition td, FieldDefinition fd, string originalName, long dirtyBit, FieldDefinition netFieldId, Dictionary<FieldDefinition, (FieldDefinition hookDelegateField, MethodDefinition hookMethod)> syncVarHookDelegates, ref bool WeavingFailed)
         {
             //Create the set method
             MethodDefinition set = new MethodDefinition($"set_Network{originalName}", MethodAttributes.Public |
@@ -304,11 +323,17 @@ namespace Mirror.Weaver
             // push the dirty bit for this SyncVar
             worker.Emit(OpCodes.Ldc_I8, dirtyBit);
 
-            // hook? then push 'new Action<T,T>(Hook)' onto stack
+            // hook? then push 'this.HookDelegate' onto stack
             MethodDefinition hookMethod = GetHookMethod(td, fd, ref WeavingFailed);
             if (hookMethod != null)
             {
-                GenerateNewActionFromHookMethod(fd, worker, hookMethod);
+                // Create the field that will store a single instance of the hook as a delegate (field will be set in constructor)
+                FieldDefinition hookActionDelegateField = CreateNewActionFieldDefinitionFromHookMethod(fd);
+                syncVarHookDelegates[fd] = (hookActionDelegateField, hookMethod);
+
+                // push this.hookActionDelegateField
+                worker.Emit(OpCodes.Ldarg_0);
+                worker.Emit(OpCodes.Ldfld, hookActionDelegateField);
             }
             // otherwise push 'null' as hook
             else
@@ -362,7 +387,7 @@ namespace Mirror.Weaver
             return set;
         }
 
-        public void ProcessSyncVar(TypeDefinition td, FieldDefinition fd, Dictionary<FieldDefinition, FieldDefinition> syncVarNetIds, long dirtyBit, ref bool WeavingFailed)
+        public void ProcessSyncVar(TypeDefinition td, FieldDefinition fd, Dictionary<FieldDefinition, FieldDefinition> syncVarNetIds, Dictionary<FieldDefinition, (FieldDefinition hookDelegateField, MethodDefinition hookMethod)> syncVarHookDelegates, long dirtyBit, ref bool WeavingFailed)
         {
             string originalName = fd.Name;
 
@@ -391,7 +416,7 @@ namespace Mirror.Weaver
             }
 
             MethodDefinition get = GenerateSyncVarGetter(fd, originalName, netIdField);
-            MethodDefinition set = GenerateSyncVarSetter(td, fd, originalName, dirtyBit, netIdField, ref WeavingFailed);
+            MethodDefinition set = GenerateSyncVarSetter(td, fd, originalName, dirtyBit, netIdField, syncVarHookDelegates, ref WeavingFailed);
 
             //NOTE: is property even needed? Could just use a setter function?
             //create the property
@@ -417,10 +442,11 @@ namespace Mirror.Weaver
             }
         }
 
-        public (List<FieldDefinition> syncVars, Dictionary<FieldDefinition, FieldDefinition> syncVarNetIds) ProcessSyncVars(TypeDefinition td, ref bool WeavingFailed)
+        public (List<FieldDefinition> syncVars, Dictionary<FieldDefinition, FieldDefinition> syncVarNetIds, Dictionary<FieldDefinition, (FieldDefinition hookDelegateField, MethodDefinition hookMethod)> syncVarHookDelegates) ProcessSyncVars(TypeDefinition td, ref bool WeavingFailed)
         {
             List<FieldDefinition> syncVars = new List<FieldDefinition>();
             Dictionary<FieldDefinition, FieldDefinition> syncVarNetIds = new Dictionary<FieldDefinition, FieldDefinition>();
+            Dictionary<FieldDefinition, (FieldDefinition hookDelegateField, MethodDefinition hookMethod)> syncVarHookDelegates = new Dictionary<FieldDefinition, (FieldDefinition hookDelegateField, MethodDefinition hookMethod)>();
 
             // the mapping of dirtybits to sync-vars is implicit in the order of the fields here. this order is recorded in m_replacementProperties.
             // start assigning syncvars at the place the base class stopped, if any
@@ -460,7 +486,7 @@ namespace Mirror.Weaver
                     {
                         syncVars.Add(fd);
 
-                        ProcessSyncVar(td, fd, syncVarNetIds, 1L << dirtyBitCounter, ref WeavingFailed);
+                        ProcessSyncVar(td, fd, syncVarNetIds, syncVarHookDelegates, 1L << dirtyBitCounter, ref WeavingFailed);
                         dirtyBitCounter += 1;
 
                         if (dirtyBitCounter > SyncVarLimit)
@@ -479,12 +505,18 @@ namespace Mirror.Weaver
                 td.Fields.Add(fd);
             }
 
+            // add all of the new SyncVar Action<T,T> fields
+            foreach((FieldDefinition hookDelegateInstanceField, MethodDefinition) entry in syncVarHookDelegates.Values)
+            {
+                td.Fields.Add(entry.hookDelegateInstanceField);
+            }
+
             // include parent class syncvars
             // fixes: https://github.com/MirrorNetworking/Mirror/issues/3457
             int parentSyncVarCount = syncVarAccessLists.GetSyncVarStart(td.BaseType.FullName);
             syncVarAccessLists.SetNumSyncVars(td.FullName, parentSyncVarCount + syncVars.Count);
 
-            return (syncVars, syncVarNetIds);
+            return (syncVars, syncVarNetIds, syncVarHookDelegates);
         }
     }
 }

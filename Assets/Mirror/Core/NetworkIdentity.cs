@@ -93,8 +93,8 @@ namespace Mirror
         // for example: main player & pets are owned. monsters & npcs aren't.
         public bool isOwned { get; internal set; }
 
-        // public so NetworkManager can reset it from StopClient.
-        public bool clientStarted;
+        // internal so NetworkManager can reset it from StopClient.
+        internal bool clientStarted;
 
         /// <summary>The set of network connections (players) that can see this object.</summary>
         public readonly Dictionary<int, NetworkConnectionToClient> observers =
@@ -375,7 +375,7 @@ namespace Mirror
             {
                 // always log the next child component so it's easy to fix.
                 // if there are multiple, then after removing it'll log the next.
-                Debug.LogError($"'{name}' has another NetworkIdentity component on '{identities[1].name}'. There should only be one NetworkIdentity, and it must be on the root object. Please remove the other one.");
+                Debug.LogError($"'{name}' has another NetworkIdentity component on '{identities[1].name}'. There should only be one NetworkIdentity, and it must be on the root object. Please remove the other one.", this);
             }
         }
 

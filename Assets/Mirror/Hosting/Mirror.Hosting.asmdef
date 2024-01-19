@@ -1,9 +1,7 @@
 {
     "name": "Mirror.Hosting",
     "rootNamespace": "",
-    "references": [
-        ""
-    ],
+    "references": [],
     "includePlatforms": [
         "Editor"
     ],

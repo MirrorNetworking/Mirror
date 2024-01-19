@@ -5,18 +5,6 @@ namespace Mirror.Examples.Chat
     [AddComponentMenu("")]
     public class ChatNetworkManager : NetworkManager
     {
-        public static new ChatNetworkManager singleton { get; private set; }
-
-        /// <summary>
-        /// Runs on both Server and Client
-        /// Networking is NOT initialized when this fires
-        /// </summary>
-        public override void Awake()
-        {
-            base.Awake();
-            singleton = this;
-        }
-
         // Called by UI element NetworkAddressInput.OnValueChanged
         public void SetHostname(string hostname)
         {

@@ -82,4 +82,10 @@ namespace Mirror
     /// </summary>
     [AttributeUsage(AttributeTargets.Field)]
     public class ShowInInspectorAttribute : Attribute {}
+
+    /// <summary>
+    /// Used to make a field readonly in the inspector
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Field)]
+    public class ReadOnlyAttribute : PropertyAttribute {}
 }

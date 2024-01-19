@@ -632,6 +632,7 @@ namespace Mirror.Tests.NetworkServers
 
             // send a message without a registered handler
             NetworkClient.Send(new TestMessage1());
+            LogAssert.Expect(LogType.Error, $"NetworkServer: failed to unpack and invoke message. Disconnecting 1.");
             ProcessMessages();
 
             // should have been disconnected
@@ -684,6 +685,7 @@ namespace Mirror.Tests.NetworkServers
 
             // send a message without a registered handler
             connectionToClient.Send(new TestMessage1());
+            LogAssert.Expect(LogType.Error, $"NetworkClient: failed to unpack and invoke message. Disconnecting.");
             ProcessMessages();
 
             // should have been disconnected
@@ -866,6 +868,7 @@ namespace Mirror.Tests.NetworkServers
             // unregister, send again, should not be called again
             NetworkServer.UnregisterHandler<TestMessage1>();
             NetworkClient.Send(new TestMessage1());
+            LogAssert.Expect(LogType.Error, $"NetworkServer: failed to unpack and invoke message. Disconnecting 1.");
             ProcessMessages();
             Assert.That(variant1Called, Is.EqualTo(1));
         }
@@ -889,6 +892,7 @@ namespace Mirror.Tests.NetworkServers
             // clear handlers, send again, should not be called again
             NetworkServer.ClearHandlers();
             NetworkClient.Send(new TestMessage1());
+            LogAssert.Expect(LogType.Error, $"NetworkServer: failed to unpack and invoke message. Disconnecting 1.");
             ProcessMessages();
             Assert.That(variant1Called, Is.EqualTo(1));
         }

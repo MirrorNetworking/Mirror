@@ -122,6 +122,7 @@ namespace Mirror
         // Send stage two: serialized NetworkMessage as ArraySegment<byte>
         // internal because no one except Mirror should send bytes directly to
         // the client. they would be detected as a message. send messages instead.
+        // => make sure to validate message<T> size before calling Send<byte>!
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal virtual void Send(ArraySegment<byte> segment, int channelId = Channels.Reliable)
         {

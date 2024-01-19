@@ -6,12 +6,6 @@ namespace Mirror
     [AddComponentMenu("Network/Network Transform (Unreliable)")]
     public class NetworkTransformUnreliable : NetworkTransformBase
     {
-        [Header("Bandwidth Savings")]
-        [Tooltip("When true, changes are not sent unless greater than sensitivity values below.")]
-        public bool onlySyncOnChange = true;
-        [Tooltip("Apply smallest-three quaternion compression. This is lossy, you can disable it if the small rotation inaccuracies are noticeable in your project.")]
-        public bool compressRotation = true;
-
         uint sendIntervalCounter = 0;
         double lastSendIntervalTime = double.MinValue;
 
@@ -317,7 +311,17 @@ namespace Mirror
         [Command(channel = Channels.Unreliable)]
         void CmdClientToServerSyncCompressRotation(Vector3? position, uint? rotation, Vector3? scale)
         {
-            OnClientToServerSync(position, rotation.HasValue ? Compression.DecompressQuaternion((uint)rotation) : target.rotation, scale);
+            // A fix to not apply current interpolated GetRotation when receiving null/unchanged value, instead use last sent snapshot rotation.
+            Quaternion newRotation;
+            if (rotation.HasValue)
+            {
+                newRotation = Compression.DecompressQuaternion((uint)rotation);
+            }
+            else
+            {
+                newRotation = serverSnapshots.Count > 0 ? serverSnapshots.Values[serverSnapshots.Count - 1].rotation : GetRotation();
+            }
+            OnClientToServerSync(position, newRotation, scale);
             //For client authority, immediately pass on the client snapshot to all other
             //clients instead of waiting for server to send its snapshots.
             if (syncDirection == SyncDirection.ClientToServer)
@@ -342,7 +346,7 @@ namespace Mirror
                 double timeIntervalCheck = bufferResetMultiplier * sendIntervalMultiplier * NetworkClient.sendInterval;
 
                 if (serverSnapshots.Count > 0 && serverSnapshots.Values[serverSnapshots.Count - 1].remoteTime + timeIntervalCheck < timestamp)
-                    Reset();
+                    ResetState();
             }
 
             AddSnapshot(serverSnapshots, connectionToClient.remoteTimeStamp + timeStampAdjustment + offset, position, rotation, scale);
@@ -357,8 +361,20 @@ namespace Mirror
         // rpc /////////////////////////////////////////////////////////////////
         // only unreliable. see comment above of this file.
         [ClientRpc(channel = Channels.Unreliable)]
-        void RpcServerToClientSyncCompressRotation(Vector3? position, uint? rotation, Vector3? scale) =>
-            OnServerToClientSync(position, rotation.HasValue ? Compression.DecompressQuaternion((uint)rotation) : target.rotation, scale);
+        void RpcServerToClientSyncCompressRotation(Vector3? position, uint? rotation, Vector3? scale)
+        {
+            // A fix to not apply current interpolated GetRotation when receiving null/unchanged value, instead use last sent snapshot rotation.
+            Quaternion newRotation;
+            if (rotation.HasValue)
+            {
+                newRotation = Compression.DecompressQuaternion((uint)rotation);
+            }
+            else
+            {
+                newRotation = clientSnapshots.Count > 0 ? clientSnapshots.Values[clientSnapshots.Count - 1].rotation : GetRotation();
+            }
+            OnServerToClientSync(position, newRotation, scale);
+        }
 
         // server broadcasts sync message to all clients
         protected virtual void OnServerToClientSync(Vector3? position, Quaternion? rotation, Vector3? scale)
@@ -385,7 +401,7 @@ namespace Mirror
                 double timeIntervalCheck = bufferResetMultiplier * sendIntervalMultiplier * NetworkServer.sendInterval;
 
                 if (clientSnapshots.Count > 0 && clientSnapshots.Values[clientSnapshots.Count - 1].remoteTime + timeIntervalCheck < timestamp)
-                    Reset();
+                    ResetState();
             }
 
             AddSnapshot(clientSnapshots, NetworkClient.connection.remoteTimeStamp + timeStampAdjustment + offset, position, rotation, scale);
