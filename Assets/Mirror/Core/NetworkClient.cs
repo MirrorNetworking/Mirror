@@ -1650,7 +1650,7 @@ namespace Mirror
                             // unspawned objects should be reset for reuse later.
                             if (wasUnspawned)
                             {
-                                identity.Reset();
+                                identity.ResetState();
                             }
                             // without unspawn handler, we need to disable/destroy.
                             else
@@ -1659,7 +1659,7 @@ namespace Mirror
                                 // they always stay in the scene, we don't destroy them.
                                 if (identity.sceneId != 0)
                                 {
-                                    identity.Reset();
+                                    identity.ResetState();
                                     identity.gameObject.SetActive(false);
                                 }
                                 // spawned objects are destroyed
@@ -1695,7 +1695,7 @@ namespace Mirror
                 if (InvokeUnSpawnHandler(identity.assetId, identity.gameObject))
                 {
                     // reset object after user's handler
-                    identity.Reset();
+                    identity.ResetState();
                 }
                 // otherwise fall back to default Destroy
                 else if (identity.sceneId == 0)
@@ -1709,7 +1709,7 @@ namespace Mirror
                     identity.gameObject.SetActive(false);
                     spawnableObjects[identity.sceneId] = identity;
                     // reset for scene objects
-                    identity.Reset();
+                    identity.ResetState();
                 }
 
                 // remove from dictionary no matter how it is unspawned

@@ -1657,7 +1657,7 @@ namespace Mirror
             // otherwise simply .Reset() and set inactive again
             else if (mode == DestroyMode.Reset)
             {
-                identity.Reset();
+                identity.ResetState();
             }
         }
 
