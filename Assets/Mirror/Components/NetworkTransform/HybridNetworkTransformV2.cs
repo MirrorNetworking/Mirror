@@ -35,11 +35,15 @@ namespace Mirror
 
         protected FullHeader fullHeader;        
 
-        [Header("Full Send Interval Multiplier")]
+        /*[Header("Full Send Interval Multiplier")]
         [Tooltip("Check/Sync every multiple of Network Manager send interval (= 1 / NM Send Rate), instead of every send interval.\n(30 NM send rate, and 3 interval, is a send every 0.1 seconds)\nA larger interval means less network sends, which has a variety of upsides. The drawbacks are delays and lower accuracy, you should find a nice balance between not sending too much, but the results looking good for your particular scenario.")]
-        [Range(1, 120)]
-        public uint fullSendIntervalMultiplier = 30;
-        private uint fullSendIntervalCounter = 0;
+        [Range(1, 120)]*/
+        [Header("Full Send Frequency")]
+        [Tooltip("Number of full snapshots to send per second.")]
+        public float fullSendFrequency = 1;
+        private float fullSendInterval => 1 / fullSendFrequency;
+        //public uint fullSendIntervalMultiplier = 30;
+        //private uint fullSendIntervalCounter = 0;
         double lastFullSendIntervalTime = double.MinValue;
         private byte lastSentFullSyncIndex = 0;
         private SyncDataFull lastSentFullSyncData;
@@ -47,12 +51,15 @@ namespace Mirror
         private SyncDataFull lastReceivedFullSyncData;
         private QuantizedSnapshot lastReceivedFullQuantized;
 
-
-        [Header("Delta Send Interval Multiplier")]
+        /*[Header("Delta Send Interval Multiplier")]
         [Tooltip("Check/Sync every multiple of Network Manager send interval (= 1 / NM Send Rate), instead of every send interval.\n(30 NM send rate, and 3 interval, is a send every 0.1 seconds)\nA larger interval means less network sends, which has a variety of upsides. The drawbacks are delays and lower accuracy, you should find a nice balance between not sending too much, but the results looking good for your particular scenario.")]
-        [Range(1, 120)]
-        public uint deltaSendIntervalMultiplier = 1;    
-        private uint deltaSendIntervalCounter = 0;
+        [Range(1, 120)]*/
+        [Header("Delta Send Frequency")]
+        [Tooltip("Number of delta snapshots to send per second.")]        
+        public float deltaSendFrequency = 30;
+        private float deltaSendInterval => 1 / deltaSendFrequency;
+        //public uint deltaSendIntervalMultiplier = 1;    
+        //private uint deltaSendIntervalCounter = 0;
         double lastDeltaSendIntervalTime = double.MinValue;
 
         [Header("Timeline Offset")]
@@ -72,8 +79,9 @@ namespace Mirror
         // When everything works, we are receiving NT snapshots every 10 frames, but start interpolating after 2.
         // Even if I assume we had 2 snapshots to begin with to start interpolating (which we don't), by the time we reach 13th frame, we are out of snapshots, and have to wait 7 frames for next snapshot to come. This is the reason why we absolutely need the timestamp adjustment. We are starting way too early to interpolate.
         //
-        protected double timeStampAdjustment => NetworkServer.sendInterval * (deltaSendIntervalMultiplier - 1);
-        protected double offset => timelineOffset ? NetworkServer.sendInterval * deltaSendIntervalMultiplier : 0;            
+        //protected double timeStampAdjustment => NetworkServer.sendInterval * (deltaSendIntervalMultiplier - 1);
+        protected double timeStampAdjustment => Mathf.Max(0, deltaSendInterval - NetworkServer.sendInterval);
+        protected double offset => timelineOffset ? deltaSendInterval : 0;            
 
         // interpolation is on by default, but can be disabled to jump to
         // the destination immediately. some projects need this.
@@ -165,8 +173,10 @@ namespace Mirror
             base.OnValidate();
             if ((fullHeader & (FullHeader.CompressRot & FullHeader.UseEulerAngles)) > 0) fullHeader &= ~FullHeader.CompressRot;
 
-            deltaSendIntervalMultiplier = Math.Min(deltaSendIntervalMultiplier, fullSendIntervalMultiplier);
-            fullSendIntervalMultiplier = Math.Max(deltaSendIntervalMultiplier, fullSendIntervalMultiplier);
+            //deltaSendIntervalMultiplier = Math.Min(deltaSendIntervalMultiplier, fullSendIntervalMultiplier);
+            //fullSendIntervalMultiplier = Math.Max(deltaSendIntervalMultiplier, fullSendIntervalMultiplier);
+            deltaSendFrequency = Mathf.Max (deltaSendFrequency, fullSendFrequency);
+            fullSendFrequency = Mathf.Min (deltaSendFrequency, fullSendFrequency);
         }
 
     #region Apply Interpolation
@@ -330,11 +340,17 @@ namespace Mirror
             // authoritative movement done by the host will have to be broadcasted
             // here by checking IsClientWithAuthority.
             // TODO send same time that NetworkServer sends time snapshot?
-            CheckLastSendTime();
+
+            //CheckLastSendTime();
             if (syncDirection == SyncDirection.ServerToClient || IsClientWithAuthority)
             {
-                if (fullSendIntervalCounter == fullSendIntervalMultiplier) ServerBroadcastFull();
-                else if (deltaSendIntervalCounter == deltaSendIntervalMultiplier) ServerBroadcastDelta();
+                if (AccurateInterval.Elapsed(NetworkTime.localTime, fullSendInterval, ref lastFullSendIntervalTime))
+                    ServerBroadcastFull();
+                else if (AccurateInterval.Elapsed(NetworkTime.localTime, deltaSendInterval, ref lastDeltaSendIntervalTime))
+                    ServerBroadcastDelta();
+                
+                /*if (fullSendIntervalCounter == fullSendIntervalMultiplier) ServerBroadcastFull();
+                else if (deltaSendIntervalCounter == deltaSendIntervalMultiplier) ServerBroadcastDelta();*/
             }
         }
 
@@ -363,12 +379,18 @@ namespace Mirror
             // DO NOT send nulls if not changed 'since last send' either. we
             // send unreliable and don't know which 'last send' the other end
             // received successfully.
-            CheckLastSendTime();
+            
+            //CheckLastSendTime();
 
             if (syncDirection == SyncDirection.ServerToClient) return;
 
-            if (fullSendIntervalCounter == fullSendIntervalMultiplier) ClientBroadcastFull();
-            else if (deltaSendIntervalCounter == deltaSendIntervalMultiplier) ClientBroadcastDelta();
+            if (AccurateInterval.Elapsed(NetworkTime.localTime, fullSendInterval, ref lastFullSendIntervalTime))
+                ClientBroadcastFull();
+            else if (AccurateInterval.Elapsed(NetworkTime.localTime, deltaSendInterval, ref lastDeltaSendIntervalTime))
+                ClientBroadcastDelta();
+            
+            /*if (fullSendIntervalCounter == fullSendIntervalMultiplier) ClientBroadcastFull();
+            else if (deltaSendIntervalCounter == deltaSendIntervalMultiplier) ClientBroadcastDelta();*/
         }
     #endregion
 
@@ -756,7 +778,7 @@ namespace Mirror
             );
         }        
 
-        protected virtual void CheckLastSendTime()
+        /*protected virtual void CheckLastSendTime()
         {
             // We check interval every frame, and then send if interval is reached.
             // So by the time sendIntervalCounter == sendIntervalMultiplier, data is sent,
@@ -774,7 +796,7 @@ namespace Mirror
             
             if (AccurateInterval.Elapsed(NetworkTime.localTime, NetworkServer.sendInterval, ref lastDeltaSendIntervalTime))
                 deltaSendIntervalCounter++;
-        }
+        }*/
 
     #region Snapshot Functions
         // snapshot functions //////////////////////////////////////////////////
