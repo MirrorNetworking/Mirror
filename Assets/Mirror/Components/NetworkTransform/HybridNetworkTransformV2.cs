@@ -15,8 +15,25 @@ namespace Mirror
         [Header("Target")]
         [Tooltip("The Transform component to sync. May be on on this GameObject, or on a child.")]
         public Transform target;
+        
+        [Header("Sync Settings")]
+        [Tooltip("Select the attributes to sync")]
+        [SerializeField] protected SyncSettings syncSettings = SyncSettings.SyncPosX | SyncSettings.SyncPosY | SyncSettings.SyncPosZ | SyncSettings.SyncRot;
 
-        [SerializeField] protected SyncSettings syncSettings;        
+        [Header("Rotation")]
+        [Tooltip("Send Rotation data as uncompressed Quaternion, compressed Quaternion (smallest 3) or by Euler Angles")]
+        [SerializeField] protected RotationSettings rotationSettings = RotationSettings.Compressed;
+        [Tooltip("Sensitivity of changes needed before an updated state is sent over the network. This will be used for precision if Euler Angles is chosen")]        
+        public float rotationSensitivity = 0.01f;
+
+        [Header("Precision")]
+        [Tooltip("Position is rounded in order to drastically minimize bandwidth.\n\nFor example, a precision of 0.01 rounds to a centimeter. In other words, sub-centimeter movements aren't synced until they eventually exceeded an actual centimeter.\n\nDepending on how important the object is, a precision of 0.01-0.10 (1-10 cm) is recommended.\n\nFor example, even a 1cm precision combined with delta compression cuts the Benchmark demo's bandwidth in half, compared to sending every tiny change.")]
+        [Range(0.00_01f, 1f)]                   // disallow 0 division. 1mm to 1m precision is enough range.
+        public float positionPrecision = 0.01f; // 1 cm
+        [Range(0.00_01f, 1f)]                   // disallow 0 division. 1mm to 1m precision is enough range.
+        public float scalePrecision = 0.01f; // 1 cm        
+
+        protected FullHeader fullHeader;        
 
         [Header("Full Send Interval Multiplier")]
         [Tooltip("Check/Sync every multiple of Network Manager send interval (= 1 / NM Send Rate), instead of every send interval.\n(30 NM send rate, and 3 interval, is a send every 0.1 seconds)\nA larger interval means less network sends, which has a variety of upsides. The drawbacks are delays and lower accuracy, you should find a nice balance between not sending too much, but the results looking good for your particular scenario.")]
@@ -58,43 +75,27 @@ namespace Mirror
         protected double timeStampAdjustment => NetworkServer.sendInterval * (deltaSendIntervalMultiplier - 1);
         protected double offset => timelineOffset ? NetworkServer.sendInterval * deltaSendIntervalMultiplier : 0;            
 
-        [Header("Rotation")]
-        [Tooltip("Sensitivity of changes needed before an updated state is sent over the network")]
-        public float rotationSensitivity = 0.01f;
-
-        [Header("Precision")]
-        [Tooltip("Position is rounded in order to drastically minimize bandwidth.\n\nFor example, a precision of 0.01 rounds to a centimeter. In other words, sub-centimeter movements aren't synced until they eventually exceeded an actual centimeter.\n\nDepending on how important the object is, a precision of 0.01-0.10 (1-10 cm) is recommended.\n\nFor example, even a 1cm precision combined with delta compression cuts the Benchmark demo's bandwidth in half, compared to sending every tiny change.")]
-        [Range(0.00_01f, 1f)]                   // disallow 0 division. 1mm to 1m precision is enough range.
-        public float positionPrecision = 0.01f; // 1 cm
-        [Range(0.00_01f, 1f)]                   // disallow 0 division. 1mm to 1m precision is enough range.
-        public float scalePrecision = 0.01f; // 1 cm
-
-
         // interpolation is on by default, but can be disabled to jump to
         // the destination immediately. some projects need this.
         [Header("Interpolation")]
-        [Tooltip("Set to false to have a snap-like effect on position movement.")]
-        public bool interpolatePosition = true;
-        [Tooltip("Set to false to have a snap-like effect on rotations.")]
-        public bool interpolateRotation = true;
-        [Tooltip("Set to false to remove scale smoothing. Example use-case: Instant flipping of sprites that use -X and +X for direction.")]
-        public bool interpolateScale = true;        
+        [Tooltip("Set to false to have a snap-like effect.")]
+        [SerializeField]
+        public InterpolateSettings interpolateSettings = InterpolateSettings.Position | InterpolateSettings.Rotation | InterpolateSettings.Scale;    
         
-        // CoordinateSpace ///////////////////////////////////////////////////////////
-        [Header("Coordinate Space")]
+        [Header("Reference Space")]
         [Tooltip("Local by default. World may be better when changing hierarchy, or non-NetworkTransforms root position/rotation/scale values.")]
-        public CoordinateSpace coordinateSpace = CoordinateSpace.Local;        
+        public ReferenceSpace coordinateSpace = ReferenceSpace.Local;        
 
         protected bool IsClientWithAuthority => isClient && authority;
         public readonly SortedList<double, TransformSnapshot> clientSnapshots = new SortedList<double, TransformSnapshot>(16);
         public readonly SortedList<double, TransformSnapshot> serverSnapshots = new SortedList<double, TransformSnapshot>(16);        
 
-        protected bool syncPosition => (syncSettings & SyncSettings.SyncPosX) > 0 
-                                    || (syncSettings & SyncSettings.SyncPosY) > 0
-                                    || (syncSettings & SyncSettings.SyncPosZ) > 0;
+        protected bool syncPosition => (fullHeader & FullHeader.SyncPosX) > 0 
+                                    || (fullHeader & FullHeader.SyncPosY) > 0
+                                    || (fullHeader & FullHeader.SyncPosZ) > 0;
         
-        protected bool syncRotation => (syncSettings & SyncSettings.SyncRot) > 0;
-        protected bool syncScale => (syncSettings & SyncSettings.SyncScale) > 0;
+        protected bool syncRotation => (fullHeader & FullHeader.SyncRot) > 0;
+        protected bool syncScale => (fullHeader & FullHeader.SyncScale) > 0;
 
         // Static bool to indicate if that connection has registered handlers.
         private static bool registeredHandlers = false;
@@ -141,10 +142,28 @@ namespace Mirror
         }
     #endregion
 
+        private void Awake()
+        {
+            InitFullHeader();
+        }
+
+        private void InitFullHeader()
+        {
+            fullHeader = (FullHeader)syncSettings;
+            if (rotationSettings == RotationSettings.Compressed)
+            {
+                fullHeader |= FullHeader.CompressRot;
+            }
+            else if (rotationSettings == RotationSettings.EulerAngles)
+            {
+                fullHeader |= FullHeader.UseEulerAngles;
+            }
+        }
+
         protected override void OnValidate()
         {
             base.OnValidate();
-            if ((syncSettings & (SyncSettings.CompressRot & SyncSettings.UseEulerAngles)) > 0) syncSettings &= ~SyncSettings.CompressRot;
+            if ((fullHeader & (FullHeader.CompressRot & FullHeader.UseEulerAngles)) > 0) fullHeader &= ~FullHeader.CompressRot;
 
             deltaSendIntervalMultiplier = Math.Min(deltaSendIntervalMultiplier, fullSendIntervalMultiplier);
             fullSendIntervalMultiplier = Math.Max(deltaSendIntervalMultiplier, fullSendIntervalMultiplier);
@@ -221,9 +240,9 @@ namespace Mirror
             //    scale, then we should not touch scale etc.
 
             // interpolate parts
-            if (syncPosition) SetPosition(interpolatePosition ? interpolated.position : endGoal.position);
-            if (syncRotation) SetRotation(interpolateRotation ? interpolated.rotation : endGoal.rotation);
-            if (syncScale) SetScale(interpolateScale ? interpolated.scale : endGoal.scale);
+            if (syncPosition) SetPosition((interpolateSettings & InterpolateSettings.Position) > 0 ? interpolated.position : endGoal.position);
+            if (syncRotation) SetRotation((interpolateSettings & InterpolateSettings.Rotation) > 0 ? interpolated.rotation : endGoal.rotation);
+            if (syncScale) SetScale((interpolateSettings & InterpolateSettings.Scale) > 0 ? interpolated.scale : endGoal.scale);
         }                
     #endregion
 
@@ -261,7 +280,7 @@ namespace Mirror
                 if (syncRotation) rotation = reader.ReadQuaternion();
                 if (syncScale) scale = reader.ReadVector3();
 
-                SyncDataFull syncData = new SyncDataFull(index, syncSettings, position, rotation, scale);
+                SyncDataFull syncData = new SyncDataFull(index, fullHeader, position, rotation, scale);
                 
                 if (isServer) OnClientToServerSyncFull(syncData);
                 else if (isClient) OnServerToClientSyncFull(syncData);
@@ -427,11 +446,6 @@ namespace Mirror
             
         }
 
-        /*[ClientRpc (channel = Channels.Unreliable)]
-        void RpcServerToClientSyncDelta(SyncDataDelta syncData) =>
-            OnServerToClientSyncDelta(syncData);
-        */
-
         protected static void ServerToClientSyncDeltaHandler(SyncDataDeltaMsg msg)
         {
             if (!NetworkClient.spawned.ContainsKey(msg.netId)) return;
@@ -581,7 +595,7 @@ namespace Mirror
         {
             return new SyncDataFull(
                 updateIndex? NextFullSyncIndex() : lastSentFullSyncIndex, 
-                syncSettings,
+                fullHeader,
                 GetPosition(),
                 GetRotation(),
                 GetScale()
@@ -609,13 +623,13 @@ namespace Mirror
 
             syncDataDelta.position = current.position - lastSentFullQuantized.position;
 
-            if ((syncSettings & SyncSettings.SyncPosX) > 0 && syncDataDelta.position.x != 0)
+            if ((fullHeader & FullHeader.SyncPosX) > 0 && syncDataDelta.position.x != 0)
                 syncDataDelta.deltaHeader |= DeltaHeader.PosX;
 
-            if ((syncSettings & SyncSettings.SyncPosY) > 0 && syncDataDelta.position.y != 0)
+            if ((fullHeader & FullHeader.SyncPosY) > 0 && syncDataDelta.position.y != 0)
                 syncDataDelta.deltaHeader |= DeltaHeader.PosY;
     
-            if ((syncSettings & SyncSettings.SyncPosZ) > 0 && syncDataDelta.position.z != 0)
+            if ((fullHeader & FullHeader.SyncPosZ) > 0 && syncDataDelta.position.z != 0)
             {
                 syncDataDelta.deltaHeader |= DeltaHeader.PosZ;
             }
@@ -633,9 +647,9 @@ namespace Mirror
             // 2) If NonEulerAngles is false, we check the next 3 for each individual axis.
             // 3) If NonEulerAngles is true, we are sending Quaternion. We piggyback on the RotX bit to tell us
             // if it is compressed Quat or uncompressed Quat.
-            if ((syncSettings & SyncSettings.SyncRot) > 0)
+            if ((fullHeader & FullHeader.SyncRot) > 0)
             {
-                if ((syncSettings & SyncSettings.UseEulerAngles) > 0)
+                if ((fullHeader & FullHeader.UseEulerAngles) > 0)
                 {
                     Compression.ScaleToLong(lastSentFullQuantized.rotation.eulerAngles, rotationSensitivity, out Vector3Long lastRotationEuler);
                     Compression.ScaleToLong(current.rotation.eulerAngles, rotationSensitivity, out Vector3Long currentRotationEuler);
@@ -652,7 +666,7 @@ namespace Mirror
                     {
                         syncDataDelta.quatRotation = current.rotation;
                         syncDataDelta.deltaHeader |= DeltaHeader.SendQuat;
-                        if ((syncSettings & SyncSettings.CompressRot) > 0)
+                        if ((fullHeader & FullHeader.CompressRot) > 0)
                         {
                             syncDataDelta.deltaHeader |= DeltaHeader.SendQuatCompressed;
                         }
@@ -660,7 +674,7 @@ namespace Mirror
                 }                
             }
 
-            if ((syncSettings & SyncSettings.SyncScale) > 0)
+            if ((fullHeader & FullHeader.SyncScale) > 0)
             {
                 syncDataDelta.scale = current.scale - lastSentFullQuantized.scale;
                 if (syncDataDelta.scale != Vector3Long.zero)
@@ -676,7 +690,7 @@ namespace Mirror
         {
             position = Compression.ScaleToFloat(lastReceivedFullQuantized.position + delta.position, positionPrecision);
 
-            if ((lastReceivedFullSyncData.syncSettings & SyncSettings.UseEulerAngles) > 0)
+            if ((lastReceivedFullSyncData.fullHeader & FullHeader.UseEulerAngles) > 0)
             {
                 Vector3 eulRotation = Compression.ScaleToFloat(lastReceivedFullQuantized.rotationEuler + delta.eulRotation, rotationSensitivity);
 
@@ -766,20 +780,20 @@ namespace Mirror
         // snapshot functions //////////////////////////////////////////////////
         // get local/world position
         protected virtual Vector3 GetPosition() =>
-            coordinateSpace == CoordinateSpace.Local ? target.localPosition : target.position;
+            coordinateSpace == ReferenceSpace.Local ? target.localPosition : target.position;
 
         // get local/world rotation
         protected virtual Quaternion GetRotation() =>
-            coordinateSpace == CoordinateSpace.Local ? target.localRotation : target.rotation;
+            coordinateSpace == ReferenceSpace.Local ? target.localRotation : target.rotation;
 
         // get local/world scale
         protected virtual Vector3 GetScale() =>
-            coordinateSpace == CoordinateSpace.Local ? target.localScale : target.lossyScale;
+            coordinateSpace == ReferenceSpace.Local ? target.localScale : target.lossyScale;
 
         // set local/world position
         protected virtual void SetPosition(Vector3 position)
         {
-            if (coordinateSpace == CoordinateSpace.Local)
+            if (coordinateSpace == ReferenceSpace.Local)
                 target.localPosition = position;
             else
                 target.position = position;
@@ -788,7 +802,7 @@ namespace Mirror
         // set local/world rotation
         protected virtual void SetRotation(Quaternion rotation)
         {
-            if (coordinateSpace == CoordinateSpace.Local)
+            if (coordinateSpace == ReferenceSpace.Local)
                 target.localRotation = rotation;
             else
                 target.rotation = rotation;
@@ -797,7 +811,7 @@ namespace Mirror
         // set local/world position
         protected virtual void SetScale(Vector3 scale)
         {
-            if (coordinateSpace == CoordinateSpace.Local)
+            if (coordinateSpace == ReferenceSpace.Local)
                 target.localScale = scale;
             // Unity doesn't support setting world scale.
             // OnValidate disables syncScale in world mode.
@@ -812,9 +826,9 @@ namespace Mirror
         {
             Vector3 currentPosition = GetPosition();
 
-            if ((syncSettings & SyncSettings.SyncPosX) == 0) syncData.position.x = currentPosition.x;
-            if ((syncSettings & SyncSettings.SyncPosY) == 0) syncData.position.y = currentPosition.y;
-            if ((syncSettings & SyncSettings.SyncPosZ) == 0) syncData.position.z = currentPosition.z;
+            if ((fullHeader & FullHeader.SyncPosX) == 0) syncData.position.x = currentPosition.x;
+            if ((fullHeader & FullHeader.SyncPosY) == 0) syncData.position.y = currentPosition.y;
+            if ((fullHeader & FullHeader.SyncPosZ) == 0) syncData.position.z = currentPosition.z;
         }         
     #endregion 
 
@@ -822,7 +836,7 @@ namespace Mirror
 #if UNITY_EDITOR
         void OnGUI()
         {
-            syncSettings = (SyncSettings)EditorGUILayout.EnumFlagsField(syncSettings);
+            fullHeader = (FullHeader)EditorGUILayout.EnumPopup(fullHeader);
         }
 #endif         
     }

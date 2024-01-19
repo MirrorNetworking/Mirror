@@ -36,15 +36,15 @@ namespace Mirror
     public struct SyncDataFull 
     {
         public byte fullSyncDataIndex;
-        public SyncSettings syncSettings;
+        public FullHeader fullHeader;
         public Vector3 position;
         public Quaternion rotation;
         public Vector3 scale;
  
-        public SyncDataFull(byte fullSyncDataIndex, SyncSettings syncSettings, Vector3 position, Quaternion rotation, Vector3 scale)
+        public SyncDataFull(byte fullSyncDataIndex, FullHeader fullHeader, Vector3 position, Quaternion rotation, Vector3 scale)
         {
             this.fullSyncDataIndex = fullSyncDataIndex;
-            this.syncSettings = syncSettings;
+            this.fullHeader = fullHeader;
             this.position = position;
             this.rotation = rotation;
             this.scale = scale;
@@ -87,6 +87,37 @@ namespace Mirror
         }
     }
 
+    public enum ReferenceSpace
+    {
+        Local,
+        World
+    }
+
+    public enum RotationSettings
+    {
+        FullQuaternion,
+        Compressed,
+        EulerAngles
+    }    
+
+    [Flags]
+    public enum InterpolateSettings : byte
+    {
+        Position = 1 << 0,
+        Rotation = 1 << 1,
+        Scale = 1 << 2
+    }
+
+    [Flags]
+    public enum SyncSettings : byte
+    {
+        SyncPosX = 1 << 0,
+        SyncPosY = 1 << 1,
+        SyncPosZ = 1 << 2,
+        SyncRot = 1 << 3,
+        SyncScale = 1 << 4,
+    }
+
     [Flags]
     public enum DeltaHeader : byte
     {
@@ -104,7 +135,7 @@ namespace Mirror
     }
 
     [Flags]
-    public enum SyncSettings : byte
+    public enum FullHeader : byte
     {
         None = 0,
         SyncPosX = 1 << 0,
@@ -114,7 +145,6 @@ namespace Mirror
         SyncScale = 1 << 4,
         CompressRot = 1 << 5,
         UseEulerAngles = 1 << 6,
-
     }
 
     public static class SyncDataReaderWriter
@@ -122,46 +152,77 @@ namespace Mirror
         public static void WriteSyncDataFull(this NetworkWriter writer, SyncDataFull syncData)
         {
             writer.WriteByte(syncData.fullSyncDataIndex);
-            writer.WriteByte((byte)syncData.syncSettings);
+            writer.WriteByte((byte)syncData.fullHeader);
  
-            if ((syncData.syncSettings & SyncSettings.SyncPosX) > 0) writer.WriteFloat(syncData.position.x);
-            if ((syncData.syncSettings & SyncSettings.SyncPosY) > 0) writer.WriteFloat(syncData.position.y);
-            if ((syncData.syncSettings & SyncSettings.SyncPosZ) > 0) writer.WriteFloat(syncData.position.z);
+            if ((syncData.fullHeader & FullHeader.SyncPosX) > 0) writer.WriteFloat(syncData.position.x);
+            if ((syncData.fullHeader & FullHeader.SyncPosY) > 0) writer.WriteFloat(syncData.position.y);
+            if ((syncData.fullHeader & FullHeader.SyncPosZ) > 0) writer.WriteFloat(syncData.position.z);
             
-            if ((syncData.syncSettings & SyncSettings.SyncRot) > 0)
+            if ((syncData.fullHeader & FullHeader.SyncRot) > 0)
             {
-                if ((syncData.syncSettings & SyncSettings.CompressRot) > 0) writer.WriteUInt(Compression.CompressQuaternion(syncData.rotation));
-                else writer.WriteQuaternion(syncData.rotation);
+                if ((syncData.fullHeader & FullHeader.CompressRot) > 0)
+                {
+                    writer.WriteUInt(Compression.CompressQuaternion(syncData.rotation));
+                }
+                else 
+                {
+                    if ((syncData.fullHeader & FullHeader.UseEulerAngles) > 0)
+                    {
+                        Vector3 eulerRotation = syncData.rotation.eulerAngles;
+                        writer.WriteFloat(eulerRotation.x);
+                        writer.WriteFloat(eulerRotation.y);
+                        writer.WriteFloat(eulerRotation.z);
+                    }
+                    else
+                    {
+                        writer.WriteQuaternion(syncData.rotation);
+                    }
+                }
             }
             
-            if ((syncData.syncSettings & SyncSettings.SyncScale) > 0) writer.WriteVector3(syncData.scale);
+            if ((syncData.fullHeader & FullHeader.SyncScale) > 0) writer.WriteVector3(syncData.scale);
 
         }
  
         public static SyncDataFull ReadSyncDataFull(this NetworkReader reader)
         {
             byte index = reader.ReadByte();   
-            SyncSettings syncSettings = (SyncSettings)reader.ReadByte();
+            FullHeader fullHeader = (FullHeader)reader.ReadByte();
             
             // If we have nothing to read here, let's say because posX is unchanged, then we can write anything
             // for now, but in the NT, we will need to check changedData again, to put the right values of the axis
             // back. We don't have it here.
             
             Vector3 position = new Vector3(
-                (syncSettings & SyncSettings.SyncPosX) > 0 ? reader.ReadFloat() : default,
-                (syncSettings & SyncSettings.SyncPosY) > 0 ? reader.ReadFloat() : default,
-                (syncSettings & SyncSettings.SyncPosZ) > 0 ? reader.ReadFloat() : default
+                (fullHeader & FullHeader.SyncPosX) > 0 ? reader.ReadFloat() : default,
+                (fullHeader & FullHeader.SyncPosY) > 0 ? reader.ReadFloat() : default,
+                (fullHeader & FullHeader.SyncPosZ) > 0 ? reader.ReadFloat() : default
             );
             
             Quaternion rotation = new Quaternion();
-            if ((syncSettings & SyncSettings.SyncRot) > 0)
-                rotation = (syncSettings & SyncSettings.CompressRot) > 0 ? Compression.DecompressQuaternion(reader.ReadUInt()) : reader.ReadQuaternion();
+            if ((fullHeader & FullHeader.SyncRot) > 0)
+                if ((fullHeader & FullHeader.CompressRot) > 0)
+                {
+                    rotation = Compression.DecompressQuaternion(reader.ReadUInt());
+                }
+                else
+                {
+                    if ((fullHeader & FullHeader.UseEulerAngles) > 0)
+                    {
+                        Vector3 eulerRotation = new Vector3(reader.ReadFloat(), reader.ReadFloat(), reader.ReadFloat());
+                        rotation = Quaternion.Euler(eulerRotation);
+                    }
+                    else
+                    {
+                        rotation = reader.ReadQuaternion();
+                    }
+                }
             else
                 rotation = new Quaternion();
                 
-            Vector3 scale =  (syncSettings & SyncSettings.SyncScale) > 0 ? reader.ReadVector3() : default;
+            Vector3 scale =  (fullHeader & FullHeader.SyncScale) > 0 ? reader.ReadVector3() : default;
  
-            return new SyncDataFull(index, syncSettings, position, rotation, scale);
+            return new SyncDataFull(index, fullHeader, position, rotation, scale);
         }
 
         public static void WriteSyncDataDelta(this NetworkWriter writer, SyncDataDelta syncData)

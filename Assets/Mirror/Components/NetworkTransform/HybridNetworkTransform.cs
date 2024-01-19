@@ -16,7 +16,7 @@ namespace Mirror
         public Transform target;
 
 
-        [SerializeField] protected SyncSettings syncSettings;  
+        [SerializeField] protected FullHeader syncSettings;  
 
         [Header("Full Send Interval Multiplier")]
         [Tooltip("Check/Sync every multiple of Network Manager send interval (= 1 / NM Send Rate), instead of every send interval.\n(30 NM send rate, and 3 interval, is a send every 0.1 seconds)\nA larger interval means less network sends, which has a variety of upsides. The drawbacks are delays and lower accuracy, you should find a nice balance between not sending too much, but the results looking good for your particular scenario.")]
@@ -89,17 +89,17 @@ namespace Mirror
         public readonly SortedList<double, TransformSnapshot> clientSnapshots = new SortedList<double, TransformSnapshot>(16);
         public readonly SortedList<double, TransformSnapshot> serverSnapshots = new SortedList<double, TransformSnapshot>(16);        
 
-        protected bool syncPosition => (syncSettings & SyncSettings.SyncPosX) > 0 
-                                    || (syncSettings & SyncSettings.SyncPosY) > 0
-                                    || (syncSettings & SyncSettings.SyncPosZ) > 0;
+        protected bool syncPosition => (syncSettings & FullHeader.SyncPosX) > 0 
+                                    || (syncSettings & FullHeader.SyncPosY) > 0
+                                    || (syncSettings & FullHeader.SyncPosZ) > 0;
         
-        protected bool syncRotation => (syncSettings & SyncSettings.SyncRot) > 0;
-        protected bool syncScale => (syncSettings & SyncSettings.SyncScale) > 0;
+        protected bool syncRotation => (syncSettings & FullHeader.SyncRot) > 0;
+        protected bool syncScale => (syncSettings & FullHeader.SyncScale) > 0;
 
         protected override void OnValidate()
         {
             base.OnValidate();
-            if ((syncSettings & (SyncSettings.CompressRot & SyncSettings.UseEulerAngles)) > 0) syncSettings &= ~SyncSettings.CompressRot;
+            if ((syncSettings & (FullHeader.CompressRot & FullHeader.UseEulerAngles)) > 0) syncSettings &= ~FullHeader.CompressRot;
 
             deltaSendIntervalMultiplier = Math.Min(deltaSendIntervalMultiplier, fullSendIntervalMultiplier);
             fullSendIntervalMultiplier = Math.Max(deltaSendIntervalMultiplier, fullSendIntervalMultiplier);
@@ -521,13 +521,13 @@ namespace Mirror
 
             syncDataDelta.position = current.position - lastSentFullQuantized.position;
 
-            if ((syncSettings & SyncSettings.SyncPosX) > 0 && syncDataDelta.position.x != 0)
+            if ((syncSettings & FullHeader.SyncPosX) > 0 && syncDataDelta.position.x != 0)
                 syncDataDelta.deltaHeader |= DeltaHeader.PosX;
 
-            if ((syncSettings & SyncSettings.SyncPosY) > 0 && syncDataDelta.position.y != 0)
+            if ((syncSettings & FullHeader.SyncPosY) > 0 && syncDataDelta.position.y != 0)
                 syncDataDelta.deltaHeader |= DeltaHeader.PosY;
     
-            if ((syncSettings & SyncSettings.SyncPosZ) > 0 && syncDataDelta.position.z != 0)
+            if ((syncSettings & FullHeader.SyncPosZ) > 0 && syncDataDelta.position.z != 0)
             {
                 syncDataDelta.deltaHeader |= DeltaHeader.PosZ;
             }
@@ -545,9 +545,9 @@ namespace Mirror
             // 2) If NonEulerAngles is false, we check the next 3 for each individual axis.
             // 3) If NonEulerAngles is true, we are sending Quaternion. We piggyback on the RotX bit to tell us
             // if it is compressed Quat or uncompressed Quat.
-            if ((syncSettings & SyncSettings.SyncRot) > 0)
+            if ((syncSettings & FullHeader.SyncRot) > 0)
             {
-                if ((syncSettings & SyncSettings.UseEulerAngles) > 0)
+                if ((syncSettings & FullHeader.UseEulerAngles) > 0)
                 {
                     Compression.ScaleToLong(lastSentFullQuantized.rotation.eulerAngles, rotationSensitivity, out Vector3Long lastRotationEuler);
                     Compression.ScaleToLong(current.rotation.eulerAngles, rotationSensitivity, out Vector3Long currentRotationEuler);
@@ -564,7 +564,7 @@ namespace Mirror
                     {
                         syncDataDelta.quatRotation = current.rotation;
                         syncDataDelta.deltaHeader |= DeltaHeader.SendQuat;
-                        if ((syncSettings & SyncSettings.CompressRot) > 0)
+                        if ((syncSettings & FullHeader.CompressRot) > 0)
                         {
                             syncDataDelta.deltaHeader |= DeltaHeader.SendQuatCompressed;
                         }
@@ -572,7 +572,7 @@ namespace Mirror
                 }                
             }
 
-            if ((syncSettings & SyncSettings.SyncScale) > 0)
+            if ((syncSettings & FullHeader.SyncScale) > 0)
             {
                 syncDataDelta.scale = current.scale - lastSentFullQuantized.scale;
                 if (syncDataDelta.scale != Vector3Long.zero)
@@ -588,7 +588,7 @@ namespace Mirror
         {
             position = Compression.ScaleToFloat(lastReceivedFullQuantized.position + delta.position, positionPrecision);
 
-            if ((lastReceivedFullSyncData.syncSettings & SyncSettings.UseEulerAngles) > 0)
+            if ((lastReceivedFullSyncData.fullHeader & FullHeader.UseEulerAngles) > 0)
             {
                 Vector3 eulRotation = Compression.ScaleToFloat(lastReceivedFullQuantized.rotationEuler + delta.eulRotation, rotationSensitivity);
 
@@ -705,9 +705,9 @@ namespace Mirror
         {
             Vector3 currentPosition = GetPosition();
 
-            if ((syncSettings & SyncSettings.SyncPosX) == 0) syncData.position.x = currentPosition.x;
-            if ((syncSettings & SyncSettings.SyncPosY) == 0) syncData.position.y = currentPosition.y;
-            if ((syncSettings & SyncSettings.SyncPosZ) == 0) syncData.position.z = currentPosition.z;
+            if ((syncSettings & FullHeader.SyncPosX) == 0) syncData.position.x = currentPosition.x;
+            if ((syncSettings & FullHeader.SyncPosY) == 0) syncData.position.y = currentPosition.y;
+            if ((syncSettings & FullHeader.SyncPosZ) == 0) syncData.position.z = currentPosition.z;
         }         
     #endregion      
     }
