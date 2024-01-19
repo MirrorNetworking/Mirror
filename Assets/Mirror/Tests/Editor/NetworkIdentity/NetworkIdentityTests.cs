@@ -624,7 +624,7 @@ namespace Mirror.Tests.NetworkIdentities
         }
 
         [Test]
-        public void Reset()
+        public void ResetState()
         {
             CreateNetworked(out GameObject _, out NetworkIdentity identity);
 
