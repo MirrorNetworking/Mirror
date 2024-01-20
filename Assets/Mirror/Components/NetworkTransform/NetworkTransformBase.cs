@@ -378,6 +378,8 @@ namespace Mirror
         public virtual void Reset()
         {
             ResetState();
+            // default to ClientToServer so this works immediately for users
+            syncDirection = SyncDirection.ClientToServer;
         }
 
         protected virtual void OnEnable()
