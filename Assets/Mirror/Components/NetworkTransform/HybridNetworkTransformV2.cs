@@ -625,7 +625,7 @@ namespace Mirror
             );
         }
 
-        protected virtual QuantizedSnapshot ConstructQuantizedSnapshot(Vector3 position, Quaternion rotation, Vector3 scale)
+        /*protected virtual QuantizedSnapshot ConstructQuantizedSnapshot(Vector3 position, Quaternion rotation, Vector3 scale)
         {
             Compression.ScaleToLong(position, positionPrecision, out Vector3Long positionQuantized);
             Compression.ScaleToLong(rotation.eulerAngles, rotationSensitivity, out Vector3Long eulRotation);
@@ -636,7 +636,7 @@ namespace Mirror
                 eulRotation,
                 scaleQuantized
             );    
-        }
+        }*/
 
         protected virtual SyncDataDelta DeriveDelta(SyncDataFull current)
         {

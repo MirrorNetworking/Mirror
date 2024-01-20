@@ -42,9 +42,9 @@ namespace Mirror
         double lastFullSendIntervalTime = double.MinValue;
         private byte lastSentFullSyncIndex = 0;
         private SyncDataFull lastSentFullSyncData;
-        private QuantizedSnapshot lastSentFullQuantized;
+        //private QuantizedSnapshot lastSentFullQuantized;
         private SyncDataFull lastReceivedFullSyncData;
-        private QuantizedSnapshot lastReceivedFullQuantized;
+        //private QuantizedSnapshot lastReceivedFullQuantized;
 
         /*[Header("Delta Send Interval Multiplier")]
         [Tooltip("Check/Sync every multiple of Network Manager send interval (= 1 / NM Send Rate), instead of every send interval.\n(30 NM send rate, and 3 interval, is a send every 0.1 seconds)\nA larger interval means less network sends, which has a variety of upsides. The drawbacks are delays and lower accuracy, you should find a nice balance between not sending too much, but the results looking good for your particular scenario.")]
@@ -219,7 +219,7 @@ namespace Mirror
                 if (syncRotation) writer.WriteQuaternion(lastSentFullSyncData.rotation);
                 if (syncScale) writer.WriteVector3(lastSentFullSyncData.scale);
 
-                lastSentFullQuantized = ConstructQuantizedSnapshot(lastSentFullSyncData.position, lastSentFullSyncData.rotation, lastSentFullSyncData.scale);
+                //lastSentFullQuantized = ConstructQuantizedSnapshot(lastSentFullSyncData.position, lastSentFullSyncData.rotation, lastSentFullSyncData.scale);
             }
         }
 
@@ -342,7 +342,7 @@ namespace Mirror
         {
             lastSentFullSyncData = ConstructFullSyncData(true);
 
-            lastSentFullQuantized = ConstructQuantizedSnapshot(lastSentFullSyncData.position, lastSentFullSyncData.rotation, lastSentFullSyncData.scale);
+            //lastSentFullQuantized = ConstructQuantizedSnapshot(lastSentFullSyncData.position, lastSentFullSyncData.rotation, lastSentFullSyncData.scale);
 
             RpcServerToClientSyncFull(lastSentFullSyncData);
         }
@@ -378,7 +378,7 @@ namespace Mirror
             // use current non-synced axis instead of giving it a 0.
             lastReceivedFullSyncData = syncData;
             CleanUpFullSyncDataPositionSync(ref lastReceivedFullSyncData);
-            lastReceivedFullQuantized = ConstructQuantizedSnapshot(lastReceivedFullSyncData.position, lastReceivedFullSyncData.rotation, lastReceivedFullSyncData.scale);
+            //lastReceivedFullQuantized = ConstructQuantizedSnapshot(lastReceivedFullSyncData.position, lastReceivedFullSyncData.rotation, lastReceivedFullSyncData.scale);
 
             // We don't care if we are adding 'default' to any field because 
             // syncing is checked again in Apply before applying the changes.
@@ -394,9 +394,9 @@ namespace Mirror
             
             if (lastSentFullSyncIndex == 0) return;
             SyncDataFull currentFull = ConstructFullSyncData(false);
-            QuantizedSnapshot currentQuantized = ConstructQuantizedSnapshot(currentFull.position, currentFull.rotation, currentFull.scale);
+            //QuantizedSnapshot currentQuantized = ConstructQuantizedSnapshot(currentFull.position, currentFull.rotation, currentFull.scale);
 
-            SyncDataDelta syncDataDelta = DeriveDelta(currentQuantized);
+            SyncDataDelta syncDataDelta = DeriveDelta(currentFull);
 
             RpcServerToClientSyncDelta(syncDataDelta);
         }
@@ -438,7 +438,7 @@ namespace Mirror
         {
             lastSentFullSyncData = ConstructFullSyncData(true);
             
-            lastSentFullQuantized = ConstructQuantizedSnapshot(lastSentFullSyncData.position, lastSentFullSyncData.rotation, lastSentFullSyncData.scale);
+            //lastSentFullQuantized = ConstructQuantizedSnapshot(lastSentFullSyncData.position, lastSentFullSyncData.rotation, lastSentFullSyncData.scale);
                 
             CmdClientToServerSyncFull(lastSentFullSyncData);
         }
@@ -467,7 +467,7 @@ namespace Mirror
             // See Server's issue
             lastReceivedFullSyncData = syncData;
             CleanUpFullSyncDataPositionSync(ref lastReceivedFullSyncData);
-            lastReceivedFullQuantized = ConstructQuantizedSnapshot(lastReceivedFullSyncData.position, lastReceivedFullSyncData.rotation, lastReceivedFullSyncData.scale);
+            //lastReceivedFullQuantized = ConstructQuantizedSnapshot(lastReceivedFullSyncData.position, lastReceivedFullSyncData.rotation, lastReceivedFullSyncData.scale);
 
             // We don't care if we are adding 'default' to any field because 
             // syncing is checked again in Apply before applying the changes.
@@ -482,9 +482,9 @@ namespace Mirror
             if (lastSentFullSyncIndex == 0) return;            
             
             SyncDataFull currentFull = ConstructFullSyncData(false);
-            QuantizedSnapshot currentQuantized = ConstructQuantizedSnapshot(currentFull.position, currentFull.rotation, currentFull.scale);
+            //QuantizedSnapshot currentQuantized = ConstructQuantizedSnapshot(currentFull.position, currentFull.rotation, currentFull.scale);
 
-            SyncDataDelta syncDataDelta = DeriveDelta(currentQuantized);
+            SyncDataDelta syncDataDelta = DeriveDelta(currentFull);
 
             CmdClientToServerSyncDelta(syncDataDelta);            
         }
@@ -529,7 +529,7 @@ namespace Mirror
             );
         }
 
-        protected virtual QuantizedSnapshot ConstructQuantizedSnapshot(Vector3 position, Quaternion rotation, Vector3 scale)
+        /*protected virtual QuantizedSnapshot ConstructQuantizedSnapshot(Vector3 position, Quaternion rotation, Vector3 scale)
         {
             Compression.ScaleToLong(position, positionPrecision, out Vector3Long positionQuantized);
             Compression.ScaleToLong(rotation.eulerAngles, rotationSensitivity, out Vector3Long eulRotation);
@@ -540,15 +540,15 @@ namespace Mirror
                 eulRotation,
                 scaleQuantized
             );    
-        }
+        }*/
 
-        protected virtual SyncDataDelta DeriveDelta(QuantizedSnapshot current)
+        protected virtual SyncDataDelta DeriveDelta(SyncDataFull current)
         {
-            SyncDataDelta syncDataDelta = new SyncDataDelta();
+             SyncDataDelta syncDataDelta = new SyncDataDelta();
             syncDataDelta.fullSyncDataIndex = lastSentFullSyncIndex;
             syncDataDelta.deltaHeader = DeltaHeader.None;
 
-            syncDataDelta.position = current.position - lastSentFullQuantized.position;
+            Compression.ScaleToLong(current.position - lastSentFullSyncData.position, positionPrecision, out syncDataDelta.position);
 
             if ((fullHeader & FullHeader.SyncPosX) > 0 && syncDataDelta.position.x != 0)
                 syncDataDelta.deltaHeader |= DeltaHeader.PosX;
@@ -578,7 +578,7 @@ namespace Mirror
             {
                 if ((fullHeader & FullHeader.UseEulerAngles) > 0)
                 {
-                    Compression.ScaleToLong(lastSentFullQuantized.rotation.eulerAngles, rotationSensitivity, out Vector3Long lastRotationEuler);
+                    Compression.ScaleToLong(lastSentFullSyncData.rotation.eulerAngles, rotationSensitivity, out Vector3Long lastRotationEuler);
                     Compression.ScaleToLong(current.rotation.eulerAngles, rotationSensitivity, out Vector3Long currentRotationEuler);
     
                     syncDataDelta.eulRotation = currentRotationEuler - lastRotationEuler;
@@ -589,7 +589,7 @@ namespace Mirror
                 }
                 else
                 {
-                    if (Quaternion.Angle(lastSentFullQuantized.rotation, current.rotation) > rotationSensitivity)
+                    if (Quaternion.Angle(lastSentFullSyncData.rotation, current.rotation) > rotationSensitivity)
                     {
                         syncDataDelta.quatRotation = current.rotation;
                         syncDataDelta.deltaHeader |= DeltaHeader.SendQuat;
@@ -603,7 +603,7 @@ namespace Mirror
 
             if ((fullHeader & FullHeader.SyncScale) > 0)
             {
-                syncDataDelta.scale = current.scale - lastSentFullQuantized.scale;
+                Compression.ScaleToLong(current.scale - lastSentFullSyncData.scale, positionPrecision, out syncDataDelta.scale);
                 if (syncDataDelta.scale != Vector3Long.zero)
                 {
                     syncDataDelta.deltaHeader |= DeltaHeader.Scale;
@@ -615,11 +615,11 @@ namespace Mirror
 
         protected virtual void ApplyDelta(SyncDataDelta delta, out Vector3 position, out Quaternion rotation, out Vector3 scale)
         {
-            position = Compression.ScaleToFloat(lastReceivedFullQuantized.position + delta.position, positionPrecision);
+            position = lastReceivedFullSyncData.position + Compression.ScaleToFloat(delta.position, positionPrecision);
 
             if ((lastReceivedFullSyncData.fullHeader & FullHeader.UseEulerAngles) > 0)
             {
-                Vector3 eulRotation = Compression.ScaleToFloat(lastReceivedFullQuantized.rotationEuler + delta.eulRotation, rotationSensitivity);
+                Vector3 eulRotation = lastReceivedFullSyncData.rotation.eulerAngles + Compression.ScaleToFloat(delta.eulRotation, rotationSensitivity);
 
                 rotation = Quaternion.Euler(eulRotation);
             }
@@ -631,7 +631,7 @@ namespace Mirror
                     rotation = lastReceivedFullSyncData.rotation;
             }
 
-            scale = Compression.ScaleToFloat(lastReceivedFullQuantized.scale + delta.scale, scalePrecision);
+            scale = lastReceivedFullSyncData.scale + Compression.ScaleToFloat(delta.scale, scalePrecision);
         }
 
         protected void AddSnapshot(SortedList<double, TransformSnapshot> snapshots, double timeStamp, Vector3? position, Quaternion? rotation, Vector3? scale)
