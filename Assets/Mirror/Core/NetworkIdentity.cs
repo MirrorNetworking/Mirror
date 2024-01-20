@@ -1286,7 +1286,7 @@ namespace Mirror
         // the identity during destroy as people might want to be able to read
         // the members inside OnDestroy(), and we have no way of invoking reset
         // after OnDestroy is called.
-        internal void Reset()
+        internal void ResetState()
         {
             hasSpawned = false;
             clientStarted = false;
