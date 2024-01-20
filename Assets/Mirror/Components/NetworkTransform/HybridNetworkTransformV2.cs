@@ -511,11 +511,6 @@ namespace Mirror
             
             //lastSentFullQuantized = ConstructQuantizedSnapshot(lastSentFullSyncData.position, lastSentFullSyncData.rotation, lastSentFullSyncData.scale);
 
-            /*if (gameObject.name.Contains("Turret"))
-            {
-                Debug.Log($"Pos Y = {lastSentFullSyncData.position.y.ToString("F10")}");    
-                Debug.Log($"Pos Y Quantized = {lastSentFullQuantized.position.y}");    
-            }*/
             SyncDataFullMsg msg = new SyncDataFullMsg(netId, ComponentIndex, lastSentFullSyncData);
             NetworkClient.Send(msg, Channels.Reliable);    
         }
@@ -554,7 +549,6 @@ namespace Mirror
 
             // See Server's issue
             lastReceivedFullSyncData = syncData;
-            if (gameObject.name.Contains("Turret")) Debug.Log($"Pos Y Received = {lastReceivedFullSyncData.position.y.ToString("F10")}");    
             CleanUpFullSyncDataPositionSync(ref lastReceivedFullSyncData);
             //lastReceivedFullQuantized = ConstructQuantizedSnapshot(lastReceivedFullSyncData.position, lastReceivedFullSyncData.rotation, lastReceivedFullSyncData.scale);
 
@@ -574,7 +568,6 @@ namespace Mirror
             //QuantizedSnapshot currentQuantized = ConstructQuantizedSnapshot(currentFull.position, currentFull.rotation, currentFull.scale);
               
             SyncDataDelta syncDataDelta = DeriveDelta(currentFull);
-            if (gameObject.name.Contains("Turret")) Debug.Log($"Pos Y Delta = {syncDataDelta.position.y}");  
             
             SyncDataDeltaMsg msg = new SyncDataDeltaMsg(netId, ComponentIndex, syncDataDelta);
             NetworkClient.Send(msg, Channels.Unreliable);   
