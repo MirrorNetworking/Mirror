@@ -162,7 +162,7 @@ namespace Mirror
 
             // reset Interest Management so that rebuild intervals
             // start at 0 when starting again.
-            if (aoi != null) aoi.Reset();
+            if (aoi != null) aoi.ResetState();
 
             // reset NetworkTime
             NetworkTime.ResetStatics();
@@ -247,7 +247,7 @@ namespace Mirror
             OnErrorEvent = null;
             OnTransportExceptionEvent = null;
 
-            if (aoi != null) aoi.Reset();
+            if (aoi != null) aoi.ResetState();
         }
 
         static void RemoveTransportHandlers()
