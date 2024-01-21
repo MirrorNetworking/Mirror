@@ -25,7 +25,7 @@ namespace Mirror
         }
 
         [ServerCallback]
-        public override void Reset()
+        public override void ResetState()
         {
             lastRebuildTime = 0D;
             CustomRanges.Clear();

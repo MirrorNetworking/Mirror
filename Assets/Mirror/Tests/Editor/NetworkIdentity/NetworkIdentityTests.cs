@@ -624,7 +624,7 @@ namespace Mirror.Tests.NetworkIdentities
         }
 
         [Test]
-        public void Reset()
+        public void ResetState()
         {
             CreateNetworked(out GameObject _, out NetworkIdentity identity);
 
@@ -637,7 +637,7 @@ namespace Mirror.Tests.NetworkIdentities
             identity.observers[43] = new NetworkConnectionToClient(2);
 
             // mark for reset and reset
-            identity.Reset();
+            identity.ResetState();
             Assert.That(identity.isServer, Is.False);
             Assert.That(identity.isClient, Is.False);
             Assert.That(identity.isLocalPlayer, Is.False);
