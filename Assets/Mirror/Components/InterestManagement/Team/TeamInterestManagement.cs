@@ -48,14 +48,14 @@ namespace Mirror
             // and the new match need to rebuild their respective observers lists.
 
             // Remove this object from the hashset of the match it just left
-            // Guid.Empty is never a valid teamId
-            if (string.IsNullOrWhiteSpace(oldMatch))
+            // Null / Empty string is never a valid teamId
+            if (!string.IsNullOrWhiteSpace(oldMatch))
             {
                 dirtyTeams.Add(oldMatch);
                 teamObjects[oldMatch].Remove(networkTeam);
             }
 
-            // Guid.Empty is never a valid teamId
+            // Null / Empty string is never a valid teamId
             if (string.IsNullOrWhiteSpace(networkTeam.teamId))
                 return;
 
@@ -77,7 +77,7 @@ namespace Mirror
 
             string networkTeamId = networkTeam.teamId;
 
-            // Guid.Empty is never a valid teamId...do not add to matchObjects collection
+            // Null / Empty string is never a valid teamId...do not add to matchObjects collection
             if (string.IsNullOrWhiteSpace(networkTeamId))
                 return;
 
@@ -105,7 +105,7 @@ namespace Mirror
             // We must add the current match to dirtyMatches for LateUpdate to rebuild it.
             if (identity.TryGetComponent(out NetworkTeam currentTeam))
             {
-                if (string.IsNullOrWhiteSpace(currentTeam.teamId) &&
+                if (!string.IsNullOrWhiteSpace(currentTeam.teamId) &&
                     teamObjects.TryGetValue(currentTeam.teamId, out HashSet<NetworkTeam> objects) &&
                     objects.Remove(currentTeam))
                     dirtyTeams.Add(currentTeam.teamId);
@@ -121,7 +121,7 @@ namespace Mirror
             if (identityNetworkTeam.forceShown)
                 return true;
 
-            // string.Empty is never a valid teamId
+            // Null / Empty string is never a valid teamId
             if (string.IsNullOrWhiteSpace(identityNetworkTeam.teamId))
                 return false;
 
