@@ -930,6 +930,14 @@ namespace Mirror
             ushort msgType = NetworkMessageId<T>.Id;
             handlers[msgType] = NetworkMessages.WrapHandler(handler, requireAuthentication, exceptionsDisconnect);
         }
+        
+        /// <summary>Replace a handler for message type T. Most should require authentication.</summary>
+        public static void ReplaceHandler<T>(Action<NetworkConnectionToClient, T, int> handler, bool requireAuthentication = true)
+            where T : struct, NetworkMessage
+        {
+            ushort msgType = NetworkMessageId<T>.Id;
+            handlers[msgType] = NetworkMessages.WrapHandler(handler, requireAuthentication, exceptionsDisconnect);
+        }
 
         /// <summary>Unregister a handler for a message type T.</summary>
         public static void UnregisterHandler<T>()
