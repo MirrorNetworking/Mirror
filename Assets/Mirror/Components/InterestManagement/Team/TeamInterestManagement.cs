@@ -15,13 +15,13 @@ namespace Mirror
         [ServerCallback]
         void LateUpdate()
         {
-            // Rebuild all dirty matches
-            // dirtyMatches will be empty if no matches changed members
+            // Rebuild all dirty teams
+            // dirtyTeams will be empty if no teams changed members
             // by spawning or destroying or changing teamId in this frame.
             foreach (string dirtyTeam in dirtyTeams)
             {
-                // rebuild always, even if teamObjects[dirtyMatch] is empty.
-                // Players might have left the match, but they may still be spawned.
+                // rebuild always, even if teamObjects[dirtyTeam] is empty.
+                // Players might have left the team, but they may still be spawned.
                 RebuildTeamObservers(dirtyTeam);
 
                 // clean up empty entries in the dict
@@ -40,19 +40,19 @@ namespace Mirror
                     NetworkServer.RebuildObservers(networkTeam.netIdentity, false);
         }
 
-        // called by NetworkMatch.teamId setter
+        // called by NetworkTeam.teamId setter
         [ServerCallback]
-        internal void OnTeamChanged(NetworkTeam networkTeam, string oldMatch)
+        internal void OnTeamChanged(NetworkTeam networkTeam, string oldTeam)
         {
-            // This object is in a new match so observers in the prior match
-            // and the new match need to rebuild their respective observers lists.
+            // This object is in a new team so observers in the prior team
+            // and the new team need to rebuild their respective observers lists.
 
-            // Remove this object from the hashset of the match it just left
+            // Remove this object from the hashset of the team it just left
             // Null / Empty string is never a valid teamId
-            if (!string.IsNullOrWhiteSpace(oldMatch))
+            if (!string.IsNullOrWhiteSpace(oldTeam))
             {
-                dirtyTeams.Add(oldMatch);
-                teamObjects[oldMatch].Remove(networkTeam);
+                dirtyTeams.Add(oldTeam);
+                teamObjects[oldTeam].Remove(networkTeam);
             }
 
             // Null / Empty string is never a valid teamId
@@ -61,11 +61,11 @@ namespace Mirror
 
             dirtyTeams.Add(networkTeam.teamId);
 
-            // Make sure this new match is in the dictionary
+            // Make sure this new team is in the dictionary
             if (!teamObjects.ContainsKey(networkTeam.teamId))
                 teamObjects[networkTeam.teamId] = new HashSet<NetworkTeam>();
 
-            // Add this object to the hashset of the new match
+            // Add this object to the hashset of the new team
             teamObjects[networkTeam.teamId].Add(networkTeam);
         }
 
@@ -77,11 +77,11 @@ namespace Mirror
 
             string networkTeamId = networkTeam.teamId;
 
-            // Null / Empty string is never a valid teamId...do not add to matchObjects collection
+            // Null / Empty string is never a valid teamId...do not add to teamObjects collection
             if (string.IsNullOrWhiteSpace(networkTeamId))
                 return;
 
-            // Debug.Log($"MatchInterestManagement.OnSpawned({identity.name}) currentMatch: {currentMatch}");
+            // Debug.Log($"TeamInterestManagement.OnSpawned({identity.name}) currentTeam: {currentTeam}");
             if (!teamObjects.TryGetValue(networkTeamId, out HashSet<NetworkTeam> objects))
             {
                 objects = new HashSet<NetworkTeam>();
@@ -90,9 +90,9 @@ namespace Mirror
 
             objects.Add(networkTeam);
 
-            // Match ID could have been set in NetworkBehaviour::OnStartServer on this object.
+            // Team ID could have been set in NetworkBehaviour::OnStartServer on this object.
             // Since that's after OnCheckObserver is called it would be missed, so force Rebuild here.
-            // Add the current match to dirtyMatches for LateUpdate to rebuild it.
+            // Add the current team to dirtyTeames for LateUpdate to rebuild it.
             dirtyTeams.Add(networkTeamId);
         }
 
@@ -102,7 +102,7 @@ namespace Mirror
             // Don't RebuildSceneObservers here - that will happen in LateUpdate.
             // Multiple objects could be destroyed in same frame and we don't
             // want to rebuild for each one...let LateUpdate do it once.
-            // We must add the current match to dirtyMatches for LateUpdate to rebuild it.
+            // We must add the current team to dirtyTeames for LateUpdate to rebuild it.
             if (identity.TryGetComponent(out NetworkTeam currentTeam))
             {
                 if (!string.IsNullOrWhiteSpace(currentTeam.teamId) &&
@@ -135,7 +135,7 @@ namespace Mirror
 
             //Debug.Log($"TeamInterestManagement.OnCheckObserver {identity.name} {identityNetworkTeam.teamId} | {newObserver.identity.name} {newObserverNetworkTeam.teamId}");
 
-            // Observed only if teamId's match
+            // Observed only if teamId's team
             return identityNetworkTeam.teamId == newObserverNetworkTeam.teamId;
         }
 
