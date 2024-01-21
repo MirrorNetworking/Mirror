@@ -164,10 +164,13 @@ namespace Mirror
 
         protected virtual void CopyRenderersAsGhost(GameObject destination, Material material)
         {
-            if (TryGetComponent(out MeshRenderer originalMeshRenderer))
+            // find the MeshRenderer component, which sometimes is on a child.
+            MeshRenderer originalMeshRenderer = GetComponentInChildren<MeshRenderer>(true);
+            MeshFilter originalMeshFilter = GetComponentInChildren<MeshFilter>(true);
+            if (originalMeshRenderer != null && originalMeshFilter != null)
             {
                 MeshFilter meshFilter = destination.AddComponent<MeshFilter>();
-                meshFilter.mesh = GetComponent<MeshFilter>().mesh;
+                meshFilter.mesh = originalMeshFilter.mesh;
 
                 MeshRenderer meshRenderer = destination.AddComponent<MeshRenderer>();
                 meshRenderer.material = originalMeshRenderer.material;
