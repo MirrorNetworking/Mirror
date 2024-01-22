@@ -150,10 +150,12 @@ namespace Mirror
         }
 
         [Command(requiresAuthority = false)]
-        private void CmdRegisteredHandler()
+        private void CmdRegisteredHandler(NetworkConnectionToClient sender = null)
         {
-            if (!registeredConnections.Contains(connectionToClient))
-                registeredConnections.Add(connectionToClient);
+            if (!registeredConnections.Contains(sender))
+            {    
+                registeredConnections.Add(sender);
+            }
         }
     #endregion
 
@@ -425,7 +427,7 @@ namespace Mirror
 
         public virtual void OnServerToClientSyncFull(SyncDataFull syncData)
         {
-            //Debug.Log($"ServerToClientSyncFull {gameObject.name}");
+            // Debug.Log($"ServerToClientSyncFull {gameObject.name}");
             // in host mode, the server sends rpcs to all clients.
             // the host client itself will receive them too.
             // -> host server is always the source of truth
@@ -461,7 +463,6 @@ namespace Mirror
     #region Server Broadcast Delta
         protected virtual void ServerBroadcastDelta()
         {
-            
             // If we have not sent a full sync, we don't send delta.
             
             if (lastSentFullSyncIndex == 0) return;
@@ -488,7 +489,7 @@ namespace Mirror
 
         protected virtual void OnServerToClientSyncDelta(SyncDataDelta delta)
         {
-            //Debug.Log($"ServerToClientSyncDelta {gameObject.name}");
+            // Debug.Log($"ServerToClientSyncDelta {gameObject.name}");
             // in host mode, the server sends rpcs to all clients.
             // the host client itself will receive them too.
             // -> host server is always the source of truth
@@ -778,12 +779,13 @@ namespace Mirror
         {
             if (identity == null || identity.observers.Count == 0)
                 return;
- 
+
             foreach (NetworkConnectionToClient conn in identity.observers.Values)
             {
                 if (conn == NetworkServer.localConnection) continue;
 
                 bool isOwner = conn == identity.connectionToClient;
+
                 if ((!isOwner || includeOwner) && conn.isReady && registeredConnections.Contains(conn))
                 {
                     conn.Send(message, channelId);
