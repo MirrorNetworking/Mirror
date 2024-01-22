@@ -1206,17 +1206,17 @@ namespace Mirror
                     // first!
 
                     // ForceShown: add no matter what
-                    if (identity.visible == Visibility.ForceShown)
+                    if (identity.visibility == Visibility.ForceShown)
                     {
                         identity.AddObserver(conn);
                     }
                     // ForceHidden: don't show no matter what
-                    else if (identity.visible == Visibility.ForceHidden)
+                    else if (identity.visibility == Visibility.ForceHidden)
                     {
                         // do nothing
                     }
                     // default: legacy system / new system / no system support
-                    else if (identity.visible == Visibility.Default)
+                    else if (identity.visibility == Visibility.Default)
                     {
                         // aoi system
                         if (aoi != null)
@@ -1682,7 +1682,7 @@ namespace Mirror
             if (initialize)
             {
                 // not force hidden?
-                if (identity.visible != Visibility.ForceHidden)
+                if (identity.visibility != Visibility.ForceHidden)
                 {
                     AddAllReadyServerConnectionsToObservers(identity);
                 }
@@ -1725,7 +1725,7 @@ namespace Mirror
         {
             // if there is no interest management system,
             // or if 'force shown' then add all connections
-            if (aoi == null || identity.visible == Visibility.ForceShown)
+            if (aoi == null || identity.visibility == Visibility.ForceShown)
             {
                 RebuildObserversDefault(identity, initialize);
             }
