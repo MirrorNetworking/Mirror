@@ -161,6 +161,10 @@ namespace Mirror
 
         private void Awake()
         {
+            // if null target, presume user wants to sync this object
+            if(target == null)
+                target = this.transform;
+
             InitFullHeader();
         }
 
