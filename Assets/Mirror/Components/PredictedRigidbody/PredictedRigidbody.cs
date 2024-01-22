@@ -208,6 +208,10 @@ namespace Mirror
             physicsCopy.transform.rotation = transform.rotation;
             physicsCopy.transform.localScale = transform.localScale;
 
+            // assign the same Layer for the physics copy.
+            // games may use a custom physics collision matrix, layer matters.
+            physicsCopy.layer = gameObject.layer;
+
             // add the PredictedRigidbodyPhysical component
             PredictedRigidbodyPhysicsGhost physicsGhostRigidbody = physicsCopy.AddComponent<PredictedRigidbodyPhysicsGhost>();
             physicsGhostRigidbody.target = this;
