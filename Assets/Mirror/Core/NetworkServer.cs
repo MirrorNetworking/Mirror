@@ -161,7 +161,7 @@ namespace Mirror
 
             // reset Interest Management so that rebuild intervals
             // start at 0 when starting again.
-            if (aoi != null) aoi.Reset();
+            if (aoi != null) aoi.ResetState();
 
             // reset NetworkTime
             NetworkTime.ResetStatics();
@@ -244,7 +244,7 @@ namespace Mirror
             OnDisconnectedEvent = null;
             OnErrorEvent = null;
 
-            if (aoi != null) aoi.Reset();
+            if (aoi != null) aoi.ResetState();
         }
 
         static void RemoveTransportHandlers()
@@ -384,8 +384,13 @@ namespace Mirror
                         // failure to deserialize disconnects to prevent exploits.
                         if (!identity.DeserializeServer(reader))
                         {
-                            Debug.LogWarning($"Server failed to deserialize client state for {identity.name} with netId={identity.netId}, Disconnecting.");
-                            connection.Disconnect();
+                            if (exceptionsDisconnect)
+                            { 
+                                Debug.LogError($"Server failed to deserialize client state for {identity.name} with netId={identity.netId}, Disconnecting.");
+                                connection.Disconnect();
+                            }
+                            else
+                                Debug.LogWarning($"Server failed to deserialize client state for {identity.name} with netId={identity.netId}.");
                         }
                     }
                 }
@@ -725,8 +730,14 @@ namespace Mirror
                 //       always process all messages in the batch.
                 if (!connection.unbatcher.AddBatch(data))
                 {
-                    Debug.LogWarning($"NetworkServer: received Message was too short (messages should start with message id)");
-                    connection.Disconnect();
+                    if (exceptionsDisconnect)
+                    {
+                        Debug.LogError($"NetworkServer: received message from connectionId:{connectionId} was too short (messages should start with message id). Disconnecting.");
+                        connection.Disconnect();
+                    }
+                    else
+                        Debug.LogWarning($"NetworkServer: received message from connectionId:{connectionId} was too short (messages should start with message id).");
+
                     return;
                 }
 
@@ -762,17 +773,28 @@ namespace Mirror
                                 //    so we need to disconnect.
                                 // -> return to avoid the below unbatches.count error.
                                 //    we already disconnected and handled it.
-                                Debug.LogWarning($"NetworkServer: failed to unpack and invoke message. Disconnecting {connectionId}.");
-                                connection.Disconnect();
+                                if (exceptionsDisconnect)
+                                {
+                                    Debug.LogError($"NetworkServer: failed to unpack and invoke message. Disconnecting {connectionId}.");
+                                    connection.Disconnect();
+                                }
+                                else
+                                    Debug.LogWarning($"NetworkServer: failed to unpack and invoke message from connectionId:{connectionId}.");
+
                                 return;
                             }
                         }
                         // otherwise disconnect
                         else
                         {
-                            // WARNING, not error. can happen if attacker sends random data.
-                            Debug.LogWarning($"NetworkServer: received Message was too short (messages should start with message id). Disconnecting {connectionId}");
-                            connection.Disconnect();
+                            if (exceptionsDisconnect)
+                            {
+                                Debug.LogError($"NetworkServer: received message from connectionId:{connectionId} was too short (messages should start with message id). Disconnecting.");
+                                connection.Disconnect();
+                            }
+                            else
+                                Debug.LogWarning($"NetworkServer: received message from connectionId:{connectionId} was too short (messages should start with message id).");
+
                             return;
                         }
                     }
@@ -903,6 +925,14 @@ namespace Mirror
 
         /// <summary>Replace a handler for message type T. Most should require authentication.</summary>
         public static void ReplaceHandler<T>(Action<NetworkConnectionToClient, T> handler, bool requireAuthentication = true)
+            where T : struct, NetworkMessage
+        {
+            ushort msgType = NetworkMessageId<T>.Id;
+            handlers[msgType] = NetworkMessages.WrapHandler(handler, requireAuthentication, exceptionsDisconnect);
+        }
+        
+        /// <summary>Replace a handler for message type T. Most should require authentication.</summary>
+        public static void ReplaceHandler<T>(Action<NetworkConnectionToClient, T, int> handler, bool requireAuthentication = true)
             where T : struct, NetworkMessage
         {
             ushort msgType = NetworkMessageId<T>.Id;
@@ -1635,7 +1665,7 @@ namespace Mirror
             // otherwise simply .Reset() and set inactive again
             else if (mode == DestroyMode.Reset)
             {
-                identity.Reset();
+                identity.ResetState();
             }
         }
 

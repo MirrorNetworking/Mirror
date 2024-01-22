@@ -23,7 +23,7 @@ namespace Mirror
         }
 
         [ServerCallback]
-        public virtual void Reset() {}
+        public virtual void ResetState() {}
 
         // Callback used by the visibility system to determine if an observer
         // (player) can see the NetworkIdentity. If this function returns true,

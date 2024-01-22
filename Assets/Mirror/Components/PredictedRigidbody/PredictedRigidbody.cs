@@ -20,10 +20,10 @@ namespace Mirror
         Move,              // rigidbody.MovePosition/Rotation
     }
 
-    [RequireComponent(typeof(Rigidbody))]
+    // [RequireComponent(typeof(Rigidbody))] <- RB is moved out at runtime, can't require it.
     public class PredictedRigidbody : NetworkBehaviour
     {
-        Rigidbody rb;
+        Rigidbody rb; // own rigidbody on server. this is never moved to a physics copy.
         Vector3 lastPosition;
 
         // [Tooltip("Broadcast changes if position changed by more than ... meters.")]
@@ -35,6 +35,7 @@ namespace Mirror
         [Header("State History")]
         public int stateHistoryLimit = 32; // 32 x 50 ms = 1.6 seconds is definitely enough
         readonly SortedList<double, RigidbodyState> stateHistory = new SortedList<double, RigidbodyState>();
+        public float recordInterval = 0.050f;
 
         [Tooltip("(Optional) performance optimization where received state is compared to the LAST recorded state first, before sampling the whole history.\n\nThis can save significant traversal overhead for idle objects with a tiny chance of missing corrections for objects which revisisted the same position in the recent history twice.")]
         public bool compareLastFirst = true;
@@ -52,18 +53,18 @@ namespace Mirror
         [Tooltip("Configure how to apply the corrected state.")]
         public CorrectionMode correctionMode = CorrectionMode.Move;
 
-        [Tooltip("Server & Client would sometimes fight over the final position at rest. Instead, hard snap into black below a certain velocity threshold.")]
-        public float snapThreshold = 0.5f; // adjust with log messages ('snap'). '2' works, but '0.5' is fine too.
+        [Tooltip("Snap to the server state directly when velocity is < threshold. This is useful to reduce jitter/fighting effects before coming to rest.\nNote this applies position, rotation and velocity(!) so it's still smooth.")]
+        public float snapThreshold = 2; // 0.5 has too much fighting-at-rest, 2 seems ideal.
 
         [Header("Visual Interpolation")]
         [Tooltip("After creating the visual interpolation object, keep showing the original Rigidbody with a ghost (transparent) material for debugging.")]
         public bool showGhost = true;
         public float ghostDistanceThreshold = 0.1f;
         public float ghostEnabledCheckInterval = 0.2f;
-        double lastGhostEnabledCheckTime = 0;
 
         [Tooltip("After creating the visual interpolation object, replace this object's renderer materials with the ghost (ideally transparent) material.")]
-        public Material ghostMaterial;
+        public Material localGhostMaterial;
+        public Material remoteGhostMaterial;
 
         [Tooltip("How fast to interpolate to the target position, relative to how far we are away from it.\nHigher value will be more jitter but sharper moves, lower value will be less jitter but a little too smooth / rounded moves.")]
         public float positionInterpolationSpeed = 15; // 10 is a little too low for billiards at least
@@ -75,41 +76,103 @@ namespace Mirror
         [Header("Debugging")]
         public float lineTime = 10;
 
-        // visually interpolated GameObject copy for smoothing
-        protected GameObject visualCopy;
-        protected MeshRenderer[] originalRenderers;
+        // Rigidbody & Collider are moved out into a separate object.
+        // this way the visual object can smoothly follow.
+        protected GameObject physicsCopy;
+        Rigidbody physicsCopyRigidbody; // caching to avoid GetComponent
+        Collider physicsCopyCollider; // caching to avoid GetComponent
+
+        // we also create one extra ghost for the exact known server state.
+        protected GameObject remoteCopy;
 
         void Awake()
         {
             rb = GetComponent<Rigidbody>();
         }
 
-        // instantiate a visually-only copy of the gameobject to apply smoothing.
-        // on clients, where players are watching.
-        // create & destroy methods are virtual so games with a different
-        // rendering setup / hierarchy can inject their own copying code here.
-        protected virtual void CreateVisualCopy()
+        protected virtual Rigidbody MoveRigidbody(GameObject destination)
         {
-            // create an empty GameObject with the same name + _Visual
-            visualCopy = new GameObject($"{name}_Visual");
-            visualCopy.transform.position = transform.position;
-            visualCopy.transform.rotation = transform.rotation;
-            visualCopy.transform.localScale = transform.localScale;
+            Rigidbody source = GetComponent<Rigidbody>();
+            Rigidbody rigidbodyCopy = destination.AddComponent<Rigidbody>();
+            rigidbodyCopy.mass = source.mass;
+            rigidbodyCopy.drag = source.drag;
+            rigidbodyCopy.angularDrag = source.angularDrag;
+            rigidbodyCopy.useGravity = source.useGravity;
+            rigidbodyCopy.isKinematic = source.isKinematic;
+            rigidbodyCopy.interpolation = source.interpolation;
+            rigidbodyCopy.collisionDetectionMode = source.collisionDetectionMode;
+            rigidbodyCopy.constraints = source.constraints;
+            rigidbodyCopy.sleepThreshold = source.sleepThreshold;
+            rigidbodyCopy.freezeRotation = source.freezeRotation;
+            rigidbodyCopy.position = source.position;
+            rigidbodyCopy.rotation = source.rotation;
+            rigidbodyCopy.velocity = source.velocity;
+            Destroy(source);
+            return rigidbodyCopy;
+        }
 
-            // add the PredictedRigidbodyVisual component
-            PredictedRigidbodyVisual visualRigidbody = visualCopy.AddComponent<PredictedRigidbodyVisual>();
-            visualRigidbody.target = this;
-            visualRigidbody.positionInterpolationSpeed = positionInterpolationSpeed;
-            visualRigidbody.rotationInterpolationSpeed = rotationInterpolationSpeed;
-            visualRigidbody.teleportDistanceMultiplier = teleportDistanceMultiplier;
-
-            // copy the rendering components
-            if (TryGetComponent(out MeshRenderer originalMeshRenderer))
+        protected virtual void MoveBoxColliders(GameObject destination)
+        {
+            BoxCollider[] sourceColliders = GetComponents<BoxCollider>();
+            foreach (BoxCollider sourceCollider in sourceColliders)
             {
-                MeshFilter meshFilter = visualCopy.AddComponent<MeshFilter>();
-                meshFilter.mesh = GetComponent<MeshFilter>().mesh;
+                BoxCollider colliderCopy = destination.AddComponent<BoxCollider>();
+                colliderCopy.center = sourceCollider.center;
+                colliderCopy.size = sourceCollider.size;
+                Destroy(sourceCollider);
+            }
+        }
 
-                MeshRenderer meshRenderer = visualCopy.AddComponent<MeshRenderer>();
+        protected virtual void MoveSphereColliders(GameObject destination)
+        {
+            SphereCollider[] sourceColliders = GetComponents<SphereCollider>();
+            foreach (SphereCollider sourceCollider in sourceColliders)
+            {
+                SphereCollider colliderCopy = destination.AddComponent<SphereCollider>();
+                colliderCopy.center = sourceCollider.center;
+                colliderCopy.radius = sourceCollider.radius;
+                Destroy(sourceCollider);
+            }
+        }
+
+        protected virtual void MoveCapsuleColliders(GameObject destination)
+        {
+            CapsuleCollider[] sourceColliders = GetComponents<CapsuleCollider>();
+            foreach (CapsuleCollider sourceCollider in sourceColliders)
+            {
+                CapsuleCollider colliderCopy = destination.AddComponent<CapsuleCollider>();
+                colliderCopy.center = sourceCollider.center;
+                colliderCopy.radius = sourceCollider.radius;
+                colliderCopy.height = sourceCollider.height;
+                colliderCopy.direction = sourceCollider.direction;
+                Destroy(sourceCollider);
+            }
+        }
+
+        protected virtual void MoveMeshColliders(GameObject destination)
+        {
+            MeshCollider[] sourceColliders = GetComponents<MeshCollider>();
+            foreach (MeshCollider sourceCollider in sourceColliders)
+            {
+                MeshCollider colliderCopy = destination.AddComponent<MeshCollider>();
+                colliderCopy.sharedMesh = sourceCollider.sharedMesh;
+                colliderCopy.convex = sourceCollider.convex;
+                colliderCopy.isTrigger = sourceCollider.isTrigger;
+                Destroy(sourceCollider);
+            }
+        }
+
+        protected virtual void CopyRenderersAsGhost(GameObject destination, Material material)
+        {
+            // find the MeshRenderer component, which sometimes is on a child.
+            MeshRenderer originalMeshRenderer = GetComponentInChildren<MeshRenderer>(true);
+            MeshFilter originalMeshFilter = GetComponentInChildren<MeshFilter>(true);
+            if (originalMeshRenderer != null && originalMeshFilter != null)
+            {
+                MeshFilter meshFilter = destination.AddComponent<MeshFilter>();
+                meshFilter.mesh = originalMeshFilter.mesh;
+
+                MeshRenderer meshRenderer = destination.AddComponent<MeshRenderer>();
                 meshRenderer.material = originalMeshRenderer.material;
 
                 // renderers often have multiple materials. copy all.
@@ -118,74 +181,120 @@ namespace Mirror
                     Material[] materials = new Material[originalMeshRenderer.materials.Length];
                     for (int i = 0; i < materials.Length; ++i)
                     {
-                        materials[i] = originalMeshRenderer.materials[i];
+                        materials[i] = material;
                     }
                     meshRenderer.materials = materials; // need to reassign to see it in effect
                 }
             }
             // if we didn't find a renderer, show a warning
             else Debug.LogWarning($"PredictedRigidbody: {name} found no renderer to copy onto the visual object. If you are using a custom setup, please overwrite PredictedRigidbody.CreateVisualCopy().");
+        }
 
-            // find renderers in children.
-            // this will be used a lot later, so only find them once when
-            // creating the visual copy here.
-            originalRenderers = GetComponentsInChildren<MeshRenderer>();
+        // instantiate a physics-only copy of the gameobject to apply corrections.
+        // this way the main visual object can smoothly follow.
+        // it's best to separate the physics instead of separating the renderers.
+        // some projects have complex rendering / animation setups which we can't touch.
+        // besides, Rigidbody+Collider are two components, where as renders may be many.
+        protected virtual void CreateGhosts()
+        {
+            // skip if already separated
+            if (physicsCopy != null) return;
 
-            // replace this renderer's materials with the ghost (if enabled)
-            foreach (MeshRenderer rend in originalRenderers)
+            Debug.Log($"Separating Physics for {name}");
+
+            // create an empty GameObject with the same name + _Physical
+            physicsCopy = new GameObject($"{name}_Physical");
+            physicsCopy.transform.position = transform.position;
+            physicsCopy.transform.rotation = transform.rotation;
+            physicsCopy.transform.localScale = transform.localScale;
+
+            // add the PredictedRigidbodyPhysical component
+            PredictedRigidbodyPhysicsGhost physicsGhostRigidbody = physicsCopy.AddComponent<PredictedRigidbodyPhysicsGhost>();
+            physicsGhostRigidbody.target = this;
+            physicsGhostRigidbody.ghostDistanceThreshold = ghostDistanceThreshold;
+            physicsGhostRigidbody.ghostEnabledCheckInterval = ghostEnabledCheckInterval;
+
+            // move the rigidbody component to the physics GameObject
+            MoveRigidbody(physicsCopy);
+
+            // move the collider components to the physics GameObject
+            MoveBoxColliders(physicsCopy);
+            MoveSphereColliders(physicsCopy);
+            MoveCapsuleColliders(physicsCopy);
+            MoveMeshColliders(physicsCopy);
+
+            // show ghost by copying all renderers / materials with ghost material applied
+            if (showGhost)
             {
-                if (showGhost)
-                {
-                    // renderers often have multiple materials. replace all.
-                    if (rend.materials != null)
-                    {
-                        Material[] materials = rend.materials;
-                        for (int i = 0; i < materials.Length; ++i)
-                        {
-                            materials[i] = ghostMaterial;
-                        }
-                        rend.materials = materials; // need to reassign to see it in effect
-                    }
-                }
-                else
-                {
-                    rend.enabled = false;
-                }
+                // one for the locally predicted rigidbody
+                CopyRenderersAsGhost(physicsCopy, localGhostMaterial);
+                physicsGhostRigidbody.ghostDistanceThreshold = ghostDistanceThreshold;
+                physicsGhostRigidbody.ghostEnabledCheckInterval = ghostEnabledCheckInterval;
+
+                // one for the latest remote state for comparison
+                remoteCopy = new GameObject($"{name}_Remote");
+                PredictedRigidbodyRemoteGhost predictedGhost = remoteCopy.AddComponent<PredictedRigidbodyRemoteGhost>();
+                predictedGhost.target = this;
+                predictedGhost.ghostDistanceThreshold = ghostDistanceThreshold;
+                predictedGhost.ghostEnabledCheckInterval = ghostEnabledCheckInterval;
+                CopyRenderersAsGhost(remoteCopy, remoteGhostMaterial);
             }
+
+            // cache components to avoid GetComponent calls at runtime
+            physicsCopyRigidbody = physicsCopy.GetComponent<Rigidbody>();
+            physicsCopyCollider = physicsCopy.GetComponent<Collider>();
+            if (physicsGhostRigidbody == null) throw new Exception("SeparatePhysics: couldn't find final Rigidbody.");
+            if (physicsCopyCollider == null) throw new Exception("SeparatePhysics: couldn't find final Collider.");
         }
 
-        protected virtual void DestroyVisualCopy()
+        protected virtual void DestroyCopies()
         {
-            if (visualCopy != null) Destroy(visualCopy);
+            if (physicsCopy != null) Destroy(physicsCopy);
+            if (remoteCopy != null) Destroy(remoteCopy);
         }
 
-        protected virtual void UpdateVisualCopy()
+        protected virtual void SmoothFollowPhysicsCopy()
         {
-            // only if visual copy was already created
-            if (visualCopy == null || originalRenderers == null) return;
+            // hard follow:
+            // transform.position = physicsCopyCollider.position;
+            // transform.rotation = physicsCopyCollider.rotation;
 
-            // enough to run this in a certain interval.
-            // doing this every update would be overkill.
-            // this is only for debug purposes anyway.
-            if (NetworkTime.localTime < lastGhostEnabledCheckTime + ghostEnabledCheckInterval) return;
-            lastGhostEnabledCheckTime = NetworkTime.localTime;
+            // if we are further than N colliders sizes behind, then teleport
+            float colliderSize = physicsCopyCollider.bounds.size.magnitude;
+            float threshold = colliderSize * teleportDistanceMultiplier;
+            float distance = Vector3.Distance(transform.position, physicsCopyRigidbody.position);
+            if (distance > threshold)
+            {
+                transform.position = physicsCopyRigidbody.position;
+                transform.rotation = physicsCopyRigidbody.rotation;
+                Debug.Log($"[PredictedRigidbody] Teleported because distance to physics copy = {distance:F2} > threshold {threshold:F2}");
+                return;
+            }
 
-            // only show ghost while interpolating towards the object.
-            // if we are 'inside' the object then don't show ghost.
-            // otherwise it just looks like z-fighting the whole time.
-            // => iterated the renderers we found when creating the visual copy.
-            //    we don't want to GetComponentsInChildren every time here!
-            bool insideTarget = Vector3.Distance(transform.position, visualCopy.transform.position) <= ghostDistanceThreshold;
-            foreach (MeshRenderer rend in originalRenderers)
-                rend.enabled = !insideTarget;
+            // smoothly interpolate to the target position.
+            // speed relative to how far away we are
+            float positionStep = distance * positionInterpolationSpeed;
+            // speed relative to how far away we are.
+            // => speed increases by distance² because the further away, the
+            //    sooner we need to catch the fuck up
+            // float positionStep = (distance * distance) * interpolationSpeed;
+            transform.position = Vector3.MoveTowards(transform.position, physicsCopyRigidbody.position, positionStep * Time.deltaTime);
+
+            // smoothly interpolate to the target rotation.
+            // Quaternion.RotateTowards doesn't seem to work at all, so let's use SLerp.
+            transform.rotation = Quaternion.Slerp(transform.rotation, physicsCopyRigidbody.rotation, rotationInterpolationSpeed * Time.deltaTime);
         }
 
         // creater visual copy only on clients, where players are watching.
-        public override void OnStartClient() => CreateVisualCopy();
+        public override void OnStartClient()
+        {
+            // OnDeserialize may have already created this
+            if (physicsCopy == null) CreateGhosts();
+        }
 
         // destroy visual copy only in OnStopClient().
         // OnDestroy() wouldn't be called for scene objects that are only disabled instead of destroyed.
-        public override void OnStopClient() => DestroyVisualCopy();
+        public override void OnStopClient() => DestroyCopies();
 
         void UpdateServer()
         {
@@ -203,15 +312,14 @@ namespace Mirror
             SetDirty();
         }
 
-        void UpdateClient()
-        {
-            UpdateVisualCopy();
-        }
-
         void Update()
         {
             if (isServer) UpdateServer();
-            if (isClient) UpdateClient();
+        }
+
+        void LateUpdate()
+        {
+            if (isClient) SmoothFollowPhysicsCopy();
         }
 
         void FixedUpdate()
@@ -224,8 +332,14 @@ namespace Mirror
         // manually store last recorded so we can easily check against this
         // without traversing the SortedList.
         RigidbodyState lastRecorded;
+        double lastRecordTime;
         void RecordState()
         {
+            // instead of recording every fixedupdate, let's record in an interval.
+            // we don't want to record every tiny move and correct too hard.
+            if (NetworkTime.time < lastRecordTime + recordInterval) return;
+            lastRecordTime = NetworkTime.time;
+
             // NetworkTime.time is always behind by bufferTime.
             // prediction aims to be on the exact same server time (immediately).
             // use predictedTime to record state, otherwise we would record in the past.
@@ -250,20 +364,20 @@ namespace Mirror
             if (stateHistory.Count > 0)
             {
                 RigidbodyState last = stateHistory.Values[stateHistory.Count - 1];
-                positionDelta = rb.position - last.position;
-                velocityDelta = rb.velocity - last.velocity;
-                rotationDelta = rb.rotation * Quaternion.Inverse(last.rotation); // this is how you calculate a quaternion delta
+                positionDelta = physicsCopyRigidbody.position - last.position;
+                velocityDelta = physicsCopyRigidbody.velocity - last.velocity;
+                rotationDelta = physicsCopyRigidbody.rotation * Quaternion.Inverse(last.rotation); // this is how you calculate a quaternion delta
 
                 // debug draw the recorded state
-                Debug.DrawLine(last.position, rb.position, Color.red, lineTime);
+                Debug.DrawLine(last.position, physicsCopyRigidbody.position, Color.red, lineTime);
             }
 
             // create state to insert
             RigidbodyState state = new RigidbodyState(
                 predictedTime,
-                positionDelta, rb.position,
-                rotationDelta, rb.rotation,
-                velocityDelta, rb.velocity
+                positionDelta, physicsCopyRigidbody.position,
+                rotationDelta, physicsCopyRigidbody.rotation,
+                velocityDelta, physicsCopyRigidbody.velocity
             );
 
             // add state to history
@@ -277,18 +391,31 @@ namespace Mirror
         protected virtual void OnSnappedIntoPlace() {}
         protected virtual void OnCorrected() {}
 
-        void ApplyState(Vector3 position, Quaternion rotation, Vector3 velocity)
+        void ApplyState(double timestamp, Vector3 position, Quaternion rotation, Vector3 velocity)
         {
             // fix rigidbodies seemingly dancing in place instead of coming to rest.
             // hard snap to the position below a threshold velocity.
             // this is fine because the visual object still smoothly interpolates to it.
-            if (rb.velocity.magnitude <= snapThreshold)
+            if (physicsCopyRigidbody.velocity.magnitude <= snapThreshold)
             {
-                Debug.Log($"Prediction: snapped {name} into place because velocity {rb.velocity.magnitude:F3} <= {snapThreshold:F3}");
+                Debug.Log($"Prediction: snapped {name} into place because velocity {physicsCopyRigidbody.velocity.magnitude:F3} <= {snapThreshold:F3}");
+                // apply server state immediately.
+                // important to apply velocity as well, instead of Vector3.zero.
+                // in case an object is still slightly moving, we don't want it
+                // to stop and start moving again on client - slide as well here.
+                physicsCopyRigidbody.position = position;
+                physicsCopyRigidbody.rotation = rotation;
+                physicsCopyRigidbody.velocity = velocity;
+
+                // clear history and insert the exact state we just applied.
+                // this makes future corrections more accurate.
                 stateHistory.Clear();
-                rb.position = position;
-                rb.rotation = rotation;
-                rb.velocity = Vector3.zero;
+                stateHistory.Add(timestamp, new RigidbodyState(
+                    timestamp,
+                    Vector3.zero, position,
+                    Quaternion.identity, rotation,
+                    Vector3.zero, velocity
+                ));
 
                 // user callback
                 OnSnappedIntoPlace();
@@ -299,23 +426,31 @@ namespace Mirror
             // TODO is this a good idea? what about next capture while it's interpolating?
             if (correctionMode == CorrectionMode.Move)
             {
-                rb.MovePosition(position);
-                rb.MoveRotation(rotation);
+                physicsCopyRigidbody.MovePosition(position);
+                physicsCopyRigidbody.MoveRotation(rotation);
             }
             else if (correctionMode == CorrectionMode.Set)
             {
-                rb.position = position;
-                rb.rotation = rotation;
+                physicsCopyRigidbody.position = position;
+                physicsCopyRigidbody.rotation = rotation;
             }
 
             // there's only one way to set velocity
-            rb.velocity = velocity;
+            physicsCopyRigidbody.velocity = velocity;
         }
 
         // process a received server state.
         // compares it against our history and applies corrections if needed.
         void OnReceivedState(double timestamp, RigidbodyState state)
         {
+            // always update remote state ghost
+            if (remoteCopy != null)
+            {
+                remoteCopy.transform.position = state.position;
+                remoteCopy.transform.rotation = state.rotation;
+                remoteCopy.transform.localScale = transform.localScale;
+            }
+
             // OPTIONAL performance optimization when comparing idle objects.
             // even idle objects will have a history of ~32 entries.
             // sampling & traversing through them is unnecessarily costly.
@@ -335,8 +470,8 @@ namespace Mirror
             //
             // if this ever causes issues, feel free to disable it.
             if (compareLastFirst &&
-                Vector3.Distance(state.position, rb.position) < positionCorrectionThreshold &&
-                Quaternion.Angle(state.rotation, rb.rotation) < rotationCorrectionThreshold)
+                Vector3.Distance(state.position, physicsCopyRigidbody.position) < positionCorrectionThreshold &&
+                Quaternion.Angle(state.rotation, physicsCopyRigidbody.rotation) < rotationCorrectionThreshold)
             {
                 // Debug.Log($"OnReceivedState for {name}: taking optimized early return!");
                 return;
@@ -364,7 +499,7 @@ namespace Mirror
             if (state.timestamp < oldest.timestamp)
             {
                 Debug.LogWarning($"Hard correcting client because the client is too far behind the server. History of size={stateHistory.Count} @ t={timestamp:F3} oldest={oldest.timestamp:F3} newest={newest.timestamp:F3}. This would cause the client to be out of sync as long as it's behind.");
-                ApplyState(state.position, state.rotation, state.velocity);
+                ApplyState(state.timestamp, state.position, state.rotation, state.velocity);
                 return;
             }
 
@@ -381,11 +516,11 @@ namespace Mirror
                 // we clamp it to 'now'.
                 // but only correct if off by threshold.
                 // TODO maybe we should interpolate this back to 'now'?
-                if (Vector3.Distance(state.position, rb.position) >= positionCorrectionThreshold)
+                if (Vector3.Distance(state.position, physicsCopyRigidbody.position) >= positionCorrectionThreshold)
                 {
                     double ahead = state.timestamp - newest.timestamp;
                     Debug.Log($"Hard correction because the client is ahead of the server by {(ahead*1000):F1}ms. History of size={stateHistory.Count} @ t={timestamp:F3} oldest={oldest.timestamp:F3} newest={newest.timestamp:F3}. This can happen when latency is near zero, and is fine unless it shows jitter.");
-                    ApplyState(state.position, state.rotation, state.velocity);
+                    ApplyState(state.timestamp, state.position, state.rotation, state.velocity);
                 }
                 return;
             }
@@ -396,7 +531,7 @@ namespace Mirror
                 // something went very wrong. sampling should've worked.
                 // hard correct to recover the error.
                 Debug.LogError($"Failed to sample history of size={stateHistory.Count} @ t={timestamp:F3} oldest={oldest.timestamp:F3} newest={newest.timestamp:F3}. This should never happen because the timestamp is within history.");
-                ApplyState(state.position, state.rotation, state.velocity);
+                ApplyState(state.timestamp, state.position, state.rotation, state.velocity);
                 return;
             }
 
@@ -428,8 +563,8 @@ namespace Mirror
                 // for example, on same machine with near zero latency.
                 // int correctedAmount = stateHistory.Count - afterIndex;
                 // Debug.Log($"Correcting {name}: {correctedAmount} / {stateHistory.Count} states to final position from: {rb.position} to: {last.position}");
-                Debug.DrawLine(rb.position, recomputed.position, Color.green, lineTime);
-                ApplyState(recomputed.position, recomputed.rotation, recomputed.velocity);
+                Debug.DrawLine(physicsCopyRigidbody.position, recomputed.position, Color.green, lineTime);
+                ApplyState(recomputed.timestamp, recomputed.position, recomputed.rotation, recomputed.velocity);
 
                 // user callback
                 OnCorrected();
@@ -451,14 +586,18 @@ namespace Mirror
             // sending server's current deltaTime is the safest option.
             // client then applies it on top of remoteTimestamp.
             writer.WriteFloat(Time.deltaTime);
-            writer.WriteVector3(rb.position);
-            writer.WriteQuaternion(rb.rotation);
-            writer.WriteVector3(rb.velocity);
+            writer.WriteVector3(rb.position);    // own rigidbody on server, it's never moved to physics copy
+            writer.WriteQuaternion(rb.rotation); // own rigidbody on server, it's never moved to physics copy
+            writer.WriteVector3(rb.velocity);    // own rigidbody on server, it's never moved to physics copy
         }
 
         // read the server's state, compare with client state & correct if necessary.
         public override void OnDeserialize(NetworkReader reader, bool initialState)
         {
+            // this may be called before OnStartClient.
+            // in that case, separate physics first before applying state.
+            if (physicsCopy == null) CreateGhosts();
+
             // deserialize data
             // we want to know the time on the server when this was sent, which is remoteTimestamp.
             double timestamp = NetworkClient.connection.remoteTimeStamp;
@@ -490,6 +629,11 @@ namespace Mirror
 
             // force syncDirection to be ServerToClient
             syncDirection = SyncDirection.ServerToClient;
+
+            // state should be synced immediately for now.
+            // later when we have prediction fully dialed in,
+            // then we can maybe relax this a bit.
+            syncInterval = 0;
         }
     }
 }
