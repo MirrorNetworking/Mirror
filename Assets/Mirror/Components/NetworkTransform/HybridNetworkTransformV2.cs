@@ -533,11 +533,13 @@ namespace Mirror
             lastSentFullSyncData = current;
             lastSentFullSyncData.fullSyncDataIndex = NextFullSyncIndex();
             
-            lastConstructedSentSyncData = current;
+
             
             SyncDataFullMsg msg = new SyncDataFullMsg(netId, ComponentIndex, lastSentFullSyncData);
             
             NetworkClient.Send(msg, Channels.Reliable);
+            
+            lastConstructedSentSyncData = lastSentFullSyncData;
         }
 
         protected static void ClientToServerSyncFullHandler(NetworkConnectionToClient conn, SyncDataFullMsg msg)
@@ -603,7 +605,9 @@ namespace Mirror
             SyncDataDelta syncDataDelta = DeriveDelta(currentFull);
             
             SyncDataDeltaMsg msg = new SyncDataDeltaMsg(netId, ComponentIndex, syncDataDelta);
-            NetworkClient.Send(msg, Channels.Unreliable);   
+            NetworkClient.Send(msg, Channels.Unreliable);  
+
+            lastConstructedSentSyncData = currentFull; 
         }
 
         protected static void ClientToServerSyncDeltaHandler(NetworkConnectionToClient conn, SyncDataDeltaMsg msg)
