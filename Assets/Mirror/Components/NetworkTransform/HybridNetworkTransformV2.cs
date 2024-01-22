@@ -22,7 +22,7 @@ namespace Mirror
         protected FullHeader fullHeader;   
 
         [Header("Rotation")]
-        [Tooltip("Send Rotation data as uncompressed Quaternion, compressed Quaternion (smallest 3) or by Euler Angles")]
+        [Tooltip("Send Rotation data as uncompressed Quaternion, compressed Quaternion (smallest 3) or by Euler Angles \nUncompressed has most precision but uses the most bandwidth \n Compressed is slightly lossy but compressed to 4 bytes \n Euler sends delta of each axis if changed and potentially uses the least bandwidth especially if the game rotates only around 1-2 axes. It may cause Gimbal lock")]
         [SerializeField] protected RotationSettings rotationSettings = RotationSettings.Compressed;
         [Tooltip("Sensitivity of changes needed before an updated state is sent over the network. This will be used for precision if Euler Angles is chosen")]        
         public float rotationSensitivity = 0.01f;
@@ -34,34 +34,37 @@ namespace Mirror
         [Range(0.00_01f, 1f)]                   // disallow 0 division. 1mm to 1m precision is enough range.
         public float scalePrecision = 0.01f; // 1 cm        
 
-     
-
-        /*[Header("Full Send Interval Multiplier")]
-        [Tooltip("Check/Sync every multiple of Network Manager send interval (= 1 / NM Send Rate), instead of every send interval.\n(30 NM send rate, and 3 interval, is a send every 0.1 seconds)\nA larger interval means less network sends, which has a variety of upsides. The drawbacks are delays and lower accuracy, you should find a nice balance between not sending too much, but the results looking good for your particular scenario.")]
-        [Range(1, 120)]*/
         [Header("Full Send Frequency")]
         [Tooltip("Number of full snapshots to send per second.")]
         public float fullSendFrequency = 1;
-        private float fullSendInterval => 1 / fullSendFrequency;
-        //public uint fullSendIntervalMultiplier = 30;
-        //private uint fullSendIntervalCounter = 0;
+        protected float fullSendInterval => 1 / fullSendFrequency;
         double lastFullSendIntervalTime = double.MinValue;
-        private byte lastSentFullSyncIndex = 0;
-        private SyncDataFull lastSentFullSyncData;
-        //private QuantizedSnapshot lastSentFullQuantized;
-        private SyncDataFull lastReceivedFullSyncData;
-        //private QuantizedSnapshot lastReceivedFullQuantized;
+        protected byte lastSentFullSyncIndex = 0;
+        protected SyncDataFull lastSentFullSyncData;
+        protected SyncDataFull lastReceivedFullSyncData;
 
-        /*[Header("Delta Send Interval Multiplier")]
-        [Tooltip("Check/Sync every multiple of Network Manager send interval (= 1 / NM Send Rate), instead of every send interval.\n(30 NM send rate, and 3 interval, is a send every 0.1 seconds)\nA larger interval means less network sends, which has a variety of upsides. The drawbacks are delays and lower accuracy, you should find a nice balance between not sending too much, but the results looking good for your particular scenario.")]
-        [Range(1, 120)]*/
         [Header("Delta Send Frequency")]
         [Tooltip("Number of delta snapshots to send per second.")]        
         public float deltaSendFrequency = 30;
-        private float deltaSendInterval => 1 / deltaSendFrequency;
-        //public uint deltaSendIntervalMultiplier = 1;    
-        //private uint deltaSendIntervalCounter = 0;
+        protected float deltaSendInterval => 1 / deltaSendFrequency;
         double lastDeltaSendIntervalTime = double.MinValue;
+
+        // Caveats:
+        // Always send all is the safest bet, but will incur bandwidth cost for sending unchanged deltas and full
+        // Always send full ensure the snapshot is updated (reliable channel) every full sync. This ensures some 
+        // stability in transform, while expending some bandwidth. There is some small risk of jitter if deltas
+        // are lost between full sends.
+        // Don't send any saves the most bandwidth, but will be subjected to higher risk of jitter, depending on
+        // network conditions.
+        // Note: The comparison to determine unchange presumes that the delta that was last sent was received, 
+        // because it will compare the current vs the last sent (either full or delta-reconstructed) snapshot.
+        [Header("Unchanged Snapshots Send Options")]
+        [Tooltip("Do we send unchanged snapshots? This is for bandwidth savings with some caveats. \n\nAlways send all - deltas will be sent each frame even if unchanged, but packet size is minimised. \n Always send full - Only full snapshots are sent even if unchanged, deltas will not be send if unchanged. \nDontSendAny - Nothing will be sent if unchanged.")]
+        public UnchangedSendOptions unchangedSendOptions = UnchangedSendOptions.AlwaysSendFull;
+        [Tooltip("How much time, in terms of number of expected snapshots received, has passed before clearing buffers.\nA larger buffer means more delay, but results in smoother movement.\nExample: 1 for faster responses minimal smoothing, 5 covers bad pings but has noticable delay, 3 is recommended for balanced results,.")]
+        public uint minimumSnapshotsSkippedBeforeReset = 3;
+        protected double resetTimeIntervalCheck => minimumSnapshotsSkippedBeforeReset * deltaSendInterval;
+        protected SyncDataFull lastConstructedSentSyncData;
 
         [Header("Timeline Offset")]
         [Tooltip("Add a small timeline offset to account for decoupled arrival of NetworkTime and NetworkTransform snapshots.\nfixes: https://github.com/MirrorNetworking/Mirror/issues/3427")]
@@ -107,6 +110,9 @@ namespace Mirror
         protected bool syncScale => (fullHeader & FullHeader.SyncScale) > 0;
 
         // Static bool to indicate if that connection has registered handlers.
+        // This is a workaround for now. When it is finalized we should register the
+        // message handlers in NetworkClient and NetworkServer themselves. This will 
+        // solve the issue below.
         private static bool registeredHandlers = false;
         // Register with the server if the handlers have been registered to begin syncing.
         // Else it causes message ID unknown errors.
@@ -174,8 +180,6 @@ namespace Mirror
             base.OnValidate();
             if ((fullHeader & (FullHeader.CompressRot & FullHeader.UseEulerAngles)) > 0) fullHeader &= ~FullHeader.CompressRot;
 
-            //deltaSendIntervalMultiplier = Math.Min(deltaSendIntervalMultiplier, fullSendIntervalMultiplier);
-            //fullSendIntervalMultiplier = Math.Max(deltaSendIntervalMultiplier, fullSendIntervalMultiplier);
             deltaSendFrequency = Mathf.Max (deltaSendFrequency, fullSendFrequency);
             fullSendFrequency = Mathf.Min (deltaSendFrequency, fullSendFrequency);
         }
@@ -271,7 +275,6 @@ namespace Mirror
                 if (syncRotation) writer.WriteQuaternion(lastSentFullSyncData.rotation);
                 if (syncScale) writer.WriteVector3(lastSentFullSyncData.scale);
 
-                //lastSentFullQuantized = ConstructQuantizedSnapshot(lastSentFullSyncData.position, lastSentFullSyncData.rotation, lastSentFullSyncData.scale);
             }
         }
 
@@ -342,16 +345,12 @@ namespace Mirror
             // here by checking IsClientWithAuthority.
             // TODO send same time that NetworkServer sends time snapshot?
 
-            //CheckLastSendTime();
             if (syncDirection == SyncDirection.ServerToClient || IsClientWithAuthority)
             {
                 if (AccurateInterval.Elapsed(NetworkTime.localTime, fullSendInterval, ref lastFullSendIntervalTime))
                     ServerBroadcastFull();
                 else if (AccurateInterval.Elapsed(NetworkTime.localTime, deltaSendInterval, ref lastDeltaSendIntervalTime))
                     ServerBroadcastDelta();
-                
-                /*if (fullSendIntervalCounter == fullSendIntervalMultiplier) ServerBroadcastFull();
-                else if (deltaSendIntervalCounter == deltaSendIntervalMultiplier) ServerBroadcastDelta();*/
             }
         }
 
@@ -380,8 +379,6 @@ namespace Mirror
             // DO NOT send nulls if not changed 'since last send' either. we
             // send unreliable and don't know which 'last send' the other end
             // received successfully.
-            
-            //CheckLastSendTime();
 
             if (syncDirection == SyncDirection.ServerToClient) return;
 
@@ -389,23 +386,26 @@ namespace Mirror
                 ClientBroadcastFull();
             else if (AccurateInterval.Elapsed(NetworkTime.localTime, deltaSendInterval, ref lastDeltaSendIntervalTime))
                 ClientBroadcastDelta();
-            
-            /*if (fullSendIntervalCounter == fullSendIntervalMultiplier) ClientBroadcastFull();
-            else if (deltaSendIntervalCounter == deltaSendIntervalMultiplier) ClientBroadcastDelta();*/
         }
     #endregion
 
     #region Server Broadcast Full
         protected virtual void ServerBroadcastFull()
         {
-            lastSentFullSyncData = ConstructFullSyncData(true);
+            //lastSentFullSyncData = ConstructFullSyncData(true);
+            SyncDataFull current = ConstructFullSyncData(false);
+            
+            // If nothing changed, and we chose not to send anything.
+            if (unchangedSendOptions == UnchangedSendOptions.DontSendAny && CompareSyncData(current)) return;
 
-            //lastSentFullQuantized = ConstructQuantizedSnapshot(lastSentFullSyncData.position, lastSentFullSyncData.rotation, lastSentFullSyncData.scale);
+            lastSentFullSyncData = current;
+            lastSentFullSyncData.fullSyncDataIndex = NextFullSyncIndex();
 
             SyncDataFullMsg msg = new SyncDataFullMsg(netId, ComponentIndex, lastSentFullSyncData);
+            
             SendToReadyObservers(netIdentity, msg, false, Channels.Reliable); // will exclude owner be problematic?
-
             //NetworkServer.SendToReadyObservers(netIdentity, msg, false, Channels.Reliable); // will exclude owner be problematic?
+            lastConstructedSentSyncData = lastSentFullSyncData;
         }
 
         private byte NextFullSyncIndex()
@@ -425,6 +425,7 @@ namespace Mirror
 
         public virtual void OnServerToClientSyncFull(SyncDataFull syncData)
         {
+            //Debug.Log($"ServerToClientSyncFull {gameObject.name}");
             // in host mode, the server sends rpcs to all clients.
             // the host client itself will receive them too.
             // -> host server is always the source of truth
@@ -442,7 +443,13 @@ namespace Mirror
             // use current non-synced axis instead of giving it a 0.
             lastReceivedFullSyncData = syncData;
             CleanUpFullSyncDataPositionSync(ref lastReceivedFullSyncData);
-            //lastReceivedFullQuantized = ConstructQuantizedSnapshot(lastReceivedFullSyncData.position, lastReceivedFullSyncData.rotation, lastReceivedFullSyncData.scale);
+
+            if (unchangedSendOptions == UnchangedSendOptions.DontSendAny)
+            {
+                
+                if (clientSnapshots.Count > 0 && clientSnapshots.Values[clientSnapshots.Count - 1].remoteTime + resetTimeIntervalCheck < timestamp)
+                    ClearSnapshots();
+            }
 
             // We don't care if we are adding 'default' to any field because 
             // syncing is checked again in Apply before applying the changes.
@@ -454,19 +461,22 @@ namespace Mirror
     #region Server Broadcast Delta
         protected virtual void ServerBroadcastDelta()
         {
+            
             // If we have not sent a full sync, we don't send delta.
             
             if (lastSentFullSyncIndex == 0) return;
-            SyncDataFull currentFull = ConstructFullSyncData(false);
-            //QuantizedSnapshot currentQuantized = ConstructQuantizedSnapshot(currentFull.position, currentFull.rotation, currentFull.scale);
 
-            SyncDataDelta syncDataDelta = DeriveDelta(currentFull);
+            SyncDataFull currentFull = ConstructFullSyncData(false);
+
+            if (unchangedSendOptions != UnchangedSendOptions.AlwaysSendAll && CompareSyncData(currentFull)) return;
             
+            SyncDataDelta syncDataDelta = DeriveDelta(currentFull);
+
             SyncDataDeltaMsg msg = new SyncDataDeltaMsg(netId, ComponentIndex, syncDataDelta);
             SendToReadyObservers(netIdentity, msg, false, Channels.Unreliable); // will exclude owner be problematic?
-
             //NetworkServer.SendToReadyObservers(netIdentity, msg, false, Channels.Unreliable); // will exclude owner be problematic?
             
+            lastConstructedSentSyncData = currentFull;
         }
 
         protected static void ServerToClientSyncDeltaHandler(SyncDataDeltaMsg msg)
@@ -478,6 +488,7 @@ namespace Mirror
 
         protected virtual void OnServerToClientSyncDelta(SyncDataDelta delta)
         {
+            //Debug.Log($"ServerToClientSyncDelta {gameObject.name}");
             // in host mode, the server sends rpcs to all clients.
             // the host client itself will receive them too.
             // -> host server is always the source of truth
@@ -496,6 +507,12 @@ namespace Mirror
             
             ApplyDelta(delta, out Vector3 position, out Quaternion rotation, out Vector3 scale);
 
+            if (unchangedSendOptions != UnchangedSendOptions.AlwaysSendAll)
+            {
+                if (clientSnapshots.Count > 0 && clientSnapshots.Values[clientSnapshots.Count - 1].remoteTime + resetTimeIntervalCheck < timestamp)
+                    ClearSnapshots();
+            }
+
             // We don't care if we are adding 'default' to any field because 
             // syncing is checked again in Apply before applying the changes.
             AddSnapshot(clientSnapshots, timestamp + timeStampAdjustment + offset, position, rotation, scale);
@@ -506,13 +523,21 @@ namespace Mirror
 
     #region Client Broadcast Full
         protected virtual void ClientBroadcastFull()
-        {
-            lastSentFullSyncData = ConstructFullSyncData(true);
+        {   
+            //lastSentFullSyncData = ConstructFullSyncData(true);
+            SyncDataFull current = ConstructFullSyncData(false);
             
-            //lastSentFullQuantized = ConstructQuantizedSnapshot(lastSentFullSyncData.position, lastSentFullSyncData.rotation, lastSentFullSyncData.scale);
+            // If nothing changed, and we chose not to send anything.
+            if (unchangedSendOptions == UnchangedSendOptions.DontSendAny && CompareSyncData(current)) return;
 
+            lastSentFullSyncData = current;
+            lastSentFullSyncData.fullSyncDataIndex = NextFullSyncIndex();
+            
+            lastConstructedSentSyncData = current;
+            
             SyncDataFullMsg msg = new SyncDataFullMsg(netId, ComponentIndex, lastSentFullSyncData);
-            NetworkClient.Send(msg, Channels.Reliable);    
+            
+            NetworkClient.Send(msg, Channels.Reliable);
         }
 
         protected static void ClientToServerSyncFullHandler(NetworkConnectionToClient conn, SyncDataFullMsg msg)
@@ -537,6 +562,7 @@ namespace Mirror
         
         protected virtual void OnClientToServerSyncFull(SyncDataFull syncData)
         {
+            //Debug.Log($"ClientToServerSyncFull {gameObject.name}");
             // in host mode, the server sends rpcs to all clients.
             // the host client itself will receive them too.
             // -> host server is always the source of truth
@@ -550,7 +576,13 @@ namespace Mirror
             // See Server's issue
             lastReceivedFullSyncData = syncData;
             CleanUpFullSyncDataPositionSync(ref lastReceivedFullSyncData);
-            //lastReceivedFullQuantized = ConstructQuantizedSnapshot(lastReceivedFullSyncData.position, lastReceivedFullSyncData.rotation, lastReceivedFullSyncData.scale);
+            
+            if (unchangedSendOptions == UnchangedSendOptions.DontSendAny)
+            {
+                
+                if (serverSnapshots.Count > 0 && serverSnapshots.Values[serverSnapshots.Count - 1].remoteTime + resetTimeIntervalCheck < timestamp)
+                    ClearSnapshots();
+            }
 
             // We don't care if we are adding 'default' to any field because 
             // syncing is checked again in Apply before applying the changes.
@@ -565,8 +597,9 @@ namespace Mirror
             if (lastSentFullSyncIndex == 0) return;            
             
             SyncDataFull currentFull = ConstructFullSyncData(false);
-            //QuantizedSnapshot currentQuantized = ConstructQuantizedSnapshot(currentFull.position, currentFull.rotation, currentFull.scale);
-              
+            
+            if (unchangedSendOptions != UnchangedSendOptions.AlwaysSendAll && CompareSyncData(currentFull)) return;              
+            
             SyncDataDelta syncDataDelta = DeriveDelta(currentFull);
             
             SyncDataDeltaMsg msg = new SyncDataDeltaMsg(netId, ComponentIndex, syncDataDelta);
@@ -595,6 +628,7 @@ namespace Mirror
 
         protected virtual void OnClientToServerSyncDelta(SyncDataDelta delta)
         {
+            //Debug.Log($"ClientToServerSyncDelta {gameObject.name}");
             // only apply if in client authority mode
             if (syncDirection != SyncDirection.ClientToServer) return;
 
@@ -606,6 +640,12 @@ namespace Mirror
             double timestamp = connectionToClient.remoteTimeStamp;
 
             ApplyDelta(delta, out Vector3 position, out Quaternion rotation, out Vector3 scale);
+
+            if (unchangedSendOptions != UnchangedSendOptions.AlwaysSendAll)
+            {
+                if (serverSnapshots.Count > 0 && serverSnapshots.Values[serverSnapshots.Count - 1].remoteTime + resetTimeIntervalCheck < timestamp)
+                    ClearSnapshots();
+            }
 
             // We don't care if we are adding 'default' to any field because 
             // syncing is checked again in Apply before applying the changes.
@@ -625,18 +665,16 @@ namespace Mirror
             );
         }
 
-        /*protected virtual QuantizedSnapshot ConstructQuantizedSnapshot(Vector3 position, Quaternion rotation, Vector3 scale)
+        protected virtual bool CompareSyncData(SyncDataFull current)
         {
-            Compression.ScaleToLong(position, positionPrecision, out Vector3Long positionQuantized);
-            Compression.ScaleToLong(rotation.eulerAngles, rotationSensitivity, out Vector3Long eulRotation);
-            Compression.ScaleToLong(scale, scalePrecision, out Vector3Long scaleQuantized);
-            return new QuantizedSnapshot(
-                positionQuantized,
-                rotation,
-                eulRotation,
-                scaleQuantized
-            );    
-        }*/
+            // Do we need to compare individual axis? Will a user move an axis
+            // locally and choose don't sync that axis?
+            return (
+                current.position == lastConstructedSentSyncData.position &&
+                current.rotation == lastConstructedSentSyncData.rotation &&
+                current.scale == lastConstructedSentSyncData.scale
+                );
+        }
 
         protected virtual SyncDataDelta DeriveDelta(SyncDataFull current)
         {
@@ -779,26 +817,6 @@ namespace Mirror
             );
         }        
 
-        /*protected virtual void CheckLastSendTime()
-        {
-            // We check interval every frame, and then send if interval is reached.
-            // So by the time sendIntervalCounter == sendIntervalMultiplier, data is sent,
-            // thus we reset the counter here.
-            // This fixes previous issue of, if sendIntervalMultiplier = 1, we send every frame,
-            // because intervalCounter is always = 1 in the previous version.
-
-            if (fullSendIntervalCounter == fullSendIntervalMultiplier) fullSendIntervalCounter = 0;
-
-            if (deltaSendIntervalCounter == deltaSendIntervalMultiplier) deltaSendIntervalCounter = 0;
-
-            // timeAsDouble not available in older Unity versions.
-            if (AccurateInterval.Elapsed(NetworkTime.localTime, NetworkServer.sendInterval, ref lastFullSendIntervalTime))
-                fullSendIntervalCounter++;
-            
-            if (AccurateInterval.Elapsed(NetworkTime.localTime, NetworkServer.sendInterval, ref lastDeltaSendIntervalTime))
-                deltaSendIntervalCounter++;
-        }*/
-
     #region Snapshot Functions
         // snapshot functions //////////////////////////////////////////////////
         // get local/world position
@@ -852,7 +870,13 @@ namespace Mirror
             if ((fullHeader & FullHeader.SyncPosX) == 0) syncData.position.x = currentPosition.x;
             if ((fullHeader & FullHeader.SyncPosY) == 0) syncData.position.y = currentPosition.y;
             if ((fullHeader & FullHeader.SyncPosZ) == 0) syncData.position.z = currentPosition.z;
-        }         
+        }   
+
+        public virtual void ClearSnapshots()
+        {
+            serverSnapshots.Clear();
+            clientSnapshots.Clear();
+        }
     #endregion 
 
 

@@ -98,6 +98,13 @@ namespace Mirror
         FullQuaternion,
         Compressed,
         EulerAngles
+    }
+
+    public enum UnchangedSendOptions
+    {
+        AlwaysSendAll,
+        AlwaysSendFull,
+        DontSendAny
     }    
 
     [Flags]
