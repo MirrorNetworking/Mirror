@@ -88,6 +88,7 @@ namespace Mirror
         void Awake()
         {
             rb = GetComponent<Rigidbody>();
+            if (rb == null) throw new InvalidOperationException($"Prediction: {name} is missing a Rigidbody component.");
         }
 
         protected virtual void MoveRigidbody(GameObject destination)
