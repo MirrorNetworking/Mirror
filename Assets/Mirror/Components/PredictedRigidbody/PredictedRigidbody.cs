@@ -271,7 +271,17 @@ namespace Mirror
 
         protected virtual void DestroyCopies()
         {
-            if (physicsCopy != null) Destroy(physicsCopy);
+            // move the copy's Rigidbody back onto self.
+            // important for scene objects which may be reused for AOI spawn/despawn.
+            // otherwise next time they wouldn't have a collider anymore.
+            if (physicsCopy != null)
+            {
+                MoveRigidbody(physicsCopy, gameObject);
+                MoveAllColliders(physicsCopy, gameObject);
+                Destroy(physicsCopy);
+            }
+
+            // simply destroy the remote copy
             if (remoteCopy != null) Destroy(remoteCopy);
         }
 
@@ -316,7 +326,10 @@ namespace Mirror
 
         // destroy visual copy only in OnStopClient().
         // OnDestroy() wouldn't be called for scene objects that are only disabled instead of destroyed.
-        public override void OnStopClient() => DestroyCopies();
+        public override void OnStopClient()
+        {
+            DestroyCopies();
+        }
 
         void UpdateServer()
         {
