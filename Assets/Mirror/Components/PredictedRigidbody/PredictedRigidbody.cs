@@ -247,7 +247,7 @@ namespace Mirror
             // cache components to avoid GetComponent calls at runtime
             physicsCopyRigidbody = physicsCopy.GetComponent<Rigidbody>();
             physicsCopyCollider = physicsCopy.GetComponent<Collider>();
-            if (physicsGhostRigidbody == null) throw new Exception("SeparatePhysics: couldn't find final Rigidbody.");
+            if (physicsCopyRigidbody == null) throw new Exception("SeparatePhysics: couldn't find final Rigidbody.");
             if (physicsCopyCollider == null) throw new Exception("SeparatePhysics: couldn't find final Collider.");
         }
 
