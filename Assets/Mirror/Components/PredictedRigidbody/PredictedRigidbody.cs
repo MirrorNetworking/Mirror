@@ -91,31 +91,37 @@ namespace Mirror
             if (rb == null) throw new InvalidOperationException($"Prediction: {name} is missing a Rigidbody component.");
         }
 
-        protected virtual void MoveRigidbody(GameObject destination)
+        // move a Rigidbody + settings from one GameObject to another.
+        protected static void MoveRigidbody(GameObject source, GameObject destination)
         {
-            Rigidbody source = GetComponent<Rigidbody>();
-            if (source == null) throw new Exception($"Prediction: attempted to move {name}'s Rigidbody to the predicted copy, but there was no component.");
-
+            // create a new Rigidbody component on destionation
+            Rigidbody original = source.GetComponent<Rigidbody>();
+            if (original == null) throw new Exception($"Prediction: attempted to move {source}'s Rigidbody to the predicted copy, but there was no component.");
             Rigidbody rigidbodyCopy = destination.AddComponent<Rigidbody>();
-            rigidbodyCopy.mass = source.mass;
-            rigidbodyCopy.drag = source.drag;
-            rigidbodyCopy.angularDrag = source.angularDrag;
-            rigidbodyCopy.useGravity = source.useGravity;
-            rigidbodyCopy.isKinematic = source.isKinematic;
-            rigidbodyCopy.interpolation = source.interpolation;
-            rigidbodyCopy.collisionDetectionMode = source.collisionDetectionMode;
-            rigidbodyCopy.constraints = source.constraints;
-            rigidbodyCopy.sleepThreshold = source.sleepThreshold;
-            rigidbodyCopy.freezeRotation = source.freezeRotation;
-            rigidbodyCopy.position = source.position;
-            rigidbodyCopy.rotation = source.rotation;
-            rigidbodyCopy.velocity = source.velocity;
-            Destroy(source);
+
+            // copy all properties
+            rigidbodyCopy.mass = original.mass;
+            rigidbodyCopy.drag = original.drag;
+            rigidbodyCopy.angularDrag = original.angularDrag;
+            rigidbodyCopy.useGravity = original.useGravity;
+            rigidbodyCopy.isKinematic = original.isKinematic;
+            rigidbodyCopy.interpolation = original.interpolation;
+            rigidbodyCopy.collisionDetectionMode = original.collisionDetectionMode;
+            rigidbodyCopy.constraints = original.constraints;
+            rigidbodyCopy.sleepThreshold = original.sleepThreshold;
+            rigidbodyCopy.freezeRotation = original.freezeRotation;
+            rigidbodyCopy.position = original.position;
+            rigidbodyCopy.rotation = original.rotation;
+            rigidbodyCopy.velocity = original.velocity;
+
+            // destroy original
+            Destroy(original);
         }
 
-        protected virtual void MoveBoxColliders(GameObject destination)
+        // move all BoxColliders + settings from one GameObject to another.
+        protected static void MoveBoxColliders(GameObject source, GameObject destination)
         {
-            BoxCollider[] sourceColliders = GetComponents<BoxCollider>();
+            BoxCollider[] sourceColliders = source.GetComponents<BoxCollider>();
             foreach (BoxCollider sourceCollider in sourceColliders)
             {
                 BoxCollider colliderCopy = destination.AddComponent<BoxCollider>();
@@ -126,9 +132,10 @@ namespace Mirror
             }
         }
 
-        protected virtual void MoveSphereColliders(GameObject destination)
+        // move all SphereColliders + settings from one GameObject to another.
+        protected static void MoveSphereColliders(GameObject source, GameObject destination)
         {
-            SphereCollider[] sourceColliders = GetComponents<SphereCollider>();
+            SphereCollider[] sourceColliders = source.GetComponents<SphereCollider>();
             foreach (SphereCollider sourceCollider in sourceColliders)
             {
                 SphereCollider colliderCopy = destination.AddComponent<SphereCollider>();
@@ -139,9 +146,10 @@ namespace Mirror
             }
         }
 
-        protected virtual void MoveCapsuleColliders(GameObject destination)
+        // move all CapsuleColliders + settings from one GameObject to another.
+        protected static void MoveCapsuleColliders(GameObject source, GameObject destination)
         {
-            CapsuleCollider[] sourceColliders = GetComponents<CapsuleCollider>();
+            CapsuleCollider[] sourceColliders = source.GetComponents<CapsuleCollider>();
             foreach (CapsuleCollider sourceCollider in sourceColliders)
             {
                 CapsuleCollider colliderCopy = destination.AddComponent<CapsuleCollider>();
@@ -154,9 +162,10 @@ namespace Mirror
             }
         }
 
-        protected virtual void MoveMeshColliders(GameObject destination)
+        // move all MeshColliders + settings from one GameObject to another.
+        protected static void MoveMeshColliders(GameObject source, GameObject destination)
         {
-            MeshCollider[] sourceColliders = GetComponents<MeshCollider>();
+            MeshCollider[] sourceColliders = source.GetComponents<MeshCollider>();
             foreach (MeshCollider sourceCollider in sourceColliders)
             {
                 MeshCollider colliderCopy = destination.AddComponent<MeshCollider>();
@@ -224,13 +233,13 @@ namespace Mirror
             physicsGhostRigidbody.ghostEnabledCheckInterval = ghostEnabledCheckInterval;
 
             // move the rigidbody component to the physics GameObject
-            MoveRigidbody(physicsCopy);
+            MoveRigidbody(gameObject, physicsCopy);
 
             // move the collider components to the physics GameObject
-            MoveBoxColliders(physicsCopy);
-            MoveSphereColliders(physicsCopy);
-            MoveCapsuleColliders(physicsCopy);
-            MoveMeshColliders(physicsCopy);
+            MoveBoxColliders(gameObject, physicsCopy);
+            MoveSphereColliders(gameObject, physicsCopy);
+            MoveCapsuleColliders(gameObject, physicsCopy);
+            MoveMeshColliders(gameObject, physicsCopy);
 
             // show ghost by copying all renderers / materials with ghost material applied
             if (showGhost)
