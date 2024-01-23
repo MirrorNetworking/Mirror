@@ -402,7 +402,8 @@ namespace Mirror
             // this is fine because the visual object still smoothly interpolates to it.
             if (physicsCopyRigidbody.velocity.magnitude <= snapThreshold)
             {
-                Debug.Log($"Prediction: snapped {name} into place because velocity {physicsCopyRigidbody.velocity.magnitude:F3} <= {snapThreshold:F3}");
+                // Debug.Log($"Prediction: snapped {name} into place because velocity {physicsCopyRigidbody.velocity.magnitude:F3} <= {snapThreshold:F3}");
+
                 // apply server state immediately.
                 // important to apply velocity as well, instead of Vector3.zero.
                 // in case an object is still slightly moving, we don't want it
