@@ -90,9 +90,11 @@ namespace Mirror
             rb = GetComponent<Rigidbody>();
         }
 
-        protected virtual Rigidbody MoveRigidbody(GameObject destination)
+        protected virtual void MoveRigidbody(GameObject destination)
         {
             Rigidbody source = GetComponent<Rigidbody>();
+            if (source == null) throw new Exception($"Prediction: attempted to move {name}'s Rigidbody to the predicted copy, but there was no component.");
+
             Rigidbody rigidbodyCopy = destination.AddComponent<Rigidbody>();
             rigidbodyCopy.mass = source.mass;
             rigidbodyCopy.drag = source.drag;
@@ -108,7 +110,6 @@ namespace Mirror
             rigidbodyCopy.rotation = source.rotation;
             rigidbodyCopy.velocity = source.velocity;
             Destroy(source);
-            return rigidbodyCopy;
         }
 
         protected virtual void MoveBoxColliders(GameObject destination)
