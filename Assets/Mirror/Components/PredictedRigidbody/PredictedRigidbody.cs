@@ -176,6 +176,15 @@ namespace Mirror
             }
         }
 
+        // move all Colliders + settings from one GameObject to another.
+        protected static void MoveAllColliders(GameObject source, GameObject destination)
+        {
+            MoveBoxColliders(source, destination);
+            MoveSphereColliders(source, destination);
+            MoveCapsuleColliders(source, destination);
+            MoveMeshColliders(source, destination);
+        }
+
         protected virtual void CopyRenderersAsGhost(GameObject destination, Material material)
         {
             // find the MeshRenderer component, which sometimes is on a child.
@@ -232,14 +241,9 @@ namespace Mirror
             physicsGhostRigidbody.ghostDistanceThreshold = ghostDistanceThreshold;
             physicsGhostRigidbody.ghostEnabledCheckInterval = ghostEnabledCheckInterval;
 
-            // move the rigidbody component to the physics GameObject
+            // move the rigidbody component & all colliders to the physics GameObject
             MoveRigidbody(gameObject, physicsCopy);
-
-            // move the collider components to the physics GameObject
-            MoveBoxColliders(gameObject, physicsCopy);
-            MoveSphereColliders(gameObject, physicsCopy);
-            MoveCapsuleColliders(gameObject, physicsCopy);
-            MoveMeshColliders(gameObject, physicsCopy);
+            MoveAllColliders(gameObject, physicsCopy);
 
             // show ghost by copying all renderers / materials with ghost material applied
             if (showGhost)
