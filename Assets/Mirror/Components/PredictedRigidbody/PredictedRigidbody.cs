@@ -121,6 +121,7 @@ namespace Mirror
                 BoxCollider colliderCopy = destination.AddComponent<BoxCollider>();
                 colliderCopy.center = sourceCollider.center;
                 colliderCopy.size = sourceCollider.size;
+                colliderCopy.isTrigger = sourceCollider.isTrigger;
                 Destroy(sourceCollider);
             }
         }
@@ -133,6 +134,7 @@ namespace Mirror
                 SphereCollider colliderCopy = destination.AddComponent<SphereCollider>();
                 colliderCopy.center = sourceCollider.center;
                 colliderCopy.radius = sourceCollider.radius;
+                colliderCopy.isTrigger = sourceCollider.isTrigger;
                 Destroy(sourceCollider);
             }
         }
@@ -147,6 +149,7 @@ namespace Mirror
                 colliderCopy.radius = sourceCollider.radius;
                 colliderCopy.height = sourceCollider.height;
                 colliderCopy.direction = sourceCollider.direction;
+                colliderCopy.isTrigger = sourceCollider.isTrigger;
                 Destroy(sourceCollider);
             }
         }
