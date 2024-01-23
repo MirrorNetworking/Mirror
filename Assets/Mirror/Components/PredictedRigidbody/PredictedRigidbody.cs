@@ -88,11 +88,14 @@ namespace Mirror
         void Awake()
         {
             rb = GetComponent<Rigidbody>();
+            if (rb == null) throw new InvalidOperationException($"Prediction: {name} is missing a Rigidbody component.");
         }
 
-        protected virtual Rigidbody MoveRigidbody(GameObject destination)
+        protected virtual void MoveRigidbody(GameObject destination)
         {
             Rigidbody source = GetComponent<Rigidbody>();
+            if (source == null) throw new Exception($"Prediction: attempted to move {name}'s Rigidbody to the predicted copy, but there was no component.");
+
             Rigidbody rigidbodyCopy = destination.AddComponent<Rigidbody>();
             rigidbodyCopy.mass = source.mass;
             rigidbodyCopy.drag = source.drag;
@@ -108,7 +111,6 @@ namespace Mirror
             rigidbodyCopy.rotation = source.rotation;
             rigidbodyCopy.velocity = source.velocity;
             Destroy(source);
-            return rigidbodyCopy;
         }
 
         protected virtual void MoveBoxColliders(GameObject destination)
@@ -247,7 +249,7 @@ namespace Mirror
             // cache components to avoid GetComponent calls at runtime
             physicsCopyRigidbody = physicsCopy.GetComponent<Rigidbody>();
             physicsCopyCollider = physicsCopy.GetComponent<Collider>();
-            if (physicsGhostRigidbody == null) throw new Exception("SeparatePhysics: couldn't find final Rigidbody.");
+            if (physicsCopyRigidbody == null) throw new Exception("SeparatePhysics: couldn't find final Rigidbody.");
             if (physicsCopyCollider == null) throw new Exception("SeparatePhysics: couldn't find final Collider.");
         }
 
@@ -402,7 +404,8 @@ namespace Mirror
             // this is fine because the visual object still smoothly interpolates to it.
             if (physicsCopyRigidbody.velocity.magnitude <= snapThreshold)
             {
-                Debug.Log($"Prediction: snapped {name} into place because velocity {physicsCopyRigidbody.velocity.magnitude:F3} <= {snapThreshold:F3}");
+                // Debug.Log($"Prediction: snapped {name} into place because velocity {physicsCopyRigidbody.velocity.magnitude:F3} <= {snapThreshold:F3}");
+
                 // apply server state immediately.
                 // important to apply velocity as well, instead of Vector3.zero.
                 // in case an object is still slightly moving, we don't want it
