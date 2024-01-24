@@ -136,7 +136,7 @@ namespace Mirror
 
             // assign the same Layer for the physics copy.
             // games may use a custom physics collision matrix, layer matters.
-            child.layer = sourceChild.layer;
+            child.layer = sourceChild.gameObject.layer;
 
             return child;
         }
