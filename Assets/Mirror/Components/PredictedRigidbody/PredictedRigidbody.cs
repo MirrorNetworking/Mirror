@@ -121,7 +121,7 @@ namespace Mirror
         // move all BoxColliders + settings from one GameObject to another.
         protected static void MoveBoxColliders(GameObject source, GameObject destination)
         {
-            BoxCollider[] sourceColliders = source.GetComponents<BoxCollider>();
+            BoxCollider[] sourceColliders = source.GetComponentsInChildren<BoxCollider>();
             foreach (BoxCollider sourceCollider in sourceColliders)
             {
                 BoxCollider colliderCopy = destination.AddComponent<BoxCollider>();
@@ -135,7 +135,7 @@ namespace Mirror
         // move all SphereColliders + settings from one GameObject to another.
         protected static void MoveSphereColliders(GameObject source, GameObject destination)
         {
-            SphereCollider[] sourceColliders = source.GetComponents<SphereCollider>();
+            SphereCollider[] sourceColliders = source.GetComponentsInChildren<SphereCollider>();
             foreach (SphereCollider sourceCollider in sourceColliders)
             {
                 SphereCollider colliderCopy = destination.AddComponent<SphereCollider>();
@@ -149,7 +149,7 @@ namespace Mirror
         // move all CapsuleColliders + settings from one GameObject to another.
         protected static void MoveCapsuleColliders(GameObject source, GameObject destination)
         {
-            CapsuleCollider[] sourceColliders = source.GetComponents<CapsuleCollider>();
+            CapsuleCollider[] sourceColliders = source.GetComponentsInChildren<CapsuleCollider>();
             foreach (CapsuleCollider sourceCollider in sourceColliders)
             {
                 CapsuleCollider colliderCopy = destination.AddComponent<CapsuleCollider>();
@@ -165,7 +165,7 @@ namespace Mirror
         // move all MeshColliders + settings from one GameObject to another.
         protected static void MoveMeshColliders(GameObject source, GameObject destination)
         {
-            MeshCollider[] sourceColliders = source.GetComponents<MeshCollider>();
+            MeshCollider[] sourceColliders = source.GetComponentsInChildren<MeshCollider>();
             foreach (MeshCollider sourceCollider in sourceColliders)
             {
                 MeshCollider colliderCopy = destination.AddComponent<MeshCollider>();
