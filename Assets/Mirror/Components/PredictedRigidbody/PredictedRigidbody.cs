@@ -118,6 +118,24 @@ namespace Mirror
             Destroy(original);
         }
 
+        // helper function: if a collider is on a child, copy that child first.
+        // this way child's relative position/rotation/scale are preserved.
+        protected static GameObject CopyRelativeTransform(GameObject source, Transform sourceChild, GameObject destination)
+        {
+            // is this on the source root? then we want to put it on the destination root.
+            if (sourceChild == source.transform) return destination;
+
+            // is this on a child? then create the same child with the same transform on destination.
+            // note this is technically only correct for the immediate child since
+            // .localPosition is relative to parent, but this is good enough.
+            GameObject child = new GameObject(sourceChild.name);
+            child.transform.SetParent(destination.transform, true);
+            child.transform.localPosition = sourceChild.localPosition;
+            child.transform.localRotation = sourceChild.localRotation;
+            child.transform.localScale = sourceChild.localScale;
+            return child;
+        }
+
         // move all BoxColliders + settings from one GameObject to another.
         protected static void MoveBoxColliders(GameObject source, GameObject destination)
         {
@@ -125,7 +143,11 @@ namespace Mirror
             BoxCollider[] sourceColliders = source.GetComponentsInChildren<BoxCollider>();
             foreach (BoxCollider sourceCollider in sourceColliders)
             {
-                BoxCollider colliderCopy = destination.AddComponent<BoxCollider>();
+                // copy the relative transform:
+                // if collider is on root, it returns destination root.
+                // if collider is on a child, it creates and returns a child on destination.
+                GameObject target = CopyRelativeTransform(source, sourceCollider.transform, destination);
+                BoxCollider colliderCopy = target.AddComponent<BoxCollider>();
                 colliderCopy.center = sourceCollider.center;
                 colliderCopy.size = sourceCollider.size;
                 colliderCopy.isTrigger = sourceCollider.isTrigger;
@@ -140,7 +162,11 @@ namespace Mirror
             SphereCollider[] sourceColliders = source.GetComponentsInChildren<SphereCollider>();
             foreach (SphereCollider sourceCollider in sourceColliders)
             {
-                SphereCollider colliderCopy = destination.AddComponent<SphereCollider>();
+                // copy the relative transform:
+                // if collider is on root, it returns destination root.
+                // if collider is on a child, it creates and returns a child on destination.
+                GameObject target = CopyRelativeTransform(source, sourceCollider.transform, destination);
+                SphereCollider colliderCopy = target.AddComponent<SphereCollider>();
                 colliderCopy.center = sourceCollider.center;
                 colliderCopy.radius = sourceCollider.radius;
                 colliderCopy.isTrigger = sourceCollider.isTrigger;
@@ -155,7 +181,11 @@ namespace Mirror
             CapsuleCollider[] sourceColliders = source.GetComponentsInChildren<CapsuleCollider>();
             foreach (CapsuleCollider sourceCollider in sourceColliders)
             {
-                CapsuleCollider colliderCopy = destination.AddComponent<CapsuleCollider>();
+                // copy the relative transform:
+                // if collider is on root, it returns destination root.
+                // if collider is on a child, it creates and returns a child on destination.
+                GameObject target = CopyRelativeTransform(source, sourceCollider.transform, destination);
+                CapsuleCollider colliderCopy = target.AddComponent<CapsuleCollider>();
                 colliderCopy.center = sourceCollider.center;
                 colliderCopy.radius = sourceCollider.radius;
                 colliderCopy.height = sourceCollider.height;
@@ -172,7 +202,11 @@ namespace Mirror
             MeshCollider[] sourceColliders = source.GetComponentsInChildren<MeshCollider>();
             foreach (MeshCollider sourceCollider in sourceColliders)
             {
-                MeshCollider colliderCopy = destination.AddComponent<MeshCollider>();
+                // copy the relative transform:
+                // if collider is on root, it returns destination root.
+                // if collider is on a child, it creates and returns a child on destination.
+                GameObject target = CopyRelativeTransform(source, sourceCollider.transform, destination);
+                MeshCollider colliderCopy = target.AddComponent<MeshCollider>();
                 colliderCopy.sharedMesh = sourceCollider.sharedMesh;
                 colliderCopy.convex = sourceCollider.convex;
                 colliderCopy.isTrigger = sourceCollider.isTrigger;
@@ -268,7 +302,7 @@ namespace Mirror
 
             // cache components to avoid GetComponent calls at runtime
             physicsCopyRigidbody = physicsCopy.GetComponent<Rigidbody>();
-            physicsCopyCollider = physicsCopy.GetComponent<Collider>();
+            physicsCopyCollider = physicsCopy.GetComponentInChildren<Collider>();
             if (physicsCopyRigidbody == null) throw new Exception("SeparatePhysics: couldn't find final Rigidbody.");
             if (physicsCopyCollider == null) throw new Exception("SeparatePhysics: couldn't find final Collider.");
         }
