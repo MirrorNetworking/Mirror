@@ -73,6 +73,7 @@ namespace Mirror
                 colliderCopy.center = sourceCollider.center;
                 colliderCopy.size = sourceCollider.size;
                 colliderCopy.isTrigger = sourceCollider.isTrigger;
+                colliderCopy.material = sourceCollider.material;
                 GameObject.Destroy(sourceCollider);
             }
         }
@@ -92,6 +93,7 @@ namespace Mirror
                 colliderCopy.center = sourceCollider.center;
                 colliderCopy.radius = sourceCollider.radius;
                 colliderCopy.isTrigger = sourceCollider.isTrigger;
+                colliderCopy.material = sourceCollider.material;
                 GameObject.Destroy(sourceCollider);
             }
         }
@@ -113,6 +115,7 @@ namespace Mirror
                 colliderCopy.height = sourceCollider.height;
                 colliderCopy.direction = sourceCollider.direction;
                 colliderCopy.isTrigger = sourceCollider.isTrigger;
+                colliderCopy.material = sourceCollider.material;
                 GameObject.Destroy(sourceCollider);
             }
         }
@@ -132,6 +135,7 @@ namespace Mirror
                 colliderCopy.sharedMesh = sourceCollider.sharedMesh;
                 colliderCopy.convex = sourceCollider.convex;
                 colliderCopy.isTrigger = sourceCollider.isTrigger;
+                colliderCopy.material = sourceCollider.material;
                 GameObject.Destroy(sourceCollider);
             }
         }
