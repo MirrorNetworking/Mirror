@@ -142,5 +142,12 @@ namespace Mirror
             MoveCapsuleColliders(source, destination);
             MoveMeshColliders(source, destination);
         }
+
+        // move all physics components from one GameObject to another.
+        public static void MovePhysicsComponents(GameObject source, GameObject destination)
+        {
+            MoveRigidbody(source, destination);
+            MoveAllColliders(source, destination);
+        }
     }
 }
