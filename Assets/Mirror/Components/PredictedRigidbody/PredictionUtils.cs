@@ -6,6 +6,7 @@ namespace Mirror
 {
     public static class PredictionUtils
     {
+        // rigidbody ///////////////////////////////////////////////////////////
         // move a Rigidbody + settings from one GameObject to another.
         public static void MoveRigidbody(GameObject source, GameObject destination)
         {
@@ -56,6 +57,7 @@ namespace Mirror
             return child;
         }
 
+        // colliders ///////////////////////////////////////////////////////////
         // move all BoxColliders + settings from one GameObject to another.
         public static void MoveBoxColliders(GameObject source, GameObject destination)
         {
@@ -143,6 +145,7 @@ namespace Mirror
             MoveMeshColliders(source, destination);
         }
 
+        // all /////////////////////////////////////////////////////////////////
         // move all physics components from one GameObject to another.
         public static void MovePhysicsComponents(GameObject source, GameObject destination)
         {
