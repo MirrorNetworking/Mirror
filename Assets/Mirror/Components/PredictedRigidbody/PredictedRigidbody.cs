@@ -133,6 +133,11 @@ namespace Mirror
             child.transform.localPosition = sourceChild.localPosition;
             child.transform.localRotation = sourceChild.localRotation;
             child.transform.localScale = sourceChild.localScale;
+
+            // assign the same Layer for the physics copy.
+            // games may use a custom physics collision matrix, layer matters.
+            child.layer = sourceChild.layer;
+
             return child;
         }
 
