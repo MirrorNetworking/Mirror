@@ -148,8 +148,7 @@ namespace Mirror
             physicsGhostRigidbody.ghostEnabledCheckInterval = ghostEnabledCheckInterval;
 
             // move the rigidbody component & all colliders to the physics GameObject
-            PredictionUtils.MoveRigidbody(gameObject, physicsCopy);
-            PredictionUtils.MoveAllColliders(gameObject, physicsCopy);
+            PredictionUtils.MovePhysicsComponents(gameObject, physicsCopy);
 
             // show ghost by copying all renderers / materials with ghost material applied
             if (showGhost)
@@ -182,8 +181,7 @@ namespace Mirror
             // otherwise next time they wouldn't have a collider anymore.
             if (physicsCopy != null)
             {
-                PredictionUtils.MoveRigidbody(physicsCopy, gameObject);
-                PredictionUtils.MoveAllColliders(physicsCopy, gameObject);
+                PredictionUtils.MovePhysicsComponents(physicsCopy, gameObject);
                 Destroy(physicsCopy);
             }
 
