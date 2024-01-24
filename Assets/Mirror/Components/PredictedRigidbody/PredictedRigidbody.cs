@@ -121,6 +121,7 @@ namespace Mirror
         // move all BoxColliders + settings from one GameObject to another.
         protected static void MoveBoxColliders(GameObject source, GameObject destination)
         {
+            // colliders may be on children
             BoxCollider[] sourceColliders = source.GetComponentsInChildren<BoxCollider>();
             foreach (BoxCollider sourceCollider in sourceColliders)
             {
@@ -135,6 +136,7 @@ namespace Mirror
         // move all SphereColliders + settings from one GameObject to another.
         protected static void MoveSphereColliders(GameObject source, GameObject destination)
         {
+            // colliders may be on children
             SphereCollider[] sourceColliders = source.GetComponentsInChildren<SphereCollider>();
             foreach (SphereCollider sourceCollider in sourceColliders)
             {
@@ -149,6 +151,7 @@ namespace Mirror
         // move all CapsuleColliders + settings from one GameObject to another.
         protected static void MoveCapsuleColliders(GameObject source, GameObject destination)
         {
+            // colliders may be on children
             CapsuleCollider[] sourceColliders = source.GetComponentsInChildren<CapsuleCollider>();
             foreach (CapsuleCollider sourceCollider in sourceColliders)
             {
@@ -165,6 +168,7 @@ namespace Mirror
         // move all MeshColliders + settings from one GameObject to another.
         protected static void MoveMeshColliders(GameObject source, GameObject destination)
         {
+            // colliders may be on children
             MeshCollider[] sourceColliders = source.GetComponentsInChildren<MeshCollider>();
             foreach (MeshCollider sourceCollider in sourceColliders)
             {
