@@ -149,6 +149,77 @@ namespace Mirror
             MoveMeshColliders(source, destination);
         }
 
+        // joints //////////////////////////////////////////////////////////////
+        // move all CharacterJoints + settings from one GameObject to another.
+        public static void MoveCharacterJoints(GameObject source, GameObject destination)
+        {
+            // colliders may be on children
+            CharacterJoint[] sourceJoints = source.GetComponentsInChildren<CharacterJoint>();
+            foreach (CharacterJoint sourceJoint in sourceJoints)
+            {
+                // TODO not supported yet
+                Debug.LogError($"Prediction: {source.name} has a CharacterJoint on {sourceJoint.name}. Prediction does not support joints yet, this won't work properly.");
+            }
+        }
+
+        // move all ConfigurableJoints + settings from one GameObject to another.
+        public static void MoveConfigurableJoints(GameObject source, GameObject destination)
+        {
+            // colliders may be on children
+            ConfigurableJoint[] sourceJoints = source.GetComponentsInChildren<ConfigurableJoint>();
+            foreach (ConfigurableJoint sourceJoint in sourceJoints)
+            {
+                // TODO not supported yet
+                Debug.LogError($"Prediction: {source.name} has a ConfigurableJoint on {sourceJoint.name}. Prediction does not support joints yet, this won't work properly.");
+            }
+        }
+
+        // move all FixedJoints + settings from one GameObject to another.
+        public static void MoveFixedJoints(GameObject source, GameObject destination)
+        {
+            // colliders may be on children
+            FixedJoint[] sourceJoints = source.GetComponentsInChildren<FixedJoint>();
+            foreach (FixedJoint sourceJoint in sourceJoints)
+            {
+                // TODO not supported yet
+                Debug.LogError($"Prediction: {source.name} has a FixedJoint on {sourceJoint.name}. Prediction does not support joints yet, this won't work properly.");
+            }
+        }
+
+        // move all HingeJoints + settings from one GameObject to another.
+        public static void MoveHingeJoints(GameObject source, GameObject destination)
+        {
+            // colliders may be on children
+            HingeJoint[] sourceJoints = source.GetComponentsInChildren<HingeJoint>();
+            foreach (HingeJoint sourceJoint in sourceJoints)
+            {
+                // TODO not supported yet
+                Debug.LogError($"Prediction: {source.name} has a HingeJoint on {sourceJoint.name}. Prediction does not support joints yet, this won't work properly.");
+            }
+        }
+
+        // move all SpringJoints + settings from one GameObject to another.
+        public static void MoveSpringJoints(GameObject source, GameObject destination)
+        {
+            // colliders may be on children
+            SpringJoint[] sourceJoints = source.GetComponentsInChildren<SpringJoint>();
+            foreach (SpringJoint sourceJoint in sourceJoints)
+            {
+                // TODO not supported yet
+                Debug.LogError($"Prediction: {source.name} has a SpringJoint on {sourceJoint.name}. Prediction does not support joints yet, this won't work properly.");
+            }
+        }
+
+        // move all Joints + settings from one GameObject to another.
+        public static void MoveAllJoints(GameObject source, GameObject destination)
+        {
+            MoveCharacterJoints(source, destination);
+            MoveConfigurableJoints(source, destination);
+            MoveFixedJoints(source, destination);
+            MoveHingeJoints(source, destination);
+            MoveSpringJoints(source, destination);
+        }
+
         // all /////////////////////////////////////////////////////////////////
         // move all physics components from one GameObject to another.
         public static void MovePhysicsComponents(GameObject source, GameObject destination)
