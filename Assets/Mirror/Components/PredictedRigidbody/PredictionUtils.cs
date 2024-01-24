@@ -368,9 +368,11 @@ namespace Mirror
         // move all physics components from one GameObject to another.
         public static void MovePhysicsComponents(GameObject source, GameObject destination)
         {
-            MoveRigidbody(source, destination);
-            MoveAllColliders(source, destination);
+            // need to move joints first, otherwise we might see:
+            // 'can't move Rigidbody because a Joint depends on it'
             MoveAllJoints(source, destination);
+            MoveAllColliders(source, destination);
+            MoveRigidbody(source, destination);
         }
     }
 }
