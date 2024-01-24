@@ -157,8 +157,36 @@ namespace Mirror
             CharacterJoint[] sourceJoints = source.GetComponentsInChildren<CharacterJoint>();
             foreach (CharacterJoint sourceJoint in sourceJoints)
             {
-                // TODO not supported yet
-                Debug.LogError($"Prediction: {source.name} has a CharacterJoint on {sourceJoint.name}. Prediction does not support joints yet, this won't work properly.");
+            // copy the relative transform:
+                // if joint is on root, it returns destination root.
+                // if joint is on a child, it creates and returns a child on destination.
+                GameObject target = CopyRelativeTransform(source, sourceJoint.transform, destination);
+                CharacterJoint jointCopy = target.AddComponent<CharacterJoint>();
+                // apply settings, in alphabetical order
+                jointCopy.anchor = sourceJoint.anchor;
+                jointCopy.autoConfigureConnectedAnchor = sourceJoint.autoConfigureConnectedAnchor;
+                jointCopy.axis = sourceJoint.axis;
+                jointCopy.breakForce = sourceJoint.breakForce;
+                jointCopy.breakTorque = sourceJoint.breakTorque;
+                jointCopy.connectedAnchor = sourceJoint.connectedAnchor;
+                jointCopy.connectedBody = sourceJoint.connectedBody;
+                jointCopy.connectedArticulationBody = sourceJoint.connectedArticulationBody;
+                jointCopy.connectedMassScale = sourceJoint.connectedMassScale;
+                jointCopy.enableCollision = sourceJoint.enableCollision;
+                jointCopy.enablePreprocessing = sourceJoint.enablePreprocessing;
+                jointCopy.enableProjection = sourceJoint.enableProjection;
+                jointCopy.highTwistLimit = sourceJoint.highTwistLimit;
+                jointCopy.lowTwistLimit = sourceJoint.lowTwistLimit;
+                jointCopy.massScale = sourceJoint.massScale;
+                jointCopy.projectionAngle = sourceJoint.projectionAngle;
+                jointCopy.projectionDistance = sourceJoint.projectionDistance;
+                jointCopy.swing1Limit = sourceJoint.swing1Limit;
+                jointCopy.swing2Limit = sourceJoint.swing2Limit;
+                jointCopy.swingAxis = sourceJoint.swingAxis;
+                jointCopy.swingLimitSpring = sourceJoint.swingLimitSpring;
+                jointCopy.twistLimitSpring = sourceJoint.twistLimitSpring;
+
+                GameObject.Destroy(sourceJoint);
             }
         }
 
