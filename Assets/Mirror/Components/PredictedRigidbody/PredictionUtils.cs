@@ -169,8 +169,57 @@ namespace Mirror
             ConfigurableJoint[] sourceJoints = source.GetComponentsInChildren<ConfigurableJoint>();
             foreach (ConfigurableJoint sourceJoint in sourceJoints)
             {
-                // TODO not supported yet
-                Debug.LogError($"Prediction: {source.name} has a ConfigurableJoint on {sourceJoint.name}. Prediction does not support joints yet, this won't work properly.");
+                // copy the relative transform:
+                // if joint is on root, it returns destination root.
+                // if joint is on a child, it creates and returns a child on destination.
+                GameObject target = CopyRelativeTransform(source, sourceJoint.transform, destination);
+                ConfigurableJoint jointCopy = target.AddComponent<ConfigurableJoint>();
+                // apply settings, in alphabetical order
+                jointCopy.anchor = sourceJoint.anchor;
+                jointCopy.angularXLimitSpring = sourceJoint.angularXLimitSpring;
+                jointCopy.angularXDrive = sourceJoint.angularXDrive;
+                jointCopy.angularXMotion = sourceJoint.angularXMotion;
+                jointCopy.angularYLimit = sourceJoint.angularYLimit;
+                jointCopy.angularYMotion = sourceJoint.angularYMotion;
+                jointCopy.angularYZDrive = sourceJoint.angularYZDrive;
+                jointCopy.angularYZLimitSpring = sourceJoint.angularYZLimitSpring;
+                jointCopy.angularZLimit = sourceJoint.angularZLimit;
+                jointCopy.angularZMotion = sourceJoint.angularZMotion;
+                jointCopy.autoConfigureConnectedAnchor = sourceJoint.autoConfigureConnectedAnchor;
+                jointCopy.axis = sourceJoint.axis;
+                jointCopy.breakForce = sourceJoint.breakForce;
+                jointCopy.breakTorque = sourceJoint.breakTorque;
+                jointCopy.configuredInWorldSpace = sourceJoint.configuredInWorldSpace;
+                jointCopy.connectedAnchor = sourceJoint.connectedAnchor;
+                jointCopy.connectedBody = sourceJoint.connectedBody;
+                jointCopy.connectedArticulationBody = sourceJoint.connectedArticulationBody;
+                jointCopy.connectedMassScale = sourceJoint.connectedMassScale;
+                jointCopy.enableCollision = sourceJoint.enableCollision;
+                jointCopy.enablePreprocessing = sourceJoint.enablePreprocessing;
+                jointCopy.highAngularXLimit = sourceJoint.highAngularXLimit;
+                jointCopy.linearLimitSpring = sourceJoint.linearLimitSpring;
+                jointCopy.linearLimit = sourceJoint.linearLimit;
+                jointCopy.lowAngularXLimit = sourceJoint.lowAngularXLimit;
+                jointCopy.massScale = sourceJoint.massScale;
+                jointCopy.projectionAngle = sourceJoint.projectionAngle;
+                jointCopy.projectionDistance = sourceJoint.projectionDistance;
+                jointCopy.projectionMode = sourceJoint.projectionMode;
+                jointCopy.rotationDriveMode = sourceJoint.rotationDriveMode;
+                jointCopy.secondaryAxis = sourceJoint.secondaryAxis;
+                jointCopy.slerpDrive = sourceJoint.slerpDrive;
+                jointCopy.swapBodies = sourceJoint.swapBodies;
+                jointCopy.targetAngularVelocity = sourceJoint.targetAngularVelocity;
+                jointCopy.targetPosition = sourceJoint.targetPosition;
+                jointCopy.targetRotation = sourceJoint.targetRotation;
+                jointCopy.targetVelocity = sourceJoint.targetVelocity;
+                jointCopy.xDrive = sourceJoint.xDrive;
+                jointCopy.xMotion = sourceJoint.xMotion;
+                jointCopy.yDrive = sourceJoint.yDrive;
+                jointCopy.yMotion = sourceJoint.yMotion;
+                jointCopy.zDrive = sourceJoint.zDrive;
+                jointCopy.zMotion = sourceJoint.zMotion;
+
+                GameObject.Destroy(sourceJoint);
             }
         }
 
