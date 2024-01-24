@@ -370,6 +370,7 @@ namespace Mirror
         {
             MoveRigidbody(source, destination);
             MoveAllColliders(source, destination);
+            MoveAllJoints(source, destination);
         }
     }
 }
