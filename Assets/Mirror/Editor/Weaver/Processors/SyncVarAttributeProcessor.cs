@@ -471,13 +471,6 @@ namespace Mirror.Weaver
                         continue;
                     }
 
-                    if (fd.FieldType.IsArray)
-                    {
-                        Log.Error($"{fd.Name} has invalid type. Use SyncLists instead of arrays", fd);
-                        WeavingFailed = true;
-                        continue;
-                    }
-
                     if (SyncObjectInitializer.ImplementsSyncObject(fd.FieldType))
                     {
                         Log.Warning($"{fd.Name} has [SyncVar] attribute. SyncLists should not be marked with SyncVar", fd);

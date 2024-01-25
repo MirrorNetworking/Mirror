@@ -2,9 +2,9 @@ using Mirror;
 
 namespace WeaverSyncVarTests.SyncVarsCantBeArray
 {
-    class SyncVarsCantBeArray : NetworkBehaviour
+    class SyncVarsCanBeArray : NetworkBehaviour
     {
         [SyncVar]
-        int[] thisShouldntWork = new int[100];
+        int[] thisShouldWork = new int[100];
     }
 }
