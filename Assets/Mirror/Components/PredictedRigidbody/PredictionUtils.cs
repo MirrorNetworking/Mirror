@@ -174,7 +174,6 @@ namespace Mirror
                 jointCopy.breakTorque = sourceJoint.breakTorque;
                 jointCopy.connectedAnchor = sourceJoint.connectedAnchor;
                 jointCopy.connectedBody = sourceJoint.connectedBody;
-                jointCopy.connectedArticulationBody = sourceJoint.connectedArticulationBody;
                 jointCopy.connectedMassScale = sourceJoint.connectedMassScale;
                 jointCopy.enableCollision = sourceJoint.enableCollision;
                 jointCopy.enablePreprocessing = sourceJoint.enablePreprocessing;
@@ -189,6 +188,9 @@ namespace Mirror
                 jointCopy.swingAxis = sourceJoint.swingAxis;
                 jointCopy.swingLimitSpring = sourceJoint.swingLimitSpring;
                 jointCopy.twistLimitSpring = sourceJoint.twistLimitSpring;
+#if UNITY_2020_3_OR_NEWER
+                jointCopy.connectedArticulationBody = sourceJoint.connectedArticulationBody;
+#endif
 
                 GameObject.Destroy(sourceJoint);
             }
@@ -224,7 +226,6 @@ namespace Mirror
                 jointCopy.configuredInWorldSpace = sourceJoint.configuredInWorldSpace;
                 jointCopy.connectedAnchor = sourceJoint.connectedAnchor;
                 jointCopy.connectedBody = sourceJoint.connectedBody;
-                jointCopy.connectedArticulationBody = sourceJoint.connectedArticulationBody;
                 jointCopy.connectedMassScale = sourceJoint.connectedMassScale;
                 jointCopy.enableCollision = sourceJoint.enableCollision;
                 jointCopy.enablePreprocessing = sourceJoint.enablePreprocessing;
@@ -250,6 +251,9 @@ namespace Mirror
                 jointCopy.yMotion = sourceJoint.yMotion;
                 jointCopy.zDrive = sourceJoint.zDrive;
                 jointCopy.zMotion = sourceJoint.zMotion;
+#if UNITY_2020_3_OR_NEWER
+                jointCopy.connectedArticulationBody = sourceJoint.connectedArticulationBody;
+#endif
 
                 GameObject.Destroy(sourceJoint);
             }
@@ -275,11 +279,13 @@ namespace Mirror
                 jointCopy.breakTorque = sourceJoint.breakTorque;
                 jointCopy.connectedAnchor = sourceJoint.connectedAnchor;
                 jointCopy.connectedBody = sourceJoint.connectedBody;
-                jointCopy.connectedArticulationBody = sourceJoint.connectedArticulationBody;
                 jointCopy.connectedMassScale = sourceJoint.connectedMassScale;
                 jointCopy.enableCollision = sourceJoint.enableCollision;
                 jointCopy.enablePreprocessing = sourceJoint.enablePreprocessing;
                 jointCopy.massScale = sourceJoint.massScale;
+#if UNITY_2020_3_OR_NEWER
+                jointCopy.connectedArticulationBody = sourceJoint.connectedArticulationBody;
+#endif
 
                 GameObject.Destroy(sourceJoint);
             }
@@ -305,7 +311,6 @@ namespace Mirror
                 jointCopy.breakTorque = sourceJoint.breakTorque;
                 jointCopy.connectedAnchor = sourceJoint.connectedAnchor;
                 jointCopy.connectedBody = sourceJoint.connectedBody;
-                jointCopy.connectedArticulationBody = sourceJoint.connectedArticulationBody;
                 jointCopy.connectedMassScale = sourceJoint.connectedMassScale;
                 jointCopy.enableCollision = sourceJoint.enableCollision;
                 jointCopy.enablePreprocessing = sourceJoint.enablePreprocessing;
@@ -316,6 +321,9 @@ namespace Mirror
                 jointCopy.useLimits = sourceJoint.useLimits;
                 jointCopy.useMotor = sourceJoint.useMotor;
                 jointCopy.useSpring = sourceJoint.useSpring;
+#if UNITY_2020_3_OR_NEWER
+                jointCopy.connectedArticulationBody = sourceJoint.connectedArticulationBody;
+#endif
 #if UNITY_2022_3_OR_NEWER
                 jointCopy.extendedLimits = sourceJoint.extendedLimits;
                 jointCopy.useAcceleration = sourceJoint.useAcceleration;
@@ -345,7 +353,6 @@ namespace Mirror
                 jointCopy.breakTorque = sourceJoint.breakTorque;
                 jointCopy.connectedAnchor = sourceJoint.connectedAnchor;
                 jointCopy.connectedBody = sourceJoint.connectedBody;
-                jointCopy.connectedArticulationBody = sourceJoint.connectedArticulationBody;
                 jointCopy.connectedMassScale = sourceJoint.connectedMassScale;
                 jointCopy.damper = sourceJoint.damper;
                 jointCopy.enableCollision = sourceJoint.enableCollision;
@@ -355,6 +362,9 @@ namespace Mirror
                 jointCopy.minDistance = sourceJoint.minDistance;
                 jointCopy.spring = sourceJoint.spring;
                 jointCopy.tolerance = sourceJoint.tolerance;
+#if UNITY_2020_3_OR_NEWER
+                jointCopy.connectedArticulationBody = sourceJoint.connectedArticulationBody;
+#endif
 
                 GameObject.Destroy(sourceJoint);
             }
