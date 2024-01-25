@@ -9,7 +9,7 @@ namespace Mirror
     [HelpURL("https://mirror-networking.gitbook.io/docs/guides/interest-management")]
     public class NetworkTeam : NetworkBehaviour
     {
-        [SerializeField, ReadOnly]
+        [SerializeField]
         [Tooltip("Set teamId on Server at runtime to the same value on all networked objects that belong to a given team")]
         string _teamId;
 
@@ -18,7 +18,7 @@ namespace Mirror
             get => _teamId;
             set
             {
-                if (!NetworkServer.active)
+                if (Application.IsPlaying(gameObject) && !NetworkServer.active)
                     throw new InvalidOperationException("teamId can only be set at runtime on active server");
 
                 if (_teamId == value)
