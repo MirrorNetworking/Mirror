@@ -309,15 +309,17 @@ namespace Mirror
                 jointCopy.connectedMassScale = sourceJoint.connectedMassScale;
                 jointCopy.enableCollision = sourceJoint.enableCollision;
                 jointCopy.enablePreprocessing = sourceJoint.enablePreprocessing;
-                jointCopy.extendedLimits = sourceJoint.extendedLimits;
                 jointCopy.limits = sourceJoint.limits;
                 jointCopy.massScale = sourceJoint.massScale;
                 jointCopy.motor = sourceJoint.motor;
                 jointCopy.spring = sourceJoint.spring;
-                jointCopy.useAcceleration = sourceJoint.useAcceleration;
                 jointCopy.useLimits = sourceJoint.useLimits;
                 jointCopy.useMotor = sourceJoint.useMotor;
                 jointCopy.useSpring = sourceJoint.useSpring;
+#if UNITY_2022_3_OR_NEWER
+                jointCopy.extendedLimits = sourceJoint.extendedLimits;
+                jointCopy.useAcceleration = sourceJoint.useAcceleration;
+#endif
 
                 GameObject.Destroy(sourceJoint);
             }
