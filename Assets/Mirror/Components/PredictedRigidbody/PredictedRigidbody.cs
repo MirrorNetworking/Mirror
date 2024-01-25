@@ -132,10 +132,19 @@ namespace Mirror
             Debug.Log($"Separating Physics for {name}");
 
             // create an empty GameObject with the same name + _Physical
+            // it's important to copy world position/rotation/scale, not local!
+            // because the original object may be a child of another.
+            //
+            // for example:
+            //    parent (scale=1.5)
+            //      child (scale=0.5)
+            //
+            // if we copy localScale then the copy has scale=0.5, where as the
+            // original would have a global scale of ~1.0.
             physicsCopy = new GameObject($"{name}_Physical");
-            physicsCopy.transform.position = transform.position;
-            physicsCopy.transform.rotation = transform.rotation;
-            physicsCopy.transform.localScale = transform.localScale;
+            physicsCopy.transform.position = transform.position;     // world position!
+            physicsCopy.transform.rotation = transform.rotation;     // world rotation!
+            physicsCopy.transform.localScale = transform.lossyScale; // world scale!
 
             // assign the same Layer for the physics copy.
             // games may use a custom physics collision matrix, layer matters.
@@ -159,7 +168,19 @@ namespace Mirror
                 physicsGhostRigidbody.ghostEnabledCheckInterval = ghostEnabledCheckInterval;
 
                 // one for the latest remote state for comparison
+                // it's important to copy world position/rotation/scale, not local!
+                // because the original object may be a child of another.
+                //
+                // for example:
+                //    parent (scale=1.5)
+                //      child (scale=0.5)
+                //
+                // if we copy localScale then the copy has scale=0.5, where as the
+                // original would have a global scale of ~1.0.
                 remoteCopy = new GameObject($"{name}_Remote");
+                remoteCopy.transform.position = transform.position;     // world position!
+                remoteCopy.transform.rotation = transform.rotation;     // world rotation!
+                remoteCopy.transform.localScale = transform.lossyScale; // world scale!
                 PredictedRigidbodyRemoteGhost predictedGhost = remoteCopy.AddComponent<PredictedRigidbodyRemoteGhost>();
                 predictedGhost.target = this;
                 predictedGhost.ghostDistanceThreshold = ghostDistanceThreshold;
@@ -388,7 +409,7 @@ namespace Mirror
             {
                 remoteCopy.transform.position = state.position;
                 remoteCopy.transform.rotation = state.rotation;
-                remoteCopy.transform.localScale = transform.localScale;
+                remoteCopy.transform.localScale = transform.lossyScale; // world scale! see CreateGhosts comment.
             }
 
             // OPTIONAL performance optimization when comparing idle objects.
