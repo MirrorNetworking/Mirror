@@ -10,10 +10,14 @@ namespace Mirror
         // move a Rigidbody + settings from one GameObject to another.
         public static void MoveRigidbody(GameObject source, GameObject destination)
         {
-            // create a new Rigidbody component on destionation
+            // create a new Rigidbody component on destination.
+            // note that adding a Joint automatically adds a Rigidbody.
+            // so first check if one was added yet.
             Rigidbody original = source.GetComponent<Rigidbody>();
             if (original == null) throw new Exception($"Prediction: attempted to move {source}'s Rigidbody to the predicted copy, but there was no component.");
-            Rigidbody rigidbodyCopy = destination.AddComponent<Rigidbody>();
+            Rigidbody rigidbodyCopy;
+            if (!destination.TryGetComponent(out rigidbodyCopy))
+                rigidbodyCopy = destination.AddComponent<Rigidbody>();
 
             // copy all properties
             rigidbodyCopy.mass = original.mass;
@@ -149,12 +153,230 @@ namespace Mirror
             MoveMeshColliders(source, destination);
         }
 
+        // joints //////////////////////////////////////////////////////////////
+        // move all CharacterJoints + settings from one GameObject to another.
+        public static void MoveCharacterJoints(GameObject source, GameObject destination)
+        {
+            // colliders may be on children
+            CharacterJoint[] sourceJoints = source.GetComponentsInChildren<CharacterJoint>();
+            foreach (CharacterJoint sourceJoint in sourceJoints)
+            {
+            // copy the relative transform:
+                // if joint is on root, it returns destination root.
+                // if joint is on a child, it creates and returns a child on destination.
+                GameObject target = CopyRelativeTransform(source, sourceJoint.transform, destination);
+                CharacterJoint jointCopy = target.AddComponent<CharacterJoint>();
+                // apply settings, in alphabetical order
+                jointCopy.anchor = sourceJoint.anchor;
+                jointCopy.autoConfigureConnectedAnchor = sourceJoint.autoConfigureConnectedAnchor;
+                jointCopy.axis = sourceJoint.axis;
+                jointCopy.breakForce = sourceJoint.breakForce;
+                jointCopy.breakTorque = sourceJoint.breakTorque;
+                jointCopy.connectedAnchor = sourceJoint.connectedAnchor;
+                jointCopy.connectedBody = sourceJoint.connectedBody;
+                jointCopy.connectedArticulationBody = sourceJoint.connectedArticulationBody;
+                jointCopy.connectedMassScale = sourceJoint.connectedMassScale;
+                jointCopy.enableCollision = sourceJoint.enableCollision;
+                jointCopy.enablePreprocessing = sourceJoint.enablePreprocessing;
+                jointCopy.enableProjection = sourceJoint.enableProjection;
+                jointCopy.highTwistLimit = sourceJoint.highTwistLimit;
+                jointCopy.lowTwistLimit = sourceJoint.lowTwistLimit;
+                jointCopy.massScale = sourceJoint.massScale;
+                jointCopy.projectionAngle = sourceJoint.projectionAngle;
+                jointCopy.projectionDistance = sourceJoint.projectionDistance;
+                jointCopy.swing1Limit = sourceJoint.swing1Limit;
+                jointCopy.swing2Limit = sourceJoint.swing2Limit;
+                jointCopy.swingAxis = sourceJoint.swingAxis;
+                jointCopy.swingLimitSpring = sourceJoint.swingLimitSpring;
+                jointCopy.twistLimitSpring = sourceJoint.twistLimitSpring;
+
+                GameObject.Destroy(sourceJoint);
+            }
+        }
+
+        // move all ConfigurableJoints + settings from one GameObject to another.
+        public static void MoveConfigurableJoints(GameObject source, GameObject destination)
+        {
+            // colliders may be on children
+            ConfigurableJoint[] sourceJoints = source.GetComponentsInChildren<ConfigurableJoint>();
+            foreach (ConfigurableJoint sourceJoint in sourceJoints)
+            {
+                // copy the relative transform:
+                // if joint is on root, it returns destination root.
+                // if joint is on a child, it creates and returns a child on destination.
+                GameObject target = CopyRelativeTransform(source, sourceJoint.transform, destination);
+                ConfigurableJoint jointCopy = target.AddComponent<ConfigurableJoint>();
+                // apply settings, in alphabetical order
+                jointCopy.anchor = sourceJoint.anchor;
+                jointCopy.angularXLimitSpring = sourceJoint.angularXLimitSpring;
+                jointCopy.angularXDrive = sourceJoint.angularXDrive;
+                jointCopy.angularXMotion = sourceJoint.angularXMotion;
+                jointCopy.angularYLimit = sourceJoint.angularYLimit;
+                jointCopy.angularYMotion = sourceJoint.angularYMotion;
+                jointCopy.angularYZDrive = sourceJoint.angularYZDrive;
+                jointCopy.angularYZLimitSpring = sourceJoint.angularYZLimitSpring;
+                jointCopy.angularZLimit = sourceJoint.angularZLimit;
+                jointCopy.angularZMotion = sourceJoint.angularZMotion;
+                jointCopy.autoConfigureConnectedAnchor = sourceJoint.autoConfigureConnectedAnchor;
+                jointCopy.axis = sourceJoint.axis;
+                jointCopy.breakForce = sourceJoint.breakForce;
+                jointCopy.breakTorque = sourceJoint.breakTorque;
+                jointCopy.configuredInWorldSpace = sourceJoint.configuredInWorldSpace;
+                jointCopy.connectedAnchor = sourceJoint.connectedAnchor;
+                jointCopy.connectedBody = sourceJoint.connectedBody;
+                jointCopy.connectedArticulationBody = sourceJoint.connectedArticulationBody;
+                jointCopy.connectedMassScale = sourceJoint.connectedMassScale;
+                jointCopy.enableCollision = sourceJoint.enableCollision;
+                jointCopy.enablePreprocessing = sourceJoint.enablePreprocessing;
+                jointCopy.highAngularXLimit = sourceJoint.highAngularXLimit;
+                jointCopy.linearLimitSpring = sourceJoint.linearLimitSpring;
+                jointCopy.linearLimit = sourceJoint.linearLimit;
+                jointCopy.lowAngularXLimit = sourceJoint.lowAngularXLimit;
+                jointCopy.massScale = sourceJoint.massScale;
+                jointCopy.projectionAngle = sourceJoint.projectionAngle;
+                jointCopy.projectionDistance = sourceJoint.projectionDistance;
+                jointCopy.projectionMode = sourceJoint.projectionMode;
+                jointCopy.rotationDriveMode = sourceJoint.rotationDriveMode;
+                jointCopy.secondaryAxis = sourceJoint.secondaryAxis;
+                jointCopy.slerpDrive = sourceJoint.slerpDrive;
+                jointCopy.swapBodies = sourceJoint.swapBodies;
+                jointCopy.targetAngularVelocity = sourceJoint.targetAngularVelocity;
+                jointCopy.targetPosition = sourceJoint.targetPosition;
+                jointCopy.targetRotation = sourceJoint.targetRotation;
+                jointCopy.targetVelocity = sourceJoint.targetVelocity;
+                jointCopy.xDrive = sourceJoint.xDrive;
+                jointCopy.xMotion = sourceJoint.xMotion;
+                jointCopy.yDrive = sourceJoint.yDrive;
+                jointCopy.yMotion = sourceJoint.yMotion;
+                jointCopy.zDrive = sourceJoint.zDrive;
+                jointCopy.zMotion = sourceJoint.zMotion;
+
+                GameObject.Destroy(sourceJoint);
+            }
+        }
+
+        // move all FixedJoints + settings from one GameObject to another.
+        public static void MoveFixedJoints(GameObject source, GameObject destination)
+        {
+            // colliders may be on children
+            FixedJoint[] sourceJoints = source.GetComponentsInChildren<FixedJoint>();
+            foreach (FixedJoint sourceJoint in sourceJoints)
+            {
+                // copy the relative transform:
+                // if joint is on root, it returns destination root.
+                // if joint is on a child, it creates and returns a child on destination.
+                GameObject target = CopyRelativeTransform(source, sourceJoint.transform, destination);
+                FixedJoint jointCopy = target.AddComponent<FixedJoint>();
+                // apply settings, in alphabetical order
+                jointCopy.anchor = sourceJoint.anchor;
+                jointCopy.autoConfigureConnectedAnchor = sourceJoint.autoConfigureConnectedAnchor;
+                jointCopy.axis = sourceJoint.axis;
+                jointCopy.breakForce = sourceJoint.breakForce;
+                jointCopy.breakTorque = sourceJoint.breakTorque;
+                jointCopy.connectedAnchor = sourceJoint.connectedAnchor;
+                jointCopy.connectedBody = sourceJoint.connectedBody;
+                jointCopy.connectedArticulationBody = sourceJoint.connectedArticulationBody;
+                jointCopy.connectedMassScale = sourceJoint.connectedMassScale;
+                jointCopy.enableCollision = sourceJoint.enableCollision;
+                jointCopy.enablePreprocessing = sourceJoint.enablePreprocessing;
+                jointCopy.massScale = sourceJoint.massScale;
+
+                GameObject.Destroy(sourceJoint);
+            }
+        }
+
+        // move all HingeJoints + settings from one GameObject to another.
+        public static void MoveHingeJoints(GameObject source, GameObject destination)
+        {
+            // colliders may be on children
+            HingeJoint[] sourceJoints = source.GetComponentsInChildren<HingeJoint>();
+            foreach (HingeJoint sourceJoint in sourceJoints)
+            {
+                // copy the relative transform:
+                // if joint is on root, it returns destination root.
+                // if joint is on a child, it creates and returns a child on destination.
+                GameObject target = CopyRelativeTransform(source, sourceJoint.transform, destination);
+                HingeJoint jointCopy = target.AddComponent<HingeJoint>();
+                // apply settings, in alphabetical order
+                jointCopy.anchor = sourceJoint.anchor;
+                jointCopy.autoConfigureConnectedAnchor = sourceJoint.autoConfigureConnectedAnchor;
+                jointCopy.axis = sourceJoint.axis;
+                jointCopy.breakForce = sourceJoint.breakForce;
+                jointCopy.breakTorque = sourceJoint.breakTorque;
+                jointCopy.connectedAnchor = sourceJoint.connectedAnchor;
+                jointCopy.connectedBody = sourceJoint.connectedBody;
+                jointCopy.connectedArticulationBody = sourceJoint.connectedArticulationBody;
+                jointCopy.connectedMassScale = sourceJoint.connectedMassScale;
+                jointCopy.enableCollision = sourceJoint.enableCollision;
+                jointCopy.enablePreprocessing = sourceJoint.enablePreprocessing;
+                jointCopy.extendedLimits = sourceJoint.extendedLimits;
+                jointCopy.limits = sourceJoint.limits;
+                jointCopy.massScale = sourceJoint.massScale;
+                jointCopy.motor = sourceJoint.motor;
+                jointCopy.spring = sourceJoint.spring;
+                jointCopy.useAcceleration = sourceJoint.useAcceleration;
+                jointCopy.useLimits = sourceJoint.useLimits;
+                jointCopy.useMotor = sourceJoint.useMotor;
+                jointCopy.useSpring = sourceJoint.useSpring;
+
+                GameObject.Destroy(sourceJoint);
+            }
+        }
+
+        // move all SpringJoints + settings from one GameObject to another.
+        public static void MoveSpringJoints(GameObject source, GameObject destination)
+        {
+            // colliders may be on children
+            SpringJoint[] sourceJoints = source.GetComponentsInChildren<SpringJoint>();
+            foreach (SpringJoint sourceJoint in sourceJoints)
+            {
+                // copy the relative transform:
+                // if joint is on root, it returns destination root.
+                // if joint is on a child, it creates and returns a child on destination.
+                GameObject target = CopyRelativeTransform(source, sourceJoint.transform, destination);
+                SpringJoint jointCopy = target.AddComponent<SpringJoint>();
+                // apply settings, in alphabetical order
+                jointCopy.anchor = sourceJoint.anchor;
+                jointCopy.autoConfigureConnectedAnchor = sourceJoint.autoConfigureConnectedAnchor;
+                jointCopy.axis = sourceJoint.axis;
+                jointCopy.breakForce = sourceJoint.breakForce;
+                jointCopy.breakTorque = sourceJoint.breakTorque;
+                jointCopy.connectedAnchor = sourceJoint.connectedAnchor;
+                jointCopy.connectedBody = sourceJoint.connectedBody;
+                jointCopy.connectedArticulationBody = sourceJoint.connectedArticulationBody;
+                jointCopy.connectedMassScale = sourceJoint.connectedMassScale;
+                jointCopy.damper = sourceJoint.damper;
+                jointCopy.enableCollision = sourceJoint.enableCollision;
+                jointCopy.enablePreprocessing = sourceJoint.enablePreprocessing;
+                jointCopy.massScale = sourceJoint.massScale;
+                jointCopy.maxDistance = sourceJoint.maxDistance;
+                jointCopy.minDistance = sourceJoint.minDistance;
+                jointCopy.spring = sourceJoint.spring;
+                jointCopy.tolerance = sourceJoint.tolerance;
+
+                GameObject.Destroy(sourceJoint);
+            }
+        }
+
+        // move all Joints + settings from one GameObject to another.
+        public static void MoveAllJoints(GameObject source, GameObject destination)
+        {
+            MoveCharacterJoints(source, destination);
+            MoveConfigurableJoints(source, destination);
+            MoveFixedJoints(source, destination);
+            MoveHingeJoints(source, destination);
+            MoveSpringJoints(source, destination);
+        }
+
         // all /////////////////////////////////////////////////////////////////
         // move all physics components from one GameObject to another.
         public static void MovePhysicsComponents(GameObject source, GameObject destination)
         {
-            MoveRigidbody(source, destination);
+            // need to move joints first, otherwise we might see:
+            // 'can't move Rigidbody because a Joint depends on it'
+            MoveAllJoints(source, destination);
             MoveAllColliders(source, destination);
+            MoveRigidbody(source, destination);
         }
     }
 }
