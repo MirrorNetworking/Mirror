@@ -24,6 +24,16 @@ namespace Mirror
 {
     public enum CoordinateSpace { Local, World }
 
+    [Flags]
+    public enum SyncInterpolateOptions
+    {
+        Nothing,
+        Position = 1 << 0,
+        Rotation = 1 << 1,
+        Scale = 1 << 2,
+        Default = Position | Rotation
+    }
+
     public abstract class NetworkTransformBase : NetworkBehaviour
     {
         // target transform to sync. can be on a child.
@@ -41,26 +51,31 @@ namespace Mirror
         public readonly SortedList<double, TransformSnapshot> serverSnapshots = new SortedList<double, TransformSnapshot>(16);
 
         // selective sync //////////////////////////////////////////////////////
-        [Header("Selective Sync\nDon't change these at Runtime")]
-        public bool syncPosition = true;  // do not change at runtime!
-        public bool syncRotation = true;  // do not change at runtime!
-        public bool syncScale = false; // do not change at runtime! rare. off by default.
+        [Header("Synchronization - Do Not Change At Runtime")]
+        [SerializeField, Tooltip("Selectively syncs position, rotation, and scale.\nDo Not Change At Runtime!")]
+        /// <summary>Do Not Change At Runtime</summary>
+        internal SyncInterpolateOptions syncSelection = SyncInterpolateOptions.Default;
+
+        public bool syncPosition => (syncSelection & SyncInterpolateOptions.Position) == SyncInterpolateOptions.Position;
+        public bool syncRotation => (syncSelection & SyncInterpolateOptions.Rotation) == SyncInterpolateOptions.Rotation;
+        public bool syncScale => (syncSelection & SyncInterpolateOptions.Scale) == SyncInterpolateOptions.Scale;
+
+        // interpolation is on by default, but can be disabled to jump to
+        // the destination immediately. some projects need this.
+        [Header("Interpolation - Do Not Change At Runtime")]
+        [SerializeField, Tooltip("Interpolate smoothly between snapshots.\nDo Not Change At Runtime!")]
+        /// <summary>Do Not Change At Runtime</summary>
+        internal SyncInterpolateOptions interpolateSelection = SyncInterpolateOptions.Default;
+
+        public bool interpolatePosition => (interpolateSelection & SyncInterpolateOptions.Position) == SyncInterpolateOptions.Position;
+        public bool interpolateRotation => (interpolateSelection & SyncInterpolateOptions.Rotation) == SyncInterpolateOptions.Rotation;
+        public bool interpolateScale => (interpolateSelection & SyncInterpolateOptions.Scale) == SyncInterpolateOptions.Scale;
 
         [Header("Bandwidth Savings")]
         [Tooltip("When true, changes are not sent unless greater than sensitivity values below.")]
         public bool onlySyncOnChange = true;
         [Tooltip("Apply smallest-three quaternion compression. This is lossy, you can disable it if the small rotation inaccuracies are noticeable in your project.")]
         public bool compressRotation = true;
-
-        // interpolation is on by default, but can be disabled to jump to
-        // the destination immediately. some projects need this.
-        [Header("Interpolation")]
-        [Tooltip("Set to false to have a snap-like effect on position movement.")]
-        public bool interpolatePosition = true;
-        [Tooltip("Set to false to have a snap-like effect on rotations.")]
-        public bool interpolateRotation = true;
-        [Tooltip("Set to false to remove scale smoothing. Example use-case: Instant flipping of sprites that use -X and +X for direction.")]
-        public bool interpolateScale = true;
 
         // CoordinateSpace ///////////////////////////////////////////////////////////
         [Header("Coordinate Space")]
@@ -118,7 +133,7 @@ namespace Mirror
 
             // Unity doesn't support setting world scale.
             // OnValidate force disables syncScale in world mode.
-            if (coordinateSpace == CoordinateSpace.World) syncScale = false;
+            if (coordinateSpace == CoordinateSpace.World) syncSelection &= ~SyncInterpolateOptions.Scale;
         }
 
         // snapshot functions //////////////////////////////////////////////////
