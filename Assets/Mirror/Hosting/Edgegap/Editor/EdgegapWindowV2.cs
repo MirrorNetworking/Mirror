@@ -237,10 +237,10 @@ namespace Edgegap.Editor
             _containerRegistryFoldout = rootVisualElement.Q<Foldout>(EdgegapWindowMetadata.CONTAINER_REGISTRY_FOLDOUT_ID);
             _containerNewTagVersionInput = rootVisualElement.Q<TextField>(EdgegapWindowMetadata.CONTAINER_NEW_TAG_VERSION_TXT_ID);
             _containerPortNumInput = rootVisualElement.Q<TextField>(EdgegapWindowMetadata.CONTAINER_REGISTRY_PORT_NUM_ID);
-            // MIRROR CHANGE: dynamically resolving PortType fails if not in Assembly-CSharp-Editor.dll. Hardcode UDP/TCP instead.
+            // MIRROR CHANGE: dynamically resolving PortType fails if not in Assembly-CSharp-Editor.dll. Hardcode UDP/TCP/WS instead.
             // this finds the placeholder and dynamically replaces it with a popup field
             VisualElement dropdownPlaceholder = rootVisualElement.Q<VisualElement>("MIRROR_CHANGE_PORT_HARDCODED");
-            List<string> options = new List<string> { "UDP", "TCP" };
+            List<string> options = Enum.GetNames(typeof(ProtocolType)).Cast<string>().ToList();
             _containerTransportTypeEnumInput = new PopupField<string>("Protocol Type", options, 0);
             dropdownPlaceholder.Add(_containerTransportTypeEnumInput);
             // END MIRROR CHANGE
@@ -1606,6 +1606,7 @@ namespace Edgegap.Editor
                     {
                         Port = int.Parse(_containerPortNumInput.value), // OnInputChange clamps + validates,
                         ProtocolStr = _containerTransportTypeEnumInput.value.ToString(),
+                        TlsUpgrade = _containerTransportTypeEnumInput.value.ToString() == ProtocolType.WS.ToString() // If the protocol is WebSocket, we seemlessly add tls_upgrade. If we want to add it to other protocols, we need to change this.
                     },
                 };
 
