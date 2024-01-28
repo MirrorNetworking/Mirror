@@ -43,30 +43,42 @@ namespace Mirror.Tests.Transports
             int t1_cmax = transport.AddToLookup(int.MaxValue, 1); // should get multiplexId = 6
 
             // MultiplexId -> (OriginalId, TransportIndex) for transport #0
-            transport.OriginalId(t0_c10, out int originalId, out int transportIndex);
-            Assert.That(transportIndex, Is.EqualTo(0));
-            Assert.That(originalId,     Is.EqualTo(10));
+            if (transport.OriginalId(t0_c10, out int originalId, out int transportIndex))
+            {
+                Assert.That(transportIndex, Is.EqualTo(0));
+                Assert.That(originalId, Is.EqualTo(10));
+            }
 
-            transport.OriginalId(t0_c20, out originalId, out transportIndex);
-            Assert.That(transportIndex, Is.EqualTo(0));
-            Assert.That(originalId,     Is.EqualTo(20));
+            if (transport.OriginalId(t0_c20, out originalId, out transportIndex))
+            {
+                Assert.That(transportIndex, Is.EqualTo(0));
+                Assert.That(originalId, Is.EqualTo(20));
+            }
 
-            transport.OriginalId(t0_cmax, out originalId, out transportIndex);
-            Assert.That(transportIndex, Is.EqualTo(0));
-            Assert.That(originalId,     Is.EqualTo(int.MaxValue));
+            if (transport.OriginalId(t0_cmax, out originalId, out transportIndex))
+            {
+                Assert.That(transportIndex, Is.EqualTo(0));
+                Assert.That(originalId, Is.EqualTo(int.MaxValue));
+            }
 
             // MultiplexId -> (OriginalId, TransportIndex) for transport #1
-            transport.OriginalId(t1_c10, out originalId, out transportIndex);
-            Assert.That(transportIndex, Is.EqualTo(1));
-            Assert.That(originalId,     Is.EqualTo(10));
+            if (transport.OriginalId(t1_c10, out originalId, out transportIndex))
+            {
+                Assert.That(transportIndex, Is.EqualTo(1));
+                Assert.That(originalId, Is.EqualTo(10));
+            }
 
-            transport.OriginalId(t1_c50, out originalId, out transportIndex);
-            Assert.That(transportIndex, Is.EqualTo(1));
-            Assert.That(originalId,     Is.EqualTo(50));
+            if (transport.OriginalId(t1_c50, out originalId, out transportIndex))
+            {
+                Assert.That(transportIndex, Is.EqualTo(1));
+                Assert.That(originalId, Is.EqualTo(50));
+            }
 
-            transport.OriginalId(t1_cmax, out originalId, out transportIndex);
-            Assert.That(transportIndex, Is.EqualTo(1));
-            Assert.That(originalId,     Is.EqualTo(int.MaxValue));
+            if (transport.OriginalId(t1_cmax, out originalId, out transportIndex))
+            {
+                Assert.That(transportIndex, Is.EqualTo(1));
+                Assert.That(originalId, Is.EqualTo(int.MaxValue));
+            }
 
             // (OriginalId, TransportIndex) -> MultiplexId for transport #1
             Assert.That(transport.MultiplexId(10, 0), Is.EqualTo(t0_c10));

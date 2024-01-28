@@ -5,8 +5,12 @@ namespace Mirror.Examples.NetworkRoom
     [RequireComponent(typeof(Common.RandomColor))]
     public class Reward : NetworkBehaviour
     {
-        public bool available = true;
+        [Header("Components")]
         public Common.RandomColor randomColor;
+
+        [Header("Diagnostics")]
+        [ReadOnly, SerializeField]
+        bool available = true;
 
         protected override void OnValidate()
         {

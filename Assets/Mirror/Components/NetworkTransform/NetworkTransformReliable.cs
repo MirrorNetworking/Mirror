@@ -402,9 +402,9 @@ namespace Mirror
         // reset state for next session.
         // do not ever call this during a session (i.e. after teleport).
         // calling this will break delta compression.
-        public override void Reset()
+        public override void ResetState()
         {
-            base.Reset();
+            base.ResetState();
 
             // reset delta
             lastSerializedPosition = Vector3Long.zero;

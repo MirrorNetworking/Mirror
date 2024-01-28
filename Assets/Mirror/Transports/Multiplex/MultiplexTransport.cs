@@ -103,11 +103,19 @@ namespace Mirror
             multiplexedToOriginalId.Remove(multiplexedId);
         }
 
-        public void OriginalId(int multiplexId, out int originalConnectionId, out int transportIndex)
+        public bool OriginalId(int multiplexId, out int originalConnectionId, out int transportIndex)
         {
+            if (!multiplexedToOriginalId.ContainsKey(multiplexId))
+            {
+                originalConnectionId = 0;
+                transportIndex = 0;
+                return false;
+            }
+
             KeyValuePair<int, int> pair = multiplexedToOriginalId[multiplexId];
             originalConnectionId = pair.Key;
             transportIndex       = pair.Value;
+            return true;
         }
 
         public int MultiplexId(int originalConnectionId, int transportIndex)
@@ -295,22 +303,24 @@ namespace Mirror
         public override string ServerGetClientAddress(int connectionId)
         {
             // convert multiplexed connectionId to original id & transport index
-            OriginalId(connectionId, out int originalConnectionId, out int transportIndex);
-            return transports[transportIndex].ServerGetClientAddress(originalConnectionId);
+            if (OriginalId(connectionId, out int originalConnectionId, out int transportIndex))
+                return transports[transportIndex].ServerGetClientAddress(originalConnectionId);
+            else
+                return "";
         }
 
         public override void ServerDisconnect(int connectionId)
         {
             // convert multiplexed connectionId to original id & transport index
-            OriginalId(connectionId, out int originalConnectionId, out int transportIndex);
-            transports[transportIndex].ServerDisconnect(originalConnectionId);
+            if (OriginalId(connectionId, out int originalConnectionId, out int transportIndex))
+                transports[transportIndex].ServerDisconnect(originalConnectionId);
         }
 
         public override void ServerSend(int connectionId, ArraySegment<byte> segment, int channelId)
         {
             // convert multiplexed connectionId to original transport + connId
-            OriginalId(connectionId, out int originalConnectionId, out int transportIndex);
-            transports[transportIndex].ServerSend(originalConnectionId, segment, channelId);
+            if (OriginalId(connectionId, out int originalConnectionId, out int transportIndex))
+                transports[transportIndex].ServerSend(originalConnectionId, segment, channelId);
         }
 
         public override void ServerStart()

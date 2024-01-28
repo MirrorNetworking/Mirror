@@ -140,7 +140,7 @@ namespace Mirror.Tests.NetworkIdentities
             // let's reset and initialize again with the added ones.
             // this should show the 'too many components' error
             LogAssert.Expect(LogType.Error, new Regex(".*too many NetworkBehaviour.*"));
-            serverIdentity.Reset();
+            serverIdentity.ResetState();
             // clientIdentity.Reset();
             serverIdentity.Awake();
             // clientIdentity.Awake();
