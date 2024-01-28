@@ -23,6 +23,7 @@ namespace Mirror
     // [RequireComponent(typeof(Rigidbody))] <- RB is moved out at runtime, can't require it.
     public class PredictedRigidbody : NetworkBehaviour
     {
+        Transform tf; // this component is performance critical. cache .transform getter!
         Rigidbody rb; // own rigidbody on server. this is never moved to a physics copy.
         Vector3 lastPosition;
 
@@ -87,6 +88,7 @@ namespace Mirror
 
         void Awake()
         {
+            tf = transform;
             rb = GetComponent<Rigidbody>();
             if (rb == null) throw new InvalidOperationException($"Prediction: {name} is missing a Rigidbody component.");
         }
@@ -142,9 +144,9 @@ namespace Mirror
             // if we copy localScale then the copy has scale=0.5, where as the
             // original would have a global scale of ~1.0.
             physicsCopy = new GameObject($"{name}_Physical");
-            physicsCopy.transform.position = transform.position;     // world position!
-            physicsCopy.transform.rotation = transform.rotation;     // world rotation!
-            physicsCopy.transform.localScale = transform.lossyScale; // world scale!
+            physicsCopy.transform.position = tf.position;     // world position!
+            physicsCopy.transform.rotation = tf.rotation;     // world rotation!
+            physicsCopy.transform.localScale = tf.lossyScale; // world scale!
 
             // assign the same Layer for the physics copy.
             // games may use a custom physics collision matrix, layer matters.
@@ -178,9 +180,9 @@ namespace Mirror
                 // if we copy localScale then the copy has scale=0.5, where as the
                 // original would have a global scale of ~1.0.
                 remoteCopy = new GameObject($"{name}_Remote");
-                remoteCopy.transform.position = transform.position;     // world position!
-                remoteCopy.transform.rotation = transform.rotation;     // world rotation!
-                remoteCopy.transform.localScale = transform.lossyScale; // world scale!
+                remoteCopy.transform.position = tf.position;     // world position!
+                remoteCopy.transform.rotation = tf.rotation;     // world rotation!
+                remoteCopy.transform.localScale = tf.lossyScale; // world scale!
                 PredictedRigidbodyRemoteGhost predictedGhost = remoteCopy.AddComponent<PredictedRigidbodyRemoteGhost>();
                 predictedGhost.target = this;
                 predictedGhost.ghostDistanceThreshold = ghostDistanceThreshold;
@@ -213,17 +215,17 @@ namespace Mirror
         protected virtual void SmoothFollowPhysicsCopy()
         {
             // hard follow:
-            // transform.position = physicsCopyCollider.position;
-            // transform.rotation = physicsCopyCollider.rotation;
+            // tf.position = physicsCopyCollider.position;
+            // tf.rotation = physicsCopyCollider.rotation;
 
             // if we are further than N colliders sizes behind, then teleport
             float colliderSize = physicsCopyCollider.bounds.size.magnitude;
             float threshold = colliderSize * teleportDistanceMultiplier;
-            float distance = Vector3.Distance(transform.position, physicsCopyRigidbody.position);
+            float distance = Vector3.Distance(tf.position, physicsCopyRigidbody.position);
             if (distance > threshold)
             {
-                transform.position = physicsCopyRigidbody.position;
-                transform.rotation = physicsCopyRigidbody.rotation;
+                tf.position = physicsCopyRigidbody.position;
+                tf.rotation = physicsCopyRigidbody.rotation;
                 Debug.Log($"[PredictedRigidbody] Teleported because distance to physics copy = {distance:F2} > threshold {threshold:F2}");
                 return;
             }
@@ -231,11 +233,11 @@ namespace Mirror
             // smoothly interpolate to the target position.
             // speed relative to how far away we are
             float positionStep = distance * positionInterpolationSpeed;
-            transform.position = Vector3.MoveTowards(transform.position, physicsCopyRigidbody.position, positionStep * Time.deltaTime);
+            tf.position = Vector3.MoveTowards(tf.position, physicsCopyRigidbody.position, positionStep * Time.deltaTime);
 
             // smoothly interpolate to the target rotation.
             // Quaternion.RotateTowards doesn't seem to work at all, so let's use SLerp.
-            transform.rotation = Quaternion.Slerp(transform.rotation, physicsCopyRigidbody.rotation, rotationInterpolationSpeed * Time.deltaTime);
+            tf.rotation = Quaternion.Slerp(tf.rotation, physicsCopyRigidbody.rotation, rotationInterpolationSpeed * Time.deltaTime);
         }
 
         // creater visual copy only on clients, where players are watching.
@@ -255,9 +257,9 @@ namespace Mirror
         void UpdateServer()
         {
             // to save bandwidth, we only serialize when position changed
-            // if (Vector3.Distance(transform.position, lastPosition) >= positionSensitivity)
+            // if (Vector3.Distance(tf.position, lastPosition) >= positionSensitivity)
             // {
-            //     lastPosition = transform.position;
+            //     lastPosition = tf.position;
             //     SetDirty();
             // }
 
@@ -405,7 +407,7 @@ namespace Mirror
             {
                 remoteCopy.transform.position = state.position;
                 remoteCopy.transform.rotation = state.rotation;
-                remoteCopy.transform.localScale = transform.lossyScale; // world scale! see CreateGhosts comment.
+                remoteCopy.transform.localScale = tf.lossyScale; // world scale! see CreateGhosts comment.
             }
 
             // OPTIONAL performance optimization when comparing idle objects.
