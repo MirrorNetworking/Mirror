@@ -231,10 +231,6 @@ namespace Mirror
             // smoothly interpolate to the target position.
             // speed relative to how far away we are
             float positionStep = distance * positionInterpolationSpeed;
-            // speed relative to how far away we are.
-            // => speed increases by distance² because the further away, the
-            //    sooner we need to catch the fuck up
-            // float positionStep = (distance * distance) * interpolationSpeed;
             transform.position = Vector3.MoveTowards(transform.position, physicsCopyRigidbody.position, positionStep * Time.deltaTime);
 
             // smoothly interpolate to the target rotation.
