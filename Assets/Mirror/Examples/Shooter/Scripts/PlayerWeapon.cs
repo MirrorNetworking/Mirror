@@ -67,7 +67,8 @@ namespace Mirror.Examples.Shooter
                         {
                             // prediction: apply bullet force locally and send command to server
                             ApplyBulletForce(rigid, hit.normal, weapon.impactForce);
-                            if (!isServer) CmdApplyBulletForce(predictedPhysics.target, hit.normal, weapon.impactForce); // not in host mode
+                            PredictedRigidbody target = predictedPhysics.target.GetComponent<PredictedRigidbody>();
+                            if (!isServer) CmdApplyBulletForce(target, hit.normal, weapon.impactForce); // not in host mode
                         }
                     }
                 }
