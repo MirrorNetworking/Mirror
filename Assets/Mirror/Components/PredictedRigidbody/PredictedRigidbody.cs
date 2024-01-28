@@ -195,7 +195,7 @@ namespace Mirror
             if (physicsCopyCollider == null) throw new Exception("SeparatePhysics: couldn't find final Collider.");
         }
 
-        protected virtual void DestroyCopies()
+        protected virtual void DestroyGhosts()
         {
             // move the copy's Rigidbody back onto self.
             // important for scene objects which may be reused for AOI spawn/despawn.
@@ -253,7 +253,7 @@ namespace Mirror
         // OnDestroy() wouldn't be called for scene objects that are only disabled instead of destroyed.
         public override void OnStopClient()
         {
-            DestroyCopies();
+            DestroyGhosts();
         }
 
         void UpdateServer()
