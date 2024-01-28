@@ -156,7 +156,7 @@ namespace Mirror
 
             // add the PredictedRigidbodyPhysical component
             PredictedRigidbodyPhysicsGhost physicsGhostRigidbody = physicsCopy.AddComponent<PredictedRigidbodyPhysicsGhost>();
-            physicsGhostRigidbody.target = this;
+            physicsGhostRigidbody.target = tf;
             physicsGhostRigidbody.ghostDistanceThreshold = ghostDistanceThreshold;
             physicsGhostRigidbody.ghostEnabledCheckInterval = ghostEnabledCheckInterval;
 
@@ -186,7 +186,7 @@ namespace Mirror
                 remoteCopy.transform.rotation = tf.rotation;     // world rotation!
                 remoteCopy.transform.localScale = tf.lossyScale; // world scale!
                 PredictedRigidbodyRemoteGhost predictedGhost = remoteCopy.AddComponent<PredictedRigidbodyRemoteGhost>();
-                predictedGhost.target = this;
+                predictedGhost.target = tf;
                 predictedGhost.ghostDistanceThreshold = ghostDistanceThreshold;
                 predictedGhost.ghostEnabledCheckInterval = ghostEnabledCheckInterval;
                 CopyRenderersAsGhost(remoteCopy, remoteGhostMaterial);
