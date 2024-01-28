@@ -80,8 +80,10 @@ namespace Mirror
         // Rigidbody & Collider are moved out into a separate object.
         // this way the visual object can smoothly follow.
         protected GameObject physicsCopy;
+        Transform physicsCopyTransform; // caching to avoid GetComponent
         Rigidbody physicsCopyRigidbody; // caching to avoid GetComponent
-        Collider physicsCopyCollider; // caching to avoid GetComponent
+        Collider physicsCopyCollider;   // caching to avoid GetComponent
+        float smoothFollowThreshold;    // caching to avoid calculation in LateUpdate
 
         // we also create one extra ghost for the exact known server state.
         protected GameObject remoteCopy;
@@ -191,10 +193,15 @@ namespace Mirror
             }
 
             // cache components to avoid GetComponent calls at runtime
+            physicsCopyTransform = physicsCopy.transform;
             physicsCopyRigidbody = physicsCopy.GetComponent<Rigidbody>();
             physicsCopyCollider = physicsCopy.GetComponentInChildren<Collider>();
             if (physicsCopyRigidbody == null) throw new Exception("SeparatePhysics: couldn't find final Rigidbody.");
             if (physicsCopyCollider == null) throw new Exception("SeparatePhysics: couldn't find final Collider.");
+
+            // cache some threshold to avoid calculating them in LateUpdate
+            float colliderSize = physicsCopyCollider.bounds.size.magnitude;
+            smoothFollowThreshold = colliderSize * teleportDistanceMultiplier;
         }
 
         protected virtual void DestroyGhosts()
@@ -212,12 +219,15 @@ namespace Mirror
             if (remoteCopy != null) Destroy(remoteCopy);
         }
 
+        // this shows in profiler LateUpdates! need to make this as fast as possible!
         protected virtual void SmoothFollowPhysicsCopy()
         {
             // hard follow:
             // tf.position = physicsCopyCollider.position;
             // tf.rotation = physicsCopyCollider.rotation;
 
+            // ORIGINAL VERSION: CLEAN AND SIMPLE
+            /*
             // if we are further than N colliders sizes behind, then teleport
             float colliderSize = physicsCopyCollider.bounds.size.magnitude;
             float threshold = colliderSize * teleportDistanceMultiplier;
@@ -238,6 +248,37 @@ namespace Mirror
             // smoothly interpolate to the target rotation.
             // Quaternion.RotateTowards doesn't seem to work at all, so let's use SLerp.
             tf.rotation = Quaternion.Slerp(tf.rotation, physicsCopyRigidbody.rotation, rotationInterpolationSpeed * Time.deltaTime);
+            */
+
+            // FAST VERSION: this shows in profiler a lot, so cache EVERYTHING!
+            Vector3    currentPosition = tf.position;
+            Quaternion currentRotation = tf.rotation;
+            Vector3    physicsPosition = physicsCopyTransform.position; // faster than accessing physicsCopyRigidbody!
+            Quaternion physicsRotation = physicsCopyTransform.rotation; // faster than accessing physicsCopyRigidbody!
+            float      deltaTime       = Time.deltaTime;
+
+            float distance = Vector3.Distance(currentPosition, physicsPosition);
+            if (distance > smoothFollowThreshold)
+            {
+                tf.SetPositionAndRotation(physicsPosition, physicsRotation); // faster than .position and .rotation manually
+                Debug.Log($"[PredictedRigidbody] Teleported because distance to physics copy = {distance:F2} > threshold {smoothFollowThreshold:F2}");
+                return;
+            }
+
+            // smoothly interpolate to the target position.
+            // speed relative to how far away we are.
+            // => speed increases by distance² because the further away, the
+            //    sooner we need to catch the fuck up
+            // float positionStep = (distance * distance) * interpolationSpeed;
+            float positionStep = distance * positionInterpolationSpeed;
+            Vector3 newPosition = Vector3.MoveTowards(currentPosition, physicsPosition, positionStep * deltaTime);
+
+            // smoothly interpolate to the target rotation.
+            // Quaternion.RotateTowards doesn't seem to work at all, so let's use SLerp.
+            Quaternion newRotation = Quaternion.Slerp(currentRotation, physicsRotation, rotationInterpolationSpeed * deltaTime);
+
+            // assign position and rotation together. faster than accessing manually.
+            tf.SetPositionAndRotation(newPosition, newRotation);
         }
 
         // creater visual copy only on clients, where players are watching.
