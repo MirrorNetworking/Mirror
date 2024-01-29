@@ -15,7 +15,7 @@ namespace Mirror
         Vector3 positionDelta { get; set; }
 
         Quaternion rotation { get; set; }
-        Quaternion rotationDelta { get; set; }
+        // Quaternion rotationDelta { get; set; } // currently unused
 
         Vector3 velocity { get; set; }
         Vector3 velocityDelta { get; set; }
