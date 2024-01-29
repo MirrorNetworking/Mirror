@@ -38,6 +38,9 @@ namespace Mirror
         readonly SortedList<double, RigidbodyState> stateHistory = new SortedList<double, RigidbodyState>();
         public float recordInterval = 0.050f;
 
+        [Tooltip("(Optional) performance optimization where FixedUpdate.RecordState() only inserts state into history if the state actually changed.\nThis is generally a good idea.")]
+        public bool onlyRecordChanges = true;
+
         [Tooltip("(Optional) performance optimization where received state is compared to the LAST recorded state first, before sampling the whole history.\n\nThis can save significant traversal overhead for idle objects with a tiny chance of missing corrections for objects which revisisted the same position in the recent history twice.")]
         public bool compareLastFirst = true;
 
@@ -323,7 +326,28 @@ namespace Mirror
         {
             // on clients we record the current state every FixedUpdate.
             // this is cheap, and allows us to keep a dense history.
-            if (isClient) RecordState();
+            if (isClient)
+            {
+                // OPTIMIZATION: RecordState() is expensive because it inserts into a SortedList.
+                // only record if state actually changed!
+                // risks not having up to date states when correcting,
+                // but it doesn't matter since we'll always compare with the 'newest' anyway.
+                //
+                // we check in here instead of in RecordState() because RecordState() should definitely record if we call it!
+                if (onlyRecordChanges)
+                {
+                    // TODO maybe don't reuse the correction thresholds?
+                    tf.GetPositionAndRotation(out Vector3 position, out Quaternion rotation);
+                    if (Vector3.Distance(lastRecorded.position, position) < positionCorrectionThreshold &&
+                        Quaternion.Angle(lastRecorded.rotation, rotation) < rotationCorrectionThreshold)
+                    {
+                        // Debug.Log($"FixedUpdate for {name}: taking optimized early return instead of recording state.");
+                        return;
+                    }
+                }
+
+                RecordState();
+            }
         }
 
         // manually store last recorded so we can easily check against this
