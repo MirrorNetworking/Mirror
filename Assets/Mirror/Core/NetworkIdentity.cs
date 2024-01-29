@@ -197,10 +197,18 @@ namespace Mirror
         // ForceHidden = useful to hide monsters while they respawn etc.
         // ForceShown = useful to have score NetworkIdentities that always broadcast
         //              to everyone etc.
-        //
-        // TODO rename to 'visibility' after removing .visibility some day!
         [Tooltip("Visibility can overwrite interest management. ForceHidden can be useful to hide monsters while they respawn. ForceShown can be useful for score NetworkIdentities that should always broadcast to everyone in the world.")]
-        public Visibility visible = Visibility.Default;
+        [FormerlySerializedAs("visible")]
+        public Visibility visibility = Visibility.Default;
+
+        // Deprecated 2024-01-21
+        [HideInInspector]
+        [Obsolete("Deprecated - Use .visibility instead. This will be removed soon.")]
+        public Visibility visible
+        {
+            get => visibility;
+            set => visibility = value;
+        }
 
         // broadcasting serializes all entities around a player for each player.
         // we don't want to serialize one entity twice in the same tick.

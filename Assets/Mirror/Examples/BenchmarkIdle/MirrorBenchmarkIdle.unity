@@ -366,7 +366,6 @@ MonoBehaviour:
     deliveryTimeEmaDuration: 2
   connectionQualityInterval: 3
   timeInterpolationGui: 0
-  spawnAmount: 50000
   spawnAmount: 10000
   interleave: 2
   spawnPrefab: {fileID: 449802645721213856, guid: 0ea79775d59804682a8cdd46b3811344,

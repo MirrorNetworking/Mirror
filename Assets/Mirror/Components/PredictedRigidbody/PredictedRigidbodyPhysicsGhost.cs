@@ -7,8 +7,10 @@ namespace Mirror
 {
     public class PredictedRigidbodyPhysicsGhost : MonoBehaviour
     {
+        // this is performance critical, so store target's .Transform instead of
+        // PredictedRigidbody, this way we don't need to call the .transform getter.
         [Tooltip("The predicted rigidbody owner.")]
-        public PredictedRigidbody target;
+        public Transform target;
 
         // ghost (settings are copyed from PredictedRigidbody)
         MeshRenderer ghost;
@@ -16,13 +18,15 @@ namespace Mirror
         public float ghostEnabledCheckInterval = 0.2f;
         double lastGhostEnabledCheckTime = 0;
 
-        // cache
+        // cache components because this is performance critical!
+        Transform tf;
         Collider co;
 
         // we add this component manually from PredictedRigidbody.
         // so assign this in Start. target isn't set in Awake yet.
         void Start()
         {
+            tf = transform;
             co = GetComponent<Collider>();
             ghost = GetComponent<MeshRenderer>();
         }
@@ -43,7 +47,7 @@ namespace Mirror
             // otherwise it just looks like z-fighting the whole time.
             // => iterated the renderers we found when creating the visual copy.
             //    we don't want to GetComponentsInChildren every time here!
-            bool insideTarget = Vector3.Distance(transform.position, target.transform.position) <= ghostDistanceThreshold;
+            bool insideTarget = Vector3.Distance(tf.position, target.position) <= ghostDistanceThreshold;
             ghost.enabled = !insideTarget;
         }
 
@@ -53,7 +57,7 @@ namespace Mirror
         void LateUpdate()
         {
             // if owner gets network destroyed for any reason, destroy visual
-            if (target == null || target.gameObject == null) Destroy(gameObject);
+            if (target == null) Destroy(gameObject);
         }
 
         // also show a yellow gizmo for the predicted & corrected physics.
