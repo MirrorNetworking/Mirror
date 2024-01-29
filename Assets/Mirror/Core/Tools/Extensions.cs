@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using UnityEngine;
 
 namespace Mirror
 {
@@ -96,6 +97,15 @@ namespace Mirror
             {
                 source.TryDequeue(out _);
             }
+        }
+#endif
+
+#if !UNITY_2021_3_OR_NEWER
+        // Unity 2021.2 and earlier don't have transform.GetPositionAndRotation which we use for performance in some places
+        public static void GetPositionAndRotation(this Transform transform, out Vector3 position, out Quaternion rotation)
+        {
+            position = transform.position;
+            rotation = transform.rotation;
         }
 #endif
     }
