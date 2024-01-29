@@ -65,7 +65,9 @@ namespace Mirror
             // This fixes previous issue of, if sendIntervalMultiplier = 1, we send every frame,
             // because intervalCounter is always = 1 in the previous version.
 
-            if (sendIntervalCounter == sendIntervalMultiplier)
+            // Changing == to >= https://github.com/MirrorNetworking/Mirror/issues/3571
+
+            if (sendIntervalCounter >= sendIntervalMultiplier)
                 sendIntervalCounter = 0;
 
             // timeAsDouble not available in older Unity versions.
@@ -165,7 +167,15 @@ namespace Mirror
                     else
                     {
                         hasSentUnchangedPosition = false;
-                        lastSnapshot = snapshot;
+
+                        // Fixes https://github.com/MirrorNetworking/Mirror/issues/3572
+                        // This also fixes https://github.com/MirrorNetworking/Mirror/issues/3573
+                        // with the exception of Quaternion.Angle sensitivity has to be > 0.16.
+                        // Unity issue, we are leaving it as is.
+
+                        if (positionChanged) lastSnapshot.position = snapshot.position;
+                        if (rotationChanged) lastSnapshot.rotation = snapshot.rotation;
+                        if (positionChanged) lastSnapshot.scale = snapshot.scale;
                     }
                 }
             }
@@ -285,7 +295,14 @@ namespace Mirror
                     else
                     {
                         hasSentUnchangedPosition = false;
-                        lastSnapshot = snapshot;
+
+                        // Fixes https://github.com/MirrorNetworking/Mirror/issues/3572
+                        // This also fixes https://github.com/MirrorNetworking/Mirror/issues/3573
+                        // with the exception of Quaternion.Angle sensitivity has to be > 0.16.
+                        // Unity issue, we are leaving it as is.
+                        if (positionChanged) lastSnapshot.position = snapshot.position;
+                        if (rotationChanged) lastSnapshot.rotation = snapshot.rotation;
+                        if (positionChanged) lastSnapshot.scale = snapshot.scale;
                     }
                 }
             }
