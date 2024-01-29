@@ -14,7 +14,7 @@ namespace Mirror.Tests
             public Vector3 positionDelta { get; set; }
 
             public Quaternion rotation { get; set; }
-            public Quaternion rotationDelta { get; set; }
+            // public Quaternion rotationDelta { get; set; } // currently unused
 
             public Vector3 velocity { get; set; }
             public Vector3 velocityDelta { get; set; }
@@ -25,7 +25,7 @@ namespace Mirror.Tests
                 this.position = position;
                 this.positionDelta = positionDelta;
                 this.rotation = Quaternion.identity;
-                this.rotationDelta = Quaternion.identity;
+                // this.rotationDelta = Quaternion.identity;
                 this.velocity = velocity;
                 this.velocityDelta = velocityDelta;
             }

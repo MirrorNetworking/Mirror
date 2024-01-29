@@ -251,11 +251,9 @@ namespace Mirror
             */
 
             // FAST VERSION: this shows in profiler a lot, so cache EVERYTHING!
-            Vector3    currentPosition = tf.position;
-            Quaternion currentRotation = tf.rotation;
-            Vector3    physicsPosition = physicsCopyTransform.position; // faster than accessing physicsCopyRigidbody!
-            Quaternion physicsRotation = physicsCopyTransform.rotation; // faster than accessing physicsCopyRigidbody!
-            float      deltaTime       = Time.deltaTime;
+            tf.GetPositionAndRotation(out Vector3 currentPosition, out Quaternion currentRotation);                   // faster than tf.position + tf.rotation
+            physicsCopyTransform.GetPositionAndRotation(out Vector3 physicsPosition, out Quaternion physicsRotation); // faster than physicsCopyRigidbody.position + physicsCopyRigidbody.rotation
+            float deltaTime = Time.deltaTime;
 
             float distance = Vector3.Distance(currentPosition, physicsPosition);
             if (distance > smoothFollowThreshold)
@@ -356,27 +354,35 @@ namespace Mirror
             if (stateHistory.Count >= stateHistoryLimit)
                 stateHistory.RemoveAt(0);
 
+            // grab current position/rotation/velocity only once.
+            // this is performance critical, avoid calling .transform multiple times.
+            tf.GetPositionAndRotation(out Vector3 currentPosition, out Quaternion currentRotation); // faster than accessing .position + .rotation manually
+            Vector3 currentVelocity = physicsCopyRigidbody.velocity;
+
             // calculate delta to previous state (if any)
             Vector3 positionDelta = Vector3.zero;
             Vector3 velocityDelta = Vector3.zero;
-            Quaternion rotationDelta = Quaternion.identity;
+            // Quaternion rotationDelta = Quaternion.identity; // currently unused
             if (stateHistory.Count > 0)
             {
                 RigidbodyState last = stateHistory.Values[stateHistory.Count - 1];
-                positionDelta = physicsCopyRigidbody.position - last.position;
-                velocityDelta = physicsCopyRigidbody.velocity - last.velocity;
-                rotationDelta = physicsCopyRigidbody.rotation * Quaternion.Inverse(last.rotation); // this is how you calculate a quaternion delta
+                positionDelta = currentPosition - last.position;
+                velocityDelta = currentVelocity - last.velocity;
+                // rotationDelta = currentRotation * Quaternion.Inverse(last.rotation); // this is how you calculate a quaternion delta (currently unused, don't do the computation)
 
                 // debug draw the recorded state
-                Debug.DrawLine(last.position, physicsCopyRigidbody.position, Color.red, lineTime);
+                // Debug.DrawLine(last.position, currentPosition, Color.red, lineTime);
             }
 
             // create state to insert
             RigidbodyState state = new RigidbodyState(
                 predictedTime,
-                positionDelta, physicsCopyRigidbody.position,
-                rotationDelta, physicsCopyRigidbody.rotation,
-                velocityDelta, physicsCopyRigidbody.velocity
+                positionDelta,
+                currentPosition,
+                // rotationDelta, // currently unused
+                currentRotation,
+                velocityDelta,
+                currentVelocity
             );
 
             // add state to history
@@ -412,9 +418,12 @@ namespace Mirror
                 stateHistory.Clear();
                 stateHistory.Add(timestamp, new RigidbodyState(
                     timestamp,
-                    Vector3.zero, position,
-                    Quaternion.identity, rotation,
-                    Vector3.zero, velocity
+                    Vector3.zero,
+                    position,
+                    // Quaternion.identity, // rotationDelta: currently unused
+                    rotation,
+                    Vector3.zero,
+                    velocity
                 ));
 
                 // user callback
@@ -446,9 +455,9 @@ namespace Mirror
             // always update remote state ghost
             if (remoteCopy != null)
             {
-                remoteCopy.transform.position = state.position;
-                remoteCopy.transform.rotation = state.rotation;
-                remoteCopy.transform.localScale = tf.lossyScale; // world scale! see CreateGhosts comment.
+                Transform remoteCopyTransform = remoteCopy.transform;
+                remoteCopyTransform.SetPositionAndRotation(state.position, state.rotation); // faster than .position + .rotation setters
+                remoteCopyTransform.localScale = tf.lossyScale; // world scale! see CreateGhosts comment.
             }
 
             // OPTIONAL performance optimization when comparing idle objects.
@@ -552,7 +561,7 @@ namespace Mirror
 
                 // show the received correction position + velocity for debugging.
                 // helps to compare with the interpolated/applied correction locally.
-                Debug.DrawLine(state.position, state.position + state.velocity * 0.1f, Color.white, lineTime);
+                //Debug.DrawLine(state.position, state.position + state.velocity * 0.1f, Color.white, lineTime);
 
                 // insert the correction and correct the history on top of it.
                 // returns the final recomputed state after rewinding.
@@ -563,7 +572,7 @@ namespace Mirror
                 // for example, on same machine with near zero latency.
                 // int correctedAmount = stateHistory.Count - afterIndex;
                 // Debug.Log($"Correcting {name}: {correctedAmount} / {stateHistory.Count} states to final position from: {rb.position} to: {last.position}");
-                Debug.DrawLine(physicsCopyRigidbody.position, recomputed.position, Color.green, lineTime);
+                //Debug.DrawLine(physicsCopyRigidbody.position, recomputed.position, Color.green, lineTime);
                 ApplyState(recomputed.timestamp, recomputed.position, recomputed.rotation, recomputed.velocity);
 
                 // user callback
@@ -620,7 +629,7 @@ namespace Mirror
             Vector3 velocity    = reader.ReadVector3();
 
             // process received state
-            OnReceivedState(timestamp, new RigidbodyState(timestamp, Vector3.zero, position, Quaternion.identity, rotation, Vector3.zero, velocity));
+            OnReceivedState(timestamp, new RigidbodyState(timestamp, Vector3.zero, position, /*Quaternion.identity,*/ rotation, Vector3.zero, velocity));
         }
 
         protected override void OnValidate()
