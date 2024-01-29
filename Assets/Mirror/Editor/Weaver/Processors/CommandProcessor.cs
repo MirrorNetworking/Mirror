@@ -84,7 +84,7 @@ namespace Mirror.Weaver
         */
         public static MethodDefinition ProcessCommandInvoke(WeaverTypes weaverTypes, Readers readers, Logger Log, TypeDefinition td, MethodDefinition method, MethodDefinition cmdCallFunc, ref bool WeavingFailed)
         {
-            string cmdName = Weaver.GenerateMethodName(Weaver.InvokeRpcPrefix, method);
+            string cmdName = Weaver.GenerateMethodName(RemoteCalls.RemoteProcedureCalls.InvokeRpcPrefix, method);
 
             MethodDefinition cmd = new MethodDefinition(cmdName,
                 MethodAttributes.Family | MethodAttributes.Static | MethodAttributes.HideBySig,

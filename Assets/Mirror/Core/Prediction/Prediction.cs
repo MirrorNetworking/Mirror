@@ -10,13 +10,15 @@ namespace Mirror
     {
         double timestamp { get; }
 
-        // predicted states should have absolute and delta values, for example:
-        //   Vector3 position;
-        //   Vector3 positionDelta; // from last to here
-        // when inserting a correction between this one and the one before,
-        // we need to adjust the delta:
-        //   positionDelta *= multiplier;
-        void AdjustDeltas(float multiplier);
+        // use Vector3 for both Rigidbody3D and Rigidbody2D, that's fine
+        Vector3 position { get; set; }
+        Vector3 positionDelta { get; set; }
+
+        Quaternion rotation { get; set; }
+        Quaternion rotationDelta { get; set; }
+
+        Vector3 velocity { get; set; }
+        Vector3 velocityDelta { get; set; }
     }
 
     public static class Prediction
@@ -28,11 +30,13 @@ namespace Mirror
             double timestamp, // current server time
             out T before,
             out T after,
+            out int afterIndex,
             out double t)     // interpolation factor
         {
             before = default;
             after  = default;
             t = 0;
+            afterIndex = -1;
 
             // can't sample an empty history
             // interpolation needs at least two entries.
@@ -50,42 +54,47 @@ namespace Mirror
             // TODO this needs to be faster than O(N)
             //      search around that area.
             //      should be O(1) most of the time, unless sampling was off.
+            int index = 0; // manually count when iterating. easier than for-int loop.
             KeyValuePair<double, T> prev = new KeyValuePair<double, T>();
             foreach (KeyValuePair<double, T> entry in history) {
                 // exact match?
-                if (timestamp == entry.Key) {
+                if (timestamp == entry.Key)
+                {
                     before = entry.Value;
                     after = entry.Value;
+                    afterIndex = index;
                     t = Mathd.InverseLerp(entry.Key, entry.Key, timestamp);
                     return true;
                 }
 
                 // did we check beyond timestamp? then return the previous two.
-                if (entry.Key > timestamp) {
+                if (entry.Key > timestamp)
+                {
                     before = prev.Value;
                     after = entry.Value;
+                    afterIndex = index;
                     t = Mathd.InverseLerp(prev.Key, entry.Key, timestamp);
                     return true;
                 }
 
                 // remember the last
                 prev = entry;
+                index += 1;
             }
 
             return false;
         }
 
-        // when receiving a correction from the server, we want to insert it
-        // into the client's state history.
-        // -> if there's already a state at timestamp, replace
-        // -> otherwise insert and adjust the next state's delta
-        // TODO test coverage
-        public static void InsertCorrection<T>(
+        // inserts a server state into the client's history.
+        // readjust the deltas of the states after the inserted one.
+        // returns the corrected final position.
+        public static T CorrectHistory<T>(
             SortedList<double, T> stateHistory,
             int stateHistoryLimit,
-            T corrected, // corrected state with timestamp
-            T before,    // state in history before the correction
-            T after)     // state in history after the correction
+            T corrected,     // corrected state with timestamp
+            T before,        // state in history before the correction
+            T after,         // state in history after the correction
+            int afterIndex) // index of the 'after' value so we don't need to find it again here
             where T: PredictedState
         {
             // respect the limit
@@ -121,13 +130,45 @@ namespace Mirror
             //
             double previousDeltaTime = after.timestamp - before.timestamp;     // 3.0 - 1.0 = 2.0
             double correctedDeltaTime = after.timestamp - corrected.timestamp; // 3.0 - 2.5 = 0.5
-            double multiplier = correctedDeltaTime / previousDeltaTime;        // 0.5 / 2.0 = 0.25
+
+            // fix multiplier becoming NaN if previousDeltaTime is 0:
+            // double multiplier = correctedDeltaTime / previousDeltaTime;
+            double multiplier = previousDeltaTime != 0 ? correctedDeltaTime / previousDeltaTime : 0; // 0.5 / 2.0 = 0.25
 
             // recalculate 'after.delta' with the multiplier
-            after.AdjustDeltas((float)multiplier);
+            after.positionDelta = Vector3.Lerp(Vector3.zero, after.positionDelta, (float)multiplier);
+            after.velocityDelta = Vector3.Lerp(Vector3.zero, after.velocityDelta, (float)multiplier);
+            // rotation deltas aren't working yet. instead, we apply the corrected rotation to all entries after the correction below.
+            // this at least syncs the rotations and looks quite decent, compared to not syncing!
+            //   after.rotationDelta = Quaternion.Slerp(Quaternion.identity, after.rotationDelta, (float)multiplier);
 
-            // write the adjusted 'after' value into the history buffer
+            // changes aren't saved until we overwrite them in the history
             stateHistory[after.timestamp] = after;
+
+            // second step: readjust all absolute values by rewinding client's delta moves on top of it.
+            T last = corrected;
+            for (int i = afterIndex; i < stateHistory.Count; ++i)
+            {
+                double key = stateHistory.Keys[i];
+                T entry = stateHistory.Values[i];
+
+                // correct absolute position based on last + delta.
+                entry.position = last.position + entry.positionDelta;
+                entry.velocity = last.velocity + entry.velocityDelta;
+                // rotation deltas aren't working yet. instead, we apply the corrected rotation to all entries after the correction.
+                // this at least syncs the rotations and looks quite decent, compared to not syncing!
+                //   entry.rotation = entry.rotationDelta * last.rotation; // quaternions add delta by multiplying in this order
+                entry.rotation = corrected.rotation;
+
+                // save the corrected entry into history.
+                stateHistory[key] = entry;
+
+                // save last
+                last = entry;
+            }
+
+            // third step: return the final recomputed state.
+            return last;
         }
     }
 }

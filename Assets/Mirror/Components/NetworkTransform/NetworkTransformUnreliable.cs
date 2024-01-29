@@ -415,7 +415,7 @@ namespace Mirror
                 double timeIntervalCheck = bufferResetMultiplier * sendIntervalMultiplier * NetworkClient.sendInterval;
 
                 if (serverSnapshots.Count > 0 && serverSnapshots.Values[serverSnapshots.Count - 1].remoteTime + timeIntervalCheck < timestamp)
-                    Reset();
+                    ResetState();
             }
 
             AddSnapshot(serverSnapshots, connectionToClient.remoteTimeStamp + timeStampAdjustment + offset, position, rotation, scale);
@@ -470,7 +470,7 @@ namespace Mirror
                 double timeIntervalCheck = bufferResetMultiplier * sendIntervalMultiplier * NetworkServer.sendInterval;
 
                 if (clientSnapshots.Count > 0 && clientSnapshots.Values[clientSnapshots.Count - 1].remoteTime + timeIntervalCheck < timestamp)
-                    Reset();
+                    ResetState();
             }
 
             AddSnapshot(clientSnapshots, NetworkClient.connection.remoteTimeStamp + timeStampAdjustment + offset, position, rotation, scale);
@@ -578,7 +578,7 @@ namespace Mirror
                 double timeIntervalCheck = bufferResetMultiplier * sendIntervalMultiplier * NetworkClient.sendInterval;
 
                 if (serverSnapshots.Count > 0 && serverSnapshots.Values[serverSnapshots.Count - 1].remoteTime + timeIntervalCheck < timestamp)
-                    Reset();
+                    ResetState();
             }
 
             UpdateSyncData(ref syncData, serverSnapshots);
@@ -615,7 +615,7 @@ namespace Mirror
                 double timeIntervalCheck = bufferResetMultiplier * sendIntervalMultiplier * NetworkServer.sendInterval;
 
                 if (clientSnapshots.Count > 0 && clientSnapshots.Values[clientSnapshots.Count - 1].remoteTime + timeIntervalCheck < timestamp)
-                    Reset();
+                    ResetState();
             }
 
             UpdateSyncData(ref syncData, clientSnapshots);

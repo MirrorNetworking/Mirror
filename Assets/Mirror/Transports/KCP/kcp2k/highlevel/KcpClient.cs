@@ -156,7 +156,7 @@ namespace kcp2k
                 // at least log a message for easier debugging.
                 // for example, his can happen when connecting without a server.
                 // see test: ConnectWithoutServer().
-                Log.Info($"[KCP] Client: looks like the other end has closed the connection. This is fine: {e}");
+                Log.Info($"[KCP] Client.RawReceive: looks like the other end has closed the connection. This is fine: {e}");
                 base.Disconnect();
                 return false;
             }
@@ -176,7 +176,13 @@ namespace kcp2k
             }
             catch (SocketException e)
             {
-                Log.Error($"[KCP] Client: Send failed: {e}");
+                // SendDisconnect() sometimes gets a SocketException with
+                // 'Connection Refused' if the other end already closed.
+                // this is not an 'error', it's expected to happen.
+                // but connections should never just end silently.
+                // at least log a message for easier debugging.
+                Log.Info($"[KCP] Client.RawSend: looks like the other end has closed the connection. This is fine: {e}");
+                // base.Disconnect(); <- don't call this, would deadlock if SendDisconnect() already throws
             }
         }
 

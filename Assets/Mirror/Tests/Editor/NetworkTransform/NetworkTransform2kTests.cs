@@ -314,6 +314,9 @@ namespace Mirror.Tests.NetworkTransformTests
             component.netIdentity.isClient = true;
             component.netIdentity.isLocalPlayer = true;
 
+            // client authority has to be disabled
+            component.syncDirection = SyncDirection.ServerToClient;
+
             // call OnClientToServerSync with authority and nullable types
             // to make sure it uses the last valid position then.
             component.OnServerToClientSync(new Vector3?(), new Quaternion?(), new Vector3?());

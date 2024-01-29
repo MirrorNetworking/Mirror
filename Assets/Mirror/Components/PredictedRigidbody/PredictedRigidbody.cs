@@ -1,82 +1,51 @@
-// make sure to use a reasonable sync interval.
-// for example, correcting every 100ms seems reasonable.
+// PredictedRigidbody which stores & indidvidually rewinds history per Rigidbody.
+//
+// This brings significant performance savings because:
+// - if a scene has 1000 objects
+// - and a player interacts with say 3 objects at a time
+// - Physics.Simulate() would resimulate 1000 objects
+// - where as this component only resimulates the 3 changed objects
+//
+// The downside is that history rewinding is done manually via Vector math,
+// instead of real physics. It's not 100% correct - but it sure is fast!
 using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace Mirror
 {
-    struct RigidbodyState : PredictedState
-    {
-        public double timestamp { get; private set; }
-
-        // we want to store position delta (last + delta = current), and current.
-        // this way we can apply deltas on top of corrected positions to get the corrected final position.
-        public Vector3    positionDelta; // delta to get from last to this position
-        public Vector3    position;
-
-        public Quaternion rotation; // TODO delta rotation?
-
-        public Vector3 velocityDelta; // delta to get from last to this velocity
-        public Vector3 velocity;
-
-        public RigidbodyState(
-            double timestamp,
-            Vector3 positionDelta, Vector3 position,
-            Quaternion rotation,
-            Vector3 velocityDelta, Vector3 velocity)
-        {
-            this.timestamp     = timestamp;
-            this.positionDelta = positionDelta;
-            this.position      = position;
-            this.rotation      = rotation;
-            this.velocityDelta = velocityDelta;
-            this.velocity      = velocity;
-        }
-
-        // adjust the deltas after inserting a correction between this one and the previous one.
-        public void AdjustDeltas(float multiplier)
-        {
-            positionDelta = Vector3.Lerp(Vector3.zero, positionDelta, multiplier);
-            // TODO if we have have a rotation delta, then scale it here too
-            velocityDelta = Vector3.Lerp(Vector3.zero, velocityDelta, multiplier);
-        }
-
-        public static RigidbodyState Interpolate(RigidbodyState a, RigidbodyState b, float t)
-        {
-            return new RigidbodyState
-            {
-                position = Vector3.Lerp(a.position, b.position, t),
-                rotation = Quaternion.Slerp(a.rotation, b.rotation, t),
-                velocity = Vector3.Lerp(a.velocity, b.velocity, t)
-            };
-        }
-    }
-
     public enum CorrectionMode
     {
         Set,               // rigidbody.position/rotation = ...
         Move,              // rigidbody.MovePosition/Rotation
     }
 
-    [Obsolete("Prediction is under development, do not use this yet.")]
-    [RequireComponent(typeof(Rigidbody))]
+    // [RequireComponent(typeof(Rigidbody))] <- RB is moved out at runtime, can't require it.
     public class PredictedRigidbody : NetworkBehaviour
     {
-        Rigidbody rb;
+        Transform tf; // this component is performance critical. cache .transform getter!
+        Rigidbody rb; // own rigidbody on server. this is never moved to a physics copy.
         Vector3 lastPosition;
 
         // [Tooltip("Broadcast changes if position changed by more than ... meters.")]
         // public float positionSensitivity = 0.01f;
 
-        // client keeps state history for correction & reconciliation
+        // client keeps state history for correction & reconciliation.
+        // this needs to be a SortedList because we need to be able to insert inbetween.
+        // RingBuffer would be faster iteration, but can't do insertions.
         [Header("State History")]
         public int stateHistoryLimit = 32; // 32 x 50 ms = 1.6 seconds is definitely enough
         readonly SortedList<double, RigidbodyState> stateHistory = new SortedList<double, RigidbodyState>();
+        public float recordInterval = 0.050f;
+
+        [Tooltip("(Optional) performance optimization where received state is compared to the LAST recorded state first, before sampling the whole history.\n\nThis can save significant traversal overhead for idle objects with a tiny chance of missing corrections for objects which revisisted the same position in the recent history twice.")]
+        public bool compareLastFirst = true;
 
         [Header("Reconciliation")]
         [Tooltip("Correction threshold in meters. For example, 0.1 means that if the client is off by more than 10cm, it gets corrected.")]
-        public double correctionThreshold = 0.10;
+        public double positionCorrectionThreshold = 0.10;
+        [Tooltip("Correction threshold in degrees. For example, 5 means that if the client is off by more than 5 degrees, it gets corrected.")]
+        public double rotationCorrectionThreshold = 5;
 
         [Tooltip("Applying server corrections one frame ahead gives much better results. We don't know why yet, so this is an option for now.")]
         public bool oneFrameAhead = true;
@@ -85,15 +54,18 @@ namespace Mirror
         [Tooltip("Configure how to apply the corrected state.")]
         public CorrectionMode correctionMode = CorrectionMode.Move;
 
+        [Tooltip("Snap to the server state directly when velocity is < threshold. This is useful to reduce jitter/fighting effects before coming to rest.\nNote this applies position, rotation and velocity(!) so it's still smooth.")]
+        public float snapThreshold = 2; // 0.5 has too much fighting-at-rest, 2 seems ideal.
+
         [Header("Visual Interpolation")]
         [Tooltip("After creating the visual interpolation object, keep showing the original Rigidbody with a ghost (transparent) material for debugging.")]
         public bool showGhost = true;
         public float ghostDistanceThreshold = 0.1f;
         public float ghostEnabledCheckInterval = 0.2f;
-        double lastGhostEnabledCheckTime = 0;
 
         [Tooltip("After creating the visual interpolation object, replace this object's renderer materials with the ghost (ideally transparent) material.")]
-        public Material ghostMaterial;
+        public Material localGhostMaterial;
+        public Material remoteGhostMaterial;
 
         [Tooltip("How fast to interpolate to the target position, relative to how far we are away from it.\nHigher value will be more jitter but sharper moves, lower value will be less jitter but a little too smooth / rounded moves.")]
         public float positionInterpolationSpeed = 15; // 10 is a little too low for billiards at least
@@ -105,41 +77,35 @@ namespace Mirror
         [Header("Debugging")]
         public float lineTime = 10;
 
-        // visually interpolated GameObject copy for smoothing
-        protected GameObject visualCopy;
-        protected MeshRenderer[] originalRenderers;
+        // Rigidbody & Collider are moved out into a separate object.
+        // this way the visual object can smoothly follow.
+        protected GameObject physicsCopy;
+        Transform physicsCopyTransform; // caching to avoid GetComponent
+        Rigidbody physicsCopyRigidbody; // caching to avoid GetComponent
+        Collider physicsCopyCollider;   // caching to avoid GetComponent
+        float smoothFollowThreshold;    // caching to avoid calculation in LateUpdate
+
+        // we also create one extra ghost for the exact known server state.
+        protected GameObject remoteCopy;
 
         void Awake()
         {
+            tf = transform;
             rb = GetComponent<Rigidbody>();
+            if (rb == null) throw new InvalidOperationException($"Prediction: {name} is missing a Rigidbody component.");
         }
 
-        // instantiate a visually-only copy of the gameobject to apply smoothing.
-        // on clients, where players are watching.
-        // create & destroy methods are virtual so games with a different
-        // rendering setup / hierarchy can inject their own copying code here.
-        protected virtual void CreateVisualCopy()
+        protected virtual void CopyRenderersAsGhost(GameObject destination, Material material)
         {
-            // create an empty GameObject with the same name + _Visual
-            visualCopy = new GameObject($"{name}_Visual");
-            visualCopy.transform.position = transform.position;
-            visualCopy.transform.rotation = transform.rotation;
-            visualCopy.transform.localScale = transform.localScale;
-
-            // add the PredictedRigidbodyVisual component
-            PredictedRigidbodyVisual visualRigidbody = visualCopy.AddComponent<PredictedRigidbodyVisual>();
-            visualRigidbody.target = this;
-            visualRigidbody.positionInterpolationSpeed = positionInterpolationSpeed;
-            visualRigidbody.rotationInterpolationSpeed = rotationInterpolationSpeed;
-            visualRigidbody.teleportDistanceMultiplier = teleportDistanceMultiplier;
-
-            // copy the rendering components
-            if (TryGetComponent(out MeshRenderer originalMeshRenderer))
+            // find the MeshRenderer component, which sometimes is on a child.
+            MeshRenderer originalMeshRenderer = GetComponentInChildren<MeshRenderer>(true);
+            MeshFilter originalMeshFilter = GetComponentInChildren<MeshFilter>(true);
+            if (originalMeshRenderer != null && originalMeshFilter != null)
             {
-                MeshFilter meshFilter = visualCopy.AddComponent<MeshFilter>();
-                meshFilter.mesh = GetComponent<MeshFilter>().mesh;
+                MeshFilter meshFilter = destination.AddComponent<MeshFilter>();
+                meshFilter.mesh = originalMeshFilter.mesh;
 
-                MeshRenderer meshRenderer = visualCopy.AddComponent<MeshRenderer>();
+                MeshRenderer meshRenderer = destination.AddComponent<MeshRenderer>();
                 meshRenderer.material = originalMeshRenderer.material;
 
                 // renderers often have multiple materials. copy all.
@@ -148,82 +114,193 @@ namespace Mirror
                     Material[] materials = new Material[originalMeshRenderer.materials.Length];
                     for (int i = 0; i < materials.Length; ++i)
                     {
-                        materials[i] = originalMeshRenderer.materials[i];
+                        materials[i] = material;
                     }
                     meshRenderer.materials = materials; // need to reassign to see it in effect
                 }
             }
             // if we didn't find a renderer, show a warning
             else Debug.LogWarning($"PredictedRigidbody: {name} found no renderer to copy onto the visual object. If you are using a custom setup, please overwrite PredictedRigidbody.CreateVisualCopy().");
+        }
 
-            // find renderers in children.
-            // this will be used a lot later, so only find them once when
-            // creating the visual copy here.
-            originalRenderers = GetComponentsInChildren<MeshRenderer>();
+        // instantiate a physics-only copy of the gameobject to apply corrections.
+        // this way the main visual object can smoothly follow.
+        // it's best to separate the physics instead of separating the renderers.
+        // some projects have complex rendering / animation setups which we can't touch.
+        // besides, Rigidbody+Collider are two components, where as renders may be many.
+        protected virtual void CreateGhosts()
+        {
+            // skip if already separated
+            if (physicsCopy != null) return;
 
-            // replace this renderer's materials with the ghost (if enabled)
-            foreach (MeshRenderer rend in originalRenderers)
+            Debug.Log($"Separating Physics for {name}");
+
+            // create an empty GameObject with the same name + _Physical
+            // it's important to copy world position/rotation/scale, not local!
+            // because the original object may be a child of another.
+            //
+            // for example:
+            //    parent (scale=1.5)
+            //      child (scale=0.5)
+            //
+            // if we copy localScale then the copy has scale=0.5, where as the
+            // original would have a global scale of ~1.0.
+            physicsCopy = new GameObject($"{name}_Physical");
+            physicsCopy.transform.position = tf.position;     // world position!
+            physicsCopy.transform.rotation = tf.rotation;     // world rotation!
+            physicsCopy.transform.localScale = tf.lossyScale; // world scale!
+
+            // assign the same Layer for the physics copy.
+            // games may use a custom physics collision matrix, layer matters.
+            physicsCopy.layer = gameObject.layer;
+
+            // add the PredictedRigidbodyPhysical component
+            PredictedRigidbodyPhysicsGhost physicsGhostRigidbody = physicsCopy.AddComponent<PredictedRigidbodyPhysicsGhost>();
+            physicsGhostRigidbody.target = tf;
+            physicsGhostRigidbody.ghostDistanceThreshold = ghostDistanceThreshold;
+            physicsGhostRigidbody.ghostEnabledCheckInterval = ghostEnabledCheckInterval;
+
+            // move the rigidbody component & all colliders to the physics GameObject
+            PredictionUtils.MovePhysicsComponents(gameObject, physicsCopy);
+
+            // show ghost by copying all renderers / materials with ghost material applied
+            if (showGhost)
             {
-                if (showGhost)
-                {
-                    // renderers often have multiple materials. replace all.
-                    if (rend.materials != null)
-                    {
-                        Material[] materials = rend.materials;
-                        for (int i = 0; i < materials.Length; ++i)
-                        {
-                            materials[i] = ghostMaterial;
-                        }
-                        rend.materials = materials; // need to reassign to see it in effect
-                    }
-                }
-                else
-                {
-                    rend.enabled = false;
-                }
+                // one for the locally predicted rigidbody
+                CopyRenderersAsGhost(physicsCopy, localGhostMaterial);
+                physicsGhostRigidbody.ghostDistanceThreshold = ghostDistanceThreshold;
+                physicsGhostRigidbody.ghostEnabledCheckInterval = ghostEnabledCheckInterval;
 
+                // one for the latest remote state for comparison
+                // it's important to copy world position/rotation/scale, not local!
+                // because the original object may be a child of another.
+                //
+                // for example:
+                //    parent (scale=1.5)
+                //      child (scale=0.5)
+                //
+                // if we copy localScale then the copy has scale=0.5, where as the
+                // original would have a global scale of ~1.0.
+                remoteCopy = new GameObject($"{name}_Remote");
+                remoteCopy.transform.position = tf.position;     // world position!
+                remoteCopy.transform.rotation = tf.rotation;     // world rotation!
+                remoteCopy.transform.localScale = tf.lossyScale; // world scale!
+                PredictedRigidbodyRemoteGhost predictedGhost = remoteCopy.AddComponent<PredictedRigidbodyRemoteGhost>();
+                predictedGhost.target = tf;
+                predictedGhost.ghostDistanceThreshold = ghostDistanceThreshold;
+                predictedGhost.ghostEnabledCheckInterval = ghostEnabledCheckInterval;
+                CopyRenderersAsGhost(remoteCopy, remoteGhostMaterial);
             }
+
+            // cache components to avoid GetComponent calls at runtime
+            physicsCopyTransform = physicsCopy.transform;
+            physicsCopyRigidbody = physicsCopy.GetComponent<Rigidbody>();
+            physicsCopyCollider = physicsCopy.GetComponentInChildren<Collider>();
+            if (physicsCopyRigidbody == null) throw new Exception("SeparatePhysics: couldn't find final Rigidbody.");
+            if (physicsCopyCollider == null) throw new Exception("SeparatePhysics: couldn't find final Collider.");
+
+            // cache some threshold to avoid calculating them in LateUpdate
+            float colliderSize = physicsCopyCollider.bounds.size.magnitude;
+            smoothFollowThreshold = colliderSize * teleportDistanceMultiplier;
         }
 
-        protected virtual void DestroyVisualCopy()
+        protected virtual void DestroyGhosts()
         {
-            if (visualCopy != null) Destroy(visualCopy);
+            // move the copy's Rigidbody back onto self.
+            // important for scene objects which may be reused for AOI spawn/despawn.
+            // otherwise next time they wouldn't have a collider anymore.
+            if (physicsCopy != null)
+            {
+                PredictionUtils.MovePhysicsComponents(physicsCopy, gameObject);
+                Destroy(physicsCopy);
+            }
+
+            // simply destroy the remote copy
+            if (remoteCopy != null) Destroy(remoteCopy);
         }
 
-        protected virtual void UpdateVisualCopy()
+        // this shows in profiler LateUpdates! need to make this as fast as possible!
+        protected virtual void SmoothFollowPhysicsCopy()
         {
-            // only if visual copy was already created
-            if (visualCopy == null || originalRenderers == null) return;
+            // hard follow:
+            // tf.position = physicsCopyCollider.position;
+            // tf.rotation = physicsCopyCollider.rotation;
 
-            // enough to run this in a certain interval.
-            // doing this every update would be overkill.
-            // this is only for debug purposes anyway.
-            if (NetworkTime.localTime < lastGhostEnabledCheckTime + ghostEnabledCheckInterval) return;
-            lastGhostEnabledCheckTime = NetworkTime.localTime;
+            // ORIGINAL VERSION: CLEAN AND SIMPLE
+            /*
+            // if we are further than N colliders sizes behind, then teleport
+            float colliderSize = physicsCopyCollider.bounds.size.magnitude;
+            float threshold = colliderSize * teleportDistanceMultiplier;
+            float distance = Vector3.Distance(tf.position, physicsCopyRigidbody.position);
+            if (distance > threshold)
+            {
+                tf.position = physicsCopyRigidbody.position;
+                tf.rotation = physicsCopyRigidbody.rotation;
+                Debug.Log($"[PredictedRigidbody] Teleported because distance to physics copy = {distance:F2} > threshold {threshold:F2}");
+                return;
+            }
 
-            // only show ghost while interpolating towards the object.
-            // if we are 'inside' the object then don't show ghost.
-            // otherwise it just looks like z-fighting the whole time.
-            // => iterated the renderers we found when creating the visual copy.
-            //    we don't want to GetComponentsInChildren every time here!
-            bool insideTarget = Vector3.Distance(transform.position, visualCopy.transform.position) <= ghostDistanceThreshold;
-            foreach (MeshRenderer rend in originalRenderers)
-                rend.enabled = !insideTarget;
+            // smoothly interpolate to the target position.
+            // speed relative to how far away we are
+            float positionStep = distance * positionInterpolationSpeed;
+            tf.position = Vector3.MoveTowards(tf.position, physicsCopyRigidbody.position, positionStep * Time.deltaTime);
+
+            // smoothly interpolate to the target rotation.
+            // Quaternion.RotateTowards doesn't seem to work at all, so let's use SLerp.
+            tf.rotation = Quaternion.Slerp(tf.rotation, physicsCopyRigidbody.rotation, rotationInterpolationSpeed * Time.deltaTime);
+            */
+
+            // FAST VERSION: this shows in profiler a lot, so cache EVERYTHING!
+            Vector3    currentPosition = tf.position;
+            Quaternion currentRotation = tf.rotation;
+            Vector3    physicsPosition = physicsCopyTransform.position; // faster than accessing physicsCopyRigidbody!
+            Quaternion physicsRotation = physicsCopyTransform.rotation; // faster than accessing physicsCopyRigidbody!
+            float      deltaTime       = Time.deltaTime;
+
+            float distance = Vector3.Distance(currentPosition, physicsPosition);
+            if (distance > smoothFollowThreshold)
+            {
+                tf.SetPositionAndRotation(physicsPosition, physicsRotation); // faster than .position and .rotation manually
+                Debug.Log($"[PredictedRigidbody] Teleported because distance to physics copy = {distance:F2} > threshold {smoothFollowThreshold:F2}");
+                return;
+            }
+
+            // smoothly interpolate to the target position.
+            // speed relative to how far away we are.
+            // => speed increases by distance² because the further away, the
+            //    sooner we need to catch the fuck up
+            // float positionStep = (distance * distance) * interpolationSpeed;
+            float positionStep = distance * positionInterpolationSpeed;
+            Vector3 newPosition = Vector3.MoveTowards(currentPosition, physicsPosition, positionStep * deltaTime);
+
+            // smoothly interpolate to the target rotation.
+            // Quaternion.RotateTowards doesn't seem to work at all, so let's use SLerp.
+            Quaternion newRotation = Quaternion.Slerp(currentRotation, physicsRotation, rotationInterpolationSpeed * deltaTime);
+
+            // assign position and rotation together. faster than accessing manually.
+            tf.SetPositionAndRotation(newPosition, newRotation);
         }
 
         // creater visual copy only on clients, where players are watching.
-        public override void OnStartClient() => CreateVisualCopy();
+        public override void OnStartClient()
+        {
+            // OnDeserialize may have already created this
+            if (physicsCopy == null) CreateGhosts();
+        }
 
         // destroy visual copy only in OnStopClient().
         // OnDestroy() wouldn't be called for scene objects that are only disabled instead of destroyed.
-        public override void OnStopClient() => DestroyVisualCopy();
+        public override void OnStopClient()
+        {
+            DestroyGhosts();
+        }
 
         void UpdateServer()
         {
             // to save bandwidth, we only serialize when position changed
-            // if (Vector3.Distance(transform.position, lastPosition) >= positionSensitivity)
+            // if (Vector3.Distance(tf.position, lastPosition) >= positionSensitivity)
             // {
-            //     lastPosition = transform.position;
+            //     lastPosition = tf.position;
             //     SetDirty();
             // }
 
@@ -234,53 +311,46 @@ namespace Mirror
             SetDirty();
         }
 
-        void UpdateClient()
-        {
-            UpdateVisualCopy();
-        }
-
         void Update()
         {
             if (isServer) UpdateServer();
-            if (isClient) UpdateClient();
+        }
+
+        void LateUpdate()
+        {
+            if (isClient) SmoothFollowPhysicsCopy();
         }
 
         void FixedUpdate()
         {
-            // record client state every FixedUpdate
+            // on clients we record the current state every FixedUpdate.
+            // this is cheap, and allows us to keep a dense history.
             if (isClient) RecordState();
         }
 
-        void ApplyState(Vector3 position, Quaternion rotation, Vector3 velocity)
-        {
-            // Rigidbody .position teleports, while .MovePosition interpolates
-            // TODO is this a good idea? what about next capture while it's interpolating?
-            if (correctionMode == CorrectionMode.Move)
-            {
-                rb.MovePosition(position);
-                rb.MoveRotation(rotation);
-            }
-            else if (correctionMode == CorrectionMode.Set)
-            {
-                rb.position = position;
-                rb.rotation = rotation;
-            }
-
-            rb.velocity = velocity;
-        }
-
-        // record state at NetworkTime.time on client
+        // manually store last recorded so we can easily check against this
+        // without traversing the SortedList.
+        RigidbodyState lastRecorded;
+        double lastRecordTime;
         void RecordState()
         {
+            // instead of recording every fixedupdate, let's record in an interval.
+            // we don't want to record every tiny move and correct too hard.
+            if (NetworkTime.time < lastRecordTime + recordInterval) return;
+            lastRecordTime = NetworkTime.time;
+
             // NetworkTime.time is always behind by bufferTime.
             // prediction aims to be on the exact same server time (immediately).
             // use predictedTime to record state, otherwise we would record in the past.
             double predictedTime = NetworkTime.predictedTime;
 
-            // TODO FixedUpdate may run twice in the same frame / NetworkTime.time.
+            // FixedUpdate may run twice in the same frame / NetworkTime.time.
             // for now, simply don't record if already recorded there.
-            if (stateHistory.ContainsKey(predictedTime))
-                return;
+            // previously we checked ContainsKey which is O(logN) for SortedList
+            //   if (stateHistory.ContainsKey(predictedTime))
+            //       return;
+            // instead, simply store the last recorded time and don't insert if same.
+            if (predictedTime == lastRecorded.timestamp) return;
 
             // keep state history within limit
             if (stateHistory.Count >= stateHistoryLimit)
@@ -289,101 +359,124 @@ namespace Mirror
             // calculate delta to previous state (if any)
             Vector3 positionDelta = Vector3.zero;
             Vector3 velocityDelta = Vector3.zero;
+            Quaternion rotationDelta = Quaternion.identity;
             if (stateHistory.Count > 0)
             {
                 RigidbodyState last = stateHistory.Values[stateHistory.Count - 1];
-                positionDelta = rb.position - last.position;
-                velocityDelta = rb.velocity - last.velocity;
+                positionDelta = physicsCopyRigidbody.position - last.position;
+                velocityDelta = physicsCopyRigidbody.velocity - last.velocity;
+                rotationDelta = physicsCopyRigidbody.rotation * Quaternion.Inverse(last.rotation); // this is how you calculate a quaternion delta
 
                 // debug draw the recorded state
-                Debug.DrawLine(last.position, rb.position, Color.red, lineTime);
+                Debug.DrawLine(last.position, physicsCopyRigidbody.position, Color.red, lineTime);
             }
+
+            // create state to insert
+            RigidbodyState state = new RigidbodyState(
+                predictedTime,
+                positionDelta, physicsCopyRigidbody.position,
+                rotationDelta, physicsCopyRigidbody.rotation,
+                velocityDelta, physicsCopyRigidbody.velocity
+            );
 
             // add state to history
-            stateHistory.Add(
-                predictedTime,
-                new RigidbodyState(
-                    predictedTime,
-                    positionDelta, rb.position,
-                    rb.rotation,
-                    velocityDelta, rb.velocity)
-            );
+            stateHistory.Add(predictedTime, state);
+
+            // manually remember last inserted state for faster .Last comparisons
+            lastRecorded = state;
         }
 
-        void ApplyCorrection(RigidbodyState corrected, RigidbodyState before, RigidbodyState after)
+        // optional user callbacks, in case people need to know about events.
+        protected virtual void OnSnappedIntoPlace() {}
+        protected virtual void OnCorrected() {}
+
+        void ApplyState(double timestamp, Vector3 position, Quaternion rotation, Vector3 velocity)
         {
-            // TODO merge this with CompareState iteration!
-
-            // first, remember the delta between last recorded state and current live state.
-            // before we potentially correct 'last' in history.
-            // TODO we always record the current state in CompareState now.
-            //      applying live delta may not be necessary anymore.
-            //      this should always be '0' now.
-            // RigidbodyState newest = stateHistory.Values[stateHistory.Count - 1];
-            // Vector3 livePositionDelta = rb.position - newest.position;
-            // Vector3 liveVelocityDelta = rb.velocity - newest.velocity;
-            // TODO rotation delta?
-
-            // insert the corrected state and adjust 'after.delta' to the inserted.
-            Prediction.InsertCorrection(stateHistory, stateHistoryLimit, corrected, before, after);
-
-            // show the received correction position + velocity for debugging.
-            // helps to compare with the interpolated/applied correction locally.
-            // TODO don't hardcode length?
-            Debug.DrawLine(corrected.position, corrected.position + corrected.velocity * 0.1f, Color.white, lineTime);
-
-            // now go through the history:
-            // 1. skip all states before the inserted / corrected entry
-            // 3. apply all deltas after timestamp
-            // 4. recalculate corrected position based on inserted + sum(deltas)
-            // 5. apply rigidbody correction
-            RigidbodyState last = corrected;
-            int correctedCount = 0; // for debugging
-            for (int i = 0; i < stateHistory.Count; ++i)
+            // fix rigidbodies seemingly dancing in place instead of coming to rest.
+            // hard snap to the position below a threshold velocity.
+            // this is fine because the visual object still smoothly interpolates to it.
+            if (physicsCopyRigidbody.velocity.magnitude <= snapThreshold)
             {
-                double key = stateHistory.Keys[i];
-                RigidbodyState entry = stateHistory.Values[i];
+                // Debug.Log($"Prediction: snapped {name} into place because velocity {physicsCopyRigidbody.velocity.magnitude:F3} <= {snapThreshold:F3}");
 
-                // skip all states before (and including) the corrected entry
-                // TODO InsertCorrection() above should return the inserted index to skip faster.
-                if (key <= corrected.timestamp)
-                    continue;
+                // apply server state immediately.
+                // important to apply velocity as well, instead of Vector3.zero.
+                // in case an object is still slightly moving, we don't want it
+                // to stop and start moving again on client - slide as well here.
+                physicsCopyRigidbody.position = position;
+                physicsCopyRigidbody.rotation = rotation;
+                physicsCopyRigidbody.velocity = velocity;
 
-                // this state is after the inserted state.
-                // correct it's absolute position based on last + delta.
-                entry.position = last.position + entry.positionDelta;
-                // TODO rotation
-                entry.velocity = last.velocity + entry.velocityDelta;
+                // clear history and insert the exact state we just applied.
+                // this makes future corrections more accurate.
+                stateHistory.Clear();
+                stateHistory.Add(timestamp, new RigidbodyState(
+                    timestamp,
+                    Vector3.zero, position,
+                    Quaternion.identity, rotation,
+                    Vector3.zero, velocity
+                ));
 
-                // save the corrected entry into history.
-                // if we don't, then corrections for [i+1] would compare the
-                // uncorrected state and attempt to correct again, resulting in
-                // noticeable jitter and displacements.
-                //
-                // not saving it would also result in objects flying towards
-                // infinity when using sendInterval = 0.
-                stateHistory[entry.timestamp] = entry;
-
-                // debug draw the corrected state
-                // Debug.DrawLine(last.position, entry.position, Color.cyan, lineTime);
-
-                // save last
-                last = entry;
-                correctedCount += 1;
+                // user callback
+                OnSnappedIntoPlace();
+                return;
             }
 
-            // log, draw & apply the final position.
-            // always do this here, not when iterating above, in case we aren't iterating.
-            // for example, on same machine with near zero latency.
-            Debug.Log($"Correcting {name}: {correctedCount} / {stateHistory.Count} states to final position from: {rb.position} to: {last.position}");
-            Debug.DrawLine(rb.position, last.position, Color.green, lineTime);
-            ApplyState(last.position, last.rotation, last.velocity);
+            // Rigidbody .position teleports, while .MovePosition interpolates
+            // TODO is this a good idea? what about next capture while it's interpolating?
+            if (correctionMode == CorrectionMode.Move)
+            {
+                physicsCopyRigidbody.MovePosition(position);
+                physicsCopyRigidbody.MoveRotation(rotation);
+            }
+            else if (correctionMode == CorrectionMode.Set)
+            {
+                physicsCopyRigidbody.position = position;
+                physicsCopyRigidbody.rotation = rotation;
+            }
+
+            // there's only one way to set velocity
+            physicsCopyRigidbody.velocity = velocity;
         }
 
-        // compare client state with server state at timestamp.
-        // apply correction if necessary.
-        void CompareState(double timestamp, RigidbodyState state)
+        // process a received server state.
+        // compares it against our history and applies corrections if needed.
+        void OnReceivedState(double timestamp, RigidbodyState state)
         {
+            // always update remote state ghost
+            if (remoteCopy != null)
+            {
+                remoteCopy.transform.position = state.position;
+                remoteCopy.transform.rotation = state.rotation;
+                remoteCopy.transform.localScale = tf.lossyScale; // world scale! see CreateGhosts comment.
+            }
+
+            // OPTIONAL performance optimization when comparing idle objects.
+            // even idle objects will have a history of ~32 entries.
+            // sampling & traversing through them is unnecessarily costly.
+            // instead, compare directly against the current rigidbody position!
+            // => this is technically not 100% correct if an object runs in
+            //    circles where it may revisit the same position twice.
+            // => but practically, objects that didn't move will have their
+            //    whole history look like the last inserted state.
+            // => comparing against that is free and gives us a significant
+            //    performance saving vs. a tiny chance of incorrect results due
+            //    to objects running in circles.
+            // => the RecordState() call below is expensive too, so we want to
+            //    do this before even recording the latest state. the only way
+            //    to do this (in case last recorded state is too old), is to
+            //    compare against live rigidbody.position without any recording.
+            //    this is as fast as it gets for skipping idle objects.
+            //
+            // if this ever causes issues, feel free to disable it.
+            if (compareLastFirst &&
+                Vector3.Distance(state.position, physicsCopyRigidbody.position) < positionCorrectionThreshold &&
+                Quaternion.Angle(state.rotation, physicsCopyRigidbody.rotation) < rotationCorrectionThreshold)
+            {
+                // Debug.Log($"OnReceivedState for {name}: taking optimized early return!");
+                return;
+            }
+
             // we only capture state every 'interval' milliseconds.
             // so the newest entry in 'history' may be up to 'interval' behind 'now'.
             // if there's no latency, we may receive a server state for 'now'.
@@ -391,60 +484,54 @@ namespace Mirror
             // to solve this, always record the current state when receiving a server state.
             RecordState();
 
-            // find the two closest client states between timestamp
-            if (!Prediction.Sample(stateHistory, timestamp, out RigidbodyState before, out RigidbodyState after, out double t))
+            // correction requires at least 2 existing states for 'before' and 'after'.
+            // if we don't have two yet, drop this state and try again next time once we recorded more.
+            if (stateHistory.Count < 2) return;
+
+            RigidbodyState oldest = stateHistory.Values[0];
+            RigidbodyState newest = stateHistory.Values[stateHistory.Count - 1];
+
+            // edge case: is the state older than the oldest state in history?
+            // this can happen if the client gets so far behind the server
+            // that it doesn't have a recored history to sample from.
+            // in that case, we should hard correct the client.
+            // otherwise it could be out of sync as long as it's too far behind.
+            if (state.timestamp < oldest.timestamp)
             {
-                // if we failed to sample, that could indicate a problem.
-                // first, if the client didn't record 'limit' entries yet, then
-                // let it keep recording. it'll be fine.
-                if (stateHistory.Count < stateHistoryLimit) return;
+                Debug.LogWarning($"Hard correcting client object {name} because the client is too far behind the server. History of size={stateHistory.Count} @ t={timestamp:F3} oldest={oldest.timestamp:F3} newest={newest.timestamp:F3}. This would cause the client to be out of sync as long as it's behind.");
+                ApplyState(state.timestamp, state.position, state.rotation, state.velocity);
+                return;
+            }
 
-                // if we are already at the recording limit and still can't
-                // sample, then that's a problem.
-                // there are two cases to consider.
-                RigidbodyState oldest = stateHistory.Values[0];
-                RigidbodyState newest = stateHistory.Values[stateHistory.Count - 1];
+            // edge case: is it newer than the newest state in history?
+            // this can happen if client's predictedTime predicts too far ahead of the server.
+            // in that case, log a warning for now but still apply the correction.
+            // otherwise it could be out of sync as long as it's too far ahead.
+            //
+            // for example, when running prediction on the same machine with near zero latency.
+            // when applying corrections here, this looks just fine on the local machine.
+            if (newest.timestamp < state.timestamp)
+            {
+                // the correction is for a state in the future.
+                // we clamp it to 'now'.
+                // but only correct if off by threshold.
+                // TODO maybe we should interpolate this back to 'now'?
+                if (Vector3.Distance(state.position, physicsCopyRigidbody.position) >= positionCorrectionThreshold)
+                {
+                    double ahead = state.timestamp - newest.timestamp;
+                    Debug.Log($"Hard correction because the client is ahead of the server by {(ahead*1000):F1}ms. History of size={stateHistory.Count} @ t={timestamp:F3} oldest={oldest.timestamp:F3} newest={newest.timestamp:F3}. This can happen when latency is near zero, and is fine unless it shows jitter.");
+                    ApplyState(state.timestamp, state.position, state.rotation, state.velocity);
+                }
+                return;
+            }
 
-                // is the state older than the oldest state in history?
-                // this can happen if the client gets so far behind the server
-                // that it doesn't have a recored history to sample from.
-                // in that case, we should hard correct the client.
-                // otherwise it could be out of sync as long as it's too far behind.
-                if (state.timestamp < oldest.timestamp)
-                {
-                    Debug.LogWarning($"Hard correcting client because the client is too far behind the server. History of size={stateHistory.Count} @ t={timestamp:F3} oldest={oldest.timestamp:F3} newest={newest.timestamp:F3}. This would cause the client to be out of sync as long as it's behind.");
-                    ApplyCorrection(state, state, state);
-                }
-                // is it newer than the newest state in history?
-                // this can happen if client's predictedTime predicts too far ahead of the server.
-                // in that case, log a warning for now but still apply the correction.
-                // otherwise it could be out of sync as long as it's too far ahead.
-                //
-                // for example, when running prediction on the same machine with near zero latency.
-                // when applying corrections here, this looks just fine on the local machine.
-                else if (newest.timestamp < state.timestamp)
-                {
-                    // the correction is for a state in the future.
-                    // we clamp it to 'now'.
-                    // but only correct if off by threshold.
-                    // TODO maybe we should interpolate this back to 'now'?
-                    if (Vector3.Distance(state.position, rb.position) >= correctionThreshold)
-                    {
-                        double ahead = state.timestamp - newest.timestamp;
-                        Debug.Log($"Hard correction because the client is ahead of the server by {(ahead*1000):F1}ms. History of size={stateHistory.Count} @ t={timestamp:F3} oldest={oldest.timestamp:F3} newest={newest.timestamp:F3}. This can happen when latency is near zero, and is fine unless it shows jitter.");
-                        ApplyCorrection(state, state, state);
-                    }
-                }
-                // otherwise something went very wrong. sampling should've worked.
+            // find the two closest client states between timestamp
+            if (!Prediction.Sample(stateHistory, timestamp, out RigidbodyState before, out RigidbodyState after, out int afterIndex, out double t))
+            {
+                // something went very wrong. sampling should've worked.
                 // hard correct to recover the error.
-                else
-                {
-                    // TODO
-                    Debug.LogError($"Failed to sample history of size={stateHistory.Count} @ t={timestamp:F3} oldest={oldest.timestamp:F3} newest={newest.timestamp:F3}. This should never happen because the timestamp is within history.");
-                    ApplyCorrection(state, state, state);
-                }
-
-                // either way, nothing more to do here
+                Debug.LogError($"Failed to sample history of size={stateHistory.Count} @ t={timestamp:F3} oldest={oldest.timestamp:F3} newest={newest.timestamp:F3}. This should never happen because the timestamp is within history.");
+                ApplyState(state.timestamp, state.position, state.rotation, state.velocity);
                 return;
             }
 
@@ -453,14 +540,34 @@ namespace Mirror
 
             // calculate the difference between where we were and where we should be
             // TODO only position for now. consider rotation etc. too later
-            float difference = Vector3.Distance(state.position, interpolated.position);
+            float positionDifference = Vector3.Distance(state.position, interpolated.position);
+            float rotationDifference = Quaternion.Angle(state.rotation, interpolated.rotation);
             // Debug.Log($"Sampled history of size={stateHistory.Count} @ {timestamp:F3}: client={interpolated.position} server={state.position} difference={difference:F3} / {correctionThreshold:F3}");
 
             // too far off? then correct it
-            if (difference >= correctionThreshold)
+            if (positionDifference >= positionCorrectionThreshold ||
+                rotationDifference >= rotationCorrectionThreshold)
             {
                 // Debug.Log($"CORRECTION NEEDED FOR {name} @ {timestamp:F3}: client={interpolated.position} server={state.position} difference={difference:F3}");
-                ApplyCorrection(state, before, after);
+
+                // show the received correction position + velocity for debugging.
+                // helps to compare with the interpolated/applied correction locally.
+                Debug.DrawLine(state.position, state.position + state.velocity * 0.1f, Color.white, lineTime);
+
+                // insert the correction and correct the history on top of it.
+                // returns the final recomputed state after rewinding.
+                RigidbodyState recomputed = Prediction.CorrectHistory(stateHistory, stateHistoryLimit, state, before, after, afterIndex);
+
+                // log, draw & apply the final position.
+                // always do this here, not when iterating above, in case we aren't iterating.
+                // for example, on same machine with near zero latency.
+                // int correctedAmount = stateHistory.Count - afterIndex;
+                // Debug.Log($"Correcting {name}: {correctedAmount} / {stateHistory.Count} states to final position from: {rb.position} to: {last.position}");
+                Debug.DrawLine(physicsCopyRigidbody.position, recomputed.position, Color.green, lineTime);
+                ApplyState(recomputed.timestamp, recomputed.position, recomputed.rotation, recomputed.velocity);
+
+                // user callback
+                OnCorrected();
             }
         }
 
@@ -479,14 +586,18 @@ namespace Mirror
             // sending server's current deltaTime is the safest option.
             // client then applies it on top of remoteTimestamp.
             writer.WriteFloat(Time.deltaTime);
-            writer.WriteVector3(rb.position);
-            writer.WriteQuaternion(rb.rotation);
-            writer.WriteVector3(rb.velocity);
+            writer.WriteVector3(rb.position);    // own rigidbody on server, it's never moved to physics copy
+            writer.WriteQuaternion(rb.rotation); // own rigidbody on server, it's never moved to physics copy
+            writer.WriteVector3(rb.velocity);    // own rigidbody on server, it's never moved to physics copy
         }
 
         // read the server's state, compare with client state & correct if necessary.
         public override void OnDeserialize(NetworkReader reader, bool initialState)
         {
+            // this may be called before OnStartClient.
+            // in that case, separate physics first before applying state.
+            if (physicsCopy == null) CreateGhosts();
+
             // deserialize data
             // we want to know the time on the server when this was sent, which is remoteTimestamp.
             double timestamp = NetworkClient.connection.remoteTimeStamp;
@@ -508,8 +619,8 @@ namespace Mirror
             Quaternion rotation = reader.ReadQuaternion();
             Vector3 velocity    = reader.ReadVector3();
 
-            // compare state without deltas
-            CompareState(timestamp, new RigidbodyState(timestamp, Vector3.zero, position, rotation, Vector3.zero, velocity));
+            // process received state
+            OnReceivedState(timestamp, new RigidbodyState(timestamp, Vector3.zero, position, Quaternion.identity, rotation, Vector3.zero, velocity));
         }
 
         protected override void OnValidate()
@@ -518,6 +629,11 @@ namespace Mirror
 
             // force syncDirection to be ServerToClient
             syncDirection = SyncDirection.ServerToClient;
+
+            // state should be synced immediately for now.
+            // later when we have prediction fully dialed in,
+            // then we can maybe relax this a bit.
+            syncInterval = 0;
         }
     }
 }
