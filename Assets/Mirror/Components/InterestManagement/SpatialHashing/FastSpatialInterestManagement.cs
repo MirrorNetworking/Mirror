@@ -6,6 +6,10 @@ using UnityEngine;
 
 public class FastSpatialInterestManagement : InterestManagementBase
 {
+    Vector2Int InvalidPosition => new Vector2Int(int.MaxValue,
+        int.MaxValue);
+
+
     [Tooltip("The maximum range that objects will be visible at.")]
     public int visRange = 30;
 
@@ -32,6 +36,7 @@ public class FastSpatialInterestManagement : InterestManagementBase
         public NetworkIdentity Identity;
         public Visibility PreviousVisibility;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Vector2Int GridPosition(int tileSize)
         {
             Vector3 transformPos = Transform.position;
@@ -60,7 +65,7 @@ public class FastSpatialInterestManagement : InterestManagementBase
         RebuildAll();
     }
 
-    // When a new entity is spawned
+    // When a new identity is spawned
     public override void OnSpawned(NetworkIdentity identity)
     {
         // host visibility shim to make sure unseen entities are hidden, we initialize actual visibility later
@@ -92,10 +97,8 @@ public class FastSpatialInterestManagement : InterestManagementBase
         );
     }
 
-    Vector2Int InvalidPosition => new Vector2Int(int.MaxValue,
-        int.MaxValue);
 
-    // when an entity is despawned/destroyed
+    // when an identity is despawned/destroyed
     public override void OnDestroyed(NetworkIdentity identity)
     {
         // (limitation: we never expect identity.visibile to change)
@@ -116,39 +119,38 @@ public class FastSpatialInterestManagement : InterestManagementBase
         // loop over all identities and check if their positions changed
         foreach (Tracked tracked in trackedIdentities.Values)
         {
-            // calculate the current grid position
-            Vector3 transformPos = tracked.Transform.position;
-            Vector2Int currentPosition = Vector2Int.RoundToInt(new Vector2(transformPos.x, transformPos.z) / TileSize);
+            Vector2Int currentPosition = tracked.GridPosition(TileSize);
+
             bool visibilityChanged = tracked.Identity.visibility != tracked.PreviousVisibility;
-            // Visibility change to default is done before we run the normal grid update, since
+
+            // Visibility change *to* default needs to be handled before the normal grid update
+            // since observers are manipulated in RebuildAdd/RebuildRemove if visibility == Default
             if (visibilityChanged && tracked.Identity.visibility == Visibility.Default)
             {
-                if (tracked.PreviousVisibility == Visibility.ForceHidden)
+                switch (tracked.PreviousVisibility)
                 {
-                    // Hidden To Default
-                    AddObserversHiddenToDefault(tracked.Identity, tracked.Position);
-                }
-                else
-                {
-                    // Shown To Default
-                    RemoveObserversShownToDefault(tracked.Identity, tracked.Position);
+                    case Visibility.ForceHidden:
+                        // Hidden To Default
+                        AddObserversHiddenToDefault(tracked.Identity, tracked.Position);
+                        break;
+                    case Visibility.ForceShown:
+                        // Shown To Default
+                        RemoveObserversShownToDefault(tracked.Identity, tracked.Position);
+                        break;
+                    case Visibility.Default:
+                    default:
+                        throw new ArgumentOutOfRangeException();
                 }
             }
-            // if the position changed, move entity about
+            // if the position changed, move the identity in the grid and update observers accordingly
             if (currentPosition != tracked.Position)
             {
                 Vector2Int oldPosition = tracked.Position;
                 tracked.Position = currentPosition;
-                // First: Remove from old grid position, but only if it was ever in the grid to begin with
+                // First remove from old grid position
                 RebuildRemove(tracked.Identity, oldPosition, currentPosition);
-
-                // Then add to new grid tile
-                RebuildAdd(
-                    tracked.Identity,
-                    oldPosition,
-                    currentPosition,
-                    false
-                );
+                // Then add to new grid position
+                RebuildAdd(tracked.Identity, oldPosition, currentPosition, false);
             }
 
             // after updating the grid, if the visibility has changed
@@ -156,14 +158,13 @@ public class FastSpatialInterestManagement : InterestManagementBase
             {
                 switch (tracked.Identity.visibility)
                 {
-                    case Visibility.Default:
-                        // handled above
-                        break;
                     case Visibility.ForceHidden:
                         ClearObservers(tracked.Identity);
                         break;
                     case Visibility.ForceShown:
                         AddObserversAllReady(tracked.Identity);
+                        break;
+                    case Visibility.Default:
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
@@ -179,10 +180,10 @@ public class FastSpatialInterestManagement : InterestManagementBase
         // sanity check
         if (!grid[oldPosition].Remove(changedIdentity))
         {
-            throw new InvalidOperationException("entity was not in the provided grid");
+            throw new InvalidOperationException("changedIdentity was not in the provided grid");
         }
 
-        // for all tiles the entity could see at the old position
+        // for all tiles the changedIdentity could see at the old position
         for (int x = -1; x <= 1; x++)
         {
             for (int y = -1; y <= 1; y++)
@@ -200,7 +201,6 @@ public class FastSpatialInterestManagement : InterestManagementBase
                     continue;
                 }
 
-                // update observers for all identites the entity could see and all players that could see it
                 foreach (NetworkIdentity gridIdentity in tile)
                 {
                     if (gridIdentity == changedIdentity)
@@ -230,7 +230,7 @@ public class FastSpatialInterestManagement : InterestManagementBase
     private void RebuildAdd(NetworkIdentity changedIdentity, Vector2Int oldPosition, Vector2Int newPosition,
         bool initialize)
     {
-        // for all tiles the entity now sees at the new position
+        // for all tiles the changedIdentity now sees at the new position
         for (int x = -1; x <= 1; x++)
         {
             for (int y = -1; y <= 1; y++)
@@ -282,14 +282,14 @@ public class FastSpatialInterestManagement : InterestManagementBase
 
         if (!addTile.Add(changedIdentity))
         {
-            throw new InvalidOperationException("entity was already in the grid");
+            throw new InvalidOperationException("identity was already in the grid");
         }
     }
 
     /// Adds observers to the NI, but not the other way around. This is used when a NI changes from ForceHidden to Default
     private void AddObserversHiddenToDefault(NetworkIdentity changed, Vector2Int gridPosition)
     {
-        // for all tiles the entity now sees at the new position
+        // for all tiles around the changedIdentity
         for (int x = -1; x <= 1; x++)
         {
             for (int y = -1; y <= 1; y++)
@@ -331,8 +331,7 @@ public class FastSpatialInterestManagement : InterestManagementBase
             tempShownToDefaultSet.Add(observer);
         }
 
-        // for all tiles the entity now sees at the current position
-        // remove any connections that can still see the changedIdentity
+        // for all tiles around the changedIdentity, remove any connections that can still see it
         for (int x = -1; x <= 1; x++)
         {
             for (int y = -1; y <= 1; y++)
