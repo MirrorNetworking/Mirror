@@ -336,12 +336,12 @@ namespace Mirror
                     if (Utils.IsHeadless())
                     {
                         Console.ForegroundColor = ConsoleColor.Green;
-                        Console.WriteLine($"[Multiplexer]: Server listening on port {portTransport.Port} with {transport.name}");
+                        Console.WriteLine($"[Multiplexer]: Server listening on port {portTransport.Port} with {transport}");
                         Console.ResetColor();
                     }
                     else
                     {
-                        Debug.Log($"[Multiplexer]: Server listening on port {portTransport.Port} with {transport.name}");
+                        Debug.Log($"[Multiplexer]: Server listening on port {portTransport.Port} with {transport}");
                     }
                 }
             }
