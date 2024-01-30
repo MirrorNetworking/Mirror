@@ -25,10 +25,7 @@ namespace Mirror.Tests.InterestManagement
             NetworkConnectionToClient connection = new NetworkConnectionToClient(connectionId);
             connection.isAuthenticated = true;
             connection.identity = identity;
-            if (!NetworkServer.connections.TryAdd(connectionId, connection))
-            {
-                throw new Exception("Duplicate connection id");
-            }
+            NetworkServer.connections.Add(connectionId, connection);
 
             NetworkServer.Spawn(gameObject, connection);
             NetworkServer.SetClientReady(connection); // AddPlayerForConnection also calls this!
