@@ -1,6 +1,7 @@
 // interest management component for custom solutions like
 // distance based, spatial hashing, raycast based, etc.
 // low level base class allows for low level spatial hashing etc., which is 3-5x faster.
+
 using UnityEngine;
 
 namespace Mirror
@@ -72,6 +73,40 @@ namespace Mirror
         {
             connection.RemoveFromObserving(identity, false);
             identity.observers.Remove(connection.connectionId);
+        }
+
+        /// For ForceShown: Makes sure all ready connections (that aren't already) are added to observers
+        protected void AddObserversAllReady(NetworkIdentity identity)
+        {
+            foreach (NetworkConnectionToClient connection in identity.observers.Values)
+            {
+                if (connection.isReady && !identity.observers.ContainsKey(connection.connectionId))
+                {
+                    connection.AddToObserving(identity);
+                    identity.observers.Add(connection.connectionId, connection);
+                }
+            }
+        }
+
+        /// Removes all observers from this identity
+        protected void ClearObservers(NetworkIdentity identity)
+        {
+            foreach (NetworkConnectionToClient connection in identity.observers.Values)
+            {
+                // Don't remove the client from observing its owned objects
+                if (connection != identity.connectionToClient)
+                {
+                    connection.RemoveFromObserving(identity, false);
+                }
+            }
+
+            // Clear..
+            identity.observers.Clear();
+            // If the object is owned by a client, add it's connection back to the observing set
+            if (identity.connectionToClient != null)
+            {
+                identity.observers.Add(identity.connectionToClient.connectionId, identity.connectionToClient);
+            }
         }
     }
 }
