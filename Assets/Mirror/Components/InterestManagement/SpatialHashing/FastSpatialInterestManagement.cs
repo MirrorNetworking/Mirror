@@ -13,6 +13,10 @@ public class FastSpatialInterestManagement : InterestManagementBase
     [Tooltip("The maximum range that objects will be visible at.")]
     public int visRange = 30;
 
+    [Tooltip("Rebuild all every 'rebuildInterval' seconds.")]
+    public float rebuildInterval = 1;
+    double lastRebuildTime;
+
     // we use a 9 neighbour grid.
     // so we always see in a distance of 2 grids.
     // for example, our own grid and then one on top / below / left / right.
@@ -62,7 +66,14 @@ public class FastSpatialInterestManagement : InterestManagementBase
         // only on server
         if (!NetworkServer.active) return;
 
-        RebuildAll();
+        // rebuild all spawned entities' observers every 'interval'
+        // this will call OnRebuildObservers which then returns the
+        // observers at grid[position] for each entity.
+        if (NetworkTime.localTime >= lastRebuildTime + rebuildInterval)
+        {
+            RebuildAll();
+            lastRebuildTime = NetworkTime.localTime;
+        }
     }
 
     // When a new identity is spawned

@@ -41,6 +41,7 @@ namespace Mirror.Tests.InterestManagement
 
             aoi = holder.AddComponent<FastSpatialInterestManagement>();
             aoi.visRange = 10;
+            aoi.rebuildInterval = -1; // rebuild every call :)
             // setup server aoi since InterestManagement Awake isn't called
             NetworkServer.aoi = aoi;
         }
