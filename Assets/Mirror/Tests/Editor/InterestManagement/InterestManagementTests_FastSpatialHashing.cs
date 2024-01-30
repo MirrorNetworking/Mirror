@@ -1,5 +1,6 @@
-// default = no component = everyone sees everyone
-
+// TODO: test despawning
+// TODO: test non-player ni's
+// TODO: test grid size changing at runtime
 using System;
 using NUnit.Framework;
 using UnityEngine;
