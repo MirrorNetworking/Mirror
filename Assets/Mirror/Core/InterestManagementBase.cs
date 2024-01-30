@@ -88,7 +88,7 @@ namespace Mirror
             }
         }
 
-        /// Removes all observers from this identity
+        /// For ForceHidden: Removes all observers from this identity
         protected void ClearObservers(NetworkIdentity identity)
         {
             foreach (NetworkConnectionToClient connection in identity.observers.Values)
