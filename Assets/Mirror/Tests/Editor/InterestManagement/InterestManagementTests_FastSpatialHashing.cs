@@ -24,10 +24,14 @@ namespace Mirror.Tests.InterestManagement
             prespawn?.Invoke(identity);
             NetworkConnectionToClient connection = new NetworkConnectionToClient(connectionId);
             connection.isAuthenticated = true;
-            connection.isReady = true;
             connection.identity = identity;
-            NetworkServer.connections[connection.connectionId] = connection;
+            if (!NetworkServer.connections.TryAdd(connectionId, connection))
+            {
+                throw new Exception("Duplicate connection id");
+            }
+
             NetworkServer.Spawn(gameObject, connection);
+            NetworkServer.SetClientReady(connection); // AddPlayerForConnection also calls this!
             return identity;
         }
 
@@ -89,7 +93,7 @@ namespace Mirror.Tests.InterestManagement
             // A should not be seen by B because A is force hidden
             Assert.That(a.observers.ContainsKey(b.connectionToClient.connectionId), Is.False);
             // B should be seen by A
-            Assert.That(b.observers.ContainsKey(b.connectionToClient.connectionId), Is.True);
+            Assert.That(b.observers.ContainsKey(a.connectionToClient.connectionId), Is.True);
 
             // If we now set a to default, and rebuild, they should both see each other!
             a.visibility = Visibility.Default;
@@ -97,7 +101,7 @@ namespace Mirror.Tests.InterestManagement
             AssertSelfVisible(a);
             AssertSelfVisible(b);
             Assert.That(a.observers.ContainsKey(b.connectionToClient.connectionId), Is.True);
-            Assert.That(b.observers.ContainsKey(b.connectionToClient.connectionId), Is.True);
+            Assert.That(b.observers.ContainsKey(a.connectionToClient.connectionId), Is.True);
             // If we now set both hidden, and rebuild, they both won't see each other!
             a.visibility = Visibility.ForceHidden;
             b.visibility = Visibility.ForceHidden;
@@ -111,6 +115,45 @@ namespace Mirror.Tests.InterestManagement
         [Test]
         public void ForceShown()
         {
+            // A and B are at (0,0,0) so within range!
+            var a = CreatePlayerNI(1, ni => ni.visibility = Visibility.ForceShown);
+            var b = CreatePlayerNI(2);
+
+            // no rebuild required here due to initial state :)
+            AssertSelfVisible(a);
+            AssertSelfVisible(b);
+            // A&B should see each other
+            Assert.That(a.observers.ContainsKey(b.connectionToClient.connectionId), Is.True);
+            Assert.That(b.observers.ContainsKey(a.connectionToClient.connectionId), Is.True);
+            aoi.LateUpdate();
+            // rebuild doesnt change that
+            // no rebuild required here due to initial state :)
+            AssertSelfVisible(a);
+            AssertSelfVisible(b);
+            // A&B should see each other
+            Assert.That(a.observers.ContainsKey(b.connectionToClient.connectionId), Is.True);
+            Assert.That(b.observers.ContainsKey(a.connectionToClient.connectionId), Is.True);
+
+            // If we now move A out of range of B
+            a.transform.position = new Vector3(aoi.visRange * 100, 0, 0);
+            aoi.LateUpdate();
+            AssertSelfVisible(a);
+            AssertSelfVisible(b);
+
+            // a will be seen by B still
+            Assert.That(a.observers.ContainsKey(b.connectionToClient.connectionId), Is.True);
+            // But B is out of range of A
+            Assert.That(b.observers.ContainsKey(a.connectionToClient.connectionId), Is.False);
+
+
+            // B to ForceShown:
+            b.visibility = Visibility.ForceShown;
+            aoi.LateUpdate();
+            AssertSelfVisible(a);
+            AssertSelfVisible(b);
+            // A&B should see each other
+            Assert.That(a.observers.ContainsKey(b.connectionToClient.connectionId), Is.True);
+            Assert.That(b.observers.ContainsKey(a.connectionToClient.connectionId), Is.True);
         }
 
         [Test]

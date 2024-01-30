@@ -78,7 +78,7 @@ namespace Mirror
         /// For ForceShown: Makes sure all ready connections (that aren't already) are added to observers
         protected void AddObserversAllReady(NetworkIdentity identity)
         {
-            foreach (NetworkConnectionToClient connection in identity.observers.Values)
+            foreach (NetworkConnectionToClient connection in NetworkServer.connections.Values)
             {
                 if (connection.isReady && !identity.observers.ContainsKey(connection.connectionId))
                 {
