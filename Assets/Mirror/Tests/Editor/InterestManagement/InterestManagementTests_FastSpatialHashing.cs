@@ -154,6 +154,15 @@ namespace Mirror.Tests.InterestManagement
             // A&B should see each other
             Assert.That(a.observers.ContainsKey(b.connectionToClient.connectionId), Is.True);
             Assert.That(b.observers.ContainsKey(a.connectionToClient.connectionId), Is.True);
+            // A&B to default
+            a.visibility = Visibility.Default;
+            b.visibility = Visibility.Default;
+            aoi.LateUpdate();
+            AssertSelfVisible(a);
+            AssertSelfVisible(b);
+            // and they can't see each other anymore
+            Assert.That(a.observers.ContainsKey(b.connectionToClient.connectionId), Is.False);
+            Assert.That(b.observers.ContainsKey(a.connectionToClient.connectionId), Is.False);
         }
 
         [Test]

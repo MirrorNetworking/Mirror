@@ -345,13 +345,8 @@ public class FastSpatialInterestManagement : InterestManagementBase
 
                 foreach (NetworkIdentity gridIdentity in tile)
                 {
-                    if (gridIdentity == changedIdentity)
-                    {
-                        // Don't do anything with yourself
-                        continue;
-                    }
-
                     // if the gridIdentity is a player, it can see changedIdentity
+                    // (also yourself! don't need the extra check here)
                     if (gridIdentity.connectionToClient != null)
                     {
                         tempShownToDefaultSet.Remove(gridIdentity.connectionToClient);
