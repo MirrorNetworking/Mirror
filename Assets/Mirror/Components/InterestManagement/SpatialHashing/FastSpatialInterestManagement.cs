@@ -48,7 +48,7 @@ public class FastSpatialInterestManagement : InterestManagementBase
 
     public override bool OnCheckObserver(NetworkIdentity identity, NetworkConnectionToClient newObserver)
     {
-        // we build initial state during the normal loop too
+        // do nothing, we rebuild globally and individually in OnSpawned
         return false;
     }
 
