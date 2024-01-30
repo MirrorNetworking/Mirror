@@ -15,6 +15,7 @@ public class FastSpatialInterestManagement : InterestManagementBase
 
     [Tooltip("Rebuild all every 'rebuildInterval' seconds.")]
     public float rebuildInterval = 1;
+
     double lastRebuildTime;
 
     // we use a 9 neighbour grid.
@@ -93,31 +94,21 @@ public class FastSpatialInterestManagement : InterestManagementBase
 
         Tracked tracked = new Tracked
         {
-            Transform = identity.transform,
-            Identity = identity,
-            PreviousVisibility = identity.visibility,
+            Transform = identity.transform, Identity = identity, PreviousVisibility = identity.visibility,
         };
 
+        // set initial position
         tracked.Position = tracked.GridPosition(TileSize);
+        // add to tracked
         trackedIdentities.Add(identity, tracked);
-        RebuildAdd(
-            identity,
-            InvalidPosition,
-            tracked.Position,
-            true
-        );
+        // initialize in grid
+        RebuildAdd(identity, InvalidPosition, tracked.Position, true);
     }
 
 
     // when an identity is despawned/destroyed
     public override void OnDestroyed(NetworkIdentity identity)
     {
-        // (limitation: we never expect identity.visibile to change)
-        if (identity.visibility != Visibility.Default)
-        {
-            return;
-        }
-
         Tracked obj = trackedIdentities[identity];
         trackedIdentities.Remove(identity);
 
@@ -127,13 +118,11 @@ public class FastSpatialInterestManagement : InterestManagementBase
 
     private void RebuildAll()
     {
-        // loop over all identities and check if their positions changed
+        // loop over all identities and check if their position has changed
         foreach (Tracked tracked in trackedIdentities.Values)
         {
-            Vector2Int currentPosition = tracked.GridPosition(TileSize);
-
+            // Check if visibility has changed, this should usually be false
             bool visibilityChanged = tracked.Identity.visibility != tracked.PreviousVisibility;
-
             // Visibility change *to* default needs to be handled before the normal grid update
             // since observers are manipulated in RebuildAdd/RebuildRemove if visibility == Default
             if (visibilityChanged && tracked.Identity.visibility == Visibility.Default)
@@ -153,6 +142,8 @@ public class FastSpatialInterestManagement : InterestManagementBase
                         throw new ArgumentOutOfRangeException();
                 }
             }
+
+            Vector2Int currentPosition = tracked.GridPosition(TileSize);
             // if the position changed, move the identity in the grid and update observers accordingly
             if (currentPosition != tracked.Position)
             {
@@ -200,7 +191,7 @@ public class FastSpatialInterestManagement : InterestManagementBase
             for (int y = -1; y <= 1; y++)
             {
                 Vector2Int tilePos = oldPosition + new Vector2Int(x, y);
-                // optimization: don't remove on overlapping tiles
+                // Skip grid tiles that are still visible
                 if (Mathf.Abs(tilePos.x - newPosition.x) <= 1 &&
                     Mathf.Abs(tilePos.y - newPosition.y) <= 1)
                 {
@@ -220,7 +211,7 @@ public class FastSpatialInterestManagement : InterestManagementBase
                         continue;
                     }
 
-                    // we only modify observers here if the visibility is default, ForceShown/ForceHidden are handled differently
+                    // we only modify observers here if the visibility is default, ForceShown/ForceHidden are handled in RebuildAll
 
                     // if the gridIdentity is a player, it can't see changedIdentity anymore
                     if (gridIdentity.connectionToClient != null && changedIdentity.visibility == Visibility.Default)
@@ -268,7 +259,8 @@ public class FastSpatialInterestManagement : InterestManagementBase
                         continue;
                     }
 
-                    // we only modify observers here if the visibility is default, ForceShown/ForceHidden are handled differently
+                    // we only modify observers here if the visibility is default, ForceShown/ForceHidden are handled in RebuildAll
+
                     // if the gridIdentity is a player, it can now see changedIdentity
                     if (gridIdentity.connectionToClient != null && changedIdentity.visibility == Visibility.Default)
                     {
