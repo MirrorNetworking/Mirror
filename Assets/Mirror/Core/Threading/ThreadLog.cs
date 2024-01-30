@@ -94,16 +94,16 @@ namespace Mirror
                         Debug.Log($"[Thread{entry.threadId}] {entry.message}\n{entry.stackTrace}");
                         break;
                     case LogType.Warning:
-                        Debug.LogWarning($"[TThread{entry.threadId}] {entry.message}\n{entry.stackTrace}");
+                        Debug.LogWarning($"[Thread{entry.threadId}] {entry.message}\n{entry.stackTrace}");
                         break;
                     case LogType.Error:
-                        Debug.LogError($"[TThread{entry.threadId}] {entry.message}\n{entry.stackTrace}");
+                        Debug.LogError($"[Thread{entry.threadId}] {entry.message}\n{entry.stackTrace}");
                         break;
                     case LogType.Exception:
-                        Debug.LogError($"[TThread{entry.threadId}] {entry.message}\n{entry.stackTrace}");
+                        Debug.LogError($"[Thread{entry.threadId}] {entry.message}\n{entry.stackTrace}");
                         break;
                     case LogType.Assert:
-                        Debug.LogAssertion($"[TThread{entry.threadId}] {entry.message}\n{entry.stackTrace}");
+                        Debug.LogAssertion($"[Thread{entry.threadId}] {entry.message}\n{entry.stackTrace}");
                         break;
                 }
             }
