@@ -61,9 +61,10 @@ namespace Mirror
                 {
                     // prevent log flood from OnGUI or similar per-frame updates
                     alreadyWarned = true;
-                    Debug.LogWarning($"MultiplexTransport: Server cannot set the same listen port for all transports! Set them directly instead.");
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.WriteLine($"[Multiplexer] Server cannot set the same listen port for all transports! Set them directly instead.");
+                    Console.ResetColor();
                 }
-
                 else
                 {
                     // We can't set the same port for all transports because
@@ -97,10 +98,11 @@ namespace Mirror
         {
             // remove from both
             KeyValuePair<int, int> pair = new KeyValuePair<int, int>(originalConnectionId, transportIndex);
-            int multiplexedId = originalToMultiplexedId[pair];
-
-            originalToMultiplexedId.Remove(pair);
-            multiplexedToOriginalId.Remove(multiplexedId);
+            if (originalToMultiplexedId.TryGetValue(pair, out int multiplexedId))
+            {
+                originalToMultiplexedId.Remove(pair);
+                multiplexedToOriginalId.Remove(multiplexedId);
+            }
         }
 
         public bool OriginalId(int multiplexId, out int originalConnectionId, out int transportIndex)
@@ -121,7 +123,10 @@ namespace Mirror
         public int MultiplexId(int originalConnectionId, int transportIndex)
         {
             KeyValuePair<int, int> pair = new KeyValuePair<int, int>(originalConnectionId, transportIndex);
-            return originalToMultiplexedId[pair];
+            if (originalToMultiplexedId.TryGetValue(pair, out int multiplexedId))
+                return multiplexedId;
+            else
+                return 0;
         }
 
         ////////////////////////////////////////////////////////////////////////
@@ -265,6 +270,19 @@ namespace Mirror
                 {
                     // invoke Multiplex event with multiplexed connectionId
                     int multiplexedId = MultiplexId(originalConnectionId, transportIndex);
+                    if (multiplexedId == 0)
+                    {
+                        if (Utils.IsHeadless())
+                        {
+                            Console.ForegroundColor = ConsoleColor.Yellow;
+                            Console.WriteLine($"[Multiplexer] Received data for unknown connectionId={originalConnectionId} on transport={transportIndex}");
+                            Console.ResetColor();
+                        }
+                        else
+                            Debug.LogWarning($"[Multiplexer] Received data for unknown connectionId={originalConnectionId} on transport={transportIndex}");
+              
+                        return;
+                    }
                     OnServerDataReceived.Invoke(multiplexedId, data, channel);
                 };
 
@@ -272,6 +290,19 @@ namespace Mirror
                 {
                     // invoke Multiplex event with multiplexed connectionId
                     int multiplexedId = MultiplexId(originalConnectionId, transportIndex);
+                    if (multiplexedId == 0)
+                    {
+                        if (Utils.IsHeadless())
+                        {
+                            Console.ForegroundColor = ConsoleColor.Red;
+                            Console.WriteLine($"[Multiplexer] Received error for unknown connectionId={originalConnectionId} on transport={transportIndex}");
+                            Console.ResetColor();
+                        }
+                        else
+                            Debug.LogError($"[Multiplexer] Received error for unknown connectionId={originalConnectionId} on transport={transportIndex}");
+                        
+                        return;
+                    }
                     OnServerError.Invoke(multiplexedId, error, reason);
                 };
 
@@ -279,6 +310,19 @@ namespace Mirror
                 {
                     // invoke Multiplex event with multiplexed connectionId
                     int multiplexedId = MultiplexId(originalConnectionId, transportIndex);
+                    if (multiplexedId == 0)
+                    {
+                        if (Utils.IsHeadless())
+                        {
+                            Console.ForegroundColor = ConsoleColor.Yellow;
+                            Console.WriteLine($"[Multiplexer] Received disconnect for unknown connectionId={originalConnectionId} on transport={transportIndex}");
+                            Console.ResetColor();
+                        }
+                        else
+                            Debug.LogWarning($"[Multiplexer] Received disconnect for unknown connectionId={originalConnectionId} on transport={transportIndex}");
+                        
+                        return;
+                    }
                     OnServerDisconnected.Invoke(multiplexedId);
                     RemoveFromLookup(originalConnectionId, transportIndex);
                 };
