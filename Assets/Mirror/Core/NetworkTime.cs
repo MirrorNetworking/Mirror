@@ -158,20 +158,6 @@ namespace Mirror
             lastPingTime = localTime;
         }
 
-        // send ping right away ignoring lastPingTime
-        internal static void SendPing()
-        {
-            // send raw predicted time without the offset applied yet.
-            // we then apply the offset to it after.
-            NetworkPingMessage pingMessage = new NetworkPingMessage
-            (
-                localTime,
-                predictedTime
-            );
-            NetworkClient.Send(pingMessage, Channels.Unreliable);
-            lastPingTime = localTime;
-        }
-
         // client rtt calculation //////////////////////////////////////////////
         // executed at the server when we receive a ping message
         // reply with a pong containing the time from the client
