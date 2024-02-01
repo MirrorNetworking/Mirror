@@ -586,8 +586,6 @@ namespace Mirror
             // client will do things before the server is even fully started.
             //Debug.Log("StartHostClient called");
             SetupClient();
-
-            networkAddress = "localhost";
             RegisterClientMessages();
 
             // InvokeOnConnected needs to be called AFTER RegisterClientMessages
