@@ -142,7 +142,7 @@ namespace Mirror
             // localTime (double) instead of Time.time for accuracy over days
             if (localTime >= lastPingTime + PingInterval)
             {
-                PingNow();
+                SendPing();
             }
         }
 
