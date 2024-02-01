@@ -28,6 +28,41 @@ Mirror is **[stable](https://mirror-networking.gitbook.io/docs/general/tests)**,
 **Made in 🇩🇪🇺🇸🇬🇧🇸🇬🇹🇼 with ❤️**.
 
 ---
+## Features
+
+Mirror comes with a wide variety of features to support all game genres.<br>
+Many of our features quickly became the norm across all Unity netcodes!<br>
+
+| Feature                       | Description                                                                                                                                                   | Status          |
+|-------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------|
+| 🎛 **Transports**             | UDP, TCP, Websockets, Steam, Relay and more.                                                                                                                  | **Stable**      | 
+| 🪜 **Interest Management**    | Spatial Hashing & Distance Checker to partition the world.                                                                                                    | **Stable**      |
+| ↗️ **SyncDirection**          | Server & Client Authority - per component with one click.                                                                                                     | **Stable**      |
+| 🐌 **Latency Simulation**     | Simulate latency, packet loss & jitter locally.                                                                                                               | **Stable**      |
+| 🧲 **Batching**               | Minimize message overhead via batching automatically.                                                                                                         | **Stable**      |
+| 💌 **RPCs & SyncVars**        | Synced vars and remote function calls built in & safe.                                                                                                        | **Stable**      |
+| 🙅‍♀️**Allocation Free**      | Free of runtime allocations and no GC (except Transports).                                                                                                    | **Stable**      |
+| 🛞  **Transform & Physics**   | Transform & Physics sync built in.                                                                                                                            | **Stable**      |
+| 👩‍🍼 **Child Components**    | Put networked components on anything.                                                                                                                         | **Stable**      |
+| 🪚️ **IL Post Processing**    | Zero overhead [Rpcs] and [Commands] via IL post processing!                                                                                                   | **Stable**      |
+| ☁️ **Two Click Hosting**      | (Optional) <a href="https://mirror-networking.gitbook.io/docs/hosting/edgegap-hosting-plugin-guide">Build & Push</a> directly from Unity Editor to the Cloud. | **Preview**     |
+|                               |                                                                                                                                                               |                 |
+| 📏 **Snapshot Interp.**       | Perfectly smooth movement for all platforms and all games.                                                                                                    | **Stable**      |
+| 🏎 **Fast Prediction**        | Simulate Physics locally & apply server corrections **[VR ready]**                                                                                            | **Beta**        |
+| 🔫 **Lag Compensation**       | Roll back state to see what the player saw during input.                                                                                                      | **Preview**     |
+|                               |                                                                                                                                                               |                 |
+| 🧙‍♂️ **General Purpose**     | Mirror supports all genres for all your games!                                                                                                                |                 |
+| 🧘‍♀️ **Stable API**          | Long term (10 years)  stability instead of new versions!                                                                                                      |
+| 🔬 **Battle Tested**          | Mirror servers over 100 million players. It just works!                                                                                                       |                 |
+| 💴 **Free & Open Source**     | MIT licensed without any restrictions to minimize risk!                                                                                                       |                 |
+| ❤️ **Community**              | Join our Discord with nearly 15.000 developers world wide!                                                                                                    |                 |
+| 🧜🏻‍♀️ **Long Term Support** | Maintained since 2014 with optional LTS version!                                                                                                              |                 |
+|                               |                                                                                                                                                               |                 |
+| 🦖 **Deterministic Physics**  | Open source deterministic physics for C# & Unity!                                                                                                             | **Researching** |
+| 📐 **Bitpacking**             | Optimized compression (bools as 1 bit etc.)                                                                                                                   | **Researching** |
+| 🔒 **Encryption**             | Secure communication with end-to-end encryption.                                                                                                              | **Researching** |
+
+---
 ## Architecture
 The **Server & Client** are **ONE project** in order to achieve maximum productivity.
 
@@ -113,6 +148,12 @@ In addition to [24/7 support](https://github.com/sponsors/vis2k) from the Mirror
 
 **Population: ONE** was [acquired by Meta](https://uploadvr.com/population-one-facebook-bigbox-acquire/) in June 2021, and they've just released a new [Sandbox](https://www.youtube.com/watch?v=jcI0h8dn9tA) addon in 2022!
 
+### [Zooba](https://play.google.com/store/apps/details?id=com.wildlife.games.battle.royale.free.zooba&gl=US)
+[![Zooba](https://user-images.githubusercontent.com/16416509/178141846-60805ad5-5a6e-4840-8744-5194756c2a6d.jpg)](https://play.google.com/store/apps/details?id=com.wildlife.games.battle.royale.free.zooba&gl=US)
+[Wildlife Studio's](https://wildlifestudios.com/) hit Zooba made it to rank #5 of the largest battle royal shooters in the U.S. mobile market.
+
+The game has over **100 million** downloads on [Google Play](https://play.google.com/store/apps/details?id=com.wildlife.games.battle.royale.free.zooba&gl=US), with Wildlife Studios as one of the top 10 largest mobile gaming companies in the world.
+
 ### [Swarm VR](https://www.swarmvrgame.com/)
 [![swarmvr_compressed](https://user-images.githubusercontent.com/16416509/222610677-fa38f173-f76b-422f-b39d-8e0ef0cee798.jpg)](https://www.swarmvrgame.com/)
 SPIDER-MAN WITH GUNS! 
@@ -182,12 +223,6 @@ Originally developed as a single-player idle game, it underwent a transition to 
 The turn based, monster taming **MMORPG** [Untamed Isles](https://store.steampowered.com/app/1823300/Untamed_Isles/) is currently being developed by [Phat Loot Studios](https://untamedisles.com/about/).
 
 After their successful [Kickstarter](https://www.kickstarter.com/projects/untamedisles/untamed-isles), the New Zealand based studio is aiming for a 2022 release date.
-
-### [Zooba](https://play.google.com/store/apps/details?id=com.wildlife.games.battle.royale.free.zooba&gl=US)
-[![Zooba](https://user-images.githubusercontent.com/16416509/178141846-60805ad5-5a6e-4840-8744-5194756c2a6d.jpg)](https://play.google.com/store/apps/details?id=com.wildlife.games.battle.royale.free.zooba&gl=US)
-[Wildlife Studio's](https://wildlifestudios.com/) hit Zooba made it to rank #5 of the largest battle royal shooters in the U.S. mobile market.
-
-The game has over **50 million** downloads on [Google Play](https://play.google.com/store/apps/details?id=com.wildlife.games.battle.royale.free.zooba&gl=US), with Wildlife Studios as one of the top 10 largest mobile gaming companies in the world.
 
 ### [Portals](https://theportal.to/)
 [![Portals](https://user-images.githubusercontent.com/9826063/209373815-8e6288ba-22fc-4cee-8867-19f587188827.png)](https://theportal.to/)

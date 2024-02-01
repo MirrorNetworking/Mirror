@@ -11,7 +11,7 @@ namespace Mirror.Tests.InterestManagement
         public override void ForceHidden_Initial()
         {
             // force hide A
-            identityA.visible = Visibility.ForceHidden;
+            identityA.visibility = Visibility.ForceHidden;
 
             // rebuild for both
             // initial rebuild adds all connections if no interest management available
@@ -30,7 +30,7 @@ namespace Mirror.Tests.InterestManagement
         public override void ForceShown_Initial()
         {
             // force show A
-            identityA.visible = Visibility.ForceShown;
+            identityA.visibility = Visibility.ForceShown;
 
             // rebuild for both
             // initial rebuild adds all connections if no interest management available

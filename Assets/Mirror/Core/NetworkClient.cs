@@ -125,6 +125,16 @@ namespace Mirror
         // this is set by a virtual function in NetworkManager,
         // which allows users to overwrite it with their own estimations.
         public static ConnectionQuality connectionQuality = ConnectionQuality.ESTIMATING;
+        public static ConnectionQuality lastConnectionQuality = ConnectionQuality.ESTIMATING;
+        public static ConnectionQualityMethod connectionQualityMethod = ConnectionQualityMethod.Simple;
+        public static float connectionQualityInterval = 3;
+        static double lastConnectionQualityUpdate;
+
+        /// <summary>
+        /// Invoked when connection quality changes.
+        /// <para>First argument is the old quality, second argument is the new quality.</para>
+        /// </summary>
+        public static event Action<ConnectionQuality, ConnectionQuality> onConnectionQualityChanged;
 
         // initialization //////////////////////////////////////////////////////
         static void AddTransportHandlers()
@@ -309,8 +319,14 @@ namespace Mirror
                 //       always process all messages in the batch.
                 if (!unbatcher.AddBatch(data))
                 {
-                    Debug.LogWarning($"NetworkClient: failed to add batch, disconnecting.");
-                    connection.Disconnect();
+                    if (exceptionsDisconnect)
+                    {
+                        Debug.LogError($"NetworkClient: failed to add batch, disconnecting.");
+                        connection.Disconnect();
+                    }
+                    else
+                        Debug.LogWarning($"NetworkClient: failed to add batch.");
+                 
                     return;
                 }
 
@@ -346,17 +362,27 @@ namespace Mirror
                                 //    so we need to disconnect.
                                 // -> return to avoid the below unbatches.count error.
                                 //    we already disconnected and handled it.
-                                Debug.LogWarning($"NetworkClient: failed to unpack and invoke message. Disconnecting.");
-                                connection.Disconnect();
+                                if (exceptionsDisconnect)
+                                {
+                                    Debug.LogError($"NetworkClient: failed to unpack and invoke message. Disconnecting.");
+                                    connection.Disconnect();
+                                }
+                                else
+                                    Debug.LogWarning($"NetworkClient: failed to unpack and invoke message.");
+
                                 return;
                             }
                         }
                         // otherwise disconnect
                         else
                         {
-                            // WARNING, not error. can happen if attacker sends random data.
-                            Debug.LogWarning($"NetworkClient: received Message was too short (messages should start with message id)");
-                            connection.Disconnect();
+                            if (exceptionsDisconnect)
+                            {
+                                Debug.LogError($"NetworkClient: received Message was too short (messages should start with message id). Disconnecting.");
+                                connection.Disconnect();
+                            }
+                            else
+                                Debug.LogWarning("NetworkClient: received Message was too short (messages should start with message id)");
                             return;
                         }
                     }
@@ -506,14 +532,42 @@ namespace Mirror
             handlers[msgType] = NetworkMessages.WrapHandler((Action<NetworkConnection, T>)HandlerWrapped, requireAuthentication, exceptionsDisconnect);
         }
 
-        /// <summary>Replace a handler for a particular message type. Should require authentication by default.</summary>
-        // RegisterHandler throws a warning (as it should) if a handler is assigned twice
-        // Use of ReplaceHandler makes it clear the user intended to replace the handler
-        public static void ReplaceHandler<T>(Action<NetworkConnection, T> handler, bool requireAuthentication = true)
+        /// <summary>Register a handler for a message type T. Most should require authentication.</summary>
+        // This version passes channelId to the handler.
+        public static void RegisterHandler<T>(Action<T, int> handler, bool requireAuthentication = true)
             where T : struct, NetworkMessage
         {
             ushort msgType = NetworkMessageId<T>.Id;
-            handlers[msgType] = NetworkMessages.WrapHandler(handler, requireAuthentication, exceptionsDisconnect);
+            if (handlers.ContainsKey(msgType))
+            {
+                Debug.LogWarning($"NetworkClient.RegisterHandler replacing handler for {typeof(T).FullName}, id={msgType}. If replacement is intentional, use ReplaceHandler instead to avoid this warning.");
+            }
+
+            // register Id <> Type in lookup for debugging.
+            NetworkMessages.Lookup[msgType] = typeof(T);
+
+            // we use the same WrapHandler function for server and client.
+            // so let's wrap it to ignore the NetworkConnection parameter.
+            // it's not needed on client. it's always NetworkClient.connection.
+            void HandlerWrapped(NetworkConnection _, T value, int channelId) => handler(value, channelId);
+            handlers[msgType] = NetworkMessages.WrapHandler((Action<NetworkConnection, T, int>)HandlerWrapped, requireAuthentication, exceptionsDisconnect);
+        }
+
+        // Deprecated 2024-01-21
+        [Obsolete("Use ReplaceHandler without the NetworkConnection parameter instead. This version is obsolete and will be removed soon.")]
+        public static void ReplaceHandler<T>(Action<NetworkConnection, T> handler, bool requireAuthentication = true)
+            where T : struct, NetworkMessage
+        {
+            // we use the same WrapHandler function for server and client.
+            // so let's wrap it to ignore the NetworkConnection parameter.
+            // it's not needed on client. it's always NetworkClient.connection.
+            ushort msgType = NetworkMessageId<T>.Id;
+            
+            // register Id <> Type in lookup for debugging.
+            NetworkMessages.Lookup[msgType] = typeof(T);
+            
+            void HandlerWrapped(NetworkConnection _, T value) => handler(_, value);
+            handlers[msgType] = NetworkMessages.WrapHandler((Action<NetworkConnection, T>)HandlerWrapped, requireAuthentication, exceptionsDisconnect);
         }
 
         /// <summary>Replace a handler for a particular message type. Should require authentication by default.</summary>
@@ -522,7 +576,34 @@ namespace Mirror
         public static void ReplaceHandler<T>(Action<T> handler, bool requireAuthentication = true)
             where T : struct, NetworkMessage
         {
-            ReplaceHandler((NetworkConnection _, T value) => { handler(value); }, requireAuthentication);
+            // we use the same WrapHandler function for server and client.
+            // so let's wrap it to ignore the NetworkConnection parameter.
+            // it's not needed on client. it's always NetworkClient.connection.
+            ushort msgType = NetworkMessageId<T>.Id;
+            
+            // register Id <> Type in lookup for debugging.
+            NetworkMessages.Lookup[msgType] = typeof(T);
+            
+            void HandlerWrapped(NetworkConnection _, T value) => handler(value);
+            handlers[msgType] = NetworkMessages.WrapHandler((Action<NetworkConnection, T>)HandlerWrapped, requireAuthentication, exceptionsDisconnect);
+        }
+
+        /// <summary>Replace a handler for a particular message type. Should require authentication by default. This version passes channelId to the handler.</summary>
+        // RegisterHandler throws a warning (as it should) if a handler is assigned twice
+        // Use of ReplaceHandler makes it clear the user intended to replace the handler
+        public static void ReplaceHandler<T>(Action<T, int> handler, bool requireAuthentication = true)
+            where T : struct, NetworkMessage
+        {
+            // we use the same WrapHandler function for server and client.
+            // so let's wrap it to ignore the NetworkConnection parameter.
+            // it's not needed on client. it's always NetworkClient.connection.
+            ushort msgType = NetworkMessageId<T>.Id;
+            
+            // register Id <> Type in lookup for debugging.
+            NetworkMessages.Lookup[msgType] = typeof(T);
+            
+            void HandlerWrapped(NetworkConnection _, T value, int channelId) => handler(value, channelId);
+            handlers[msgType] = NetworkMessages.WrapHandler((Action<NetworkConnection, T, int>)HandlerWrapped, requireAuthentication, exceptionsDisconnect);
         }
 
         /// <summary>Unregister a message handler of type T.</summary>
@@ -1510,6 +1591,38 @@ namespace Mirror
                 {
                     Broadcast();
                 }
+
+                UpdateConnectionQuality();
+            }
+
+            // Connection Quality //////////////////////////////////////////////////
+            // uses 'pragmatic' version based on snapshot interpolation by default.
+            void UpdateConnectionQuality()
+            {
+                // only recalculate every few seconds
+                // we don't want to fire Good->Bad->Good->Bad dozens of times per second.
+                if (connectionQualityInterval > 0 && NetworkTime.time > lastConnectionQualityUpdate + connectionQualityInterval)
+                {
+                    lastConnectionQualityUpdate = NetworkTime.time;
+
+                    switch (connectionQualityMethod)
+                    {
+                        case ConnectionQualityMethod.Simple:
+                            connectionQuality = ConnectionQualityHeuristics.Simple(NetworkTime.rtt, NetworkTime.rttVariance);
+                            break;
+                        case ConnectionQualityMethod.Pragmatic:
+                            connectionQuality = ConnectionQualityHeuristics.Pragmatic(initialBufferTime, bufferTime);
+                            break;
+                    }
+
+                    if (lastConnectionQuality != connectionQuality)
+                    {
+                        // Invoke the event before assigning the new value so
+                        // the event handler can compare old and new values.
+                        onConnectionQualityChanged?.Invoke(lastConnectionQuality, connectionQuality);
+                        lastConnectionQuality = connectionQuality;
+                    }
+                }
             }
 
             // update connections to flush out messages _after_ broadcast
@@ -1572,7 +1685,7 @@ namespace Mirror
                             // unspawned objects should be reset for reuse later.
                             if (wasUnspawned)
                             {
-                                identity.Reset();
+                                identity.ResetState();
                             }
                             // without unspawn handler, we need to disable/destroy.
                             else
@@ -1581,7 +1694,7 @@ namespace Mirror
                                 // they always stay in the scene, we don't destroy them.
                                 if (identity.sceneId != 0)
                                 {
-                                    identity.Reset();
+                                    identity.ResetState();
                                     identity.gameObject.SetActive(false);
                                 }
                                 // spawned objects are destroyed
@@ -1617,7 +1730,7 @@ namespace Mirror
                 if (InvokeUnSpawnHandler(identity.assetId, identity.gameObject))
                 {
                     // reset object after user's handler
-                    identity.Reset();
+                    identity.ResetState();
                 }
                 // otherwise fall back to default Destroy
                 else if (identity.sceneId == 0)
@@ -1631,7 +1744,7 @@ namespace Mirror
                     identity.gameObject.SetActive(false);
                     spawnableObjects[identity.sceneId] = identity;
                     // reset for scene objects
-                    identity.Reset();
+                    identity.ResetState();
                 }
 
                 // remove from dictionary no matter how it is unspawned

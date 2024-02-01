@@ -2532,6 +2532,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7a77ca56c9d91af4b81b73a9907d6112, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  networkAddressInput: {fileID: 1027272349}
   usernameInput: {fileID: 851154181}
   hostButton: {fileID: 1904406266}
   clientButton: {fileID: 1063265580}

@@ -39,7 +39,7 @@ namespace Mirror.Tests.InterestManagement
             // A and B are at (0,0,0) so within range!
 
             // force hide A
-            identityA.visible = Visibility.ForceHidden;
+            identityA.visibility = Visibility.ForceHidden;
 
             // rebuild for both
             // initial rebuild while both are within range
@@ -61,7 +61,7 @@ namespace Mirror.Tests.InterestManagement
             identityB.transform.position = Vector3.right * (aoi.visRange + 1);
 
             // force show A
-            identityA.visible = Visibility.ForceShown;
+            identityA.visibility = Visibility.ForceShown;
 
             // update grid now that positions were changed
             aoi.Update();
