@@ -147,7 +147,7 @@ namespace Mirror
         }
 
         // send ping right away ignoring lastPingTime
-        internal static void PingNow()
+        internal static void SendPing()
         {
             // send raw predicted time without the offset applied yet.
             // we then apply the offset to it after.
