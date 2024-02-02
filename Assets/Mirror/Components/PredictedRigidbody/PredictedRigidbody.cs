@@ -77,6 +77,10 @@ namespace Mirror
         [Tooltip("Teleport if we are further than 'multiplier x collider size' behind.")]
         public float teleportDistanceMultiplier = 10;
 
+        [Header("Bandwidth")]
+        [Tooltip("Reduce sends while velocity==0. Client's objects may slightly move due to gravity/physics, so we still want to send corrections occasionally even if an object is idle on the server the whole time.")]
+        public bool reduceSendsWhileIdle = true;
+
         [Header("Debugging")]
         public float lineTime = 10;
 
@@ -298,17 +302,25 @@ namespace Mirror
 
         void UpdateServer()
         {
-            // to save bandwidth, we only serialize when position changed
-            // if (Vector3.Distance(tf.position, lastPosition) >= positionSensitivity)
-            // {
-            //     lastPosition = tf.position;
-            //     SetDirty();
-            // }
+            // bandwidth optimization while idle.
+            if (reduceSendsWhileIdle)
+            {
+                // while moving, always sync every frame for immediate corrections.
+                // while idle, only sync once per second.
+                //
+                // we still need to sync occasionally because objects on client
+                // may still slide or move slightly due to gravity, physics etc.
+                // and those still need to get corrected if not moving on server.
+                //
+                // TODO
+                // next round of optimizations: if client received nothing for 1s,
+                // force correct to last received state. then server doesn't need
+                // to send once per second anymore.
+                bool moving = rb.velocity != Vector3.zero; // on server, always use .rb. it has no physicsRigidbody.
+                syncInterval = moving ? 0 : 1;
+            }
 
-            // always set dirty to always serialize.
-            // fixes issues where an object was idle and stopped serializing on server,
-            // even though it was still moving on client.
-            // hence getting totally out of sync.
+            // always set dirty to always serialize in next sync interval.
             SetDirty();
         }
 
