@@ -87,9 +87,9 @@ namespace Mirror
         // Rigidbody & Collider are moved out into a separate object.
         // this way the visual object can smoothly follow.
         protected GameObject physicsCopy;
-        Transform physicsCopyTransform; // caching to avoid GetComponent
-        Rigidbody physicsCopyRigidbody; // caching to avoid GetComponent
-        Collider physicsCopyCollider;   // caching to avoid GetComponent
+        protected Transform physicsCopyTransform; // caching to avoid GetComponent
+        protected Rigidbody physicsCopyRigidbody; // caching to avoid GetComponent
+        protected Collider physicsCopyCollider;   // caching to avoid GetComponent
         float smoothFollowThreshold;    // caching to avoid calculation in LateUpdate
 
         // we also create one extra ghost for the exact known server state.
