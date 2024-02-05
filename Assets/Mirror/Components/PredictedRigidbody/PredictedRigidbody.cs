@@ -137,8 +137,8 @@ namespace Mirror
         // besides, Rigidbody+Collider are two components, where as renders may be many.
         protected virtual void CreateGhosts()
         {
-            // skip if already separated
-            if (physicsCopy != null) return;
+            // skip if host mode or already separated
+            if (isServer || physicsCopy != null) return;
 
             Debug.Log($"Separating Physics for {name}");
 
@@ -331,14 +331,15 @@ namespace Mirror
 
         void LateUpdate()
         {
-            if (isClient) SmoothFollowPhysicsCopy();
+            // only follow on client-only, not in server or host mode
+            if (isClientOnly) SmoothFollowPhysicsCopy();
         }
 
         void FixedUpdate()
         {
-            // on clients we record the current state every FixedUpdate.
+            // on clients (not host) we record the current state every FixedUpdate.
             // this is cheap, and allows us to keep a dense history.
-            if (isClient)
+            if (isClientOnly)
             {
                 // OPTIMIZATION: RecordState() is expensive because it inserts into a SortedList.
                 // only record if state actually changed!
