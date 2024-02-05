@@ -543,7 +543,13 @@ namespace Mirror
             // otherwise it could be out of sync as long as it's too far behind.
             if (state.timestamp < oldest.timestamp)
             {
-                Debug.LogWarning($"Hard correcting client object {name} because the client is too far behind the server. History of size={stateHistory.Count} @ t={timestamp:F3} oldest={oldest.timestamp:F3} newest={newest.timestamp:F3}. This would cause the client to be out of sync as long as it's behind.");
+                // when starting, client may only have 2-3 states in history.
+                // it's expected that server states would be behind those 2-3.
+                // only show a warning if it's behind the full history limit!
+                if (stateHistory.Count >= stateHistoryLimit)
+                    Debug.LogWarning($"Hard correcting client object {name} because the client is too far behind the server. History of size={stateHistory.Count} @ t={timestamp:F3} oldest={oldest.timestamp:F3} newest={newest.timestamp:F3}. This would cause the client to be out of sync as long as it's behind.");
+
+                // force apply the state
                 ApplyState(state.timestamp, state.position, state.rotation, state.velocity);
                 return;
             }
