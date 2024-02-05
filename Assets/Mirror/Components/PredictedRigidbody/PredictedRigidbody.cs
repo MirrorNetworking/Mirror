@@ -637,10 +637,14 @@ namespace Mirror
             // server is technically supposed to be at a fixed frame rate, but this can vary.
             // sending server's current deltaTime is the safest option.
             // client then applies it on top of remoteTimestamp.
+
+
+            // FAST VERSION: this shows in profiler a lot, so cache EVERYTHING!
+            tf.GetPositionAndRotation(out Vector3 position, out Quaternion rotation);  // faster than tf.position + tf.rotation. server's rigidbody is on the same transform.
             writer.WriteFloat(Time.deltaTime);
-            writer.WriteVector3(rb.position);    // own rigidbody on server, it's never moved to physics copy
-            writer.WriteQuaternion(rb.rotation); // own rigidbody on server, it's never moved to physics copy
-            writer.WriteVector3(rb.velocity);    // own rigidbody on server, it's never moved to physics copy
+            writer.WriteVector3(position);
+            writer.WriteQuaternion(rotation);
+            writer.WriteVector3(rb.velocity); // own rigidbody on server, it's never moved to physics copy
         }
 
         // read the server's state, compare with client state & correct if necessary.
