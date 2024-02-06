@@ -431,6 +431,7 @@ namespace Mirror
 
         // optional user callbacks, in case people need to know about events.
         protected virtual void OnSnappedIntoPlace() {}
+        protected virtual void OnBeforeApplyState() {}
         protected virtual void OnCorrected() {}
 
         void ApplyState(double timestamp, Vector3 position, Quaternion rotation, Vector3 velocity)
@@ -467,6 +468,11 @@ namespace Mirror
                 OnSnappedIntoPlace();
                 return;
             }
+
+            // we have a callback for snapping into place (above).
+            // we also need one for corrections without snapping into place.
+            // call it before applying pos/rot/vel in case we need to set kinematic etc.
+            OnBeforeApplyState();
 
             // Rigidbody .position teleports, while .MovePosition interpolates
             // TODO is this a good idea? what about next capture while it's interpolating?
