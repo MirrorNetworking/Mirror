@@ -135,8 +135,9 @@ namespace Mirror
         //   -> still supports dynamically sized types
         //
         // 64 bit mask, tracking up to 64 SyncVars.
-        protected ulong syncVarDirtyBits { get; private set; }
-        // 64 bit mask, tracking up to 64 sync collections (internal for tests).
+        // protected since NB child classes read this field in the weaver generated SerializeSyncVars method
+        protected ulong syncVarDirtyBits;
+        // 64 bit mask, tracking up to 64 sync collections.
         // internal for tests, field for faster access (instead of property)
         // TODO 64 SyncLists are too much. consider smaller mask later.
         internal ulong syncObjectDirtyBits;
