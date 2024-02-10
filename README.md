@@ -144,7 +144,7 @@ Without any breaking changes, ever!
 [![Population: ONE](https://github.com/MirrorNetworking/Mirror/assets/16416509/dddc778b-a97f-452d-b5f8-6ec42c6da4f1)](https://www.populationonevr.com/)
 The [BigBoxVR](https://www.bigboxvr.com/) team started using Mirror in February 2019 for what eventually became one of the most popular Oculus Rift games.
 
-In addition to [24/7 support](https://github.com/sponsors/vis2k) from the Mirror team, BigBoxVR also hired one of our engineers.
+In addition to [24/7 support](https://discordapp.com/invite/xVW4nU4C34) from the Mirror team, BigBoxVR also hired one of our engineers.
 
 **Population: ONE** was [acquired by Meta](https://uploadvr.com/population-one-facebook-bigbox-acquire/) in June 2021, and they've just released a new [Sandbox](https://www.youtube.com/watch?v=jcI0h8dn9tA) addon in 2022!
 
