@@ -90,7 +90,7 @@ namespace Mirror
         protected Transform physicsCopyTransform; // caching to avoid GetComponent
         protected Rigidbody physicsCopyRigidbody; // caching to avoid GetComponent
         protected Collider physicsCopyCollider;   // caching to avoid GetComponent
-        float smoothFollowThreshold;    // caching to avoid calculation in LateUpdate
+        float smoothFollowThresholdSquared;    // caching to avoid calculation in LateUpdate
 
         // we also create one extra ghost for the exact known server state.
         protected GameObject remoteCopy;
@@ -208,7 +208,7 @@ namespace Mirror
 
             // cache some threshold to avoid calculating them in LateUpdate
             float colliderSize = physicsCopyCollider.bounds.size.magnitude;
-            smoothFollowThreshold = colliderSize * teleportDistanceMultiplier;
+            smoothFollowThresholdSquared = (colliderSize * teleportDistanceMultiplier) * (colliderSize * teleportDistanceMultiplier);
         }
 
         protected virtual void DestroyGhosts()
@@ -262,11 +262,19 @@ namespace Mirror
             physicsCopyTransform.GetPositionAndRotation(out Vector3 physicsPosition, out Quaternion physicsRotation); // faster than physicsCopyRigidbody.position + physicsCopyRigidbody.rotation
             float deltaTime = Time.deltaTime;
 
-            float distance = Vector3.Distance(currentPosition, physicsPosition);
-            if (distance > smoothFollowThreshold)
+            // avoid vector ops because current scripting backends are terrible at inlining
+            // https://github.com/Unity-Technologies/UnityCsReference/blob/4e215c07ca8e9a32a589043202fd919bdfc0a26d/Runtime/Export/Math/Vector3.cs#L63
+            float toVectorX = physicsPosition.x - currentPosition.x;
+            float toVectorY = physicsPosition.y - currentPosition.y;
+            float toVectorZ = physicsPosition.z - currentPosition.z;
+
+            float distanceSquared = toVectorX * toVectorX + toVectorY * toVectorY + toVectorZ * toVectorZ;
+
+            // Compare the square distances to avoid Math.Sqrt
+            if (distanceSquared > smoothFollowThresholdSquared)
             {
                 tf.SetPositionAndRotation(physicsPosition, physicsRotation); // faster than .position and .rotation manually
-                Debug.Log($"[PredictedRigidbody] Teleported because distance to physics copy = {distance:F2} > threshold {smoothFollowThreshold:F2}");
+                Debug.Log($"[PredictedRigidbody] Teleported because distance squared to physics copy = {distanceSquared:F2} > threshold {smoothFollowThresholdSquared:F2}");
                 return;
             }
 
@@ -275,8 +283,23 @@ namespace Mirror
             // => speed increases by distance² because the further away, the
             //    sooner we need to catch the fuck up
             // float positionStep = (distance * distance) * interpolationSpeed;
-            float positionStep = distance * positionInterpolationSpeed;
-            Vector3 newPosition = Vector3.MoveTowards(currentPosition, physicsPosition, positionStep * deltaTime);
+            float positionStep = distanceSquared * positionInterpolationSpeed * deltaTime;
+
+            Vector3 newPosition;
+
+            // Dont call Vector3.MoveTowards as it calculates (physicsPosition - currentPosition) and the square distance again which we already did
+            if (distanceSquared == 0 || (positionStep >= 0 && distanceSquared <= positionStep * positionStep))
+            {
+                newPosition = physicsPosition;
+            }
+            else
+            {
+                float distance = (float)Math.Sqrt(distanceSquared);
+
+                newPosition = new Vector3(currentPosition.x + toVectorX / distance * positionStep,
+                    currentPosition.y + toVectorY / distance * positionStep,
+                    currentPosition.z + toVectorZ / distance * positionStep);
+            }
 
             // smoothly interpolate to the target rotation.
             // Quaternion.RotateTowards doesn't seem to work at all, so let's use SLerp.
