@@ -102,7 +102,7 @@ namespace Mirror
             if (predictedRigidbody == null) throw new InvalidOperationException($"Prediction: {name} is missing a Rigidbody component.");
 
             // cache some threshold to avoid calculating them in LateUpdate
-            float colliderSize = GetComponent<Collider>().bounds.size.magnitude;
+            float colliderSize = GetComponentInChildren<Collider>().bounds.size.magnitude;
             smoothFollowThreshold = colliderSize * teleportDistanceMultiplier;
         }
 
