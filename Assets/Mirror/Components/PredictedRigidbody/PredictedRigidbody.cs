@@ -27,8 +27,15 @@ namespace Mirror
         protected Rigidbody predictedRigidbody; // always valid, even while moved onto the ghost.
         Vector3 lastPosition;
 
-        // [Tooltip("Broadcast changes if position changed by more than ... meters.")]
-        // public float positionSensitivity = 0.01f;
+        // motion smoothing happen on-demand, because it requires moving physics components to another GameObject.
+        // this only starts at a given velocity and ends when stopped moving.
+        // to avoid constant on/off/on effects, it also stays on for a minimum time.
+        [Header("Motion Smoothing")]
+        [Tooltip("Smoothing via Ghost-following only happens on demand, while moving with a minimum velocity.")]
+        public float motionSmoothingVelocityThreshold = 0.1f;
+        public float motionSmoothingAngularVelocityThreshold = 0.1f;
+        public float motionSmoothingMinimumTime = 0.5f;
+        double motionSmoothingStartTime;
 
         // client keeps state history for correction & reconciliation.
         // this needs to be a SortedList because we need to be able to insert inbetween.
@@ -165,6 +172,9 @@ namespace Mirror
             // games may use a custom physics collision matrix, layer matters.
             physicsCopy.layer = gameObject.layer;
 
+            // add the PredictedRigidbodyPhysical component
+            PredictedRigidbodyPhysicsGhost physicsGhostRigidbody = physicsCopy.AddComponent<PredictedRigidbodyPhysicsGhost>();
+            physicsGhostRigidbody.target = tf;
             // move the rigidbody component & all colliders to the physics GameObject
             PredictionUtils.MovePhysicsComponents(gameObject, physicsCopy);
 
@@ -305,6 +315,11 @@ namespace Mirror
             SetDirty();
         }
 
+        // movement detection is virtual, in case projects want to use other methods.
+        protected virtual bool IsMoving() =>
+            predictedRigidbody.velocity.magnitude >= motionSmoothingVelocityThreshold ||
+            predictedRigidbody.angularVelocity.magnitude >= motionSmoothingAngularVelocityThreshold;
+
         void UpdateGhosting()
         {
             // client only uses ghosts on demand while interacting.
@@ -315,8 +330,9 @@ namespace Mirror
             {
                 // faster than velocity threshold? then create the ghosts.
                 // with 10% buffer zone so we don't flip flop all the time.
-                if (predictedRigidbody.velocity.magnitude >= ghostVelocityThreshold * 1.1f)
+                if (IsMoving())
                 {
+                    motionSmoothingStartTime = NetworkTime.time;
                     CreateGhosts();
                     OnBeginPrediction();
                 }
@@ -325,11 +341,12 @@ namespace Mirror
             else
             {
                 // slower than velocity threshold? then destroy the ghosts.
-                // with 10% buffer zone so we don't flip flop all the time.
-                if (predictedRigidbody.velocity.magnitude <= ghostVelocityThreshold * 0.9f)
+                // with a minimum time since starting to move, to avoid on/off/on effects.
+                if (!IsMoving() && NetworkTime.time >= motionSmoothingStartTime + motionSmoothingMinimumTime)
                 {
                     DestroyGhosts();
                     OnEndPrediction();
+                    physicsCopy = null; // TESTING
                 }
             }
         }
