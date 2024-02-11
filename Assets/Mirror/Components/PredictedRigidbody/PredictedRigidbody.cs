@@ -726,5 +726,24 @@ namespace Mirror
             predictedRigidbody = null;
             return false;
         }
+
+        // helper function for Physics tests to check if a Collider (which may be in children) belongs to
+        // a PredictedRigidbody component (either on it, or on its ghost).
+        public static bool IsPredicted(Collider co, out PredictedRigidbody predictedRigidbody)
+        {
+            // by default, Collider is on the PredictedRigidbody GameObject or it's children.
+            predictedRigidbody = co.GetComponentInParent<PredictedRigidbody>();
+            if (predictedRigidbody != null)
+                return true;
+
+            // it might be on a ghost while interacting
+            PredictedRigidbodyPhysicsGhost ghost = co.GetComponentInParent<PredictedRigidbodyPhysicsGhost>();
+            if (ghost != null && ghost.target != null && ghost.target.TryGetComponent(out predictedRigidbody))
+                return true;
+
+            // otherwise the Rigidbody does not belong to any PredictedRigidbody.
+            predictedRigidbody = null;
+            return false;
+        }
     }
 }
