@@ -175,6 +175,7 @@ namespace Mirror
             // add the PredictedRigidbodyPhysical component
             PredictedRigidbodyPhysicsGhost physicsGhostRigidbody = physicsCopy.AddComponent<PredictedRigidbodyPhysicsGhost>();
             physicsGhostRigidbody.target = tf;
+
             // move the rigidbody component & all colliders to the physics GameObject
             PredictionUtils.MovePhysicsComponents(gameObject, physicsCopy);
 
@@ -423,10 +424,12 @@ namespace Mirror
             // this is performance critical, avoid calling .transform multiple times.
             tf.GetPositionAndRotation(out Vector3 currentPosition, out Quaternion currentRotation); // faster than accessing .position + .rotation manually
             Vector3 currentVelocity = predictedRigidbody.velocity;
+            Vector3 currentAngularVelocity = predictedRigidbody.angularVelocity;
 
             // calculate delta to previous state (if any)
             Vector3 positionDelta = Vector3.zero;
             Vector3 velocityDelta = Vector3.zero;
+            Vector3 angularVelocityDelta = Vector3.zero;
             // Quaternion rotationDelta = Quaternion.identity; // currently unused
             if (stateHistory.Count > 0)
             {
@@ -434,6 +437,7 @@ namespace Mirror
                 positionDelta = currentPosition - last.position;
                 velocityDelta = currentVelocity - last.velocity;
                 // rotationDelta = currentRotation * Quaternion.Inverse(last.rotation); // this is how you calculate a quaternion delta (currently unused, don't do the computation)
+                angularVelocityDelta = currentAngularVelocity - last.angularVelocity;
 
                 // debug draw the recorded state
                 // Debug.DrawLine(last.position, currentPosition, Color.red, lineTime);
@@ -447,7 +451,9 @@ namespace Mirror
                 // rotationDelta, // currently unused
                 currentRotation,
                 velocityDelta,
-                currentVelocity
+                currentVelocity,
+                angularVelocityDelta,
+                currentAngularVelocity
             );
 
             // add state to history
@@ -464,12 +470,14 @@ namespace Mirror
         protected virtual void OnBeginPrediction() {} // when the Rigidbody moved above threshold and we created a ghost
         protected virtual void OnEndPrediction() {}   // when the Rigidbody came to rest and we destroyed the ghost
 
-        void ApplyState(double timestamp, Vector3 position, Quaternion rotation, Vector3 velocity)
+        void ApplyState(double timestamp, Vector3 position, Quaternion rotation, Vector3 velocity, Vector3 angularVelocity)
         {
             // fix rigidbodies seemingly dancing in place instead of coming to rest.
             // hard snap to the position below a threshold velocity.
             // this is fine because the visual object still smoothly interpolates to it.
-            if (predictedRigidbody.velocity.magnitude <= snapThreshold)
+            // => consider both velocity and angular velocity (in case of Rigidbodies only rotating with joints etc.)
+            if (predictedRigidbody.velocity.magnitude <= snapThreshold &&
+                predictedRigidbody.angularVelocity.magnitude <= snapThreshold)
             {
                 // Debug.Log($"Prediction: snapped {name} into place because velocity {predictedRigidbody.velocity.magnitude:F3} <= {snapThreshold:F3}");
 
@@ -480,6 +488,7 @@ namespace Mirror
                 predictedRigidbody.position = position;
                 predictedRigidbody.rotation = rotation;
                 predictedRigidbody.velocity = velocity;
+                predictedRigidbody.angularVelocity = angularVelocity;
 
                 // clear history and insert the exact state we just applied.
                 // this makes future corrections more accurate.
@@ -491,7 +500,9 @@ namespace Mirror
                     // Quaternion.identity, // rotationDelta: currently unused
                     rotation,
                     Vector3.zero,
-                    velocity
+                    velocity,
+                    Vector3.zero,
+                    angularVelocity
                 ));
 
                 // user callback
@@ -519,6 +530,7 @@ namespace Mirror
 
             // there's only one way to set velocity
             predictedRigidbody.velocity = velocity;
+            predictedRigidbody.angularVelocity = angularVelocity;
         }
 
         // process a received server state.
@@ -587,7 +599,7 @@ namespace Mirror
                     Debug.LogWarning($"Hard correcting client object {name} because the client is too far behind the server. History of size={stateHistory.Count} @ t={timestamp:F3} oldest={oldest.timestamp:F3} newest={newest.timestamp:F3}. This would cause the client to be out of sync as long as it's behind.");
 
                 // force apply the state
-                ApplyState(state.timestamp, state.position, state.rotation, state.velocity);
+                ApplyState(state.timestamp, state.position, state.rotation, state.velocity, state.angularVelocity);
                 return;
             }
 
@@ -608,7 +620,7 @@ namespace Mirror
                 {
                     double ahead = state.timestamp - newest.timestamp;
                     Debug.Log($"Hard correction because the client is ahead of the server by {(ahead*1000):F1}ms. History of size={stateHistory.Count} @ t={timestamp:F3} oldest={oldest.timestamp:F3} newest={newest.timestamp:F3}. This can happen when latency is near zero, and is fine unless it shows jitter.");
-                    ApplyState(state.timestamp, state.position, state.rotation, state.velocity);
+                    ApplyState(state.timestamp, state.position, state.rotation, state.velocity, state.angularVelocity);
                 }
                 return;
             }
@@ -619,7 +631,7 @@ namespace Mirror
                 // something went very wrong. sampling should've worked.
                 // hard correct to recover the error.
                 Debug.LogError($"Failed to sample history of size={stateHistory.Count} @ t={timestamp:F3} oldest={oldest.timestamp:F3} newest={newest.timestamp:F3}. This should never happen because the timestamp is within history.");
-                ApplyState(state.timestamp, state.position, state.rotation, state.velocity);
+                ApplyState(state.timestamp, state.position, state.rotation, state.velocity, state.angularVelocity);
                 return;
             }
 
@@ -652,7 +664,7 @@ namespace Mirror
                 // int correctedAmount = stateHistory.Count - afterIndex;
                 // Debug.Log($"Correcting {name}: {correctedAmount} / {stateHistory.Count} states to final position from: {rb.position} to: {last.position}");
                 //Debug.DrawLine(physicsCopyRigidbody.position, recomputed.position, Color.green, lineTime);
-                ApplyState(recomputed.timestamp, recomputed.position, recomputed.rotation, recomputed.velocity);
+                ApplyState(recomputed.timestamp, recomputed.position, recomputed.rotation, recomputed.velocity, recomputed.angularVelocity);
 
                 // user callback
                 OnCorrected();
@@ -681,6 +693,7 @@ namespace Mirror
             writer.WriteVector3(position);
             writer.WriteQuaternion(rotation);
             writer.WriteVector3(predictedRigidbody.velocity);
+            writer.WriteVector3(predictedRigidbody.angularVelocity);
         }
 
         // read the server's state, compare with client state & correct if necessary.
@@ -703,12 +716,13 @@ namespace Mirror
             if (oneFrameAhead) timestamp += serverDeltaTime;
 
             // parse state
-            Vector3 position    = reader.ReadVector3();
-            Quaternion rotation = reader.ReadQuaternion();
-            Vector3 velocity    = reader.ReadVector3();
+            Vector3 position        = reader.ReadVector3();
+            Quaternion rotation     = reader.ReadQuaternion();
+            Vector3 velocity        = reader.ReadVector3();
+            Vector3 angularVelocity = reader.ReadVector3();
 
             // process received state
-            OnReceivedState(timestamp, new RigidbodyState(timestamp, Vector3.zero, position, /*Quaternion.identity,*/ rotation, Vector3.zero, velocity));
+            OnReceivedState(timestamp, new RigidbodyState(timestamp, Vector3.zero, position, /*Quaternion.identity,*/ rotation, Vector3.zero, velocity, Vector3.zero, angularVelocity));
         }
 
         protected override void OnValidate()
