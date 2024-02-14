@@ -63,11 +63,10 @@ namespace Mirror.Examples.Shooter
                     else
                     {
                         // apply impact force if we hit a rigidbody that is networked
-                        if (rigid.TryGetComponent(out PredictedRigidbodyPhysicsGhost predictedPhysics))
+                        if (PredictedRigidbody.IsPredicted(rigid, out PredictedRigidbody target))
                         {
                             // prediction: apply bullet force locally and send command to server
                             ApplyBulletForce(rigid, hit.normal, weapon.impactForce);
-                            PredictedRigidbody target = predictedPhysics.target.GetComponent<PredictedRigidbody>();
                             if (!isServer) CmdApplyBulletForce(target, hit.normal, weapon.impactForce); // not in host mode
                         }
                     }
