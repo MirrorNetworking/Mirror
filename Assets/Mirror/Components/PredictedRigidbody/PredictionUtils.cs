@@ -23,7 +23,6 @@ namespace Mirror
             rigidbodyCopy.mass = original.mass;
             rigidbodyCopy.drag = original.drag;
             rigidbodyCopy.angularDrag = original.angularDrag;
-            rigidbodyCopy.angularVelocity = original.angularVelocity;
             rigidbodyCopy.useGravity = original.useGravity;
             rigidbodyCopy.isKinematic = original.isKinematic;
             rigidbodyCopy.interpolation = original.interpolation;
@@ -33,7 +32,13 @@ namespace Mirror
             rigidbodyCopy.freezeRotation = original.freezeRotation;
             rigidbodyCopy.position = original.position;
             rigidbodyCopy.rotation = original.rotation;
-            rigidbodyCopy.velocity = original.velocity;
+
+            // projects may keep Rigidbodies as kinematic sometimes. in that case, setting velocity would log an error
+            if (!original.isKinematic)
+            {
+                rigidbodyCopy.velocity = original.velocity;
+                rigidbodyCopy.angularVelocity = original.angularVelocity;
+            }
 
             // destroy original
             GameObject.Destroy(original);
