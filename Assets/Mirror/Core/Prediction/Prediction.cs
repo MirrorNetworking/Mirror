@@ -19,6 +19,9 @@ namespace Mirror
 
         Vector3 velocity { get; set; }
         Vector3 velocityDelta { get; set; }
+
+        Vector3 angularVelocity { get; set; }
+        Vector3 angularVelocityDelta { get; set; }
     }
 
     public static class Prediction
@@ -136,8 +139,9 @@ namespace Mirror
             double multiplier = previousDeltaTime != 0 ? correctedDeltaTime / previousDeltaTime : 0; // 0.5 / 2.0 = 0.25
 
             // recalculate 'after.delta' with the multiplier
-            after.positionDelta = Vector3.Lerp(Vector3.zero, after.positionDelta, (float)multiplier);
-            after.velocityDelta = Vector3.Lerp(Vector3.zero, after.velocityDelta, (float)multiplier);
+            after.positionDelta        = Vector3.Lerp(Vector3.zero, after.positionDelta, (float)multiplier);
+            after.velocityDelta        = Vector3.Lerp(Vector3.zero, after.velocityDelta, (float)multiplier);
+            after.angularVelocityDelta = Vector3.Lerp(Vector3.zero, after.angularVelocityDelta, (float)multiplier);
             // rotation deltas aren't working yet. instead, we apply the corrected rotation to all entries after the correction below.
             // this at least syncs the rotations and looks quite decent, compared to not syncing!
             //   after.rotationDelta = Quaternion.Slerp(Quaternion.identity, after.rotationDelta, (float)multiplier);
@@ -153,8 +157,9 @@ namespace Mirror
                 T entry = stateHistory.Values[i];
 
                 // correct absolute position based on last + delta.
-                entry.position = last.position + entry.positionDelta;
-                entry.velocity = last.velocity + entry.velocityDelta;
+                entry.position        = last.position + entry.positionDelta;
+                entry.velocity        = last.velocity + entry.velocityDelta;
+                entry.angularVelocity = last.angularVelocity + entry.angularVelocityDelta;
                 // rotation deltas aren't working yet. instead, we apply the corrected rotation to all entries after the correction.
                 // this at least syncs the rotations and looks quite decent, compared to not syncing!
                 //   entry.rotation = entry.rotationDelta * last.rotation; // quaternions add delta by multiplying in this order

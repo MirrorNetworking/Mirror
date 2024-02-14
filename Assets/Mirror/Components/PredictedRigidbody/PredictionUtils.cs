@@ -23,6 +23,7 @@ namespace Mirror
             rigidbodyCopy.mass = original.mass;
             rigidbodyCopy.drag = original.drag;
             rigidbodyCopy.angularDrag = original.angularDrag;
+            rigidbodyCopy.angularVelocity = original.angularVelocity;
             rigidbodyCopy.useGravity = original.useGravity;
             rigidbodyCopy.isKinematic = original.isKinematic;
             rigidbodyCopy.interpolation = original.interpolation;
