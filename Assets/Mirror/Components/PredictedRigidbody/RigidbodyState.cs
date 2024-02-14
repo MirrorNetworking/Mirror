@@ -18,6 +18,9 @@ namespace Mirror
         public Vector3 velocityDelta { get; set; } // delta to get from last to this velocity
         public Vector3 velocity { get; set; }
 
+        public Vector3 angularVelocityDelta { get; set; } // delta to get from last to this velocity
+        public Vector3 angularVelocity { get; set; }
+
         public RigidbodyState(
             double timestamp,
             Vector3 positionDelta,
@@ -25,7 +28,9 @@ namespace Mirror
             // Quaternion rotationDelta, // currently unused
             Quaternion rotation,
             Vector3 velocityDelta,
-            Vector3 velocity)
+            Vector3 velocity,
+            Vector3 angularVelocityDelta,
+            Vector3 angularVelocity)
         {
             this.timestamp     = timestamp;
             this.positionDelta = positionDelta;
@@ -34,6 +39,8 @@ namespace Mirror
             this.rotation      = rotation;
             this.velocityDelta = velocityDelta;
             this.velocity      = velocity;
+            this.angularVelocityDelta = angularVelocityDelta;
+            this.angularVelocity      = angularVelocity;
         }
 
         public static RigidbodyState Interpolate(RigidbodyState a, RigidbodyState b, float t)
@@ -42,7 +49,8 @@ namespace Mirror
             {
                 position = Vector3.Lerp(a.position, b.position, t),
                 rotation = Quaternion.Slerp(a.rotation, b.rotation, t),
-                velocity = Vector3.Lerp(a.velocity, b.velocity, t)
+                velocity = Vector3.Lerp(a.velocity, b.velocity, t),
+                angularVelocity = Vector3.Lerp(a.angularVelocity, b.angularVelocity, t)
             };
         }
     }

@@ -19,7 +19,10 @@ namespace Mirror.Tests
             public Vector3 velocity { get; set; }
             public Vector3 velocityDelta { get; set; }
 
-            public TestState(double timestamp, Vector3 position, Vector3 positionDelta, Vector3 velocity, Vector3 velocityDelta)
+            public Vector3 angularVelocity { get; set; }
+            public Vector3 angularVelocityDelta { get; set; }
+
+            public TestState(double timestamp, Vector3 position, Vector3 positionDelta, Vector3 velocity, Vector3 velocityDelta, Vector3 angularVelocity, Vector3 angularVelocityDelta)
             {
                 this.timestamp = timestamp;
                 this.position = position;
@@ -28,6 +31,8 @@ namespace Mirror.Tests
                 // this.rotationDelta = Quaternion.identity;
                 this.velocity = velocity;
                 this.velocityDelta = velocityDelta;
+                this.angularVelocity = angularVelocity;
+                this.angularVelocityDelta = angularVelocityDelta;
             }
         }
 
@@ -124,21 +129,21 @@ namespace Mirror.Tests
             SortedList<double, TestState> history = new SortedList<double, TestState>();
 
             // (0,0,0) with delta (0,0,0) from previous:
-            history.Add(0, new TestState(0,   new Vector3(0, 0, 0),    new Vector3(0, 0, 0), new Vector3(0, 0, 0), new Vector3(0, 0, 0)));
+            history.Add(0, new TestState(0,   new Vector3(0, 0, 0),    new Vector3(0, 0, 0), new Vector3(0, 0, 0), new Vector3(0, 0, 0), new Vector3(0, 0, 0), new Vector3(0, 0, 0)));
 
             // (1,0,0) with delta (1,0,0) from previous:
-            history.Add(1, new TestState(1,   new Vector3(1, 0, 0),    new Vector3(1, 0, 0), new Vector3(1, 0, 0), new Vector3(1, 0, 0)));
+            history.Add(1, new TestState(1,   new Vector3(1, 0, 0),    new Vector3(1, 0, 0), new Vector3(1, 0, 0), new Vector3(1, 0, 0), new Vector3(1, 0, 0), new Vector3(1, 0, 0)));
 
             // (2,0,0) with delta (1,0,0) from previous:
-            history.Add(2, new TestState(2,   new Vector3(2, 0, 0),    new Vector3(1, 0, 0), new Vector3(2, 0, 0), new Vector3(1, 0, 0)));
+            history.Add(2, new TestState(2,   new Vector3(2, 0, 0),    new Vector3(1, 0, 0), new Vector3(2, 0, 0), new Vector3(1, 0, 0), new Vector3(2, 0, 0), new Vector3(1, 0, 0)));
 
             // (3,0,0) with delta (1,0,0) from previous:
-            history.Add(3, new TestState(3,   new Vector3(3, 0, 0),    new Vector3(1, 0, 0), new Vector3(3, 0, 0), new Vector3(1, 0, 0)));
+            history.Add(3, new TestState(3,   new Vector3(3, 0, 0),    new Vector3(1, 0, 0), new Vector3(3, 0, 0), new Vector3(1, 0, 0), new Vector3(3, 0, 0), new Vector3(1, 0, 0)));
 
             // client receives a correction from server between t=1 and t=2.
             // exactly t=1.5 where position should be 1.5, server says it's +0.1 = 1.6
             // deltas are zero because that's how PredictedBody.Serialize sends them, alwasy at zero.
-            TestState correction = new TestState(1.5, new Vector3(1.6f, 0, 0), Vector3.zero, new Vector3(1.6f, 0, 0), Vector3.zero);
+            TestState correction = new TestState(1.5, new Vector3(1.6f, 0, 0), Vector3.zero, new Vector3(1.6f, 0, 0), Vector3.zero, new Vector3(1.6f, 0, 0), Vector3.zero);
 
             // Sample() will find that the value before correction is at  t=1 and after at t=2.
             Assert.That(Prediction.Sample(history, correction.timestamp, out TestState before, out TestState after, out int afterIndex, out double t), Is.True);
@@ -164,6 +169,8 @@ namespace Mirror.Tests
             Assert.That(history.Values[0].positionDelta.x, Is.EqualTo(0));
             Assert.That(history.Values[0].velocity.x, Is.EqualTo(0));
             Assert.That(history.Values[0].velocityDelta.x, Is.EqualTo(0));
+            Assert.That(history.Values[0].angularVelocity.x, Is.EqualTo(0));
+            Assert.That(history.Values[0].angularVelocityDelta.x, Is.EqualTo(0));
 
             // second entry at t=1 should be unchanged, since we corrected after that one.
             Assert.That(history.Keys[1], Is.EqualTo(1));
@@ -171,6 +178,8 @@ namespace Mirror.Tests
             Assert.That(history.Values[1].positionDelta.x, Is.EqualTo(1));
             Assert.That(history.Values[1].velocity.x, Is.EqualTo(1));
             Assert.That(history.Values[1].velocityDelta.x, Is.EqualTo(1));
+            Assert.That(history.Values[1].angularVelocity.x, Is.EqualTo(1));
+            Assert.That(history.Values[1].angularVelocityDelta.x, Is.EqualTo(1));
 
             // third entry at t=1.5 should be the received state.
             // absolute values should be the correction, without any deltas since
@@ -180,6 +189,8 @@ namespace Mirror.Tests
             Assert.That(history.Values[2].positionDelta.x, Is.EqualTo(0));
             Assert.That(history.Values[2].velocity.x, Is.EqualTo(1.6f).Within(0.001f));
             Assert.That(history.Values[2].velocityDelta.x, Is.EqualTo(0));
+            Assert.That(history.Values[2].angularVelocity.x, Is.EqualTo(1.6f).Within(0.001f));
+            Assert.That(history.Values[2].angularVelocityDelta.x, Is.EqualTo(0));
 
             // fourth entry at t=2:
             // delta was from t=1.0 @ 1 to t=2.0 @ 2 = 1.0
@@ -192,6 +203,8 @@ namespace Mirror.Tests
             Assert.That(history.Values[3].positionDelta.x, Is.EqualTo(0.5).Within(0.001f));
             Assert.That(history.Values[3].velocity.x, Is.EqualTo(2.1).Within(0.001f));
             Assert.That(history.Values[3].velocityDelta.x, Is.EqualTo(0.5).Within(0.001f));
+            Assert.That(history.Values[3].angularVelocity.x, Is.EqualTo(2.1).Within(0.001f));
+            Assert.That(history.Values[3].angularVelocityDelta.x, Is.EqualTo(0.5));
 
             // fifth entry at t=3:
             // client moved by a delta of 1 here, and that remains unchanged.
@@ -202,6 +215,8 @@ namespace Mirror.Tests
             Assert.That(history.Values[4].positionDelta.x, Is.EqualTo(1.0).Within(0.001f));
             Assert.That(history.Values[4].velocity.x, Is.EqualTo(3.1).Within(0.001f));
             Assert.That(history.Values[4].velocityDelta.x, Is.EqualTo(1.0).Within(0.001f));
+            Assert.That(history.Values[4].angularVelocity.x, Is.EqualTo(3.1).Within(0.001f));
+            Assert.That(history.Values[4].angularVelocityDelta.x, Is.EqualTo(1.0).Within(0.001f));
         }
     }
 }
