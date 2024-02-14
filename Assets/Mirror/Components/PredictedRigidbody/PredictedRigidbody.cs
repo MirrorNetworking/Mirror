@@ -495,8 +495,12 @@ namespace Mirror
                 // to stop and start moving again on client - slide as well here.
                 predictedRigidbody.position = position;
                 predictedRigidbody.rotation = rotation;
-                predictedRigidbody.velocity = velocity;
-                predictedRigidbody.angularVelocity = angularVelocity;
+                // projects may keep Rigidbodies as kinematic sometimes. in that case, setting velocity would log an error
+                if (!predictedRigidbody.isKinematic)
+                {
+                    predictedRigidbody.velocity = velocity;
+                    predictedRigidbody.angularVelocity = angularVelocity;
+                }
 
                 // clear history and insert the exact state we just applied.
                 // this makes future corrections more accurate.
@@ -536,9 +540,13 @@ namespace Mirror
                 predictedRigidbody.rotation = rotation;
             }
 
-            // there's only one way to set velocity
-            predictedRigidbody.velocity = velocity;
-            predictedRigidbody.angularVelocity = angularVelocity;
+            // there's only one way to set velocity.
+            // (projects may keep Rigidbodies as kinematic sometimes. in that case, setting velocity would log an error)
+            if (!predictedRigidbody.isKinematic)
+            {
+                predictedRigidbody.velocity = velocity;
+                predictedRigidbody.angularVelocity = angularVelocity;
+            }
         }
 
         // process a received server state.
