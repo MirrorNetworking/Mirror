@@ -15,7 +15,7 @@ namespace Mirror
         Vector3 positionDelta { get; set; }
 
         Quaternion rotation { get; set; }
-        // Quaternion rotationDelta { get; set; } // currently unused
+        Quaternion rotationDelta { get; set; }
 
         Vector3 velocity { get; set; }
         Vector3 velocityDelta { get; set; }
@@ -142,9 +142,8 @@ namespace Mirror
             after.positionDelta        = Vector3.Lerp(Vector3.zero, after.positionDelta, (float)multiplier);
             after.velocityDelta        = Vector3.Lerp(Vector3.zero, after.velocityDelta, (float)multiplier);
             after.angularVelocityDelta = Vector3.Lerp(Vector3.zero, after.angularVelocityDelta, (float)multiplier);
-            // rotation deltas aren't working yet. instead, we apply the corrected rotation to all entries after the correction below.
-            // this at least syncs the rotations and looks quite decent, compared to not syncing!
-            //   after.rotationDelta = Quaternion.Slerp(Quaternion.identity, after.rotationDelta, (float)multiplier);
+            // Quaternions always need to be normalized in order to be a valid rotation after operations
+            after.rotationDelta        = Quaternion.Slerp(Quaternion.identity, after.rotationDelta, (float)multiplier).normalized;
 
             // changes aren't saved until we overwrite them in the history
             stateHistory[after.timestamp] = after;
@@ -160,10 +159,8 @@ namespace Mirror
                 entry.position        = last.position + entry.positionDelta;
                 entry.velocity        = last.velocity + entry.velocityDelta;
                 entry.angularVelocity = last.angularVelocity + entry.angularVelocityDelta;
-                // rotation deltas aren't working yet. instead, we apply the corrected rotation to all entries after the correction.
-                // this at least syncs the rotations and looks quite decent, compared to not syncing!
-                //   entry.rotation = entry.rotationDelta * last.rotation; // quaternions add delta by multiplying in this order
-                entry.rotation = corrected.rotation;
+                // Quaternions always need to be normalized in order to be a valid rotation after operations
+                entry.rotation        = (entry.rotationDelta * last.rotation).normalized; // quaternions add delta by multiplying in this order
 
                 // save the corrected entry into history.
                 stateHistory[key] = entry;
