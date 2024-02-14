@@ -34,8 +34,8 @@ namespace Mirror
         [Tooltip("Smoothing via Ghost-following only happens on demand, while moving with a minimum velocity.")]
         public float motionSmoothingVelocityThreshold = 0.1f;
         public float motionSmoothingAngularVelocityThreshold = 0.1f;
-        public float motionSmoothingMinimumTime = 0.5f;
-        double motionSmoothingStartTime;
+        public float motionSmoothingTimeTolerance = 0.5f;
+        double motionSmoothingLastMovedTime;
 
         // client keeps state history for correction & reconciliation.
         // this needs to be a SortedList because we need to be able to insert inbetween.
@@ -333,7 +333,6 @@ namespace Mirror
                 // with 10% buffer zone so we don't flip flop all the time.
                 if (IsMoving())
                 {
-                    motionSmoothingStartTime = NetworkTime.time;
                     CreateGhosts();
                     OnBeginPrediction();
                 }
@@ -341,13 +340,22 @@ namespace Mirror
             // ghosting at the moment
             else
             {
+                // always set last moved time while moving.
+                // this way we can avoid on/off/oneffects when  stopping.
+                if (IsMoving())
+                {
+                    motionSmoothingLastMovedTime = NetworkTime.time;
+                }
                 // slower than velocity threshold? then destroy the ghosts.
                 // with a minimum time since starting to move, to avoid on/off/on effects.
-                if (!IsMoving() && NetworkTime.time >= motionSmoothingStartTime + motionSmoothingMinimumTime)
+                else
                 {
-                    DestroyGhosts();
-                    OnEndPrediction();
-                    physicsCopy = null; // TESTING
+                    if (NetworkTime.time >= motionSmoothingLastMovedTime + motionSmoothingTimeTolerance)
+                    {
+                        DestroyGhosts();
+                        OnEndPrediction();
+                        physicsCopy = null; // TESTING
+                    }
                 }
             }
         }
