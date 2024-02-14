@@ -309,8 +309,7 @@ namespace Mirror
                 // next round of optimizations: if client received nothing for 1s,
                 // force correct to last received state. then server doesn't need
                 // to send once per second anymore.
-                bool moving = predictedRigidbody.velocity != Vector3.zero;
-                syncInterval = moving ? 0 : 1;
+                syncInterval = IsMoving() ? 0 : 1;
             }
 
             // always set dirty to always serialize in next sync interval.
