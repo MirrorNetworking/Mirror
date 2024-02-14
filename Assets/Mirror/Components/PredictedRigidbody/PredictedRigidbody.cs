@@ -279,7 +279,8 @@ namespace Mirror
 
             // smoothly interpolate to the target rotation.
             // Quaternion.RotateTowards doesn't seem to work at all, so let's use SLerp.
-            Quaternion newRotation = Quaternion.Slerp(currentRotation, physicsRotation, rotationInterpolationSpeed * deltaTime);
+            // Quaternions always need to be normalized in order to be a valid rotation after operations
+            Quaternion newRotation = Quaternion.Slerp(currentRotation, physicsRotation, rotationInterpolationSpeed * deltaTime).normalized;
 
             // assign position and rotation together. faster than accessing manually.
             tf.SetPositionAndRotation(newPosition, newRotation);
@@ -438,13 +439,14 @@ namespace Mirror
             Vector3 positionDelta = Vector3.zero;
             Vector3 velocityDelta = Vector3.zero;
             Vector3 angularVelocityDelta = Vector3.zero;
-            // Quaternion rotationDelta = Quaternion.identity; // currently unused
+            Quaternion rotationDelta = Quaternion.identity;
             if (stateHistory.Count > 0)
             {
                 RigidbodyState last = stateHistory.Values[stateHistory.Count - 1];
                 positionDelta = currentPosition - last.position;
                 velocityDelta = currentVelocity - last.velocity;
-                // rotationDelta = currentRotation * Quaternion.Inverse(last.rotation); // this is how you calculate a quaternion delta (currently unused, don't do the computation)
+                // Quaternions always need to be normalized in order to be valid rotations after operations
+                rotationDelta = (currentRotation * Quaternion.Inverse(last.rotation)).normalized;
                 angularVelocityDelta = currentAngularVelocity - last.angularVelocity;
 
                 // debug draw the recorded state
@@ -456,7 +458,7 @@ namespace Mirror
                 predictedTime,
                 positionDelta,
                 currentPosition,
-                // rotationDelta, // currently unused
+                rotationDelta,
                 currentRotation,
                 velocityDelta,
                 currentVelocity,
@@ -509,7 +511,7 @@ namespace Mirror
                     timestamp,
                     Vector3.zero,
                     position,
-                    // Quaternion.identity, // rotationDelta: currently unused
+                    Quaternion.identity,
                     rotation,
                     Vector3.zero,
                     velocity,
@@ -738,7 +740,7 @@ namespace Mirror
             Vector3 angularVelocity = reader.ReadVector3();
 
             // process received state
-            OnReceivedState(timestamp, new RigidbodyState(timestamp, Vector3.zero, position, /*Quaternion.identity,*/ rotation, Vector3.zero, velocity, Vector3.zero, angularVelocity));
+            OnReceivedState(timestamp, new RigidbodyState(timestamp, Vector3.zero, position, Quaternion.identity, rotation, Vector3.zero, velocity, Vector3.zero, angularVelocity));
         }
 
         protected override void OnValidate()
