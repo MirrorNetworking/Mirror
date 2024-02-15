@@ -140,6 +140,14 @@ Without any breaking changes, ever!
 
 ---
 ## Made with Mirror
+### [Eyes Of War](https://store.steampowered.com/app/2343930/Eyes_Of_War/)
+[![Eyes Of War](https://i.ibb.co/LRQs5x1/Eyesof-War-Mirror-Logo.png)](https://store.steampowered.com/app/2343930/Eyes_Of_War/)
+Early access game [Eyes Of War](https://store.steampowered.com/app/2343930/Eyes_Of_War/) is a multiplayer RTS/TPS (Real Time Strategy / Third
+Person Shooter) game set in the Middle Ages, where you build your castle and army and try
+to defeat your enemies. It is currently in development by [Good Mood Games.](https://store.steampowered.com/app/2343930/Eyes_Of_War/)
+
+They used Mirror as their Multiplayer and Networking solution.
+
 ### [Population: ONE](https://www.populationonevr.com/)
 [![Population: ONE](https://github.com/MirrorNetworking/Mirror/assets/16416509/dddc778b-a97f-452d-b5f8-6ec42c6da4f1)](https://www.populationonevr.com/)
 The [BigBoxVR](https://www.bigboxvr.com/) team started using Mirror in February 2019 for what eventually became one of the most popular Oculus Rift games.
