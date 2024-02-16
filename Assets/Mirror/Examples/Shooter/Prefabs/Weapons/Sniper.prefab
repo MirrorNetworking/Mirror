@@ -303,7 +303,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   muzzleFlash: {fileID: 7142436933463270085}
-  impactForce: 500
+  impactForce: 1000
 --- !u!1 &8751592387390054513
 GameObject:
   m_ObjectHideFlags: 0
