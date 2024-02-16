@@ -26,7 +26,7 @@ namespace Mirror.Examples.CouchCoop
 
             if (isOwned)
             {
-#if UNITY_2021_3_OR_NEWER
+#if UNITY_2022_2_OR_NEWER
                 couchPlayerManager = GameObject.FindAnyObjectByType<CouchPlayerManager>();
 #else
                 // Deprecated in Unity 2023.1
