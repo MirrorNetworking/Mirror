@@ -30,8 +30,12 @@ namespace Mirror
             rigidbodyCopy.constraints = original.constraints;
             rigidbodyCopy.sleepThreshold = original.sleepThreshold;
             rigidbodyCopy.freezeRotation = original.freezeRotation;
-            rigidbodyCopy.position = original.position;
-            rigidbodyCopy.rotation = original.rotation;
+
+            // moving (Configurable)Joints messes up their range of motion unless
+            // we reset to initial position first (we do this in PredictedRigibody.cs).
+            // so here we don't set the Rigidbody's physics position at all.
+            // rigidbodyCopy.position = original.position;
+            // rigidbodyCopy.rotation = original.rotation;
 
             // projects may keep Rigidbodies as kinematic sometimes. in that case, setting velocity would log an error
             if (!original.isKinematic)
@@ -250,10 +254,10 @@ namespace Mirror
                 jointCopy.connectedMassScale = sourceJoint.connectedMassScale;
                 jointCopy.enableCollision = sourceJoint.enableCollision;
                 jointCopy.enablePreprocessing = sourceJoint.enablePreprocessing;
-                jointCopy.highAngularXLimit = sourceJoint.highAngularXLimit;
+                jointCopy.highAngularXLimit = sourceJoint.highAngularXLimit; // moving this only works if the object is at initial position/rotation/scale, see PredictedRigidbody.cs
                 jointCopy.linearLimitSpring = sourceJoint.linearLimitSpring;
                 jointCopy.linearLimit = sourceJoint.linearLimit;
-                jointCopy.lowAngularXLimit = sourceJoint.lowAngularXLimit;
+                jointCopy.lowAngularXLimit = sourceJoint.lowAngularXLimit;   // moving this only works if the object is at initial position/rotation/scale, see PredictedRigidbody.cs
                 jointCopy.massScale = sourceJoint.massScale;
                 jointCopy.projectionAngle = sourceJoint.projectionAngle;
                 jointCopy.projectionDistance = sourceJoint.projectionDistance;

@@ -102,6 +102,11 @@ namespace Mirror
         // we also create one extra ghost for the exact known server state.
         protected GameObject remoteCopy;
 
+        // joints
+        Vector3 initialPosition;
+        Quaternion initialRotation;
+        Vector3 initialScale;
+
         void Awake()
         {
             tf = transform;
@@ -111,6 +116,11 @@ namespace Mirror
             // cache some threshold to avoid calculating them in LateUpdate
             float colliderSize = GetComponentInChildren<Collider>().bounds.size.magnitude;
             smoothFollowThreshold = colliderSize * teleportDistanceMultiplier;
+
+            // cache initial position/rotation/scale to be used when moving physics components (configurable joints' range of motion)
+            initialPosition = tf.position;
+            initialRotation = tf.rotation;
+            initialScale = tf.localScale;
         }
 
         protected virtual void CopyRenderersAsGhost(GameObject destination, Material material)
@@ -164,9 +174,6 @@ namespace Mirror
             // if we copy localScale then the copy has scale=0.5, where as the
             // original would have a global scale of ~1.0.
             physicsCopy = new GameObject($"{name}_Physical");
-            physicsCopy.transform.position = tf.position;     // world position!
-            physicsCopy.transform.rotation = tf.rotation;     // world rotation!
-            physicsCopy.transform.localScale = tf.lossyScale; // world scale!
 
             // assign the same Layer for the physics copy.
             // games may use a custom physics collision matrix, layer matters.
@@ -176,8 +183,25 @@ namespace Mirror
             PredictedRigidbodyPhysicsGhost physicsGhostRigidbody = physicsCopy.AddComponent<PredictedRigidbodyPhysicsGhost>();
             physicsGhostRigidbody.target = tf;
 
-            // move the rigidbody component & all colliders to the physics GameObject
+            // when moving (Configurable)Joints, their range of motion is
+            // relative to the initial position. if we move them after the
+            // GameObject rotated, the range of motion is wrong.
+            // the easiest solution is to move to initial position,
+            // then move physics components, then move back.
+            // => remember previous
+            Vector3 position = tf.position;
+            Quaternion rotation = tf.rotation;
+            Vector3 scale = tf.localScale;
+            // => reset to initial
+            physicsGhostRigidbody.transform.position = tf.position = initialPosition;
+            physicsGhostRigidbody.transform.rotation = tf.rotation = initialRotation;
+            physicsGhostRigidbody.transform.localScale = tf.localScale = initialScale;
+            // => move physics components
             PredictionUtils.MovePhysicsComponents(gameObject, physicsCopy);
+            // => reset previous
+            physicsGhostRigidbody.transform.position = tf.position = position;
+            physicsGhostRigidbody.transform.rotation = tf.rotation = rotation;
+            physicsGhostRigidbody.transform.localScale = tf.localScale = scale;
 
             // show ghost by copying all renderers / materials with ghost material applied
             if (showGhost)
@@ -213,7 +237,27 @@ namespace Mirror
             // otherwise next time they wouldn't have a collider anymore.
             if (physicsCopy != null)
             {
+                // when moving (Configurable)Joints, their range of motion is
+                // relative to the initial position. if we move them after the
+                // GameObject rotated, the range of motion is wrong.
+                // the easiest solution is to move to initial position,
+                // then move physics components, then move back.
+                // => remember previous
+                Vector3 position = tf.position;
+                Quaternion rotation = tf.rotation;
+                Vector3 scale = tf.localScale;
+                // => reset to initial
+                physicsCopy.transform.position = tf.position = initialPosition;
+                physicsCopy.transform.rotation = tf.rotation = initialRotation;
+                physicsCopy.transform.localScale = tf.localScale = initialScale;
+                // => move physics components
                 PredictionUtils.MovePhysicsComponents(physicsCopy, gameObject);
+                // => reset previous
+                tf.position = position;
+                tf.rotation = rotation;
+                tf.localScale = scale;
+
+                // when moving components back, we need to undo the joints initial-delta rotation that we added.
                 Destroy(physicsCopy);
 
                 // reassign our Rigidbody reference
