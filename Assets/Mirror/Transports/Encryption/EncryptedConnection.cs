@@ -52,9 +52,9 @@ namespace Mirror.Transports.Encryption
         {
             // start at 1 to maybe filter out random noise
             Data = 1,
-            HandshakeStart,
-            HandshakeAck,
-            HandshakeFin,
+            HandshakeStart = 2,
+            HandshakeAck = 3,
+            HandshakeFin = 4,
         }
 
         enum State
