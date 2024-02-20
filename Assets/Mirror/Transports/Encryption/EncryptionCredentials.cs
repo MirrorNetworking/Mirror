@@ -13,17 +13,17 @@ namespace Mirror.Transports.Encryption
     public class EncryptionCredentials
     {
         const int PrivateKeyBits = 256;
-        public ECPublicKeyParameters PublicKey;
+        // don't actually need to store this currently
+        // but we'll need to for loading/saving from file maybe?
+        // public ECPublicKeyParameters PublicKey;
+
+        // The serialized public key, in DER format
         public byte[] PublicKeySerialized;
         public ECPrivateKeyParameters PrivateKey;
 
         EncryptionCredentials() {}
 
-        public static EncryptionCredentials Load(string path)
-        {
-            throw new NotImplementedException();
-        }
-
+        // TODO: load from file
         public static EncryptionCredentials Generate()
         {
             var generator = new ECKeyPairGenerator();
@@ -32,7 +32,8 @@ namespace Mirror.Transports.Encryption
 
             return new EncryptionCredentials
             {
-                PublicKey = (ECPublicKeyParameters)keyPair.Public,
+                // see above
+                // PublicKey = (ECPublicKeyParameters)keyPair.Public,
                 PublicKeySerialized = SerializePublicKey((ECPublicKeyParameters)keyPair.Public),
                 PrivateKey = (ECPrivateKeyParameters)keyPair.Private
             };
@@ -40,12 +41,16 @@ namespace Mirror.Transports.Encryption
 
         public static byte[] SerializePublicKey(ECPublicKeyParameters publicKey)
         {
+            // apparently the best way to transmit this public key over the network is to serialize it as a DER
             SubjectPublicKeyInfo publicKeyInfo = SubjectPublicKeyInfoFactory.CreateSubjectPublicKeyInfo(publicKey);
             return publicKeyInfo.ToAsn1Object().GetDerEncoded();
         }
 
         public static AsymmetricKeyParameter DeserializePublicKey(ArraySegment<byte> pubKey)
         {
+            // And then we do this to deserialize from the DER (from above)
+            // the "new MemoryStream" actually saves an allocation, since otherwise the ArraySegment would be converted
+            // to a byte[] first and then shoved through a MemoryStream
             return PublicKeyFactory.CreateKey(new MemoryStream(pubKey.Array, pubKey.Offset, pubKey.Count, false));
         }
     }

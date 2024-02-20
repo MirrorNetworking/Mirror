@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace Mirror.Tests.Transports
 {
-    public class EncryptionTransportTest
+    public class EncryptionTransportConnectionTest
     {
         Transport inner;
         EncryptionTransport encryption;
@@ -73,13 +73,13 @@ namespace Mirror.Tests.Transports
                 {
                     client.OnReceiveRaw(data, Channels.Unreliable);
                 }
-                client.Tick(time);
+                client.TickNonReady(time);
 
                 while (serverRecv.TryDequeue(out var data))
                 {
                     server.OnReceiveRaw(data, Channels.Unreliable);
                 }
-                server.Tick(time);
+                server.TickNonReady(time);
             }
         }
     }

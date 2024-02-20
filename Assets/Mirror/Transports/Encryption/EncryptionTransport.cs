@@ -19,31 +19,16 @@ namespace Mirror.Transports.Encryption
 
         private EncryptionCredentials _credentials;
 
-        private void Awake()
+        void Awake()
         {
             _credentials = EncryptionCredentials.Generate(); // todo
-            if (!inner)
-            {
-                throw new Exception("inner Transport needs to be set before Awake is called.");
-            }
-
-            inner.OnClientConnected = HandleInnerClientConnected;
-            inner.OnClientDataReceived = HandleInnerClientDataReceived;
-            inner.OnClientDataSent = (bytes, channel) => OnClientDataSent?.Invoke(bytes, channel);
-            inner.OnClientError = HandleInnerClientError;
-            inner.OnClientDisconnected = HandleInnerClientDisconnected;
-
-            inner.OnServerConnected = HandleInnerServerConnected;
-            inner.OnServerDataReceived = HandleInnerServerDataReceived;
-            inner.OnServerDataSent = (connId, bytes, channel) => OnServerDataSent?.Invoke(connId, bytes, channel);
-            inner.OnServerError = HandleInnerServerError;
-            inner.OnServerDisconnected = HandleInnerServerDisconnected;
         }
 
         private void HandleInnerServerDisconnected(int connId)
         {
             _serverPendingConnections.Remove(connId);
             _serverConnections.Remove(connId);
+            OnServerDisconnected?.Invoke(connId);
         }
 
         private void HandleInnerServerError(int connId, TransportError type, string msg)
@@ -100,7 +85,6 @@ namespace Mirror.Transports.Encryption
 
         private void HandleInnerClientConnected()
         {
-            Debug.Log("Client inner connected");
             _client = new EncryptedConnection(
                 _credentials,
                 true,
@@ -108,7 +92,6 @@ namespace Mirror.Transports.Encryption
                 (segment, channel) => OnClientDataReceived?.Invoke(segment, channel),
                 () =>
                 {
-                    Debug.Log($"[EncryptionTransport] Client connection is ready");
                     OnClientConnected?.Invoke();
                 },
                 (type, msg) =>
@@ -123,7 +106,15 @@ namespace Mirror.Transports.Encryption
 
         public override bool ClientConnected() => _client != null && _client.IsReady;
 
-        public override void ClientConnect(string address) => inner.ClientConnect(address);
+        public override void ClientConnect(string address)
+        {
+            inner.OnClientConnected = HandleInnerClientConnected;
+            inner.OnClientDataReceived = HandleInnerClientDataReceived;
+            inner.OnClientDataSent = (bytes, channel) => OnClientDataSent?.Invoke(bytes, channel);
+            inner.OnClientError = HandleInnerClientError;
+            inner.OnClientDisconnected = HandleInnerClientDisconnected;
+            inner.ClientConnect(address);
+        }
 
         public override void ClientSend(ArraySegment<byte> segment, int channelId = Channels.Reliable) =>
             _client?.Send(segment, channelId);
@@ -134,7 +125,15 @@ namespace Mirror.Transports.Encryption
 
         public override bool ServerActive() => inner.ServerActive();
 
-        public override void ServerStart() => inner.ServerStart();
+        public override void ServerStart()
+        {
+            inner.OnServerConnected = HandleInnerServerConnected;
+            inner.OnServerDataReceived = HandleInnerServerDataReceived;
+            inner.OnServerDataSent = (connId, bytes, channel) => OnServerDataSent?.Invoke(connId, bytes, channel);
+            inner.OnServerError = HandleInnerServerError;
+            inner.OnServerDisconnected = HandleInnerServerDisconnected;
+            inner.ServerStart();
+        }
 
         public override void ServerSend(int connectionId, ArraySegment<byte> segment, int channelId = Channels.Reliable)
         {
@@ -167,7 +166,7 @@ namespace Mirror.Transports.Encryption
         public override void ClientLateUpdate()
         {
             inner.ClientLateUpdate();
-            _client?.Tick(NetworkTime.localTime);
+            _client?.TickNonReady(NetworkTime.localTime);
         }
 
         public override void ServerEarlyUpdate()
@@ -182,7 +181,7 @@ namespace Mirror.Transports.Encryption
             // figure out a better solution to get rid of ToArray
             foreach (EncryptedConnection c in _serverPendingConnections.Values.ToArray())
             {
-                c.Tick(NetworkTime.time);
+                c.TickNonReady(NetworkTime.time);
             }
         }
     }

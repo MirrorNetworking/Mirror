@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using System.Security.Cryptography;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Agreement;
@@ -10,51 +9,103 @@ using UnityEngine;
 
 namespace Mirror.Transports.Encryption
 {
-    // NOTES:
-    // this is very allocation heavy due to bouncycastle
-    // currently at least 16 bytes per packet due to bouncycastle allocating a new byte[MacSize] every time.
     public class EncryptedConnection
     {
-        private static GcmBlockCipher _cipher = new GcmBlockCipher(new AesEngine());
+        // fixed size of the unique per-packet nonce. Defaults to 12 bytes/96 bits (not recommended to be changed)
+        private const int NonceSize = 12;
 
+        // this is the size of the "checksum" included in each encrypted payload
+        // 16 bytes/128 bytes is the recommended value for best security
+        // can be reduced to 12 bytes for a small space savings, but makes encryption slightly weaker.
+        // Setting it lower than 12 bytes is not recommended
+        private const int MacSizeBytes = 16;
+
+        private const int MacSizeBits = MacSizeBytes * 8;
+
+        // How much metadata overhead we have for regular packets
+        public const int Overhead = sizeof(OpCodes) + MacSizeBytes + NonceSize;
+
+        // After how many seconds of not receiving a handshake packet we should time out
+        private const double DurationTimeout = 2; // 2s
+
+        // After how many seconds to assume the last handshake packet got lost and to resend another one
+        private const double DurationResend = 0.05; // 50ms
+
+
+        // Static fields for allocation efficiency, makes this not thread safe
+        // It'd be as easy as using ThreadLocal though to fix that
+
+        // Set up a global cipher instance, it is initialised/reset before use
+        // (AesFastEngine used to exist, but was removed due to side channel issues)
+        private static readonly GcmBlockCipher Cipher = new GcmBlockCipher(new AesEngine());
+
+        // Global byte array to store nonce sent by the remote side, they're used immediately after
+        private static readonly byte[] ReceiveNonce = new byte[NonceSize];
+
+        // buffer for encrypt/decrypt operations, resized larger as needed
+        // this is also the buffer that will be returned to mirror via ArraySegment
+        // so any thread safety concerns would need to take extra care here
+        private static byte[] _tmpCryptBuffer = new byte[2048];
+
+        // packet headers
         enum OpCodes : byte
         {
-            // TODO
+            // start at 1 to maybe filter out random noise
             Data = 1,
-            PubKey,
-            PubKeyAck,
+            HandshakeStart,
+            HandshakeAck,
             HandshakeFin,
         }
 
         enum State
         {
-            WaitingPubKey,
-            WaitingPubKeyAck,
+            // Waiting for a handshake to arrive
+            // this is for _sendsFirst:
+            // - false: OpCodes.HandshakeStart
+            // - true: Opcodes.HandshakeAck
+            WaitingHandshake,
+
+            // Waiting for a handshake reply/acknowledgement to arrive
+            // this is for _sendsFirst:
+            // - false: OpCodes.HandshakeFine
+            // - true: Opcodes.Data (implicitly)
+            WaitingHandshakeReply,
+
+            // Both sides have confirmed the keys are exchanged and data can be sent freely
             Ready
         }
 
-        private State _state = State.WaitingPubKey;
+        private State _state = State.WaitingHandshake;
 
-        public const int Overhead = sizeof(OpCodes) + MacSize + NonceSize;
+        // Key exchange confirmed and data can be sent freely
         public bool IsReady => _state == State.Ready;
+        // Callback to send off encrypted data
         private Action<ArraySegment<byte>, int> _send;
+        // Callback when received data has been decrypted
         private Action<ArraySegment<byte>, int> _receive;
+        // Callback when the connection becomes ready
         private Action _ready;
+        // On-error callback, disconnect expected
         private Action<TransportError, string> _error;
-        private readonly EncryptionCredentials _credentials;
+        // Optional callback to validate the remotes public key, validation on one side is necessary to ensure MITM resistance
+        // (usually client validates the server key)
+        private Func<AsymmetricKeyParameter, bool> _validateRemoteKey;
+        // Our asymmetric credentials for the initial DH exchange
+        private EncryptionCredentials _credentials;
 
+        // After no handshake packet in this many seconds, the handshake fails
+        private double _handshakeTimeout;
+        // When to assume the last handshake packet got lost and to resend another one
+        private double _nextHandshakeResend;
 
-        private const int NonceSize = 12; // 96 bits
-        private const int MacSize = 16; // 128 bits for GCM tag length
 
         // we can reuse the _cipherParameters here since the nonce is stored as the byte[] reference we pass in
         // so we can update it without creating a new AeadParameters instance
         // this might break in the future! (will cause bad data)
+        private byte[] _nonce = new byte[NonceSize];
         private AeadParameters _cipherParametersEncrypt;
         private AeadParameters _cipherParametersDecrypt;
-        private byte[] _nonce = new byte[NonceSize];
 
-        private static byte[] _receiveNonce = new byte[NonceSize];
 
         /*
          * Specifies if we send the first key, then receive ack, then send fin
@@ -62,16 +113,15 @@ namespace Mirror.Transports.Encryption
          *
          * The client does this, since the fin is not acked explicitly, but by receiving data to decrypt
          */
-        private bool _sendsFirst;
+        private readonly bool _sendsFirst;
 
-        public EncryptedConnection(
-            EncryptionCredentials credentials,
+        public EncryptedConnection(EncryptionCredentials credentials,
             bool isClient,
             Action<ArraySegment<byte>, int> sendAction,
             Action<ArraySegment<byte>, int> receiveAction,
             Action readyAction,
-            Action<TransportError, string> errorAction
-        )
+            Action<TransportError, string> errorAction,
+            Func<AsymmetricKeyParameter, bool> validateRemoteKey = null)
         {
             _credentials = credentials;
             _sendsFirst = isClient;
@@ -79,9 +129,11 @@ namespace Mirror.Transports.Encryption
             _receive = receiveAction;
             _ready = readyAction;
             _error = errorAction;
+            _validateRemoteKey = validateRemoteKey;
         }
 
-        private static byte[] GenerateStartingNonce() // Default size for AES-GCM
+        // Generates a random starting nonce
+        private static byte[] GenerateStartingNonce()
         {
             byte[] nonce = new byte[NonceSize];
             using (RandomNumberGenerator rng = RandomNumberGenerator.Create())
@@ -96,21 +148,20 @@ namespace Mirror.Transports.Encryption
         {
             if (data.Count < 1)
             {
-                _error(TransportError.Unexpected, "received empty packet");
+                _error(TransportError.Unexpected, "Received empty packet");
                 return;
             }
 
-            using (var reader = NetworkReaderPool.Get(data))
+            using (NetworkReaderPooled reader = NetworkReaderPool.Get(data))
             {
-                var opcode = (OpCodes)reader.ReadByte();
-                Debug.Log($"[{(_sendsFirst ? 1 : 0)}] Recv: {opcode}");
+                OpCodes opcode = (OpCodes)reader.ReadByte();
                 switch (opcode)
                 {
                     case OpCodes.Data:
-                        if (_sendsFirst && _state == State.WaitingPubKeyAck)
+                        // first sender ready is implicit when data is received
+                        if (_sendsFirst && _state == State.WaitingHandshakeReply)
                         {
-                            _state = State.Ready;
-                            _ready();
+                            SetReady();
                         }
                         else if (!IsReady)
                         {
@@ -123,33 +174,38 @@ namespace Mirror.Transports.Encryption
                             return;
                         }
 
-                        var ciphertext = reader.ReadBytesSegment(reader.Remaining - NonceSize);
-                        reader.ReadBytes(_receiveNonce, NonceSize);
-                        var cleartext = Decrypt(ciphertext);
-                        _receive(cleartext, channel);
+                        ArraySegment<byte> ciphertext = reader.ReadBytesSegment(reader.Remaining - NonceSize);
+                        reader.ReadBytes(ReceiveNonce, NonceSize);
+                        ArraySegment<byte> plaintext = Decrypt(ciphertext);
+                        if (plaintext.Count == 0)
+                        {
+                            // error
+                            return;
+                        }
+                        _receive(plaintext, channel);
                         break;
-                    case OpCodes.PubKey:
+                    case OpCodes.HandshakeStart:
                         if (_sendsFirst)
                         {
-                            _error(TransportError.Unexpected, "Received PubKey packet, we don't expect this.");
+                            _error(TransportError.Unexpected, "Received HandshakeStart packet, we don't expect this.");
                             return;
                         }
 
-                        if (_state == State.WaitingPubKeyAck)
+                        if (_state == State.WaitingHandshakeReply)
                         {
                             // this is fine, packets may arrive out of order
                             return;
                         }
 
-                        _state = State.WaitingPubKeyAck;
-                        // todo: doesn't reset timeout or resend
+                        _state = State.WaitingHandshakeReply;
+                        ResetTimeouts();
                         CompleteExchange(reader.ReadBytesSegment(reader.Remaining));
-                        SendPubKey(OpCodes.PubKeyAck);
+                        SendHandshakeAndPubKey(OpCodes.HandshakeAck);
                         break;
-                    case OpCodes.PubKeyAck:
+                    case OpCodes.HandshakeAck:
                         if (!_sendsFirst)
                         {
-                            _error(TransportError.Unexpected, "Received PubKeyAck packet, we don't expect this.");
+                            _error(TransportError.Unexpected, "Received HandshakeAck packet, we don't expect this.");
                             return;
                         }
 
@@ -158,15 +214,18 @@ namespace Mirror.Transports.Encryption
                             // this is fine, packets may arrive out of order
                             return;
                         }
-                        if (_state == State.WaitingPubKeyAck)
+
+                        if (_state == State.WaitingHandshakeReply)
                         {
                             // this is fine, packets may arrive out of order
                             return;
                         }
-                        // todo: doesn't reset timeout or resend
-                        _state = State.WaitingPubKeyAck;
+
+
+                        _state = State.WaitingHandshakeReply;
+                        ResetTimeouts();
                         CompleteExchange(reader.ReadBytesSegment(reader.Remaining));
-                        SendFin();
+                        SendHandshakeFin();
                         break;
                     case OpCodes.HandshakeFin:
                         if (_sendsFirst)
@@ -181,15 +240,14 @@ namespace Mirror.Transports.Encryption
                             return;
                         }
 
-                        if (_state != State.WaitingPubKeyAck)
+                        if (_state != State.WaitingHandshakeReply)
                         {
                             _error(TransportError.Unexpected,
                                 "Received HandshakeFin packet, we didn't expect this yet.");
                             return;
                         }
 
-                        _state = State.Ready;
-                        _ready();
+                        SetReady();
 
                         break;
                     default:
@@ -198,14 +256,32 @@ namespace Mirror.Transports.Encryption
                 }
             }
         }
+        private void SetReady()
+        {
+            // done with credentials, null out the reference
+            _credentials = null;
+
+            _state = State.Ready;
+            _ready();
+        }
+
+        private void ResetTimeouts()
+        {
+            _handshakeTimeout = 0;
+            _nextHandshakeResend = -1;
+        }
 
         public void Send(ArraySegment<byte> data, int channel)
         {
-            Debug.Log($"[{(_sendsFirst ? 1 : 0)}] Sending {OpCodes.Data}");
-            using (var writer = NetworkWriterPool.Get())
+            using (NetworkWriterPooled writer = NetworkWriterPool.Get())
             {
                 writer.WriteByte((byte)OpCodes.Data);
-                var encrypted = Encrypt(data);
+                ArraySegment<byte> encrypted = Encrypt(data);
+                if (encrypted.Count == 0)
+                {
+                    // error
+                    return;
+                }
                 writer.WriteBytes(encrypted.Array, 0, encrypted.Count);
                 // write nonce after since Encrypt will update it
                 writer.WriteBytes(_nonce, 0, NonceSize);
@@ -213,53 +289,78 @@ namespace Mirror.Transports.Encryption
             }
         }
 
-        private static byte[] _tmpCryptBuffer = new byte[512];
-        private double _timeout;
-        private double _nextSend;
-
         private ArraySegment<byte> Encrypt(ArraySegment<byte> plaintext)
         {
-            UpdateNonce();
-            PrintBytes(_nonce, "EncryptNonce");
-            _cipher = new GcmBlockCipher(new AesEngine());
-            _cipher.Init(true, _cipherParametersEncrypt);
-
-            var outSize = _cipher.GetOutputSize(plaintext.Count);
-            if (outSize != plaintext.Count + MacSize)
+            if (plaintext.Count == 0)
             {
-                // TODO: this is only for double checking me
-                throw new Exception("Unexpected output size");
+                // Invalid
+                return new ArraySegment<byte>();
             }
+            // Need to make the nonce unique again before encrypting another message
+            UpdateNonce();
+            // Re-initialize the cipher with our cached parameters
+            Cipher.Init(true, _cipherParametersEncrypt);
 
+            // Calculate the expected output size, this should always be input size + mac size
+            int outSize = Cipher.GetOutputSize(plaintext.Count);
+#if UNITY_EDITOR
+            // expecting the outSize to be input size + MacSize
+            if (outSize != plaintext.Count + MacSizeBytes)
+            {
+                throw new Exception($"Encrypt: Unexpected output size (Expected {plaintext.Count + MacSizeBytes}, got {outSize}");
+            }
+#endif
+            // Resize the static buffer to fit
             EnsureSize(ref _tmpCryptBuffer, outSize);
+            // Run the plain text through the cipher, ProcessBytes will only process full blocks
             int resultLen =
-                _cipher.ProcessBytes(plaintext.Array, plaintext.Offset, plaintext.Count, _tmpCryptBuffer, 0);
-            resultLen += _cipher.DoFinal(_tmpCryptBuffer, resultLen);
-            var res = new ArraySegment<byte>(_tmpCryptBuffer, 0, resultLen);
-
-            PrintBytes(res, "EncryptData");
-            return res;
+                Cipher.ProcessBytes(plaintext.Array, plaintext.Offset, plaintext.Count, _tmpCryptBuffer, 0);
+            // Then run any potentially remaining partial blocks through with DoFinal (and calculate the mac)
+            resultLen += Cipher.DoFinal(_tmpCryptBuffer, resultLen);
+#if UNITY_EDITOR
+            // expecting the result length to match the previously calculated input size + MacSize
+            if (resultLen != outSize)
+            {
+                throw new Exception($"Encrypt: resultLen did not match outSize (expected {outSize}, got {resultLen})");
+            }
+#endif
+            return new ArraySegment<byte>(_tmpCryptBuffer, 0, resultLen);
         }
 
         private ArraySegment<byte> Decrypt(ArraySegment<byte> ciphertext)
         {
-            PrintBytes(_receiveNonce, "DecryptNonce");
-            PrintBytes(ciphertext, "DecryptData");
-
-            _cipher = new GcmBlockCipher(new AesEngine());
-            _cipher.Init(false, _cipherParametersDecrypt);
-
-            var outSize = _cipher.GetOutputSize(ciphertext.Count);
-            if (outSize != ciphertext.Count - MacSize)
+            if (ciphertext.Count <= MacSizeBytes)
             {
-                // TODO: this is only for double checking me
-                throw new Exception("Unexpected output size");
+                _error(TransportError.Unexpected, $"Received too short data packet (min {{MacSizeBytes + 1}}, got {ciphertext.Count})");
+                // Invalid
+                return new ArraySegment<byte>();
             }
+            // Re-initialize the cipher with our cached parameters
+            Cipher.Init(false, _cipherParametersDecrypt);
 
+            // Calculate the expected output size, this should always be input size - mac size
+            int outSize = Cipher.GetOutputSize(ciphertext.Count);
+#if UNITY_EDITOR
+            // expecting the outSize to be input size - MacSize
+            if (outSize != ciphertext.Count - MacSizeBytes)
+            {
+                throw new Exception($"Decrypt: Unexpected output size (Expected {ciphertext.Count - MacSizeBytes}, got {outSize}");
+            }
+#endif
+            // Resize the static buffer to fit
             EnsureSize(ref _tmpCryptBuffer, outSize);
+            // Run the ciphertext through the cipher, ProcessBytes will only process full blocks
             int resultLen =
-                _cipher.ProcessBytes(ciphertext.Array, ciphertext.Offset, ciphertext.Count, _tmpCryptBuffer, 0);
-            resultLen += _cipher.DoFinal(_tmpCryptBuffer, resultLen);
+                Cipher.ProcessBytes(ciphertext.Array, ciphertext.Offset, ciphertext.Count, _tmpCryptBuffer, 0);
+            // Then run any potentially remaining partial blocks through with DoFinal (and calculate/check the mac)
+            resultLen += Cipher.DoFinal(_tmpCryptBuffer, resultLen);
+#if UNITY_EDITOR
+            // expecting the result length to match the previously calculated input size + MacSize
+            if (resultLen != outSize)
+            {
+                throw new Exception($"Decrypt: resultLen did not match outSize (expected {outSize}, got {resultLen})");
+            }
+#endif
             return new ArraySegment<byte>(_tmpCryptBuffer, 0, resultLen);
         }
 
@@ -278,19 +379,18 @@ namespace Mirror.Transports.Encryption
             }
         }
 
-        private void EnsureSize(ref byte[] buffer, int size)
+        private static void EnsureSize(ref byte[] buffer, int size)
         {
             if (buffer.Length < size)
             {
-                Array.Resize(ref buffer, size);
+                // double buffer to avoid constantly resizing by a few bytes
+                Array.Resize(ref buffer, Math.Max(size, buffer.Length * 2));
             }
         }
 
-        private void SendPubKey(OpCodes opcode)
+        private void SendHandshakeAndPubKey(OpCodes opcode)
         {
-            Debug.Log($"[{(_sendsFirst ? 1 : 0)}] Sending  {opcode}: " +
-                      BitConverter.ToString(_credentials.PublicKeySerialized).Replace("-", string.Empty));
-            using (var writer = NetworkWriterPool.Get())
+            using (NetworkWriterPooled writer = NetworkWriterPool.Get())
             {
                 writer.WriteByte((byte)opcode);
                 writer.WriteBytes(_credentials.PublicKeySerialized, 0, _credentials.PublicKeySerialized.Length);
@@ -298,85 +398,100 @@ namespace Mirror.Transports.Encryption
             }
         }
 
-        private void SendFin()
+        private void SendHandshakeFin()
         {
-            Debug.Log($"[{(_sendsFirst ? 1 : 0)}] Sending {OpCodes.HandshakeFin}");
-            using (var writer = NetworkWriterPool.Get())
+            using (NetworkWriterPooled writer = NetworkWriterPool.Get())
             {
                 writer.WriteByte((byte)OpCodes.HandshakeFin);
                 _send(writer.ToArraySegment(), Channels.Unreliable);
             }
         }
 
-        private void PrintBytes(ArraySegment<byte> data, string prefix)
-        {
-            Debug.Log(
-                $"[{(_sendsFirst ? 1 : 0)}] {prefix}: {BitConverter.ToString(data.Array, data.Offset, data.Count).Replace("-", string.Empty)}");
-        }
-
         private void CompleteExchange(ArraySegment<byte> remotePubKeyRaw)
         {
-            PrintBytes(remotePubKeyRaw, "remote pub key");
-            var remotePubKey = EncryptionCredentials.DeserializePublicKey(remotePubKeyRaw);
-            // TODO: validation
+            AsymmetricKeyParameter remotePubKey = EncryptionCredentials.DeserializePublicKey(remotePubKeyRaw);
+            if (_validateRemoteKey != null && !_validateRemoteKey(remotePubKey))
+            {
+                _error(TransportError.Unexpected, "Remote public key failed validation.");
+                return;
+            }
+
+            // Calculate a common symmetric key from our private key and the remotes public key
+            // This gives us the same key on the other side, with our public key and their remote
+            // It's like magic, but with math!
             ECDHBasicAgreement ecdh = new ECDHBasicAgreement();
             ecdh.Init(_credentials.PrivateKey);
-            var keyRaw = ecdh.CalculateAgreement(remotePubKey).ToByteArrayUnsigned();
-            PrintBytes(keyRaw, "exchanged symmetric key");
-            var key = new KeyParameter(keyRaw);
+            byte[] keyRaw = ecdh.CalculateAgreement(remotePubKey).ToByteArrayUnsigned();
+            KeyParameter key = new KeyParameter(keyRaw);
+
+            // generate a starting nonce
             _nonce = GenerateStartingNonce();
-            _cipherParametersEncrypt = new AeadParameters(key, MacSize * 8 /* in bits */, _nonce);
-            _cipherParametersDecrypt = new AeadParameters(key, MacSize * 8 /* in bits */, _receiveNonce);
+
+            // we pass in the nonce array once (as it's stored by reference) so we can cache the AeadParameters instance
+            // instead of creating a new one each encrypt/decrypt
+            _cipherParametersEncrypt = new AeadParameters(key, MacSizeBits, _nonce);
+            _cipherParametersDecrypt = new AeadParameters(key, MacSizeBits, ReceiveNonce);
         }
 
         /**
          * non-ready connections need to be ticked for resending key data over unreliable
          */
-        public void Tick(double time)
+        public void TickNonReady(double time)
         {
-            if (!IsReady)
+            if (IsReady)
             {
-                if (_timeout == 0)
-                {
-                    _timeout = time + DurationTimeout;
-                }
-                else if (time > _timeout)
-                {
-                    _error?.Invoke(TransportError.Timeout, $"Timed out during {_state}");
-                    return;
-                }
+                return;
+            }
 
-                if (time > _nextSend)
-                {
-                    _nextSend = time + DurationResend;
-                    switch (_state)
+            // Timeout reset
+            if (_handshakeTimeout == 0)
+            {
+                _handshakeTimeout = time + DurationTimeout;
+            }
+            else if (time > _handshakeTimeout)
+            {
+                _error?.Invoke(TransportError.Timeout, $"Timed out during {_state}, this probably just means the other side went away which is fine.");
+                return;
+            }
+
+            // Timeout reset
+            if (_nextHandshakeResend < 0)
+            {
+                _nextHandshakeResend = time + DurationResend;
+                return;
+            }
+
+            if (time < _nextHandshakeResend)
+            {
+                // Resend isn't due yet
+                return;
+            }
+
+            _nextHandshakeResend = time + DurationResend;
+            switch (_state)
+            {
+                case State.WaitingHandshake:
+                    if (_sendsFirst)
                     {
-                        case State.WaitingPubKey:
-                            if (_sendsFirst)
-                            {
-                                SendPubKey(OpCodes.PubKey);
-                            }
-
-                            break;
-                        case State.WaitingPubKeyAck:
-                            if (_sendsFirst)
-                            {
-                                SendFin();
-                            }
-                            else
-                            {
-                                SendPubKey(OpCodes.PubKeyAck);
-                            }
-
-                            break;
-                        default:
-                            throw new ArgumentOutOfRangeException();
+                        SendHandshakeAndPubKey(OpCodes.HandshakeStart);
                     }
-                }
+
+                    break;
+                case State.WaitingHandshakeReply:
+                    if (_sendsFirst)
+                    {
+                        SendHandshakeFin();
+                    }
+                    else
+                    {
+                        SendHandshakeAndPubKey(OpCodes.HandshakeAck);
+                    }
+
+                    break;
+                case State.Ready: // IsReady is checked above & early-returned
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
         }
-
-        private const double DurationTimeout = 2;
-        private const double DurationResend = 0.05; // 50ms
     }
 }
