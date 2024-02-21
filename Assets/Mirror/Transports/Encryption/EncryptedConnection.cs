@@ -5,6 +5,7 @@ using Org.BouncyCastle.Crypto.Agreement;
 using Org.BouncyCastle.Crypto.Engines;
 using Org.BouncyCastle.Crypto.Modes;
 using Org.BouncyCastle.Crypto.Parameters;
+using UnityEngine.Profiling;
 
 namespace Mirror.Transports.Encryption
 {
@@ -175,7 +176,10 @@ namespace Mirror.Transports.Encryption
 
                         ArraySegment<byte> ciphertext = reader.ReadBytesSegment(reader.Remaining - NonceSize);
                         reader.ReadBytes(ReceiveNonce, NonceSize);
+
+                        Profiler.BeginSample("EncryptedConnection.Decrypt");
                         ArraySegment<byte> plaintext = Decrypt(ciphertext);
+                        Profiler.EndSample();
                         if (plaintext.Count == 0)
                         {
                             // error
@@ -275,7 +279,10 @@ namespace Mirror.Transports.Encryption
             using (NetworkWriterPooled writer = NetworkWriterPool.Get())
             {
                 writer.WriteByte((byte)OpCodes.Data);
+                Profiler.BeginSample("EncryptedConnection.Encrypt");
                 ArraySegment<byte> encrypted = Encrypt(data);
+                Profiler.EndSample();
+
                 if (encrypted.Count == 0)
                 {
                     // error

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Profiling;
 
 namespace Mirror.Transports.Encryption
 {
@@ -185,7 +186,9 @@ namespace Mirror.Transports.Encryption
         public override void ClientLateUpdate()
         {
             inner.ClientLateUpdate();
+            Profiler.BeginSample("EncryptionTransport.ServerLateUpdate");
             _client?.TickNonReady(NetworkTime.localTime);
+            Profiler.EndSample();
         }
 
         public override void ServerEarlyUpdate()
@@ -196,11 +199,13 @@ namespace Mirror.Transports.Encryption
         public override void ServerLateUpdate()
         {
             inner.ServerLateUpdate();
+            Profiler.BeginSample("EncryptionTransport.ServerLateUpdate");
             // Reverse iteration as entries can be removed while updating
             for (int i = _serverPendingConnections.Count - 1; i >= 0; i--)
             {
                 _serverPendingConnections[i].TickNonReady(NetworkTime.time);
             }
+            Profiler.EndSample();
         }
     }
 }
