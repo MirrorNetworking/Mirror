@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using Mirror.Tests.NetworkServers;
 using Mirror.Transports.Encryption;
 using NUnit.Framework;
 
@@ -371,6 +373,118 @@ namespace Mirror.Tests.Transports
                 };
                 // setup
                 TestHandshakeSuccess();
+            });
+        }
+        [Test]
+        public void TestBadDataErrors()
+        {
+            TestHandshakeSuccess();
+            Assert.Throws<ErrorException>(() =>
+            {
+                // setup
+                shouldServerSend = (bytes, i) =>
+                {
+                    // mess up a byte in the data
+                    bytes.Array[bytes.Offset + 3] += 1;
+                    return true;
+                };
+                server.Send(new ArraySegment<byte>(new byte[]
+                {
+                    1, 2, 3, 4
+                }), Channels.Reliable);
+                Pump();
+            });
+        }
+
+        [Test]
+        public void TestBadPubKeyInStartErrors()
+        {
+            shouldClientSend = (bytes, i) =>
+            {
+                if (bytes.get_Item(0) == 2 /* HandshakeStart Opcode */)
+                {
+                    // mess up a byte in the data
+                    bytes.Array[bytes.Offset + 3] += 1;
+                }
+                return true;
+            };
+            Assert.Throws<ErrorException>(() =>
+            {
+                TestHandshakeSuccess();
+            });
+        }
+
+        [Test]
+        public void TestBadPubKeyInAckErrors()
+        {
+            shouldServerSend = (bytes, i) =>
+            {
+                if (bytes.get_Item(0) == 3 /* HandshakeAck Opcode */)
+                {
+                    // mess up a byte in the data
+                    bytes.Array[bytes.Offset + 3] += 1;
+                }
+                return true;
+            };
+            Assert.Throws<ErrorException>(() =>
+            {
+                TestHandshakeSuccess();
+            });
+        }
+
+        [Test]
+        public void TestDataSizes()
+        {
+            List<int> sizes = new List<int>();
+            sizes.Add(1);
+            sizes.Add(2);
+            sizes.Add(3);
+            sizes.Add(6);
+            sizes.Add(9);
+            sizes.Add(16);
+            sizes.Add(60);
+            sizes.Add(100);
+            sizes.Add(200);
+            sizes.Add(400);
+            sizes.Add(800);
+            sizes.Add(1024);
+            sizes.Add(1025);
+            sizes.Add(4096);
+            sizes.Add(1024 * 16);
+            sizes.Add(1024 * 64);
+            sizes.Add(1024 * 128);
+            sizes.Add(1024 * 512);
+            // removed for performance, these do pass though
+            //sizes.Add(1024 * 1024);
+            //sizes.Add(1024 * 1024 * 16);
+            //sizes.Add(1024 * 1024 * 64); // 64MiB
+
+            TestHandshakeSuccess();
+            var maxSize = sizes.Max();
+            var sendByte = new byte[maxSize];
+            for (uint i = 0; i < sendByte.Length; i++)
+            {
+                sendByte[i] = (byte)i;
+            }
+            int size = -1;
+            clientReceive = (bytes, channel) =>
+            {
+                // Assert.AreEqual is super slow for larger arrays, so do it manually
+                Assert.AreEqual(bytes.Count, size);
+                for (int i = 0; i < size; i++)
+                {
+                    if (bytes.Array[bytes.Offset + i] != sendByte[i])
+                    {
+                        Assert.Fail($"received bytes[{i}] did not match. expected {sendByte[i]}, got {bytes.Array[bytes.Offset + i]}");
+                    }
+                }
+            };
+            foreach (var s in sizes)
+            {
+                size = s;
+                server.Send(new ArraySegment<byte>(sendByte, 0, size), 1);
+                Pump();
+            }
         }
     }
 }

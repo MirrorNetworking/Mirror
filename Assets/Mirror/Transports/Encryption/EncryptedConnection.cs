@@ -312,11 +312,22 @@ namespace Mirror.Transports.Encryption
 #endif
             // Resize the static buffer to fit
             EnsureSize(ref _tmpCryptBuffer, outSize);
-            // Run the plain text through the cipher, ProcessBytes will only process full blocks
-            int resultLen =
-                Cipher.ProcessBytes(plaintext.Array, plaintext.Offset, plaintext.Count, _tmpCryptBuffer, 0);
-            // Then run any potentially remaining partial blocks through with DoFinal (and calculate the mac)
-            resultLen += Cipher.DoFinal(_tmpCryptBuffer, resultLen);
+            int resultLen;
+            try
+            {
+                // Run the plain text through the cipher, ProcessBytes will only process full blocks
+                resultLen =
+                    Cipher.ProcessBytes(plaintext.Array, plaintext.Offset, plaintext.Count, _tmpCryptBuffer, 0);
+                // Then run any potentially remaining partial blocks through with DoFinal (and calculate the mac)
+                resultLen += Cipher.DoFinal(_tmpCryptBuffer, resultLen);
+            }
+            // catch all Exception's since BouncyCastle is fairly noisy with both standard and their own exception types
+            //
+            catch (Exception e)
+            {
+                _error(TransportError.Unexpected, $"Unexpected exception while encrypting {e.GetType()}: {e.Message}");
+                return new ArraySegment<byte>();
+            }
 #if UNITY_EDITOR
             // expecting the result length to match the previously calculated input size + MacSize
             if (resultLen != outSize)
@@ -349,11 +360,21 @@ namespace Mirror.Transports.Encryption
 #endif
             // Resize the static buffer to fit
             EnsureSize(ref _tmpCryptBuffer, outSize);
-            // Run the ciphertext through the cipher, ProcessBytes will only process full blocks
-            int resultLen =
-                Cipher.ProcessBytes(ciphertext.Array, ciphertext.Offset, ciphertext.Count, _tmpCryptBuffer, 0);
-            // Then run any potentially remaining partial blocks through with DoFinal (and calculate/check the mac)
-            resultLen += Cipher.DoFinal(_tmpCryptBuffer, resultLen);
+            int resultLen;
+            try
+            {
+                // Run the ciphertext through the cipher, ProcessBytes will only process full blocks
+                resultLen =
+                    Cipher.ProcessBytes(ciphertext.Array, ciphertext.Offset, ciphertext.Count, _tmpCryptBuffer, 0);
+                // Then run any potentially remaining partial blocks through with DoFinal (and calculate/check the mac)
+                resultLen += Cipher.DoFinal(_tmpCryptBuffer, resultLen);
+            }
+            // catch all Exception's since BouncyCastle is fairly noisy with both standard and their own exception types
+            catch (Exception e)
+            {
+                _error(TransportError.Unexpected, $"Unexpected exception while decrypting {e.GetType()}: {e.Message}. This usually signifies corrupt data");
+                return new ArraySegment<byte>();
+            }
 #if UNITY_EDITOR
             // expecting the result length to match the previously calculated input size + MacSize
             if (resultLen != outSize)
@@ -409,7 +430,17 @@ namespace Mirror.Transports.Encryption
 
         private void CompleteExchange(ArraySegment<byte> remotePubKeyRaw)
         {
-            AsymmetricKeyParameter remotePubKey = EncryptionCredentials.DeserializePublicKey(remotePubKeyRaw);
+            AsymmetricKeyParameter remotePubKey;
+            try
+            {
+                remotePubKey = EncryptionCredentials.DeserializePublicKey(remotePubKeyRaw);
+            }
+            catch (Exception e)
+            {
+                _error(TransportError.Unexpected, $"Failed to deserialize public key of remote. {e.GetType()}: {e.Message}");
+                return;
+            }
+
             if (_validateRemoteKey != null && !_validateRemoteKey(remotePubKey))
             {
                 _error(TransportError.Unexpected, "Remote public key failed validation.");
@@ -421,7 +452,17 @@ namespace Mirror.Transports.Encryption
             // It's like magic, but with math!
             ECDHBasicAgreement ecdh = new ECDHBasicAgreement();
             ecdh.Init(_credentials.PrivateKey);
-            byte[] keyRaw = ecdh.CalculateAgreement(remotePubKey).ToByteArrayUnsigned();
+            byte[] keyRaw;
+            try
+            {
+                keyRaw = ecdh.CalculateAgreement(remotePubKey).ToByteArrayUnsigned();
+            }
+            catch (Exception e)
+            {
+                _error(TransportError.Unexpected, $"Failed to calculate the ECDH key exchange. {e.GetType()}: {e.Message}");
+                return;
+            }
+            
             KeyParameter key = new KeyParameter(keyRaw);
 
             // generate a starting nonce
