@@ -14,8 +14,8 @@ namespace Mirror.Transports.Encryption
 
         private Dictionary<int, EncryptedConnection> _serverConnections = new Dictionary<int, EncryptedConnection>();
 
-        private Dictionary<int, EncryptedConnection> _serverPendingConnections =
-            new Dictionary<int, EncryptedConnection>();
+        private List<EncryptedConnection> _serverPendingConnections =
+            new List<EncryptedConnection>();
 
         private EncryptionCredentials _credentials;
 
@@ -24,10 +24,28 @@ namespace Mirror.Transports.Encryption
             _credentials = EncryptionCredentials.Generate(); // todo
         }
 
+        private void ServerRemoveFromPending(EncryptedConnection con)
+        {
+            for (int i = 0; i < _serverPendingConnections.Count; i++)
+            {
+                if (_serverPendingConnections[i] == con)
+                {
+                    // remove by swapping with last
+                    int lastIndex = _serverPendingConnections.Count - 1;
+                    _serverPendingConnections[i] = _serverPendingConnections[lastIndex];
+                    _serverPendingConnections.RemoveAt(lastIndex);
+                    break;
+                }
+            }
+        }
+
         private void HandleInnerServerDisconnected(int connId)
         {
-            _serverPendingConnections.Remove(connId);
-            _serverConnections.Remove(connId);
+            if (_serverConnections.TryGetValue(connId, out EncryptedConnection con))
+            {
+                ServerRemoveFromPending(con);
+                _serverConnections.Remove(connId);
+            }
             OnServerDisconnected?.Invoke(connId);
         }
 
@@ -47,7 +65,8 @@ namespace Mirror.Transports.Encryption
         private void HandleInnerServerConnected(int connId)
         {
             Debug.Log($"[EncryptionTransport] New connection #{connId}");
-            var ec = new EncryptedConnection(
+            EncryptedConnection ec = null;
+            ec = new EncryptedConnection(
                 _credentials,
                 false,
                 (segment, channel) => inner.ServerSend(connId, segment, channel),
@@ -55,7 +74,7 @@ namespace Mirror.Transports.Encryption
                 () =>
                 {
                     Debug.Log($"[EncryptionTransport] Connection #{connId} is ready");
-                    _serverPendingConnections.Remove(connId);
+                    ServerRemoveFromPending(ec);
                     OnServerConnected?.Invoke(connId);
                 },
                 (type, msg) =>
@@ -64,7 +83,7 @@ namespace Mirror.Transports.Encryption
                     ServerDisconnect(connId);
                 });
             _serverConnections.Add(connId, ec);
-            _serverPendingConnections.Add(connId, ec);
+            _serverPendingConnections.Add(ec);
         }
 
         private void HandleInnerClientDisconnected()
@@ -177,11 +196,10 @@ namespace Mirror.Transports.Encryption
         public override void ServerLateUpdate()
         {
             inner.ServerLateUpdate();
-            // TODO: need to be able to remove while looping here since Tick might disconnect..
-            // figure out a better solution to get rid of ToArray
-            foreach (EncryptedConnection c in _serverPendingConnections.Values.ToArray())
+            // Reverse iteration as entries can be removed while updating
+            for (int i = _serverPendingConnections.Count - 1; i >= 0; i--)
             {
-                c.TickNonReady(NetworkTime.time);
+                _serverPendingConnections[i].TickNonReady(NetworkTime.time);
             }
         }
     }
