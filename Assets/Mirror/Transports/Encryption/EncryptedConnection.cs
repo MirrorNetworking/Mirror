@@ -5,7 +5,6 @@ using Org.BouncyCastle.Crypto.Agreement;
 using Org.BouncyCastle.Crypto.Engines;
 using Org.BouncyCastle.Crypto.Modes;
 using Org.BouncyCastle.Crypto.Parameters;
-using UnityEngine;
 
 namespace Mirror.Transports.Encryption
 {
@@ -462,7 +461,7 @@ namespace Mirror.Transports.Encryption
                 _error(TransportError.Unexpected, $"Failed to calculate the ECDH key exchange. {e.GetType()}: {e.Message}");
                 return;
             }
-            
+
             KeyParameter key = new KeyParameter(keyRaw);
 
             // generate a starting nonce
