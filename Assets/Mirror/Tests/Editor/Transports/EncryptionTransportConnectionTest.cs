@@ -88,7 +88,7 @@ namespace Mirror.Tests.Transports
 
             while (clientRecv.TryDequeue(out Data data))
             {
-                client.OnReceiveRaw(data.data, data.channel);
+                client.OnReceiveRaw(new ArraySegment<byte>(data.data), data.channel);
             }
             if (!client.IsReady)
             {
@@ -97,7 +97,7 @@ namespace Mirror.Tests.Transports
 
             while (serverRecv.TryDequeue(out Data data))
             {
-                server.OnReceiveRaw(data.data, data.channel);
+                server.OnReceiveRaw(new ArraySegment<byte>(data.data), data.channel);
             }
             if (!server.IsReady)
             {
@@ -125,10 +125,10 @@ namespace Mirror.Tests.Transports
                 Assert.False(isServerReady); // only called once
                 Assert.True(server.IsReady); // should be set when called
                 isServerReady = true;
-                server.Send(new byte[]
+                server.Send(new ArraySegment<byte>(new byte[]
                 {
                     1, 2, 3
-                }, Channels.Reliable); // need to send to ready the other side
+                }), Channels.Reliable); // need to send to ready the other side
             };
 
             while (!isServerReady || !isClientReady)
@@ -178,7 +178,7 @@ namespace Mirror.Tests.Transports
             int ni = 0;
             for (int hi = 0; hi < haystack.Count; hi++)
             {
-                if (haystack.get_Item(hi) == needle.get_Item(ni))
+                if (haystack.Array[haystack.Offset + hi] == needle.Array[needle.Offset + ni])
                 {
                     ni++;
                     if (ni == needle.Count)
@@ -197,47 +197,47 @@ namespace Mirror.Tests.Transports
         [Test]
         public void TestUtil()
         {
-            Assert.True(ArrayContainsSequence(new byte[]
+            Assert.True(ArrayContainsSequence(new ArraySegment<byte>(new byte[]
             {
                 1, 2, 3, 4
-            }, new byte[]
+            }), new ArraySegment<byte>(new byte[]
             {
-            }));
-            Assert.True(ArrayContainsSequence(new byte[]
-            {
-                1, 2, 3, 4
-            }, new byte[]
+            })));
+            Assert.True(ArrayContainsSequence(new ArraySegment<byte>(new byte[]
             {
                 1, 2, 3, 4
-            }));
-            Assert.True(ArrayContainsSequence(new byte[]
+            }),new ArraySegment<byte>( new byte[]
             {
                 1, 2, 3, 4
-            }, new byte[]
+            })));
+            Assert.True(ArrayContainsSequence(new ArraySegment<byte>(new byte[]
+            {
+                1, 2, 3, 4
+            }), new ArraySegment<byte>(new byte[]
             {
                 2, 3
-            }));
-            Assert.True(ArrayContainsSequence(new byte[]
+            })));
+            Assert.True(ArrayContainsSequence(new ArraySegment<byte>(new byte[]
             {
                 1, 2, 3, 4
-            }, new byte[]
+            }),new ArraySegment<byte>( new byte[]
             {
                 3, 4
-            }));
-            Assert.False(ArrayContainsSequence(new byte[]
+            })));
+            Assert.False(ArrayContainsSequence(new ArraySegment<byte>(new byte[]
             {
                 1, 2, 3, 4
-            }, new byte[]
+            }),new ArraySegment<byte>( new byte[]
             {
                 1, 3
-            }));
-            Assert.False(ArrayContainsSequence(new byte[]
+            })));
+            Assert.False(ArrayContainsSequence(new ArraySegment<byte>(new byte[]
             {
                 1, 2, 3, 4
-            }, new byte[]
+            }),new ArraySegment<byte>( new byte[]
             {
                 3, 4, 5
-            }));
+            })));
 
         }
         [Test]
@@ -249,18 +249,18 @@ namespace Mirror.Tests.Transports
             bool isClientDone = false;
             clientReady = () =>
             {
-                client.Send(clientData, Channels.Reliable);
+                client.Send(new ArraySegment<byte>(clientData), Channels.Reliable);
             };
             serverReady = () =>
             {
-                server.Send(serverData, Channels.Reliable);
+                server.Send(new ArraySegment<byte>(serverData), Channels.Reliable);
             };
 
             shouldServerSend = (bytes, i) =>
             {
                 if (i == Channels.Reliable)
                 {
-                    Assert.False(ArrayContainsSequence(bytes, serverData));
+                    Assert.False(ArrayContainsSequence(bytes, new ArraySegment<byte>(serverData)));
                 }
                 return true;
             };
@@ -268,7 +268,7 @@ namespace Mirror.Tests.Transports
             {
                 if (i == Channels.Reliable)
                 {
-                    Assert.False(ArrayContainsSequence(bytes, clientData));
+                    Assert.False(ArrayContainsSequence(bytes, new ArraySegment<byte>(clientData)));
                 }
                 return true;
             };
@@ -401,7 +401,7 @@ namespace Mirror.Tests.Transports
         {
             shouldClientSend = (bytes, i) =>
             {
-                if (bytes.get_Item(0) == 2 /* HandshakeStart Opcode */)
+                if (bytes.Array[bytes.Offset] == 2 /* HandshakeStart Opcode */)
                 {
                     // mess up a byte in the data
                     bytes.Array[bytes.Offset + 3] += 1;
@@ -419,7 +419,7 @@ namespace Mirror.Tests.Transports
         {
             shouldServerSend = (bytes, i) =>
             {
-                if (bytes.get_Item(0) == 3 /* HandshakeAck Opcode */)
+                if (bytes.Array[bytes.Offset] == 3 /* HandshakeAck Opcode */)
                 {
                     // mess up a byte in the data
                     bytes.Array[bytes.Offset + 3] += 1;

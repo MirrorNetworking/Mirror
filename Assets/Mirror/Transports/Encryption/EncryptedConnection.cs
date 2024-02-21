@@ -254,7 +254,7 @@ namespace Mirror.Transports.Encryption
 
                         break;
                     default:
-                        _error(TransportError.InvalidReceive, $"Unhandled opcode {data[0]:x}");
+                        _error(TransportError.InvalidReceive, $"Unhandled opcode {(byte)opcode:x}");
                         break;
                 }
             }
