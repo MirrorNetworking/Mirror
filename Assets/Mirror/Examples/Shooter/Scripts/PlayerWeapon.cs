@@ -58,9 +58,12 @@ namespace Mirror.Examples.Shooter
                         //    .collider is the part that actually moves. so this is safer.
                         GameObject go = Instantiate(decalPrefab, hit.point + hit.normal * decalOffset, Quaternion.LookRotation(-hit.normal));
                         go.transform.parent = hit.collider.transform;
+
                         // setting decal rotation can show wrong results depending on angle of hit object, setting child instead solves it
                         Transform childTransform = go.transform.GetChild(0);
                         childTransform.localRotation = Quaternion.Euler(0f, 0f, Random.Range(0f, 360f));
+                        // Would prefer to call raycast on server, but current setup uses players local camera
+                        CmdFiredWeapon(hit.point + hit.normal * decalOffset, Quaternion.LookRotation(-hit.normal), childTransform.localRotation);
                     }
                     // it has a rigidbody
                     else
@@ -88,6 +91,30 @@ namespace Mirror.Examples.Shooter
             if (Input.GetMouseButtonDown(0))
             {
                 FireWeapon();
+            }
+        }
+
+        [Command()]
+        void CmdFiredWeapon(Vector3 _decalPos, Quaternion _decalQuat, Quaternion _childQuat)
+        {
+            //print("CmdFireWeapon");
+            RpcFiredWeapon(_decalPos, _decalQuat, _childQuat);
+        }
+
+        [ClientRpc(includeOwner = false)]
+        void RpcFiredWeapon(Vector3 _decalPos, Quaternion _decalQuat, Quaternion _childQuat)
+        {
+            //print("RpcFireWeapon");
+            // any weapon equipped?
+            WeaponDetails weapon = weaponMount.GetComponentInChildren<WeaponDetails>();
+            if (weapon != null)
+            {
+                // muzzle flash
+                if (weapon.muzzleFlash != null) weapon.muzzleFlash.Fire();
+
+                GameObject go = Instantiate(decalPrefab, _decalPos, _decalQuat);
+                Transform childTransform = go.transform.GetChild(0);
+                childTransform.localRotation = _childQuat;
             }
         }
     }
