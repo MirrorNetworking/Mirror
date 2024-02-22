@@ -105,7 +105,7 @@ namespace Mirror
         // joints
         Vector3 initialPosition;
         Quaternion initialRotation;
-        Vector3 initialScale;
+        // Vector3 initialScale; // don't change scale for now. causes issues with parenting.
 
         void Awake()
         {
@@ -120,7 +120,7 @@ namespace Mirror
             // cache initial position/rotation/scale to be used when moving physics components (configurable joints' range of motion)
             initialPosition = tf.position;
             initialRotation = tf.rotation;
-            initialScale = tf.localScale;
+            // initialScale = tf.localScale;
         }
 
         protected virtual void CopyRenderersAsGhost(GameObject destination, Material material)
@@ -191,17 +191,17 @@ namespace Mirror
             // => remember previous
             Vector3 position = tf.position;
             Quaternion rotation = tf.rotation;
-            Vector3 scale = tf.localScale;
+            // Vector3 scale = tf.localScale; // don't change scale for now. causes issues with parenting.
             // => reset to initial
             physicsGhostRigidbody.transform.position = tf.position = initialPosition;
             physicsGhostRigidbody.transform.rotation = tf.rotation = initialRotation;
-            physicsGhostRigidbody.transform.localScale = tf.localScale = initialScale;
+            physicsGhostRigidbody.transform.localScale = tf.lossyScale;// world scale! // = initialScale; // don't change scale for now. causes issues with parenting.
             // => move physics components
             PredictionUtils.MovePhysicsComponents(gameObject, physicsCopy);
             // => reset previous
             physicsGhostRigidbody.transform.position = tf.position = position;
             physicsGhostRigidbody.transform.rotation = tf.rotation = rotation;
-            physicsGhostRigidbody.transform.localScale = tf.localScale = scale;
+            //physicsGhostRigidbody.transform.localScale = tf.lossyScale; // world scale! //= scale; // don't change scale for now. causes issues with parenting.
 
             // show ghost by copying all renderers / materials with ghost material applied
             if (showGhost)
@@ -249,7 +249,7 @@ namespace Mirror
                 // => reset to initial
                 physicsCopy.transform.position = tf.position = initialPosition;
                 physicsCopy.transform.rotation = tf.rotation = initialRotation;
-                physicsCopy.transform.localScale = tf.localScale = initialScale;
+                physicsCopy.transform.localScale = tf.lossyScale;// = initialScale;
                 // => move physics components
                 PredictionUtils.MovePhysicsComponents(physicsCopy, gameObject);
                 // => reset previous
