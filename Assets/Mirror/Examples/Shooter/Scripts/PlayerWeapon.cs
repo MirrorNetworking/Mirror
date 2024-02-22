@@ -58,6 +58,9 @@ namespace Mirror.Examples.Shooter
                         //    .collider is the part that actually moves. so this is safer.
                         GameObject go = Instantiate(decalPrefab, hit.point + hit.normal * decalOffset, Quaternion.LookRotation(-hit.normal));
                         go.transform.parent = hit.collider.transform;
+                        // setting decal rotation can show wrong results depending on angle of hit object, setting child instead solves it
+                        Transform childTransform = go.transform.GetChild(0);
+                        childTransform.localRotation = Quaternion.Euler(0f, 0f, Random.Range(0f, 360f));
                     }
                     // it has a rigidbody
                     else
