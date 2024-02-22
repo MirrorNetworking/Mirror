@@ -6,6 +6,7 @@ namespace Mirror.Examples.Shooter
     {
         public Transform weaponMount;
         public PlayerLook playerLook;
+        public Player player;
 
         [Header("Decal")]
         public GameObject decalPrefab;
@@ -88,7 +89,7 @@ namespace Mirror.Examples.Shooter
             RotateWeaponToLookDirection();
 
 
-            if (Input.GetMouseButtonDown(0))
+            if (player.playerAmmo > 0 && Input.GetMouseButtonDown(0))
             {
                 FireWeapon();
             }
@@ -98,7 +99,12 @@ namespace Mirror.Examples.Shooter
         void CmdFiredWeapon(Vector3 _decalPos, Quaternion _decalQuat, Quaternion _childQuat)
         {
             //print("CmdFireWeapon");
-            RpcFiredWeapon(_decalPos, _decalQuat, _childQuat);
+            // we locally check for this as well as server-side
+            if (player.playerAmmo > 0)
+            {
+                player.playerAmmo -= 1;
+                RpcFiredWeapon(_decalPos, _decalQuat, _childQuat);
+            }
         }
 
         [ClientRpc(includeOwner = false)]

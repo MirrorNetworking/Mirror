@@ -37,5 +37,63 @@ namespace Mirror.Examples.Shooter
             cam.transform.position = initialCameraPosition;
             cam.transform.rotation = initialCameraRotation;
         }*/
-    }
+
+        [Header("UI")]
+        public TextMesh textName;
+        public TextMesh textHealth;
+        public TextMesh textAmmo;
+
+        [Header("Stats")]
+        [SyncVar(hook = nameof(OnNameChanged))] public string playerName = "";
+        [SyncVar(hook = nameof(OnHealthChanged))] public int playerHealth = 10;
+        [SyncVar(hook = nameof(OnAmmoChanged))] public int playerAmmo = 20;
+
+        void OnNameChanged(string _old, string _new)
+        {
+            textName.text = playerName;
+        }
+
+        void OnHealthChanged(int _old, int _new)
+        {
+            if (playerHealth >= 0)
+            {
+                textHealth.text = new string('-', playerHealth);
+            }
+        }
+        void OnAmmoChanged(int _old, int _new)
+        {
+            if (playerAmmo >= 0)
+            {
+                textAmmo.text = new string('-', playerAmmo);
+            }
+        }
+
+        [Command]
+        public void CmdSetupPlayer(string _playerName)
+        {
+            //print("Player joined, setup: " + _playerName);
+            ApplyName(_playerName);
+        }
+
+        void ApplyName(string _playerName)
+        {
+            // here you can censor restricted words or add name length check incase player locally bypassed them
+            // set a default if blank.
+            if (_playerName == "")
+            {
+                playerName = "Player: " + netId;
+            }
+            else
+            {
+                playerName = _playerName;
+            }
+        }
+
+        public override void OnStartLocalPlayer()
+        {
+            // currently blank until we load it from ui or stored data
+            CmdSetupPlayer("");
+        }
+            
+     }
 }
