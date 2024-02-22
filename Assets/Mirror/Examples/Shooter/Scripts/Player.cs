@@ -38,6 +38,8 @@ namespace Mirror.Examples.Shooter
             cam.transform.rotation = initialCameraRotation;
         }*/
 
+        public PlayerWeapon playerWeapon;
+
         [Header("UI")]
         public TextMesh textName;
         public TextMesh textHealth;
@@ -89,11 +91,18 @@ namespace Mirror.Examples.Shooter
             }
         }
 
-        public override void OnStartLocalPlayer()
+        void Start()
         {
-            // currently blank until we load it from ui or stored data
-            CmdSetupPlayer("");
+            if (isOwned)
+            {
+                // currently blank until we load it from ui or stored data
+                CmdSetupPlayer("");
+            }
+            else
+            {
+                // we want other players to see this view, technically should be default
+                playerWeapon.SetThirdPerson();
+            }
         }
-            
-     }
+    }
 }

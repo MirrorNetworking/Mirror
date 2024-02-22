@@ -5,6 +5,8 @@ namespace Mirror.Examples.Shooter
     public class PlayerWeapon : NetworkBehaviour
     {
         public Transform weaponMount;
+        public Transform handTransform;
+        public Transform firstPersonTransform;
         public PlayerLook playerLook;
         public Player player;
 
@@ -86,8 +88,15 @@ namespace Mirror.Examples.Shooter
             // TODO rotate weapon for other players too, but PlayerLook needs to sync lookDirection first
             if (!isLocalPlayer) return;
 
-            RotateWeaponToLookDirection();
-
+            if (player.playerLook.distance == 0)
+            {
+                RotateWeaponToLookDirection();
+                SetFirstPerson(); // ideally we dont want to keep setting this if its already set, to-do
+            }
+            else
+            {
+                SetThirdPerson(); // ideally we dont want to keep setting this if its already set, to-do
+            }
 
             if (player.playerAmmo > 0 && Input.GetMouseButtonDown(0))
             {
@@ -122,6 +131,19 @@ namespace Mirror.Examples.Shooter
                 Transform childTransform = go.transform.GetChild(0);
                 childTransform.localRotation = _childQuat;
             }
+        }
+
+        public void SetThirdPerson()
+        {
+            weaponMount.SetParent(handTransform);
+            weaponMount.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
+        }
+
+        public void SetFirstPerson()
+        {
+            weaponMount.SetParent(firstPersonTransform);
+            weaponMount.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
+
         }
     }
 }
