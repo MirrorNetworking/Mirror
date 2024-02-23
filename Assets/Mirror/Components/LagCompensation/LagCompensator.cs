@@ -78,17 +78,13 @@ namespace Mirror
         }
 
         // sample the history for a hit test
+        [Server]
         public virtual bool Sample(out Capture3D sample)
         {
             // never trust the client: estimate client time instead.
             // https://developer.valvesoftware.com/wiki/Source_Multiplayer_Networking
             // the estimation is very good. the error is as low as ~6ms for the demo.
-            double rtt = NetworkTime.rtt;
-            double estimatedTime = LagCompensation.EstimateTime(NetworkTime.localTime, rtt, NetworkClient.bufferTime);
-
-            // compare estimated time with actual client time for debugging
-            double error = Math.Abs(estimatedTime - client.localTimeline);
-            Debug.Log($"CmdClicked: serverTime={NetworkTime.localTime:F3} clientTime={client.localTimeline:F3} estimatedTime={estimatedTime:F3} estimationError={error:F3} position={position}");
+            double estimatedTime = LagCompensation.EstimateTime(NetworkTime.localTime, connectionToClient.rtt, NetworkClient.bufferTime);
 
             // sample the history to get the nearest snapshots around 'timestamp'
             if (LagCompensation.Sample(history, estimatedTime, lagCompensationSettings.captureInterval, out Capture3D resultBefore, out Capture3D resultAfter, out double t))
