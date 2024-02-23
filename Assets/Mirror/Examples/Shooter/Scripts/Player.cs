@@ -38,7 +38,9 @@ namespace Mirror.Examples.Shooter
             cam.transform.rotation = initialCameraRotation;
         }*/
 
+        [Header("Components")]
         public PlayerWeapon playerWeapon;
+        public PlayerLook playerLook;
 
         [Header("UI")]
         public TextMesh textName;
