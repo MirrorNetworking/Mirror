@@ -1,5 +1,6 @@
-// Add this component to a GameObject with collider.
+// Add this component to a Player object with collider.
 // Automatically keeps a history for lag compensation.
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -33,9 +34,10 @@ namespace Mirror
         public override string ToString() => $"(time={timestamp} pos={position} size={size})";
     }
 
-    public class LagCompensator : MonoBehaviour
+    public class LagCompensator : NetworkBehaviour
     {
         [Header("Components")]
+        [Tooltip("The collider to keep a history of.")]
         public Collider col; // assign this in inspector
 
         [Header("Settings")]
@@ -73,6 +75,32 @@ namespace Mirror
 
             // insert into history
             LagCompensation.Insert(history, lagCompensationSettings.historyLimit, NetworkTime.localTime, capture);
+        }
+
+        // sample the history for a hit test
+        public virtual bool Sample(out Capture3D sample)
+        {
+            // never trust the client: estimate client time instead.
+            // https://developer.valvesoftware.com/wiki/Source_Multiplayer_Networking
+            // the estimation is very good. the error is as low as ~6ms for the demo.
+            double rtt = NetworkTime.rtt;
+            double estimatedTime = LagCompensation.EstimateTime(NetworkTime.localTime, rtt, NetworkClient.bufferTime);
+
+            // compare estimated time with actual client time for debugging
+            double error = Math.Abs(estimatedTime - client.localTimeline);
+            Debug.Log($"CmdClicked: serverTime={NetworkTime.localTime:F3} clientTime={client.localTimeline:F3} estimatedTime={estimatedTime:F3} estimationError={error:F3} position={position}");
+
+            // sample the history to get the nearest snapshots around 'timestamp'
+            if (LagCompensation.Sample(history, estimatedTime, lagCompensationSettings.captureInterval, out Capture3D resultBefore, out Capture3D resultAfter, out double t))
+            {
+                // interpolate to get a decent estimation at exactly 'timestamp'
+                sample = Capture3D.Interpolate(resultBefore, resultAfter, t);
+                return true;
+            }
+            else Debug.Log($"CmdClicked: history doesn't contain {estimatedTime:F3}");
+
+            sample = default;
+            return false;
         }
 
         protected virtual void OnDrawGizmos()
