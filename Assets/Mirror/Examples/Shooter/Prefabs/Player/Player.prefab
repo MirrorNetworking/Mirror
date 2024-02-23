@@ -695,8 +695,9 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
-  playerLook: {fileID: -8494711255715996189}
   playerWeapon: {fileID: 5858790534433063407}
+  playerLook: {fileID: -8494711255715996189}
+  skinnedMeshRenderer: {fileID: 1649479531607026809}
   textName: {fileID: 5219417757361643032}
   textHealth: {fileID: 453597048434946710}
   textAmmo: {fileID: 6713126847677926862}
@@ -752,6 +753,7 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
+  playerWeapon: {fileID: 5858790534433063407}
   camera: {fileID: 0}
   XSensitivity: 2
   YSensitivity: 2
@@ -1131,6 +1133,12 @@ PrefabInstance:
       addedObject: {fileID: 8546703747916362079}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 38f8f72a2b1da474f81c1e0f227bdaed, type: 3}
+--- !u!137 &1649479531607026809 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: -2049929814205202405, guid: 38f8f72a2b1da474f81c1e0f227bdaed,
+    type: 3}
+  m_PrefabInstance: {fileID: 8460310232208764002}
+  m_PrefabAsset: {fileID: 0}
 --- !u!95 &2595088222176891379 stripped
 Animator:
   m_CorrespondingSourceObject: {fileID: 5866666021909216657, guid: 38f8f72a2b1da474f81c1e0f227bdaed,

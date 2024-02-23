@@ -41,6 +41,7 @@ namespace Mirror.Examples.Shooter
         [Header("Components")]
         public PlayerWeapon playerWeapon;
         public PlayerLook playerLook;
+        public SkinnedMeshRenderer skinnedMeshRenderer;
 
         [Header("UI")]
         public TextMesh textName;

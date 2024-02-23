@@ -6,6 +6,7 @@ namespace Mirror.Examples.Shooter
     public class PlayerLook : NetworkBehaviour
     {
         [Header("Components")]
+        public PlayerWeapon playerWeapon;
     #pragma warning disable CS0109 // member does not hide accessible member
         [HideInInspector] public new Camera camera;
     #pragma warning restore CS0109 // member does not hide accessible member
@@ -189,6 +190,16 @@ namespace Mirror.Examples.Shooter
             {
                 float step = Utils.GetZoomUniversal() * zoomSpeed;
                 distance = Mathf.Clamp(distance - step, minDistance, maxDistance);
+
+                // check and apply view mode if players scrolling
+                if (distance == 0)
+                {
+                    playerWeapon.SetFirstPerson();
+                }
+                else
+                {
+                    playerWeapon.SetThirdPerson();
+                }
             }
 
             // calculate target and zoomed position
