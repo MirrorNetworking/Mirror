@@ -39,7 +39,7 @@ namespace Mirror.Transports.Encryption
                 // see fields above
                 // PublicKey = (ECPublicKeyParameters)keyPair.Public,
                 PublicKeySerialized = serialized,
-                PublicKeyFingerprint = PubKeyFingerprint(serialized),
+                PublicKeyFingerprint = PubKeyFingerprint(new ArraySegment<byte>(serialized)),
                 PrivateKey = (ECPrivateKeyParameters)keyPair.Private
             };
         }
