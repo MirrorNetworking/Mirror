@@ -37,7 +37,8 @@ namespace Mirror.Transports.Encryption
 
         // Set up a global cipher instance, it is initialised/reset before use
         // (AesFastEngine used to exist, but was removed due to side channel issues)
-        private static readonly GcmBlockCipher Cipher = new GcmBlockCipher(new AesEngine());
+        // use AesUtilities.CreateEngine here as it'll pick the hardware accelerated one if available (which is will not be unless on .net core)
+        private static readonly GcmBlockCipher Cipher = new GcmBlockCipher(AesUtilities.CreateEngine());
 
         // Global byte array to store nonce sent by the remote side, they're used immediately after
         private static readonly byte[] ReceiveNonce = new byte[NonceSize];
