@@ -89,7 +89,7 @@ namespace Mirror.Transports.Encryption
         private Action<TransportError, string> _error;
         // Optional callback to validate the remotes public key, validation on one side is necessary to ensure MITM resistance
         // (usually client validates the server key)
-        private Func<AsymmetricKeyParameter, bool> _validateRemoteKey;
+        private Func<PubKeyInfo, bool> _validateRemoteKey;
         // Our asymmetric credentials for the initial DH exchange
         private EncryptionCredentials _credentials;
 
@@ -121,7 +121,7 @@ namespace Mirror.Transports.Encryption
             Action<ArraySegment<byte>, int> receiveAction,
             Action readyAction,
             Action<TransportError, string> errorAction,
-            Func<AsymmetricKeyParameter, bool> validateRemoteKey = null)
+            Func<PubKeyInfo, bool> validateRemoteKey = null)
         {
             _credentials = credentials;
             _sendsFirst = isClient;
@@ -447,10 +447,19 @@ namespace Mirror.Transports.Encryption
                 return;
             }
 
-            if (_validateRemoteKey != null && !_validateRemoteKey(remotePubKey))
+            if (_validateRemoteKey != null)
             {
-                _error(TransportError.Unexpected, "Remote public key failed validation.");
-                return;
+                PubKeyInfo info = new PubKeyInfo
+                {
+                    Fingerprint = EncryptionCredentials.PubKeyFingerprint(remotePubKeyRaw),
+                    Serialized = remotePubKeyRaw,
+                    Key = remotePubKey
+                };
+                if (!_validateRemoteKey(info))
+                {
+                    _error(TransportError.Unexpected, $"Remote public key (fingerprint: {info.Fingerprint}) failed validation. ");
+                    return;
+                }
             }
 
             // Calculate a common symmetric key from our private key and the remotes public key
@@ -463,7 +472,8 @@ namespace Mirror.Transports.Encryption
             {
                 keyRaw = ecdh.CalculateAgreement(remotePubKey).ToByteArrayUnsigned();
             }
-            catch (Exception e)
+            catch
+                (Exception e)
             {
                 _error(TransportError.Unexpected, $"Failed to calculate the ECDH key exchange. {e.GetType()}: {e.Message}");
                 return;

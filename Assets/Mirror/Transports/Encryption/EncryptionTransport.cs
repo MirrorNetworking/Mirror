@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.Profiling;
+using UnityEngine.Serialization;
 
 namespace Mirror.Transports.Encryption
 {
@@ -10,6 +10,19 @@ namespace Mirror.Transports.Encryption
     {
         public Transport inner;
 
+        public enum ValidationMode
+        {
+            Off,
+            List,
+            Callback,
+        }
+
+        public ValidationMode clientValidateServerPubKey;
+        [Tooltip("List of public key fingerprints the client will accept")]
+        public string[] clientTrustedPubKeySignatures;
+        public Func<PubKeyInfo, bool> onClientValidateServerPubKey;
+        public bool serverLoadKeyPairFromFile;
+        public string serverKeypairPath = "./server-keys.json";
 
         private EncryptedConnection _client;
 
@@ -19,11 +32,6 @@ namespace Mirror.Transports.Encryption
             new List<EncryptedConnection>();
 
         private EncryptionCredentials _credentials;
-
-        void Awake()
-        {
-            _credentials = EncryptionCredentials.Generate(); // todo
-        }
 
         private void ServerRemoveFromPending(EncryptedConnection con)
         {
@@ -118,9 +126,24 @@ namespace Mirror.Transports.Encryption
                 {
                     OnClientError?.Invoke(type, msg);
                     ClientDisconnect();
-                });
+                },
+                HandleClientValidateServerPubKey);
         }
 
+        private bool HandleClientValidateServerPubKey(PubKeyInfo pubKeyInfo)
+        {
+            switch (clientValidateServerPubKey)
+            {
+                case ValidationMode.Off:
+                    return true;
+                case ValidationMode.List:
+                    return Array.IndexOf(clientTrustedPubKeySignatures, pubKeyInfo.Fingerprint) >= 0;
+                case ValidationMode.Callback:
+                    return onClientValidateServerPubKey(pubKeyInfo);
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
 
         public override bool Available() => inner.Available();
 
@@ -128,6 +151,28 @@ namespace Mirror.Transports.Encryption
 
         public override void ClientConnect(string address)
         {
+            switch (clientValidateServerPubKey)
+            {
+                case ValidationMode.Off:
+                    break;
+                case ValidationMode.List:
+                    if (clientTrustedPubKeySignatures == null || clientTrustedPubKeySignatures.Length == 0)
+                    {
+                        OnClientError?.Invoke(TransportError.Unexpected, "Validate Server Public Key is set to List, but the clientTrustedPubKeySignatures list is empty.");
+                        return;
+                    }
+                    break;
+                case ValidationMode.Callback:
+                    if (onClientValidateServerPubKey == null)
+                    {
+                        OnClientError?.Invoke(TransportError.Unexpected, "Validate Server Public Key is set to Callback, but the onClientValidateServerPubKey handler is not set");
+                        return;
+                    }
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+            _credentials = EncryptionCredentials.Generate();
             inner.OnClientConnected = HandleInnerClientConnected;
             inner.OnClientDataReceived = HandleInnerClientDataReceived;
             inner.OnClientDataSent = (bytes, channel) => OnClientDataSent?.Invoke(bytes, channel);
@@ -147,6 +192,14 @@ namespace Mirror.Transports.Encryption
 
         public override void ServerStart()
         {
+            if (serverLoadKeyPairFromFile)
+            {
+                _credentials = EncryptionCredentials.LoadFromFile(serverKeypairPath);
+            }
+            else
+            {
+                _credentials = EncryptionCredentials.Generate();
+            }
             inner.OnServerConnected = HandleInnerServerConnected;
             inner.OnServerDataReceived = HandleInnerServerDataReceived;
             inner.OnServerDataSent = (connId, bytes, channel) => OnServerDataSent?.Invoke(connId, bytes, channel);
@@ -208,4 +261,5 @@ namespace Mirror.Transports.Encryption
             Profiler.EndSample();
         }
     }
+
 }

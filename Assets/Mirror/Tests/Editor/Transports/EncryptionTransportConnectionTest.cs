@@ -21,12 +21,15 @@ namespace Mirror.Tests.Transports
         private Action serverReady;
         private Action<ArraySegment<byte>, int> serverReceive;
         private Func<ArraySegment<byte>, int, bool> shouldServerSend;
+        private Func<PubKeyInfo, bool> serverValidateKey;
+
         private EncryptedConnection client;
         private EncryptionCredentials clientCreds;
         Queue<Data> clientRecv = new Queue<Data>();
         private Action clientReady;
         private Action<ArraySegment<byte>, int> clientReceive;
         private Func<ArraySegment<byte>, int, bool> shouldClientSend;
+        private Func<PubKeyInfo, bool> clientValidateKey;
 
         private double _time;
         private double _timestep = 0.05;
@@ -41,9 +44,11 @@ namespace Mirror.Tests.Transports
             serverReady = null;
             serverReceive = null;
             shouldServerSend = null;
+            serverValidateKey = null;
             clientReady = null;
             clientReceive = null;
             shouldClientSend = null;
+            clientValidateKey = null;
             clientRecv.Clear();
             serverRecv.Clear();
 
@@ -62,7 +67,12 @@ namespace Mirror.Tests.Transports
                     serverReceive?.Invoke(bytes, channel);
                 },
                 () => { serverReady?.Invoke(); },
-                (error, s) => throw new ErrorException($"{error}: {s}"));
+                (error, s) => throw new ErrorException($"{error}: {s}"),
+                info =>
+                {
+                    if (serverValidateKey != null) return serverValidateKey(info);
+                    return true;
+                });
 
             clientCreds = EncryptionCredentials.Generate();
             client = new EncryptedConnection(clientCreds, true,
@@ -79,7 +89,12 @@ namespace Mirror.Tests.Transports
                     clientReceive?.Invoke(bytes, channel);
                 },
                 () => { clientReady?.Invoke(); },
-                (error, s) => throw new ErrorException($"{error}: {s}. t={_time}"));
+                (error, s) => throw new ErrorException($"{error}: {s}. t={_time}"),
+                info =>
+                {
+                    if (clientValidateKey != null) return clientValidateKey(info);
+                    return true;
+                });
         }
 
         private void Pump()
@@ -206,7 +221,7 @@ namespace Mirror.Tests.Transports
             Assert.True(ArrayContainsSequence(new ArraySegment<byte>(new byte[]
             {
                 1, 2, 3, 4
-            }),new ArraySegment<byte>( new byte[]
+            }), new ArraySegment<byte>(new byte[]
             {
                 1, 2, 3, 4
             })));
@@ -220,21 +235,21 @@ namespace Mirror.Tests.Transports
             Assert.True(ArrayContainsSequence(new ArraySegment<byte>(new byte[]
             {
                 1, 2, 3, 4
-            }),new ArraySegment<byte>( new byte[]
+            }), new ArraySegment<byte>(new byte[]
             {
                 3, 4
             })));
             Assert.False(ArrayContainsSequence(new ArraySegment<byte>(new byte[]
             {
                 1, 2, 3, 4
-            }),new ArraySegment<byte>( new byte[]
+            }), new ArraySegment<byte>(new byte[]
             {
                 1, 3
             })));
             Assert.False(ArrayContainsSequence(new ArraySegment<byte>(new byte[]
             {
                 1, 2, 3, 4
-            }),new ArraySegment<byte>( new byte[]
+            }), new ArraySegment<byte>(new byte[]
             {
                 3, 4, 5
             })));
@@ -485,6 +500,50 @@ namespace Mirror.Tests.Transports
                 server.Send(new ArraySegment<byte>(sendByte, 0, size), 1);
                 Pump();
             }
+        }
+
+
+        [Test]
+        public void TestPubKeyValidationIsCalled()
+        {
+            bool clientCalled = false;
+            clientValidateKey = info =>
+            {
+                Assert.AreEqual(new ArraySegment<byte>(serverCreds.PublicKeySerialized), info.Serialized);
+                Assert.AreEqual(serverCreds.PublicKeyFingerprint, info.Fingerprint);
+                clientCalled = true;
+                return true;
+            };
+            bool serverCalled = false;
+            serverValidateKey = info =>
+            {
+                Assert.AreEqual(clientCreds.PublicKeyFingerprint, info.Fingerprint);
+                serverCalled = true;
+                return true;
+            };
+            TestHandshakeSuccess();
+            Assert.IsTrue(clientCalled);
+            Assert.IsTrue(serverCalled);
+        }
+
+        [Test]
+        public void TestClientPubKeyValidationErrors()
+        {
+            clientValidateKey = info => false;
+            Assert.Throws<ErrorException>(() =>
+            {
+                TestHandshakeSuccess();
+            });
+        }
+
+        [Test]
+        public void TestServerPubKeyValidationErrors()
+        {
+            serverValidateKey = info => false;
+            Assert.Throws<ErrorException>(() =>
+            {
+                TestHandshakeSuccess();
+            });
         }
     }
 }
