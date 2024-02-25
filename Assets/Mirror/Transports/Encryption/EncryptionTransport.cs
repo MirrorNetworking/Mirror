@@ -57,7 +57,7 @@ namespace Mirror.Transports.Encryption
 
         private void HandleInnerServerDataReceived(int connId, ArraySegment<byte> data, int channel)
         {
-            if (_serverConnections.TryGetValue(connId, out var c))
+            if (_serverConnections.TryGetValue(connId, out EncryptedConnection c))
             {
                 c.OnReceiveRaw(data, channel);
             }
@@ -157,7 +157,7 @@ namespace Mirror.Transports.Encryption
 
         public override void ServerSend(int connectionId, ArraySegment<byte> segment, int channelId = Channels.Reliable)
         {
-            if (_serverConnections.TryGetValue(connectionId, out var connection) && connection.IsReady)
+            if (_serverConnections.TryGetValue(connectionId, out EncryptedConnection connection) && connection.IsReady)
             {
                 connection.Send(segment, channelId);
             }
