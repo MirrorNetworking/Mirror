@@ -38,7 +38,7 @@ namespace Mirror
     {
         [Header("Components")]
         [Tooltip("The collider to keep a history of.")]
-        public Collider col; // assign this in inspector
+        public Collider trackedCollider; // assign this in inspector
 
         [Header("Settings")]
         public LagCompensationSettings lagCompensationSettings = new LagCompensationSettings();
@@ -69,8 +69,8 @@ namespace Mirror
             // capture current state
             Capture3D capture = new Capture3D(
                 NetworkTime.localTime,
-                col.bounds.center,
-                col.bounds.size
+                trackedCollider.bounds.center,
+                trackedCollider.bounds.size
             );
 
             // insert into history
