@@ -1,44 +1,59 @@
-// Add this component to a Player object with collider.
+// Add this component to every Player
 // Automatically keeps a history for lag compensation.
+// Then create a dummy player with everything removed exept colliders.
+// put in normal player position and rotation for tracked,
+// then the dummy position and orientation for compensated.
+// all you have to do after is call UpdateColliders() whenever a player fires.
 using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace Mirror
 {
+    using System.Collections;
+    using System.Collections.Generic;
+    using UnityEngine;
+    using Mirror;
+
     public struct Capture3D : Capture
     {
         public double timestamp { get; set; }
         public Vector3 position;
-        public Vector3 size;
+        public Quaternion rotation;
 
-        public Capture3D(double timestamp, Vector3 position, Vector3 size)
+        public Capture3D(double timestamp, Vector3 position, Quaternion rotation)
         {
             this.timestamp = timestamp;
             this.position = position;
-            this.size = size;
+            this.rotation = rotation;
         }
 
-        public void DrawGizmo()
-        {
-            Gizmos.DrawWireCube(position, size);
-        }
+        public void DrawGizmo() { }
 
         public static Capture3D Interpolate(Capture3D from, Capture3D to, double t) =>
             new Capture3D(
                 0, // interpolated snapshot is applied directly. don't need timestamps.
                 Vector3.LerpUnclamped(from.position, to.position, (float)t),
-                Vector3.LerpUnclamped(from.size, to.size, (float)t)
+                Quaternion.LerpUnclamped(from.rotation, to.rotation, (float)t),
             );
 
-        public override string ToString() => $"(time={timestamp} pos={position} size={size})";
+        public override string ToString() => $"(time={timestamp} pos={position} size={rotation})";
     }
+
 
     public class LagCompensator : NetworkBehaviour
     {
         [Header("Components")]
-        [Tooltip("The collider to keep a history of.")]
-        public Collider trackedCollider; // assign this in inspector
+        [Tooltip("The GameObject to enable / disable. NOTE: compensatedPosition & compensatedOrientation can both be compensatedGameobject. those are simply for more control.")]
+        public Transform compensatedGameObject;
+        [Tooltip("The Transform to Apply the tracked position")]
+        public Transform compensatedPosition;
+        [Tooltip("The Transform to Apply the tracked rotation.")]
+        public Transform compensatedOrientation;
+        [Tooltip("The position to keep track of.")]
+        public Transform trackedPosition;
+        [Tooltip("The rotation to keep track of.")]
+        public Transform trackedOrientation;
 
         [Header("Settings")]
         public LagCompensationSettings lagCompensationSettings = new LagCompensationSettings();
@@ -64,14 +79,10 @@ namespace Mirror
             }
         }
 
-        protected virtual void Capture()
+        void Capture()
         {
             // capture current state
-            Capture3D capture = new Capture3D(
-                NetworkTime.localTime,
-                trackedCollider.bounds.center,
-                trackedCollider.bounds.size
-            );
+            Capture3D capture = new Capture3D(NetworkTime.localTime, trackedPosition.position, trackedOrientation.rotation);
 
             // insert into history
             LagCompensation.Insert(history, lagCompensationSettings.historyLimit, NetworkTime.localTime, capture);
@@ -82,32 +93,6 @@ namespace Mirror
             // draw history
             Gizmos.color = historyColor;
             LagCompensation.DrawGizmos(history);
-        }
-
-        // sampling ////////////////////////////////////////////////////////////
-        // sample the sub-tick (=interpolated) history of this object for a hit test.
-        // 'viewer' needs to be the player who fired!
-        // for example, if A fires at B, then call B.Sample(viewer, point, tolerance).
-        [Server]
-        public virtual bool Sample(NetworkConnectionToClient viewer, out Capture3D sample)
-        {
-            // never trust the client: estimate client time instead.
-            // https://developer.valvesoftware.com/wiki/Source_Multiplayer_Networking
-            // the estimation is very good. the error is as low as ~6ms for the demo.
-            // note that passing 'rtt' is fine: EstimateTime halves it to latency.
-            double estimatedTime = LagCompensation.EstimateTime(NetworkTime.localTime, viewer.rtt, NetworkClient.bufferTime);
-
-            // sample the history to get the nearest snapshots around 'timestamp'
-            if (LagCompensation.Sample(history, estimatedTime, lagCompensationSettings.captureInterval, out Capture3D resultBefore, out Capture3D resultAfter, out double t))
-            {
-                // interpolate to get a decent estimation at exactly 'timestamp'
-                sample = Capture3D.Interpolate(resultBefore, resultAfter, t);
-                return true;
-            }
-            else Debug.Log($"CmdClicked: history doesn't contain {estimatedTime:F3}");
-
-            sample = default;
-            return false;
         }
 
         // convenience tests ///////////////////////////////////////////////////
@@ -123,73 +108,41 @@ namespace Mirror
         //   for example, if A fires at B, then call B.Sample(viewer, point, tolerance).
         // this is super simple and fast, but not 100% physically accurate since we don't raycast.
         [Server]
-        public virtual bool BoundsCheck(
-            NetworkConnectionToClient viewer,
-            Vector3 hitPoint,
-            float toleranceDistance,
-            out float distance,
-            out Vector3 nearest)
+        public async void UpdateColliders(NetworkConnectionToClient localCon)
         {
-            // first, sample the history at -rtt of the viewer.
-            if (Sample(viewer, out Capture3D capture))
+            // never trust the client: estimate client time instead.
+            // https://developer.valvesoftware.com/wiki/Source_Multiplayer_Networking
+            // the estimation is very good. the error is as low as ~6ms for the demo.
+            double buffertime = (NetworkManager.singleton.sendRate / 100) * 9;
+            double rtt = localCon.rtt; // the function needs rtt, which is latency * 2
+            double estimatedTime = LagCompensation.EstimateTime(NetworkTime.localTime, rtt, buffertime);
+            Dictionary<LagCompensator, Capture3D> resultInterp = new Dictionary<LagCompensator, Capture3D>();
+
+            var tasks = NetworkServer.connections.Values.Select(async netcon =>
             {
-                // now that we know where the other player was at that time,
-                // we can see if the hit point was within tolerance of it.
-                // TODO consider rotations???
-                // TODO consider original collider shape??
-                Bounds bounds = new Bounds(capture.position, capture.size);
-                nearest = bounds.ClosestPoint(hitPoint);
-                distance = Vector3.Distance(nearest, hitPoint);
-                return distance <= toleranceDistance;
-            }
-            nearest = hitPoint;
-            distance = 0;
-            return false;
-        }
+                LagCompensator conPlayer = netcon.identity.GetComponent<LagCompensator>();
 
-        // raycast check: creates a collider the sampled position and raycasts to hitPoint.
-        //   'viewer' needs to be the player who fired!
-        //   for example, if A fires at B, then call B.Sample(viewer, point, tolerance).
-        // this is physically accurate (checks against walls etc.), with the cost
-        // of a runtime instantiation.
-        //
-        //  originPoint: where the player fired the weapon.
-        //  hitPoint: where the player's local raycast hit.
-        //  tolerance: scale up the sampled collider by % in order to have a bit of a tolerance.
-        //             0 means no extra tolerance, 0.05 means 5% extra tolerance.
-        //  layerMask: the layer mask to use for the raycast.
-        [Server]
-        public virtual bool RaycastCheck(
-            NetworkConnectionToClient viewer,
-            Vector3 originPoint,
-            Vector3 hitPoint,
-            float tolerancePercent,
-            int layerMask,
-            out RaycastHit hit)
-        {
-            // first, sample the history at -rtt of the viewer.
-            if (Sample(viewer, out Capture3D capture))
-            {
-                // instantiate a real physics collider on demand.
-                // TODO rotation??
-                // TODO different collier types??
-                GameObject temp = new GameObject("LagCompensatorTest");
-                temp.transform.position = capture.position;
-                BoxCollider tempCollider = temp.AddComponent<BoxCollider>();
-                tempCollider.size = capture.size * (1 + tolerancePercent);
+                // sample the history to get the nearest snapshots around 'timestamp'
+                if (LagCompensation.Sample(conPlayer.history, estimatedTime, lagCompensationSettings.captureInterval, out resultBefore, out resultAfter, out double t))
+                {
+                    // interpolate to get a decent estimation at exactly 'timestamp'
+                    resultInterp.Add(conPlayer, Capture3D.Interpolate(resultBefore, resultAfter, t));
+                    resultTime = NetworkTime.localTime;
+                }
+                else Debug.Log($"CmdClicked: history doesn't contain {estimatedTime:F3}, netcon: {netcon}, history: {conPlayer.history.Count}");
 
-                // raycast
-                Vector3 direction = hitPoint - originPoint;
-                float maxDistance = direction.magnitude * 2;
-                bool result = Physics.Raycast(originPoint, direction, out hit, maxDistance, layerMask);
+                if (netcon == localCon)
+                {
+                    conPlayer.trackedGameObject.SetActive(false);
+                    return;
+                }
+                if(!conPlayer.trackedGameObject.activeInHierarchy)
+                    conPlayer.trackedGameObject.SetActive(true);
 
-                // cleanup
-                Destroy(temp);
-                return result;
-            }
-
-            hit = default;
-            return false;
+                conPlayer.compensatedPosition.position = resultInterp[conPlayer].position;
+                conPlayer.compensatedOrientation.rotation = resultInterp[conPlayer].rotation;
+            });
+            Task.WhenAll(tasks);
         }
     }
 }
