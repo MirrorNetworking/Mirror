@@ -34,6 +34,7 @@ namespace Mirror
         public override string ToString() => $"(time={timestamp} pos={position} size={size})";
     }
 
+    [Obsolete("This is a preview version. Community feedback is welcome!")]
     public class LagCompensator : NetworkBehaviour
     {
         [Header("Components")]
