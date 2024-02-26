@@ -149,6 +149,7 @@ namespace Mirror
         }
 
         // Updates every players compensated colliders with the Callers estimated time.
+        // Your going to want to await this method before firing the servers raycast.
         [Server]
         public async void UpdateColliders(NetworkConnectionToClient localCon = null)
         {
@@ -157,7 +158,7 @@ namespace Mirror
             double rtt = localCon.rtt; // the function needs rtt, which is latency * 2
             double estimatedTime = LagCompensation.EstimateTime(NetworkTime.localTime, rtt, buffertime);
 
-			// Honestly, couldnt tell you why this is a dictionary.
+			// Honestly, couldnt tell you why this is a dictionary. i'd think this would work without it. but im not sure.
             Dictionary<LagCompensator, Capture3D> resultInterp = new Dictionary<LagCompensator, Capture3D>();
 
             var tasks = NetworkServer.connections.Values.Select(async netcon =>
@@ -198,8 +199,9 @@ namespace Mirror
             await Task.WhenAll(tasks);
         }
 
+        // Updates the Target's compensated colliders with the Callers estimated time.
+        // Your going to want to await this method before firing the servers raycast.
         [Server]
-        // Your going to want to await this method.
         public void UpdateTargetCollider(NetworkConnectionToClient targetcon,
             NetworkConnectionToClient localCon = null)
         {
@@ -237,8 +239,10 @@ namespace Mirror
             }
         }
 
+
+        // To be used after you have shot the servers raycast. only needed if using UpdateTargetCollider. UpdateColliders automatically does this.
+        // No need to await this method, you can if wanted.
         [Server]
-        // To be used after you have shot your Raycast. only needed if using UpdateTargetCollider. UpdateColliders automatically does this.
         public async void DisableColliders()
         {
             var tasks = NetworkServer.connections.Values.Select(async netcon =>
