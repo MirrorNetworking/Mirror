@@ -37,7 +37,7 @@ namespace Mirror
                 Quaternion.LerpUnclamped(from.rotation, to.rotation, (float)t),
             );
 
-        public override string ToString() => $"(time={timestamp} pos={position} size={rotation})";
+        public override string ToString() => $"(time={timestamp} position={position} rotation={rotation})";
     }
 
 
