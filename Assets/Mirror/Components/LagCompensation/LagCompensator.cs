@@ -197,5 +197,56 @@ namespace Mirror
             });
             await Task.WhenAll(tasks);
         }
+
+        [Server]
+        // Your going to want to await this method.
+        public void UpdateTargetCollider(NetworkConnectionToClient targetcon,
+            NetworkConnectionToClient localCon = null)
+        {
+            // never trust the client: estimate client time instead.
+            double buffertime = (NetworkManager.singleton.sendRate / 100) * 9;
+            double rtt = localCon.rtt; // the function needs rtt, which is latency * 2
+            double estimatedTime = LagCompensation.EstimateTime(NetworkTime.localTime, rtt, buffertime);
+
+            LagCompensator conPlayer = targetcon.identity.GetComponent<LagCompensator>();
+            Capture3D capture = new Capture3D();
+
+            // sample the history to get the nearest snapshots around 'timestamp'
+            if (LagCompensation.Sample(conPlayer.history, estimatedTime, lagCompensationSettings.captureInterval, out resultBefore, out resultAfter, out double t))
+            {
+                // interpolate to get a decent estimation at exactly 'timestamp'
+                capture = Capture3D.Interpolate(resultBefore, resultAfter, t);
+                resultTime = NetworkTime.localTime;
+            }
+            else Debug.Log($"CmdClicked: history doesn't contain {estimatedTime:F3}, netcon: {targetcon}, history: {conPlayer.history.Count}");
+
+            if(!conPlayer.compensatedGameObject.activeInHierarchy)
+                conPlayer.compensatedGameObject.SetActive(true);
+
+            conPlayer.compensatedPosition.position = capture.position;
+            conPlayer.compensatedOrientation.rotation = capture.rotation;
+
+            // Animation Compensation
+            if (useAnimator)
+            {
+                for (int i = 0; i < capture.animparam.Length; i++)
+                {
+                    conPlayer.compensatedAnimator.Play(capture.animparam[i].animname, capture.animparam[i].layer, capture.animparam[i].time);
+                }
+                // NOTE: Doesnt set the variables of BLEND TREES. you will have to set the blend tree variables manually on the server.
+            }
+        }
+
+        [Server]
+        // To be used after you have shot your Raycast. only needed if using UpdateTargetCollider. UpdateColliders automatically does this.
+        public async void DisableColliders()
+        {
+            var tasks = NetworkServer.connections.Values.Select(async netcon =>
+            {
+                LagCompensator conPlayer = netcon.identity.GetComponent<LagCompensator>();
+                conPlayer.gameObject.SetActive(false);
+            });
+            await Task.WhenAll(tasks);
+        }
     }
 }
