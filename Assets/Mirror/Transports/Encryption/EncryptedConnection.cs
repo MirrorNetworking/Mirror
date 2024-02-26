@@ -1,5 +1,6 @@
 using System;
 using System.Security.Cryptography;
+using Mirror.Transports.Encryption.Native;
 using System.Text;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Agreement;
@@ -131,6 +132,7 @@ namespace Mirror.Transports.Encryption
          * The client does this, since the fin is not acked explicitly, but by receiving data to decrypt
          */
         private readonly bool _sendsFirst;
+        private byte[] _keyRaw;
 
         public EncryptedConnection(EncryptionCredentials credentials,
             bool isClient,
@@ -363,6 +365,18 @@ namespace Mirror.Transports.Encryption
 #endif
             // Resize the static buffer to fit
             EnsureSize(ref _tmpCryptBuffer, outSize);
+
+            if (AesGCMEncryptionNative.IsSupported)
+            {
+                ArraySegment<byte> nativeRes = AesGCMEncryptionNative.Encrypt(_keyRaw, _nonce, plaintext, new ArraySegment<byte>(_tmpCryptBuffer));
+                if (nativeRes.Count == 0)
+                {
+                    _error(TransportError.Unexpected, $"Native Encryption failed. Please check STDERR (or editor log) for the error.");
+                    return new ArraySegment<byte>();
+                }
+                return nativeRes;
+            }
+
             int resultLen;
             try
             {
@@ -411,6 +425,16 @@ namespace Mirror.Transports.Encryption
 #endif
             // Resize the static buffer to fit
             EnsureSize(ref _tmpCryptBuffer, outSize);
+            if (AesGCMEncryptionNative.IsSupported)
+            {
+                var nativeRes = AesGCMEncryptionNative.Decrypt(_keyRaw, ReceiveNonce, ciphertext, new ArraySegment<byte>(_tmpCryptBuffer));
+                if (nativeRes.Count == 0)
+                {
+                    _error(TransportError.Unexpected, $"Native Encryption failed. Please check STDERR (or editor log) for the error.");
+                    return new ArraySegment<byte>();
+                }
+                return nativeRes;
+            }
             int resultLen;
             try
             {
@@ -537,12 +561,12 @@ namespace Mirror.Transports.Encryption
             Hkdf.Init(new HkdfParameters(sharedSecret, salt, HkdfInfo));
 
             // Allocate a buffer for the output key
-            byte[] keyRaw = new byte[KeyLength];
+            _keyRaw = new byte[KeyLength];
 
             // Generate the output keying material
-            Hkdf.GenerateBytes(keyRaw, 0, keyRaw.Length);
+            Hkdf.GenerateBytes(_keyRaw, 0, _keyRaw.Length);
 
-            KeyParameter key = new KeyParameter(keyRaw);
+            KeyParameter key = new KeyParameter(_keyRaw);
 
             // generate a starting nonce
             _nonce = GenerateSecureBytes(NonceSize);
