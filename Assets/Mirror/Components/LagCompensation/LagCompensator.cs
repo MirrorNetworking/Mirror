@@ -39,6 +39,8 @@ namespace Mirror
     }
 
 
+
+    [Obsolete("This is a preview version. Community feedback is welcome!")]
     public class LagCompensator : NetworkBehaviour
     {
         [Header("Components")]
