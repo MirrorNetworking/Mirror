@@ -19,11 +19,20 @@ namespace Mirror
         public Vector3 position;
         public Quaternion rotation;
 
-        public Capture3D(double timestamp, Vector3 position, Quaternion rotation)
+        public struct animParams
+        {
+            public string animname;
+            public int layer;
+            public float time;
+        }
+        public animParams[] animparam;
+
+        public Capture3D(double timestamp, Vector3 position, Quaternion rotation, animParams[] parameter)
         {
             this.timestamp = timestamp;
             this.position = position;
             this.rotation = rotation;
+            this.animparam = parameter;
         }
 
         public void DrawGizmo() { }
@@ -32,15 +41,32 @@ namespace Mirror
             new Capture3D(
                 0, // interpolated snapshot is applied directly. don't need timestamps.
                 Vector3.LerpUnclamped(from.position, to.position, (float)t),
-                Quaternion.LerpUnclamped(from.rotation, to.rotation, (float)t)
+                Quaternion.LerpUnclamped(from.rotation, to.rotation, (float)t),
+                interpAnim(from.animparam, to.animparam, t)
             );
+
+        private static animParams[] interpAnim(animParams[] from, animParams[] to, double t)
+        {
+            animParams[] interped = from;
+
+            for (int i = 0; i < interped.Length; i++)
+            {
+                Mathf.LerpUnclamped(interped[i].time, to[i].time, (float) t);
+            }
+
+            return interped;
+        }
 
         public override string ToString() => $"(time={timestamp} position={position} rotation={rotation})";
     }
 
-
+    [Obsolete("This is a preview version. Community feedback is welcome!")]
     public class LagCompensator : NetworkBehaviour
     {
+        [Header("Config")]
+        [Tooltip("Toggle to track & compensate for animation. Doesnt compensate blend tree variables. you have to manually set those on the server.")]
+        public bool useAnimator;
+
         [Header("Components")]
         [Tooltip("The GameObject to enable / disable. NOTE: compensatedPosition & compensatedOrientation can both be compensatedGameobject. those are simply for more control.")]
         public GameObject compensatedGameObject;
@@ -48,10 +74,14 @@ namespace Mirror
         public Transform compensatedPosition;
         [Tooltip("The Transform to Apply the tracked rotation.")]
         public Transform compensatedOrientation;
+        [Tooltip("Only needed if useAnimator is enabled")]
+        public Animator compensatedAnimator;
         [Tooltip("The position to keep track of.")]
         public Transform trackedPosition;
         [Tooltip("The rotation to keep track of.")]
         public Transform trackedOrientation;
+        [Tooltip("Only needed if useAnimator is enabled")]
+        public Animator trackedAnimator;
 
         [Header("Settings")]
         public LagCompensationSettings lagCompensationSettings = new LagCompensationSettings();
@@ -86,10 +116,29 @@ namespace Mirror
         void Capture()
         {
             // capture current state
-            Capture3D capture = new Capture3D(NetworkTime.localTime, trackedPosition.position, trackedOrientation.rotation);
+            if (useAnimator)
+            {
+                Capture3D.animParams[] animParamsArray = new Capture3D.animParams[trackedAnimator.layerCount];
+                for (int i = 0; i < trackedAnimator.layerCount; i++)
+                {
+                    animParamsArray[i].layer = i;
+                    animParamsArray[i].animname = trackedAnimator.GetCurrentAnimatorClipInfo(i)[0].clip.name;
+                    animParamsArray[i].time = trackedAnimator.GetCurrentAnimatorStateInfo(i).normalizedTime;
+                }
 
-            // insert into history
-            LagCompensation.Insert(history, lagCompensationSettings.historyLimit, NetworkTime.localTime, capture);
+                Capture3D capture = new Capture3D(NetworkTime.localTime, trackedPosition.position, trackedOrientation.rotation, animParamsArray);
+
+                // insert into history
+                LagCompensation.Insert(history, lagCompensationSettings.historyLimit, NetworkTime.localTime, capture);
+            }
+            else
+            {
+                // capture current state
+                Capture3D capture = new Capture3D(NetworkTime.localTime, trackedPosition.position, trackedOrientation.rotation, Array.Empty<Capture3D.animParams>());
+
+                // insert into history
+                LagCompensation.Insert(history, lagCompensationSettings.historyLimit, NetworkTime.localTime, capture);
+            }
         }
 
         protected virtual void OnDrawGizmos()
@@ -99,20 +148,9 @@ namespace Mirror
             LagCompensation.DrawGizmos(history);
         }
 
-        // convenience tests ///////////////////////////////////////////////////
-        // there are multiple different ways to check a hit against the sample:
-        // - raycasting
-        // - bounds.contains
-        // - increasing bounds by tolerance and checking contains
-        // - threshold to bounds.closestpoint
-        // let's offer a few solutions directly and see which users prefer.
-
-        // bounds check: checks distance to closest point on bounds in history @ -rtt.
-        //   'viewer' needs to be the player who fired!
-        //   for example, if A fires at B, then call B.Sample(viewer, point, tolerance).
-        // this is super simple and fast, but not 100% physically accurate since we don't raycast.
+        // Updates every players compensated colliders with the Callers estimated time.
         [Server]
-        public async void UpdateColliders(NetworkConnectionToClient localCon)
+        public async void UpdateColliders(NetworkConnectionToClient localCon = null)
         {
             // never trust the client: estimate client time instead.
             double buffertime = (NetworkManager.singleton.sendRate / 100) * 9;
@@ -145,6 +183,17 @@ namespace Mirror
 
                 conPlayer.compensatedPosition.position = resultInterp[conPlayer].position;
                 conPlayer.compensatedOrientation.rotation = resultInterp[conPlayer].rotation;
+
+                // Animation Compensation
+                if (useAnimator)
+                {
+                    for (int i = 0; i < resultInterp[conPlayer].animparam.Length; i++)
+                    {
+                        conPlayer.compensatedAnimator.Play(resultInterp[conPlayer].animparam[i].animname, resultInterp[conPlayer].animparam[i].layer, resultInterp[conPlayer].animparam[i].time);
+                    }
+                    // NOTE: Doesnt set the variables of BLEND TREES. you will have to set the blend tree variables manually on the server.
+                    // OR add them to Capture3d and interpolate. this HAS to be done manually.
+                }
             });
             await Task.WhenAll(tasks);
         }
