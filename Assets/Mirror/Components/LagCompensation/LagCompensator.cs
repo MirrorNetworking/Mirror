@@ -4,14 +4,12 @@
 // put in normal player position and rotation for tracked,
 // then the dummy position and orientation for compensated.
 // all you have to do after is call UpdateColliders() whenever a player fires.
-using System;
-using System.Collections.Generic;
-using UnityEngine;
 
 namespace Mirror
 {
-    using System.Collections;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
+    using System.Linq;
     using UnityEngine;
     using Mirror;
 
@@ -34,7 +32,7 @@ namespace Mirror
             new Capture3D(
                 0, // interpolated snapshot is applied directly. don't need timestamps.
                 Vector3.LerpUnclamped(from.position, to.position, (float)t),
-                Quaternion.LerpUnclamped(from.rotation, to.rotation, (float)t),
+                Quaternion.LerpUnclamped(from.rotation, to.rotation, (float)t)
             );
 
         public override string ToString() => $"(time={timestamp} position={position} rotation={rotation})";
@@ -45,7 +43,7 @@ namespace Mirror
     {
         [Header("Components")]
         [Tooltip("The GameObject to enable / disable. NOTE: compensatedPosition & compensatedOrientation can both be compensatedGameobject. those are simply for more control.")]
-        public Transform compensatedGameObject;
+        public GameObject compensatedGameObject;
         [Tooltip("The Transform to Apply the tracked position")]
         public Transform compensatedPosition;
         [Tooltip("The Transform to Apply the tracked rotation.")]
@@ -64,6 +62,12 @@ namespace Mirror
 
         [Header("Debugging")]
         public Color historyColor = Color.white;
+        public double resultDuration = 0.5;
+        double resultTime;
+        Capture3D resultBefore;
+        Capture3D resultAfter;
+        Capture3D resultInterpolated;
+
 
         protected virtual void Update()
         {
@@ -111,11 +115,11 @@ namespace Mirror
         public async void UpdateColliders(NetworkConnectionToClient localCon)
         {
             // never trust the client: estimate client time instead.
-            // https://developer.valvesoftware.com/wiki/Source_Multiplayer_Networking
-            // the estimation is very good. the error is as low as ~6ms for the demo.
             double buffertime = (NetworkManager.singleton.sendRate / 100) * 9;
             double rtt = localCon.rtt; // the function needs rtt, which is latency * 2
             double estimatedTime = LagCompensation.EstimateTime(NetworkTime.localTime, rtt, buffertime);
+
+			// Honestly, couldnt tell you why this is a dictionary.
             Dictionary<LagCompensator, Capture3D> resultInterp = new Dictionary<LagCompensator, Capture3D>();
 
             var tasks = NetworkServer.connections.Values.Select(async netcon =>
@@ -133,16 +137,16 @@ namespace Mirror
 
                 if (netcon == localCon)
                 {
-                    conPlayer.trackedGameObject.SetActive(false);
+                    conPlayer.compensatedGameObject.SetActive(false);
                     return;
                 }
-                if(!conPlayer.trackedGameObject.activeInHierarchy)
-                    conPlayer.trackedGameObject.SetActive(true);
+                if(!conPlayer.compensatedGameObject.activeInHierarchy)
+                    conPlayer.compensatedGameObject.SetActive(true);
 
                 conPlayer.compensatedPosition.position = resultInterp[conPlayer].position;
                 conPlayer.compensatedOrientation.rotation = resultInterp[conPlayer].rotation;
             });
-            Task.WhenAll(tasks);
+            await Task.WhenAll(tasks);
         }
     }
 }
