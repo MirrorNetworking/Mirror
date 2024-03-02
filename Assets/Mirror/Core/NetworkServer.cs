@@ -266,20 +266,20 @@ namespace Mirror
             {
                 if (identity != null)
                 {
-                    // scene object
+                    // scene objects are unspawned, not destroyed.
+                    // otherwise we couldn't reuse them again since they'd be gone forever.
                     if (identity.sceneId != 0)
                     {
                         // spawned scene objects are unspawned and reset.
                         // afterwards we disable them again.
                         // (they always stay in the scene, we don't destroy them)
-                        DestroyObject(identity, DestroyMode.Reset);
-                        identity.gameObject.SetActive(false);
+                        UnSpawn(identity.gameObject);
                     }
-                    // spawned prefabs
+                    // spawned prefabs are destroyed.
+                    // users can instantiate them again if needed since they are prefabs.
                     else
                     {
-                        // spawned prefabs are unspawned and destroyed.
-                        DestroyObject(identity, DestroyMode.Destroy);
+                        Destroy(identity.gameObject);
                     }
                 }
             }
@@ -385,7 +385,7 @@ namespace Mirror
                         if (!identity.DeserializeServer(reader))
                         {
                             if (exceptionsDisconnect)
-                            { 
+                            {
                                 Debug.LogError($"Server failed to deserialize client state for {identity.name} with netId={identity.netId}, Disconnecting.");
                                 connection.Disconnect();
                             }
@@ -928,22 +928,22 @@ namespace Mirror
             where T : struct, NetworkMessage
         {
             ushort msgType = NetworkMessageId<T>.Id;
-            
+
             // register Id <> Type in lookup for debugging.
             NetworkMessages.Lookup[msgType] = typeof(T);
-            
+
             handlers[msgType] = NetworkMessages.WrapHandler(handler, requireAuthentication, exceptionsDisconnect);
         }
-        
+
         /// <summary>Replace a handler for message type T. Most should require authentication.</summary>
         public static void ReplaceHandler<T>(Action<NetworkConnectionToClient, T, int> handler, bool requireAuthentication = true)
             where T : struct, NetworkMessage
         {
             ushort msgType = NetworkMessageId<T>.Id;
-            
+
             // register Id <> Type in lookup for debugging.
             NetworkMessages.Lookup[msgType] = typeof(T);
-            
+
             handlers[msgType] = NetworkMessages.WrapHandler(handler, requireAuthentication, exceptionsDisconnect);
         }
 
@@ -1564,35 +1564,7 @@ namespace Mirror
         // Unlike when calling NetworkServer.Destroy(), on the server the object
         // will NOT be destroyed. This allows the server to re-use the object,
         // even spawn it again later.
-        public static void UnSpawn(GameObject obj) => DestroyObject(obj, DestroyMode.Reset);
-
-        // destroy /////////////////////////////////////////////////////////////
-        // sometimes we want to GameObject.Destroy it.
-        // sometimes we want to just unspawn on clients and .Reset() it on server.
-        // => 'bool destroy' isn't obvious enough. it's really destroy OR reset!
-        enum DestroyMode { Destroy, Reset }
-
-        /// <summary>Destroys this object and corresponding objects on all clients.</summary>
-        // In some cases it is useful to remove an object but not delete it on
-        // the server. For that, use NetworkServer.UnSpawn() instead of
-        // NetworkServer.Destroy().
-        public static void Destroy(GameObject obj) => DestroyObject(obj, DestroyMode.Destroy);
-
-        static void DestroyObject(GameObject obj, DestroyMode mode)
-        {
-            if (obj == null)
-            {
-                Debug.Log("NetworkServer DestroyObject is null");
-                return;
-            }
-
-            if (GetNetworkIdentity(obj, out NetworkIdentity identity))
-            {
-                DestroyObject(identity, mode);
-            }
-        }
-
-        static void DestroyObject(NetworkIdentity identity, DestroyMode mode)
+        public static void UnSpawn(GameObject obj)
         {
             // Debug.Log($"DestroyObject instance:{identity.netId}");
 
@@ -1600,7 +1572,18 @@ namespace Mirror
             // on client, show a warning to explain what it does.
             if (!active)
             {
-                Debug.LogWarning("NetworkServer.Destroy() called without an active server. Servers can only destroy while active, clients can only ask the server to destroy (for example, with a [Command]), after which the server may decide to destroy the object and broadcast the change to all clients.");
+                Debug.LogWarning("NetworkServer.Unspawn() called without an active server. Servers can only destroy while active, clients can only ask the server to destroy (for example, with a [Command]), after which the server may decide to destroy the object and broadcast the change to all clients.");
+                return;
+            }
+
+            if (obj == null)
+            {
+                Debug.Log("NetworkServer.Unspawn(): object is null");
+                return;
+            }
+
+            if (!GetNetworkIdentity(obj, out NetworkIdentity identity))
+            {
                 return;
             }
 
@@ -1654,31 +1637,40 @@ namespace Mirror
             // we are on the server. call OnStopServer.
             identity.OnStopServer();
 
-            // are we supposed to GameObject.Destroy() it completely?
-            if (mode == DestroyMode.Destroy)
+            // finally reset the state and deactivate it
+            identity.ResetState();
+            identity.gameObject.SetActive(false);
+        }
+
+        // destroy /////////////////////////////////////////////////////////////
+        /// <summary>Destroys this object and corresponding objects on all clients.</summary>
+        // In some cases it is useful to remove an object but not delete it on
+        // the server. For that, use NetworkServer.UnSpawn() instead of
+        // NetworkServer.Destroy().
+        public static void Destroy(GameObject obj)
+        {
+            // first, we unspawn it on clients and server
+            UnSpawn(obj);
+
+            // additionally, we actually destroy it completely
+            if (GetNetworkIdentity(obj, out NetworkIdentity identity))
             {
                 identity.destroyCalled = true;
 
                 // Destroy if application is running
                 if (Application.isPlaying)
                 {
-                    UnityEngine.Object.Destroy(identity.gameObject);
+                    UnityEngine.Object.Destroy(obj);
                 }
                 // Destroy can't be used in Editor during tests. use DestroyImmediate.
                 else
                 {
-                    GameObject.DestroyImmediate(identity.gameObject);
+                    GameObject.DestroyImmediate(obj);
                 }
-            }
-            // otherwise simply .Reset() and set inactive again
-            else if (mode == DestroyMode.Reset)
-            {
-                identity.ResetState();
             }
         }
 
         // interest management /////////////////////////////////////////////////
-
         // Helper function to add all server connections as observers.
         // This is used if none of the components provides their own
         // OnRebuildObservers function.
