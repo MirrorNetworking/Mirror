@@ -1506,6 +1506,11 @@ namespace Mirror
             if (ownerConnection is LocalConnectionToClient)
                 identity.isOwned = true;
 
+            // NPCs (objects without an owner connection) are owned by the server.
+            // fixes: https://github.com/MirrorNetworking/Mirror/issues/3528
+            if (ownerConnection == null)
+                identity.isOwned = true;
+
             // only call OnStartServer if not spawned yet.
             // check used to be in NetworkIdentity. may not be necessary anymore.
             if (!identity.isServer && identity.netId == 0)
