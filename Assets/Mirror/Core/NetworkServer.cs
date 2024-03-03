@@ -266,21 +266,8 @@ namespace Mirror
             {
                 if (identity != null)
                 {
-                    // scene objects are unspawned, not destroyed.
-                    // otherwise we couldn't reuse them again since they'd be gone forever.
-                    if (identity.sceneId != 0)
-                    {
-                        // spawned scene objects are unspawned and reset.
-                        // afterwards we disable them again.
-                        // (they always stay in the scene, we don't destroy them)
-                        UnSpawn(identity.gameObject);
-                    }
-                    // spawned prefabs are destroyed.
-                    // users can instantiate them again if needed since they are prefabs.
-                    else
-                    {
-                        Destroy(identity.gameObject);
-                    }
+                    // NetworkServer.Destroy resets if scene object, destroys if prefab.
+                    Destroy(identity.gameObject);
                 }
             }
 
@@ -1652,8 +1639,13 @@ namespace Mirror
             // first, we unspawn it on clients and server
             UnSpawn(obj);
 
-            // additionally, we actually destroy it completely
-            if (GetNetworkIdentity(obj, out NetworkIdentity identity))
+            // additionally, if it's a prefab then we destroy it completely.
+            // we never destroy scene objects on server or on client, since once
+            // they are gone, they are gone forever and can't be instantiate again.
+            // for example, server may Destroy() a scene object and once a match
+            // restarts, the scene objects would be gone from the new match.
+            if (GetNetworkIdentity(obj, out NetworkIdentity identity) &&
+                identity.sceneId == 0)
             {
                 identity.destroyCalled = true;
 
