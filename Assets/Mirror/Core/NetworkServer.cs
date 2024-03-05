@@ -1520,6 +1520,10 @@ namespace Mirror
             if (ownerConnection is LocalConnectionToClient)
                 identity.isOwned = true;
 
+            // NetworkServer.Unspawn sets object as inactive.
+            // NetworkServer.Spawn needs to set them active again in case they were previously unspawned / inactive.
+            identity.gameObject.SetActive(true);
+
             // only call OnStartServer if not spawned yet.
             // check used to be in NetworkIdentity. may not be necessary anymore.
             if (!identity.isServer && identity.netId == 0)
