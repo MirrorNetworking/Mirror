@@ -22,10 +22,6 @@ namespace Mirror
             HashSet<string> defines = new HashSet<string>(currentDefines.Split(';'))
             {
                 "MIRROR",
-                "MIRROR_70_OR_NEWER",
-                "MIRROR_71_OR_NEWER",
-                "MIRROR_73_OR_NEWER",
-                "MIRROR_78_OR_NEWER",
                 "MIRROR_79_OR_NEWER",
                 "MIRROR_81_OR_NEWER",
                 "MIRROR_82_OR_NEWER",
@@ -33,7 +29,7 @@ namespace Mirror
                 "MIRROR_84_OR_NEWER",
                 "MIRROR_85_OR_NEWER",
                 "MIRROR_86_OR_NEWER",
-                "MIRROR_88_OR_NEWER"
+                "MIRROR_89_OR_NEWER"
             };
 
             // only touch PlayerSettings if we actually modified it,
