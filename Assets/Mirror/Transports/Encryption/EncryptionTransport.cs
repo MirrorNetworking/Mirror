@@ -32,6 +32,8 @@ namespace Mirror.Transports.Encryption
             new List<EncryptedConnection>();
 
         private EncryptionCredentials _credentials;
+        public string EncryptionPublicKeyFingerprint => _credentials?.PublicKeyFingerprint;
+        public byte[] EncryptionPublicKey => _credentials?.PublicKeySerialized;
 
         private void ServerRemoveFromPending(EncryptedConnection con)
         {
