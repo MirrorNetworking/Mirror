@@ -51,6 +51,7 @@ namespace Mirror.Tests.Transports
             clientValidateKey = null;
             clientRecv.Clear();
             serverRecv.Clear();
+            _time = 0;
 
             serverCreds = EncryptionCredentials.Generate();
             server = new EncryptedConnection(serverCreds, false,
@@ -119,6 +120,7 @@ namespace Mirror.Tests.Transports
                 server.TickNonReady(_time);
             }
         }
+
         [TearDown]
         public void TearDown()
         {
