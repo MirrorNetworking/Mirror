@@ -4,7 +4,6 @@ using System.Text;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Agreement;
 using Org.BouncyCastle.Crypto.Digests;
-using Org.BouncyCastle.Crypto.Engines;
 using Org.BouncyCastle.Crypto.Generators;
 using Org.BouncyCastle.Crypto.Modes;
 using Org.BouncyCastle.Crypto.Parameters;
@@ -250,8 +249,7 @@ namespace Mirror.Transports.Encryption
 
                         _state = State.WaitingHandshakeReply;
                         ResetTimeouts();
-                        var salt = reader.ReadBytesSegment(HkdfSaltSize);
-                        salt.CopyTo(_tmpRemoteSaltBuffer); // need a byte[] here
+                        reader.ReadBytes(_tmpRemoteSaltBuffer, HkdfSaltSize);
                         CompleteExchange(reader.ReadBytesSegment(reader.Remaining), _tmpRemoteSaltBuffer);
                         SendHandshakeFin();
                         break;
