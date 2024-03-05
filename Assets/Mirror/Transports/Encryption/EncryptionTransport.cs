@@ -6,6 +6,7 @@ using UnityEngine.Serialization;
 
 namespace Mirror.Transports.Encryption
 {
+    [HelpURL("https://mirror-networking.gitbook.io/docs/manual/transports/encryption-transport")]
     public class EncryptionTransport : Transport
     {
         public Transport inner;
