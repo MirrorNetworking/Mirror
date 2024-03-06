@@ -1559,7 +1559,7 @@ namespace Mirror
         {
             // Debug.Log($"DestroyObject instance:{identity.netId}");
 
-            // NetworkServer.Destroy should only be called on server or host.
+            // NetworkServer.Unspawn should only be called on server or host.
             // on client, show a warning to explain what it does.
             if (!active)
             {
@@ -1640,6 +1640,20 @@ namespace Mirror
         // NetworkServer.Destroy().
         public static void Destroy(GameObject obj)
         {
+            // NetworkServer.Destroy should only be called on server or host.
+            // on client, show a warning to explain what it does.
+            if (!active)
+            {
+                Debug.LogWarning("NetworkServer.Destroy() called without an active server. Servers can only destroy while active, clients can only ask the server to destroy (for example, with a [Command]), after which the server may decide to destroy the object and broadcast the change to all clients.");
+                return;
+            }
+
+            if (obj == null)
+            {
+                Debug.Log("NetworkServer.Destroy(): object is null");
+                return;
+            }
+
             // first, we unspawn it on clients and server
             UnSpawn(obj);
 
