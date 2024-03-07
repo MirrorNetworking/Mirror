@@ -13,9 +13,6 @@ namespace Mirror.SimpleWeb
         public const string NormalScheme = "ws";
         public const string SecureScheme = "wss";
 
-        public override bool IsEncrypted => ClientConnected() && (clientUseWss || sslEnabled) || ServerActive() && sslEnabled;
-        public override string EncryptionCipher => "TLS"; // not technically correct, but there's no good way to get the actual cipher. Especially in browser
-
         [Tooltip("Protect against allocation attacks by keeping the max message size small. Otherwise an attacker might send multiple fake packets with 2GB headers, causing the server to run out of memory after allocating multiple large packets.")]
         public int maxMessageSize = 16 * 1024;
 
@@ -146,6 +143,12 @@ namespace Mirror.SimpleWeb
         #region Client
 
         string GetClientScheme() => (sslEnabled || clientUseWss) ? SecureScheme : NormalScheme;
+
+        public override bool IsEncrypted => ClientConnected() && (clientUseWss || sslEnabled) || ServerActive() && sslEnabled;
+
+        // Not technically correct, but there's no good way to get the actual cipher, especially in browser
+        // When using reverse proxy, connection between proxy and server is not encrypted.
+        public override string EncryptionCipher => "TLS";
 
         public override bool ClientConnected()
         {
