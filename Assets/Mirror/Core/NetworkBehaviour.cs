@@ -118,7 +118,7 @@ namespace Mirror
         // component index from in here by searching all NetworkComponents.
 
         /// <summary>Returns the NetworkIdentity of this object</summary>
-        public NetworkIdentity netIdentity { get; internal set; }
+        public NetworkIdentity netIdentity; // set from NetworkIdentity.InitializeNetworkBehaviours to avoid netIdentity=>flag indirection!
 
         /// <summary>Returns the index of the component on this object</summary>
         public byte ComponentIndex { get; internal set; }

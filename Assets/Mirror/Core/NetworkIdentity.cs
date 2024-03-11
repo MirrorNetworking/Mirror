@@ -238,12 +238,21 @@ namespace Mirror
 
         /// <summary>Client's network connection to the server. This is only valid for player objects on the client.</summary>
         // TODO change to NetworkConnectionToServer, but might cause some breaking
-        public NetworkConnection connectionToServer { get; internal set; }
+        public NetworkConnection connectionToServer
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get;
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            internal set;
+        }
 
         /// <summary>Server's network connection to the client. This is only valid for client-owned objects (including the Player object) on the server.</summary>
+        NetworkConnectionToClient _connectionToClient;
         public NetworkConnectionToClient connectionToClient
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => _connectionToClient;
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             internal set
             {
                 _connectionToClient?.RemoveOwnedObject(this);
@@ -251,7 +260,6 @@ namespace Mirror
                 _connectionToClient?.AddOwnedObject(this);
             }
         }
-        NetworkConnectionToClient _connectionToClient;
 
         // get all NetworkBehaviour components
         public NetworkBehaviour[] NetworkBehaviours { get; private set; }
