@@ -49,23 +49,23 @@ namespace Mirror
         /// <summary>True if this object is on the server and has been spawned.</summary>
         // This is different from NetworkServer.active, which is true if the
         // server itself is active rather than this object being active.
-        public bool isServer => netIdentity.isServer;
+        public bool isServer; // set from NetworkIdentity.InitializeNetworkBehaviours to avoid netIdentity=>flag indirection!
 
         /// <summary>True if this object is on the client and has been spawned by the server.</summary>
-        public bool isClient => netIdentity.isClient;
+        public bool isClient; // set from NetworkIdentity.InitializeNetworkBehaviours to avoid netIdentity=>flag indirection!
 
         /// <summary>True if this object is the the client's own local player.</summary>
-        public bool isLocalPlayer => netIdentity.isLocalPlayer;
+        public bool isLocalPlayer; // set from NetworkIdentity.InitializeNetworkBehaviours to avoid netIdentity=>flag indirection!
 
         /// <summary>True if this object is on the server-only, not host.</summary>
-        public bool isServerOnly => netIdentity.isServerOnly;
+        public bool isServerOnly => isServer && !isClient;
 
         /// <summary>True if this object is on the client-only, not host.</summary>
-        public bool isClientOnly => netIdentity.isClientOnly;
+        public bool isClientOnly => isClient && !isServer;
 
         /// <summary>isOwned is true on the client if this NetworkIdentity is one of the .owned entities of our connection on the server.</summary>
         // for example: main player & pets are owned. monsters & npcs aren't.
-        public bool isOwned => netIdentity.isOwned;
+        public bool isOwned; // set from NetworkIdentity.InitializeNetworkBehaviours to avoid netIdentity=>flag indirection!
 
         /// <summary>authority is true if we are allowed to modify this component's state. On server, it's true if SyncDirection is ServerToClient. On client, it's true if SyncDirection is ClientToServer and(!) if this object is owned by the client.</summary>
         // on the client: if Client->Server SyncDirection and owned
@@ -98,7 +98,7 @@ namespace Mirror
         }
 
         /// <summary>The unique network Id of this object (unique at runtime).</summary>
-        public uint netId => netIdentity.netId;
+        public uint netId; // set from NetworkIdentity.InitializeNetworkBehaviours to avoid netIdentity=>flag indirection!
 
         /// <summary>Client's network connection to the server. This is only valid for player objects on the client.</summary>
         // TODO change to NetworkConnectionToServer, but might cause some breaking
