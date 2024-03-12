@@ -101,7 +101,7 @@ namespace Mirror.Weaver
 
                 // the fix for #2503 started showing this warning for Bee.BeeDriver on mac,
                 // which is for compilation. we can ignore that one.
-                if (name.Name != "Bee.BeeDriver")
+                if (!name.Name.StartsWith("Bee.BeeDriver"))
                 {
                     Log.Warning($"ILPostProcessorAssemblyResolver.Resolve: Failed to find file for {name}");
                 }
