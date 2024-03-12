@@ -25,7 +25,7 @@ namespace Mirror.Examples.EdgegapLobby
 
         public void Init(UILobbyList list, LobbyBrief lobby, bool active = true)
         {
-            gameObject.SetActive(active);
+            gameObject.SetActive(active && lobby.is_joinable);
             JoinButton.interactable = lobby.available_slots > 0;
             _list = list;
             _lobby = lobby;
