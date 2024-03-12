@@ -1,6 +1,7 @@
 using System;
 namespace Edgegap
 {
+    // https://docs.edgegap.com/docs/lobby/functions/#starting-a-lobby
     [Serializable]
     public struct LobbyIdRequest
     {

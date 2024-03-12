@@ -1,6 +1,7 @@
 using System;
 namespace Edgegap
 {
+    // Brief lobby data, returned by the list function
     [Serializable]
     public struct LobbyBrief
     {

@@ -8,7 +8,12 @@ namespace Edgegap
 {
     public class EdgegapLobbyKcpTransport : EdgegapKcpTransport
     {
+        [Header("Lobby Settings")]
+        [Tooltip("URL to the Edgegap lobby service")]
         public string lobbyUrl;
+        [Tooltip("How long to wait for the relay to be assigned after starting a lobby")]
+        public float lobbyWaitTimeout = 60;
+
         public LobbyApi Api;
         private LobbyCreateRequest? _request;
         private string _lobbyId;
@@ -78,7 +83,7 @@ namespace Edgegap
         {
             if (!_request.HasValue)
             {
-                throw new Exception("No lobby request set. Call CreateLobbyAndStartServer");
+                throw new Exception("No lobby request set. Call SetServerLobbyParams");
             }
             _status = TransportStatus.CreatingLobby;
             Api.CreateLobby(_request.Value, lobby =>
@@ -91,15 +96,14 @@ namespace Edgegap
                     }, s =>
                     {
                         _status = TransportStatus.Error;
-                        OnServerError?.Invoke(0, TransportError.Unexpected, s);
-                        throw new Exception($"Couldn't start lobby: {s}");
+                        OnServerError?.Invoke(0, TransportError.Unexpected, $"Could not start lobby: {s}");
+                        ServerStop();
                     });
                 },
                 s =>
                 {
                     _status = TransportStatus.Error;
-                    OnServerError?.Invoke(0, TransportError.Unexpected, s);
-                    throw new Exception($"Couldn't create lobby: {s}");
+                    OnServerError?.Invoke(0, TransportError.Unexpected, $"Couldn't create lobby: {s}");
                 });
         }
 
@@ -144,7 +148,8 @@ namespace Edgegap
         public override void ClientConnect(string address)
         {
             _lobbyId = address;
-            _playerId = Random.Range(1, int.MaxValue).ToString(); // todo
+            _playerId = RandomPlayerId();
+            _status = TransportStatus.JoiningLobby;
             Api.JoinLobby(new LobbyJoinOrLeaveRequest
             {
                 player = new LobbyJoinOrLeaveRequest.Player
@@ -157,18 +162,36 @@ namespace Edgegap
                 StartCoroutine(WaitForLobbyRelay(_lobbyId, false));
             }, error =>
             {
+                _status = TransportStatus.Offline;
                 OnClientError?.Invoke(TransportError.Unexpected, error);
                 OnClientDisconnected?.Invoke();
             });
         }
 
-        private IEnumerator WaitForLobbyRelay(string lobbyId, bool server)
+        private IEnumerator WaitForLobbyRelay(string lobbyId, bool forServer)
         {
-            // TODO: timeout
             _status = TransportStatus.WaitingRelay;
+            double time = NetworkTime.localTime;
             bool running = true;
             while (running)
             {
+                if (NetworkTime.localTime - time >= lobbyWaitTimeout)
+                {
+                    _status = TransportStatus.Error;
+                    if (forServer)
+                    {
+                        _status = TransportStatus.Error;
+                        OnServerError?.Invoke(0, TransportError.Unexpected, $"Timed out waiting for lobby.");
+                        ServerStop();
+                    }
+                    else
+                    {
+                        _status = TransportStatus.Error;
+                        OnClientError?.Invoke(TransportError.Unexpected, $"Couldn't find my player ({_playerId})");
+                        ClientDisconnect();
+                    }
+                    yield break;
+                }
                 bool waitingForResponse = true;
                 Api.GetLobby(lobbyId, lobby =>
                 {
@@ -205,20 +228,21 @@ namespace Edgegap
                         running = false;
                         if (!found)
                         {
-                            if (server)
+                            if (forServer)
                             {
                                 _status = TransportStatus.Error;
                                 OnServerError?.Invoke(0, TransportError.Unexpected, $"Couldn't find my player ({_playerId})");
+                                ServerStop();
                             }
                             else
                             {
                                 _status = TransportStatus.Error;
                                 OnClientError?.Invoke(TransportError.Unexpected, $"Couldn't find my player ({_playerId})");
-                                OnClientDisconnected?.Invoke();
+                                ClientDisconnect();
                             }
                         }
                         _status = TransportStatus.Connecting;
-                        if (server)
+                        if (forServer)
                         {
                             base.ServerStart();
                         }
@@ -232,14 +256,15 @@ namespace Edgegap
                     running = false;
                     waitingForResponse = false;
                     _status = TransportStatus.Error;
-                    if (server)
+                    if (forServer)
                     {
                         OnServerError?.Invoke(0, TransportError.Unexpected, error);
+                        ServerStop();
                     }
                     else
                     {
                         OnClientError?.Invoke(TransportError.Unexpected, error);
-                        OnClientDisconnected?.Invoke();
+                        ClientDisconnect();
                     }
                 });
                 while (waitingForResponse)
@@ -249,20 +274,35 @@ namespace Edgegap
                 yield return new WaitForSeconds(0.2f);
             }
         }
-
-        public void CreateLobbyAndStartServer(LobbyCreateRequest request, bool host)
+        private static string RandomPlayerId()
         {
-            _playerId = Random.Range(1, int.MaxValue).ToString(); // todo
-            request.player.id = _playerId;
+            return $"mirror-player-{Random.Range(1, int.MaxValue)}";
+        }
+
+        public void SetServerLobbyParams(string lobbyName, int capacity)
+        {
+            SetServerLobbyParams(new LobbyCreateRequest
+            {
+                player = new LobbyCreateRequest.Player
+                {
+                    id = RandomPlayerId(),
+                },
+                annotations = new LobbyCreateRequest.Annotation[]
+                {
+                },
+                capacity = capacity,
+                is_joinable = true,
+                name = lobbyName,
+                tags = new string[]
+                {
+                }
+            });
+        }
+
+        public void SetServerLobbyParams(LobbyCreateRequest request)
+        {
+            _playerId = request.player.id;
             _request = request;
-            if (host)
-            {
-                NetworkManager.singleton.StartHost();
-            }
-            else
-            {
-                NetworkManager.singleton.StartServer();
-            }
         }
 
         private void OnDestroy()
@@ -271,11 +311,16 @@ namespace Edgegap
             if (NetworkServer.active)
             {
                 ServerStop();
-                Thread.Sleep(300); // sorry. this can go once the lobby service can timeout lobbies itself
-            } else if (NetworkClient.active)
+                // Absolutely make sure there's time for the network request to hit edgegap servers.
+                // sorry. this can go once the lobby service can timeout lobbies itself
+                Thread.Sleep(300);
+            }
+            else if (NetworkClient.active)
             {
                 ClientDisconnect();
-                Thread.Sleep(300); // sorry. this can go once the lobby service can timeout lobbies itself
+                // Absolutely make sure there's time for the network request to hit edgegap servers.
+                // sorry. this can go once the lobby service can timeout lobbies itself
+                Thread.Sleep(300);
             }
         }
     }

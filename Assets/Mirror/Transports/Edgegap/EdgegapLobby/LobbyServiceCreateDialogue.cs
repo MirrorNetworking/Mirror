@@ -39,27 +39,30 @@ namespace Edgegap
 
             if (GUILayout.Button("Create"))
             {
-                if (string.IsNullOrEmpty(_key) || string.IsNullOrEmpty(_name))
+                if (string.IsNullOrWhiteSpace(_key) || string.IsNullOrWhiteSpace(_name))
                 {
                     EditorUtility.DisplayDialog("Error", "Key and Name can't be empty.", "Ok");
+                }
+                else
+                {
+                    waitingCreate = true;
+                    Repaint();
+
+                    LobbyApi.CreateAndDeployLobbyService(_key.Trim(), _name.Trim(), res =>
+                    {
+                        waitingCreate = false;
+                        waitingStatus = true;
+                        _lastStatus = res.status;
+                        RefreshStatus();
+                        Repaint();
+                    }, error =>
+                    {
+                        EditorUtility.DisplayDialog("Failed to create lobby", $"The following error happened while trying to create (&deploy) the lobby service:\n\n{error}", "Ok");
+                        waitingCreate = false;
+                    });
                     return;
                 }
 
-                waitingCreate = true;
-                Repaint();
-
-                LobbyApi.CreateAndDeployLobbyService(_key, _name, res =>
-                {
-                    waitingCreate = false;
-                    waitingStatus = true;
-                    _lastStatus = res.status;
-                    RefreshStatus();
-                    Repaint();
-                }, error =>
-                {
-                    EditorUtility.DisplayDialog("Failed to create lobby", $"The following error happened while trying to create (&deploy) a lobby:\n\n{error}", "Ok");
-                    waitingCreate = false;
-                });
             }
 
             if (GUILayout.Button("Cancel"))
@@ -68,14 +71,21 @@ namespace Edgegap
 
             if (GUILayout.Button("Terminate existing deploy"))
             {
-                LobbyApi.TerminateLobbyService(_key, _name, res =>
+
+                if (string.IsNullOrWhiteSpace(_key) || string.IsNullOrWhiteSpace(_name))
                 {
-                    EditorUtility.DisplayDialog("Success", $"The lobby service will start terminating (shutting down the deploy) now", "Ok");
-                }, error =>
+                    EditorUtility.DisplayDialog("Error", "Key and Name can't be empty.", "Ok");
+                }
+                else
                 {
-                    EditorUtility.DisplayDialog("Failed to create lobby", $"The following error happened while trying to create (&deploy) a lobby:\n\n{error}", "Ok");
-                    waitingCreate = false;
-                });
+                    LobbyApi.TerminateLobbyService(_key.Trim(), _name.Trim(), res =>
+                    {
+                        EditorUtility.DisplayDialog("Success", $"The lobby service will start terminating (shutting down the deploy) now", "Ok");
+                    }, error =>
+                    {
+                        EditorUtility.DisplayDialog("Failed to terminate lobby", $"The following error happened while trying to terminate the lobby service:\n\n{error}", "Ok");
+                    });
+                }
             }
         }
         private void RefreshStatus()

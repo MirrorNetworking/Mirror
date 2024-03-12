@@ -1,8 +1,7 @@
-using System;
 using Edgegap;
 using UnityEngine;
 using UnityEngine.UI;
-using Random = UnityEngine.Random;
+
 namespace Mirror.Examples.EdgegapLobby
 {
     public class UILobbyCreate : MonoBehaviour
@@ -15,23 +14,6 @@ namespace Mirror.Examples.EdgegapLobby
         public Button HostButton;
         public Button ServerButton;
         private EdgegapLobbyKcpTransport _transport => (EdgegapLobbyKcpTransport)NetworkManager.singleton.transport;
-        private LobbyCreateRequest Request => new LobbyCreateRequest
-        {
-            player = new LobbyCreateRequest.Player
-            {
-                id = $"{Random.Range(0, int.MaxValue)}",
-            },
-            annotations = new LobbyCreateRequest.Annotation[]
-            {
-            },
-            capacity = (int)SlotSlider.value,
-            is_joinable = true,
-            name = LobbyName.text,
-            tags = new string[]
-            {
-                "test"
-            }
-        };
 
         private void Awake()
         {
@@ -47,12 +29,14 @@ namespace Mirror.Examples.EdgegapLobby
             HostButton.onClick.AddListener(() =>
             {
                 gameObject.SetActive(false);
-                _transport.CreateLobbyAndStartServer(Request, true);
+                _transport.SetServerLobbyParams(LobbyName.text, (int)SlotSlider.value);
+                NetworkManager.singleton.StartHost();
             });
             ServerButton.onClick.AddListener(() =>
             {
                 gameObject.SetActive(false);
-                _transport.CreateLobbyAndStartServer(Request, false);
+                _transport.SetServerLobbyParams(LobbyName.text, (int)SlotSlider.value);
+                NetworkManager.singleton.StartServer();
             });
         }
     }
