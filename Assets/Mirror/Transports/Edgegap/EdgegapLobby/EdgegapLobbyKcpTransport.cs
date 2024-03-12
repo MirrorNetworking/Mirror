@@ -178,11 +178,11 @@ namespace Edgegap
         private IEnumerator WaitForLobbyRelay(string lobbyId, bool forServer)
         {
             _status = TransportStatus.WaitingRelay;
-            double time = NetworkTime.localTime;
+            double startTime = NetworkTime.localTime;
             bool running = true;
             while (running)
             {
-                if (NetworkTime.localTime - time >= lobbyWaitTimeout)
+                if (NetworkTime.localTime - startTime >= lobbyWaitTimeout)
                 {
                     _status = TransportStatus.Error;
                     string errorMsg = "Timed out waiting for lobby.";
