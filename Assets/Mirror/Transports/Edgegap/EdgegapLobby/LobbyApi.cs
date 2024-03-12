@@ -74,7 +74,6 @@ namespace Edgegap
                 using (request)
                 {
                     if (CheckErrorResponse(request, onError)) return;
-                    Debug.Log("Create: " + request.downloadHandler.text); // todo debug
                     Lobby lobby = JsonUtility.FromJson<Lobby>(request.downloadHandler.text);
                     onResponse?.Invoke(lobby);
                 }
@@ -90,7 +89,6 @@ namespace Edgegap
                 using (request)
                 {
                     if (CheckErrorResponse(request, onError)) return;
-                    Debug.Log("Update: " + request.downloadHandler.text); // todo debug
                     LobbyBrief lobby = JsonUtility.FromJson<LobbyBrief>(request.downloadHandler.text);
                     onResponse?.Invoke(lobby);
                 }
@@ -105,7 +103,6 @@ namespace Edgegap
                 using (request)
                 {
                     if (CheckErrorResponse(request, onError)) return;
-                    Debug.Log("Get: " + request.downloadHandler.text); // todo debug
                     Lobby lobby = JsonUtility.FromJson<Lobby>(request.downloadHandler.text);
                     onResponse?.Invoke(lobby);
                 }
@@ -207,11 +204,9 @@ namespace Edgegap
             {
                 name = name
             });
-            Debug.Log($"Requesting {request.url}");
             request.SetRequestHeader("Authorization", $"token {apiKey}");
             request.SendWebRequest().completed += (op) =>
             {
-                Debug.Log($"Response from {request.url}");
                 using (request)
                 {
                     if (CheckErrorResponse(request, onError)) return;
@@ -230,7 +225,6 @@ namespace Edgegap
             request.SetRequestHeader("Authorization", $"token {apiKey}");
             request.SendWebRequest().completed += (op) =>
             {
-                Debug.Log($"Response from {request.url}");
                 using (request)
                 {
                     if (request.responseCode == 404)
@@ -255,11 +249,9 @@ namespace Edgegap
             {
                 name = name
             });
-            Debug.Log($"Requesting {request.url}");
             request.SetRequestHeader("Authorization", $"token {apiKey}");
             request.SendWebRequest().completed += (op) =>
             {
-                Debug.Log($"Response from {request.url}");
                 using (request)
                 {
                     if (CheckErrorResponse(request, onError)) return;
@@ -274,11 +266,9 @@ namespace Edgegap
             {
                 name = name
             });
-            Debug.Log($"Requesting {request.url}");
             request.SetRequestHeader("Authorization", $"token {apiKey}");
             request.SendWebRequest().completed += (op) =>
             {
-                Debug.Log($"Response from {request.url}");
                 using (request)
                 {
                     if (CheckErrorResponse(request, onError)) return;

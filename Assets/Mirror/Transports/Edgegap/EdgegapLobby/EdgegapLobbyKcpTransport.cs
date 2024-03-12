@@ -116,8 +116,7 @@ namespace Edgegap
                 // yay
             }, error =>
             {
-                OnServerError?.Invoke(0, TransportError.Unexpected, error);
-                Debug.Log($"Failed to delete lobby: {error}");
+                OnServerError?.Invoke(0, TransportError.Unexpected, $"Failed to delete lobby: {error}");
             });
         }
 
@@ -139,8 +138,7 @@ namespace Edgegap
                     // yay
                 }, error =>
                 {
-                    OnClientError?.Invoke(TransportError.Unexpected, error);
-                    Debug.Log($"Failed to leave lobby: {error}");
+                    OnClientError?.Invoke(TransportError.Unexpected, $"Failed to leave lobby: {error}");
                 });
             }
         }
