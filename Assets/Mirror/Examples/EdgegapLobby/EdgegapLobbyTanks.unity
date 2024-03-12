@@ -605,6 +605,7 @@ MonoBehaviour:
   userId: 11111111
   sessionId: 22222222
   lobbyUrl: https://test-bd7a750909b95a.edgegap.net
+  lobbyWaitTimeout: 60
 --- !u!1 &1458789072
 GameObject:
   m_ObjectHideFlags: 0
@@ -794,6 +795,16 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1813424390365182141, guid: ebc1436948da70b4abbf74f58106c318,
+        type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1813424390365182141, guid: ebc1436948da70b4abbf74f58106c318,
+        type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1813424391319593378, guid: ebc1436948da70b4abbf74f58106c318,
         type: 3}
       propertyPath: m_AnchorMax.y
@@ -824,6 +835,16 @@ PrefabInstance:
       propertyPath: m_SizeDelta.x
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1813424391443419299, guid: ebc1436948da70b4abbf74f58106c318,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1813424391443419299, guid: ebc1436948da70b4abbf74f58106c318,
+        type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1813424391612798255, guid: ebc1436948da70b4abbf74f58106c318,
         type: 3}
       propertyPath: m_AnchorMax.y
@@ -847,11 +868,31 @@ PrefabInstance:
     - target: {fileID: 1813424391612798255, guid: ebc1436948da70b4abbf74f58106c318,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 108.06613
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1813424391612798255, guid: ebc1436948da70b4abbf74f58106c318,
         type: 3}
       propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1813424391775670328, guid: ebc1436948da70b4abbf74f58106c318,
+        type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1813424391775670328, guid: ebc1436948da70b4abbf74f58106c318,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1813424391775670328, guid: ebc1436948da70b4abbf74f58106c318,
+        type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1813424391775670328, guid: ebc1436948da70b4abbf74f58106c318,
+        type: 3}
+      propertyPath: m_SizeDelta.y
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1813424392052932097, guid: ebc1436948da70b4abbf74f58106c318,
