@@ -74,6 +74,7 @@ namespace Edgegap
             base.Awake();
             Api = new LobbyApi(lobbyUrl);
         }
+
         private void Reset()
         {
             this.relayGUI = false;
@@ -93,17 +94,21 @@ namespace Edgegap
                     Api.StartLobby(new LobbyIdRequest(_lobbyId), () =>
                     {
                         StartCoroutine(WaitForLobbyRelay(_lobbyId, true));
-                    }, s =>
+                    }, error =>
                     {
                         _status = TransportStatus.Error;
-                        OnServerError?.Invoke(0, TransportError.Unexpected, $"Could not start lobby: {s}");
+                        string errorMsg = $"Could not start lobby: {error}";
+                        Debug.LogError(errorMsg);
+                        OnServerError?.Invoke(0, TransportError.Unexpected, errorMsg);
                         ServerStop();
                     });
                 },
-                s =>
+                error =>
                 {
                     _status = TransportStatus.Error;
-                    OnServerError?.Invoke(0, TransportError.Unexpected, $"Couldn't create lobby: {s}");
+                    string errorMsg = $"Couldn't create lobby: {error}";
+                    Debug.LogError(errorMsg);
+                    OnServerError?.Invoke(0, TransportError.Unexpected, errorMsg);
                 });
         }
 
@@ -138,7 +143,9 @@ namespace Edgegap
                     // yay
                 }, error =>
                 {
-                    OnClientError?.Invoke(TransportError.Unexpected, $"Failed to leave lobby: {error}");
+                    string errorMsg = $"Failed to leave lobby: {error}";
+                    OnClientError?.Invoke(TransportError.Unexpected, errorMsg);
+                    Debug.LogError(errorMsg);
                 });
             }
         }
@@ -161,7 +168,9 @@ namespace Edgegap
             }, error =>
             {
                 _status = TransportStatus.Offline;
-                OnClientError?.Invoke(TransportError.Unexpected, error);
+                string errorMsg = $"Failed to join lobby: {error}";
+                OnClientError?.Invoke(TransportError.Unexpected, errorMsg);
+                Debug.LogError(errorMsg);
                 OnClientDisconnected?.Invoke();
             });
         }
@@ -176,16 +185,18 @@ namespace Edgegap
                 if (NetworkTime.localTime - time >= lobbyWaitTimeout)
                 {
                     _status = TransportStatus.Error;
+                    string errorMsg = "Timed out waiting for lobby.";
+                    Debug.LogError(errorMsg);
                     if (forServer)
                     {
                         _status = TransportStatus.Error;
-                        OnServerError?.Invoke(0, TransportError.Unexpected, $"Timed out waiting for lobby.");
+                        OnServerError?.Invoke(0, TransportError.Unexpected, errorMsg);
                         ServerStop();
                     }
                     else
                     {
                         _status = TransportStatus.Error;
-                        OnClientError?.Invoke(TransportError.Unexpected, $"Couldn't find my player ({_playerId})");
+                        OnClientError?.Invoke(TransportError.Unexpected, errorMsg);
                         ClientDisconnect();
                     }
                     yield break;
@@ -226,16 +237,19 @@ namespace Edgegap
                         running = false;
                         if (!found)
                         {
+                            string errorMsg = $"Couldn't find my player ({_playerId})";
+                            Debug.LogError(errorMsg);
+
                             if (forServer)
                             {
                                 _status = TransportStatus.Error;
-                                OnServerError?.Invoke(0, TransportError.Unexpected, $"Couldn't find my player ({_playerId})");
+                                OnServerError?.Invoke(0, TransportError.Unexpected, errorMsg);
                                 ServerStop();
                             }
                             else
                             {
                                 _status = TransportStatus.Error;
-                                OnClientError?.Invoke(TransportError.Unexpected, $"Couldn't find my player ({_playerId})");
+                                OnClientError?.Invoke(TransportError.Unexpected, errorMsg);
                                 ClientDisconnect();
                             }
                         }
@@ -254,14 +268,16 @@ namespace Edgegap
                     running = false;
                     waitingForResponse = false;
                     _status = TransportStatus.Error;
+                    string errorMsg = $"Failed to get lobby info: {error}";
+                    Debug.LogError(errorMsg);
                     if (forServer)
                     {
-                        OnServerError?.Invoke(0, TransportError.Unexpected, error);
+                        OnServerError?.Invoke(0, TransportError.Unexpected, errorMsg);
                         ServerStop();
                     }
                     else
                     {
-                        OnClientError?.Invoke(TransportError.Unexpected, error);
+                        OnClientError?.Invoke(TransportError.Unexpected, errorMsg);
                         ClientDisconnect();
                     }
                 });
