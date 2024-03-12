@@ -117,10 +117,10 @@ namespace Mirror
                 afterIndex -= 1; // we removed the first value so all indices are off by one now
             }
 
-            // PERFORMANCE OPTIMIZATION: avoid O(N) insertion, only readjust all values after.
-            // the end result is the same since after.delta and after.position are both recalculated.
-            // it's technically not correct if we were to reconstruct final position from 0..after..end but
-            // we never do, we only ever iterate from after..end!
+            // PERFORMANCE OPTIMIZATION: avoid O(N) insertion, only readjust successive values.
+            // => end result is exactly same since we would readjust after.delta & after.position based on correction either way.
+            // => the only difference is we don't insert the correction
+            // => but since we only ever iterate from after..end, it doesn't matter if the correction is there or not!
             //
             //   insert the corrected state into the history, or overwrite if already exists
             //   SortedList insertions are O(N)!
