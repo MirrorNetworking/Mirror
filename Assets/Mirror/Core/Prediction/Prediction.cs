@@ -59,29 +59,36 @@ namespace Mirror
             //      should be O(1) most of the time, unless sampling was off.
             int index = 0; // manually count when iterating. easier than for-int loop.
             KeyValuePair<double, T> prev = new KeyValuePair<double, T>();
-            foreach (KeyValuePair<double, T> entry in history) {
+
+            // SortedList foreach iteration allocates a LOT. use for-int instead.
+            // foreach (KeyValuePair<double, T> entry in history) {
+            for (int i = 0; i < history.Count; ++i)
+            {
+                double key = history.Keys[i];
+                T value = history.Values[i];
+
                 // exact match?
-                if (timestamp == entry.Key)
+                if (timestamp == key)
                 {
-                    before = entry.Value;
-                    after = entry.Value;
+                    before = value;
+                    after = value;
                     afterIndex = index;
-                    t = Mathd.InverseLerp(entry.Key, entry.Key, timestamp);
+                    t = Mathd.InverseLerp(key, key, timestamp);
                     return true;
                 }
 
                 // did we check beyond timestamp? then return the previous two.
-                if (entry.Key > timestamp)
+                if (key > timestamp)
                 {
                     before = prev.Value;
-                    after = entry.Value;
+                    after = value;
                     afterIndex = index;
-                    t = Mathd.InverseLerp(prev.Key, entry.Key, timestamp);
+                    t = Mathd.InverseLerp(prev.Key, key, timestamp);
                     return true;
                 }
 
                 // remember the last
-                prev = entry;
+                prev = new KeyValuePair<double, T>(key, value);
                 index += 1;
             }
 
