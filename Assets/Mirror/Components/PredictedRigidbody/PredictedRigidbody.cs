@@ -166,7 +166,7 @@ namespace Mirror
             // skip if host mode or already separated
             if (isServer || physicsCopy != null) return;
 
-            Debug.Log($"Separating Physics for {name}");
+            // Debug.Log($"Separating Physics for {name}"); // logging this allocates too much
 
             // create an empty GameObject with the same name + _Physical
             // it's important to copy world position/rotation/scale, not local!
