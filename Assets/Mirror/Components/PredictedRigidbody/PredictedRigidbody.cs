@@ -24,7 +24,12 @@ namespace Mirror
     public class PredictedRigidbody : NetworkBehaviour
     {
         Transform tf; // this component is performance critical. cache .transform getter!
-        protected Rigidbody predictedRigidbody; // always valid, even while moved onto the ghost.
+
+        // Prediction sometimes moves the Rigidbody to a ghost object.
+        // .predictedRigidbody is always kept up to date to wherever the RB is.
+        // other components should use this when accessing Rigidbody.
+        public Rigidbody predictedRigidbody;
+
         Vector3 lastPosition;
 
         // motion smoothing happen on-demand, because it requires moving physics components to another GameObject.
