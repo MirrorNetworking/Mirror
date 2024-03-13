@@ -92,7 +92,7 @@ namespace Mirror
         // readjust the deltas of the states after the inserted one.
         // returns the corrected final position.
         public static T CorrectHistory<T>(
-            SortedList<double, T> stateHistory,
+            SortedList<double, T> history,
             int stateHistoryLimit,
             T corrected,     // corrected state with timestamp
             T before,        // state in history before the correction
@@ -102,11 +102,11 @@ namespace Mirror
         {
             // respect the limit
             // TODO unit test to check if it respects max size
-            if (stateHistory.Count >= stateHistoryLimit)
-                stateHistory.RemoveAt(0);
+            if (history.Count >= stateHistoryLimit)
+                history.RemoveAt(0);
 
             // insert the corrected state into the history, or overwrite if already exists
-            stateHistory[corrected.timestamp] = corrected;
+            history[corrected.timestamp] = corrected;
 
             // the entry behind the inserted one still has the delta from (before, after).
             // we need to correct it to (corrected, after).
@@ -146,27 +146,27 @@ namespace Mirror
             after.rotationDelta        = Quaternion.Slerp(Quaternion.identity, after.rotationDelta, (float)multiplier).normalized;
 
             // changes aren't saved until we overwrite them in the history
-            stateHistory[after.timestamp] = after;
+            history[after.timestamp] = after;
 
             // second step: readjust all absolute values by rewinding client's delta moves on top of it.
             T last = corrected;
-            for (int i = afterIndex; i < stateHistory.Count; ++i)
+            for (int i = afterIndex; i < history.Count; ++i)
             {
-                double key = stateHistory.Keys[i];
-                T entry = stateHistory.Values[i];
+                double key = history.Keys[i];
+                T value = history.Values[i];
 
                 // correct absolute position based on last + delta.
-                entry.position        = last.position + entry.positionDelta;
-                entry.velocity        = last.velocity + entry.velocityDelta;
-                entry.angularVelocity = last.angularVelocity + entry.angularVelocityDelta;
+                value.position        = last.position + value.positionDelta;
+                value.velocity        = last.velocity + value.velocityDelta;
+                value.angularVelocity = last.angularVelocity + value.angularVelocityDelta;
                 // Quaternions always need to be normalized in order to be a valid rotation after operations
-                entry.rotation        = (entry.rotationDelta * last.rotation).normalized; // quaternions add delta by multiplying in this order
+                value.rotation        = (value.rotationDelta * last.rotation).normalized; // quaternions add delta by multiplying in this order
 
                 // save the corrected entry into history.
-                stateHistory[key] = entry;
+                history[key] = value;
 
                 // save last
-                last = entry;
+                last = value;
             }
 
             // third step: return the final recomputed state.
