@@ -13,5 +13,7 @@ This benchmark has predicted objects which are constantly synced & corrected.
 - vsync disabled in NetworkManagerPredictionBenchmark.cs
 
 # Benchmark Results History for 1000 objects without ghosts:
-[2024-03-13] Not Predicted:    1000 FPS Client,   2500 FPS Server
-[2024-03-13] Predicted:         500 FPS Client,   1760 FPS Server
+Not Predicted:    1000 FPS Client,   2500 FPS Server
+Predicted:         
+2024-03-13:       500 FPS Client,   1700 FPS Server
+2024-03-13:       580 FPS Client,   1700 FPS Server // don't log hard correcting msgs
