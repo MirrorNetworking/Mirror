@@ -6,7 +6,6 @@ This benchmark has predicted objects which are constantly synced & corrected.
 => This is not a real world scenario, it's worst case that we can use for profiling!
 => As a Mirror user you don't need to worry about this demo.
 
-
 # Benchmark Setup
 - Unity 2021.3 LTS
 - IL2CPP Builds
