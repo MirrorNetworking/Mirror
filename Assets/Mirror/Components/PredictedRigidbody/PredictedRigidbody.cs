@@ -683,8 +683,9 @@ namespace Mirror
                 // TODO maybe we should interpolate this back to 'now'?
                 if (Vector3.Distance(state.position, predictedRigidbody.position) >= positionCorrectionThreshold)
                 {
-                    double ahead = state.timestamp - newest.timestamp;
-                    Debug.Log($"Hard correction because the client is ahead of the server by {(ahead*1000):F1}ms. History of size={stateHistory.Count} @ t={timestamp:F3} oldest={oldest.timestamp:F3} newest={newest.timestamp:F3}. This can happen when latency is near zero, and is fine unless it shows jitter.");
+                    // this can happen a lot when latency is ~0. logging all the time allocates too much and is too slow.
+                    // double ahead = state.timestamp - newest.timestamp;
+                    // Debug.Log($"Hard correction because the client is ahead of the server by {(ahead*1000):F1}ms. History of size={stateHistory.Count} @ t={timestamp:F3} oldest={oldest.timestamp:F3} newest={newest.timestamp:F3}. This can happen when latency is near zero, and is fine unless it shows jitter.");
                     ApplyState(state.timestamp, state.position, state.rotation, state.velocity, state.angularVelocity);
                 }
                 return;
