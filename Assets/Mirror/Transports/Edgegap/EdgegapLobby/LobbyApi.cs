@@ -33,6 +33,7 @@ namespace Edgegap
 
         private static bool CheckErrorResponse(UnityWebRequest request, Action<string> onError)
         {
+#if UNITY_2020_3_OR_NEWER
             if (request.result != UnityWebRequest.Result.Success)
             {
                 // how I hate http libs that think they need to be smart and handle status code errors.
@@ -42,6 +43,13 @@ namespace Edgegap
                     return true;
                 }
             }
+#else
+            if (request.isNetworkError)
+            {
+                onError?.Invoke(request.error);
+                return true;
+            }
+#endif
             if (request.responseCode < 200 || request.responseCode >= 300)
             {
                 onError?.Invoke($"non-200 status code: {request.responseCode}. Body:\n {request.downloadHandler.text}");

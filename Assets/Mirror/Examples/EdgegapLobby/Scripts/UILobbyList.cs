@@ -72,7 +72,12 @@ namespace Mirror.Examples.EdgegapLobby
                     this,
                     lobbies[i],
                     // search filter
-                    searchText.Length == 0 || lobbies[i].name.Contains(searchText, StringComparison.InvariantCultureIgnoreCase)
+                    searchText.Length == 0 ||
+#if UNITY_2020_3_OR_NEWER
+                    lobbies[i].name.Contains(searchText, StringComparison.InvariantCultureIgnoreCase)
+#else
+                    lobbies[i].name.ToLowerInvariant().Contains(searchText.ToLowerInvariant())
+#endif
                 );
             }
 
