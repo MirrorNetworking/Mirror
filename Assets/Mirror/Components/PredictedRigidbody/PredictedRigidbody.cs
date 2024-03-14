@@ -769,10 +769,16 @@ namespace Mirror
             // we want to know the time on the server when this was sent, which is remoteTimestamp.
             double timestamp = NetworkClient.connection.remoteTimeStamp;
 
-            // server send state at the end of the frame.
+            // parse state
+            double serverDeltaTime = reader.ReadFloat();
+            Vector3 position        = reader.ReadVector3();
+            Quaternion rotation     = reader.ReadQuaternion();
+            Vector3 velocity        = reader.ReadVector3();
+            Vector3 angularVelocity = reader.ReadVector3();
+
+            // server sends state at the end of the frame.
             // parse and apply the server's delta time to our timestamp.
             // otherwise we see noticeable resets that seem off by one frame.
-            double serverDeltaTime = reader.ReadFloat();
             timestamp += serverDeltaTime;
 
             // however, adding yet one more frame delay gives much(!) better results.
@@ -780,12 +786,6 @@ namespace Mirror
             // possibly because client captures at the beginning of the frame,
             // with physics happening at the end of the frame?
             if (oneFrameAhead) timestamp += serverDeltaTime;
-
-            // parse state
-            Vector3 position        = reader.ReadVector3();
-            Quaternion rotation     = reader.ReadQuaternion();
-            Vector3 velocity        = reader.ReadVector3();
-            Vector3 angularVelocity = reader.ReadVector3();
 
             // process received state
             OnReceivedState(timestamp, new RigidbodyState(timestamp, Vector3.zero, position, Quaternion.identity, rotation, Vector3.zero, velocity, Vector3.zero, angularVelocity));
