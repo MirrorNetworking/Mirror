@@ -472,10 +472,13 @@ namespace Mirror
         double lastRecordTime;
         void RecordState()
         {
+            // performance optimization: only call NetworkTime.time getter once
+            double networkTime = NetworkTime.time;
+
             // instead of recording every fixedupdate, let's record in an interval.
             // we don't want to record every tiny move and correct too hard.
-            if (NetworkTime.time < lastRecordTime + recordInterval) return;
-            lastRecordTime = NetworkTime.time;
+            if (networkTime < lastRecordTime + recordInterval) return;
+            lastRecordTime = networkTime;
 
             // NetworkTime.time is always behind by bufferTime.
             // prediction aims to be on the exact same server time (immediately).
