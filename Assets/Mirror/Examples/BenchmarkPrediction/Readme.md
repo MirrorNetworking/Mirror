@@ -17,3 +17,4 @@ Not Predicted:    1000 FPS Client,   2500 FPS Server
 Predicted:         
   2024-03-13:      500 FPS Client,   1700 FPS Server
   2024-03-13:      580 FPS Client,   1700 FPS Server // micro optimizations
+  2024-03-14:      590 FPS Client,   1700 FPS Server // UpdateGhosting() every 4th frame
