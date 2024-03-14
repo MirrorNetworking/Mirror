@@ -62,6 +62,7 @@ namespace Mirror
         [Header("Reconciliation")]
         [Tooltip("Correction threshold in meters. For example, 0.1 means that if the client is off by more than 10cm, it gets corrected.")]
         public double positionCorrectionThreshold = 0.10;
+        double positionCorrectionThresholdSqr; // ² cached in Awake
         [Tooltip("Correction threshold in degrees. For example, 5 means that if the client is off by more than 5 degrees, it gets corrected.")]
         public double rotationCorrectionThreshold = 5;
 
@@ -133,6 +134,7 @@ namespace Mirror
             // cache ² computations
             motionSmoothingVelocityThresholdSqr = motionSmoothingVelocityThreshold * motionSmoothingVelocityThreshold;
             motionSmoothingAngularVelocityThresholdSqr = motionSmoothingAngularVelocityThreshold * motionSmoothingAngularVelocityThreshold;
+            positionCorrectionThresholdSqr = positionCorrectionThreshold * positionCorrectionThreshold;
         }
 
         protected virtual void CopyRenderersAsGhost(GameObject destination, Material material)
@@ -449,7 +451,11 @@ namespace Mirror
             {
                 // TODO maybe don't reuse the correction thresholds?
                 tf.GetPositionAndRotation(out Vector3 position, out Quaternion rotation);
-                if (Vector3.Distance(lastRecorded.position, position) < positionCorrectionThreshold &&
+                // clean & simple:
+                // if (Vector3.Distance(lastRecorded.position, position) < positionCorrectionThreshold &&
+                //     Quaternion.Angle(lastRecorded.rotation, rotation) < rotationCorrectionThreshold)
+                // faster:
+                if ((lastRecorded.position - position).sqrMagnitude < positionCorrectionThresholdSqr &&
                     Quaternion.Angle(lastRecorded.rotation, rotation) < rotationCorrectionThreshold)
                 {
                     // Debug.Log($"FixedUpdate for {name}: taking optimized early return instead of recording state.");
