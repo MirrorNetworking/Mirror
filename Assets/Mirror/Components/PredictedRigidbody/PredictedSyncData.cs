@@ -39,23 +39,12 @@ namespace Mirror
     {
         public static void WritePredictedSyncData(this NetworkWriter writer, PredictedSyncData data)
         {
-            writer.WriteFloat(data.deltaTime);
-            writer.WriteVector3(data.position);
-            writer.WriteQuaternion(data.rotation);
-            writer.WriteVector3(data.velocity);
-            writer.WriteVector3(data.angularVelocity);
+            writer.WriteBlittable(data);
         }
 
         public static PredictedSyncData ReadPredictedSyncData(this NetworkReader reader)
         {
-            return new PredictedSyncData
-            {
-                deltaTime = reader.ReadFloat(),
-                position = reader.ReadVector3(),
-                rotation = reader.ReadQuaternion(),
-                velocity = reader.ReadVector3(),
-                angularVelocity = reader.ReadVector3()
-            };
+            return reader.ReadBlittable<PredictedSyncData>();
         }
     }
 }
