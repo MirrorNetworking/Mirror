@@ -38,7 +38,9 @@ namespace Mirror
         [Header("Motion Smoothing")]
         [Tooltip("Smoothing via Ghost-following only happens on demand, while moving with a minimum velocity.")]
         public float motionSmoothingVelocityThreshold = 0.1f;
+        float motionSmoothingVelocityThresholdSqr; // ² cached in Awake
         public float motionSmoothingAngularVelocityThreshold = 0.1f;
+        float motionSmoothingAngularVelocityThresholdSqr; // ² cached in Awake
         public float motionSmoothingTimeTolerance = 0.5f;
         double motionSmoothingLastMovedTime;
 
@@ -126,6 +128,10 @@ namespace Mirror
             initialPosition = tf.position;
             initialRotation = tf.rotation;
             // initialScale = tf.localScale;
+
+            // cache ² computations
+            motionSmoothingVelocityThresholdSqr = motionSmoothingVelocityThreshold * motionSmoothingVelocityThreshold;
+            motionSmoothingAngularVelocityThresholdSqr = motionSmoothingAngularVelocityThreshold * motionSmoothingAngularVelocityThreshold;
         }
 
         protected virtual void CopyRenderersAsGhost(GameObject destination, Material material)
@@ -367,8 +373,12 @@ namespace Mirror
 
         // movement detection is virtual, in case projects want to use other methods.
         protected virtual bool IsMoving() =>
-            predictedRigidbody.velocity.magnitude >= motionSmoothingVelocityThreshold ||
-            predictedRigidbody.angularVelocity.magnitude >= motionSmoothingAngularVelocityThreshold;
+            // straight forward implementation
+            //   predictedRigidbody.velocity.magnitude >= motionSmoothingVelocityThreshold ||
+            //   predictedRigidbody.angularVelocity.magnitude >= motionSmoothingAngularVelocityThreshold;
+            // faster implementation with cached ²
+            predictedRigidbody.velocity.sqrMagnitude >= motionSmoothingVelocityThresholdSqr ||
+            predictedRigidbody.angularVelocity.sqrMagnitude >= motionSmoothingAngularVelocityThresholdSqr;
 
         void UpdateGhosting()
         {
