@@ -755,11 +755,17 @@ namespace Mirror
 
             // FAST VERSION: this shows in profiler a lot, so cache EVERYTHING!
             tf.GetPositionAndRotation(out Vector3 position, out Quaternion rotation);  // faster than tf.position + tf.rotation. server's rigidbody is on the same transform.
-            writer.WriteFloat(Time.deltaTime);
-            writer.WriteVector3(position);
-            writer.WriteQuaternion(rotation);
-            writer.WriteVector3(predictedRigidbody.velocity);
-            writer.WriteVector3(predictedRigidbody.angularVelocity);
+
+            // simple but slow write:
+            // writer.WriteFloat(Time.deltaTime);
+            // writer.WriteVector3(position);
+            // writer.WriteQuaternion(rotation);
+            // writer.WriteVector3(predictedRigidbody.velocity);
+            // writer.WriteVector3(predictedRigidbody.angularVelocity);
+
+            // performance optimization: write a whole struct at once via blittable:
+            PredictedSyncData data = new PredictedSyncData(Time.deltaTime, position, rotation, predictedRigidbody.velocity, predictedRigidbody.angularVelocity);
+            writer.WritePredictedSyncData(data);
         }
 
         // read the server's state, compare with client state & correct if necessary.
@@ -769,12 +775,20 @@ namespace Mirror
             // we want to know the time on the server when this was sent, which is remoteTimestamp.
             double timestamp = NetworkClient.connection.remoteTimeStamp;
 
-            // parse state
-            double serverDeltaTime = reader.ReadFloat();
-            Vector3 position        = reader.ReadVector3();
-            Quaternion rotation     = reader.ReadQuaternion();
-            Vector3 velocity        = reader.ReadVector3();
-            Vector3 angularVelocity = reader.ReadVector3();
+            // simple but slow read:
+            // double serverDeltaTime = reader.ReadFloat();
+            // Vector3 position        = reader.ReadVector3();
+            // Quaternion rotation     = reader.ReadQuaternion();
+            // Vector3 velocity        = reader.ReadVector3();
+            // Vector3 angularVelocity = reader.ReadVector3();
+
+            // performance optimization: read a whole struct at once via blittable:
+            PredictedSyncData data = reader.ReadPredictedSyncData();
+            double serverDeltaTime = data.deltaTime;
+            Vector3 position = data.position;
+            Quaternion rotation = data.rotation;
+            Vector3 velocity = data.velocity;
+            Vector3 angularVelocity = data.angularVelocity;
 
             // server sends state at the end of the frame.
             // parse and apply the server's delta time to our timestamp.
