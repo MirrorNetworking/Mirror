@@ -46,11 +46,11 @@ namespace Mirror
         double motionSmoothingLastMovedTime;
 
         // client keeps state history for correction & reconciliation.
-        // this needs to be a SortedList because we need to be able to insert inbetween.
-        // RingBuffer would be faster iteration, but can't do insertions.
+        // => RingBuffer<T> instead of SortedList<T> for faster iterations without indirections.
+        //    even though SortedList allows for easy iterations, we need max performance here.
         [Header("State History")]
         public int stateHistoryLimit = 32; // 32 x 50 ms = 1.6 seconds is definitely enough
-        readonly SortedList<double, RigidbodyState> stateHistory = new SortedList<double, RigidbodyState>();
+        RingBuffer<RigidbodyState> stateHistory; // created in Awake()
         public float recordInterval = 0.050f;
 
         [Tooltip("(Optional) performance optimization where FixedUpdate.RecordState() only inserts state into history if the state actually changed.\nThis is generally a good idea.")]
@@ -121,6 +121,9 @@ namespace Mirror
             tf = transform;
             predictedRigidbody = GetComponent<Rigidbody>();
             if (predictedRigidbody == null) throw new InvalidOperationException($"Prediction: {name} is missing a Rigidbody component.");
+
+            // create ringbuffer with fixed capacity
+            stateHistory = new RingBuffer<RigidbodyState>(stateHistoryLimit);
 
             // cache some threshold to avoid calculating them in LateUpdate
             float colliderSize = GetComponentInChildren<Collider>().bounds.size.magnitude;
@@ -495,7 +498,7 @@ namespace Mirror
 
             // keep state history within limit
             if (stateHistory.Count >= stateHistoryLimit)
-                stateHistory.RemoveAt(0);
+                stateHistory.Dequeue();
 
             // grab current position/rotation/velocity only once.
             // this is performance critical, avoid calling .transform multiple times.
@@ -511,7 +514,7 @@ namespace Mirror
             int stateHistoryCount = stateHistory.Count; // perf: only grab .Count once
             if (stateHistoryCount > 0)
             {
-                RigidbodyState last = stateHistory.Values[stateHistoryCount - 1];
+                RigidbodyState last = stateHistory.Tail();
                 positionDelta = currentPosition - last.position;
                 velocityDelta = currentVelocity - last.velocity;
                 // Quaternions always need to be normalized in order to be valid rotations after operations
@@ -536,7 +539,7 @@ namespace Mirror
             );
 
             // add state to history
-            stateHistory.Add(predictedTime, state);
+            stateHistory.Enqueue(state);
 
             // manually remember last inserted state for faster .Last comparisons
             lastRecorded = state;
@@ -576,7 +579,7 @@ namespace Mirror
                 // clear history and insert the exact state we just applied.
                 // this makes future corrections more accurate.
                 stateHistory.Clear();
-                stateHistory.Add(timestamp, new RigidbodyState(
+                stateHistory.Enqueue(new RigidbodyState(
                     timestamp,
                     Vector3.zero,
                     position,
@@ -669,8 +672,8 @@ namespace Mirror
             // if we don't have two yet, drop this state and try again next time once we recorded more.
             if (stateHistory.Count < 2) return;
 
-            RigidbodyState oldest = stateHistory.Values[0];
-            RigidbodyState newest = stateHistory.Values[stateHistory.Count - 1];
+            RigidbodyState oldest = stateHistory.Peek();
+            RigidbodyState newest = stateHistory.Tail();
 
             // edge case: is the state older than the oldest state in history?
             // this can happen if the client gets so far behind the server

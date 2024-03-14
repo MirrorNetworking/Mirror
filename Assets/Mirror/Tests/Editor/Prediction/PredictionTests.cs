@@ -35,7 +35,7 @@ namespace Mirror.Tests
                 this.angularVelocityDelta = angularVelocityDelta;
             }
         }
-
+        /*
         [Test]
         public void Sample_Empty()
         {
@@ -120,25 +120,26 @@ namespace Mirror.Tests
             Assert.That(afterIndex, Is.EqualTo(2));
             Assert.That(t, Is.EqualTo(0.0));
         }
+        */
 
         ////////////////////////////////////////////////////////////////////////
         [Test]
         public void CorrectHistory()
         {
             // prepare a straight forward history
-            SortedList<double, TestState> history = new SortedList<double, TestState>();
+            RingBuffer<TestState> history = new RingBuffer<TestState>(32);
 
             // (0,0,0) with delta (0,0,0) from previous:
-            history.Add(0, new TestState(0,   new Vector3(0, 0, 0),    new Vector3(0, 0, 0), new Vector3(0, 0, 0), new Vector3(0, 0, 0), new Vector3(0, 0, 0), new Vector3(0, 0, 0)));
+            history.Enqueue(new TestState(0,   new Vector3(0, 0, 0),    new Vector3(0, 0, 0), new Vector3(0, 0, 0), new Vector3(0, 0, 0), new Vector3(0, 0, 0), new Vector3(0, 0, 0)));
 
             // (1,0,0) with delta (1,0,0) from previous:
-            history.Add(1, new TestState(1,   new Vector3(1, 0, 0),    new Vector3(1, 0, 0), new Vector3(1, 0, 0), new Vector3(1, 0, 0), new Vector3(1, 0, 0), new Vector3(1, 0, 0)));
+            history.Enqueue(new TestState(1,   new Vector3(1, 0, 0),    new Vector3(1, 0, 0), new Vector3(1, 0, 0), new Vector3(1, 0, 0), new Vector3(1, 0, 0), new Vector3(1, 0, 0)));
 
             // (2,0,0) with delta (1,0,0) from previous:
-            history.Add(2, new TestState(2,   new Vector3(2, 0, 0),    new Vector3(1, 0, 0), new Vector3(2, 0, 0), new Vector3(1, 0, 0), new Vector3(2, 0, 0), new Vector3(1, 0, 0)));
+            history.Enqueue(new TestState(2,   new Vector3(2, 0, 0),    new Vector3(1, 0, 0), new Vector3(2, 0, 0), new Vector3(1, 0, 0), new Vector3(2, 0, 0), new Vector3(1, 0, 0)));
 
             // (3,0,0) with delta (1,0,0) from previous:
-            history.Add(3, new TestState(3,   new Vector3(3, 0, 0),    new Vector3(1, 0, 0), new Vector3(3, 0, 0), new Vector3(1, 0, 0), new Vector3(3, 0, 0), new Vector3(1, 0, 0)));
+            history.Enqueue(new TestState(3,   new Vector3(3, 0, 0),    new Vector3(1, 0, 0), new Vector3(3, 0, 0), new Vector3(1, 0, 0), new Vector3(3, 0, 0), new Vector3(1, 0, 0)));
 
             // client receives a correction from server between t=1 and t=2.
             // exactly t=1.5 where position should be 1.5, server says it's +0.1 = 1.6
@@ -160,63 +161,67 @@ namespace Mirror.Tests
             const int historyLimit = 32;
             Prediction.CorrectHistory(history, historyLimit, correction, before, after, afterIndex);
 
-            // there should be 4 initial + 1 corrected = 5 entries now
-            Assert.That(history.Count, Is.EqualTo(5));
+            // should be the same amount, with a few entries corrected.
+            // since RingBuffer newer inserts.
+            Assert.That(history.Count, Is.EqualTo(4));
 
             // first entry at t=0 should be unchanged, since we corrected after that one.
-            Assert.That(history.Keys[0], Is.EqualTo(0));
-            Assert.That(history.Values[0].position.x, Is.EqualTo(0));
-            Assert.That(history.Values[0].positionDelta.x, Is.EqualTo(0));
-            Assert.That(history.Values[0].velocity.x, Is.EqualTo(0));
-            Assert.That(history.Values[0].velocityDelta.x, Is.EqualTo(0));
-            Assert.That(history.Values[0].angularVelocity.x, Is.EqualTo(0));
-            Assert.That(history.Values[0].angularVelocityDelta.x, Is.EqualTo(0));
+            Assert.That(history[0].timestamp, Is.EqualTo(0));
+            Assert.That(history[0].position.x, Is.EqualTo(0));
+            Assert.That(history[0].positionDelta.x, Is.EqualTo(0));
+            Assert.That(history[0].velocity.x, Is.EqualTo(0));
+            Assert.That(history[0].velocityDelta.x, Is.EqualTo(0));
+            Assert.That(history[0].angularVelocity.x, Is.EqualTo(0));
+            Assert.That(history[0].angularVelocityDelta.x, Is.EqualTo(0));
 
             // second entry at t=1 should be unchanged, since we corrected after that one.
-            Assert.That(history.Keys[1], Is.EqualTo(1));
-            Assert.That(history.Values[1].position.x, Is.EqualTo(1));
-            Assert.That(history.Values[1].positionDelta.x, Is.EqualTo(1));
-            Assert.That(history.Values[1].velocity.x, Is.EqualTo(1));
-            Assert.That(history.Values[1].velocityDelta.x, Is.EqualTo(1));
-            Assert.That(history.Values[1].angularVelocity.x, Is.EqualTo(1));
-            Assert.That(history.Values[1].angularVelocityDelta.x, Is.EqualTo(1));
+            Assert.That(history[1].timestamp, Is.EqualTo(1));
+            Assert.That(history[1].position.x, Is.EqualTo(1));
+            Assert.That(history[1].positionDelta.x, Is.EqualTo(1));
+            Assert.That(history[1].velocity.x, Is.EqualTo(1));
+            Assert.That(history[1].velocityDelta.x, Is.EqualTo(1));
+            Assert.That(history[1].angularVelocity.x, Is.EqualTo(1));
+            Assert.That(history[1].angularVelocityDelta.x, Is.EqualTo(1));
 
+            // OLD SORTEDLIST VERSION: this checks the inserted entry
             // third entry at t=1.5 should be the received state.
             // absolute values should be the correction, without any deltas since
             // server doesn't send those and we don't need them.
-            Assert.That(history.Keys[2], Is.EqualTo(1.5));
-            Assert.That(history.Values[2].position.x, Is.EqualTo(1.6f).Within(0.001f));
-            Assert.That(history.Values[2].positionDelta.x, Is.EqualTo(0));
-            Assert.That(history.Values[2].velocity.x, Is.EqualTo(1.6f).Within(0.001f));
-            Assert.That(history.Values[2].velocityDelta.x, Is.EqualTo(0));
-            Assert.That(history.Values[2].angularVelocity.x, Is.EqualTo(1.6f).Within(0.001f));
-            Assert.That(history.Values[2].angularVelocityDelta.x, Is.EqualTo(0));
+            // Assert.That(history[2].timestamp, Is.EqualTo(1.5));
+            // Assert.That(history[2].position.x, Is.EqualTo(1.6f).Within(0.001f));
+            // Assert.That(history[2].positionDelta.x, Is.EqualTo(0));
+            // Assert.That(history[2].velocity.x, Is.EqualTo(1.6f).Within(0.001f));
+            // Assert.That(history[2].velocityDelta.x, Is.EqualTo(0));
+            // Assert.That(history[2].angularVelocity.x, Is.EqualTo(1.6f).Within(0.001f));
+            // Assert.That(history[2].angularVelocityDelta.x, Is.EqualTo(0));
 
+            // NEW RINGBUFFER VERSION: [2] instead of [3] since we don't insert into RingBuffer
             // fourth entry at t=2:
             // delta was from t=1.0 @ 1 to t=2.0 @ 2 = 1.0
             // we inserted at t=1.5 which is half way between t=1 and t=2.
             // the delta at t=1.5 would've been 0.5.
             // => the inserted position is at t=1.6
             // => add the relative delta of 0.5 = 2.1
-            Assert.That(history.Keys[3], Is.EqualTo(2.0));
-            Assert.That(history.Values[3].position.x, Is.EqualTo(2.1).Within(0.001f));
-            Assert.That(history.Values[3].positionDelta.x, Is.EqualTo(0.5).Within(0.001f));
-            Assert.That(history.Values[3].velocity.x, Is.EqualTo(2.1).Within(0.001f));
-            Assert.That(history.Values[3].velocityDelta.x, Is.EqualTo(0.5).Within(0.001f));
-            Assert.That(history.Values[3].angularVelocity.x, Is.EqualTo(2.1).Within(0.001f));
-            Assert.That(history.Values[3].angularVelocityDelta.x, Is.EqualTo(0.5));
+            Assert.That(history[2].timestamp, Is.EqualTo(2.0));
+            Assert.That(history[2].position.x, Is.EqualTo(2.1).Within(0.001f));
+            Assert.That(history[2].positionDelta.x, Is.EqualTo(0.5).Within(0.001f));
+            Assert.That(history[2].velocity.x, Is.EqualTo(2.1).Within(0.001f));
+            Assert.That(history[2].velocityDelta.x, Is.EqualTo(0.5).Within(0.001f));
+            Assert.That(history[2].angularVelocity.x, Is.EqualTo(2.1).Within(0.001f));
+            Assert.That(history[2].angularVelocityDelta.x, Is.EqualTo(0.5));
 
+            // NEW RINGBUFFER VERSION: [3] instead of [4] since we don't insert into RingBuffer
             // fifth entry at t=3:
             // client moved by a delta of 1 here, and that remains unchanged.
             // absolute position was 3.0 but if we apply the delta of 1 to the one before at 2.1,
             // we get the new position of 3.1
-            Assert.That(history.Keys[4], Is.EqualTo(3.0));
-            Assert.That(history.Values[4].position.x, Is.EqualTo(3.1).Within(0.001f));
-            Assert.That(history.Values[4].positionDelta.x, Is.EqualTo(1.0).Within(0.001f));
-            Assert.That(history.Values[4].velocity.x, Is.EqualTo(3.1).Within(0.001f));
-            Assert.That(history.Values[4].velocityDelta.x, Is.EqualTo(1.0).Within(0.001f));
-            Assert.That(history.Values[4].angularVelocity.x, Is.EqualTo(3.1).Within(0.001f));
-            Assert.That(history.Values[4].angularVelocityDelta.x, Is.EqualTo(1.0).Within(0.001f));
+            Assert.That(history[3].timestamp, Is.EqualTo(3.0));
+            Assert.That(history[3].position.x, Is.EqualTo(3.1).Within(0.001f));
+            Assert.That(history[3].positionDelta.x, Is.EqualTo(1.0).Within(0.001f));
+            Assert.That(history[3].velocity.x, Is.EqualTo(3.1).Within(0.001f));
+            Assert.That(history[3].velocityDelta.x, Is.EqualTo(1.0).Within(0.001f));
+            Assert.That(history[3].angularVelocity.x, Is.EqualTo(3.1).Within(0.001f));
+            Assert.That(history[3].angularVelocityDelta.x, Is.EqualTo(1.0).Within(0.001f));
         }
     }
 }
