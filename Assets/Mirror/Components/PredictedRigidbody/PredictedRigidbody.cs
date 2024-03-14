@@ -30,6 +30,7 @@ namespace Mirror
         // .predictedRigidbody is always kept up to date to wherever the RB is.
         // other components should use this when accessing Rigidbody.
         public Rigidbody predictedRigidbody;
+        Transform predictedRigidbodyTransform; // predictedRigidbody.transform for performance (Get/SetPositionAndRotation)
 
         Vector3 lastPosition;
 
@@ -124,6 +125,7 @@ namespace Mirror
             tf = transform;
             predictedRigidbody = GetComponent<Rigidbody>();
             if (predictedRigidbody == null) throw new InvalidOperationException($"Prediction: {name} is missing a Rigidbody component.");
+            predictedRigidbodyTransform = predictedRigidbody.transform;
 
             // cache some threshold to avoid calculating them in LateUpdate
             float colliderSize = GetComponentInChildren<Collider>().bounds.size.magnitude;
@@ -245,6 +247,7 @@ namespace Mirror
 
             // assign our Rigidbody reference to the ghost
             predictedRigidbody = physicsCopy.GetComponent<Rigidbody>();
+            predictedRigidbodyTransform = predictedRigidbody.transform;
         }
 
         protected virtual void DestroyGhosts()
@@ -279,6 +282,7 @@ namespace Mirror
 
                 // reassign our Rigidbody reference
                 predictedRigidbody = GetComponent<Rigidbody>();
+                predictedRigidbodyTransform = predictedRigidbody.transform;
             }
 
             // simply destroy the remote copy
@@ -318,8 +322,7 @@ namespace Mirror
 
             // FAST VERSION: this shows in profiler a lot, so cache EVERYTHING!
             tf.GetPositionAndRotation(out Vector3 currentPosition, out Quaternion currentRotation); // faster than tf.position + tf.rotation
-            Vector3 physicsPosition = predictedRigidbody.position;
-            Quaternion physicsRotation = predictedRigidbody.rotation;
+            predictedRigidbodyTransform.GetPositionAndRotation(out Vector3 physicsPosition, out Quaternion physicsRotation); // faster than Rigidbody .position and .rotation
             float deltaTime = Time.deltaTime;
 
             float distance = Vector3.Distance(currentPosition, physicsPosition);
@@ -639,6 +642,10 @@ namespace Mirror
                 remoteCopyTransform.localScale = tf.lossyScale; // world scale! see CreateGhosts comment.
             }
 
+            // performance: get Rigidbody position & rotation only once,
+            // and together via its transform
+            predictedRigidbodyTransform.GetPositionAndRotation(out Vector3 physicsPosition, out Quaternion physicsRotation);
+
             // OPTIONAL performance optimization when comparing idle objects.
             // even idle objects will have a history of ~32 entries.
             // sampling & traversing through them is unnecessarily costly.
@@ -658,8 +665,8 @@ namespace Mirror
             //
             // if this ever causes issues, feel free to disable it.
             if (compareLastFirst &&
-                Vector3.Distance(state.position, predictedRigidbody.position) < positionCorrectionThreshold &&
-                Quaternion.Angle(state.rotation, predictedRigidbody.rotation) < rotationCorrectionThreshold)
+                Vector3.Distance(state.position, physicsPosition) < positionCorrectionThreshold &&
+                Quaternion.Angle(state.rotation, physicsRotation) < rotationCorrectionThreshold)
             {
                 // Debug.Log($"OnReceivedState for {name}: taking optimized early return!");
                 return;
@@ -710,7 +717,7 @@ namespace Mirror
                 // we clamp it to 'now'.
                 // but only correct if off by threshold.
                 // TODO maybe we should interpolate this back to 'now'?
-                if (Vector3.Distance(state.position, predictedRigidbody.position) >= positionCorrectionThreshold)
+                if (Vector3.Distance(state.position, physicsPosition) >= positionCorrectionThreshold)
                 {
                     // this can happen a lot when latency is ~0. logging all the time allocates too much and is too slow.
                     // double ahead = state.timestamp - newest.timestamp;
