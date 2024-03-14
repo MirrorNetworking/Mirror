@@ -508,9 +508,10 @@ namespace Mirror
             Vector3 velocityDelta = Vector3.zero;
             Vector3 angularVelocityDelta = Vector3.zero;
             Quaternion rotationDelta = Quaternion.identity;
-            if (stateHistory.Count > 0)
+            int stateHistoryCount = stateHistory.Count; // perf: only grab .Count once
+            if (stateHistoryCount > 0)
             {
-                RigidbodyState last = stateHistory.Values[stateHistory.Count - 1];
+                RigidbodyState last = stateHistory.Values[stateHistoryCount - 1];
                 positionDelta = currentPosition - last.position;
                 velocityDelta = currentVelocity - last.velocity;
                 // Quaternions always need to be normalized in order to be valid rotations after operations
