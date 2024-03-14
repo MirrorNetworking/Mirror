@@ -15,5 +15,5 @@ This benchmark has predicted objects which are constantly synced & corrected.
 # Benchmark Results History for 1000 objects without ghosts:
 Not Predicted:    1000 FPS Client,   2500 FPS Server
 Predicted:         
-2024-03-13:       500 FPS Client,   1700 FPS Server
-2024-03-13:       580 FPS Client,   1700 FPS Server // don't log hard correcting msgs
+  2024-03-13:      500 FPS Client,   1700 FPS Server
+  2024-03-13:      580 FPS Client,   1700 FPS Server // micro optimizations
