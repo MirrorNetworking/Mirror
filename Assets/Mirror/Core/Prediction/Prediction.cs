@@ -110,7 +110,11 @@ namespace Mirror
             // respect the limit
             // TODO unit test to check if it respects max size
             if (history.Count >= stateHistoryLimit)
+            {
                 history.Dequeue();
+                // if we remove one entry, then we also need to adjust the afterIndex
+                afterIndex -= 1;
+            }
 
             // unlike with SortedList, we don't insert corrections for RingBuffer.
             // we only correct the values after it since insertions would be awkward for RingBuffer.
