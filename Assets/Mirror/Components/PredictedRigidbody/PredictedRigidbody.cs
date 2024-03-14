@@ -10,6 +10,7 @@
 // instead of real physics. It's not 100% correct - but it sure is fast!
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 namespace Mirror
@@ -372,6 +373,7 @@ namespace Mirror
         }
 
         // movement detection is virtual, in case projects want to use other methods.
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected virtual bool IsMoving() =>
             // straight forward implementation
             //   predictedRigidbody.velocity.magnitude >= motionSmoothingVelocityThreshold ||
