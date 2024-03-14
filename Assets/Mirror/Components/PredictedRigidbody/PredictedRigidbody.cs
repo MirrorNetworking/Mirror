@@ -425,28 +425,27 @@ namespace Mirror
         {
             // on clients (not host) we record the current state every FixedUpdate.
             // this is cheap, and allows us to keep a dense history.
-            if (isClientOnly)
-            {
-                // OPTIMIZATION: RecordState() is expensive because it inserts into a SortedList.
-                // only record if state actually changed!
-                // risks not having up to date states when correcting,
-                // but it doesn't matter since we'll always compare with the 'newest' anyway.
-                //
-                // we check in here instead of in RecordState() because RecordState() should definitely record if we call it!
-                if (onlyRecordChanges)
-                {
-                    // TODO maybe don't reuse the correction thresholds?
-                    tf.GetPositionAndRotation(out Vector3 position, out Quaternion rotation);
-                    if (Vector3.Distance(lastRecorded.position, position) < positionCorrectionThreshold &&
-                        Quaternion.Angle(lastRecorded.rotation, rotation) < rotationCorrectionThreshold)
-                    {
-                        // Debug.Log($"FixedUpdate for {name}: taking optimized early return instead of recording state.");
-                        return;
-                    }
-                }
+            if (!isClientOnly) return;
 
-                RecordState();
+            // OPTIMIZATION: RecordState() is expensive because it inserts into a SortedList.
+            // only record if state actually changed!
+            // risks not having up to date states when correcting,
+            // but it doesn't matter since we'll always compare with the 'newest' anyway.
+            //
+            // we check in here instead of in RecordState() because RecordState() should definitely record if we call it!
+            if (onlyRecordChanges)
+            {
+                // TODO maybe don't reuse the correction thresholds?
+                tf.GetPositionAndRotation(out Vector3 position, out Quaternion rotation);
+                if (Vector3.Distance(lastRecorded.position, position) < positionCorrectionThreshold &&
+                    Quaternion.Angle(lastRecorded.rotation, rotation) < rotationCorrectionThreshold)
+                {
+                    // Debug.Log($"FixedUpdate for {name}: taking optimized early return instead of recording state.");
+                    return;
+                }
             }
+
+            RecordState();
         }
 
         // manually store last recorded so we can easily check against this
