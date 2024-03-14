@@ -86,6 +86,9 @@ namespace Mirror
         public Material localGhostMaterial;
         public Material remoteGhostMaterial;
 
+        [Tooltip("Performance optimization: only create/destroy ghosts every n-th frame is enough.")]
+        public int checkGhostsEveryNthFrame = 4;
+
         [Tooltip("How fast to interpolate to the target position, relative to how far we are away from it.\nHigher value will be more jitter but sharper moves, lower value will be less jitter but a little too smooth / rounded moves.")]
         public float positionInterpolationSpeed = 15; // 10 is a little too low for billiards at least
         public float rotationInterpolationSpeed = 10;
@@ -386,6 +389,10 @@ namespace Mirror
 
         void UpdateGhosting()
         {
+            // perf: enough to check ghosts every few frames.
+            // PredictionBenchmark: only checking every 4th frame: 585 => 600 FPS
+            if (Time.frameCount % checkGhostsEveryNthFrame != 0) return;
+
             // client only uses ghosts on demand while interacting.
             // this way 1000 GameObjects don't need +1000 Ghost GameObjects all the time!
 
