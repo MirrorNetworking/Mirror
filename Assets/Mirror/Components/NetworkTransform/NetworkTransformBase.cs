@@ -62,7 +62,6 @@ namespace Mirror
         // selective sync //////////////////////////////////////////////////////
         [Header("Synchronization - Do Not Change At Runtime")]
         [SerializeField, Tooltip("Selectively syncs position, rotation, and scale.\nDo Not Change At Runtime!")]
-        /// <summary>Do Not Change At Runtime</summary>
         internal SyncInterpolateOptions synchronizationSelections = SyncInterpolateOptions.Default;
 
         public bool syncPosition => (synchronizationSelections & SyncInterpolateOptions.Position) == SyncInterpolateOptions.Position;
