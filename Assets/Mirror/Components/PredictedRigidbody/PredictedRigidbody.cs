@@ -293,8 +293,8 @@ namespace Mirror
         protected virtual void SmoothFollowPhysicsCopy()
         {
             // hard follow:
-            // tf.position = physicsCopyCollider.position;
-            // tf.rotation = physicsCopyCollider.rotation;
+            // predictedRigidbodyTransform.GetPositionAndRotation(out Vector3 physicsPosition, out Quaternion physicsRotation);
+            // tf.SetPositionAndRotation(physicsPosition, physicsRotation);
 
             // ORIGINAL VERSION: CLEAN AND SIMPLE
             /*
