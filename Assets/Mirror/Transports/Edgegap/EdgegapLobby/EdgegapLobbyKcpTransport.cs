@@ -10,7 +10,7 @@ namespace Edgegap
     public class EdgegapLobbyKcpTransport : EdgegapKcpTransport
     {
         [Header("Lobby Settings")]
-        [Tooltip("URL to the Edgegap lobby service")]
+        [Tooltip("URL to the Edgegap lobby service, automatically filled in after completing the creation process via button below (or enter manually)")]
         public string lobbyUrl;
         [Tooltip("How long to wait for the relay to be assigned after starting a lobby")]
         public float lobbyWaitTimeout = 60;
