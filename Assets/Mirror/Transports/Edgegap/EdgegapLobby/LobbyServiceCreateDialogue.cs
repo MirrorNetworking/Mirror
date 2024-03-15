@@ -24,12 +24,12 @@ namespace Edgegap
         {
             if (waitingCreate)
             {
-                EditorGUILayout.LabelField("Waiting for lobby to create..");
+                EditorGUILayout.LabelField("Waiting for lobby to create . . . ");
                 return;
             }
             if (waitingStatus)
             {
-                EditorGUILayout.LabelField("Waiting for lobby to deploy..");
+                EditorGUILayout.LabelField("Waiting for lobby to deploy . . . ");
                 EditorGUILayout.LabelField($"Latest status: {_lastStatus}");
                 return;
             }
