@@ -98,7 +98,7 @@ namespace Mirror
         Capture3D resultAfter;
         Capture3D resultInterpolated;
 
-
+        [ServerCallback]
         protected virtual void Update()
         {
             // only capture on server
