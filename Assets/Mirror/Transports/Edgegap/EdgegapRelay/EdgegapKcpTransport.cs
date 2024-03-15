@@ -10,7 +10,7 @@ using kcp2k;
 
 namespace Edgegap
 {
-    [DisallowMultipleComponent]
+    [HelpURL("https://mirror-networking.gitbook.io/docs/manual/transports/edgegap-transports/edgegap-relay")]
     public class EdgegapKcpTransport : KcpTransport
     {
         [Header("Relay")]
