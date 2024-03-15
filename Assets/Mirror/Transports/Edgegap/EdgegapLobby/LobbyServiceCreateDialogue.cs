@@ -41,6 +41,7 @@ namespace Edgegap
                 Application.OpenURL("https://app.edgegap.com/user-settings?tab=tokens");
             }
             EditorGUILayout.Separator();
+            EditorGUILayout.HelpBox("There's currently a bug where lobby names longer than 5 characters can fail to deploy correctly and will return a \"503 Service Temporarily Unavailable\"\nIt's recommended to limit your lobby names to 4-5 characters for now", UnityEditor.MessageType.Warning);
             _name = EditorGUILayout.TextField("Lobby Name", _name);
             EditorGUILayout.HelpBox(new GUIContent("The lobby name is your games identifier for the lobby service"));
 
