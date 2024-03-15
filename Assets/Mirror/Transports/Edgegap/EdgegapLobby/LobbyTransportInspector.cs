@@ -40,7 +40,7 @@ namespace Edgegap
         {
             serializedObject.Update();
             EditorGUILayout.PropertyField(lobbyUrlProperty);
-            if (GUILayout.Button("Create&Deploy Lobby"))
+            if (GUILayout.Button("Create & Deploy Lobby"))
             {
                 var input = CreateInstance<LobbyServiceCreateDialogue>();
                 input.onLobby = (url) =>
