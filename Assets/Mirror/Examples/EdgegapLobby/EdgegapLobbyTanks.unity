@@ -604,7 +604,7 @@ MonoBehaviour:
   relayGUI: 0
   userId: 11111111
   sessionId: 22222222
-  lobbyUrl: https://test-bd7a750909b95a.edgegap.net
+  lobbyUrl: 
   lobbyWaitTimeout: 60
 --- !u!1 &1458789072
 GameObject:
