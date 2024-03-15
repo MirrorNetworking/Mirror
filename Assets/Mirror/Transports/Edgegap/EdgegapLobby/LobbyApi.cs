@@ -181,12 +181,22 @@ namespace Edgegap
             public string status;
         }
 
-        public static void CreateAndDeployLobbyService(string apiKey, string name, Action<LobbyServiceResponse> onResponse, Action<string> onError)
+        public static void TrimApiKey(ref string apiKey)
         {
+            if (apiKey == null)
+            {
+                return;
+            }
             if (apiKey.StartsWith("token "))
             {
                 apiKey = apiKey.Substring("token ".Length);
             }
+            apiKey = apiKey.Trim();
+        }
+
+        public static void CreateAndDeployLobbyService(string apiKey, string name, Action<LobbyServiceResponse> onResponse, Action<string> onError)
+        {
+            TrimApiKey(ref apiKey);
 
             // try to get the lobby first
             GetLobbyService(apiKey, name, response =>
@@ -225,10 +235,8 @@ namespace Edgegap
 
         public static void GetLobbyService(string apiKey, string name, Action<LobbyServiceResponse?> onResponse, Action<string> onError)
         {
-            if (apiKey.StartsWith("token "))
-            {
-                apiKey = apiKey.Substring("token ".Length);
-            }
+            TrimApiKey(ref apiKey);
+
             var request = UnityWebRequest.Get($"https://api.edgegap.com/v1/lobbies/{name}");
             request.SetRequestHeader("Authorization", $"token {apiKey}");
             request.SendWebRequest().completed += (op) =>
@@ -249,10 +257,8 @@ namespace Edgegap
 
         public static void TerminateLobbyService(string apiKey, string name, Action<LobbyServiceResponse> onResponse, Action<string> onError)
         {
-            if (apiKey.StartsWith("token "))
-            {
-                apiKey = apiKey.Substring("token ".Length);
-            }
+            TrimApiKey(ref apiKey);
+
             var request = SendJson("https://api.edgegap.com/v1/lobbies:terminate", new CreateLobbyServiceRequest
             {
                 name = name

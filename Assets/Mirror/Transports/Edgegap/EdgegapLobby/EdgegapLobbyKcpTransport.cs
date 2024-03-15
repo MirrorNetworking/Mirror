@@ -6,7 +6,7 @@ using UnityEngine;
 using Random = UnityEngine.Random;
 namespace Edgegap
 {
-    [HelpURL("https://mirror-networking.gitbook.io/docs/manual/transports/edgegap-relay-transport")]
+    [HelpURL("https://mirror-networking.gitbook.io/docs/manual/transports/edgegap-transports/edgegap-relay")]
     public class EdgegapLobbyKcpTransport : EdgegapKcpTransport
     {
         [Header("Lobby Settings")]
