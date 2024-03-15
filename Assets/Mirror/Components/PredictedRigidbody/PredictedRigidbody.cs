@@ -111,6 +111,7 @@ namespace Mirror
         // protected Rigidbody physicsCopyRigidbody => rb; // caching to avoid GetComponent
         // protected Collider physicsCopyCollider;   // caching to avoid GetComponent
         float smoothFollowThreshold; // caching to avoid calculation in LateUpdate
+        float smoothFollowThresholdSqr; // caching to avoid calculation in LateUpdate
 
         // we also create one extra ghost for the exact known server state.
         protected GameObject remoteCopy;
@@ -130,6 +131,7 @@ namespace Mirror
             // cache some threshold to avoid calculating them in LateUpdate
             float colliderSize = GetComponentInChildren<Collider>().bounds.size.magnitude;
             smoothFollowThreshold = colliderSize * teleportDistanceMultiplier;
+            smoothFollowThresholdSqr = smoothFollowThreshold * smoothFollowThreshold;
 
             // cache initial position/rotation/scale to be used when moving physics components (configurable joints' range of motion)
             initialPosition = tf.position;
@@ -325,8 +327,14 @@ namespace Mirror
             predictedRigidbodyTransform.GetPositionAndRotation(out Vector3 physicsPosition, out Quaternion physicsRotation); // faster than Rigidbody .position and .rotation
             float deltaTime = Time.deltaTime;
 
-            float distance = Vector3.Distance(currentPosition, physicsPosition);
-            if (distance > smoothFollowThreshold)
+            // slow and simple version:
+            //   float distance = Vector3.Distance(currentPosition, physicsPosition);
+            //   if (distance > smoothFollowThreshold)
+            // faster version
+            Vector3 delta = physicsPosition - currentPosition;
+            float sqrDistance = Vector3.SqrMagnitude(delta);
+            float distance = Mathf.Sqrt(sqrDistance);
+            if (sqrDistance > smoothFollowThresholdSqr)
             {
                 tf.SetPositionAndRotation(physicsPosition, physicsRotation); // faster than .position and .rotation manually
                 Debug.Log($"[PredictedRigidbody] Teleported because distance to physics copy = {distance:F2} > threshold {smoothFollowThreshold:F2}");
