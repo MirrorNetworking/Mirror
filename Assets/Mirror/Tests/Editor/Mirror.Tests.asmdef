@@ -24,7 +24,8 @@
         "Castle.Core.dll",
         "System.Threading.Tasks.Extensions.dll",
         "Mono.CecilX.dll",
-        "nunit.framework.dll"
+        "nunit.framework.dll",
+        "BouncyCastle.Cryptography.dll"
     ],
     "autoReferenced": false,
     "defineConstraints": [

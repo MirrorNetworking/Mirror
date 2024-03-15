@@ -30,9 +30,19 @@ namespace Mirror
             rigidbodyCopy.constraints = original.constraints;
             rigidbodyCopy.sleepThreshold = original.sleepThreshold;
             rigidbodyCopy.freezeRotation = original.freezeRotation;
-            rigidbodyCopy.position = original.position;
-            rigidbodyCopy.rotation = original.rotation;
-            rigidbodyCopy.velocity = original.velocity;
+
+            // moving (Configurable)Joints messes up their range of motion unless
+            // we reset to initial position first (we do this in PredictedRigibody.cs).
+            // so here we don't set the Rigidbody's physics position at all.
+            // rigidbodyCopy.position = original.position;
+            // rigidbodyCopy.rotation = original.rotation;
+
+            // projects may keep Rigidbodies as kinematic sometimes. in that case, setting velocity would log an error
+            if (!original.isKinematic)
+            {
+                rigidbodyCopy.velocity = original.velocity;
+                rigidbodyCopy.angularVelocity = original.angularVelocity;
+            }
 
             // destroy original
             GameObject.Destroy(original);
@@ -131,6 +141,21 @@ namespace Mirror
             MeshCollider[] sourceColliders = source.GetComponentsInChildren<MeshCollider>();
             foreach (MeshCollider sourceCollider in sourceColliders)
             {
+                // when Models have Mesh->Read/Write disabled, it means that Unity
+                // uploads the mesh directly to the GPU and erases it on the CPU.
+                // on some platforms this makes moving a MeshCollider in builds impossible:
+                //
+                //   "CollisionMeshData couldn't be created because the mesh has been marked as non-accessible."
+                //
+                // on other platforms, this works fine.
+                // let's show an explicit log message so in case collisions don't
+                // work at runtime, it's obvious why it happens and how to fix it.
+                if (!sourceCollider.sharedMesh.isReadable)
+                {
+                    Debug.Log($"[Prediction]: MeshCollider on {sourceCollider.name} isn't readable, which may indicate that the Mesh only exists on the GPU. If {sourceCollider.name} is missing collisions, then please select the model in the Project Area, and enable Mesh->Read/Write so it's also available on the CPU!");
+                    // don't early return. keep trying, it may work.
+                }
+
                 // copy the relative transform:
                 // if collider is on root, it returns destination root.
                 // if collider is on a child, it creates and returns a child on destination.
@@ -229,10 +254,10 @@ namespace Mirror
                 jointCopy.connectedMassScale = sourceJoint.connectedMassScale;
                 jointCopy.enableCollision = sourceJoint.enableCollision;
                 jointCopy.enablePreprocessing = sourceJoint.enablePreprocessing;
-                jointCopy.highAngularXLimit = sourceJoint.highAngularXLimit;
+                jointCopy.highAngularXLimit = sourceJoint.highAngularXLimit; // moving this only works if the object is at initial position/rotation/scale, see PredictedRigidbody.cs
                 jointCopy.linearLimitSpring = sourceJoint.linearLimitSpring;
                 jointCopy.linearLimit = sourceJoint.linearLimit;
-                jointCopy.lowAngularXLimit = sourceJoint.lowAngularXLimit;
+                jointCopy.lowAngularXLimit = sourceJoint.lowAngularXLimit;   // moving this only works if the object is at initial position/rotation/scale, see PredictedRigidbody.cs
                 jointCopy.massScale = sourceJoint.massScale;
                 jointCopy.projectionAngle = sourceJoint.projectionAngle;
                 jointCopy.projectionDistance = sourceJoint.projectionDistance;

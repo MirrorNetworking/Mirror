@@ -61,7 +61,7 @@ namespace Edgegap.Editor.Api.Models.Requests
         #endregion // (!) Shows in API docs for PATCH, but could be CREATE only? "Unknown Args"
        
         [JsonProperty("max_duration")]
-        public int MaxDuration { get; set; } = 30;
+        public int MaxDuration { get; set; } = 60;
        
         [JsonProperty("use_telemetry")]
         public bool UseTelemetry { get; set; } = true;
@@ -70,7 +70,7 @@ namespace Edgegap.Editor.Api.Models.Requests
         public bool InjectContextEnv { get; set; } = true;
        
         [JsonProperty("whitelisting_active")]
-        public bool WhitelistingActive { get; set; } = true;
+        public bool WhitelistingActive { get; set; } = false;
        
         [JsonProperty("force_cache")]
         public bool ForceCache { get; set; }
@@ -82,7 +82,7 @@ namespace Edgegap.Editor.Api.Models.Requests
         public int CacheMaxHour { get; set; }
        
         [JsonProperty("time_to_deploy")]
-        public int TimeToDeploy { get; set; } = 15;
+        public int TimeToDeploy { get; set; } = 120;
        
         [JsonProperty("enable_all_locations")]
         public bool EnableAllLocations { get; set; }

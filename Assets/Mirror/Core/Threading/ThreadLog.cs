@@ -87,20 +87,23 @@ namespace Mirror
             {
                 switch (entry.type)
                 {
+                    // add [Thread#] prefix to make it super obvious where this log message comes from.
+                    // some projects may see unexpected messages that were previously hidden,
+                    // since Unity wouldn't log them without ThreadLog.cs.
                     case LogType.Log:
-                        Debug.Log($"[T{entry.threadId}] {entry.message}\n{entry.stackTrace}");
+                        Debug.Log($"[Thread{entry.threadId}] {entry.message}\n{entry.stackTrace}");
                         break;
                     case LogType.Warning:
-                        Debug.LogWarning($"[T{entry.threadId}] {entry.message}\n{entry.stackTrace}");
+                        Debug.LogWarning($"[Thread{entry.threadId}] {entry.message}\n{entry.stackTrace}");
                         break;
                     case LogType.Error:
-                        Debug.LogError($"[T{entry.threadId}] {entry.message}\n{entry.stackTrace}");
+                        Debug.LogError($"[Thread{entry.threadId}] {entry.message}\n{entry.stackTrace}");
                         break;
                     case LogType.Exception:
-                        Debug.LogError($"[T{entry.threadId}] {entry.message}\n{entry.stackTrace}");
+                        Debug.LogError($"[Thread{entry.threadId}] {entry.message}\n{entry.stackTrace}");
                         break;
                     case LogType.Assert:
-                        Debug.LogAssertion($"[T{entry.threadId}] {entry.message}\n{entry.stackTrace}");
+                        Debug.LogAssertion($"[Thread{entry.threadId}] {entry.message}\n{entry.stackTrace}");
                         break;
                 }
             }

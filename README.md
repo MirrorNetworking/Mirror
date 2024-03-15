@@ -49,7 +49,7 @@ Many of our features quickly became the norm across all Unity netcodes!<br>
 |                               |                                                                                                                                                               |                 |
 | 📏 **Snapshot Interp.**       | Perfectly smooth movement for all platforms and all games.                                                                                                    | **Stable**      |
 | 🏎 **Fast Prediction**        | Simulate Physics locally & apply server corrections **[VR ready]**                                                                                            | **Beta**        |
-| 🔫 **Lag Compensation**       | Roll back state to see what the player saw during input.                                                                                                      | **Preview**     |
+| 🔫 **Lag Compensation**       | Roll back state to see what the player saw during input.                                                                                                      | **Beta**     |
 |                               |                                                                                                                                                               |                 |
 | 🧙‍♂️ **General Purpose**     | Mirror supports all genres for all your games!                                                                                                                |                 |
 | 🧘‍♀️ **Stable API**          | Long term (10 years)  stability instead of new versions!                                                                                                      |
@@ -58,9 +58,8 @@ Many of our features quickly became the norm across all Unity netcodes!<br>
 | ❤️ **Community**              | Join our Discord with nearly 15.000 developers world wide!                                                                                                    |                 |
 | 🧜🏻‍♀️ **Long Term Support** | Maintained since 2014 with optional LTS version!                                                                                                              |                 |
 |                               |                                                                                                                                                               |                 |
-| 🦖 **Deterministic Physics**  | Open source deterministic physics for C# & Unity!                                                                                                             | **Researching** |
+| 🔒 **Encryption**             | Secure communication with end-to-end encryption.                                                                                                              | **Preview** |
 | 📐 **Bitpacking**             | Optimized compression (bools as 1 bit etc.)                                                                                                                   | **Researching** |
-| 🔒 **Encryption**             | Secure communication with end-to-end encryption.                                                                                                              | **Researching** |
 
 ---
 ## Architecture
@@ -144,7 +143,7 @@ Without any breaking changes, ever!
 [![Population: ONE](https://github.com/MirrorNetworking/Mirror/assets/16416509/dddc778b-a97f-452d-b5f8-6ec42c6da4f1)](https://www.populationonevr.com/)
 The [BigBoxVR](https://www.bigboxvr.com/) team started using Mirror in February 2019 for what eventually became one of the most popular Oculus Rift games.
 
-In addition to [24/7 support](https://github.com/sponsors/vis2k) from the Mirror team, BigBoxVR also hired one of our engineers.
+In addition to [24/7 support](https://discordapp.com/invite/xVW4nU4C34) from the Mirror team, BigBoxVR also hired one of our engineers.
 
 **Population: ONE** was [acquired by Meta](https://uploadvr.com/population-one-facebook-bigbox-acquire/) in June 2021, and they've just released a new [Sandbox](https://www.youtube.com/watch?v=jcI0h8dn9tA) addon in 2022!
 

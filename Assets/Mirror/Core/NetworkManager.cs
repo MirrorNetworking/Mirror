@@ -586,11 +586,9 @@ namespace Mirror
             // client will do things before the server is even fully started.
             //Debug.Log("StartHostClient called");
             SetupClient();
-
-            networkAddress = "localhost";
             RegisterClientMessages();
 
-            // call OnConencted needs to be called AFTER RegisterClientMessages
+            // InvokeOnConnected needs to be called AFTER RegisterClientMessages
             // (https://github.com/vis2k/Mirror/pull/1249/)
             HostMode.InvokeOnConnected();
 

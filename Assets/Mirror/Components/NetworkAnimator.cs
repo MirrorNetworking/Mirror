@@ -93,6 +93,11 @@ namespace Mirror
         void Awake() => Initialize();
         void OnEnable() => Initialize();
 
+        public virtual void Reset()
+        {
+            syncDirection = SyncDirection.ClientToServer;
+        }
+
         void FixedUpdate()
         {
             if (!SendMessagesAllowed)
