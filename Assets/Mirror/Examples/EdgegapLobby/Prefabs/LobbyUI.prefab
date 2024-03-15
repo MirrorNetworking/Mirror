@@ -343,8 +343,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 545, y: -25}
-  m_SizeDelta: {x: 1090, y: 50}
+  m_AnchoredPosition: {x: 712.61523, y: -25}
+  m_SizeDelta: {x: 1425.2305, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1813424390443808424
 GameObject:
@@ -1080,8 +1080,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 164.25, y: -25}
-  m_SizeDelta: {x: 328.5, y: 50}
+  m_AnchoredPosition: {x: 214.53458, y: -25}
+  m_SizeDelta: {x: 429.06915, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1813424391128259720
 CanvasRenderer:
@@ -2700,8 +2700,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 507.75, y: -25}
-  m_SizeDelta: {x: 328.5, y: 50}
+  m_AnchoredPosition: {x: 658.60376, y: -25}
+  m_SizeDelta: {x: 429.06915, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1813424391872098146
 CanvasRenderer:
@@ -3257,8 +3257,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 545, y: -180}
-  m_SizeDelta: {x: 1090, y: 100}
+  m_AnchoredPosition: {x: 712.61523, y: -115}
+  m_SizeDelta: {x: 1425.2305, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1813424391998362324
 GameObject:
@@ -3319,7 +3319,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 0.5}
+  m_Color: {r: 1, g: 0, b: 0, a: 0.65882355}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -3339,7 +3339,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Type to search...
+  m_Text: Enter your lobby name
 --- !u!1 &1813424392017665524
 GameObject:
   m_ObjectHideFlags: 0
