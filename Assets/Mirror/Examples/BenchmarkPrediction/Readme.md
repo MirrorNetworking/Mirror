@@ -19,3 +19,4 @@ Predicted:
   2024-03-13:      580 FPS Client,   1700 FPS Server // micro optimizations
   2024-03-14:      590 FPS Client,   1700 FPS Server // UpdateGhosting() every 4th frame
   2024-03-14:      615 FPS Client,   1700 FPS Server // predictedRigidbodyTransform.GetPositionAndRotation()
+  2024-03-15:      625 FPS Client,   1700 FPS Server // Vector3.MoveTowardsCustom()
