@@ -27,15 +27,14 @@ namespace Edgegap
                 return;
             }
             _key = EditorGUILayout.TextField("Edgegap API key", _key);
-            EditorGUILayout.LabelField("Your API key won't be saved.");
+            EditorGUILayout.HelpBox(new GUIContent("Your API key won't be saved."));
             if (GUILayout.Button("I have no api key?"))
             {
                 Application.OpenURL("https://app.edgegap.com/user-settings?tab=tokens");
             }
             EditorGUILayout.Separator();
             _name = EditorGUILayout.TextField("Lobby Name", _name);
-            EditorGUILayout.LabelField("The lobby name must be unique");
-
+            EditorGUILayout.HelpBox(new GUIContent("The lobby name is your games identifier for the lobby service"));
 
             if (GUILayout.Button("Create"))
             {
@@ -67,7 +66,11 @@ namespace Edgegap
 
             if (GUILayout.Button("Cancel"))
                 Close();
+
+            EditorGUILayout.HelpBox(new GUIContent("Note: If you forgot your lobby url simply re-create it with the same name!\nIt will re-use the existing lobby service"));
             EditorGUILayout.Separator();
+            EditorGUILayout.Separator();
+
 
             if (GUILayout.Button("Terminate existing deploy"))
             {
@@ -87,6 +90,7 @@ namespace Edgegap
                     });
                 }
             }
+            EditorGUILayout.HelpBox(new GUIContent("Done with your lobby?\nEnter the same name as creation to shut it down"));
         }
         private void RefreshStatus()
         {
