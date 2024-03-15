@@ -347,7 +347,31 @@ namespace Mirror
             //    sooner we need to catch the fuck up
             // float positionStep = (distance * distance) * interpolationSpeed;
             float positionStep = distance * positionInterpolationSpeed;
-            Vector3 newPosition = Vector3.MoveTowards(currentPosition, physicsPosition, positionStep * deltaTime);
+
+            // simple and slow version with MoveTowards, which recalculates delta and delta.sqrMagnitude:
+            //   Vector3 newPosition = Vector3.MoveTowards(currentPosition, physicsPosition, positionStep * deltaTime);
+            // faster version copied from MoveTowards:
+            // this increases Prediction Benchmark Client's FPS from 615 -> 640.
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            static Vector3 MoveTowardsCustom(
+              Vector3 current,
+              Vector3 target,
+              Vector3 _delta,     // pass this in since we already calculated it
+              float _sqrDistance, // pass this in since we already calculated it
+              float _distance,    // pass this in since we already calculated it
+              float maxDistanceDelta)
+            {
+                if (_sqrDistance == 0.0 || maxDistanceDelta >= 0.0 && _sqrDistance <= maxDistanceDelta * maxDistanceDelta)
+                    return target;
+
+                return new Vector3(
+                    current.x + (_delta.x / _distance) * maxDistanceDelta,
+                    current.y + (_delta.y / _distance) * maxDistanceDelta,
+                    current.z + (_delta.z / _distance) * maxDistanceDelta);
+            }
+
+            Vector3 newPosition = MoveTowardsCustom(currentPosition, physicsPosition, delta, sqrDistance, distance, positionStep * deltaTime);
+
 
             // smoothly interpolate to the target rotation.
             // Quaternion.RotateTowards doesn't seem to work at all, so let's use SLerp.
