@@ -348,32 +348,6 @@ namespace Mirror
             // float positionStep = (distance * distance) * interpolationSpeed;
             float positionStep = distance * positionInterpolationSpeed;
 
-            // simple and slow version with MoveTowards, which recalculates delta and delta.sqrMagnitude:
-            //   Vector3 newPosition = Vector3.MoveTowards(currentPosition, physicsPosition, positionStep * deltaTime);
-            // faster version copied from MoveTowards:
-            // this increases Prediction Benchmark Client's FPS from 615 -> 640.
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            static Vector3 MoveTowardsCustom(
-              Vector3 current,
-              Vector3 target,
-              Vector3 _delta,     // pass this in since we already calculated it
-              float _sqrDistance, // pass this in since we already calculated it
-              float _distance,    // pass this in since we already calculated it
-              float maxDistanceDelta)
-            {
-                if (_sqrDistance == 0.0 || maxDistanceDelta >= 0.0 && _sqrDistance <= maxDistanceDelta * maxDistanceDelta)
-                    return target;
-
-                float distFactor = maxDistanceDelta / _distance; // unlike Vector3.MoveTowards, we only calculate this once
-                return new Vector3(
-                    // current.x + (_delta.x / _distance) * maxDistanceDelta,
-                    // current.y + (_delta.y / _distance) * maxDistanceDelta,
-                    // current.z + (_delta.z / _distance) * maxDistanceDelta);
-                    current.x + _delta.x * distFactor,
-                    current.y + _delta.y * distFactor,
-                    current.z + _delta.z * distFactor);
-            }
-
             Vector3 newPosition = MoveTowardsCustom(currentPosition, physicsPosition, delta, sqrDistance, distance, positionStep * deltaTime);
 
             // smoothly interpolate to the target rotation.
@@ -383,6 +357,32 @@ namespace Mirror
 
             // assign position and rotation together. faster than accessing manually.
             tf.SetPositionAndRotation(newPosition, newRotation);
+        }
+
+        // simple and slow version with MoveTowards, which recalculates delta and delta.sqrMagnitude:
+        //   Vector3 newPosition = Vector3.MoveTowards(currentPosition, physicsPosition, positionStep * deltaTime);
+        // faster version copied from MoveTowards:
+        // this increases Prediction Benchmark Client's FPS from 615 -> 640.
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        static Vector3 MoveTowardsCustom(
+            Vector3 current,
+            Vector3 target,
+            Vector3 _delta,     // pass this in since we already calculated it
+            float _sqrDistance, // pass this in since we already calculated it
+            float _distance,    // pass this in since we already calculated it
+            float maxDistanceDelta)
+        {
+            if (_sqrDistance == 0.0 || maxDistanceDelta >= 0.0 && _sqrDistance <= maxDistanceDelta * maxDistanceDelta)
+                return target;
+
+            float distFactor = maxDistanceDelta / _distance; // unlike Vector3.MoveTowards, we only calculate this once
+            return new Vector3(
+                // current.x + (_delta.x / _distance) * maxDistanceDelta,
+                // current.y + (_delta.y / _distance) * maxDistanceDelta,
+                // current.z + (_delta.z / _distance) * maxDistanceDelta);
+                current.x + _delta.x * distFactor,
+                current.y + _delta.y * distFactor,
+                current.z + _delta.z * distFactor);
         }
 
         // destroy visual copy only in OnStopClient().
