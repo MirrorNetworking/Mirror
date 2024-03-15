@@ -364,14 +364,17 @@ namespace Mirror
                 if (_sqrDistance == 0.0 || maxDistanceDelta >= 0.0 && _sqrDistance <= maxDistanceDelta * maxDistanceDelta)
                     return target;
 
+                float distFactor = maxDistanceDelta / _distance; // unlike Vector3.MoveTowards, we only calculate this once
                 return new Vector3(
-                    current.x + (_delta.x / _distance) * maxDistanceDelta,
-                    current.y + (_delta.y / _distance) * maxDistanceDelta,
-                    current.z + (_delta.z / _distance) * maxDistanceDelta);
+                    // current.x + (_delta.x / _distance) * maxDistanceDelta,
+                    // current.y + (_delta.y / _distance) * maxDistanceDelta,
+                    // current.z + (_delta.z / _distance) * maxDistanceDelta);
+                    current.x + _delta.x * distFactor,
+                    current.y + _delta.y * distFactor,
+                    current.z + _delta.z * distFactor);
             }
 
             Vector3 newPosition = MoveTowardsCustom(currentPosition, physicsPosition, delta, sqrDistance, distance, positionStep * deltaTime);
-
 
             // smoothly interpolate to the target rotation.
             // Quaternion.RotateTowards doesn't seem to work at all, so let's use SLerp.
