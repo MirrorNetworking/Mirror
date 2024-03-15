@@ -34,6 +34,15 @@ namespace Mirror
         Default = Position | Rotation
     }
 
+    [Flags]
+    public enum BandwidthSavingsOptions
+    {
+        Nothing,
+        OnlySyncOnChange = 1 << 0,
+        CompressRotation = 1 << 1,
+        Default = OnlySyncOnChange | CompressRotation
+    }
+
     public abstract class NetworkTransformBase : NetworkBehaviour
     {
         // target transform to sync. can be on a child.
@@ -54,31 +63,31 @@ namespace Mirror
         [Header("Synchronization - Do Not Change At Runtime")]
         [SerializeField, Tooltip("Selectively syncs position, rotation, and scale.\nDo Not Change At Runtime!")]
         /// <summary>Do Not Change At Runtime</summary>
-        internal SyncInterpolateOptions syncSelection = SyncInterpolateOptions.Default;
+        internal SyncInterpolateOptions synchronizationSelections = SyncInterpolateOptions.Default;
 
-        public bool syncPosition => (syncSelection & SyncInterpolateOptions.Position) == SyncInterpolateOptions.Position;
-        public bool syncRotation => (syncSelection & SyncInterpolateOptions.Rotation) == SyncInterpolateOptions.Rotation;
-        public bool syncScale => (syncSelection & SyncInterpolateOptions.Scale) == SyncInterpolateOptions.Scale;
+        public bool syncPosition => (synchronizationSelections & SyncInterpolateOptions.Position) == SyncInterpolateOptions.Position;
+        public bool syncRotation => (synchronizationSelections & SyncInterpolateOptions.Rotation) == SyncInterpolateOptions.Rotation;
+        public bool syncScale => (synchronizationSelections & SyncInterpolateOptions.Scale) == SyncInterpolateOptions.Scale;
 
         // interpolation is on by default, but can be disabled to jump to
         // the destination immediately. some projects need this.
         [Header("Interpolation - Do Not Change At Runtime")]
         [SerializeField, Tooltip("Interpolate smoothly between snapshots.\nDo Not Change At Runtime!")]
-        /// <summary>Do Not Change At Runtime</summary>
-        internal SyncInterpolateOptions interpolateSelection = SyncInterpolateOptions.Default;
+        internal SyncInterpolateOptions interpolationOptions = SyncInterpolateOptions.Default;
 
-        public bool interpolatePosition => (interpolateSelection & SyncInterpolateOptions.Position) == SyncInterpolateOptions.Position;
-        public bool interpolateRotation => (interpolateSelection & SyncInterpolateOptions.Rotation) == SyncInterpolateOptions.Rotation;
-        public bool interpolateScale => (interpolateSelection & SyncInterpolateOptions.Scale) == SyncInterpolateOptions.Scale;
+        public bool interpolatePosition => (interpolationOptions & SyncInterpolateOptions.Position) == SyncInterpolateOptions.Position;
+        public bool interpolateRotation => (interpolationOptions & SyncInterpolateOptions.Rotation) == SyncInterpolateOptions.Rotation;
+        public bool interpolateScale => (interpolationOptions & SyncInterpolateOptions.Scale) == SyncInterpolateOptions.Scale;
 
-        [Header("Bandwidth Savings")]
-        [Tooltip("When true, changes are not sent unless greater than sensitivity values below.")]
-        public bool onlySyncOnChange = true;
-        [Tooltip("Apply smallest-three quaternion compression. This is lossy, you can disable it if the small rotation inaccuracies are noticeable in your project.")]
-        public bool compressRotation = true;
+        [Header("Bandwidth Savings - Do Not Change At Runtime")]
+        [SerializeField, Tooltip("Settings for reducing bandwidth usage.\nDo Not Change At Runtime!")]
+        internal BandwidthSavingsOptions bandwidthSavingsOptions = BandwidthSavingsOptions.Default;
+
+        public bool onlySyncOnChange => (bandwidthSavingsOptions & BandwidthSavingsOptions.OnlySyncOnChange) == BandwidthSavingsOptions.OnlySyncOnChange;
+        public bool compressRotation => (bandwidthSavingsOptions & BandwidthSavingsOptions.CompressRotation) == BandwidthSavingsOptions.CompressRotation;
 
         // CoordinateSpace ///////////////////////////////////////////////////////////
-        [Header("Coordinate Space")]
+        [Header("Coordinate Space - Do Not Change At Runtime")]
         [Tooltip("Local by default. World may be better when changing hierarchy, or non-NetworkTransforms root position/rotation/scale values.")]
         public CoordinateSpace coordinateSpace = CoordinateSpace.Local;
 
@@ -133,7 +142,7 @@ namespace Mirror
 
             // Unity doesn't support setting world scale.
             // OnValidate force disables syncScale in world mode.
-            if (coordinateSpace == CoordinateSpace.World) syncSelection &= ~SyncInterpolateOptions.Scale;
+            if (coordinateSpace == CoordinateSpace.World) synchronizationSelections &= ~SyncInterpolateOptions.Scale;
         }
 
         // snapshot functions //////////////////////////////////////////////////
