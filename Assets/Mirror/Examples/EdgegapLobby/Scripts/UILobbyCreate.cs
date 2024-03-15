@@ -17,6 +17,11 @@ namespace Mirror.Examples.EdgegapLobby
 
         private void Awake()
         {
+            ValidateName();
+            LobbyName.onValueChanged.AddListener(_ =>
+            {
+                ValidateName();
+            });
             CancelButton.onClick.AddListener(() =>
             {
                 List.gameObject.SetActive(true);
@@ -38,6 +43,12 @@ namespace Mirror.Examples.EdgegapLobby
                 _transport.SetServerLobbyParams(LobbyName.text, (int)SlotSlider.value);
                 NetworkManager.singleton.StartServer();
             });
+        }
+        void ValidateName()
+        {
+            bool valid = !string.IsNullOrWhiteSpace(LobbyName.text);
+            HostButton.interactable = valid;
+            ServerButton.interactable = valid;
         }
     }
 }
