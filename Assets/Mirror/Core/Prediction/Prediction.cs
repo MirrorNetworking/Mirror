@@ -28,6 +28,7 @@ namespace Mirror
     {
         // get the two states closest to a given timestamp.
         // those can be used to interpolate the exact state at that time.
+        // => RingBuffer: see prediction_ringbuffer_2 branch, but it's slower!
         public static bool Sample<T>(
             SortedList<double, T> history,
             double timestamp, // current server time
@@ -98,6 +99,7 @@ namespace Mirror
         // inserts a server state into the client's history.
         // readjust the deltas of the states after the inserted one.
         // returns the corrected final position.
+        // => RingBuffer: see prediction_ringbuffer_2 branch, but it's slower!
         public static T CorrectHistory<T>(
             SortedList<double, T> history,
             int stateHistoryLimit,
