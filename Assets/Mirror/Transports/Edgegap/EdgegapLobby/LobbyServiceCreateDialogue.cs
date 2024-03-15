@@ -13,6 +13,13 @@ namespace Edgegap
         private string _name;
         private string _key;
         private string _lastStatus;
+
+        private void Awake()
+        {
+            minSize = maxSize = new Vector2(450, 300);
+            titleContent = new GUIContent("Edgegap Lobby Service Setup");
+        }
+
         private void OnGUI()
         {
             if (waitingCreate)
@@ -27,6 +34,7 @@ namespace Edgegap
                 return;
             }
             _key = EditorGUILayout.TextField("Edgegap API key", _key);
+            LobbyApi.TrimApiKey(ref _key);
             EditorGUILayout.HelpBox(new GUIContent("Your API key won't be saved."));
             if (GUILayout.Button("I have no api key?"))
             {
