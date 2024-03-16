@@ -146,6 +146,7 @@ namespace Mirror.Tests.NetworkClients
             Assert.That(NetworkClient.OnConnectedEvent, Is.Null);
             Assert.That(NetworkClient.OnDisconnectedEvent, Is.Null);
             Assert.That(NetworkClient.OnErrorEvent, Is.Null);
+            Assert.That(NetworkClient.OnTransportExceptionEvent, Is.Null);
         }
 
         // test to prevent a bug where host mode scene transitions would

@@ -59,6 +59,9 @@ namespace Mirror
         /// <summary>Called by Transport when the client encountered an error.</summary>
         public Action<TransportError, string> OnClientError;
 
+        /// <summary>Called by Transport when the client encountered an error.</summary>
+        public Action<Exception> OnClientTransportException;
+
         /// <summary>Called by Transport when the client disconnected from the server.</summary>
         public Action OnClientDisconnected;
 
@@ -79,6 +82,10 @@ namespace Mirror
         /// <summary>Called by Transport when a server's connection encountered a problem.</summary>
         /// If a Disconnect will also be raised, raise the Error first.
         public Action<int, TransportError, string> OnServerError;
+
+        /// <summary>Called by Transport when a server's connection encountered a problem.</summary>
+        /// If a Disconnect will also be raised, raise the Error first.
+        public Action<int, Exception> OnServerTransportException;
 
         /// <summary>Called by Transport when a client disconnected from the server.</summary>
         public Action<int> OnServerDisconnected;

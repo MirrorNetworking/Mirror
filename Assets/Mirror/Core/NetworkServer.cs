@@ -89,6 +89,7 @@ namespace Mirror
         public static Action<NetworkConnectionToClient> OnConnectedEvent;
         public static Action<NetworkConnectionToClient> OnDisconnectedEvent;
         public static Action<NetworkConnectionToClient, TransportError, string> OnErrorEvent;
+        public static Action<NetworkConnectionToClient, Exception> OnTransportExceptionEvent;
 
         // keep track of actual achieved tick rate.
         // might become lower under heavy load.
@@ -184,6 +185,7 @@ namespace Mirror
             Transport.active.OnServerDataReceived += OnTransportData;
             Transport.active.OnServerDisconnected += OnTransportDisconnected;
             Transport.active.OnServerError += OnTransportError;
+            Transport.active.OnServerTransportException += OnTransportException;
         }
 
         /// <summary>Shuts down the server and disconnects all clients</summary>
@@ -243,6 +245,7 @@ namespace Mirror
             OnConnectedEvent = null;
             OnDisconnectedEvent = null;
             OnErrorEvent = null;
+            OnTransportExceptionEvent = null;
 
             if (aoi != null) aoi.ResetState();
         }
@@ -848,6 +851,17 @@ namespace Mirror
             // try get connection. passes null otherwise.
             connections.TryGetValue(connectionId, out NetworkConnectionToClient conn);
             OnErrorEvent?.Invoke(conn, error, reason);
+        }
+
+        // transport errors are forwarded to high level
+        static void OnTransportException(int connectionId, Exception exception)
+        {
+            // transport errors will happen. logging a warning is enough.
+            // make sure the user does not panic.
+            Debug.LogWarning($"Server Transport Exception for connId={connectionId}: {exception}");
+            // try get connection. passes null otherwise.
+            connections.TryGetValue(connectionId, out NetworkConnectionToClient conn);
+            OnTransportExceptionEvent?.Invoke(conn, exception);
         }
 
         /// <summary>Destroys all of the connection's owned objects on the server.</summary>

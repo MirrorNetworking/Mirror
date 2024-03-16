@@ -272,6 +272,26 @@ namespace Mirror.Tests.Transports
         }
 
         [Test]
+        public void TestClientExceptionCallback()
+        {
+            int called = 0;
+            middleware.OnClientTransportException = (exception) =>
+            {
+                called++;
+                // Assert that exception is System.Exception
+                Assert.That(exception, Is.TypeOf<Exception>());
+            };
+            // connect to give callback to inner
+            middleware.ClientConnect("localhost");
+
+            inner.OnClientTransportException.Invoke(new Exception());
+            Assert.That(called, Is.EqualTo(1));
+
+            inner.OnClientTransportException.Invoke(new Exception());
+            Assert.That(called, Is.EqualTo(2));
+        }
+
+        [Test]
         [TestCase(0)]
         [TestCase(1)]
         [TestCase(19)]
