@@ -39,7 +39,7 @@ function Connect(addressPtr, openCallbackPtr, closeCallBackPtr, messageCallbackP
     const address = UTF8ToString(addressPtr);
     console.log("Connecting to " + address);
     // Create webSocket connection.
-    webSocket = new WebSocket(address);
+    var webSocket = new WebSocket(address);
     webSocket.binaryType = 'arraybuffer';
     const index = SimpleWeb.AddNextSocket(webSocket);
 
