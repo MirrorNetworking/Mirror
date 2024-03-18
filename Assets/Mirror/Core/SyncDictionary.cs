@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -5,6 +6,18 @@ namespace Mirror
 {
     public class SyncIDictionary<TKey, TValue> : SyncObject, IDictionary<TKey, TValue>, IReadOnlyDictionary<TKey, TValue>
     {
+        /// <summary>This is called before the data is cleared</summary>
+        public event Action SyncDictionaryClearAction;
+
+        /// <summary>This is called after the item is added with TKey</summary>
+        public event Action<TKey> SyncDictionaryAddAction;
+
+        /// <summary>This is called after the item is changed with TKey. TValue is the OLD value</summary>
+        public event Action<TKey, TValue> SyncDictionarySetAction;
+
+        /// <summary>This is called after the item is removed with TKey. TValue is the OLD value</summary>
+        public event Action<TKey, TValue> SyncDictionaryRemoveAction;
+
         public delegate void SyncDictionaryChanged(Operation op, TKey key, TValue item);
 
         protected readonly IDictionary<TKey, TValue> objects;
@@ -83,6 +96,22 @@ namespace Mirror
             {
                 changes.Add(change);
                 OnDirty?.Invoke();
+            }
+
+            switch (op)
+            {
+                case Operation.OP_ADD:
+                    SyncDictionaryAddAction?.Invoke(key);
+                    break;
+                case Operation.OP_SET:
+                    SyncDictionarySetAction?.Invoke(key, item);
+                    break;
+                case Operation.OP_REMOVE:
+                    SyncDictionaryRemoveAction?.Invoke(key, item);
+                    break;
+                case Operation.OP_CLEAR:
+                    SyncDictionaryClearAction?.Invoke();
+                    break;
             }
 
             Callback?.Invoke(op, key, item);
@@ -319,9 +348,9 @@ namespace Mirror
 
     public class SyncDictionary<TKey, TValue> : SyncIDictionary<TKey, TValue>
     {
-        public SyncDictionary() : base(new Dictionary<TKey, TValue>()) {}
-        public SyncDictionary(IEqualityComparer<TKey> eq) : base(new Dictionary<TKey, TValue>(eq)) {}
-        public SyncDictionary(IDictionary<TKey, TValue> d) : base(new Dictionary<TKey, TValue>(d)) {}
+        public SyncDictionary() : base(new Dictionary<TKey, TValue>()) { }
+        public SyncDictionary(IEqualityComparer<TKey> eq) : base(new Dictionary<TKey, TValue>(eq)) { }
+        public SyncDictionary(IDictionary<TKey, TValue> d) : base(new Dictionary<TKey, TValue>(d)) { }
         public new Dictionary<TKey, TValue>.ValueCollection Values => ((Dictionary<TKey, TValue>)objects).Values;
         public new Dictionary<TKey, TValue>.KeyCollection Keys => ((Dictionary<TKey, TValue>)objects).Keys;
         public new Dictionary<TKey, TValue>.Enumerator GetEnumerator() => ((Dictionary<TKey, TValue>)objects).GetEnumerator();
