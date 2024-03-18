@@ -168,120 +168,131 @@ namespace Mirror.Transports.Encryption
 
         public void OnReceiveRaw(ArraySegment<byte> data, int channel)
         {
-            if (data.Count < 1)
+            try
             {
-                _error(TransportError.Unexpected, "Received empty packet");
-                return;
-            }
-
-            using (NetworkReaderPooled reader = NetworkReaderPool.Get(data))
-            {
-                OpCodes opcode = (OpCodes)reader.ReadByte();
-                switch (opcode)
+                Profiler.BeginSample("EncryptedConnection.OnReceiveRaw");
+                if (data.Count < 1)
                 {
-                    case OpCodes.Data:
-                        // first sender ready is implicit when data is received
-                        if (_sendsFirst && _state == State.WaitingHandshakeReply)
-                        {
+                    _error(TransportError.Unexpected, "Received empty packet");
+                    return;
+                }
+
+                using (NetworkReaderPooled reader = NetworkReaderPool.Get(data))
+                {
+                    OpCodes opcode = (OpCodes)reader.ReadByte();
+                    switch (opcode)
+                    {
+                        case OpCodes.Data:
+                            // first sender ready is implicit when data is received
+                            if (_sendsFirst && _state == State.WaitingHandshakeReply)
+                            {
+                                SetReady();
+                            }
+                            else if (!IsReady)
+                            {
+                                _error(TransportError.Unexpected, "Unexpected data while not ready.");
+                            }
+
+                            if (reader.Remaining < Overhead)
+                            {
+                                _error(TransportError.Unexpected, "received data packet smaller than metadata size");
+                                return;
+                            }
+
+                            ArraySegment<byte> ciphertext = reader.ReadBytesSegment(reader.Remaining - NonceSize);
+                            reader.ReadBytes(ReceiveNonce, NonceSize);
+
+                            Profiler.BeginSample("EncryptedConnection.Decrypt");
+                            ArraySegment<byte> plaintext = Decrypt(ciphertext);
+                            Profiler.EndSample();
+                            if (plaintext.Count == 0)
+                            {
+                                // error
+                                return;
+                            }
+                            Profiler.BeginSample("EncryptedConnection._receive");
+                            _receive(plaintext, channel);
+                            Profiler.EndSample();
+                            break;
+                        case OpCodes.HandshakeStart:
+                            if (_sendsFirst)
+                            {
+                                _error(TransportError.Unexpected, "Received HandshakeStart packet, we don't expect this.");
+                                return;
+                            }
+
+                            if (_state == State.WaitingHandshakeReply)
+                            {
+                                // this is fine, packets may arrive out of order
+                                return;
+                            }
+
+                            _state = State.WaitingHandshakeReply;
+                            ResetTimeouts();
+                            CompleteExchange(reader.ReadBytesSegment(reader.Remaining), _hkdfSalt);
+                            SendHandshakeAndPubKey(OpCodes.HandshakeAck);
+                            break;
+                        case OpCodes.HandshakeAck:
+                            if (!_sendsFirst)
+                            {
+                                _error(TransportError.Unexpected, "Received HandshakeAck packet, we don't expect this.");
+                                return;
+                            }
+
+                            if (IsReady)
+                            {
+                                // this is fine, packets may arrive out of order
+                                return;
+                            }
+
+                            if (_state == State.WaitingHandshakeReply)
+                            {
+                                // this is fine, packets may arrive out of order
+                                return;
+                            }
+
+
+                            _state = State.WaitingHandshakeReply;
+                            ResetTimeouts();
+                            reader.ReadBytes(_tmpRemoteSaltBuffer, HkdfSaltSize);
+                            CompleteExchange(reader.ReadBytesSegment(reader.Remaining), _tmpRemoteSaltBuffer);
+                            SendHandshakeFin();
+                            break;
+                        case OpCodes.HandshakeFin:
+                            if (_sendsFirst)
+                            {
+                                _error(TransportError.Unexpected, "Received HandshakeFin packet, we don't expect this.");
+                                return;
+                            }
+
+                            if (IsReady)
+                            {
+                                // this is fine, packets may arrive out of order
+                                return;
+                            }
+
+                            if (_state != State.WaitingHandshakeReply)
+                            {
+                                _error(TransportError.Unexpected,
+                                    "Received HandshakeFin packet, we didn't expect this yet.");
+                                return;
+                            }
+
                             SetReady();
-                        }
-                        else if (!IsReady)
-                        {
-                            _error(TransportError.Unexpected, "Unexpected data while not ready.");
-                        }
 
-                        if (reader.Remaining < Overhead)
-                        {
-                            _error(TransportError.Unexpected, "received data packet smaller than metadata size");
-                            return;
-                        }
-
-                        ArraySegment<byte> ciphertext = reader.ReadBytesSegment(reader.Remaining - NonceSize);
-                        reader.ReadBytes(ReceiveNonce, NonceSize);
-
-                        Profiler.BeginSample("EncryptedConnection.Decrypt");
-                        ArraySegment<byte> plaintext = Decrypt(ciphertext);
-                        Profiler.EndSample();
-                        if (plaintext.Count == 0)
-                        {
-                            // error
-                            return;
-                        }
-                        _receive(plaintext, channel);
-                        break;
-                    case OpCodes.HandshakeStart:
-                        if (_sendsFirst)
-                        {
-                            _error(TransportError.Unexpected, "Received HandshakeStart packet, we don't expect this.");
-                            return;
-                        }
-
-                        if (_state == State.WaitingHandshakeReply)
-                        {
-                            // this is fine, packets may arrive out of order
-                            return;
-                        }
-
-                        _state = State.WaitingHandshakeReply;
-                        ResetTimeouts();
-                        CompleteExchange(reader.ReadBytesSegment(reader.Remaining), _hkdfSalt);
-                        SendHandshakeAndPubKey(OpCodes.HandshakeAck);
-                        break;
-                    case OpCodes.HandshakeAck:
-                        if (!_sendsFirst)
-                        {
-                            _error(TransportError.Unexpected, "Received HandshakeAck packet, we don't expect this.");
-                            return;
-                        }
-
-                        if (IsReady)
-                        {
-                            // this is fine, packets may arrive out of order
-                            return;
-                        }
-
-                        if (_state == State.WaitingHandshakeReply)
-                        {
-                            // this is fine, packets may arrive out of order
-                            return;
-                        }
-
-
-                        _state = State.WaitingHandshakeReply;
-                        ResetTimeouts();
-                        reader.ReadBytes(_tmpRemoteSaltBuffer, HkdfSaltSize);
-                        CompleteExchange(reader.ReadBytesSegment(reader.Remaining), _tmpRemoteSaltBuffer);
-                        SendHandshakeFin();
-                        break;
-                    case OpCodes.HandshakeFin:
-                        if (_sendsFirst)
-                        {
-                            _error(TransportError.Unexpected, "Received HandshakeFin packet, we don't expect this.");
-                            return;
-                        }
-
-                        if (IsReady)
-                        {
-                            // this is fine, packets may arrive out of order
-                            return;
-                        }
-
-                        if (_state != State.WaitingHandshakeReply)
-                        {
-                            _error(TransportError.Unexpected,
-                                "Received HandshakeFin packet, we didn't expect this yet.");
-                            return;
-                        }
-
-                        SetReady();
-
-                        break;
-                    default:
-                        _error(TransportError.InvalidReceive, $"Unhandled opcode {(byte)opcode:x}");
-                        break;
+                            break;
+                        default:
+                            _error(TransportError.InvalidReceive, $"Unhandled opcode {(byte)opcode:x}");
+                            break;
+                    }
                 }
             }
+            finally
+            {
+                Profiler.EndSample();
+            }
         }
+
         private void SetReady()
         {
             // done with credentials, null out the reference
@@ -299,22 +310,33 @@ namespace Mirror.Transports.Encryption
 
         public void Send(ArraySegment<byte> data, int channel)
         {
-            using (NetworkWriterPooled writer = NetworkWriterPool.Get())
+            try
             {
-                writer.WriteByte((byte)OpCodes.Data);
-                Profiler.BeginSample("EncryptedConnection.Encrypt");
-                ArraySegment<byte> encrypted = Encrypt(data);
-                Profiler.EndSample();
+                Profiler.BeginSample("EncryptedConnection.Send");
 
-                if (encrypted.Count == 0)
+                using (NetworkWriterPooled writer = NetworkWriterPool.Get())
                 {
-                    // error
-                    return;
+                    writer.WriteByte((byte)OpCodes.Data);
+                    Profiler.BeginSample("EncryptedConnection.Encrypt");
+                    ArraySegment<byte> encrypted = Encrypt(data);
+                    Profiler.EndSample();
+
+                    if (encrypted.Count == 0)
+                    {
+                        // error
+                        return;
+                    }
+                    writer.WriteBytes(encrypted.Array, 0, encrypted.Count);
+                    // write nonce after since Encrypt will update it
+                    writer.WriteBytes(_nonce, 0, NonceSize);
+                    Profiler.BeginSample("EncryptedConnection._send");
+                    _send(writer.ToArraySegment(), channel);
+                    Profiler.EndSample();
                 }
-                writer.WriteBytes(encrypted.Array, 0, encrypted.Count);
-                // write nonce after since Encrypt will update it
-                writer.WriteBytes(_nonce, 0, NonceSize);
-                _send(writer.ToArraySegment(), channel);
+            }
+            finally
+            {
+                Profiler.EndSample();
             }
         }
 
