@@ -255,10 +255,10 @@ namespace Mirror
             get => objects[i];
             set
             {
-                if (objects.TryGetValue(i, out TValue oldValue))
+                if (ContainsKey(i))
                 {
                     objects[i] = value;
-                    AddOperation(Operation.OP_SET, i, oldValue, true);
+                    AddOperation(Operation.OP_SET, i, value, true);
                 }
                 else
                 {
