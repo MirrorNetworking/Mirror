@@ -351,21 +351,9 @@ namespace Mirror.Transports.Encryption
             }
             // Need to make the nonce unique again before encrypting another message
             UpdateNonce();
-            // Re-initialize the cipher with our cached parameters
-            Cipher.Init(true, _cipherParametersEncrypt);
-
-            // Calculate the expected output size, this should always be input size + mac size
-            int outSize = Cipher.GetOutputSize(plaintext.Count);
-#if UNITY_EDITOR
-            // expecting the outSize to be input size + MacSize
-            if (outSize != plaintext.Count + MacSizeBytes)
-            {
-                throw new Exception($"Encrypt: Unexpected output size (Expected {plaintext.Count + MacSizeBytes}, got {outSize}");
-            }
-#endif
+            int outSize = plaintext.Count + MacSizeBytes;
             // Resize the static buffer to fit
             EnsureSize(ref _tmpCryptBuffer, outSize);
-
             if (AesGCMEncryptionNative.IsSupported)
             {
                 ArraySegment<byte> nativeRes = AesGCMEncryptionNative.Encrypt(_keyRaw, _nonce, plaintext, new ArraySegment<byte>(_tmpCryptBuffer));
@@ -376,6 +364,20 @@ namespace Mirror.Transports.Encryption
                 }
                 return nativeRes;
             }
+
+            // Re-initialize the cipher with our cached parameters
+            Cipher.Init(true, _cipherParametersEncrypt);
+
+#if UNITY_EDITOR
+            // Sanity check!
+            // Calculate the expected output size, this should always be input size + mac size
+            int calcOutSize = Cipher.GetOutputSize(plaintext.Count);
+            // expecting the outSize to be input size + MacSize
+            if (calcOutSize != outSize)
+            {
+                throw new Exception($"Encrypt: Unexpected output size (Expected {outSize}, got {calcOutSize}");
+            }
+#endif
 
             int resultLen;
             try
@@ -411,18 +413,9 @@ namespace Mirror.Transports.Encryption
                 // Invalid
                 return new ArraySegment<byte>();
             }
-            // Re-initialize the cipher with our cached parameters
-            Cipher.Init(false, _cipherParametersDecrypt);
 
-            // Calculate the expected output size, this should always be input size - mac size
-            int outSize = Cipher.GetOutputSize(ciphertext.Count);
-#if UNITY_EDITOR
-            // expecting the outSize to be input size - MacSize
-            if (outSize != ciphertext.Count - MacSizeBytes)
-            {
-                throw new Exception($"Decrypt: Unexpected output size (Expected {ciphertext.Count - MacSizeBytes}, got {outSize}");
-            }
-#endif
+
+            int outSize = ciphertext.Count - MacSizeBytes;
             // Resize the static buffer to fit
             EnsureSize(ref _tmpCryptBuffer, outSize);
             if (AesGCMEncryptionNative.IsSupported)
@@ -435,6 +428,21 @@ namespace Mirror.Transports.Encryption
                 }
                 return nativeRes;
             }
+
+            // Re-initialize the cipher with our cached parameters
+            Cipher.Init(false, _cipherParametersDecrypt);
+
+#if UNITY_EDITOR
+            // Sanity check!
+            // Calculate the expected output size, this should always be input size - mac size
+            int calcOutSize = Cipher.GetOutputSize(ciphertext.Count);
+            // expecting the outSize to be input size - MacSize
+            if (outSize != calcOutSize)
+            {
+                throw new Exception($"Decrypt: Unexpected output size (Expected {ciphertext.Count - MacSizeBytes}, got {outSize}");
+            }
+#endif
+
             int resultLen;
             try
             {
