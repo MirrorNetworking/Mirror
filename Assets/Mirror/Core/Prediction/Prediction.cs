@@ -117,10 +117,15 @@ namespace Mirror
                 afterIndex -= 1; // we removed the first value so all indices are off by one now
             }
 
-            // insert the corrected state into the history, or overwrite if already exists
-            // SortedList insertions are O(N)!
-            history[corrected.timestamp] = corrected;
-            afterIndex += 1; // we inserted the corrected value before the previous index
+            // PERFORMANCE OPTIMIZATION: avoid O(N) insertion, only readjust all values after.
+            // the end result is the same since after.delta and after.position are both recalculated.
+            // it's technically not correct if we were to reconstruct final position from 0..after..end but
+            // we never do, we only ever iterate from after..end!
+            //
+            //   insert the corrected state into the history, or overwrite if already exists
+            //   SortedList insertions are O(N)!
+            //     history[corrected.timestamp] = corrected;
+            //     afterIndex += 1; // we inserted the corrected value before the previous index
 
             // the entry behind the inserted one still has the delta from (before, after).
             // we need to correct it to (corrected, after).

@@ -160,8 +160,10 @@ namespace Mirror.Tests
             const int historyLimit = 32;
             Prediction.CorrectHistory(history, historyLimit, correction, before, after, afterIndex);
 
-            // there should be 4 initial + 1 corrected = 5 entries now
-            Assert.That(history.Count, Is.EqualTo(5));
+            // PERFORMANCE OPTIMIZATION: nothing is inserted anymore, values are only adjusted.
+            //   there should be 4 initial + 1 corrected = 5 entries now
+            //   Assert.That(history.Count, Is.EqualTo(5));
+            Assert.That(history.Count, Is.EqualTo(4));
 
             // first entry at t=0 should be unchanged, since we corrected after that one.
             Assert.That(history.Keys[0], Is.EqualTo(0));
@@ -181,16 +183,17 @@ namespace Mirror.Tests
             Assert.That(history.Values[1].angularVelocity.x, Is.EqualTo(1));
             Assert.That(history.Values[1].angularVelocityDelta.x, Is.EqualTo(1));
 
-            // third entry at t=1.5 should be the received state.
-            // absolute values should be the correction, without any deltas since
-            // server doesn't send those and we don't need them.
-            Assert.That(history.Keys[2], Is.EqualTo(1.5));
-            Assert.That(history.Values[2].position.x, Is.EqualTo(1.6f).Within(0.001f));
-            Assert.That(history.Values[2].positionDelta.x, Is.EqualTo(0));
-            Assert.That(history.Values[2].velocity.x, Is.EqualTo(1.6f).Within(0.001f));
-            Assert.That(history.Values[2].velocityDelta.x, Is.EqualTo(0));
-            Assert.That(history.Values[2].angularVelocity.x, Is.EqualTo(1.6f).Within(0.001f));
-            Assert.That(history.Values[2].angularVelocityDelta.x, Is.EqualTo(0));
+            // PERFORMANCE OPTIMIZATION: nothing is inserted anymore, values are only adjusted.
+            //   third entry at t=1.5 should be the received state.
+            //   absolute values should be the correction, without any deltas since
+            //   server doesn't send those and we don't need them.
+            //   Assert.That(history.Keys[2], Is.EqualTo(1.5));
+            //   Assert.That(history.Values[2].position.x, Is.EqualTo(1.6f).Within(0.001f));
+            //   Assert.That(history.Values[2].positionDelta.x, Is.EqualTo(0));
+            //   Assert.That(history.Values[2].velocity.x, Is.EqualTo(1.6f).Within(0.001f));
+            //   Assert.That(history.Values[2].velocityDelta.x, Is.EqualTo(0));
+            //   Assert.That(history.Values[2].angularVelocity.x, Is.EqualTo(1.6f).Within(0.001f));
+            //   Assert.That(history.Values[2].angularVelocityDelta.x, Is.EqualTo(0));
 
             // fourth entry at t=2:
             // delta was from t=1.0 @ 1 to t=2.0 @ 2 = 1.0
@@ -198,25 +201,25 @@ namespace Mirror.Tests
             // the delta at t=1.5 would've been 0.5.
             // => the inserted position is at t=1.6
             // => add the relative delta of 0.5 = 2.1
-            Assert.That(history.Keys[3], Is.EqualTo(2.0));
-            Assert.That(history.Values[3].position.x, Is.EqualTo(2.1).Within(0.001f));
-            Assert.That(history.Values[3].positionDelta.x, Is.EqualTo(0.5).Within(0.001f));
-            Assert.That(history.Values[3].velocity.x, Is.EqualTo(2.1).Within(0.001f));
-            Assert.That(history.Values[3].velocityDelta.x, Is.EqualTo(0.5).Within(0.001f));
-            Assert.That(history.Values[3].angularVelocity.x, Is.EqualTo(2.1).Within(0.001f));
-            Assert.That(history.Values[3].angularVelocityDelta.x, Is.EqualTo(0.5));
+            Assert.That(history.Keys[2], Is.EqualTo(2.0));
+            Assert.That(history.Values[2].position.x, Is.EqualTo(2.1).Within(0.001f));
+            Assert.That(history.Values[2].positionDelta.x, Is.EqualTo(0.5).Within(0.001f));
+            Assert.That(history.Values[2].velocity.x, Is.EqualTo(2.1).Within(0.001f));
+            Assert.That(history.Values[2].velocityDelta.x, Is.EqualTo(0.5).Within(0.001f));
+            Assert.That(history.Values[2].angularVelocity.x, Is.EqualTo(2.1).Within(0.001f));
+            Assert.That(history.Values[2].angularVelocityDelta.x, Is.EqualTo(0.5));
 
             // fifth entry at t=3:
             // client moved by a delta of 1 here, and that remains unchanged.
             // absolute position was 3.0 but if we apply the delta of 1 to the one before at 2.1,
             // we get the new position of 3.1
-            Assert.That(history.Keys[4], Is.EqualTo(3.0));
-            Assert.That(history.Values[4].position.x, Is.EqualTo(3.1).Within(0.001f));
-            Assert.That(history.Values[4].positionDelta.x, Is.EqualTo(1.0).Within(0.001f));
-            Assert.That(history.Values[4].velocity.x, Is.EqualTo(3.1).Within(0.001f));
-            Assert.That(history.Values[4].velocityDelta.x, Is.EqualTo(1.0).Within(0.001f));
-            Assert.That(history.Values[4].angularVelocity.x, Is.EqualTo(3.1).Within(0.001f));
-            Assert.That(history.Values[4].angularVelocityDelta.x, Is.EqualTo(1.0).Within(0.001f));
+            Assert.That(history.Keys[3], Is.EqualTo(3.0));
+            Assert.That(history.Values[3].position.x, Is.EqualTo(3.1).Within(0.001f));
+            Assert.That(history.Values[3].positionDelta.x, Is.EqualTo(1.0).Within(0.001f));
+            Assert.That(history.Values[3].velocity.x, Is.EqualTo(3.1).Within(0.001f));
+            Assert.That(history.Values[3].velocityDelta.x, Is.EqualTo(1.0).Within(0.001f));
+            Assert.That(history.Values[3].angularVelocity.x, Is.EqualTo(3.1).Within(0.001f));
+            Assert.That(history.Values[3].angularVelocityDelta.x, Is.EqualTo(1.0).Within(0.001f));
         }
     }
 }
