@@ -115,6 +115,7 @@ namespace Mirror
                 history.RemoveAt(0);
 
             // insert the corrected state into the history, or overwrite if already exists
+            // SortedList insertions are O(N)!
             history[corrected.timestamp] = corrected;
 
             // the entry behind the inserted one still has the delta from (before, after).
