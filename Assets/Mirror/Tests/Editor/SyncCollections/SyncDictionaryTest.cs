@@ -4,13 +4,15 @@ using NUnit.Framework;
 
 namespace Mirror.Tests.SyncCollections
 {
-    [TestFixture]
+    [TestFixture(true)]
+    [TestFixture(false)]
     public class SyncDictionaryTest
     {
         SyncDictionary<int, string> serverSyncDictionary;
         SyncDictionary<int, string> clientSyncDictionary;
         int serverSyncDictionaryDirtyCalled;
         int clientSyncDictionaryDirtyCalled;
+        bool optimized;
 
         void SerializeAllTo<T>(T fromList, T toList) where T : SyncObject
         {
@@ -29,11 +31,16 @@ namespace Mirror.Tests.SyncCollections
             fromList.ClearChanges();
         }
 
+        public SyncDictionaryTest(bool optimized)
+        {
+            this.optimized = optimized;
+        }
+
         [SetUp]
         public void SetUp()
         {
-            serverSyncDictionary = new SyncDictionary<int, string>();
-            clientSyncDictionary = new SyncDictionary<int, string>();
+            serverSyncDictionary = new SyncDictionary<int, string>(optimized);
+            clientSyncDictionary = new SyncDictionary<int, string>(optimized);
 
             // set writable
             serverSyncDictionary.IsWritable = () => true;
