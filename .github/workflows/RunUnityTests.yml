@@ -12,13 +12,14 @@ jobs:
       matrix:
         unityVersion:
           - 2019.4.40f1
-          - 2020.3.46f1
-          - 2021.3.22f1
-          - 2022.2.13f1
+          - 2020.3.48f1
+          - 2021.3.36f1
+          - 2022.3.21f1
+          - 2023.2.13f1
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       # Do Not Enable Caching --- Library needs to be recompiled every time because Weaver
       # Leaving this here for posterity to ensure we never turn this on.
@@ -30,7 +31,7 @@ jobs:
       #    key: Library-${{ matrix.unityVersion }}
 
       - name: Run editor Tests
-        uses: game-ci/unity-test-runner@main
+        uses: game-ci/unity-test-runner@v4.0.0
 
         # We can use the same license for all Unity versions
         env:
@@ -46,13 +47,15 @@ jobs:
           customParameters: -stackTraceLogType None
         
       - name: Archive test results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: Test Results ${{ matrix.unityVersion }}
           path: artifacts
 
       - name: Publish test results
         uses: MirrorNetworking/nunit-reporter@master
+        if: always()
         with:
           reportTitle: Test Report ${{ matrix.unityVersion }}
           path: "artifacts/*.xml"

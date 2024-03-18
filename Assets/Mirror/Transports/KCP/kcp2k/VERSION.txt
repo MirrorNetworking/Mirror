@@ -1,3 +1,29 @@
+V1.40 [2024-01-03]
+- added [KCP] to all log messages
+- fix: #3704 remove old fix for #2353 which caused log spam and isn't needed anymore since the
+  original Mirror issue is long gone
+- fix: KcpClient.RawSend now returns if socket wasn't created yet
+- fix: https://github.com/MirrorNetworking/Mirror/issues/3591 KcpPeer.SendDisconnect now rapid
+  fires several unreliable messages instead of sending reliable. Fixes disconnect message not
+  going through if the connection is closed & removed immediately after.
+
+V1.39 [2023-10-31]
+- fix: https://github.com/MirrorNetworking/Mirror/issues/3611 Windows UDP socket exceptions
+  on server if one of the clients died
+
+V1.38 [2023-10-29]
+- fix: #54 mismatching cookie race condition. cookie is now included in all messages.
+- feature: Exposed local end point on KcpClient/Server
+- refactor: KcpPeer refactored as abstract class to remove KcpServer initialization workarounds
+
+V1.37 [2023-07-31]
+- fix: #47 KcpServer.Stop now clears connections so they aren't carried over to the next session
+- fix: KcpPeer doesn't log 'received unreliable message while not authenticated' anymore.
+
+V1.36 [2023-06-08]
+- fix: #49 KcpPeer.RawInput message size check now considers cookie as well
+- kcp.cs cleanups
+
 V1.35 [2023-04-05]
 - fix: KcpClients now need to validate with a secure cookie in order to protect against
   UDP spoofing. fixes:

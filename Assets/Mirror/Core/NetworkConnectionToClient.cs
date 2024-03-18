@@ -20,10 +20,6 @@ namespace Mirror
         // TODO move to server's NetworkConnectionToClient?
         public readonly HashSet<NetworkIdentity> observing = new HashSet<NetworkIdentity>();
 
-        // Deprecated 2022-10-13
-        [Obsolete(".clientOwnedObjects was renamed to .owned :)")]
-        public HashSet<NetworkIdentity> clientOwnedObjects => owned;
-
         // unbatcher
         public Unbatcher unbatcher = new Unbatcher();
 
@@ -45,6 +41,14 @@ namespace Mirror
 
         // Snapshot Buffer size limit to avoid ever growing list memory consumption attacks from clients.
         public int snapshotBufferSizeLimit = 64;
+
+        // ping for rtt (round trip time)
+        // useful for statistics, lag compensation, etc.
+        double lastPingTime = 0;
+        internal ExponentialMovingAverage _rtt = new ExponentialMovingAverage(NetworkTime.PingWindowSize);
+
+        /// <summary>Round trip time (in seconds) that it takes a message to go server->client->server.</summary>
+        public double rtt => _rtt.Value;
 
         public NetworkConnectionToClient(int networkConnectionId)
             : base(networkConnectionId)
@@ -80,6 +84,7 @@ namespace Mirror
             // insert into the server buffer & initialize / adjust / catchup
             SnapshotInterpolation.InsertAndAdjust(
                 snapshots,
+                NetworkClient.snapshotSettings.bufferLimit,
                 snapshot,
                 ref remoteTimeline,
                 ref remoteTimescale,
@@ -115,69 +120,24 @@ namespace Mirror
         protected override void SendToTransport(ArraySegment<byte> segment, int channelId = Channels.Reliable) =>
             Transport.active.ServerSend(connectionId, segment, channelId);
 
-        void FlushRpcs(NetworkWriter buffer, int channelId)
+        protected virtual void UpdatePing()
         {
-            if (buffer.Position > 0)
+            // localTime (double) instead of Time.time for accuracy over days
+            if (NetworkTime.localTime >= lastPingTime + NetworkTime.PingInterval)
             {
-                Send(new RpcBufferMessage { payload = buffer }, channelId);
-                buffer.Position = 0;
-            }
-        }
-
-        // helper for both channels
-        void BufferRpc(RpcMessage message, NetworkWriter buffer, int channelId, int maxMessageSize)
-        {
-            // calculate buffer limit. we can only fit so much into a message.
-            // max - message header - WriteArraySegment size header - batch header
-            int bufferLimit = maxMessageSize - NetworkMessages.IdSize - sizeof(int) - Batcher.HeaderSize;
-
-            // remember previous valid position
-            int before = buffer.Position;
-
-            // serialize the message without header
-            buffer.Write(message);
-
-            // before we potentially flush out old messages,
-            // let's ensure this single message can even fit the limit.
-            // otherwise no point in flushing.
-            int messageSize = buffer.Position - before;
-            if (messageSize > bufferLimit)
-            {
-                Debug.LogWarning($"NetworkConnectionToClient: discarded RpcMesage for netId={message.netId} componentIndex={message.componentIndex} functionHash={message.functionHash} because it's larger than the rpc buffer limit of {bufferLimit} bytes for the channel: {channelId}");
-                return;
-            }
-
-            // too much to fit into max message size?
-            // then flush first, then write it again.
-            // (message + message header + 4 bytes WriteArraySegment header)
-            if (buffer.Position > bufferLimit)
-            {
-                buffer.Position = before;
-                FlushRpcs(buffer, channelId); // this resets position
-                buffer.Write(message);
-            }
-        }
-
-        internal void BufferRpc(RpcMessage message, int channelId)
-        {
-            int maxMessageSize = Transport.active.GetMaxPacketSize(channelId);
-            if (channelId == Channels.Reliable)
-            {
-                BufferRpc(message, reliableRpcs, Channels.Reliable, maxMessageSize);
-            }
-            else if (channelId == Channels.Unreliable)
-            {
-                BufferRpc(message, unreliableRpcs, Channels.Unreliable, maxMessageSize);
+                // TODO it would be safer for the server to store the last N
+                // messages' timestamp and only send a message number.
+                // This way client's can't just modify the timestamp.
+                // predictedTime parameter is 0 because the server doesn't predict.
+                NetworkPingMessage pingMessage = new NetworkPingMessage(NetworkTime.localTime, 0);
+                Send(pingMessage, Channels.Unreliable);
+                lastPingTime = NetworkTime.localTime;
             }
         }
 
         internal override void Update()
         {
-            // send rpc buffers
-            FlushRpcs(reliableRpcs, Channels.Reliable);
-            FlushRpcs(unreliableRpcs, Channels.Unreliable);
-
-            // call base update to flush out batched messages
+            UpdatePing();
             base.Update();
         }
 
@@ -244,7 +204,12 @@ namespace Mirror
             {
                 if (netIdentity != null)
                 {
-                    NetworkServer.Destroy(netIdentity.gameObject);
+                    // unspawn scene objects, destroy instantiated objects.
+                    // fixes: https://github.com/MirrorNetworking/Mirror/issues/3538
+                    if (netIdentity.sceneId != 0)
+                        NetworkServer.UnSpawn(netIdentity.gameObject);
+                    else
+                        NetworkServer.Destroy(netIdentity.gameObject);
                 }
             }
 

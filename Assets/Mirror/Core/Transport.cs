@@ -36,6 +36,12 @@ namespace Mirror
         /// <summary>Is this transport available in the current platform?</summary>
         public abstract bool Available();
 
+        /// <summary>Is this transported encrypted for secure communication?</summary>
+        public virtual bool IsEncrypted => false;
+
+        /// <summary>If encrypted, which cipher is used?</summary>
+        public virtual string EncryptionCipher => "";
+
         // client //////////////////////////////////////////////////////////////
         /// <summary>Called by Transport when the client connected to the server.</summary>
         public Action OnClientConnected;

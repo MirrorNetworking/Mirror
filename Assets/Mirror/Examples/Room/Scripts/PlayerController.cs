@@ -4,7 +4,7 @@ namespace Mirror.Examples.NetworkRoom
 {
     [RequireComponent(typeof(CapsuleCollider))]
     [RequireComponent(typeof(CharacterController))]
-    [RequireComponent(typeof(NetworkTransform))]
+    [RequireComponent(typeof(NetworkTransformReliable))]
     [RequireComponent(typeof(Rigidbody))]
     public class PlayerController : NetworkBehaviour
     {
@@ -31,31 +31,33 @@ namespace Mirror.Examples.NetworkRoom
         [Range(0.1f, 1f)]
         public float jumpDelta = 0.2f;
 
-        [Header("Diagnostics - Do Not Modify")]
-        public GroundState groundState = GroundState.Grounded;
+        [Header("Diagnostics")]
+        [ReadOnly, SerializeField] GroundState groundState = GroundState.Grounded;
 
-        [Range(-1f, 1f)]
-        public float horizontal;
-        [Range(-1f, 1f)]
-        public float vertical;
+        [ReadOnly, SerializeField, Range(-1f, 1f)]
+        float horizontal;
+        [ReadOnly, SerializeField, Range(-1f, 1f)]
+        float vertical;
 
-        [Range(-200f, 200f)]
-        public float turnSpeed;
+        [ReadOnly, SerializeField, Range(-200f, 200f)]
+        float turnSpeed;
 
-        [Range(-10f, 10f)]
-        public float jumpSpeed;
+        [ReadOnly, SerializeField, Range(-10f, 10f)]
+        float jumpSpeed;
 
-        [Range(-1.5f, 1.5f)]
-        public float animVelocity;
+        [ReadOnly, SerializeField, Range(-1.5f, 1.5f)]
+        float animVelocity;
 
-        [Range(-1.5f, 1.5f)]
-        public float animRotation;
+        [ReadOnly, SerializeField, Range(-1.5f, 1.5f)]
+        float animRotation;
 
-        public Vector3Int velocity;
-        public Vector3 direction;
+        [ReadOnly, SerializeField] Vector3Int velocity;
+        [ReadOnly, SerializeField] Vector3 direction;
 
-        void OnValidate()
+        protected override void OnValidate()
         {
+            base.OnValidate();
+
             if (characterController == null)
                 characterController = GetComponent<CharacterController>();
 

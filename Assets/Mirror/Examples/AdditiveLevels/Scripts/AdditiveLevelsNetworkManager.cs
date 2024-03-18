@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -7,17 +7,7 @@ namespace Mirror.Examples.AdditiveLevels
     [AddComponentMenu("")]
     public class AdditiveLevelsNetworkManager : NetworkManager
     {
-        public static new AdditiveLevelsNetworkManager singleton { get; private set; }
-
-        /// <summary>
-        /// Runs on both Server and Client
-        /// Networking is NOT initialized when this fires
-        /// </summary>
-        public override void Awake()
-        {
-            base.Awake();
-            singleton = this;
-        }
+        public static new AdditiveLevelsNetworkManager singleton => (AdditiveLevelsNetworkManager)NetworkManager.singleton;
 
         [Header("Additive Scenes - First is start scene")]
 
@@ -141,7 +131,7 @@ namespace Mirror.Examples.AdditiveLevels
         public override void OnClientSceneChanged()
         {
             // Only call the base method if not in a transition.
-            // This will be called from DoTransition after setting doingTransition to false
+            // This will be called from LoadAdditive / UnloadAdditive after setting isInTransition to false
             // but will also be called first by Mirror when the scene loading finishes.
             if (!isInTransition)
                 base.OnClientSceneChanged();

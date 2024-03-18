@@ -60,6 +60,8 @@ namespace Mirror.SimpleWeb
 
         public string GetClientAddress(int connectionId) => server.GetClientAddress(connectionId);
 
+        public Request GetClientRequest(int connectionId) => server.GetClientRequest(connectionId);
+
         /// <summary>
         /// Processes all new messages
         /// </summary>
@@ -106,9 +108,7 @@ namespace Mirror.SimpleWeb
 
             if (server.receiveQueue.Count > 0)
             {
-                Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.WriteLine($"SimpleWebServer ProcessMessageQueue has {server.receiveQueue.Count} remaining.");
-                Console.ResetColor();
+                Log.Warn($"[SWT-SimpleWebServer]: ProcessMessageQueue has {server.receiveQueue.Count} remaining.");
             }
         }
     }

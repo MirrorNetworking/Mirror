@@ -1,3 +1,6 @@
+V1.9 [2023-11-10]
+- fix: Always enqueue Disconnected event (imer)
+
 V1.8 [2021-06-02]
 - fix: Do not set timeouts on listener (fixes https://github.com/vis2k/Mirror/issues/2695)
 - fix: #104 - ReadSafely now catches ObjectDisposedException too

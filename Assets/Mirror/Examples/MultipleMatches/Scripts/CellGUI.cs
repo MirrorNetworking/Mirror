@@ -12,8 +12,8 @@ namespace Mirror.Examples.MultipleMatch
         public Image image;
         public Button button;
 
-        [Header("Diagnostics - Do Not Modify")]
-        public NetworkIdentity playerIdentity;
+        [Header("Diagnostics")]
+        [ReadOnly, SerializeField] internal NetworkIdentity playerIdentity;
 
         public void Awake()
         {

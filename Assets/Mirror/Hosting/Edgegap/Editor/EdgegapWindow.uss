@@ -1,0 +1,215 @@
+#serverDataContainer {
+    margin: 4px 0 0 0;
+}
+
+.content {
+    position: relative;
+    height: auto;
+    overflow: hidden;
+    padding: 8px 0 8px 0;
+}
+
+.background {
+    position: absolute;
+    height: 400px;
+    width: 400px;
+    top: -10px;
+    right: -150px;
+    /* MIRROR CHANGE: disable hardcoded image path. this is inserted from the script now.
+    background-image: url('project://database/Assets/Edgegap/Editor/Images/logo_transparent_400_alpha25.png?fileID=21300000&guid=b7012da4ebf9008458abc3ef9a741f3c&type=3#logo_transparent_400_alpha25');
+    */
+    -unity-background-scale-mode: scale-and-crop;
+}
+
+.text__title {
+    font-size: 20px;
+    color: rgb(36, 194, 237);
+    padding-top: 8px;
+    padding-bottom: 8px;
+    -unity-text-align: middle-center;
+    /* MIRROR CHANGE: disable hardcoded font path
+    -unity-font: url('project://database/Assets/Edgegap/Editor/Fonts/Src/BaronNeue.otf?fileID=12800000&guid=fb67205c672fbb04d829783b9f771fc9&type=3#BaronNeue');
+    */
+}
+
+.text--muted {
+    color: rgb(192, 192, 192);
+}
+
+.text--success {
+    color: rgb(144, 190, 109);
+}
+
+.container {
+    padding: 4px 4px;
+}
+
+.flex {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: auto;
+}
+
+.flex--wrap {
+    flex-wrap: wrap;
+}
+
+.flex--right {
+    justify-content: flex-end;
+}
+
+.flex--between {
+    justify-content: space-between;
+}
+
+#unity-text-input {
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+    color: rgb(255, 255, 255);
+    border-top-width: 1px;
+    border-right-width: 1px;
+    border-bottom-width: 1px;
+    border-left-width: 1px;
+    height: 27px;
+    background-color: rgb(26, 26, 26);
+}
+
+.button-edgegap {
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
+    border-bottom-left-radius: 3px;
+    border-top-width: 1px;
+    border-right-width: 1px;
+    border-bottom-width: 1px;
+    border-left-width: 1px;
+    border-left-color: rgba(0, 0, 0, 0.35);
+    border-right-color: rgba(0, 0, 0, 0.35);
+    border-top-color: rgba(0, 0, 0, 0.35);
+    border-bottom-color: rgba(0, 0, 0, 0.35);
+    height: 27px;
+    -unity-font-style: bold;
+    background-color: rgb(36, 76, 87);
+    min-width: 170px;
+    max-width: 200px;
+}
+
+.button-edgegap:hover {
+    background-color: rgb(56, 96, 107);
+}
+
+.button-purple-hover:hover {
+    background-color: rgb(44, 30, 210);
+}
+
+.container-row-parent {
+    background-color: rgb(49, 49, 49);
+    border-top-color: rgb(0, 0, 0);
+    border-bottom-color: rgb(0, 0, 0);
+    border-top-width: 1px;
+    border-right-width: 1px;
+    border-bottom-width: 1px;
+    border-left-width: 1px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+}
+
+.text-edgegap {
+    font-size: 11px;
+    color: rgb(222, 222, 222);
+    /* MIRROR CHANGE: disable hardcoded font path
+    -unity-font-definition: url('project://database/Assets/Edgegap/Editor/Fonts/Spartan-Regular%20SDF.asset?fileID=11400000&guid=8b0fb2c68be09174f8ea5057b27a545c&type=2#Spartan-Regular SDF');
+    */
+}
+
+.text-btnTxt {
+    font-size: 12px;
+    color: rgb(255, 255, 255);
+    -unity-font-style: bold;
+}
+
+Toggle > #unity-checkmark {
+}
+
+.unity-foldout > #unity-checkmark {
+}
+
+.bg-purple {
+    background-color: rgb(44, 30, 210);
+}
+
+.bg-purple:hover {
+    background-color: rgb(64, 50, 230);
+}
+
+.unity-foldout {
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.unity-text-field {
+    min-width: auto;
+    width: 400px;
+    padding-right: 5px;
+    white-space: normal;
+    -unity-text-align: middle-left;
+    opacity: 1;
+    padding-bottom: 5px;
+    padding-top: 5px;
+    align-items: center;
+}
+
+.unity-text-field > Label {
+}
+
+.container-row {
+    background-color: rgb(37, 37, 37);
+    padding-top: 0;
+    padding-bottom: 0;
+    margin-bottom: 3px;
+}
+
+.checkmark-edgegap {
+    font-size: 12px;
+}
+
+.checkmark-edgegap #unity-checkmark {
+    margin-right: 15px;
+}
+
+.unity-text-field__input > TextElement {
+    color: rgb(255, 255, 255);
+    /* MIRROR CHANGE: disable hardcoded font path
+    -unity-font-definition: url('project://database/Assets/Edgegap/Editor/Fonts/UbuntuMono-R%20SDF.asset?fileID=11400000&guid=2635d61c9807d6c46bcb00a3d8645b37&type=2#UbuntuMono-R SDF');
+    */
+    font-size: 12px;
+    white-space: nowrap;
+    text-overflow: clip;
+}
+
+.shakeStart {
+    left: 5px;
+    transition: left 50ms ease-in-out;
+}
+
+.shakeEnd {
+    left: -5px;
+    transition: left 50ms ease-in-out;
+}
+
+.customContainerChildTxt {
+    padding-left: 32px;
+}
+
+#DeploymentConnectionUrlReadOnlyTxt > #unity-text-input {
+    display: flex;
+    visibility: visible;
+    background-color: rgba(0, 0, 0, 0.13);
+}
+
+.button-purple-hover {
+}

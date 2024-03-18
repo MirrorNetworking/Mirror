@@ -27,18 +27,6 @@ namespace Mirror.Examples.MultipleAdditiveScenes
         // Sequential index used in round-robin deployment of players into instances and score positioning
         int clientIndex;
 
-        public static new MultiSceneNetManager singleton { get; private set; }
-
-        /// <summary>
-        /// Runs on both Server and Client
-        /// Networking is NOT initialized when this fires
-        /// </summary>
-        public override void Awake()
-        {
-            base.Awake();
-            singleton = this;
-        }
-
         #region Server System Callbacks
 
         /// <summary>
@@ -73,7 +61,7 @@ namespace Mirror.Examples.MultipleAdditiveScenes
             playerScore.matchIndex = clientIndex % subScenes.Count;
 
             // Do this only on server, not on clients
-            // This is what allows the NetworkSceneChecker on player and scene objects
+            // This is what allows Scene Interest Management
             // to isolate matches per scene instance on server.
             if (subScenes.Count > 0)
                 SceneManager.MoveGameObjectToScene(conn.identity.gameObject, subScenes[clientIndex % subScenes.Count]);

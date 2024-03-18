@@ -10,19 +10,9 @@ using Mirror;
 
 public class #SCRIPTNAME# : NetworkTransformBase
 {
-    protected override Transform targetComponent => transform;
-
-    // If you need this template to reference a child target,
-    // replace the line above with the code below.
-
-    /*
-    [Header("Target")]
-    public Transform target;
-
-    protected override Transform targetComponent => target;
-    */
-
     #region Unity Callbacks
+
+    protected override void Awake() { }
 
     protected override void OnValidate()
     {
@@ -45,44 +35,56 @@ public class #SCRIPTNAME# : NetworkTransformBase
         base.OnDisable();
     }
 
-    /// <summary>
-    /// Buffers are cleared and interpolation times are reset to zero here.
-    /// This may be called when you are implementing some system of not sending
-    /// if nothing changed, or just plain resetting if you have not received data
-    /// for some time, as this will prevent a long interpolation period between old
-    /// and just received data, as it will look like a lag. Reset() should also be
-    /// called when authority is changed to another client or server, to prevent
-    /// old buffers bugging out the interpolation if authority is changed back.
-    /// </summary>
-    public override void Reset()
-    {
-        base.Reset();
-    }
-
     #endregion
 
     #region NT Base Callbacks
 
     /// <summary>
-    /// NTSnapshot struct is created from incoming data from server
-    /// and added to SnapshotInterpolation sorted list.
-    /// You may want to skip calling the base method for the local player
-    /// if doing client-side prediction, or perhaps pass altered values,
-    /// or compare the server data to local values and correct large differences.
+    /// NTSnapshot struct is created here
     /// </summary>
-    protected override void OnServerToClientSync(Vector3? position, Quaternion? rotation, Vector3? scale)
+    protected override TransformSnapshot Construct()
     {
-        base.OnServerToClientSync(position, rotation, scale);
+        return base.Construct();
+    }
+
+    protected override Vector3 GetPosition()
+    {
+        return base.GetPosition();
+    }
+
+    protected override Quaternion GetRotation()
+    {
+        return base.GetRotation();
+    }
+
+    protected override Vector3 GetScale()
+    {
+        return base.GetScale();
+    }
+
+    protected override void SetPosition(Vector3 position)
+    {
+        base.SetPosition(position);
+    }
+
+    protected override void SetRotation(Quaternion rotation)
+    {
+        base.SetRotation(rotation);
+    }
+
+    protected override void SetScale(Vector3 scale)
+    {
+        base.SetScale(scale);
     }
 
     /// <summary>
-    /// NTSnapshot struct is created from incoming data from client
-    /// and added to SnapshotInterpolation sorted list.
-    /// You may want to implement anti-cheat checks here in client authority mode.
+    /// localPosition, localRotation, and localScale are set here:
+    /// interpolated values are used if interpolation is enabled.
+    /// goal values are used if interpolation is disabled.
     /// </summary>
-    protected override void OnClientToServerSync(Vector3? position, Quaternion? rotation, Vector3? scale)
+    protected override void Apply(TransformSnapshot interpolated, TransformSnapshot endGoal)
     {
-        base.OnClientToServerSync(position, rotation, scale);
+        base.Apply(interpolated, endGoal);
     }
 
     /// <summary>
@@ -106,48 +108,32 @@ public class #SCRIPTNAME# : NetworkTransformBase
     }
 
     /// <summary>
-    /// NTSnapshot struct is created here
+    /// Buffers are cleared and interpolation times are reset to zero here.
+    /// This may be called when you are implementing some system of not sending
+    /// if nothing changed, or just plain resetting if you have not received data
+    /// for some time, as this will prevent a long interpolation period between old
+    /// and just received data, as it will look like a lag. Reset() should also be
+    /// called when authority is changed to another client or server, to prevent
+    /// old buffers bugging out the interpolation if authority is changed back.
     /// </summary>
-    protected override NTSnapshot ConstructSnapshot()
+    public override void ResetState()
     {
-        return base.ConstructSnapshot();
+        base.ResetState();
     }
-
-    /// <summary>
-    /// localPosition, localRotation, and localScale are set here:
-    /// interpolated values are used if interpolation is enabled.
-    /// goal values are used if interpolation is disabled.
-    /// </summary>
-    protected override void ApplySnapshot(NTSnapshot start, NTSnapshot goal, NTSnapshot interpolated)
-    {
-        base.ApplySnapshot(start, goal, interpolated);
-    }
-
-#if onlySyncOnChange_BANDWIDTH_SAVING
-
-    /// <summary>
-    /// Returns true if position, rotation AND scale are unchanged, within given sensitivity range.
-    /// </summary>
-    protected override bool CompareSnapshots(NTSnapshot currentSnapshot)
-    {
-        return base.CompareSnapshots(currentSnapshot);
-    }
-
-#endif
 
     #endregion
 
     #region GUI
 
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
     // OnGUI allocates even if it does nothing. avoid in release.
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
 
     protected override void OnGUI()
     {
         base.OnGUI();
     }
 
-    protected override void DrawGizmos(SortedList<double, NTSnapshot> buffer)
+    protected override void DrawGizmos(SortedList<double, TransformSnapshot> buffer)
     {
         base.DrawGizmos(buffer);
     }

@@ -133,8 +133,9 @@ namespace Mirror
             }
         }
 
-        void OnValidate()
+        protected override void OnValidate()
         {
+            base.OnValidate();
             syncMode = SyncMode.Owner;
         }
 

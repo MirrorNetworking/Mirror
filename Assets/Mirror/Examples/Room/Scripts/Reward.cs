@@ -2,16 +2,22 @@ using UnityEngine;
 
 namespace Mirror.Examples.NetworkRoom
 {
-    [RequireComponent(typeof(RandomColor))]
+    [RequireComponent(typeof(Common.RandomColor))]
     public class Reward : NetworkBehaviour
     {
-        public bool available = true;
-        public RandomColor randomColor;
+        [Header("Components")]
+        public Common.RandomColor randomColor;
 
-        void OnValidate()
+        [Header("Diagnostics")]
+        [ReadOnly, SerializeField]
+        bool available = true;
+
+        protected override void OnValidate()
         {
+            base.OnValidate();
+
             if (randomColor == null)
-                randomColor = GetComponent<RandomColor>();
+                randomColor = GetComponent<Common.RandomColor>();
         }
 
         [ServerCallback]
@@ -21,10 +27,8 @@ namespace Mirror.Examples.NetworkRoom
                 ClaimPrize(other.gameObject);
         }
 
-        // This is called from PlayerController.CmdClaimPrize which is invoked by PlayerController.OnControllerColliderHit
-        // This only runs on the server
         [ServerCallback]
-        public void ClaimPrize(GameObject player)
+        void ClaimPrize(GameObject player)
         {
             if (available)
             {
@@ -37,7 +41,6 @@ namespace Mirror.Examples.NetworkRoom
                 // calculate the points from the color ... lighter scores higher as the average approaches 255
                 // UnityEngine.Color RGB values are float fractions of 255
                 uint points = (uint)(((color.r) + (color.g) + (color.b)) / 3);
-                //Debug.Log($"Scored {points} points R:{color.r} G:{color.g} B:{color.b}");
 
                 // award the points via SyncVar on the PlayerController
                 player.GetComponent<PlayerScore>().score += points;

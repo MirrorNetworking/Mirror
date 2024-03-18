@@ -34,7 +34,7 @@ namespace Telepathy
             catch (Exception exception)
             {
                 // log as regular message because servers do shut down sometimes
-                Log.Info("[Telepathy] Send: stream.Write exception: " + exception);
+                Log.Info("Send: stream.Write exception: " + exception);
                 return false;
             }
         }
@@ -47,7 +47,7 @@ namespace Telepathy
             // buffer needs to be of Header + MaxMessageSize
             if (payloadBuffer.Length != 4 + MaxMessageSize)
             {
-                Log.Error($"[Telepathy] ReadMessageBlocking: payloadBuffer needs to be of size 4 + MaxMessageSize = {4 + MaxMessageSize} instead of {payloadBuffer.Length}");
+                Log.Error($"ReadMessageBlocking: payloadBuffer needs to be of size 4 + MaxMessageSize = {4 + MaxMessageSize} instead of {payloadBuffer.Length}");
                 return false;
             }
 
@@ -68,7 +68,7 @@ namespace Telepathy
                 // read exactly 'size' bytes for content (blocking)
                 return stream.ReadExactly(payloadBuffer, size);
             }
-            Log.Warning("[Telepathy] ReadMessageBlocking: possible header attack with a header of: " + size + " bytes.");
+            Log.Warning("ReadMessageBlocking: possible header attack with a header of: " + size + " bytes.");
             return false;
         }
 
@@ -139,7 +139,7 @@ namespace Telepathy
                     if (receivePipe.Count(connectionId) >= QueueLimit)
                     {
                         // log the reason
-                        Log.Warning($"[Telepathy] ReceivePipe reached limit of {QueueLimit} for connectionId {connectionId}. This can happen if network messages come in way faster than we manage to process them. Disconnecting this connection for load balancing.");
+                        Log.Warning($"receivePipe reached limit of {QueueLimit} for connectionId {connectionId}. This can happen if network messages come in way faster than we manage to process them. Disconnecting this connection for load balancing.");
 
                         // IMPORTANT: do NOT clear the whole queue. we use one
                         // queue for all connections.
@@ -155,7 +155,7 @@ namespace Telepathy
                 // something went wrong. the thread was interrupted or the
                 // connection closed or we closed our own connection or ...
                 // -> either way we should stop gracefully
-                Log.Info("[Telepathy] ReceiveLoop finished receive function for connectionId=" + connectionId + " reason: " + exception);
+                Log.Info("ReceiveLoop: finished receive function for connectionId=" + connectionId + " reason: " + exception);
             }
             finally
             {
@@ -226,7 +226,7 @@ namespace Telepathy
                 // something went wrong. the thread was interrupted or the
                 // connection closed or we closed our own connection or ...
                 // -> either way we should stop gracefully
-                Log.Info("[Telepathy] SendLoop Exception: connectionId=" + connectionId + " reason: " + exception);
+                Log.Info("SendLoop Exception: connectionId=" + connectionId + " reason: " + exception);
             }
             finally
             {

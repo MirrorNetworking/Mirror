@@ -64,13 +64,13 @@ namespace Mirror
         /// </summary>
         [Tooltip("Diagnostic flag indicating all players are ready to play")]
         [FormerlySerializedAs("allPlayersReady")]
-        [SerializeField] bool _allPlayersReady;
+        [ReadOnly, SerializeField] bool _allPlayersReady;
 
         /// <summary>
         /// These slots track players that enter the room.
         /// <para>The slotId on players is global to the game - across all players.</para>
         /// </summary>
-        [Tooltip("List of Room Player objects")]
+        [ReadOnly, Tooltip("List of Room Player objects")]
         public List<NetworkRoomPlayer> roomSlots = new List<NetworkRoomPlayer>();
 
         public bool allPlayersReady
@@ -120,7 +120,7 @@ namespace Mirror
 
         void SceneLoadedForPlayer(NetworkConnectionToClient conn, GameObject roomPlayer)
         {
-            Debug.Log($"NetworkRoom SceneLoadedForPlayer scene: {SceneManager.GetActiveScene().path} {conn}");
+            //Debug.Log($"NetworkRoom SceneLoadedForPlayer scene: {SceneManager.GetActiveScene().path} {conn}");
 
             if (Utils.IsSceneActive(RoomScene))
             {
@@ -251,10 +251,11 @@ namespace Mirror
             OnRoomServerDisconnect(conn);
             base.OnServerDisconnect(conn);
 
-#if UNITY_SERVER
-            if (numPlayers < 1)
-                StopServer();
-#endif
+            if (Utils.IsHeadless())
+            {
+                if (numPlayers < 1)
+                    StopServer();
+            }
         }
 
         // Sequential index used in round-robin deployment of players into instances and score positioning
@@ -267,7 +268,7 @@ namespace Mirror
         /// <param name="conn">Connection from client.</param>
         public override void OnServerReady(NetworkConnectionToClient conn)
         {
-            Debug.Log($"NetworkRoomManager OnServerReady {conn}");
+            //Debug.Log($"NetworkRoomManager OnServerReady {conn}");
             base.OnServerReady(conn);
 
             if (conn != null && conn.identity != null)

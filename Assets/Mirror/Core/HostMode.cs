@@ -40,9 +40,5 @@ namespace Mirror
             //OnConnectedEvent?.Invoke(connection);
             ((LocalConnectionToServer)NetworkClient.connection).QueueConnectedEvent();
         }
-
-        // DEPRECATED 2023-01-28
-        [Obsolete("ActivateHostScene did nothing, since identities all had .isClient set in NetworkServer.SpawnObjects.")]
-        public static void ActivateHostScene() {}
     }
 }

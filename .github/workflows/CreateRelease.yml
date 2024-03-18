@@ -1,0 +1,46 @@
+name: Create Release
+
+on:
+  workflow_dispatch:
+
+jobs:
+  CreateRelease:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Merge Master into AssetStoreRelease
+      uses: devmasx/merge-branch@master
+      with:
+        type: now
+        from_branch: master
+        target_branch: AssetStoreRelease
+        message: "Merged master"
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Checkout AssetStoreRelease
+      run: |
+        git checkout -b AssetStoreRelease
+        git pull origin AssetStoreRelease
+
+    - name: Set up .NET Core
+      uses: actions/setup-dotnet@v3
+
+    - name: Install dotnet-script
+      run: |
+        dotnet tool install -g dotnet-script
+        dotnet script --version
+
+    - name: Run ModPreprocessorDefine.csx
+      run: dotnet script .github/ModPreprocessorDefine.csx
+
+    - name: Commit and Push
+      run: |
+        git config user.name ${{ secrets.COMMITTER_NAME }}
+        git config user.email ${{ secrets.COMMITTER_EMAIL }}
+        git commit -m "release!: Asset Store Release" -a
+        git push origin AssetStoreRelease
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

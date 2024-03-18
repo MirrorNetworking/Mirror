@@ -12,7 +12,7 @@ public class #SCRIPTNAME# : NetworkManager
 {
     // Overrides the base singleton so we don't
     // have to cast to this type everywhere.
-    public static new #SCRIPTNAME# singleton { get; private set; }
+    public static new #SCRIPTNAME# singleton => (#SCRIPTNAME#)NetworkManager.singleton;
 
     /// <summary>
     /// Runs on both Server and Client
@@ -21,7 +21,6 @@ public class #SCRIPTNAME# : NetworkManager
     public override void Awake()
     {
         base.Awake();
-        singleton = this;
     }
 
     #region Unity Callbacks

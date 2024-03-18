@@ -37,10 +37,18 @@ namespace Mirror.Experimental
         /// </summary>
         readonly ClientSyncState previousValue = new ClientSyncState();
 
-        void OnValidate()
+        protected override void OnValidate()
+        {
+            base.OnValidate();
+            Reset();
+        }
+
+        public virtual void Reset()
         {
             if (target == null)
                 target = GetComponent<Rigidbody2D>();
+
+            syncDirection = SyncDirection.ClientToServer;
         }
 
         #region Sync vars
