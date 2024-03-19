@@ -18,12 +18,17 @@ namespace Mirror
         /// <summary>This is called after the item is removed with TKey. TValue is the OLD value</summary>
         public event Action<TKey, TValue> SyncDictionaryRemoveAction;
 
+        // Deprecated 2024-03-19
+        [Obsolete("Use SyncDictionary Actions, which pass OLD values where appropriate, instead.")]
         public delegate void SyncDictionaryChanged(Operation op, TKey key, TValue item);
 
         protected readonly IDictionary<TKey, TValue> objects;
 
         public int Count => objects.Count;
         public bool IsReadOnly => !IsWritable();
+
+        // Deprecated 2024-03-19
+        [Obsolete("Use SyncDictionary Actions, which pass OLD values where appropriate, instead.")]
         public event SyncDictionaryChanged Callback;
 
         public enum Operation : byte
@@ -78,7 +83,7 @@ namespace Mirror
             this.objects = objects;
         }
 
-        void AddOperation(Operation op, TKey key, TValue item, bool checkAccess)
+        void AddOperation(Operation op, TKey key, TValue item, TValue oldItem, bool checkAccess)
         {
             if (checkAccess && IsReadOnly)
             {
@@ -104,17 +109,19 @@ namespace Mirror
                     SyncDictionaryAddAction?.Invoke(key);
                     break;
                 case Operation.OP_SET:
-                    SyncDictionarySetAction?.Invoke(key, item);
+                    SyncDictionarySetAction?.Invoke(key, oldItem);
                     break;
                 case Operation.OP_REMOVE:
-                    SyncDictionaryRemoveAction?.Invoke(key, item);
+                    SyncDictionaryRemoveAction?.Invoke(key, oldItem);
                     break;
                 case Operation.OP_CLEAR:
                     SyncDictionaryClearAction?.Invoke();
                     break;
             }
 
+#pragma warning disable CS0618 // Type or member is obsolete
             Callback?.Invoke(op, key, item);
+#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         public override void OnSerializeAll(NetworkWriter writer)
@@ -208,15 +215,15 @@ namespace Mirror
                             // ClientToServer needs to set dirty in server OnDeserialize.
                             // no access check: server OnDeserialize can always
                             // write, even for ClientToServer (for broadcasting).
-                            if (objects.TryGetValue(key, out TValue oldValue))
+                            if (objects.TryGetValue(key, out TValue oldItem))
                             {
                                 objects[key] = item; // assign after TryGetValue
-                                AddOperation(Operation.OP_SET, key, oldValue, false);
+                                AddOperation(Operation.OP_SET, key, item, oldItem, false);
                             }
                             else
                             {
-                                objects[key] = item; // assign after ContainsKey check
-                                AddOperation(Operation.OP_ADD, key, item, false);
+                                objects[key] = item; // assign after TryGetValue
+                                AddOperation(Operation.OP_ADD, key, item, default, false);
                             }
                         }
                         break;
@@ -228,7 +235,7 @@ namespace Mirror
                             // ClientToServer needs to set dirty in server OnDeserialize.
                             // no access check: server OnDeserialize can always
                             // write, even for ClientToServer (for broadcasting).
-                            AddOperation(Operation.OP_CLEAR, default, default, false);
+                            AddOperation(Operation.OP_CLEAR, default, default, default, false);
                             // clear after invoking the callback so users can iterate the dictionary
                             objects.Clear();
                         }
@@ -238,15 +245,14 @@ namespace Mirror
                         key = reader.Read<TKey>();
                         if (apply)
                         {
-                            if (objects.TryGetValue(key, out item))
+                            if (objects.TryGetValue(key, out TValue oldItem))
                             {
                                 // add dirty + changes.
                                 // ClientToServer needs to set dirty in server OnDeserialize.
                                 // no access check: server OnDeserialize can always
                                 // write, even for ClientToServer (for broadcasting).
-                                item = objects[key];
                                 objects.Remove(key);
-                                AddOperation(Operation.OP_REMOVE, key, item, false);
+                                AddOperation(Operation.OP_REMOVE, key, oldItem, oldItem, false);
                             }
                         }
                         break;
@@ -262,7 +268,7 @@ namespace Mirror
 
         public void Clear()
         {
-            AddOperation(Operation.OP_CLEAR, default, default, true);
+            AddOperation(Operation.OP_CLEAR, default, default, default, true);
             // clear after invoking the callback so users can iterate the dictionary
             objects.Clear();
         }
@@ -271,9 +277,9 @@ namespace Mirror
 
         public bool Remove(TKey key)
         {
-            if (objects.TryGetValue(key, out TValue item) && objects.Remove(key))
+            if (objects.TryGetValue(key, out TValue oldItem) && objects.Remove(key))
             {
-                AddOperation(Operation.OP_REMOVE, key, item, true);
+                AddOperation(Operation.OP_REMOVE, key, oldItem, oldItem, true);
                 return true;
             }
             return false;
@@ -286,13 +292,14 @@ namespace Mirror
             {
                 if (ContainsKey(i))
                 {
+                    TValue oldItem = objects[i];
                     objects[i] = value;
-                    AddOperation(Operation.OP_SET, i, value, true);
+                    AddOperation(Operation.OP_SET, i, value, oldItem, true);
                 }
                 else
                 {
                     objects[i] = value;
-                    AddOperation(Operation.OP_ADD, i, value, true);
+                    AddOperation(Operation.OP_ADD, i, value, default, true);
                 }
             }
         }
@@ -302,7 +309,7 @@ namespace Mirror
         public void Add(TKey key, TValue value)
         {
             objects.Add(key, value);
-            AddOperation(Operation.OP_ADD, key, value, true);
+            AddOperation(Operation.OP_ADD, key, value, default, true);
         }
 
         public void Add(KeyValuePair<TKey, TValue> item) => Add(item.Key, item.Value);
@@ -335,9 +342,8 @@ namespace Mirror
         {
             bool result = objects.Remove(item.Key);
             if (result)
-            {
-                AddOperation(Operation.OP_REMOVE, item.Key, item.Value, true);
-            }
+                AddOperation(Operation.OP_REMOVE, item.Key, item.Value, item.Value, true);
+
             return result;
         }
 

@@ -173,6 +173,7 @@ namespace Mirror.Tests.SyncCollections
         public void CallbackTest()
         {
             bool called = false;
+#pragma warning disable 618
             clientSyncDictionary.Callback += (op, index, item) =>
             {
                 called = true;
@@ -183,6 +184,7 @@ namespace Mirror.Tests.SyncCollections
                 Assert.That(clientSyncDictionary[index], Is.EqualTo("yay"));
 
             };
+#pragma warning restore 618
             serverSyncDictionary.Add(3, "yay");
             SerializeDeltaTo(serverSyncDictionary, clientSyncDictionary);
             Assert.That(called, Is.True);
@@ -192,6 +194,7 @@ namespace Mirror.Tests.SyncCollections
         public void ServerCallbackTest()
         {
             bool called = false;
+#pragma warning disable 618
             serverSyncDictionary.Callback += (op, index, item) =>
             {
                 called = true;
@@ -201,6 +204,7 @@ namespace Mirror.Tests.SyncCollections
                 Assert.That(item, Is.EqualTo("yay"));
                 Assert.That(serverSyncDictionary[index], Is.EqualTo("yay"));
             };
+#pragma warning restore 618
             serverSyncDictionary[3] = "yay";
             Assert.That(called, Is.True);
         }
@@ -209,12 +213,14 @@ namespace Mirror.Tests.SyncCollections
         public void CallbackRemoveTest()
         {
             bool called = false;
+#pragma warning disable 618
             clientSyncDictionary.Callback += (op, key, item) =>
             {
                 called = true;
                 Assert.That(op, Is.EqualTo(SyncDictionary<int, string>.Operation.OP_REMOVE));
                 Assert.That(item, Is.EqualTo("World"));
             };
+#pragma warning restore 618
             serverSyncDictionary.Remove(1);
             SerializeDeltaTo(serverSyncDictionary, clientSyncDictionary);
             Assert.That(called, Is.True);
