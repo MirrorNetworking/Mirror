@@ -6,17 +6,17 @@ namespace Mirror
 {
     public class SyncIDictionary<TKey, TValue> : SyncObject, IDictionary<TKey, TValue>, IReadOnlyDictionary<TKey, TValue>
     {
-        /// <summary>This is called before the data is cleared</summary>
-        public event Action SyncDictionaryClearAction;
-
         /// <summary>This is called after the item is added with TKey</summary>
-        public event Action<TKey> SyncDictionaryAddAction;
+        public event Action<TKey> OnAdd;
 
         /// <summary>This is called after the item is changed with TKey. TValue is the OLD value</summary>
-        public event Action<TKey, TValue> SyncDictionarySetAction;
+        public event Action<TKey, TValue> OnSet;
 
         /// <summary>This is called after the item is removed with TKey. TValue is the OLD value</summary>
-        public event Action<TKey, TValue> SyncDictionaryRemoveAction;
+        public event Action<TKey, TValue> OnRemove;
+
+        /// <summary>This is called before the data is cleared</summary>
+        public event Action OnClear;
 
         // Deprecated 2024-03-19
         [Obsolete("Use SyncDictionary Actions, which pass OLD values where appropriate, instead.")]
@@ -106,16 +106,16 @@ namespace Mirror
             switch (op)
             {
                 case Operation.OP_ADD:
-                    SyncDictionaryAddAction?.Invoke(key);
+                    OnAdd?.Invoke(key);
                     break;
                 case Operation.OP_SET:
-                    SyncDictionarySetAction?.Invoke(key, oldItem);
+                    OnSet?.Invoke(key, oldItem);
                     break;
                 case Operation.OP_REMOVE:
-                    SyncDictionaryRemoveAction?.Invoke(key, oldItem);
+                    OnRemove?.Invoke(key, oldItem);
                     break;
                 case Operation.OP_CLEAR:
-                    SyncDictionaryClearAction?.Invoke();
+                    OnClear?.Invoke();
                     break;
             }
 
