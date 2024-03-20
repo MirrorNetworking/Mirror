@@ -92,5 +92,17 @@ namespace Mirror
                 Debug.LogWarning($"{name}'s NetworkRigidbody2D.target {target.name} is missing a Rigidbody2D", this);
             }
         }
+
+        protected override void OnTeleport(Vector3 destination)
+        {
+            base.OnTeleport(destination);
+            Physics2D.SyncTransforms();
+        }
+
+        protected override void OnTeleport(Vector3 destination, Quaternion rotation)
+        {
+            base.OnTeleport(destination, rotation);
+            Physics2D.SyncTransforms();
+        }
     }
 }
