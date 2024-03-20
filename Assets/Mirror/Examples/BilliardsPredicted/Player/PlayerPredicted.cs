@@ -45,12 +45,17 @@ namespace Mirror.Examples.BilliardsPredicted
             // https://docs.unity3d.com/2021.3/Documentation/ScriptReference/Rigidbody.AddForce.html
             // this is buffered until the next FixedUpdate.
 
+            // get the white ball's Rigidbody.
+            // prediction sometimes moves this out of the object for a while,
+            // so we need to grab it this way:
+            Rigidbody rb = whiteBall.GetComponent<PredictedRigidbody>().predictedRigidbody;
+
             // AddForce has different force modes, see this excellent diagram:
             // https://www.reddit.com/r/Unity3D/comments/psukm1/know_the_difference_between_forcemodes_a_little/
             // for prediction it's extremely important(!) to apply the correct mode:
             //   'Force' makes server & client drift significantly here
             //   'Impulse' is correct usage with significantly less drift
-            whiteBall.GetComponent<Rigidbody>().AddForce(force, ForceMode.Impulse);
+            rb.AddForce(force, ForceMode.Impulse);
         }
 
         // called when the local player dragged the white ball.
