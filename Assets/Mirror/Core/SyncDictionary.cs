@@ -200,6 +200,8 @@ namespace Mirror
                             // no access check: server OnDeserialize can always
                             // write, even for ClientToServer (for broadcasting).
                             AddOperation(Operation.OP_CLEAR, default, default, false);
+                            // clear after invoking the callback so users can iterate the dictionary
+                            // and take appropriate action on the items before they are wiped.
                             objects.Clear();
                         }
                         break;
@@ -231,8 +233,9 @@ namespace Mirror
 
         public void Clear()
         {
-            // clear after invoking the callback so users can iterate the dictionary
             AddOperation(Operation.OP_CLEAR, default, default, true);
+            // clear after invoking the callback so users can iterate the dictionary
+            // and take appropriate action on the items before they are wiped.
             objects.Clear();
         }
 
