@@ -195,12 +195,12 @@ namespace Mirror
                     case Operation.OP_CLEAR:
                         if (apply)
                         {
-                            objects.Clear();
                             // add dirty + changes.
                             // ClientToServer needs to set dirty in server OnDeserialize.
                             // no access check: server OnDeserialize can always
                             // write, even for ClientToServer (for broadcasting).
                             AddOperation(Operation.OP_CLEAR, default, default, false);
+                            objects.Clear();
                         }
                         break;
 
@@ -231,8 +231,9 @@ namespace Mirror
 
         public void Clear()
         {
-            objects.Clear();
+            // clear after invoking the callback so users can iterate the dictionary
             AddOperation(Operation.OP_CLEAR, default, default, true);
+            objects.Clear();
         }
 
         public bool ContainsKey(TKey key) => objects.ContainsKey(key);
