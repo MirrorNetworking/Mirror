@@ -97,7 +97,6 @@ namespace Mirror.Tests.SyncCollections
 
                 Assert.That(op, Is.EqualTo(SyncDictionary<int, string>.Operation.OP_CLEAR));
                 Assert.That(clientSyncDictionary.Count, Is.EqualTo(3));
-
             };
             serverSyncDictionary.Clear();
             SerializeDeltaTo(serverSyncDictionary, clientSyncDictionary);
