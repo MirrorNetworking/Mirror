@@ -10,8 +10,8 @@ While simple, this approach has a major flaw: latency.
 The NetworkManager has a LatencySimulation component to see this on your own computer.
 Client actions will always feel a bit delayed while waiting for the server.
 
-The solution to this is called Prediction, which we implemented in our BilliardsPredicted demo.
-See the Prediction article in our documentation!
+The solution to this is called Prediction:
+https://mirror-networking.gitbook.io/docs/manual/general/client-side-prediction
 
 Notes:
 - Red/White ball Rigidbody CollisionMode needs to be ContinousDynamic to avoid white flying through red sometimes.
