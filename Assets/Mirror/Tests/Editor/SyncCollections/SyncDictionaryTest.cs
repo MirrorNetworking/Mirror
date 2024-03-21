@@ -79,6 +79,7 @@ namespace Mirror.Tests.SyncCollections
         [Test]
         public void TestAdd()
         {
+            // Adds a new entry with index of 4 using .Add method
             serverSyncDictionary.Add(4, "yay");
             SerializeDeltaTo(serverSyncDictionary, clientSyncDictionary);
             Assert.That(clientSyncDictionary.ContainsKey(4));
@@ -96,19 +97,45 @@ namespace Mirror.Tests.SyncCollections
         [Test]
         public void TestSet()
         {
+            // Overwrites an existing entry
+            bool called = false;
+            clientSyncDictionary.Callback = (op, index, item) =>
+            {
+                called = true;
+
+                Assert.That(op, Is.EqualTo(SyncDictionary<int, string>.Operation.OP_SET));
+                Assert.That(index, Is.EqualTo(1));
+                Assert.That(item, Is.EqualTo("yay"));
+                Assert.That(clientSyncDictionary[index], Is.EqualTo("yay"));
+
+            };
             serverSyncDictionary[1] = "yay";
             SerializeDeltaTo(serverSyncDictionary, clientSyncDictionary);
             Assert.That(clientSyncDictionary.ContainsKey(1));
             Assert.That(clientSyncDictionary[1], Is.EqualTo("yay"));
+            Assert.That(called, Is.True);
         }
 
         [Test]
         public void TestBareSet()
         {
+            // Adds a new entry with index of 4 without using .Add method
+            bool called = false;
+            clientSyncDictionary.Callback = (op, index, item) =>
+            {
+                called = true;
+
+                Assert.That(op, Is.EqualTo(SyncDictionary<int, string>.Operation.OP_ADD));
+                Assert.That(index, Is.EqualTo(4));
+                Assert.That(item, Is.EqualTo("yay"));
+                Assert.That(clientSyncDictionary[index], Is.EqualTo("yay"));
+
+            };
             serverSyncDictionary[4] = "yay";
             SerializeDeltaTo(serverSyncDictionary, clientSyncDictionary);
             Assert.That(clientSyncDictionary.ContainsKey(4));
             Assert.That(clientSyncDictionary[4], Is.EqualTo("yay"));
+            Assert.That(called, Is.True);
         }
 
         [Test]
@@ -173,7 +200,7 @@ namespace Mirror.Tests.SyncCollections
         public void CallbackTest()
         {
             bool called = false;
-            clientSyncDictionary.Callback += (op, index, item) =>
+            clientSyncDictionary.Callback = (op, index, item) =>
             {
                 called = true;
 
@@ -192,7 +219,7 @@ namespace Mirror.Tests.SyncCollections
         public void ServerCallbackTest()
         {
             bool called = false;
-            serverSyncDictionary.Callback += (op, index, item) =>
+            serverSyncDictionary.Callback = (op, index, item) =>
             {
                 called = true;
 
@@ -209,7 +236,7 @@ namespace Mirror.Tests.SyncCollections
         public void CallbackRemoveTest()
         {
             bool called = false;
-            clientSyncDictionary.Callback += (op, key, item) =>
+            clientSyncDictionary.Callback = (op, key, item) =>
             {
                 called = true;
                 Assert.That(op, Is.EqualTo(SyncDictionary<int, string>.Operation.OP_REMOVE));
