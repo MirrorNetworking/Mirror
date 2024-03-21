@@ -12,7 +12,7 @@ namespace Mirror.Examples.BilliardsPredicted
         public float maxForce = 40;
 
         // remember start position to reset to after entering a pocket
-        Vector3 startPosition;
+        internal Vector3 startPosition;
 
         bool draggingStartedOverObject;
 
@@ -156,6 +156,10 @@ namespace Mirror.Examples.BilliardsPredicted
         }
         */
 
+        /* ball<->pocket collisions are handled by Pockets.cs for now.
+           because predicted object's rigidbodies are sometimes moved out of them.
+           which means this script here wouldn't get the collision info while predicting.
+           which means it's easier to check collisions from the table perspective.
         // reset position when entering a pocket.
         // there's only one trigger in the scene (the pocket).
         [ServerCallback]
@@ -165,6 +169,7 @@ namespace Mirror.Examples.BilliardsPredicted
             rigidBody.Sleep(); // reset forces
             // GetComponent<NetworkRigidbodyUnreliable>().RpcTeleport(startPosition);
         }
+        */
 
         [ClientCallback]
         void OnGUI()
