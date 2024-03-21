@@ -1,4 +1,8 @@
 Advanced multiplayer Billiards demo with Prediction.
+
+Please read this first:
+https://mirror-networking.gitbook.io/docs/manual/general/client-side-prediction
+
 Mouse drag the white ball to apply force.
 PredictedRigidbody syncInterval is intentionally set pretty high so we can see when it corrects.
 
