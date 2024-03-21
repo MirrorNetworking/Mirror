@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -5,13 +6,12 @@ namespace Mirror
 {
     public class SyncIDictionary<TKey, TValue> : SyncObject, IDictionary<TKey, TValue>, IReadOnlyDictionary<TKey, TValue>
     {
-        public delegate void SyncDictionaryChanged(Operation op, TKey key, TValue item);
+        public Action<Operation, TKey, TValue> Callback;
 
         protected readonly IDictionary<TKey, TValue> objects;
 
         public int Count => objects.Count;
         public bool IsReadOnly => !IsWritable();
-        public event SyncDictionaryChanged Callback;
 
         public enum Operation : byte
         {
@@ -275,21 +275,15 @@ namespace Mirror
 
         public void Add(KeyValuePair<TKey, TValue> item) => Add(item.Key, item.Value);
 
-        public bool Contains(KeyValuePair<TKey, TValue> item)
-        {
-            return TryGetValue(item.Key, out TValue val) && EqualityComparer<TValue>.Default.Equals(val, item.Value);
-        }
+        public bool Contains(KeyValuePair<TKey, TValue> item) => TryGetValue(item.Key, out TValue val) && EqualityComparer<TValue>.Default.Equals(val, item.Value);
 
         public void CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex)
         {
             if (arrayIndex < 0 || arrayIndex > array.Length)
-            {
                 throw new System.ArgumentOutOfRangeException(nameof(arrayIndex), "Array Index Out of Range");
-            }
+
             if (array.Length - arrayIndex < Count)
-            {
                 throw new System.ArgumentException("The number of items in the SyncDictionary is greater than the available space from arrayIndex to the end of the destination array");
-            }
 
             int i = arrayIndex;
             foreach (KeyValuePair<TKey, TValue> item in objects)
@@ -303,9 +297,8 @@ namespace Mirror
         {
             bool result = objects.Remove(item.Key);
             if (result)
-            {
                 AddOperation(Operation.OP_REMOVE, item.Key, item.Value, true);
-            }
+
             return result;
         }
 
@@ -316,9 +309,9 @@ namespace Mirror
 
     public class SyncDictionary<TKey, TValue> : SyncIDictionary<TKey, TValue>
     {
-        public SyncDictionary() : base(new Dictionary<TKey, TValue>()) {}
-        public SyncDictionary(IEqualityComparer<TKey> eq) : base(new Dictionary<TKey, TValue>(eq)) {}
-        public SyncDictionary(IDictionary<TKey, TValue> d) : base(new Dictionary<TKey, TValue>(d)) {}
+        public SyncDictionary() : base(new Dictionary<TKey, TValue>()) { }
+        public SyncDictionary(IEqualityComparer<TKey> eq) : base(new Dictionary<TKey, TValue>(eq)) { }
+        public SyncDictionary(IDictionary<TKey, TValue> d) : base(new Dictionary<TKey, TValue>(d)) { }
         public new Dictionary<TKey, TValue>.ValueCollection Values => ((Dictionary<TKey, TValue>)objects).Values;
         public new Dictionary<TKey, TValue>.KeyCollection Keys => ((Dictionary<TKey, TValue>)objects).Keys;
         public new Dictionary<TKey, TValue>.Enumerator GetEnumerator() => ((Dictionary<TKey, TValue>)objects).GetEnumerator();
