@@ -9,10 +9,10 @@ namespace Mirror
         /// <summary>This is called after the item is added with TKey</summary>
         public Action<TKey> OnAdd;
 
-        /// <summary>This is called after the item is changed with TKey. TValue is the OLD value</summary>
+        /// <summary>This is called after the item is changed with TKey. TValue is the OLD item</summary>
         public Action<TKey, TValue> OnSet;
 
-        /// <summary>This is called after the item is removed with TKey. TValue is the OLD value</summary>
+        /// <summary>This is called after the item is removed with TKey. TValue is the OLD item</summary>
         public Action<TKey, TValue> OnRemove;
 
         /// <summary>This is called before the data is cleared</summary>
