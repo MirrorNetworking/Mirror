@@ -89,9 +89,19 @@ namespace Mirror.Tests.SyncCollections
         [Test]
         public void TestClear()
         {
+            // Verifies that the clear method works and that the data is still present for the Callback.
+            bool called = false;
+            clientSyncDictionary.Callback = (op, index, item) =>
+            {
+                called = true;
+
+                Assert.That(op, Is.EqualTo(SyncDictionary<int, string>.Operation.OP_CLEAR));
+                Assert.That(clientSyncDictionary.Count, Is.EqualTo(3));
+            };
             serverSyncDictionary.Clear();
             SerializeDeltaTo(serverSyncDictionary, clientSyncDictionary);
             Assert.That(serverSyncDictionary, Is.EquivalentTo(new SyncDictionary<int, string>()));
+            Assert.That(called, Is.True);
         }
 
         [Test]
