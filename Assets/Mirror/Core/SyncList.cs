@@ -15,6 +15,23 @@ namespace Mirror
             OP_CLEAR
         }
 
+        /// <summary>This is called after the item is added with index</summary>
+        public Action<int> OnAdd;
+
+        /// <summary>This is called after the item is inserted with inedx</summary>
+        public Action<int> OnInsert;
+
+        /// <summary>This is called after the item is set with index and OLD Value</summary>
+        public Action<int, T> OnSet;
+
+        /// <summary>This is called after the item is removed with index and OLD Value</summary>
+        public Action<int, T> OnRemove;
+
+        /// <summary>This is called before the list is cleared so the list can be iterated</summary>
+        public Action OnClear;
+
+        // Deprecated 2024-03-23
+        [Obsolete("Use individual Actions, which pass OLD values where appropriate, instead.")]
         public Action<Operation, int, T, T> Callback;
 
         readonly IList<T> objects;
@@ -85,7 +102,28 @@ namespace Mirror
                 OnDirty?.Invoke();
             }
 
+            switch (op)
+            {
+                case Operation.OP_ADD:
+                    OnAdd?.Invoke(itemIndex);
+                    break;
+                case Operation.OP_INSERT:
+                    OnInsert?.Invoke(itemIndex);
+                    break;
+                case Operation.OP_SET:
+                    OnSet?.Invoke(itemIndex, oldItem);
+                    break;
+                case Operation.OP_REMOVEAT:
+                    OnRemove?.Invoke(itemIndex, oldItem);
+                    break;
+                case Operation.OP_CLEAR:
+                    OnClear?.Invoke();
+                    break;
+            }
+
+#pragma warning disable CS0618 // Type or member is obsolete
             Callback?.Invoke(op, itemIndex, oldItem, newItem);
+#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         public override void OnSerializeAll(NetworkWriter writer)
