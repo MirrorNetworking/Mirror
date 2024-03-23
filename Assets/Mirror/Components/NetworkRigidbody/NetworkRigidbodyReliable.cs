@@ -96,13 +96,16 @@ namespace Mirror
         protected override void OnTeleport(Vector3 destination)
         {
             base.OnTeleport(destination);
-            Physics.SyncTransforms();
+
+            rb.position = transform.position;
         }
 
         protected override void OnTeleport(Vector3 destination, Quaternion rotation)
         {
             base.OnTeleport(destination, rotation);
-            Physics.SyncTransforms();
+
+            rb.position = transform.position;
+            rb.rotation = transform.rotation;
         }
     }
 }
