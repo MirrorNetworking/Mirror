@@ -15,12 +15,6 @@ using UnityEngine;
 
 namespace Mirror
 {
-    public enum CorrectionMode
-    {
-        Set,               // rigidbody.position/rotation = ...
-        Move,              // rigidbody.MovePosition/Rotation
-    }
-
     // [RequireComponent(typeof(Rigidbody))] <- RB is moved out at runtime, can't require it.
     public class PredictedRigidbody : NetworkBehaviour
     {
@@ -71,9 +65,6 @@ namespace Mirror
         public bool oneFrameAhead = true;
 
         [Header("Smoothing")]
-        [Tooltip("Configure how to apply the corrected state.")]
-        public CorrectionMode correctionMode = CorrectionMode.Move;
-
         [Tooltip("Snap to the server state directly when velocity is < threshold. This is useful to reduce jitter/fighting effects before coming to rest.\nNote this applies position, rotation and velocity(!) so it's still smooth.")]
         public float snapThreshold = 2; // 0.5 has too much fighting-at-rest, 2 seems ideal.
 
@@ -643,18 +634,22 @@ namespace Mirror
             // call it before applying pos/rot/vel in case we need to set kinematic etc.
             OnBeforeApplyState();
 
-            // Rigidbody .position teleports, while .MovePosition interpolates
-            // TODO is this a good idea? what about next capture while it's interpolating?
-            if (correctionMode == CorrectionMode.Move)
-            {
-                predictedRigidbody.MovePosition(position);
-                predictedRigidbody.MoveRotation(rotation);
-            }
-            else if (correctionMode == CorrectionMode.Set)
-            {
-                predictedRigidbody.position = position;
-                predictedRigidbody.rotation = rotation;
-            }
+            // Rigidbody .position teleports, while .MovePosition interpolates.
+            // we always want to teleport to corrections.
+            // otherwise if there A is moving to the right and is blocked by B,
+            // it would never get there causing objects at rest to jiggle around.
+            //     if (correctionMode == CorrectionMode.Move)
+            //     {
+            //         predictedRigidbody.MovePosition(position);
+            //         predictedRigidbody.MoveRotation(rotation);
+            //     }
+            //     else if (correctionMode == CorrectionMode.Set)
+            //     {
+            //         predictedRigidbody.position = position;
+            //         predictedRigidbody.rotation = rotation;
+            //     }
+            predictedRigidbody.position = position;
+            predictedRigidbody.rotation = rotation;
 
             // there's only one way to set velocity.
             // (projects may keep Rigidbodies as kinematic sometimes. in that case, setting velocity would log an error)
