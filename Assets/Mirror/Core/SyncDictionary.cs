@@ -6,6 +6,20 @@ namespace Mirror
 {
     public class SyncIDictionary<TKey, TValue> : SyncObject, IDictionary<TKey, TValue>, IReadOnlyDictionary<TKey, TValue>
     {
+        /// <summary>This is called after the item is added with TKey</summary>
+        public Action<TKey> OnAdd;
+
+        /// <summary>This is called after the item is changed with TKey. TValue is the OLD item</summary>
+        public Action<TKey, TValue> OnSet;
+
+        /// <summary>This is called after the item is removed with TKey. TValue is the OLD item</summary>
+        public Action<TKey, TValue> OnRemove;
+
+        /// <summary>This is called before the data is cleared</summary>
+        public Action OnClear;
+
+        // Deprecated 2024-03-22
+        [Obsolete("Use individual Actions, which pass OLD values where appropriate, instead.")]
         public Action<Operation, TKey, TValue> Callback;
 
         protected readonly IDictionary<TKey, TValue> objects;
@@ -83,7 +97,25 @@ namespace Mirror
                 OnDirty?.Invoke();
             }
 
+            switch (op)
+            {
+                case Operation.OP_ADD:
+                    OnAdd?.Invoke(key);
+                    break;
+                case Operation.OP_SET:
+                    OnSet?.Invoke(key, oldItem);
+                    break;
+                case Operation.OP_REMOVE:
+                    OnRemove?.Invoke(key, oldItem);
+                    break;
+                case Operation.OP_CLEAR:
+                    OnClear?.Invoke();
+                    break;
+            }
+
+#pragma warning disable CS0618 // Type or member is obsolete
             Callback?.Invoke(op, key, item);
+#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         public override void OnSerializeAll(NetworkWriter writer)

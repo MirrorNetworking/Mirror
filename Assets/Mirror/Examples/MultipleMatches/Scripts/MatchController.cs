@@ -58,7 +58,9 @@ namespace Mirror.Examples.MultipleMatch
 
         public override void OnStartClient()
         {
-            matchPlayerData.Callback += UpdateWins;
+#pragma warning disable CS0618 // Type or member is obsolete
+            matchPlayerData.Callback = UpdateWins;
+#pragma warning restore CS0618 // Type or member is obsolete
 
             canvasGroup.alpha = 1f;
             canvasGroup.interactable = true;
