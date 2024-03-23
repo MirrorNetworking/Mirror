@@ -97,9 +97,19 @@ namespace Mirror.Tests.SyncCollections
         [Test]
         public void TestClear()
         {
+            bool called = false;
+            clientSyncList.Callback = (op, index, oldItem, newItem) =>
+            {
+                called = true;
+
+                Assert.That(op, Is.EqualTo(SyncList<string>.Operation.OP_CLEAR));
+                Assert.That(clientSyncList.Count, Is.EqualTo(3));
+            };
+
             serverSyncList.Clear();
             SerializeDeltaTo(serverSyncList, clientSyncList);
             Assert.That(clientSyncList, Is.EquivalentTo(new string[] {}));
+            Assert.That(called, Is.True);
         }
 
         [Test]
