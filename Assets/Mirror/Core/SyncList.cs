@@ -6,23 +6,23 @@ namespace Mirror
 {
     public class SyncList<T> : SyncObject, IList<T>, IReadOnlyList<T>
     {
+        public enum Operation : byte
+        {
+            OP_ADD,
+            OP_SET,
+            OP_INSERT,
+            OP_REMOVEAT,
+            OP_CLEAR
+        }
+
         public delegate void SyncListChanged(Operation op, int itemIndex, T oldItem, T newItem);
+        public event SyncListChanged Callback;
 
         readonly IList<T> objects;
         readonly IEqualityComparer<T> comparer;
 
         public int Count => objects.Count;
         public bool IsReadOnly => !IsWritable();
-        public event SyncListChanged Callback;
-
-        public enum Operation : byte
-        {
-            OP_ADD,
-            OP_CLEAR,
-            OP_INSERT,
-            OP_REMOVEAT,
-            OP_SET
-        }
 
         struct Change
         {
@@ -43,7 +43,7 @@ namespace Mirror
         // so we need to skip them
         int changesAhead;
 
-        public SyncList() : this(EqualityComparer<T>.Default) {}
+        public SyncList() : this(EqualityComparer<T>.Default) { }
 
         public SyncList(IEqualityComparer<T> comparer)
         {
@@ -71,9 +71,7 @@ namespace Mirror
         void AddOperation(Operation op, int itemIndex, T oldItem, T newItem, bool checkAccess)
         {
             if (checkAccess && IsReadOnly)
-            {
                 throw new InvalidOperationException("Synclists can only be modified by the owner.");
-            }
 
             Change change = new Change
             {
@@ -265,9 +263,7 @@ namespace Mirror
         public void AddRange(IEnumerable<T> range)
         {
             foreach (T entry in range)
-            {
                 Add(entry);
-            }
         }
 
         public void Clear()
@@ -331,9 +327,8 @@ namespace Mirror
             int index = IndexOf(item);
             bool result = index >= 0;
             if (result)
-            {
                 RemoveAt(index);
-            }
+
             return result;
         }
 
@@ -352,9 +347,7 @@ namespace Mirror
                     toRemove.Add(objects[i]);
 
             foreach (T entry in toRemove)
-            {
                 Remove(entry);
-            }
 
             return toRemove.Count;
         }
@@ -393,6 +386,7 @@ namespace Mirror
         {
             readonly SyncList<T> list;
             int index;
+
             public T Current { get; private set; }
 
             public Enumerator(SyncList<T> list)
@@ -405,16 +399,15 @@ namespace Mirror
             public bool MoveNext()
             {
                 if (++index >= list.Count)
-                {
                     return false;
-                }
+
                 Current = list[index];
                 return true;
             }
 
             public void Reset() => index = -1;
             object IEnumerator.Current => Current;
-            public void Dispose() {}
+            public void Dispose() { }
         }
     }
 }
