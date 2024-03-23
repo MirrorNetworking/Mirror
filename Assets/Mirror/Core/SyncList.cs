@@ -192,12 +192,14 @@ namespace Mirror
                     case Operation.OP_CLEAR:
                         if (apply)
                         {
-                            objects.Clear();
                             // add dirty + changes.
                             // ClientToServer needs to set dirty in server OnDeserialize.
                             // no access check: server OnDeserialize can always
                             // write, even for ClientToServer (for broadcasting).
                             AddOperation(Operation.OP_CLEAR, 0, default, default, false);
+                            // clear after invoking the callback so users can iterate the list
+                            // and take appropriate action on the items before they are wiped.
+                            objects.Clear();
                         }
                         break;
 
@@ -267,8 +269,10 @@ namespace Mirror
 
         public void Clear()
         {
-            objects.Clear();
             AddOperation(Operation.OP_CLEAR, 0, default, default, true);
+            // clear after invoking the callback so users can iterate the list
+            // and take appropriate action on the items before they are wiped.
+            objects.Clear();
         }
 
         public bool Contains(T item) => IndexOf(item) >= 0;
