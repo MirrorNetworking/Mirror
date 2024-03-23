@@ -121,7 +121,7 @@ namespace Mirror
         Quaternion initialRotation;
         // Vector3 initialScale; // don't change scale for now. causes issues with parenting.
 
-        void Awake()
+        protected virtual void Awake()
         {
             tf = transform;
             predictedRigidbody = GetComponent<Rigidbody>();
