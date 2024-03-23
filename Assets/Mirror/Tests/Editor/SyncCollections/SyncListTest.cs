@@ -74,7 +74,7 @@ namespace Mirror.Tests.SyncCollections
         [Test]
         public void CurlyBracesConstructor()
         {
-            SyncList<int> list = new SyncList<int>{1,2,3};
+            SyncList<int> list = new SyncList<int> { 1, 2, 3 };
             Assert.That(list.Count, Is.EqualTo(3));
         }
 
@@ -108,7 +108,7 @@ namespace Mirror.Tests.SyncCollections
 
             serverSyncList.Clear();
             SerializeDeltaTo(serverSyncList, clientSyncList);
-            Assert.That(clientSyncList, Is.EquivalentTo(new string[] {}));
+            Assert.That(clientSyncList, Is.EquivalentTo(new string[] { }));
             Assert.That(called, Is.True);
         }
 
