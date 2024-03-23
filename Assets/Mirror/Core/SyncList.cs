@@ -15,8 +15,7 @@ namespace Mirror
             OP_CLEAR
         }
 
-        public delegate void SyncListChanged(Operation op, int itemIndex, T oldItem, T newItem);
-        public event SyncListChanged Callback;
+        public Action<Operation, int, T, T> Callback;
 
         readonly IList<T> objects;
         readonly IEqualityComparer<T> comparer;
