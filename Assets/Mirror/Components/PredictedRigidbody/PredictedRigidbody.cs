@@ -68,6 +68,8 @@ namespace Mirror
         [Header("Smoothing")]
         [Tooltip("Snap to the server state directly when velocity is < threshold. This is useful to reduce jitter/fighting effects before coming to rest.\nNote this applies position, rotation and velocity(!) so it's still smooth.")]
         public float snapThreshold = 2; // 0.5 has too much fighting-at-rest, 2 seems ideal.
+        [Tooltip("Remote objects are considered sleeping when their velocity is below this threshold. '0' is technically correct, but it's a good idea to come to rest even a bit sooner.")]
+        public float restThreshold = 0.01f;
         [Tooltip("Hold client objects in place while the remote object is sleeping in order to avoid clients objects jiggling place instead of coming to rest.")]
         public bool holdAtRest = true;
 
@@ -481,8 +483,8 @@ namespace Mirror
             // is the remote state at rest?
             // syncing remote Rigidbody.IsSleeping() works, but it takes ~1s to sleep.
             // checking velocity gives much faster results.
-            bool remoteResting = remoteState.Value.velocity.sqrMagnitude == 0 &&
-                                 remoteState.Value.angularVelocity.sqrMagnitude == 0;
+            bool remoteResting = remoteState.Value.velocity.sqrMagnitude <= restThreshold &&
+                                 remoteState.Value.angularVelocity.sqrMagnitude <= restThreshold;
 
             // color code for debugging
             if (showRemoteSleeping) rend.material.color = remoteResting ? Color.gray : originalColor;
