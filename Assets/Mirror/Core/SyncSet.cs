@@ -6,8 +6,7 @@ namespace Mirror
 {
     public class SyncSet<T> : SyncObject, ISet<T>
     {
-        public delegate void SyncSetChanged(Operation op, T item);
-        public event SyncSetChanged Callback;
+        public Action<Operation, T> Callback;
 
         protected readonly ISet<T> objects;
 

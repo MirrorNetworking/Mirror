@@ -112,7 +112,7 @@ namespace Mirror.Tests.SyncCollections
         {
             bool called = false;
 
-            clientSyncSet.Callback += (op, item) =>
+            clientSyncSet.Callback = (op, item) =>
             {
                 called = true;
 
@@ -131,7 +131,7 @@ namespace Mirror.Tests.SyncCollections
         {
             bool called = false;
 
-            clientSyncSet.Callback += (op, item) =>
+            clientSyncSet.Callback = (op, item) =>
             {
                 called = true;
 
