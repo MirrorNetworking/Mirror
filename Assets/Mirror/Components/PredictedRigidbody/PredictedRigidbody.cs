@@ -492,10 +492,10 @@ namespace Mirror
         float lastAngularVelocitySqr = 0;
         RigidbodyState? remoteState = null;
         bool remoteResting = false; // perf: only calculate on receive, not every single update()!
-        void ClientHoldAtRest()
+        bool ClientHoldAtRest() // returns true when forced to rest
         {
             // no state yet? then nothing to do.
-            if (remoteState == null) return;
+            if (remoteState == null) return false;
 
             // color code for debugging
             if (showRemoteSleeping) rend.material.color = remoteResting ? Color.gray : originalColor;
@@ -503,7 +503,7 @@ namespace Mirror
             // try fixing objects coming to rest:
             // if remote is sleeping and we are DECELERATING from a previous move,
             // then hold position exactly at remote sleeping position.
-            if (!remoteResting) return;
+            if (!remoteResting) return false;
 
             // <= comparison matters so it works while decelearting AND at rest,
             //    but stop when accelerating again!
@@ -512,7 +512,7 @@ namespace Mirror
             bool decelerating = currentVelocitySqr <= lastVelocitySqr && currentAngularVelocitySqr <= lastAngularVelocitySqr;
             lastVelocitySqr = currentVelocitySqr;
             lastAngularVelocitySqr = currentAngularVelocitySqr;
-            if (!decelerating) return;
+            if (!decelerating) return false;
 
             // hold in place to avoid fighting at rest
             predictedRigidbody.velocity = Vector3.zero;
@@ -521,6 +521,9 @@ namespace Mirror
             predictedRigidbody.rotation = remoteState.Value.rotation;
             predictedRigidbody.Sleep();
             stateHistory.Clear();
+
+            // indicate that it was forced to rest
+            return true;
         }
 
         void FixedUpdate()
@@ -531,7 +534,11 @@ namespace Mirror
 
             // holding at rest forces physics position, so it's enough to do this
             // in FixedUpdate.
-            if (holdAtRest) ClientHoldAtRest();
+            if (holdAtRest)
+            {
+                // if forced to rest, don't record anything or do any more work
+                if (ClientHoldAtRest()) return;
+            }
 
             // OPTIMIZATION: RecordState() is expensive because it inserts into a SortedList.
             // only record if state actually changed!
