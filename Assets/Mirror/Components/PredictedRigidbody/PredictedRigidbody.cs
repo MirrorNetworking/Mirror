@@ -470,7 +470,37 @@ namespace Mirror
         void Update()
         {
             if (isServer) UpdateServer();
-            if (isClientOnly) UpdateGhosting();
+            if (isClientOnly)
+            {
+                UpdateGhosting();
+
+
+                // try fixing objects coming to rest:
+                // if remote is sleeping and we are DECELERATING from a previous move,
+                // then put self to sleep too
+                // <= covers decelerating AND while at reast AFTER decelerating!
+                if (remoteSleeping)
+                {
+                    // TODO ANGULAR TOO
+                    bool decelerating = predictedRigidbody.velocity.sqrMagnitude <= lastVelocitySqr;
+                    lastVelocitySqr = predictedRigidbody.velocity.sqrMagnitude;
+                    if (decelerating)
+                    {
+                        // hold in place to avoid fighting at rest
+                        rend.material.color = Color.white;
+                        stateHistory.Clear();
+
+                        predictedRigidbody.velocity = Vector3.zero;
+                        predictedRigidbody.angularVelocity = Vector3.zero;
+                        predictedRigidbody.position = remoteState.position;
+                        predictedRigidbody.rotation = remoteState.rotation;
+                        // predictedRigidbody.sleepThreshold = 1;
+                        predictedRigidbody.Sleep();
+                        // stateHistory.Clear();
+                        // return;
+                    }
+                }
+            }
         }
 
         void LateUpdate()
@@ -671,8 +701,13 @@ namespace Mirror
         // process a received server state.
         // compares it against our history and applies corrections if needed.
         float lastVelocitySqr = 0;
+        bool remoteSleeping = false;
+        RigidbodyState remoteState;
         void OnReceivedState(double timestamp, RigidbodyState state, bool sleeping)
         {
+            remoteSleeping = sleeping;
+            remoteState = state;
+
             // always update remote state ghost
             if (remoteCopy != null)
             {
@@ -685,16 +720,6 @@ namespace Mirror
             if (showRemoteSleeping)
             {
                 rend.material.color = sleeping ? Color.gray : originalColor;
-            }
-
-            // try fixing objects coming to rest:
-            // if remote is sleeping and we are DECELERATING from a previous move,
-            // then put self to sleep too
-            bool decelerating = predictedRigidbody.velocity.sqrMagnitude < lastVelocitySqr;
-            lastVelocitySqr = predictedRigidbody.velocity.sqrMagnitude;
-            if (sleeping && decelerating)
-            {
-                rend.material.color = Color.white;
             }
 
             // performance: get Rigidbody position & rotation only once,
