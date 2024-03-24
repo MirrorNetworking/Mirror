@@ -670,6 +670,7 @@ namespace Mirror
 
         // process a received server state.
         // compares it against our history and applies corrections if needed.
+        float lastVelocitySqr = 0;
         void OnReceivedState(double timestamp, RigidbodyState state, bool sleeping)
         {
             // always update remote state ghost
@@ -684,6 +685,16 @@ namespace Mirror
             if (showRemoteSleeping)
             {
                 rend.material.color = sleeping ? Color.gray : originalColor;
+            }
+
+            // try fixing objects coming to rest:
+            // if remote is sleeping and we are DECELERATING from a previous move,
+            // then put self to sleep too
+            bool decelerating = predictedRigidbody.velocity.sqrMagnitude < lastVelocitySqr;
+            lastVelocitySqr = predictedRigidbody.velocity.sqrMagnitude;
+            if (sleeping && decelerating)
+            {
+                rend.material.color = Color.white;
             }
 
             // performance: get Rigidbody position & rotation only once,
