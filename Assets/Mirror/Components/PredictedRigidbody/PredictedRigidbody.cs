@@ -19,6 +19,7 @@ namespace Mirror
     public class PredictedRigidbody : NetworkBehaviour
     {
         Transform tf; // this component is performance critical. cache .transform getter!
+        Renderer rend;
 
         // Prediction sometimes moves the Rigidbody to a ghost object.
         // .predictedRigidbody is always kept up to date to wherever the RB is.
@@ -93,7 +94,8 @@ namespace Mirror
         public bool reduceSendsWhileIdle = true;
 
         [Header("Debugging")]
-        public float lineTime = 10;
+        [Tooltip("Useful to debug objects not coming to rest. This color codes the local objects which are already asleep on the server.")]
+        public bool showRemoteSleeping = false;
 
         // Rigidbody & Collider are moved out into a separate object.
         // this way the visual object can smoothly follow.
@@ -112,9 +114,12 @@ namespace Mirror
         Quaternion initialRotation;
         // Vector3 initialScale; // don't change scale for now. causes issues with parenting.
 
+        Color originalColor;
+
         protected virtual void Awake()
         {
             tf = transform;
+            rend = GetComponent<Renderer>();
             predictedRigidbody = GetComponent<Rigidbody>();
             if (predictedRigidbody == null) throw new InvalidOperationException($"Prediction: {name} is missing a Rigidbody component.");
             predictedRigidbodyTransform = predictedRigidbody.transform;
@@ -133,6 +138,9 @@ namespace Mirror
             motionSmoothingVelocityThresholdSqr = motionSmoothingVelocityThreshold * motionSmoothingVelocityThreshold;
             motionSmoothingAngularVelocityThresholdSqr = motionSmoothingAngularVelocityThreshold * motionSmoothingAngularVelocityThreshold;
             positionCorrectionThresholdSqr = positionCorrectionThreshold * positionCorrectionThreshold;
+
+            // renderer
+            originalColor = rend.material.color;
         }
 
         protected virtual void CopyRenderersAsGhost(GameObject destination, Material material)
@@ -662,7 +670,7 @@ namespace Mirror
 
         // process a received server state.
         // compares it against our history and applies corrections if needed.
-        void OnReceivedState(double timestamp, RigidbodyState state)
+        void OnReceivedState(double timestamp, RigidbodyState state, bool sleeping)
         {
             // always update remote state ghost
             if (remoteCopy != null)
@@ -670,6 +678,12 @@ namespace Mirror
                 Transform remoteCopyTransform = remoteCopy.transform;
                 remoteCopyTransform.SetPositionAndRotation(state.position, state.rotation); // faster than .position + .rotation setters
                 remoteCopyTransform.localScale = tf.lossyScale; // world scale! see CreateGhosts comment.
+            }
+
+            // color code remote sleeping objects to debug objects coming to rest
+            if (showRemoteSleeping)
+            {
+                rend.material.color = sleeping ? Color.gray : originalColor;
             }
 
             // performance: get Rigidbody position & rotation only once,
@@ -830,7 +844,13 @@ namespace Mirror
             // writer.WriteVector3(predictedRigidbody.angularVelocity);
 
             // performance optimization: write a whole struct at once via blittable:
-            PredictedSyncData data = new PredictedSyncData(Time.deltaTime, position, rotation, predictedRigidbody.velocity, predictedRigidbody.angularVelocity);
+            PredictedSyncData data = new PredictedSyncData(
+                Time.deltaTime,
+                position,
+                rotation,
+                predictedRigidbody.velocity,
+                predictedRigidbody.angularVelocity,
+                predictedRigidbody.IsSleeping());
             writer.WritePredictedSyncData(data);
         }
 
@@ -855,6 +875,7 @@ namespace Mirror
             Quaternion rotation = data.rotation;
             Vector3 velocity = data.velocity;
             Vector3 angularVelocity = data.angularVelocity;
+            bool sleeping = data.sleeping != 0;
 
             // server sends state at the end of the frame.
             // parse and apply the server's delta time to our timestamp.
@@ -868,7 +889,7 @@ namespace Mirror
             if (oneFrameAhead) timestamp += serverDeltaTime;
 
             // process received state
-            OnReceivedState(timestamp, new RigidbodyState(timestamp, Vector3.zero, position, Quaternion.identity, rotation, Vector3.zero, velocity, Vector3.zero, angularVelocity));
+            OnReceivedState(timestamp, new RigidbodyState(timestamp, Vector3.zero, position, Quaternion.identity, rotation, Vector3.zero, velocity, Vector3.zero, angularVelocity), sleeping);
         }
 
         protected override void OnValidate()
