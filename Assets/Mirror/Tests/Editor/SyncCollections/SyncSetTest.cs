@@ -121,7 +121,6 @@ namespace Mirror.Tests.SyncCollections
         public void CallbackTest()
         {
             bool called = false;
-
             clientSyncSet.Callback = (op, item) =>
             {
                 called = true;
@@ -140,7 +139,6 @@ namespace Mirror.Tests.SyncCollections
         public void CallbackRemoveTest()
         {
             bool called = false;
-
             clientSyncSet.Callback = (op, item) =>
             {
                 called = true;
@@ -148,6 +146,7 @@ namespace Mirror.Tests.SyncCollections
                 Assert.That(op, Is.EqualTo(SyncHashSet<string>.Operation.OP_REMOVE));
                 Assert.That(item, Is.EqualTo("World"));
             };
+
             serverSyncSet.Remove("World");
             SerializeDeltaTo(serverSyncSet, clientSyncSet);
 
