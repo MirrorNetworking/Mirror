@@ -160,6 +160,8 @@ MonoBehaviour:
   rotationCorrectionThreshold: 5
   oneFrameAhead: 1
   snapThreshold: 2
+  restThreshold: 0.01
+  holdAtRest: 1
   showGhost: 0
   ghostVelocityThreshold: 0.1
   localGhostMaterial: {fileID: 2100000, guid: 411a48b4a197d4924bec3e3809bc9320, type: 2}
