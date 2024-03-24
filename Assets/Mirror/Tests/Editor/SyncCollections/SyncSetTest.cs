@@ -91,6 +91,7 @@ namespace Mirror.Tests.SyncCollections
         [Test]
         public void TestClear()
         {
+#pragma warning disable 618 // Type or member is obsolete
             bool called = false;
             clientSyncSet.Callback = (op, item) =>
             {
@@ -99,11 +100,20 @@ namespace Mirror.Tests.SyncCollections
                 Assert.That(op, Is.EqualTo(SyncHashSet<string>.Operation.OP_CLEAR));
                 Assert.That(clientSyncSet.Count, Is.EqualTo(3));
             };
+#pragma warning restore 618 // Type or member is obsolete
+
+            bool actionCalled = false;
+            clientSyncSet.OnClear  = () =>
+            {
+                actionCalled = true;
+                Assert.That(clientSyncSet.Count, Is.EqualTo(3));
+            };
 
             serverSyncSet.Clear();
             SerializeDeltaTo(serverSyncSet, clientSyncSet);
             Assert.That(clientSyncSet, Is.EquivalentTo(new string[] { }));
             Assert.That(called, Is.True);
+            Assert.That(actionCalled, Is.True);
         }
 
         [Test]
@@ -120,6 +130,7 @@ namespace Mirror.Tests.SyncCollections
         [Test]
         public void CallbackTest()
         {
+#pragma warning disable 618 // Type or member is obsolete
             bool called = false;
             clientSyncSet.Callback = (op, item) =>
             {
@@ -128,16 +139,25 @@ namespace Mirror.Tests.SyncCollections
                 Assert.That(op, Is.EqualTo(SyncHashSet<string>.Operation.OP_ADD));
                 Assert.That(item, Is.EqualTo("yay"));
             };
+#pragma warning restore 618 // Type or member is obsolete
+
+            bool actionCalled = false;
+            clientSyncSet.OnAdd = (item) =>
+            {
+                actionCalled = true;
+                Assert.That(item, Is.EqualTo("yay"));
+            };
 
             serverSyncSet.Add("yay");
             SerializeDeltaTo(serverSyncSet, clientSyncSet);
-
             Assert.That(called, Is.True);
+            Assert.That(actionCalled, Is.True);
         }
 
         [Test]
         public void CallbackRemoveTest()
         {
+#pragma warning disable 618 // Type or member is obsolete
             bool called = false;
             clientSyncSet.Callback = (op, item) =>
             {
@@ -146,11 +166,19 @@ namespace Mirror.Tests.SyncCollections
                 Assert.That(op, Is.EqualTo(SyncHashSet<string>.Operation.OP_REMOVE));
                 Assert.That(item, Is.EqualTo("World"));
             };
+#pragma warning restore 618 // Type or member is obsolete
+
+            bool actionCalled = false;
+            clientSyncSet.OnRemove = (oldItem) =>
+            {
+                actionCalled = true;
+                Assert.That(oldItem, Is.EqualTo("World"));
+            };
 
             serverSyncSet.Remove("World");
             SerializeDeltaTo(serverSyncSet, clientSyncSet);
-
             Assert.That(called, Is.True);
+            Assert.That(actionCalled, Is.True);
         }
 
         [Test]

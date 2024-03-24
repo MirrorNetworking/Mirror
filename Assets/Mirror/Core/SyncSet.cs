@@ -6,6 +6,17 @@ namespace Mirror
 {
     public class SyncSet<T> : SyncObject, ISet<T>
     {
+        /// <summary>This is called after the item is added. T is the new item.</summary>
+        public Action<T> OnAdd;
+
+        /// <summary>This is called after the item is removed. T is the OLD item</summary>
+        public Action<T> OnRemove;
+
+        /// <summary>This is called BEFORE the data is cleared</summary>
+        public Action OnClear;
+
+        // Deprecated 2024-03-22
+        [Obsolete("Use individual Actions, which pass OLD value where appropriate, instead.")]
         public Action<Operation, T> Callback;
 
         protected readonly ISet<T> objects;
@@ -72,7 +83,22 @@ namespace Mirror
                 OnDirty?.Invoke();
             }
 
+            switch (op)
+            {
+                case Operation.OP_ADD:
+                    OnAdd?.Invoke(item);
+                    break;
+                case Operation.OP_REMOVE:
+                    OnRemove?.Invoke(item);
+                    break;
+                case Operation.OP_CLEAR:
+                    OnClear?.Invoke();
+                    break;
+            }
+
+#pragma warning disable CS0618 // Type or member is obsolete
             Callback?.Invoke(op, item);
+#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         void AddOperation(Operation op, bool checkAccess) => AddOperation(op, default, checkAccess);
