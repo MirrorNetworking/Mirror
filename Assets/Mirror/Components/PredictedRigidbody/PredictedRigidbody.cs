@@ -68,6 +68,8 @@ namespace Mirror
         [Header("Smoothing")]
         [Tooltip("Snap to the server state directly when velocity is < threshold. This is useful to reduce jitter/fighting effects before coming to rest.\nNote this applies position, rotation and velocity(!) so it's still smooth.")]
         public float snapThreshold = 2; // 0.5 has too much fighting-at-rest, 2 seems ideal.
+        [Tooltip("Hold client objects in place while the remote object is sleeping in order to avoid clients objects jiggling place instead of coming to rest.")]
+        public bool holdAtRest = true;
 
         [Header("Visual Interpolation")]
         [Tooltip("After creating the visual interpolation object, keep showing the original Rigidbody with a ghost (transparent) material for debugging.")]
@@ -467,39 +469,38 @@ namespace Mirror
             }
         }
 
+        void ClientHoldAtRest()
+        {
+            // try fixing objects coming to rest:
+            // if remote is sleeping and we are DECELERATING from a previous move,
+            // then hold position exactly at remote sleeping position.
+            if (!remoteSleeping) return;
+
+            // TODO ANGULAR TOO
+            // <= comparison matters so it works while decelearting AND at rest,
+            //    but stop when accelerating again!
+            bool decelerating = predictedRigidbody.velocity.sqrMagnitude <= lastVelocitySqr;
+            lastVelocitySqr = predictedRigidbody.velocity.sqrMagnitude;
+            if (!decelerating) return;
+
+            // hold in place to avoid fighting at rest
+            rend.material.color = Color.white;
+
+            predictedRigidbody.velocity = Vector3.zero;
+            predictedRigidbody.angularVelocity = Vector3.zero;
+            predictedRigidbody.position = remoteState.position;
+            predictedRigidbody.rotation = remoteState.rotation;
+            predictedRigidbody.Sleep();
+            stateHistory.Clear();
+        }
+
         void Update()
         {
             if (isServer) UpdateServer();
             if (isClientOnly)
             {
                 UpdateGhosting();
-
-
-                // try fixing objects coming to rest:
-                // if remote is sleeping and we are DECELERATING from a previous move,
-                // then put self to sleep too
-                // <= covers decelerating AND while at reast AFTER decelerating!
-                if (remoteSleeping)
-                {
-                    // TODO ANGULAR TOO
-                    bool decelerating = predictedRigidbody.velocity.sqrMagnitude <= lastVelocitySqr;
-                    lastVelocitySqr = predictedRigidbody.velocity.sqrMagnitude;
-                    if (decelerating)
-                    {
-                        // hold in place to avoid fighting at rest
-                        rend.material.color = Color.white;
-                        stateHistory.Clear();
-
-                        predictedRigidbody.velocity = Vector3.zero;
-                        predictedRigidbody.angularVelocity = Vector3.zero;
-                        predictedRigidbody.position = remoteState.position;
-                        predictedRigidbody.rotation = remoteState.rotation;
-                        // predictedRigidbody.sleepThreshold = 1;
-                        predictedRigidbody.Sleep();
-                        // stateHistory.Clear();
-                        // return;
-                    }
-                }
+                if (holdAtRest) ClientHoldAtRest();
             }
         }
 
