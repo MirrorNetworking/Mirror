@@ -475,16 +475,11 @@ namespace Mirror
         // compares it against our history and applies corrections if needed.
         float lastVelocitySqr = 0;
         RigidbodyState? remoteState = null;
+        bool remoteResting = false; // perf: only calculate on receive, not every single update()!
         void ClientHoldAtRest()
         {
             // no state yet? then nothing to do.
             if (remoteState == null) return;
-
-            // is the remote state at rest?
-            // syncing remote Rigidbody.IsSleeping() works, but it takes ~1s to sleep.
-            // checking velocity gives much faster results.
-            bool remoteResting = remoteState.Value.velocity.sqrMagnitude <= restThreshold &&
-                                 remoteState.Value.angularVelocity.sqrMagnitude <= restThreshold;
 
             // color code for debugging
             if (showRemoteSleeping) rend.material.color = remoteResting ? Color.gray : originalColor;
@@ -720,6 +715,13 @@ namespace Mirror
         {
             // always save last remote state for use in Update() etc.
             remoteState = state;
+
+            // is the remote state at rest?
+            // syncing remote Rigidbody.IsSleeping() works, but it takes ~1s to sleep.
+            // checking velocity gives much faster results.
+            // => perf: only calculate when receiving, not in every single update() check <=
+            remoteResting = remoteState.Value.velocity.sqrMagnitude <= restThreshold &&
+                            remoteState.Value.angularVelocity.sqrMagnitude <= restThreshold;
 
             // always update remote state ghost
             if (remoteCopy != null)
