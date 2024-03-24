@@ -471,8 +471,23 @@ namespace Mirror
             }
         }
 
-        // process a received server state.
-        // compares it against our history and applies corrections if needed.
+        void Update()
+        {
+            if (isServer) UpdateServer();
+            if (isClientOnly)
+            {
+                UpdateGhosting();
+            }
+        }
+
+        void LateUpdate()
+        {
+            // only follow on client-only, not in server or host mode
+            if (isClientOnly && physicsCopy) SmoothFollowPhysicsCopy();
+        }
+
+        // force client objects to rest when remote objects are at rest.
+        // fixes objects jiggling instead of coming to rest due to PhysX imprecensions etc.
         float lastVelocitySqr = 0;
         float lastAngularVelocitySqr = 0;
         RigidbodyState? remoteState = null;
@@ -508,27 +523,15 @@ namespace Mirror
             stateHistory.Clear();
         }
 
-        void Update()
-        {
-            if (isServer) UpdateServer();
-            if (isClientOnly)
-            {
-                UpdateGhosting();
-                if (holdAtRest) ClientHoldAtRest();
-            }
-        }
-
-        void LateUpdate()
-        {
-            // only follow on client-only, not in server or host mode
-            if (isClientOnly && physicsCopy) SmoothFollowPhysicsCopy();
-        }
-
         void FixedUpdate()
         {
             // on clients (not host) we record the current state every FixedUpdate.
             // this is cheap, and allows us to keep a dense history.
             if (!isClientOnly) return;
+
+            // holding at rest forces physics position, so it's enough to do this
+            // in FixedUpdate.
+            if (holdAtRest) ClientHoldAtRest();
 
             // OPTIMIZATION: RecordState() is expensive because it inserts into a SortedList.
             // only record if state actually changed!
