@@ -7,18 +7,18 @@ namespace Mirror
     public class SyncSet<T> : SyncObject, ISet<T>
     {
         public delegate void SyncSetChanged(Operation op, T item);
+        public event SyncSetChanged Callback;
 
         protected readonly ISet<T> objects;
 
         public int Count => objects.Count;
         public bool IsReadOnly => !IsWritable();
-        public event SyncSetChanged Callback;
 
         public enum Operation : byte
         {
             OP_ADD,
-            OP_CLEAR,
-            OP_REMOVE
+            OP_REMOVE,
+            OP_CLEAR
         }
 
         struct Change
@@ -59,9 +59,7 @@ namespace Mirror
         void AddOperation(Operation op, T item, bool checkAccess)
         {
             if (checkAccess && IsReadOnly)
-            {
                 throw new InvalidOperationException("SyncSets can only be modified by the owner.");
-            }
 
             Change change = new Change
             {
@@ -86,9 +84,7 @@ namespace Mirror
             writer.WriteUInt((uint)objects.Count);
 
             foreach (T obj in objects)
-            {
                 writer.Write(obj);
-            }
 
             // all changes have been applied already
             // thus the client will need to skip all the pending changes
@@ -112,12 +108,10 @@ namespace Mirror
                     case Operation.OP_ADD:
                         writer.Write(change.item);
                         break;
-
-                    case Operation.OP_CLEAR:
-                        break;
-
                     case Operation.OP_REMOVE:
                         writer.Write(change.item);
+                        break;
+                    case Operation.OP_CLEAR:
                         break;
                 }
             }
@@ -171,18 +165,6 @@ namespace Mirror
                         }
                         break;
 
-                    case Operation.OP_CLEAR:
-                        if (apply)
-                        {
-                            objects.Clear();
-                            // add dirty + changes.
-                            // ClientToServer needs to set dirty in server OnDeserialize.
-                            // no access check: server OnDeserialize can always
-                            // write, even for ClientToServer (for broadcasting).
-                            AddOperation(Operation.OP_CLEAR, false);
-                        }
-                        break;
-
                     case Operation.OP_REMOVE:
                         item = reader.Read<T>();
                         if (apply)
@@ -193,6 +175,18 @@ namespace Mirror
                             // no access check: server OnDeserialize can always
                             // write, even for ClientToServer (for broadcasting).
                             AddOperation(Operation.OP_REMOVE, item, false);
+                        }
+                        break;
+
+                    case Operation.OP_CLEAR:
+                        if (apply)
+                        {
+                            objects.Clear();
+                            // add dirty + changes.
+                            // ClientToServer needs to set dirty in server OnDeserialize.
+                            // no access check: server OnDeserialize can always
+                            // write, even for ClientToServer (for broadcasting).
+                            AddOperation(Operation.OP_CLEAR, false);
                         }
                         break;
                 }
@@ -218,9 +212,7 @@ namespace Mirror
         void ICollection<T>.Add(T item)
         {
             if (objects.Add(item))
-            {
                 AddOperation(Operation.OP_ADD, item, true);
-            }
         }
 
         public void Clear()
@@ -257,17 +249,13 @@ namespace Mirror
 
             // remove every element in other from this
             foreach (T element in other)
-            {
                 Remove(element);
-            }
         }
 
         public void IntersectWith(IEnumerable<T> other)
         {
             if (other is ISet<T> otherSet)
-            {
                 IntersectWithSet(otherSet);
-            }
             else
             {
                 HashSet<T> otherAsSet = new HashSet<T>(other);
@@ -280,12 +268,8 @@ namespace Mirror
             List<T> elements = new List<T>(objects);
 
             foreach (T element in elements)
-            {
                 if (!otherSet.Contains(element))
-                {
                     Remove(element);
-                }
-            }
         }
 
         public bool IsProperSubsetOf(IEnumerable<T> other) => objects.IsProperSubsetOf(other);
@@ -304,38 +288,26 @@ namespace Mirror
         public void SymmetricExceptWith(IEnumerable<T> other)
         {
             if (other == this)
-            {
                 Clear();
-            }
             else
-            {
                 foreach (T element in other)
-                {
                     if (!Remove(element))
-                    {
                         Add(element);
-                    }
-                }
-            }
         }
 
         // custom implementation so we can do our own Clear/Add/Remove for delta
         public void UnionWith(IEnumerable<T> other)
         {
             if (other != this)
-            {
                 foreach (T element in other)
-                {
                     Add(element);
-                }
-            }
         }
     }
 
     public class SyncHashSet<T> : SyncSet<T>
     {
-        public SyncHashSet() : this(EqualityComparer<T>.Default) {}
-        public SyncHashSet(IEqualityComparer<T> comparer) : base(new HashSet<T>(comparer ?? EqualityComparer<T>.Default)) {}
+        public SyncHashSet() : this(EqualityComparer<T>.Default) { }
+        public SyncHashSet(IEqualityComparer<T> comparer) : base(new HashSet<T>(comparer ?? EqualityComparer<T>.Default)) { }
 
         // allocation free enumerator
         public new HashSet<T>.Enumerator GetEnumerator() => ((HashSet<T>)objects).GetEnumerator();
@@ -343,8 +315,8 @@ namespace Mirror
 
     public class SyncSortedSet<T> : SyncSet<T>
     {
-        public SyncSortedSet() : this(Comparer<T>.Default) {}
-        public SyncSortedSet(IComparer<T> comparer) : base(new SortedSet<T>(comparer ?? Comparer<T>.Default)) {}
+        public SyncSortedSet() : this(Comparer<T>.Default) { }
+        public SyncSortedSet(IComparer<T> comparer) : base(new SortedSet<T>(comparer ?? Comparer<T>.Default)) { }
 
         // allocation free enumerator
         public new SortedSet<T>.Enumerator GetEnumerator() => ((SortedSet<T>)objects).GetEnumerator();
