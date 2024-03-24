@@ -80,20 +80,30 @@ namespace Mirror.Tests.SyncCollections
         }
 
         [Test]
-        public void TestClear()
-        {
-            serverSyncSet.Clear();
-            SerializeDeltaTo(serverSyncSet, clientSyncSet);
-            Assert.That(clientSyncSet, Is.EquivalentTo(new string[] { }));
-        }
-
-        [Test]
         public void TestRemove()
         {
             serverSyncSet.Remove("World");
             Assert.That(serverSyncSetDirtyCalled, Is.EqualTo(1));
             SerializeDeltaTo(serverSyncSet, clientSyncSet);
             Assert.That(clientSyncSet, Is.EquivalentTo(new[] { "Hello", "!" }));
+        }
+
+        [Test]
+        public void TestClear()
+        {
+            bool called = false;
+            clientSyncSet.Callback = (op, item) =>
+            {
+                called = true;
+
+                Assert.That(op, Is.EqualTo(SyncHashSet<string>.Operation.OP_CLEAR));
+                Assert.That(clientSyncSet.Count, Is.EqualTo(3));
+            };
+
+            serverSyncSet.Clear();
+            SerializeDeltaTo(serverSyncSet, clientSyncSet);
+            Assert.That(clientSyncSet, Is.EquivalentTo(new string[] { }));
+            Assert.That(called, Is.True);
         }
 
         [Test]
