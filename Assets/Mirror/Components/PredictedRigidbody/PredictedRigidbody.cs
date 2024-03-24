@@ -474,6 +474,7 @@ namespace Mirror
         // process a received server state.
         // compares it against our history and applies corrections if needed.
         float lastVelocitySqr = 0;
+        float lastAngularVelocitySqr = 0;
         RigidbodyState? remoteState = null;
         bool remoteResting = false; // perf: only calculate on receive, not every single update()!
         void ClientHoldAtRest()
@@ -489,12 +490,13 @@ namespace Mirror
             // then hold position exactly at remote sleeping position.
             if (!remoteResting) return;
 
-            // TODO ANGULAR TOO
             // <= comparison matters so it works while decelearting AND at rest,
             //    but stop when accelerating again!
             float currentVelocitySqr = predictedRigidbody.velocity.sqrMagnitude;
-            bool decelerating = currentVelocitySqr <= lastVelocitySqr;
+            float currentAngularVelocitySqr = predictedRigidbody.angularVelocity.sqrMagnitude;
+            bool decelerating = currentVelocitySqr <= lastVelocitySqr && currentAngularVelocitySqr <= lastAngularVelocitySqr;
             lastVelocitySqr = currentVelocitySqr;
+            lastAngularVelocitySqr = currentAngularVelocitySqr;
             if (!decelerating) return;
 
             // hold in place to avoid fighting at rest
