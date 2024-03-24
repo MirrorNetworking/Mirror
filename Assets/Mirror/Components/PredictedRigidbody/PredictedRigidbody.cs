@@ -469,13 +469,28 @@ namespace Mirror
             }
         }
 
+        // process a received server state.
+        // compares it against our history and applies corrections if needed.
+        float lastVelocitySqr = 0;
+        RigidbodyState? remoteState = null;
         void ClientHoldAtRest()
         {
+            // no state yet? then nothing to do.
+            if (remoteState == null) return;
+
+            // is the remote state at rest?
+            // syncing remote Rigidbody.IsSleeping() works, but it takes ~1s to sleep.
+            // checking velocity gives much faster results.
+            bool remoteResting = remoteState.Value.velocity.sqrMagnitude == 0 &&
+                                 remoteState.Value.angularVelocity.sqrMagnitude == 0;
+
+            // color code for debugging
+            if (showRemoteSleeping) rend.material.color = remoteResting ? Color.gray : originalColor;
+
             // try fixing objects coming to rest:
             // if remote is sleeping and we are DECELERATING from a previous move,
             // then hold position exactly at remote sleeping position.
-            remoteSleeping = remoteState.velocity == Vector3.zero && remoteState.angularVelocity == Vector3.zero; // Rigidbody.Sleep takes ~1s, which is too long
-            if (!remoteSleeping) return;
+            if (!remoteResting) return;
 
             // TODO ANGULAR TOO
             // <= comparison matters so it works while decelearting AND at rest,
@@ -488,13 +503,10 @@ namespace Mirror
             // hold in place to avoid fighting at rest
             predictedRigidbody.velocity = Vector3.zero;
             predictedRigidbody.angularVelocity = Vector3.zero;
-            predictedRigidbody.position = remoteState.position;
-            predictedRigidbody.rotation = remoteState.rotation;
+            predictedRigidbody.position = remoteState.Value.position;
+            predictedRigidbody.rotation = remoteState.Value.rotation;
             predictedRigidbody.Sleep();
             stateHistory.Clear();
-
-            // color code for debugging
-            if (showRemoteSleeping) rend.material.color = Color.white;
         }
 
         void Update()
@@ -702,14 +714,9 @@ namespace Mirror
             }
         }
 
-        // process a received server state.
-        // compares it against our history and applies corrections if needed.
-        float lastVelocitySqr = 0;
-        bool remoteSleeping = false;
-        RigidbodyState remoteState;
-        void OnReceivedState(double timestamp, RigidbodyState state, bool sleeping)
+        void OnReceivedState(double timestamp, RigidbodyState state)
         {
-            remoteSleeping = sleeping;
+            // always save last remote state for use in Update() etc.
             remoteState = state;
 
             // always update remote state ghost
@@ -718,12 +725,6 @@ namespace Mirror
                 Transform remoteCopyTransform = remoteCopy.transform;
                 remoteCopyTransform.SetPositionAndRotation(state.position, state.rotation); // faster than .position + .rotation setters
                 remoteCopyTransform.localScale = tf.lossyScale; // world scale! see CreateGhosts comment.
-            }
-
-            // color code remote sleeping objects to debug objects coming to rest
-            if (showRemoteSleeping)
-            {
-                rend.material.color = sleeping ? Color.gray : originalColor;
             }
 
             // performance: get Rigidbody position & rotation only once,
@@ -889,8 +890,7 @@ namespace Mirror
                 position,
                 rotation,
                 predictedRigidbody.velocity,
-                predictedRigidbody.angularVelocity,
-                predictedRigidbody.IsSleeping());
+                predictedRigidbody.angularVelocity);
             writer.WritePredictedSyncData(data);
         }
 
@@ -915,7 +915,6 @@ namespace Mirror
             Quaternion rotation = data.rotation;
             Vector3 velocity = data.velocity;
             Vector3 angularVelocity = data.angularVelocity;
-            bool sleeping = data.sleeping != 0;
 
             // server sends state at the end of the frame.
             // parse and apply the server's delta time to our timestamp.
@@ -929,7 +928,7 @@ namespace Mirror
             if (oneFrameAhead) timestamp += serverDeltaTime;
 
             // process received state
-            OnReceivedState(timestamp, new RigidbodyState(timestamp, Vector3.zero, position, Quaternion.identity, rotation, Vector3.zero, velocity, Vector3.zero, angularVelocity), sleeping);
+            OnReceivedState(timestamp, new RigidbodyState(timestamp, Vector3.zero, position, Quaternion.identity, rotation, Vector3.zero, velocity, Vector3.zero, angularVelocity));
         }
 
         protected override void OnValidate()
