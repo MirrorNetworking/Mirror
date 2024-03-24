@@ -12,5 +12,6 @@ It's important to understand that there are two problems here:
 
 ==> This demo is NOT READY for users or for production games.
 ==> For now, this is only for the Mirror team to debug prediction.
+==> Note that client cubes may change color if PredictedRigidbody.showRemoteSleeping is enabled.
 
 DO NOT USE THIS
