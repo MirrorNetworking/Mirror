@@ -474,6 +474,7 @@ namespace Mirror
             // try fixing objects coming to rest:
             // if remote is sleeping and we are DECELERATING from a previous move,
             // then hold position exactly at remote sleeping position.
+            remoteSleeping = remoteState.velocity == Vector3.zero && remoteState.angularVelocity == Vector3.zero; // Rigidbody.Sleep takes ~1s, which is too long
             if (!remoteSleeping) return;
 
             // TODO ANGULAR TOO
@@ -485,14 +486,15 @@ namespace Mirror
             if (!decelerating) return;
 
             // hold in place to avoid fighting at rest
-            // rend.material.color = Color.white;
-
             predictedRigidbody.velocity = Vector3.zero;
             predictedRigidbody.angularVelocity = Vector3.zero;
             predictedRigidbody.position = remoteState.position;
             predictedRigidbody.rotation = remoteState.rotation;
             predictedRigidbody.Sleep();
             stateHistory.Clear();
+
+            // color code for debugging
+            if (showRemoteSleeping) rend.material.color = Color.white;
         }
 
         void Update()
