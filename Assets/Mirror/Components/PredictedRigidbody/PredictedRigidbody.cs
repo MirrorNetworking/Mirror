@@ -479,12 +479,13 @@ namespace Mirror
             // TODO ANGULAR TOO
             // <= comparison matters so it works while decelearting AND at rest,
             //    but stop when accelerating again!
-            bool decelerating = predictedRigidbody.velocity.sqrMagnitude <= lastVelocitySqr;
-            lastVelocitySqr = predictedRigidbody.velocity.sqrMagnitude;
+            float currentVelocitySqr = predictedRigidbody.velocity.sqrMagnitude;
+            bool decelerating = currentVelocitySqr <= lastVelocitySqr;
+            lastVelocitySqr = currentVelocitySqr;
             if (!decelerating) return;
 
             // hold in place to avoid fighting at rest
-            rend.material.color = Color.white;
+            // rend.material.color = Color.white;
 
             predictedRigidbody.velocity = Vector3.zero;
             predictedRigidbody.angularVelocity = Vector3.zero;
