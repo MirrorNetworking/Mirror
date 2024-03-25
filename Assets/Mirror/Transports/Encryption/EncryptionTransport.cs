@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Mirror.Transports.Encryption.Native;
 using UnityEngine;
 using UnityEngine.Profiling;
 using UnityEngine.Serialization;
@@ -38,6 +39,11 @@ namespace Mirror.Transports.Encryption
         public string EncryptionPublicKeyFingerprint => _credentials?.PublicKeyFingerprint;
         public byte[] EncryptionPublicKey => _credentials?.PublicKeySerialized;
 
+
+        public override string ToString()
+        {
+            return $"EncryptionTransport(native: {AesGCMEncryptionNative.IsSupported})";
+        }
         private void ServerRemoveFromPending(EncryptedConnection con)
         {
             for (int i = 0; i < _serverPendingConnections.Count; i++)
