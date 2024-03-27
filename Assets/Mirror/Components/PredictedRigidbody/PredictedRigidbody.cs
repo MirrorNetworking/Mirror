@@ -782,13 +782,13 @@ namespace Mirror
 
             // calculate the difference between where we were and where we should be
             // TODO only position for now. consider rotation etc. too later
-            float positionDifference = Vector3.Distance(state.position, interpolated.position);
-            float rotationDifference = Quaternion.Angle(state.rotation, interpolated.rotation);
+            float positionToInterpolatedDistance = Vector3.Distance(state.position, interpolated.position);
+            float rotationToInterpolatedDistance = Quaternion.Angle(state.rotation, interpolated.rotation);
             // Debug.Log($"Sampled history of size={stateHistory.Count} @ {timestamp:F3}: client={interpolated.position} server={state.position} difference={difference:F3} / {correctionThreshold:F3}");
 
             // too far off? then correct it
-            if (positionDifference >= positionCorrectionThreshold ||
-                rotationDifference >= rotationCorrectionThreshold)
+            if (positionToInterpolatedDistance >= positionCorrectionThreshold ||
+                rotationToInterpolatedDistance >= rotationCorrectionThreshold)
             {
                 // Debug.Log($"CORRECTION NEEDED FOR {name} @ {timestamp:F3}: client={interpolated.position} server={state.position} difference={difference:F3}");
 
