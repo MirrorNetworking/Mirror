@@ -701,8 +701,10 @@ namespace Mirror
             //    this is as fast as it gets for skipping idle objects.
             //
             // if this ever causes issues, feel free to disable it.
+            float positionToStateDistanceSqr = Vector3.SqrMagnitude(state.position - physicsPosition);
             if (compareLastFirst &&
-                Vector3.Distance(state.position, physicsPosition) < positionCorrectionThreshold &&
+                // Vector3.Distance(state.position, physicsPosition) < positionCorrectionThreshold && // slow comparison
+                positionToStateDistanceSqr < positionCorrectionThresholdSqr &&                               // fast comparison
                 Quaternion.Angle(state.rotation, physicsRotation) < rotationCorrectionThreshold)
             {
                 // Debug.Log($"OnReceivedState for {name}: taking optimized early return!");
@@ -754,7 +756,8 @@ namespace Mirror
                 // we clamp it to 'now'.
                 // but only correct if off by threshold.
                 // TODO maybe we should interpolate this back to 'now'?
-                if (Vector3.Distance(state.position, physicsPosition) >= positionCorrectionThreshold)
+                // if (Vector3.Distance(state.position, physicsPosition) >= positionCorrectionThreshold) // slow comparison
+                if (positionToStateDistanceSqr >= positionCorrectionThresholdSqr) // fast comparison
                 {
                     // this can happen a lot when latency is ~0. logging all the time allocates too much and is too slow.
                     // double ahead = state.timestamp - newest.timestamp;
