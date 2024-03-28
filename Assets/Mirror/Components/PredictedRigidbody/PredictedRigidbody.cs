@@ -581,8 +581,8 @@ namespace Mirror
         protected virtual void OnSnappedIntoPlace() {}
         protected virtual void OnBeforeApplyState() {}
         protected virtual void OnCorrected() {}
-        protected virtual void OnBeginPrediction() => Debug.LogWarning($"BEGIN: {name}"); // when the Rigidbody moved above threshold and we created a ghost
-        protected virtual void OnEndPrediction() => Debug.LogWarning($"END: {name}");   // when the Rigidbody came to rest and we destroyed the ghost
+        protected virtual void OnBeginPrediction() {} // when the Rigidbody moved above threshold and we created a ghost
+        protected virtual void OnEndPrediction() {}   // when the Rigidbody came to rest and we destroyed the ghost
 
         void ApplyState(double timestamp, Vector3 position, Quaternion rotation, Vector3 velocity, Vector3 angularVelocity)
         {
