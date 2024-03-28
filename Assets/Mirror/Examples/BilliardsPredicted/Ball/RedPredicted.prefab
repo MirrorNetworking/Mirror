@@ -165,6 +165,7 @@ MonoBehaviour:
   syncMode: 0
   syncInterval: 0
   predictedRigidbody: {fileID: -177125271246800426}
+  mode: 1
   motionSmoothingVelocityThreshold: 0.1
   motionSmoothingAngularVelocityThreshold: 5
   motionSmoothingTimeTolerance: 0.5
@@ -175,7 +176,6 @@ MonoBehaviour:
   positionCorrectionThreshold: 0.1
   rotationCorrectionThreshold: 5
   oneFrameAhead: 1
-  correctionMode: 1
   snapThreshold: 2
   showGhost: 1
   ghostVelocityThreshold: 0.1
@@ -186,4 +186,3 @@ MonoBehaviour:
   rotationInterpolationSpeed: 10
   teleportDistanceMultiplier: 10
   reduceSendsWhileIdle: 1
-  lineTime: 10
