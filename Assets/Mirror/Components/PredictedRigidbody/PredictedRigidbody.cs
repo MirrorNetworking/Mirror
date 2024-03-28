@@ -35,7 +35,7 @@ namespace Mirror
         [Tooltip("Smoothing via Ghost-following only happens on demand, while moving with a minimum velocity.")]
         public float motionSmoothingVelocityThreshold = 0.1f;
         float motionSmoothingVelocityThresholdSqr; // ² cached in Awake
-        public float motionSmoothingAngularVelocityThreshold = 0.1f;
+        public float motionSmoothingAngularVelocityThreshold = 5.0f; // Billiards demo: 0.1 is way too small, takes forever for IsMoving()==false
         float motionSmoothingAngularVelocityThresholdSqr; // ² cached in Awake
         public float motionSmoothingTimeTolerance = 0.5f;
         double motionSmoothingLastMovedTime;
@@ -581,8 +581,8 @@ namespace Mirror
         protected virtual void OnSnappedIntoPlace() {}
         protected virtual void OnBeforeApplyState() {}
         protected virtual void OnCorrected() {}
-        protected virtual void OnBeginPrediction() {} // when the Rigidbody moved above threshold and we created a ghost
-        protected virtual void OnEndPrediction() {}   // when the Rigidbody came to rest and we destroyed the ghost
+        protected virtual void OnBeginPrediction() => Debug.LogWarning($"BEGIN: {name}"); // when the Rigidbody moved above threshold and we created a ghost
+        protected virtual void OnEndPrediction() => Debug.LogWarning($"END: {name}");   // when the Rigidbody came to rest and we destroyed the ghost
 
         void ApplyState(double timestamp, Vector3 position, Quaternion rotation, Vector3 velocity, Vector3 angularVelocity)
         {

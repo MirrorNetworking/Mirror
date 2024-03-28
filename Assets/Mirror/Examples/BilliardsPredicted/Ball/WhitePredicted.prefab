@@ -302,7 +302,7 @@ MonoBehaviour:
   syncInterval: 0
   predictedRigidbody: {fileID: 1848203816128897140}
   motionSmoothingVelocityThreshold: 0.1
-  motionSmoothingAngularVelocityThreshold: 0.1
+  motionSmoothingAngularVelocityThreshold: 5
   motionSmoothingTimeTolerance: 0.5
   stateHistoryLimit: 32
   recordInterval: 0.05
