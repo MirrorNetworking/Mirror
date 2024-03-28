@@ -34,7 +34,8 @@ namespace Mirror
         public override string ToString() => $"(time={timestamp} pos={position} size={size})";
     }
 
-    [Obsolete("This is a preview version. Community feedback is welcome!")]
+    [DisallowMultipleComponent]
+    [HelpURL("https://mirror-networking.gitbook.io/docs/manual/general/lag-compensation")]
     public class LagCompensator : NetworkBehaviour
     {
         [Header("Components")]
@@ -51,11 +52,9 @@ namespace Mirror
         [Header("Debugging")]
         public Color historyColor = Color.white;
 
+        [ServerCallback]
         protected virtual void Update()
         {
-            // only capture on server
-            if (!NetworkServer.active) return;
-
             // capture lag compensation snapshots every interval.
             // NetworkTime.localTime because Unity 2019 doesn't have 'double' time yet.
             if (NetworkTime.localTime >= lastCaptureTime + lagCompensationSettings.captureInterval)
@@ -65,6 +64,7 @@ namespace Mirror
             }
         }
 
+        [ServerCallback]
         protected virtual void Capture()
         {
             // capture current state
@@ -89,7 +89,7 @@ namespace Mirror
         // sample the sub-tick (=interpolated) history of this object for a hit test.
         // 'viewer' needs to be the player who fired!
         // for example, if A fires at B, then call B.Sample(viewer, point, tolerance).
-        [Server]
+        [ServerCallback]
         public virtual bool Sample(NetworkConnectionToClient viewer, out Capture3D sample)
         {
             // never trust the client: estimate client time instead.
@@ -123,7 +123,7 @@ namespace Mirror
         //   'viewer' needs to be the player who fired!
         //   for example, if A fires at B, then call B.Sample(viewer, point, tolerance).
         // this is super simple and fast, but not 100% physically accurate since we don't raycast.
-        [Server]
+        [ServerCallback]
         public virtual bool BoundsCheck(
             NetworkConnectionToClient viewer,
             Vector3 hitPoint,
@@ -159,7 +159,7 @@ namespace Mirror
         //  tolerance: scale up the sampled collider by % in order to have a bit of a tolerance.
         //             0 means no extra tolerance, 0.05 means 5% extra tolerance.
         //  layerMask: the layer mask to use for the raycast.
-        [Server]
+        [ServerCallback]
         public virtual bool RaycastCheck(
             NetworkConnectionToClient viewer,
             Vector3 originPoint,
