@@ -15,6 +15,8 @@ using UnityEngine;
 
 namespace Mirror
 {
+    public enum PredictionMode { Smooth, Fast }
+
     // [RequireComponent(typeof(Rigidbody))] <- RB is moved out at runtime, can't require it.
     public class PredictedRigidbody : NetworkBehaviour
     {
@@ -32,6 +34,8 @@ namespace Mirror
         // this only starts at a given velocity and ends when stopped moving.
         // to avoid constant on/off/on effects, it also stays on for a minimum time.
         [Header("Motion Smoothing")]
+        [Tooltip("Prediction supports two different modes: Smooth and Fast:\n\nSmooth: Physics are separated from the GameObject & applied in the background. Rendering smoothly follows the physics for perfectly smooth interpolation results. Much softer, can be even too soft where sharp collisions won't look as sharp (i.e. Billiard balls avoid the wall before even hitting it).\n\nFast: Physics remain on the GameObject and corrections are applied hard. Much faster since we don't need to update a separate GameObject, a bit harsher, more precise.")]
+        public PredictionMode mode = PredictionMode.Smooth;
         [Tooltip("Smoothing via Ghost-following only happens on demand, while moving with a minimum velocity.")]
         public float motionSmoothingVelocityThreshold = 0.1f;
         float motionSmoothingVelocityThresholdSqr; // ² cached in Awake
@@ -117,6 +121,13 @@ namespace Mirror
             predictedRigidbody = GetComponent<Rigidbody>();
             if (predictedRigidbody == null) throw new InvalidOperationException($"Prediction: {name} is missing a Rigidbody component.");
             predictedRigidbodyTransform = predictedRigidbody.transform;
+
+            // in fast mode, we need to force enable Rigidbody.interpolation.
+            // otherwise there's not going to be any smoothing whatsoever.
+            if (mode == PredictionMode.Fast)
+            {
+                predictedRigidbody.interpolation = RigidbodyInterpolation.Interpolate;
+            }
 
             // cache some threshold to avoid calculating them in LateUpdate
             float colliderSize = GetComponentInChildren<Collider>().bounds.size.magnitude;
@@ -415,6 +426,7 @@ namespace Mirror
             predictedRigidbody.velocity.sqrMagnitude >= motionSmoothingVelocityThresholdSqr ||
             predictedRigidbody.angularVelocity.sqrMagnitude >= motionSmoothingAngularVelocityThresholdSqr;
 
+        // TODO maybe merge the IsMoving() checks & callbacks with UpdateState().
         void UpdateGhosting()
         {
             // perf: enough to check ghosts every few frames.
@@ -458,16 +470,52 @@ namespace Mirror
             }
         }
 
+        // when using Fast mode, we don't create any ghosts.
+        // but we still want to check IsMoving() in order to support the same
+        // user callbacks.
+        bool lastMoving = false;
+        void UpdateState()
+        {
+            // perf: enough to check ghosts every few frames.
+            // PredictionBenchmark: only checking every 4th frame: 770 => 800 FPS
+            if (Time.frameCount % checkGhostsEveryNthFrame != 0) return;
+
+            bool moving = IsMoving();
+
+            // started moving?
+            if (moving && !lastMoving)
+            {
+                OnBeginPrediction();
+                lastMoving = true;
+            }
+            // stopped moving?
+            else if (!moving && lastMoving)
+            {
+                // ensure a minimum time since starting to move, to avoid on/off/on effects.
+                if (NetworkTime.time >= motionSmoothingLastMovedTime + motionSmoothingTimeTolerance)
+                {
+                    OnEndPrediction();
+                    lastMoving = false;
+                }
+            }
+        }
+
         void Update()
         {
             if (isServer) UpdateServer();
-            if (isClientOnly) UpdateGhosting();
+            if (isClientOnly)
+            {
+                 if (mode == PredictionMode.Smooth)
+                    UpdateGhosting();
+                 else if (mode == PredictionMode.Fast)
+                    UpdateState();
+            }
         }
 
         void LateUpdate()
         {
             // only follow on client-only, not in server or host mode
-            if (isClientOnly && physicsCopy) SmoothFollowPhysicsCopy();
+            if (isClientOnly && mode == PredictionMode.Smooth && physicsCopy) SmoothFollowPhysicsCopy();
         }
 
         void FixedUpdate()
@@ -633,22 +681,24 @@ namespace Mirror
             // call it before applying pos/rot/vel in case we need to set kinematic etc.
             OnBeforeApplyState();
 
-            // Rigidbody .position teleports, while .MovePosition interpolates.
-            // we always want to teleport to corrections.
-            // otherwise if there A is moving to the right and is blocked by B,
-            // it would never get there causing objects at rest to jiggle around.
-            //     if (correctionMode == CorrectionMode.Move)
-            //     {
-            //         predictedRigidbody.MovePosition(position);
-            //         predictedRigidbody.MoveRotation(rotation);
-            //     }
-            //     else if (correctionMode == CorrectionMode.Set)
-            //     {
-            //         predictedRigidbody.position = position;
-            //         predictedRigidbody.rotation = rotation;
-            //     }
-            predictedRigidbody.position = position;
-            predictedRigidbody.rotation = rotation;
+            // apply the state to the Rigidbody
+            if (mode == PredictionMode.Smooth)
+            {
+                // Smooth mode separates Physics from Renderering.
+                // Rendering smoothly follows Physics in SmoothFollowPhysicsCopy().
+                // this allows us to be able to hard teleport to the correction.
+                // which gives most accurate results since the Rigidbody can't
+                // be stopped by another object when trying to correct.
+                predictedRigidbody.position = position;
+                predictedRigidbody.rotation = rotation;
+            }
+            else if (mode == PredictionMode.Fast)
+            {
+                // Fast mode doesn't separate physics from rendering.
+                // The only smoothing we get is from Rigidbody.MovePosition.
+                predictedRigidbody.MovePosition(position);
+                predictedRigidbody.MoveRotation(rotation);
+            }
 
             // there's only one way to set velocity.
             // (projects may keep Rigidbodies as kinematic sometimes. in that case, setting velocity would log an error)
