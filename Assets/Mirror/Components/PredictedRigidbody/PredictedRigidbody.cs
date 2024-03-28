@@ -426,6 +426,7 @@ namespace Mirror
             predictedRigidbody.velocity.sqrMagnitude >= motionSmoothingVelocityThresholdSqr ||
             predictedRigidbody.angularVelocity.sqrMagnitude >= motionSmoothingAngularVelocityThresholdSqr;
 
+        // TODO maybe merge the IsMoving() checks & callbacks with UpdateState().
         void UpdateGhosting()
         {
             // perf: enough to check ghosts every few frames.
@@ -469,10 +470,46 @@ namespace Mirror
             }
         }
 
+        // when using Fast mode, we don't create any ghosts.
+        // but we still want to check IsMoving() in order to support the same
+        // user callbacks.
+        bool lastMoving = false;
+        void UpdateState()
+        {
+            // perf: enough to check ghosts every few frames.
+            // PredictionBenchmark: only checking every 4th frame: 770 => 800 FPS
+            if (Time.frameCount % checkGhostsEveryNthFrame != 0) return;
+
+            bool moving = IsMoving();
+
+            // started moving?
+            if (moving && !lastMoving)
+            {
+                OnBeginPrediction();
+                lastMoving = true;
+            }
+            // stopped moving?
+            else if (!moving && lastMoving)
+            {
+                // ensure a minimum time since starting to move, to avoid on/off/on effects.
+                if (NetworkTime.time >= motionSmoothingLastMovedTime + motionSmoothingTimeTolerance)
+                {
+                    OnEndPrediction();
+                    lastMoving = false;
+                }
+            }
+        }
+
         void Update()
         {
             if (isServer) UpdateServer();
-            if (isClientOnly && mode == PredictionMode.Smooth) UpdateGhosting();
+            if (isClientOnly)
+            {
+                 if (mode == PredictionMode.Smooth)
+                    UpdateGhosting();
+                 else if (mode == PredictionMode.Fast)
+                    UpdateState();
+            }
         }
 
         void LateUpdate()
