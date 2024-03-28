@@ -11,11 +11,8 @@ If you are advanced, this demo shows how to use Mirror's prediction features for
 
 Billiards is a great example to try our Prediction algorithm, it works extremely well here!
 
-The only part we don't love yet is this:
-- each ball has a PredictedRigidbody component and Rigidbody+Collider
-- while predicting, PredictedRigibody sometimes moves the Rigidbody+Collider onto a temporary ghost object
-- this works well, the only downside is that OnTriggerEnter etc. won't work on the main object while there's no collider.
-=> we are looking to make this part easier in the future
+=> We use 'Fast' Prediction mode for Billiards because we want to see exact collisions with balls/walls.
+=> 'Smooth' mode would look too soft, with balls changing direction even before touching other balls/walls.
 
 Notes:
 - Red/White ball Rigidbody CollisionMode needs to be ContinousDynamic to avoid white flying through red sometimes.
