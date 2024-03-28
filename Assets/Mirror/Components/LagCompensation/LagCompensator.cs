@@ -1,45 +1,87 @@
-// Add this component to a Player object with collider.
+// Add this component to every Player
 // Automatically keeps a history for lag compensation.
-using System;
-using System.Collections.Generic;
-using UnityEngine;
+// Then create a dummy player with everything removed exept colliders.
+// put in normal player position and rotation for tracked,
+// then the dummy position and orientation for compensated.
+// all you have to do after is call UpdateColliders() whenever a player fires.
 
 namespace Mirror
 {
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
+    using System.Linq;
+    using UnityEngine;
+    using Mirror;
+
     public struct Capture3D : Capture
     {
         public double timestamp { get; set; }
         public Vector3 position;
-        public Vector3 size;
+        public Quaternion rotation;
 
-        public Capture3D(double timestamp, Vector3 position, Vector3 size)
+        public struct animParams
+        {
+            public string animname;
+            public int layer;
+            public float time;
+        }
+        public animParams[] animparam;
+
+        public Capture3D(double timestamp, Vector3 position, Quaternion rotation, animParams[] parameter)
         {
             this.timestamp = timestamp;
             this.position = position;
-            this.size = size;
+            this.rotation = rotation;
+            this.animparam = parameter;
         }
 
-        public void DrawGizmo()
-        {
-            Gizmos.DrawWireCube(position, size);
-        }
+        public void DrawGizmo() { }
 
         public static Capture3D Interpolate(Capture3D from, Capture3D to, double t) =>
             new Capture3D(
                 0, // interpolated snapshot is applied directly. don't need timestamps.
                 Vector3.LerpUnclamped(from.position, to.position, (float)t),
-                Vector3.LerpUnclamped(from.size, to.size, (float)t)
+                Quaternion.LerpUnclamped(from.rotation, to.rotation, (float)t),
+                interpAnim(from.animparam, to.animparam, t)
             );
 
-        public override string ToString() => $"(time={timestamp} pos={position} size={size})";
+        private static animParams[] interpAnim(animParams[] from, animParams[] to, double t)
+        {
+            animParams[] interped = from;
+
+            for (int i = 0; i < interped.Length; i++)
+            {
+                Mathf.LerpUnclamped(interped[i].time, to[i].time, (float) t);
+            }
+
+            return interped;
+        }
+
+        public override string ToString() => $"(time={timestamp} position={position} rotation={rotation})";
     }
 
     [Obsolete("This is a preview version. Community feedback is welcome!")]
     public class LagCompensator : NetworkBehaviour
     {
+        [Header("Config")]
+        [Tooltip("Toggle to track & compensate for animation. Doesnt compensate blend tree variables. you have to manually set those on the server.")]
+        public bool useAnimator;
+
         [Header("Components")]
-        [Tooltip("The collider to keep a history of.")]
-        public Collider trackedCollider; // assign this in inspector
+        [Tooltip("The GameObject to enable / disable. NOTE: compensatedPosition & compensatedOrientation can both be compensatedGameobject. those are simply for more control.")]
+        public GameObject compensatedGameObject;
+        [Tooltip("The Transform to Apply the tracked position")]
+        public Transform compensatedPosition;
+        [Tooltip("The Transform to Apply the tracked rotation.")]
+        public Transform compensatedOrientation;
+        [Tooltip("Only needed if useAnimator is enabled")]
+        public Animator compensatedAnimator;
+        [Tooltip("The position to keep track of.")]
+        public Transform trackedPosition;
+        [Tooltip("The rotation to keep track of.")]
+        public Transform trackedOrientation;
+        [Tooltip("Only needed if useAnimator is enabled")]
+        public Animator trackedAnimator;
 
         [Header("Settings")]
         public LagCompensationSettings lagCompensationSettings = new LagCompensationSettings();
@@ -50,7 +92,13 @@ namespace Mirror
 
         [Header("Debugging")]
         public Color historyColor = Color.white;
+        public double resultDuration = 0.5;
+        double resultTime;
+        Capture3D resultBefore;
+        Capture3D resultAfter;
+        Capture3D resultInterpolated;
 
+        [ServerCallback]
         protected virtual void Update()
         {
             // only capture on server
@@ -65,17 +113,32 @@ namespace Mirror
             }
         }
 
-        protected virtual void Capture()
+        void Capture()
         {
             // capture current state
-            Capture3D capture = new Capture3D(
-                NetworkTime.localTime,
-                trackedCollider.bounds.center,
-                trackedCollider.bounds.size
-            );
+            if (useAnimator)
+            {
+                Capture3D.animParams[] animParamsArray = new Capture3D.animParams[trackedAnimator.layerCount];
+                for (int i = 0; i < trackedAnimator.layerCount; i++)
+                {
+                    animParamsArray[i].layer = i;
+                    animParamsArray[i].animname = trackedAnimator.GetCurrentAnimatorClipInfo(i)[0].clip.name;
+                    animParamsArray[i].time = trackedAnimator.GetCurrentAnimatorStateInfo(i).normalizedTime;
+                }
 
-            // insert into history
-            LagCompensation.Insert(history, lagCompensationSettings.historyLimit, NetworkTime.localTime, capture);
+                Capture3D capture = new Capture3D(NetworkTime.localTime, trackedPosition.position, trackedOrientation.rotation, animParamsArray);
+
+                // insert into history
+                LagCompensation.Insert(history, lagCompensationSettings.historyLimit, NetworkTime.localTime, capture);
+            }
+            else
+            {
+                // capture current state
+                Capture3D capture = new Capture3D(NetworkTime.localTime, trackedPosition.position, trackedOrientation.rotation, Array.Empty<Capture3D.animParams>());
+
+                // insert into history
+                LagCompensation.Insert(history, lagCompensationSettings.historyLimit, NetworkTime.localTime, capture);
+            }
         }
 
         protected virtual void OnDrawGizmos()
@@ -85,112 +148,109 @@ namespace Mirror
             LagCompensation.DrawGizmos(history);
         }
 
-        // sampling ////////////////////////////////////////////////////////////
-        // sample the sub-tick (=interpolated) history of this object for a hit test.
-        // 'viewer' needs to be the player who fired!
-        // for example, if A fires at B, then call B.Sample(viewer, point, tolerance).
+        // Updates every players compensated colliders with the Callers estimated time.
+        // Your going to want to await this method before firing the servers raycast.
         [Server]
-        public virtual bool Sample(NetworkConnectionToClient viewer, out Capture3D sample)
+        public async void UpdateColliders(NetworkConnectionToClient localCon = null)
         {
             // never trust the client: estimate client time instead.
-            // https://developer.valvesoftware.com/wiki/Source_Multiplayer_Networking
-            // the estimation is very good. the error is as low as ~6ms for the demo.
-            // note that passing 'rtt' is fine: EstimateTime halves it to latency.
-            double estimatedTime = LagCompensation.EstimateTime(NetworkTime.localTime, viewer.rtt, NetworkClient.bufferTime);
+            double buffertime = (NetworkManager.singleton.sendRate / 100) * 9;
+            double rtt = localCon.rtt; // the function needs rtt, which is latency * 2
+            double estimatedTime = LagCompensation.EstimateTime(NetworkTime.localTime, rtt, buffertime);
+
+			// Honestly, couldnt tell you why this is a dictionary. i'd think this would work without it. but im not sure.
+            Dictionary<LagCompensator, Capture3D> resultInterp = new Dictionary<LagCompensator, Capture3D>();
+
+            var tasks = NetworkServer.connections.Values.Select(async netcon =>
+            {
+                LagCompensator conPlayer = netcon.identity.GetComponent<LagCompensator>();
+
+                // sample the history to get the nearest snapshots around 'timestamp'
+                if (LagCompensation.Sample(conPlayer.history, estimatedTime, lagCompensationSettings.captureInterval, out resultBefore, out resultAfter, out double t))
+                {
+                    // interpolate to get a decent estimation at exactly 'timestamp'
+                    resultInterp.Add(conPlayer, Capture3D.Interpolate(resultBefore, resultAfter, t));
+                    resultTime = NetworkTime.localTime;
+                }
+                else Debug.Log($"CmdClicked: history doesn't contain {estimatedTime:F3}, netcon: {netcon}, history: {conPlayer.history.Count}");
+
+                if (netcon == localCon)
+                {
+                    conPlayer.compensatedGameObject.SetActive(false);
+                    return;
+                }
+                if(!conPlayer.compensatedGameObject.activeInHierarchy)
+                    conPlayer.compensatedGameObject.SetActive(true);
+
+                conPlayer.compensatedPosition.position = resultInterp[conPlayer].position;
+                conPlayer.compensatedOrientation.rotation = resultInterp[conPlayer].rotation;
+
+                // Animation Compensation
+                if (useAnimator)
+                {
+                    for (int i = 0; i < resultInterp[conPlayer].animparam.Length; i++)
+                    {
+                        conPlayer.compensatedAnimator.Play(resultInterp[conPlayer].animparam[i].animname, resultInterp[conPlayer].animparam[i].layer, resultInterp[conPlayer].animparam[i].time);
+                    }
+                    // NOTE: Doesnt set the variables of BLEND TREES. you will have to set the blend tree variables manually on the server.
+                    // OR add them to Capture3d and interpolate. this HAS to be done manually.
+                }
+            });
+            await Task.WhenAll(tasks);
+        }
+
+        // Updates the Target's compensated colliders with the Callers estimated time.
+        // Your going to want to await this method before firing the servers raycast.
+        [Server]
+        public void UpdateTargetCollider(NetworkConnectionToClient targetcon,
+            NetworkConnectionToClient localCon = null)
+        {
+            // never trust the client: estimate client time instead.
+            double buffertime = (NetworkManager.singleton.sendRate / 100) * 9;
+            double rtt = localCon.rtt; // the function needs rtt, which is latency * 2
+            double estimatedTime = LagCompensation.EstimateTime(NetworkTime.localTime, rtt, buffertime);
+
+            LagCompensator conPlayer = targetcon.identity.GetComponent<LagCompensator>();
+            Capture3D capture = new Capture3D();
 
             // sample the history to get the nearest snapshots around 'timestamp'
-            if (LagCompensation.Sample(history, estimatedTime, lagCompensationSettings.captureInterval, out Capture3D resultBefore, out Capture3D resultAfter, out double t))
+            if (LagCompensation.Sample(conPlayer.history, estimatedTime, lagCompensationSettings.captureInterval, out resultBefore, out resultAfter, out double t))
             {
                 // interpolate to get a decent estimation at exactly 'timestamp'
-                sample = Capture3D.Interpolate(resultBefore, resultAfter, t);
-                return true;
+                capture = Capture3D.Interpolate(resultBefore, resultAfter, t);
+                resultTime = NetworkTime.localTime;
             }
-            else Debug.Log($"CmdClicked: history doesn't contain {estimatedTime:F3}");
+            else Debug.Log($"CmdClicked: history doesn't contain {estimatedTime:F3}, netcon: {targetcon}, history: {conPlayer.history.Count}");
 
-            sample = default;
-            return false;
+            if(!conPlayer.compensatedGameObject.activeInHierarchy)
+                conPlayer.compensatedGameObject.SetActive(true);
+
+            conPlayer.compensatedPosition.position = capture.position;
+            conPlayer.compensatedOrientation.rotation = capture.rotation;
+
+            // Animation Compensation
+            if (useAnimator)
+            {
+                for (int i = 0; i < capture.animparam.Length; i++)
+                {
+                    conPlayer.compensatedAnimator.Play(capture.animparam[i].animname, capture.animparam[i].layer, capture.animparam[i].time);
+                }
+                // NOTE: Doesnt set the variables of BLEND TREES. you will have to set the blend tree variables manually on the server.
+            }
         }
 
-        // convenience tests ///////////////////////////////////////////////////
-        // there are multiple different ways to check a hit against the sample:
-        // - raycasting
-        // - bounds.contains
-        // - increasing bounds by tolerance and checking contains
-        // - threshold to bounds.closestpoint
-        // let's offer a few solutions directly and see which users prefer.
 
-        // bounds check: checks distance to closest point on bounds in history @ -rtt.
-        //   'viewer' needs to be the player who fired!
-        //   for example, if A fires at B, then call B.Sample(viewer, point, tolerance).
-        // this is super simple and fast, but not 100% physically accurate since we don't raycast.
+        // To be used after you have shot the servers raycast. only needed if using UpdateTargetCollider. UpdateColliders automatically does this.
+        // No need to await this method, you can if wanted.
         [Server]
-        public virtual bool BoundsCheck(
-            NetworkConnectionToClient viewer,
-            Vector3 hitPoint,
-            float toleranceDistance,
-            out float distance,
-            out Vector3 nearest)
+        public async void DisableColliders()
         {
-            // first, sample the history at -rtt of the viewer.
-            if (Sample(viewer, out Capture3D capture))
+            var tasks = NetworkServer.connections.Values.Select(async netcon =>
             {
-                // now that we know where the other player was at that time,
-                // we can see if the hit point was within tolerance of it.
-                // TODO consider rotations???
-                // TODO consider original collider shape??
-                Bounds bounds = new Bounds(capture.position, capture.size);
-                nearest = bounds.ClosestPoint(hitPoint);
-                distance = Vector3.Distance(nearest, hitPoint);
-                return distance <= toleranceDistance;
-            }
-            nearest = hitPoint;
-            distance = 0;
-            return false;
-        }
-
-        // raycast check: creates a collider the sampled position and raycasts to hitPoint.
-        //   'viewer' needs to be the player who fired!
-        //   for example, if A fires at B, then call B.Sample(viewer, point, tolerance).
-        // this is physically accurate (checks against walls etc.), with the cost
-        // of a runtime instantiation.
-        //
-        //  originPoint: where the player fired the weapon.
-        //  hitPoint: where the player's local raycast hit.
-        //  tolerance: scale up the sampled collider by % in order to have a bit of a tolerance.
-        //             0 means no extra tolerance, 0.05 means 5% extra tolerance.
-        //  layerMask: the layer mask to use for the raycast.
-        [Server]
-        public virtual bool RaycastCheck(
-            NetworkConnectionToClient viewer,
-            Vector3 originPoint,
-            Vector3 hitPoint,
-            float tolerancePercent,
-            int layerMask,
-            out RaycastHit hit)
-        {
-            // first, sample the history at -rtt of the viewer.
-            if (Sample(viewer, out Capture3D capture))
-            {
-                // instantiate a real physics collider on demand.
-                // TODO rotation??
-                // TODO different collier types??
-                GameObject temp = new GameObject("LagCompensatorTest");
-                temp.transform.position = capture.position;
-                BoxCollider tempCollider = temp.AddComponent<BoxCollider>();
-                tempCollider.size = capture.size * (1 + tolerancePercent);
-
-                // raycast
-                Vector3 direction = hitPoint - originPoint;
-                float maxDistance = direction.magnitude * 2;
-                bool result = Physics.Raycast(originPoint, direction, out hit, maxDistance, layerMask);
-
-                // cleanup
-                Destroy(temp);
-                return result;
-            }
-
-            hit = default;
-            return false;
+                LagCompensator conPlayer = netcon.identity.GetComponent<LagCompensator>();
+                conPlayer.gameObject.SetActive(false);
+            });
+            await Task.WhenAll(tasks);
         }
     }
 }
