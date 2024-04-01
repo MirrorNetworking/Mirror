@@ -25,7 +25,7 @@ namespace Edgegap
             // MIRROR CHANGE: only include scenes which are enabled
             IEnumerable<string> scenes = EditorBuildSettings.scenes
                 .Where(s => s.enabled)
-                .Select(s=>s.path);
+                .Select(s => s.path);
             // END MIRROR CHANGE
 
             BuildPlayerOptions options = new BuildPlayerOptions
