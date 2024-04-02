@@ -22,6 +22,7 @@ namespace Mirror
     {
         Transform tf; // this component is performance critical. cache .transform getter!
         Renderer rend;
+        Collider col;
 
         // Prediction sometimes moves the Rigidbody to a ghost object.
         // .predictedRigidbody is always kept up to date to wherever the RB is.
@@ -95,6 +96,7 @@ namespace Mirror
             tf = transform;
             rend = GetComponentInChildren<Renderer>();
             predictedRigidbody = GetComponent<Rigidbody>();
+            col = GetComponentInChildren<Collider>();
             if (predictedRigidbody == null) throw new InvalidOperationException($"Prediction: {name} is missing a Rigidbody component.");
             predictedRigidbodyTransform = predictedRigidbody.transform;
 
@@ -225,6 +227,10 @@ namespace Mirror
                 // Quaternions always need to be normalized in order to be a valid rotation after operations
                 Quaternion newRotation = Quaternion.Slerp(currentRotation, lastReceivedState.rotation, rotationBlendingSpeed * Time.deltaTime).normalized;
 
+                // debug draw the blending data.
+                // server state is drawn in OnGizmos
+                Debug.DrawLine(currentPosition, newPosition, blendingColor);
+
                 // assign position and rotation together. faster than accessing manually.
                 tf.SetPositionAndRotation(newPosition, newRotation);
 
@@ -281,6 +287,16 @@ namespace Mirror
             }
 
             RecordState();
+        }
+
+        void OnDrawGizmos()
+        {
+            // draw server state while blending
+            if (state == ForecastState.BLEND)
+            {
+                Gizmos.color = blendingColor;
+                Gizmos.DrawWireCube(lastReceivedState.position, col.bounds.size);
+            }
         }
 
         // while predicting on client, if we hit another object then we need to
