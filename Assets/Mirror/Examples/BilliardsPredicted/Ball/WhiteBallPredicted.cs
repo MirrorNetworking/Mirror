@@ -101,11 +101,6 @@ namespace Mirror.Examples.BilliardsPredicted
             }
         }
 
-        // OnMouse callbacks don't work for predicted objects because we need to
-        // move the collider out of the main object ocassionally.
-        // besides, having a drag tolerance and not having to click exactly on
-        // the white ball is nice.
-        /*
         [ClientCallback]
         void OnMouseDown()
         {
@@ -154,12 +149,7 @@ namespace Mirror.Examples.BilliardsPredicted
             // disable drag indicator
             dragIndicator.gameObject.SetActive(false);
         }
-        */
 
-        /* ball<->pocket collisions are handled by Pockets.cs for now.
-           because predicted object's rigidbodies are sometimes moved out of them.
-           which means this script here wouldn't get the collision info while predicting.
-           which means it's easier to check collisions from the table perspective.
         // reset position when entering a pocket.
         // there's only one trigger in the scene (the pocket).
         [ServerCallback]
@@ -169,7 +159,6 @@ namespace Mirror.Examples.BilliardsPredicted
             rigidBody.Sleep(); // reset forces
             // GetComponent<NetworkRigidbodyUnreliable>().RpcTeleport(startPosition);
         }
-        */
 
         [ClientCallback]
         void OnGUI()

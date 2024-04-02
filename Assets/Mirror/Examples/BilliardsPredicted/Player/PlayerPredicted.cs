@@ -44,7 +44,7 @@ namespace Mirror.Examples.BilliardsPredicted
             // get the white ball's Rigidbody.
             // prediction sometimes moves this out of the object for a while,
             // so we need to grab it this way:
-            Rigidbody rb = whiteBall.GetComponent<PredictedRigidbody>().predictedRigidbody;
+            Rigidbody rb = whiteBall.GetComponent<ForecastRigidbody>().predictedRigidbody;
 
             // AddForce has different force modes, see this excellent diagram:
             // https://www.reddit.com/r/Unity3D/comments/psukm1/know_the_difference_between_forcemodes_a_little/
