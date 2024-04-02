@@ -197,23 +197,52 @@ namespace Mirror
             if (state == ForecastState.PREDICT)
             {
                 // we want to predict until the first server state came in.
-                if (lastReceivedTimestamp > predictionStartTime)
+                if (lastReceivedState.timestamp > predictionStartTime)
                 {
                     BeginBlending();
                 }
             }
             else if (state == ForecastState.BLEND)
             {
+                // TODO snapshot interpolation
+
+                // blend between local and remote position
+
+                // FAST VERSION: this shows in profiler a lot, so cache EVERYTHING!
+                tf.GetPositionAndRotation(out Vector3 currentPosition, out Quaternion currentRotation); // faster than tf.position + tf.rotation
+                float distance = Vector3.Distance(currentPosition, lastReceivedState.position);
+
+                // smoothly interpolate to the target position.
+                // speed relative to how far away we are.
+                // => speed increases by distance² because the further away, the
+                //    sooner we need to catch the fuck up
+                // float positionStep = (distance * distance) * interpolationSpeed;
+                float positionStep = distance * positionBlendingSpeed;
+                Vector3 newPosition = Vector3.MoveTowards(currentPosition, lastReceivedState.position, positionStep);
+
+                // smoothly interpolate to the target rotation.
+                // Quaternion.RotateTowards doesn't seem to work at all, so let's use SLerp.
+                // Quaternions always need to be normalized in order to be a valid rotation after operations
+                Quaternion newRotation = Quaternion.Slerp(currentRotation, lastReceivedState.rotation, rotationBlendingSpeed * Time.deltaTime).normalized;
+
+                // assign position and rotation together. faster than accessing manually.
+                tf.SetPositionAndRotation(newPosition, newRotation);
+
                 // blend for 2 x syncinterval.
                 // TODO configurable
-                if (NetworkTime.time > blendingStartTime + blendTime)
-                {
-                    BeginFollow();
-                }
+                // if (NetworkTime.time > blendingStartTime + blendTime)
+                // {
+                //     BeginFollow();
+                // }
+
+                // TODO blend until what.. ?
+                // maybe until we reached it..?
             }
             else if (state == ForecastState.FOLLOW)
             {
-
+                // hard set position & rotation.
+                // TODO snapshot interpolation
+                tf.SetPositionAndRotation(lastReceivedState.position, lastReceivedState.rotation);
             }
         }
 
@@ -426,51 +455,11 @@ namespace Mirror
 
         // process a received server state.
         // compares it against our history and applies corrections if needed.
-        double lastReceivedTimestamp;
+        RigidbodyState lastReceivedState;
         void OnReceivedState(double timestamp, RigidbodyState data)//, bool sleeping)
         {
             // store last time
-            lastReceivedTimestamp = timestamp;
-
-            if (state == ForecastState.PREDICT)
-            {
-                // don't correct at all while predicting.
-                // this is only for a short time anyway.
-            }
-            else if (state == ForecastState.BLEND)
-            {
-                // TODO snapshot interpolation
-
-                // blend between local and remote position
-
-                // FAST VERSION: this shows in profiler a lot, so cache EVERYTHING!
-                tf.GetPositionAndRotation(out Vector3 currentPosition, out Quaternion currentRotation); // faster than tf.position + tf.rotation
-                float distance = Vector3.Distance(currentPosition, data.position);
-
-                // smoothly interpolate to the target position.
-                // speed relative to how far away we are.
-                // => speed increases by distance² because the further away, the
-                //    sooner we need to catch the fuck up
-                // float positionStep = (distance * distance) * interpolationSpeed;
-                float positionStep = distance * positionBlendingSpeed;
-                Vector3 newPosition = Vector3.MoveTowards(currentPosition, data.position, positionStep);
-
-                // smoothly interpolate to the target rotation.
-                // Quaternion.RotateTowards doesn't seem to work at all, so let's use SLerp.
-                // Quaternions always need to be normalized in order to be a valid rotation after operations
-                Quaternion newRotation = Quaternion.Slerp(currentRotation, data.rotation, rotationBlendingSpeed * Time.deltaTime).normalized;
-
-                // assign position and rotation together. faster than accessing manually.
-                tf.SetPositionAndRotation(newPosition, newRotation);
-            }
-            else if (state == ForecastState.FOLLOW)
-            {
-                // apply state while following
-                // TODO snapshot interpolation
-
-                // assign position and rotation together. faster than accessing manually.
-                tf.SetPositionAndRotation(data.position, data.rotation);
-            }
+            lastReceivedState = data;
 
 
             /*
