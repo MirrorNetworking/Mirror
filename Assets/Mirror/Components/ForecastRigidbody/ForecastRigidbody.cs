@@ -271,9 +271,9 @@ namespace Mirror
                     // Quaternions always need to be normalized in order to be a valid rotation after operations
                     Quaternion newRotation = Quaternion.Slerp(currentRotation, lastReceivedState.rotation, rotationBlendingSpeed * deltaTime).normalized;
 
-
-                    // assign position and rotation together. faster than accessing manually.
-                    tf.SetPositionAndRotation(newPosition, newRotation);
+                    // assign rigidbody position & rotation while keeping velocity to keep moving
+                    predictedRigidbody.MovePosition(newPosition);
+                    predictedRigidbody.MoveRotation(newRotation);
 
                     // blend for 2 x syncinterval.
                     // TODO configurable
