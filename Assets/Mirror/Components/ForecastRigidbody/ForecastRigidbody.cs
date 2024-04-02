@@ -23,6 +23,9 @@ namespace Mirror
 
         Vector3 lastPosition;
 
+        [Header("Blending")]
+        [Range(0.01f, 1)] public float blendPerSync = 0.1f;
+
         // motion smoothing happen on-demand, because it requires moving physics components to another GameObject.
         // this only starts at a given velocity and ends when stopped moving.
         // to avoid constant on/off/on effects, it also stays on for a minimum time.
@@ -504,13 +507,19 @@ namespace Mirror
                 // returns the final recomputed state after rewinding.
                 RigidbodyState recomputed = Prediction.CorrectHistory(stateHistory, stateHistoryLimit, state, before, after, afterIndex);
 
+                // blend the final correction towards current server state over time.
+                // this is the idea of ForecastRigidbody.
+                // TODO once we are at server state, let snapshot interpolation take over.
+                RigidbodyState blended = RigidbodyState.Interpolate(recomputed, state, blendPerSync);
+                Debug.DrawLine(recomputed.position, blended.position, Color.red, 10.0f);
+
                 // log, draw & apply the final position.
                 // always do this here, not when iterating above, in case we aren't iterating.
                 // for example, on same machine with near zero latency.
                 // int correctedAmount = stateHistory.Count - afterIndex;
                 // Debug.Log($"Correcting {name}: {correctedAmount} / {stateHistory.Count} states to final position from: {rb.position} to: {last.position}");
                 //Debug.DrawLine(physicsCopyRigidbody.position, recomputed.position, Color.green, lineTime);
-                ApplyState(recomputed.timestamp, recomputed.position, recomputed.rotation, recomputed.velocity, recomputed.angularVelocity);
+                ApplyState(blended.timestamp, blended.position, blended.rotation, blended.velocity, blended.angularVelocity);
 
                 // user callback
                 OnCorrected();
