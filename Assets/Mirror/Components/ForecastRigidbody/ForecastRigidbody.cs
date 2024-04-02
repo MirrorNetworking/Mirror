@@ -128,7 +128,7 @@ namespace Mirror
             state = ForecastState.PREDICT;
             if (debugColors) rend.material.color = predictingColor;
             OnBeginPrediction();
-            Debug.Log($"{name} PREDICTING");
+            Debug.Log($"{name} BEGIN PREDICTING");
         }
 
         void UpdateServer()
@@ -232,6 +232,7 @@ namespace Mirror
 
             // is the other object a ForecastRigidbody?
             if (!collision.collider.TryGetComponent(out ForecastRigidbody other)) return;
+            Debug.Log($"{name} @ {state} collided with {other.name} @ {other.state}");
 
             // is the other object already predicting? then don't call events again.
             if (other.state != ForecastState.FOLLOW) return;
