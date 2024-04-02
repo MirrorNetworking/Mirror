@@ -214,18 +214,21 @@ namespace Mirror
                 tf.GetPositionAndRotation(out Vector3 currentPosition, out Quaternion currentRotation); // faster than tf.position + tf.rotation
                 float distance = Vector3.Distance(currentPosition, lastReceivedState.position);
 
+                // perf: only access deltaTime once
+                float deltaTime = Time.deltaTime;
+
                 // smoothly interpolate to the target position.
                 // speed relative to how far away we are.
                 // => speed increases by distance² because the further away, the
                 //    sooner we need to catch the fuck up
                 // float positionStep = (distance * distance) * interpolationSpeed;
-                float positionStep = distance * positionBlendingSpeed;
+                float positionStep = distance * positionBlendingSpeed * deltaTime;
                 Vector3 newPosition = Vector3.MoveTowards(currentPosition, lastReceivedState.position, positionStep);
 
                 // smoothly interpolate to the target rotation.
                 // Quaternion.RotateTowards doesn't seem to work at all, so let's use SLerp.
                 // Quaternions always need to be normalized in order to be a valid rotation after operations
-                Quaternion newRotation = Quaternion.Slerp(currentRotation, lastReceivedState.rotation, rotationBlendingSpeed * Time.deltaTime).normalized;
+                Quaternion newRotation = Quaternion.Slerp(currentRotation, lastReceivedState.rotation, rotationBlendingSpeed * deltaTime).normalized;
 
                 // debug draw the blending data.
                 // server state is drawn in OnGizmos
