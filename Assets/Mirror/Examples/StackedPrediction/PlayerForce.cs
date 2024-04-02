@@ -21,7 +21,7 @@ namespace Mirror.Examples.PredictionBenchmark
                 {
                     // we may have hit the ghost object.
                     // find the original.
-                    if (PredictedRigidbody.IsPredicted(hit.collider, out PredictedRigidbody predicted))
+                    if (ForecastRigidbody.IsPredicted(hit.collider, out ForecastRigidbody predicted))
                     {
                         // apply force in a random direction, this looks best
                         Debug.Log($"Applying force to: {hit.collider.name}");
