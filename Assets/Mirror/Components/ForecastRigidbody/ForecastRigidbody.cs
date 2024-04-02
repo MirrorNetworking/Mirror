@@ -12,9 +12,9 @@ namespace Mirror
 {
     enum ForecastState
     {
-        PREDICT, // 100% client side physics prediction
-        BLEND,   // blending client prediction with server state
-        FOLLOW,  // 100% server sided physics, client only follows .transform
+        PREDICTING, // 100% client side physics prediction
+        BLENDING,   // blending client prediction with server state
+        FOLLOWING,  // 100% server sided physics, client only follows .transform
     }
 
     [RequireComponent(typeof(Rigidbody))]
@@ -38,7 +38,7 @@ namespace Mirror
         [Tooltip("How fast to interpolate to the target position, relative to how far we are away from it.\nHigher value will be more jitter but sharper moves, lower value will be less jitter but a little too smooth / rounded moves.")]
         public float positionBlendingSpeed = 15; // 10 is a little too low for billiards at least
         public float rotationBlendingSpeed = 10;
-        ForecastState state = ForecastState.FOLLOW; // follow until the player interacts
+        ForecastState state = ForecastState.FOLLOWING; // follow until the player interacts
         double predictionStartTime;
 
         // motion smoothing happen on-demand, because it requires moving physics components to another GameObject.
@@ -132,7 +132,7 @@ namespace Mirror
         protected void BeginPredicting()
         {
             predictedRigidbody.isKinematic = false; // full physics sync
-            state = ForecastState.PREDICT;
+            state = ForecastState.PREDICTING;
             if (debugColors) rend.material.color = predictingColor;
             predictionStartTime = NetworkTime.time;
             OnBeginPrediction();
@@ -142,7 +142,7 @@ namespace Mirror
         double blendingStartTime;
         protected void BeginBlending()
         {
-            state = ForecastState.BLEND;
+            state = ForecastState.BLENDING;
             if (debugColors) rend.material.color = blendingColor;
             blendingStartTime = NetworkTime.time;
             OnBeginBlending();
@@ -152,7 +152,7 @@ namespace Mirror
         protected void BeginFollow()
         {
             predictedRigidbody.isKinematic = true; // full transform sync
-            state = ForecastState.FOLLOW;
+            state = ForecastState.FOLLOWING;
             if (debugColors) rend.material.color = originalColor;
             OnBeginFollow();
             Debug.Log($"{name} BEGIN FOLLOW");
@@ -196,7 +196,7 @@ namespace Mirror
         // user callbacks.
         void UpdateClient()
         {
-            if (state == ForecastState.PREDICT)
+            if (state == ForecastState.PREDICTING)
             {
                 // we want to predict until the first server state came in.
                 if (lastReceivedState.timestamp > predictionStartTime)
@@ -204,7 +204,7 @@ namespace Mirror
                     BeginBlending();
                 }
             }
-            else if (state == ForecastState.BLEND)
+            else if (state == ForecastState.BLENDING)
             {
                 // TODO snapshot interpolation
 
@@ -244,7 +244,7 @@ namespace Mirror
                 // TODO blend until what.. ?
                 // maybe until we reached it..?
             }
-            else if (state == ForecastState.FOLLOW)
+            else if (state == ForecastState.FOLLOWING)
             {
                 // hard set position & rotation.
                 // TODO snapshot interpolation
@@ -292,7 +292,7 @@ namespace Mirror
         void OnDrawGizmos()
         {
             // draw server state while blending
-            if (state == ForecastState.BLEND)
+            if (state == ForecastState.BLENDING)
             {
                 Gizmos.color = blendingColor;
                 Gizmos.DrawWireCube(lastReceivedState.position, col.bounds.size);
@@ -307,14 +307,14 @@ namespace Mirror
         void OnCollisionEnter(Collision collision)
         {
             // if we are FOLLOWING, then there's nothing to do.
-            if (state == ForecastState.FOLLOW) return;
+            if (state == ForecastState.FOLLOWING) return;
 
             // is the other object a ForecastRigidbody?
             if (!collision.collider.TryGetComponent(out ForecastRigidbody other)) return;
             Debug.Log($"{name} @ {state} collided with {other.name} @ {other.state}");
 
             // is the other object already predicting? then don't call events again.
-            if (other.state != ForecastState.FOLLOW) return;
+            if (other.state != ForecastState.FOLLOWING) return;
 
             // start predicting the other object too.
             other.BeginPredicting();
