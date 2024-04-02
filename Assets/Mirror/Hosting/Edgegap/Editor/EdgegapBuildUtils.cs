@@ -22,7 +22,12 @@ namespace Edgegap
 
         public static BuildReport BuildServer()
         {
-            IEnumerable<string> scenes = EditorBuildSettings.scenes.Select(s=>s.path);
+            // MIRROR CHANGE: only include scenes which are enabled
+            IEnumerable<string> scenes = EditorBuildSettings.scenes
+                .Where(s => s.enabled)
+                .Select(s => s.path);
+            // END MIRROR CHANGE
+
             BuildPlayerOptions options = new BuildPlayerOptions
             {
                 scenes = scenes.ToArray(),
