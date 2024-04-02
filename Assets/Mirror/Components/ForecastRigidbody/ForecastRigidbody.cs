@@ -93,7 +93,8 @@ namespace Mirror
         public bool debugColors = false;
         Color originalColor = Color.white;
         public Color predictingColor = Color.green;
-        public Color blendingColor = Color.yellow;
+        public Color blendingBehindColor = Color.gray;  // when trying to blend but it's still behind us so we ignore it to not jitter
+        public Color blendingAheadColor = Color.yellow; // when actually interpolating towards a blend in front of us
 
         protected virtual void Awake()
         {
@@ -153,7 +154,7 @@ namespace Mirror
         protected void BeginBlending()
         {
             state = ForecastState.BLENDING;
-            if (debugColors) rend.material.color = blendingColor;
+            // if (debugColors) rend.material.color = blendingAheadColor; set in update depending on ahead/behind
             blendingStartTime = NetworkTime.time;
             OnBeginBlending();
             Debug.Log($"{name} BEGIN BLENDING");
@@ -201,6 +202,18 @@ namespace Mirror
             predictedRigidbody.velocity.sqrMagnitude >= motionSmoothingVelocityThresholdSqr ||
             predictedRigidbody.angularVelocity.sqrMagnitude >= motionSmoothingAngularVelocityThresholdSqr;
 
+        // check if following the remote state would move us backwards, or forward.
+        // we never want to interpolate backwards.
+        bool RemoteInSameDirection()
+        {
+            Vector3 direction = lastReceivedState.position - transform.position;
+
+            // is this in the direction we are going, or behind us (the opposite)?
+            bool opposite = Vector3.Dot(direction, predictedRigidbody.velocity) < 0;
+            return !opposite;
+        }
+
+
         // when using Fast mode, we don't create any ghosts.
         // but we still want to check IsMoving() in order to support the same
         // user callbacks.
@@ -222,7 +235,6 @@ namespace Mirror
 
                 // FAST VERSION: this shows in profiler a lot, so cache EVERYTHING!
                 tf.GetPositionAndRotation(out Vector3 currentPosition, out Quaternion currentRotation); // faster than tf.position + tf.rotation
-                float distance = Vector3.Distance(currentPosition, lastReceivedState.position);
 
                 // perf: only access deltaTime once
                 float deltaTime = Time.deltaTime;
@@ -232,6 +244,7 @@ namespace Mirror
                 // => speed increases by distance² because the further away, the
                 //    sooner we need to catch the fuck up
                 // float positionStep = (distance * distance) * interpolationSpeed;
+                float distance = Vector3.Distance(currentPosition, lastReceivedState.position);
                 float positionStep = distance * positionBlendingSpeed * deltaTime;
                 Vector3 newPosition = Vector3.MoveTowards(currentPosition, lastReceivedState.position, positionStep);
 
@@ -240,22 +253,40 @@ namespace Mirror
                 // Quaternions always need to be normalized in order to be a valid rotation after operations
                 Quaternion newRotation = Quaternion.Slerp(currentRotation, lastReceivedState.rotation, rotationBlendingSpeed * deltaTime).normalized;
 
-                // debug draw the blending data.
-                // server state is drawn in OnGizmos
-                Debug.DrawLine(currentPosition, newPosition, blendingColor);
+                if (!RemoteInSameDirection())
+                {
+                    // debug draw the delta that we aren't using yet
+                    // server state is drawn in OnGizmos
+                    if (debugColors)
+                    {
+                        Debug.DrawLine(currentPosition, newPosition, blendingBehindColor);
+                        rend.material.color = blendingBehindColor;
+                    }
+                }
+                else
+                {
+                    // debug draw the blending data.
+                    // server state is drawn in OnGizmos
+                    if (debugColors)
+                    {
+                        Debug.DrawLine(currentPosition, newPosition, blendingAheadColor);
+                        rend.material.color = blendingAheadColor;
+                    }
 
-                // assign position and rotation together. faster than accessing manually.
-                tf.SetPositionAndRotation(newPosition, newRotation);
+                    // assign position and rotation together. faster than accessing manually.
+                    tf.SetPositionAndRotation(newPosition, newRotation);
 
-                // blend for 2 x syncinterval.
-                // TODO configurable
-                // if (NetworkTime.time > blendingStartTime + blendTime)
-                // {
-                //     BeginFollow();
-                // }
+                    // blend for 2 x syncinterval.
+                    // TODO configurable
+                    // if (NetworkTime.time > blendingStartTime + blendTime)
+                    // {
+                    //     BeginFollow();
+                    // }
 
-                // TODO blend until what.. ?
-                // maybe until we reached it..?
+                    // TODO blend until what.. ?
+                    // maybe until we reached it..?
+
+                }
             }
             else if (state == ForecastState.FOLLOWING)
             {
@@ -307,7 +338,7 @@ namespace Mirror
             // draw server state while blending
             if (state == ForecastState.BLENDING)
             {
-                Gizmos.color = blendingColor;
+                Gizmos.color = RemoteInSameDirection() ?  blendingAheadColor : blendingBehindColor;
                 Gizmos.DrawWireCube(lastReceivedState.position, col.bounds.size);
             }
         }
