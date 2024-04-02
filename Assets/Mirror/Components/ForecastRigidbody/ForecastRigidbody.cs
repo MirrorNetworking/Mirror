@@ -34,6 +34,7 @@ namespace Mirror
         [Header("Blending")]
         [Range(0.01f, 1)] public float blendPerSync = 0.1f;
         ForecastState state = ForecastState.FOLLOW; // follow until the player interacts
+        double predictionStartTime;
 
         // motion smoothing happen on-demand, because it requires moving physics components to another GameObject.
         // this only starts at a given velocity and ends when stopped moving.
@@ -127,8 +128,17 @@ namespace Mirror
             predictedRigidbody.isKinematic = false;
             state = ForecastState.PREDICT;
             if (debugColors) rend.material.color = predictingColor;
+            predictionStartTime = NetworkTime.time;
             OnBeginPrediction();
             Debug.Log($"{name} BEGIN PREDICTING");
+        }
+
+        protected void BeginBlending()
+        {
+            state = ForecastState.BLEND;
+            if (debugColors) rend.material.color = blendingColor;
+            OnBeginBlending();
+            Debug.Log($"{name} BEGIN BLENDING");
         }
 
         void UpdateServer()
@@ -171,7 +181,11 @@ namespace Mirror
         {
             if (state == ForecastState.PREDICT)
             {
-
+                // we want to predict until the first server state came in.
+                if (lastReceivedTimestamp > predictionStartTime)
+                {
+                    BeginBlending();
+                }
             }
             else if (state == ForecastState.BLEND)
             {
@@ -322,7 +336,7 @@ namespace Mirror
         protected virtual void OnBeforeApplyState() {}
         protected virtual void OnCorrected() {}
         protected virtual void OnBeginPrediction() {} // when the Rigidbody moved above threshold and we created a ghost
-        protected virtual void OnEndPrediction() {}   // when the Rigidbody came to rest and we destroyed the ghost
+        protected virtual void OnBeginBlending() {}   // when the Rigidbody came to rest and we destroyed the ghost
 
         void ApplyState(double timestamp, Vector3 position, Quaternion rotation, Vector3 velocity, Vector3 angularVelocity)
         {
@@ -390,8 +404,29 @@ namespace Mirror
 
         // process a received server state.
         // compares it against our history and applies corrections if needed.
-        void OnReceivedState(double timestamp, RigidbodyState state)//, bool sleeping)
+        double lastReceivedTimestamp;
+        void OnReceivedState(double timestamp, RigidbodyState data)//, bool sleeping)
         {
+            // store last time
+            lastReceivedTimestamp = timestamp;
+
+            if (state == ForecastState.PREDICT)
+            {
+                // don't correct at all while predicting.
+                // this is only for a short time anyway.
+            }
+            else if (state == ForecastState.BLEND)
+            {
+                //
+            }
+            else if (state == ForecastState.FOLLOW)
+            {
+                //
+            }
+
+
+            /*
+
             // performance: get Rigidbody position & rotation only once,
             // and together via its transform
             predictedRigidbodyTransform.GetPositionAndRotation(out Vector3 physicsPosition, out Quaternion physicsRotation);
@@ -536,6 +571,7 @@ namespace Mirror
                 // user callback
                 OnCorrected();
             }
+            */
         }
 
         // send state to clients every sendInterval.
