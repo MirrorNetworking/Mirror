@@ -94,9 +94,6 @@ namespace Mirror
             if (predictedRigidbody == null) throw new InvalidOperationException($"Prediction: {name} is missing a Rigidbody component.");
             predictedRigidbodyTransform = predictedRigidbody.transform;
 
-            // set Rigidbody as kinematic by default.
-            // it's only dynamic while predicting.
-            predictedRigidbody.isKinematic = true;
 
             // in fast mode, we need to force enable Rigidbody.interpolation.
             // otherwise there's not going to be any smoothing whatsoever.
@@ -109,6 +106,13 @@ namespace Mirror
 
             // save renderer color
             originalColor = rend.material.color;
+        }
+
+        public override void OnStartClient()
+        {
+            // set Rigidbody as kinematic by default on clients.
+            // it's only dynamic on the server, and while predicting on clients.
+            predictedRigidbody.isKinematic = true;
         }
 
         // client prediction API
