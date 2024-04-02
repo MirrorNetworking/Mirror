@@ -38,6 +38,8 @@ namespace Mirror
         [Tooltip("How fast to interpolate to the target position, relative to how far we are away from it.\nHigher value will be more jitter but sharper moves, lower value will be less jitter but a little too smooth / rounded moves.")]
         public float positionBlendingSpeed = 15; // 10 is a little too low for billiards at least
         public float rotationBlendingSpeed = 10;
+        [Tooltip("Transition from BLENDING to FOLLOWING if within this distance to remote state.")]
+        public float distancedThreshold = 0.1f;
         ForecastState state = ForecastState.FOLLOWING; // follow until the player interacts
         double predictionStartTime;
 
@@ -275,16 +277,13 @@ namespace Mirror
                     predictedRigidbody.MovePosition(newPosition);
                     predictedRigidbody.MoveRotation(newRotation);
 
-                    // blend for 2 x syncinterval.
-                    // TODO configurable
-                    // if (NetworkTime.time > blendingStartTime + blendTime)
-                    // {
-                    //     BeginFollow();
-                    // }
-
-                    // TODO blend until what.. ?
-                    // maybe until we reached it..?
-
+                    // reached it? then stop blending and hard follow.
+                    // TODO should reach no matter what after a certain time.
+                    //      in case of local prediction going completely wrong.
+                    if (Vector3.Distance(newPosition, lastReceivedState.position) <= distancedThreshold)
+                    {
+                        BeginFollow();
+                    }
                 }
             }
             else if (state == ForecastState.FOLLOWING)
