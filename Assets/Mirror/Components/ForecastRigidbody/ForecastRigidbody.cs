@@ -263,7 +263,7 @@ namespace Mirror
                     //    sooner we need to catch the fuck up
                     // float positionStep = (distance * distance) * interpolationSpeed;
                     float distance = Vector3.Distance(currentPosition, lastReceivedState.position);
-                    float positionStep = distance * positionBlendingSpeed * deltaTime;
+                    float positionStep = distance * positionBlendingSpeed; // BETTER WITHOUT DELTATIME: always catches up. // * deltaTime;
                     Vector3 newPosition = Vector3.MoveTowards(currentPosition, lastReceivedState.position, positionStep);
 
                     // smoothly interpolate to the target rotation.
