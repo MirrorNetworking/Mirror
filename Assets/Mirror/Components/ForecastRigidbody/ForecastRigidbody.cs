@@ -69,18 +69,9 @@ namespace Mirror
         [Tooltip("Performance optimization: only create/destroy ghosts every n-th frame is enough.")]
         public int checkGhostsEveryNthFrame = 4;
 
-        [Tooltip("Teleport if we are further than 'multiplier x collider size' behind.")]
-        public float teleportDistanceMultiplier = 10;
-
         [Header("Bandwidth")]
         [Tooltip("Reduce sends while velocity==0. Client's objects may slightly move due to gravity/physics, so we still want to send corrections occasionally even if an object is idle on the server the whole time.")]
         public bool reduceSendsWhileIdle = true;
-
-        // joints
-        Vector3 initialPosition;
-        Quaternion initialRotation;
-        // Vector3 initialScale; // don't change scale for now. causes issues with parenting.
-
         Color originalColor;
 
         protected virtual void Awake()
@@ -94,43 +85,10 @@ namespace Mirror
             // otherwise there's not going to be any smoothing whatsoever.
             predictedRigidbody.interpolation = RigidbodyInterpolation.Interpolate;
 
-            // cache initial position/rotation/scale to be used when moving physics components (configurable joints' range of motion)
-            initialPosition = tf.position;
-            initialRotation = tf.rotation;
-            // initialScale = tf.localScale;
-
             // cache ² computations
             motionSmoothingVelocityThresholdSqr = motionSmoothingVelocityThreshold * motionSmoothingVelocityThreshold;
             motionSmoothingAngularVelocityThresholdSqr = motionSmoothingAngularVelocityThreshold * motionSmoothingAngularVelocityThreshold;
             positionCorrectionThresholdSqr = positionCorrectionThreshold * positionCorrectionThreshold;
-        }
-
-        protected virtual void CopyRenderersAsGhost(GameObject destination, Material material)
-        {
-            // find the MeshRenderer component, which sometimes is on a child.
-            MeshRenderer originalMeshRenderer = GetComponentInChildren<MeshRenderer>(true);
-            MeshFilter originalMeshFilter = GetComponentInChildren<MeshFilter>(true);
-            if (originalMeshRenderer != null && originalMeshFilter != null)
-            {
-                MeshFilter meshFilter = destination.AddComponent<MeshFilter>();
-                meshFilter.mesh = originalMeshFilter.mesh;
-
-                MeshRenderer meshRenderer = destination.AddComponent<MeshRenderer>();
-                meshRenderer.material = originalMeshRenderer.material;
-
-                // renderers often have multiple materials. copy all.
-                if (originalMeshRenderer.materials != null)
-                {
-                    Material[] materials = new Material[originalMeshRenderer.materials.Length];
-                    for (int i = 0; i < materials.Length; ++i)
-                    {
-                        materials[i] = material;
-                    }
-                    meshRenderer.materials = materials; // need to reassign to see it in effect
-                }
-            }
-            // if we didn't find a renderer, show a warning
-            else Debug.LogWarning($"ForecastRigidbody: {name} found no renderer to copy onto the visual object. If you are using a custom setup, please overwrite ForecastRigidbody.CreateVisualCopy().");
         }
 
         void UpdateServer()
