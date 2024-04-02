@@ -32,7 +32,11 @@ namespace Mirror
         Vector3 lastPosition;
 
         [Header("Blending")]
-        [Range(0.01f, 1)] public float blendPerSync = 0.1f;
+        [Tooltip("Blend for multiplier x syncinterval time before hard following the server state again.")]
+        public float blendTime = 0.500f; // TODO multiples of syncinterval?
+        [Tooltip("How fast to interpolate to the target position, relative to how far we are away from it.\nHigher value will be more jitter but sharper moves, lower value will be less jitter but a little too smooth / rounded moves.")]
+        public float positionBlendingSpeed = 15; // 10 is a little too low for billiards at least
+        public float rotationBlendingSpeed = 10;
         ForecastState state = ForecastState.FOLLOW; // follow until the player interacts
         double predictionStartTime;
 
@@ -99,7 +103,7 @@ namespace Mirror
             // otherwise there's not going to be any smoothing whatsoever.
             predictedRigidbody.interpolation = RigidbodyInterpolation.Interpolate;
 
-            // cache ² computations
+            // cache computations
             motionSmoothingVelocityThresholdSqr = motionSmoothingVelocityThreshold * motionSmoothingVelocityThreshold;
             motionSmoothingAngularVelocityThresholdSqr = motionSmoothingAngularVelocityThreshold * motionSmoothingAngularVelocityThreshold;
             positionCorrectionThresholdSqr = positionCorrectionThreshold * positionCorrectionThreshold;
@@ -125,7 +129,7 @@ namespace Mirror
 
         protected void BeginPredicting()
         {
-            predictedRigidbody.isKinematic = false;
+            predictedRigidbody.isKinematic = false; // full physics sync
             state = ForecastState.PREDICT;
             if (debugColors) rend.material.color = predictingColor;
             predictionStartTime = NetworkTime.time;
@@ -133,12 +137,23 @@ namespace Mirror
             Debug.Log($"{name} BEGIN PREDICTING");
         }
 
+        double blendingStartTime;
         protected void BeginBlending()
         {
             state = ForecastState.BLEND;
             if (debugColors) rend.material.color = blendingColor;
+            blendingStartTime = NetworkTime.time;
             OnBeginBlending();
             Debug.Log($"{name} BEGIN BLENDING");
+        }
+
+        protected void BeginFollow()
+        {
+            predictedRigidbody.isKinematic = true; // full transform sync
+            state = ForecastState.FOLLOW;
+            if (debugColors) rend.material.color = originalColor;
+            OnBeginFollow();
+            Debug.Log($"{name} BEGIN FOLLOW");
         }
 
         void UpdateServer()
@@ -189,7 +204,12 @@ namespace Mirror
             }
             else if (state == ForecastState.BLEND)
             {
-
+                // blend for 2 x syncinterval.
+                // TODO configurable
+                if (NetworkTime.time > blendingStartTime + blendTime)
+                {
+                    BeginFollow();
+                }
             }
             else if (state == ForecastState.FOLLOW)
             {
@@ -334,12 +354,13 @@ namespace Mirror
         // optional user callbacks, in case people need to know about events.
         protected virtual void OnSnappedIntoPlace() {}
         protected virtual void OnBeforeApplyState() {}
-        protected virtual void OnCorrected() {}
-        protected virtual void OnBeginPrediction() {} // when the Rigidbody moved above threshold and we created a ghost
-        protected virtual void OnBeginBlending() {}   // when the Rigidbody came to rest and we destroyed the ghost
+        protected virtual void OnBeginPrediction() {}
+        protected virtual void OnBeginBlending() {}
+        protected virtual void OnBeginFollow() {}
 
         void ApplyState(double timestamp, Vector3 position, Quaternion rotation, Vector3 velocity, Vector3 angularVelocity)
         {
+            /*
             // fix rigidbodies seemingly dancing in place instead of coming to rest.
             // hard snap to the position below a threshold velocity.
             // this is fine because the visual object still smoothly interpolates to it.
@@ -381,6 +402,7 @@ namespace Mirror
                 OnSnappedIntoPlace();
                 return;
             }
+            */
 
             // we have a callback for snapping into place (above).
             // we also need one for corrections without snapping into place.
@@ -417,11 +439,37 @@ namespace Mirror
             }
             else if (state == ForecastState.BLEND)
             {
-                //
+                // TODO snapshot interpolation
+
+                // blend between local and remote position
+
+                // FAST VERSION: this shows in profiler a lot, so cache EVERYTHING!
+                tf.GetPositionAndRotation(out Vector3 currentPosition, out Quaternion currentRotation); // faster than tf.position + tf.rotation
+                float distance = Vector3.Distance(currentPosition, data.position);
+
+                // smoothly interpolate to the target position.
+                // speed relative to how far away we are.
+                // => speed increases by distance² because the further away, the
+                //    sooner we need to catch the fuck up
+                // float positionStep = (distance * distance) * interpolationSpeed;
+                float positionStep = distance * positionBlendingSpeed;
+                Vector3 newPosition = Vector3.MoveTowards(currentPosition, data.position, positionStep);
+
+                // smoothly interpolate to the target rotation.
+                // Quaternion.RotateTowards doesn't seem to work at all, so let's use SLerp.
+                // Quaternions always need to be normalized in order to be a valid rotation after operations
+                Quaternion newRotation = Quaternion.Slerp(currentRotation, data.rotation, rotationBlendingSpeed * Time.deltaTime).normalized;
+
+                // assign position and rotation together. faster than accessing manually.
+                tf.SetPositionAndRotation(newPosition, newRotation);
             }
             else if (state == ForecastState.FOLLOW)
             {
-                //
+                // apply state while following
+                // TODO snapshot interpolation
+
+                // assign position and rotation together. faster than accessing manually.
+                tf.SetPositionAndRotation(data.position, data.rotation);
             }
 
 
