@@ -187,6 +187,10 @@ James Bendon initially made the game with UNET, and then [switched to Mirror](ht
 
 Made with Mirror by two brothers with [no prior game development](https://www.youtube.com/watch?v=5J2wj8l4pFA&start=12) experience.
 
+### [Havoc](https://store.steampowered.com/app/2149290/Havoc/)
+![havoc fps game](https://github.com/MirrorNetworking/Mirror/assets/16416509/f3549a95-5663-41f8-9868-283b3a0fcf63)
+Havoc is a tactical team-based first-person shooter with a fully destructible environment and a unique art style. Havoc has been one of our favorite made-with-Mirror games for a few years now, and we are excited to finally see it up there on Steam.
+
 ### [Sun Haven](https://store.steampowered.com/app/1432860/Sun_Haven/)
 [![sun haven](https://user-images.githubusercontent.com/16416509/185836661-2bfd6cd0-523a-4af4-bac7-c202ed01de7d.jpg)](https://store.steampowered.com/app/1432860/Sun_Haven/)
 [Sun Haven](https://store.steampowered.com/app/1432860/Sun_Haven/) - A beautiful human town, a hidden elven village, and a monster city filled with farming, magic, dragons, and adventure.
