@@ -10,6 +10,13 @@ using UnityEngine;
 
 namespace Mirror
 {
+    enum ForecastState
+    {
+        PREDICT, // 100% client side physics prediction
+        BLEND,   // blending client prediction with server state
+        FOLLOW,  // 100% server sided physics, client only follows .transform
+    }
+
     [RequireComponent(typeof(Rigidbody))]
     public class ForecastRigidbody : NetworkBehaviour
     {
@@ -25,6 +32,7 @@ namespace Mirror
 
         [Header("Blending")]
         [Range(0.01f, 1)] public float blendPerSync = 0.1f;
+        ForecastState state = ForecastState.FOLLOW; // follow until the player interacts
 
         // motion smoothing happen on-demand, because it requires moving physics components to another GameObject.
         // this only starts at a given velocity and ends when stopped moving.
@@ -81,6 +89,10 @@ namespace Mirror
             if (predictedRigidbody == null) throw new InvalidOperationException($"Prediction: {name} is missing a Rigidbody component.");
             predictedRigidbodyTransform = predictedRigidbody.transform;
 
+            // set Rigidbody as kinematic by default.
+            // it's only dynamic while predicting.
+            predictedRigidbody.isKinematic = true;
+
             // in fast mode, we need to force enable Rigidbody.interpolation.
             // otherwise there's not going to be any smoothing whatsoever.
             predictedRigidbody.interpolation = RigidbodyInterpolation.Interpolate;
@@ -89,6 +101,17 @@ namespace Mirror
             motionSmoothingVelocityThresholdSqr = motionSmoothingVelocityThreshold * motionSmoothingVelocityThreshold;
             motionSmoothingAngularVelocityThresholdSqr = motionSmoothingAngularVelocityThreshold * motionSmoothingAngularVelocityThreshold;
             positionCorrectionThresholdSqr = positionCorrectionThreshold * positionCorrectionThreshold;
+        }
+
+        // client prediction API
+        public void AddPredictedForce(Vector3 force, ForceMode mode)
+        {
+            // explicitly start predicting physics
+            predictedRigidbody.isKinematic = false;
+            predictedRigidbody.AddForce(force, mode);
+            state = ForecastState.PREDICT;
+            OnBeginPrediction();
+            Debug.Log($"{name} PREDICTING");
         }
 
         void UpdateServer()
@@ -127,37 +150,26 @@ namespace Mirror
         // when using Fast mode, we don't create any ghosts.
         // but we still want to check IsMoving() in order to support the same
         // user callbacks.
-        bool lastMoving = false;
-        void UpdateState()
+        void UpdateClient()
         {
-            // perf: enough to check ghosts every few frames.
-            // PredictionBenchmark: only checking every 4th frame: 770 => 800 FPS
-            if (Time.frameCount % checkGhostsEveryNthFrame != 0) return;
-
-            bool moving = IsMoving();
-
-            // started moving?
-            if (moving && !lastMoving)
+            if (state == ForecastState.PREDICT)
             {
-                OnBeginPrediction();
-                lastMoving = true;
+
             }
-            // stopped moving?
-            else if (!moving && lastMoving)
+            else if (state == ForecastState.BLEND)
             {
-                // ensure a minimum time since starting to move, to avoid on/off/on effects.
-                if (NetworkTime.time >= motionSmoothingLastMovedTime + motionSmoothingTimeTolerance)
-                {
-                    OnEndPrediction();
-                    lastMoving = false;
-                }
+
+            }
+            else if (state == ForecastState.FOLLOW)
+            {
+
             }
         }
 
         void Update()
         {
             if (isServer) UpdateServer();
-            if (isClientOnly) UpdateState();
+            if (isClientOnly) UpdateClient();
         }
 
         void FixedUpdate()
@@ -468,8 +480,8 @@ namespace Mirror
                 // blend the final correction towards current server state over time.
                 // this is the idea of ForecastRigidbody.
                 // TODO once we are at server state, let snapshot interpolation take over.
-                RigidbodyState blended = RigidbodyState.Interpolate(recomputed, state, blendPerSync);
-                Debug.DrawLine(recomputed.position, blended.position, Color.green, 10.0f);
+                // RigidbodyState blended = RigidbodyState.Interpolate(recomputed, state, blendPerSync);
+                // Debug.DrawLine(recomputed.position, blended.position, Color.green, 10.0f);
 
                 // log, draw & apply the final position.
                 // always do this here, not when iterating above, in case we aren't iterating.
@@ -477,7 +489,11 @@ namespace Mirror
                 // int correctedAmount = stateHistory.Count - afterIndex;
                 // Debug.Log($"Correcting {name}: {correctedAmount} / {stateHistory.Count} states to final position from: {rb.position} to: {last.position}");
                 //Debug.DrawLine(physicsCopyRigidbody.position, recomputed.position, Color.green, lineTime);
-                ApplyState(blended.timestamp, blended.position, blended.rotation, blended.velocity, blended.angularVelocity);
+                ApplyState(recomputed.timestamp, recomputed.position, recomputed.rotation, recomputed.velocity, recomputed.angularVelocity);
+
+                // insert the blended state into the history.
+                // this makes it permanent, instead of blending every time but rarely recording.
+                RecordState();
 
                 // user callback
                 OnCorrected();

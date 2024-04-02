@@ -36,7 +36,7 @@ namespace Mirror.Examples.BilliardsPredicted
 
         // apply force to white ball.
         // common function to ensure we apply it the same way on server & client!
-        void ApplyForceToWhite(Vector3 force)
+        void ClientApplyForceToWhite(Vector3 force)
         {
             // https://docs.unity3d.com/2021.3/Documentation/ScriptReference/Rigidbody.AddForce.html
             // this is buffered until the next FixedUpdate.
@@ -44,26 +44,25 @@ namespace Mirror.Examples.BilliardsPredicted
             // get the white ball's Rigidbody.
             // prediction sometimes moves this out of the object for a while,
             // so we need to grab it this way:
-            Rigidbody rb = whiteBall.GetComponent<ForecastRigidbody>().predictedRigidbody;
+            ForecastRigidbody forecast = whiteBall.GetComponent<ForecastRigidbody>();
 
             // AddForce has different force modes, see this excellent diagram:
             // https://www.reddit.com/r/Unity3D/comments/psukm1/know_the_difference_between_forcemodes_a_little/
             // for prediction it's extremely important(!) to apply the correct mode:
             //   'Force' makes server & client drift significantly here
             //   'Impulse' is correct usage with significantly less drift
-            rb.AddForce(force, ForceMode.Impulse);
+            forecast.AddPredictedForce(force, ForceMode.Impulse);
         }
 
         // called when the local player dragged the white ball.
         // we reuse the white ball's OnMouseDrag and forward the event to here.
         public void OnDraggedBall(Vector3 force)
         {
-            // apply force locally immediately
-            ApplyForceToWhite(force);
+            // apply force on client (not in host mode)
+            if (!isServer) ClientApplyForceToWhite(force);
 
             // apply on server as well.
-            // not necessary in host mode, otherwise we would apply it twice.
-            if (!isServer) CmdApplyForce(force);
+            CmdApplyForce(force);
         }
 
         // while prediction is applied on clients immediately,
@@ -85,7 +84,8 @@ namespace Mirror.Examples.BilliardsPredicted
             }
 
             // apply force
-            ApplyForceToWhite(force);
+            Rigidbody rb = whiteBall.GetComponent<Rigidbody>();
+            rb.AddForce(force, ForceMode.Impulse);
         }
     }
 }
