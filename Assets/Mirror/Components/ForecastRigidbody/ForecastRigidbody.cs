@@ -85,7 +85,6 @@ namespace Mirror
         public Color predictingColor = Color.green;
         public Color blendingColor = Color.yellow;
 
-
         protected virtual void Awake()
         {
             tf = transform;
@@ -119,8 +118,13 @@ namespace Mirror
         public void AddPredictedForce(Vector3 force, ForceMode mode)
         {
             // explicitly start predicting physics
-            predictedRigidbody.isKinematic = false;
+            BeginPredicting();
             predictedRigidbody.AddForce(force, mode);
+        }
+
+        protected void BeginPredicting()
+        {
+            predictedRigidbody.isKinematic = false;
             state = ForecastState.PREDICT;
             if (debugColors) rend.material.color = predictingColor;
             OnBeginPrediction();
@@ -214,6 +218,26 @@ namespace Mirror
             }
 
             RecordState();
+        }
+
+        // while predicting on client, if we hit another object then we need to
+        // start predicting this one too.
+        // otherwise the collision response would be delayed until next server
+        // state to follow comes in.
+        [ClientCallback]
+        void OnCollisionEnter(Collision collision)
+        {
+            // if we are FOLLOWING, then there's nothing to do.
+            if (state == ForecastState.FOLLOW) return;
+
+            // is the other object a ForecastRigidbody?
+            if (!collision.collider.TryGetComponent(out ForecastRigidbody other)) return;
+
+            // is the other object already predicting? then don't call events again.
+            if (other.state != ForecastState.FOLLOW) return;
+
+            // start predicting the other object too.
+            other.BeginPredicting();
         }
 
         // manually store last recorded so we can easily check against this
