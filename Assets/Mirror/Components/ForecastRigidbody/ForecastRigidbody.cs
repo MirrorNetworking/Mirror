@@ -233,33 +233,12 @@ namespace Mirror
 
                 // blend between local and remote position
 
-                // FAST VERSION: this shows in profiler a lot, so cache EVERYTHING!
-                tf.GetPositionAndRotation(out Vector3 currentPosition, out Quaternion currentRotation); // faster than tf.position + tf.rotation
-
-                // perf: only access deltaTime once
-                float deltaTime = Time.deltaTime;
-
-                // smoothly interpolate to the target position.
-                // speed relative to how far away we are.
-                // => speed increases by distance² because the further away, the
-                //    sooner we need to catch the fuck up
-                // float positionStep = (distance * distance) * interpolationSpeed;
-                float distance = Vector3.Distance(currentPosition, lastReceivedState.position);
-                float positionStep = distance * positionBlendingSpeed * deltaTime;
-                Vector3 newPosition = Vector3.MoveTowards(currentPosition, lastReceivedState.position, positionStep);
-
-                // smoothly interpolate to the target rotation.
-                // Quaternion.RotateTowards doesn't seem to work at all, so let's use SLerp.
-                // Quaternions always need to be normalized in order to be a valid rotation after operations
-                Quaternion newRotation = Quaternion.Slerp(currentRotation, lastReceivedState.rotation, rotationBlendingSpeed * deltaTime).normalized;
-
                 if (!RemoteInSameDirection())
                 {
                     // debug draw the delta that we aren't using yet
                     // server state is drawn in OnGizmos
                     if (debugColors)
                     {
-                        Debug.DrawLine(currentPosition, newPosition, blendingBehindColor);
                         rend.material.color = blendingBehindColor;
                     }
                 }
@@ -269,9 +248,29 @@ namespace Mirror
                     // server state is drawn in OnGizmos
                     if (debugColors)
                     {
-                        Debug.DrawLine(currentPosition, newPosition, blendingAheadColor);
                         rend.material.color = blendingAheadColor;
                     }
+
+                    // FAST VERSION: this shows in profiler a lot, so cache EVERYTHING!
+                    tf.GetPositionAndRotation(out Vector3 currentPosition, out Quaternion currentRotation); // faster than tf.position + tf.rotation
+
+                    // perf: only access deltaTime once
+                    float deltaTime = Time.deltaTime;
+
+                    // smoothly interpolate to the target position.
+                    // speed relative to how far away we are.
+                    // => speed increases by distance² because the further away, the
+                    //    sooner we need to catch the fuck up
+                    // float positionStep = (distance * distance) * interpolationSpeed;
+                    float distance = Vector3.Distance(currentPosition, lastReceivedState.position);
+                    float positionStep = distance * positionBlendingSpeed * deltaTime;
+                    Vector3 newPosition = Vector3.MoveTowards(currentPosition, lastReceivedState.position, positionStep);
+
+                    // smoothly interpolate to the target rotation.
+                    // Quaternion.RotateTowards doesn't seem to work at all, so let's use SLerp.
+                    // Quaternions always need to be normalized in order to be a valid rotation after operations
+                    Quaternion newRotation = Quaternion.Slerp(currentRotation, lastReceivedState.rotation, rotationBlendingSpeed * deltaTime).normalized;
+
 
                     // assign position and rotation together. faster than accessing manually.
                     tf.SetPositionAndRotation(newPosition, newRotation);
