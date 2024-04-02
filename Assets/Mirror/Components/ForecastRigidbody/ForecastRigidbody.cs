@@ -41,6 +41,10 @@ namespace Mirror
         ForecastState state = ForecastState.FOLLOWING; // follow until the player interacts
         double predictionStartTime;
 
+        [Header("Dampening")]
+        [Tooltip("Locally applied force is slowed down a bit compared to the server force, to make catch up more smooth.")]
+        [Range(0.05f, 1)] public float localForceDampening = 0.2f; // never 0 to ensure blending ALWAYS catches up instead of same speed
+
         // motion smoothing happen on-demand, because it requires moving physics components to another GameObject.
         // this only starts at a given velocity and ends when stopped moving.
         // to avoid constant on/off/on effects, it also stays on for a minimum time.
@@ -124,6 +128,12 @@ namespace Mirror
         // client prediction API
         public void AddPredictedForce(Vector3 force, ForceMode mode)
         {
+            // apply local force dampening.
+            // client applies a bit less force than the server, so that
+            // catching up to blending state will be easier.
+            // for example: dampening = 0.1 means subtract 10% force
+            force *= (1 - localForceDampening);
+
             // explicitly start predicting physics
             BeginPredicting();
             predictedRigidbody.AddForce(force, mode);
