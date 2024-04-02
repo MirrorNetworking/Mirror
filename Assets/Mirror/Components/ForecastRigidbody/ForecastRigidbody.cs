@@ -21,6 +21,7 @@ namespace Mirror
     public class ForecastRigidbody : NetworkBehaviour
     {
         Transform tf; // this component is performance critical. cache .transform getter!
+        Renderer rend;
 
         // Prediction sometimes moves the Rigidbody to a ghost object.
         // .predictedRigidbody is always kept up to date to wherever the RB is.
@@ -74,17 +75,21 @@ namespace Mirror
         [Tooltip("Snap to the server state directly when velocity is < threshold. This is useful to reduce jitter/fighting effects before coming to rest.\nNote this applies position, rotation and velocity(!) so it's still smooth.")]
         public float snapThreshold = 2; // 0.5 has too much fighting-at-rest, 2 seems ideal.
 
-        [Tooltip("Performance optimization: only create/destroy ghosts every n-th frame is enough.")]
-        public int checkGhostsEveryNthFrame = 4;
-
         [Header("Bandwidth")]
         [Tooltip("Reduce sends while velocity==0. Client's objects may slightly move due to gravity/physics, so we still want to send corrections occasionally even if an object is idle on the server the whole time.")]
         public bool reduceSendsWhileIdle = true;
-        Color originalColor;
+
+        [Header("Debugging")]
+        public bool debugColors = false;
+        Color originalColor = Color.white;
+        public Color predictingColor = Color.green;
+        public Color blendingColor = Color.yellow;
+
 
         protected virtual void Awake()
         {
             tf = transform;
+            rend = GetComponentInChildren<Renderer>();
             predictedRigidbody = GetComponent<Rigidbody>();
             if (predictedRigidbody == null) throw new InvalidOperationException($"Prediction: {name} is missing a Rigidbody component.");
             predictedRigidbodyTransform = predictedRigidbody.transform;
@@ -101,6 +106,9 @@ namespace Mirror
             motionSmoothingVelocityThresholdSqr = motionSmoothingVelocityThreshold * motionSmoothingVelocityThreshold;
             motionSmoothingAngularVelocityThresholdSqr = motionSmoothingAngularVelocityThreshold * motionSmoothingAngularVelocityThreshold;
             positionCorrectionThresholdSqr = positionCorrectionThreshold * positionCorrectionThreshold;
+
+            // save renderer color
+            originalColor = rend.material.color;
         }
 
         // client prediction API
@@ -110,6 +118,7 @@ namespace Mirror
             predictedRigidbody.isKinematic = false;
             predictedRigidbody.AddForce(force, mode);
             state = ForecastState.PREDICT;
+            if (debugColors) rend.material.color = predictingColor;
             OnBeginPrediction();
             Debug.Log($"{name} PREDICTING");
         }

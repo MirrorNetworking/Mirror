@@ -314,6 +314,7 @@ MonoBehaviour:
   rotationCorrectionThreshold: 5
   oneFrameAhead: 1
   snapThreshold: 2
-  checkGhostsEveryNthFrame: 4
-  teleportDistanceMultiplier: 10
   reduceSendsWhileIdle: 1
+  debugColors: 1
+  predictingColor: {r: 0, g: 1, b: 0, a: 1}
+  blendingColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
