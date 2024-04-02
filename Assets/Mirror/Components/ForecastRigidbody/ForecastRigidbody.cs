@@ -66,28 +66,12 @@ namespace Mirror
         [Tooltip("Performance optimization: only create/destroy ghosts every n-th frame is enough.")]
         public int checkGhostsEveryNthFrame = 4;
 
-        [Tooltip("How fast to interpolate to the target position, relative to how far we are away from it.\nHigher value will be more jitter but sharper moves, lower value will be less jitter but a little too smooth / rounded moves.")]
-        public float positionInterpolationSpeed = 15; // 10 is a little too low for billiards at least
-        public float rotationInterpolationSpeed = 10;
-
         [Tooltip("Teleport if we are further than 'multiplier x collider size' behind.")]
         public float teleportDistanceMultiplier = 10;
 
         [Header("Bandwidth")]
         [Tooltip("Reduce sends while velocity==0. Client's objects may slightly move due to gravity/physics, so we still want to send corrections occasionally even if an object is idle on the server the whole time.")]
         public bool reduceSendsWhileIdle = true;
-
-        // Rigidbody & Collider are moved out into a separate object.
-        // this way the visual object can smoothly follow.
-        protected GameObject physicsCopy;
-        // protected Transform physicsCopyTransform; // caching to avoid GetComponent
-        // protected Rigidbody physicsCopyRigidbody => rb; // caching to avoid GetComponent
-        // protected Collider physicsCopyCollider;   // caching to avoid GetComponent
-        float smoothFollowThreshold; // caching to avoid calculation in LateUpdate
-        float smoothFollowThresholdSqr; // caching to avoid calculation in LateUpdate
-
-        // we also create one extra ghost for the exact known server state.
-        protected GameObject remoteCopy;
 
         // joints
         Vector3 initialPosition;
@@ -106,11 +90,6 @@ namespace Mirror
             // in fast mode, we need to force enable Rigidbody.interpolation.
             // otherwise there's not going to be any smoothing whatsoever.
             predictedRigidbody.interpolation = RigidbodyInterpolation.Interpolate;
-
-            // cache some threshold to avoid calculating them in LateUpdate
-            float colliderSize = GetComponentInChildren<Collider>().bounds.size.magnitude;
-            smoothFollowThreshold = colliderSize * teleportDistanceMultiplier;
-            smoothFollowThresholdSqr = smoothFollowThreshold * smoothFollowThreshold;
 
             // cache initial position/rotation/scale to be used when moving physics components (configurable joints' range of motion)
             initialPosition = tf.position;
@@ -148,7 +127,7 @@ namespace Mirror
                 }
             }
             // if we didn't find a renderer, show a warning
-            else Debug.LogWarning($"PredictedRigidbody: {name} found no renderer to copy onto the visual object. If you are using a custom setup, please overwrite PredictedRigidbody.CreateVisualCopy().");
+            else Debug.LogWarning($"ForecastRigidbody: {name} found no renderer to copy onto the visual object. If you are using a custom setup, please overwrite ForecastRigidbody.CreateVisualCopy().");
         }
 
         void UpdateServer()
@@ -402,22 +381,6 @@ namespace Mirror
         // compares it against our history and applies corrections if needed.
         void OnReceivedState(double timestamp, RigidbodyState state)//, bool sleeping)
         {
-            // always update remote state ghost
-            if (remoteCopy != null)
-            {
-                Transform remoteCopyTransform = remoteCopy.transform;
-                remoteCopyTransform.SetPositionAndRotation(state.position, state.rotation); // faster than .position + .rotation setters
-                remoteCopyTransform.localScale = tf.lossyScale; // world scale! see CreateGhosts comment.
-            }
-
-
-            // DO NOT SYNC SLEEPING! this cuts benchmark performance in half(!!!)
-            // color code remote sleeping objects to debug objects coming to rest
-            // if (showRemoteSleeping)
-            // {
-            //     rend.material.color = sleeping ? Color.gray : originalColor;
-            // }
-
             // performance: get Rigidbody position & rotation only once,
             // and together via its transform
             predictedRigidbodyTransform.GetPositionAndRotation(out Vector3 physicsPosition, out Quaternion physicsRotation);
@@ -645,40 +608,28 @@ namespace Mirror
         }
 
         // helper function for Physics tests to check if a Rigidbody belongs to
-        // a PredictedRigidbody component (either on it, or on its ghost).
-        public static bool IsPredicted(Rigidbody rb, out PredictedRigidbody predictedRigidbody)
+        // a ForecastRigidbody component (either on it, or on its ghost).
+        public static bool IsPredicted(Rigidbody rb, out ForecastRigidbody predictedRigidbody)
         {
-            // by default, Rigidbody is on the PredictedRigidbody GameObject
+            // by default, Rigidbody is on the ForecastRigidbody GameObject
             if (rb.TryGetComponent(out predictedRigidbody))
                 return true;
 
-            // it might be on a ghost while interacting
-            if (rb.TryGetComponent(out PredictedRigidbodyPhysicsGhost ghost))
-            {
-                predictedRigidbody = ghost.target.GetComponent<PredictedRigidbody>();
-                return true;
-            }
-
-            // otherwise the Rigidbody does not belong to any PredictedRigidbody.
+            // otherwise the Rigidbody does not belong to any ForecastRigidbody.
             predictedRigidbody = null;
             return false;
         }
 
         // helper function for Physics tests to check if a Collider (which may be in children) belongs to
-        // a PredictedRigidbody component (either on it, or on its ghost).
-        public static bool IsPredicted(Collider co, out PredictedRigidbody predictedRigidbody)
+        // a ForecastRigidbody component (either on it, or on its ghost).
+        public static bool IsPredicted(Collider co, out ForecastRigidbody predictedRigidbody)
         {
-            // by default, Collider is on the PredictedRigidbody GameObject or it's children.
-            predictedRigidbody = co.GetComponentInParent<PredictedRigidbody>();
+            // by default, Collider is on the ForecastRigidbody GameObject or it's children.
+            predictedRigidbody = co.GetComponentInParent<ForecastRigidbody>();
             if (predictedRigidbody != null)
                 return true;
 
-            // it might be on a ghost while interacting
-            PredictedRigidbodyPhysicsGhost ghost = co.GetComponentInParent<PredictedRigidbodyPhysicsGhost>();
-            if (ghost != null && ghost.target != null && ghost.target.TryGetComponent(out predictedRigidbody))
-                return true;
-
-            // otherwise the Rigidbody does not belong to any PredictedRigidbody.
+            // otherwise the Rigidbody does not belong to any ForecastRigidbody.
             predictedRigidbody = null;
             return false;
         }
