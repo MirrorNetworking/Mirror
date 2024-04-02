@@ -511,7 +511,7 @@ namespace Mirror
                 // this is the idea of ForecastRigidbody.
                 // TODO once we are at server state, let snapshot interpolation take over.
                 RigidbodyState blended = RigidbodyState.Interpolate(recomputed, state, blendPerSync);
-                Debug.DrawLine(recomputed.position, blended.position, Color.red, 10.0f);
+                Debug.DrawLine(recomputed.position, blended.position, Color.green, 10.0f);
 
                 // log, draw & apply the final position.
                 // always do this here, not when iterating above, in case we aren't iterating.
