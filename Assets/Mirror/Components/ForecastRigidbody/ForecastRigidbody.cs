@@ -321,7 +321,11 @@ namespace Mirror
             // the other object is in FOLLOWING mode (kinematic).
             // PhysX will register the collision, but not add the collision force while kinematic.
             // we need to add the force manually, which will also begin predicting it.
-            other.AddPredictedForce(-collision.impulse, ForceMode.Impulse);
+            // => collision.impulse is sometimes from A->B and sometimes B->A.
+            // => we need to calculate the direction manually to always be A->B.
+            Vector3 direction = other.transform.position - transform.position;
+            Vector3 impulse = direction.normalized * collision.impulse.magnitude;
+            other.AddPredictedForce(impulse, ForceMode.Impulse);
         }
 
         // optional user callbacks, in case people need to know about events.
