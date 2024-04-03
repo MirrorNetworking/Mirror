@@ -269,9 +269,8 @@ namespace Mirror
                 Debug.Log($"{name} BLENDING @ {blendingElapsed:F2} / {blendingTime:F2} => {(p*100):F0}%");
 
                 // blend local position to remote position
-
-                // FAST VERSION: this shows in profiler a lot, so cache EVERYTHING!
-                tf.GetPositionAndRotation(out Vector3 currentPosition, out Quaternion currentRotation); // faster than tf.position + tf.rotation
+                Vector3 currentPosition = predictedRigidbody.position;
+                Quaternion currentRotation = predictedRigidbody.rotation;
 
                 // smoothly interpolate to the target position.
                 // speed relative to how far away we are.
