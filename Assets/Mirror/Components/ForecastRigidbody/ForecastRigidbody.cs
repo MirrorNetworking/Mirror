@@ -33,8 +33,10 @@ namespace Mirror
         Vector3 lastPosition;
 
         [Header("Blending")]
-        [Tooltip("Blend for multiplier x syncinterval time before hard following the server state again.")]
-        public float blendTime = 0.500f; // TODO multiples of syncinterval?
+        [Tooltip("Blend to remote state over this period of time, accelerating the blending exponentially.")]
+        public float blendingTime = 0.500f;
+        [Tooltip("Blending speed over time from 0 to 1. Exponential is recommended.")]
+        public AnimationCurve blendingCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
         [Tooltip("How fast to interpolate to the target position, relative to how far we are away from it.\nHigher value will be more jitter but sharper moves, lower value will be less jitter but a little too smooth / rounded moves.")]
         public float positionBlendingSpeed = 15; // 10 is a little too low for billiards at least
         public float rotationBlendingSpeed = 10;
@@ -95,8 +97,7 @@ namespace Mirror
         public bool debugColors = false;
         Color originalColor = Color.white;
         public Color predictingColor = Color.green;
-        public Color blendingBehindColor = Color.gray;  // when trying to blend but it's still behind us so we ignore it to not jitter
-        public Color blendingAheadColor = Color.yellow; // when actually interpolating towards a blend in front of us
+        public Color blendingColor = Color.yellow; // when actually interpolating towards a blend in front of us
 
         protected virtual void Awake()
         {
@@ -153,6 +154,7 @@ namespace Mirror
         }
 
         double blendingStartTime;
+        float BlendingElapsedTime() => (float)(NetworkTime.time - blendingStartTime);
         protected void BeginBlending()
         {
             state = ForecastState.BLENDING;
@@ -215,7 +217,6 @@ namespace Mirror
             return !opposite;
         }
 
-
         // when using Fast mode, we don't create any ghosts.
         // but we still want to check IsMoving() in order to support the same
         // user callbacks.
@@ -234,7 +235,20 @@ namespace Mirror
                 // TODO snapshot interpolation
 
                 // blend between local and remote position
+                // set debug color
+                if (debugColors)
+                {
+                    rend.material.color = blendingColor;
+                }
 
+                // sample the blending curve to find out how much to blend right now
+                float blendingElapsed = BlendingElapsedTime();
+                float relativeElapsed = blendingElapsed / blendingTime;
+                float p = blendingCurve.Evaluate(relativeElapsed);
+                Debug.Log($"{name} BLENDING @ {blendingElapsed:F2} / {blendingTime:F2} => {(p*100):F0}%");
+
+
+                /*
                 if (!RemoteInSameDirection())
                 {
                     // debug draw the delta that we aren't using yet
@@ -284,7 +298,7 @@ namespace Mirror
                     {
                         BeginFollow();
                     }
-                }
+                }*/
             }
             else if (state == ForecastState.FOLLOWING)
             {
@@ -336,7 +350,7 @@ namespace Mirror
             // draw server state while blending
             if (state == ForecastState.BLENDING)
             {
-                Gizmos.color = RemoteInSameDirection() ?  blendingAheadColor : blendingBehindColor;
+                Gizmos.color = blendingColor;
                 Gizmos.DrawWireCube(lastReceivedState.position, col.bounds.size);
             }
         }
