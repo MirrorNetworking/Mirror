@@ -176,8 +176,8 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   localForceDampening: 0.2
-  collisionChaining: 0
-  maxCollisionChainingDepth: 2
+  collisionChaining: 1
+  maxCollisionChainingDepth: 1
   velocitySensitivity: 0.1
   angularVelocitySensitivity: 5
   oneFrameAhead: 1
