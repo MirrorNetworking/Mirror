@@ -57,14 +57,6 @@ namespace Mirror
         public float motionSmoothingTimeTolerance = 0.5f;
         double motionSmoothingLastMovedTime;
 
-        // client keeps state history for correction & reconciliation.
-        // this needs to be a SortedList because we need to be able to insert inbetween.
-        // => RingBuffer: see prediction_ringbuffer_2 branch, but it's slower!
-        [Header("State History")]
-        public int stateHistoryLimit = 32; // 32 x 50 ms = 1.6 seconds is definitely enough
-        readonly SortedList<double, RigidbodyState> stateHistory = new SortedList<double, RigidbodyState>();
-        public float recordInterval = 0.050f;
-
         [Header("Reconciliation")]
         [Tooltip("Correction threshold in meters. For example, 0.1 means that if the client is off by more than 10cm, it gets corrected.")]
         public double positionCorrectionThreshold = 0.10;
