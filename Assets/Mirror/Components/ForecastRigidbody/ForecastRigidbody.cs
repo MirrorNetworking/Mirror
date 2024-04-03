@@ -45,6 +45,10 @@ namespace Mirror
         [Tooltip("Locally applied force is slowed down a bit compared to the server force, to make catch up more smooth.")]
         [Range(0.05f, 1)] public float localForceDampening = 0.2f; // never 0 to ensure blending ALWAYS catches up instead of same speed
 
+        [Header("Collision Chaining")]
+        [Tooltip("Enable to have actively predicted Rigidbodies activate other Rigidbodies they collide with.")]
+        public bool collisionChaining = true;
+
         // motion smoothing happen on-demand, because it requires moving physics components to another GameObject.
         // this only starts at a given velocity and ends when stopped moving.
         // to avoid constant on/off/on effects, it also stays on for a minimum time.
@@ -300,6 +304,9 @@ namespace Mirror
         [ClientCallback]
         void OnCollisionEnter(Collision collision)
         {
+            // is collision chaining enabled?
+            if (!collisionChaining) return;
+
             // if we are FOLLOWING, then there's nothing to do.
             if (state == ForecastState.FOLLOWING) return;
 
