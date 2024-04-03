@@ -26,7 +26,7 @@ namespace Mirror.Examples.PredictionBenchmark
                         // apply force in a random direction, this looks best
                         Debug.Log($"Applying force to: {hit.collider.name}");
                         Vector3 impulse = Random.insideUnitSphere * force;
-                        predicted.predictedRigidbody.AddForce(impulse, ForceMode.Impulse);
+                        predicted.AddPredictedForce(impulse, ForceMode.Impulse);
                         CmdApplyForce(predicted.netIdentity, impulse);
                     }
                 }
