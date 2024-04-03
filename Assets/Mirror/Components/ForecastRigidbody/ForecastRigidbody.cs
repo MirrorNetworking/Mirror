@@ -144,9 +144,11 @@ namespace Mirror
             predictedRigidbody.isKinematic = false; // full physics sync
             state = ForecastState.PREDICTING;
             if (debugColors) rend.material.color = predictingColor;
-            predictionStartTime = NetworkTime.time;
+            // we want to predict until the first server state for our [Command] AddForce came in.
+            // we know the time when our [Command] arrives on server: NetworkTime.predictedTime.
+            predictionStartTime = NetworkTime.predictedTime; // !!! not .time !!!
             OnBeginPrediction();
-            Debug.Log($"{name} BEGIN PREDICTING");
+            Debug.Log($"{name} BEGIN PREDICTING @ {predictionStartTime:F2}");
         }
 
         double blendingStartTime;
@@ -221,8 +223,15 @@ namespace Mirror
             if (state == ForecastState.PREDICTING)
             {
                 // we want to predict until the first server state came in.
+                // -> our [Command] AddForce is sent locally.
+                // -> predictionStartTime was set to NetworkTime.predictedTime,
+                //    which is the time on server when the [Command] will arrive.
+                // -> we want to wait until the last received is at least >= start time.
+                // TODO add a safety buffer on top to make sure it's the state after [Command]?
+                //      but technically doesn't make a difference if it just barely moved anyway.
                 if (lastReceivedState.timestamp > predictionStartTime)
                 {
+                    Debug.Log($"{name} END PREDICTING because received state = {lastReceivedState.timestamp:F2} > prediction start = {predictionStartTime:F2}");
                     BeginBlending();
                 }
             }
