@@ -65,12 +65,6 @@ namespace Mirror
         readonly SortedList<double, RigidbodyState> stateHistory = new SortedList<double, RigidbodyState>();
         public float recordInterval = 0.050f;
 
-        [Tooltip("(Optional) performance optimization where FixedUpdate.RecordState() only inserts state into history if the state actually changed.\nThis is generally a good idea.")]
-        public bool onlyRecordChanges = true;
-
-        [Tooltip("(Optional) performance optimization where received state is compared to the LAST recorded state first, before sampling the whole history.\n\nThis can save significant traversal overhead for idle objects with a tiny chance of missing corrections for objects which revisisted the same position in the recent history twice.")]
-        public bool compareLastFirst = true;
-
         [Header("Reconciliation")]
         [Tooltip("Correction threshold in meters. For example, 0.1 means that if the client is off by more than 10cm, it gets corrected.")]
         public double positionCorrectionThreshold = 0.10;
@@ -80,10 +74,6 @@ namespace Mirror
 
         [Tooltip("Applying server corrections one frame ahead gives much better results. We don't know why yet, so this is an option for now.")]
         public bool oneFrameAhead = true;
-
-        [Header("Smoothing")]
-        [Tooltip("Snap to the server state directly when velocity is < threshold. This is useful to reduce jitter/fighting effects before coming to rest.\nNote this applies position, rotation and velocity(!) so it's still smooth.")]
-        public float snapThreshold = 2; // 0.5 has too much fighting-at-rest, 2 seems ideal.
 
         [Header("Bandwidth")]
         [Tooltip("Reduce sends while velocity==0. Client's objects may slightly move due to gravity/physics, so we still want to send corrections occasionally even if an object is idle on the server the whole time.")]
@@ -257,9 +247,6 @@ namespace Mirror
                 // FAST VERSION: this shows in profiler a lot, so cache EVERYTHING!
                 tf.GetPositionAndRotation(out Vector3 currentPosition, out Quaternion currentRotation); // faster than tf.position + tf.rotation
 
-                // perf: only access deltaTime once
-                float deltaTime = Time.deltaTime;
-
                 // smoothly interpolate to the target position.
                 // speed relative to how far away we are.
                 // => speed increases by distance² because the further away, the
@@ -350,29 +337,6 @@ namespace Mirror
             // this is cheap, and allows us to keep a dense history.
             if (!isClientOnly) return;
 
-            // OPTIMIZATION: RecordState() is expensive because it inserts into a SortedList.
-            // only record if state actually changed!
-            // risks not having up to date states when correcting,
-            // but it doesn't matter since we'll always compare with the 'newest' anyway.
-            //
-            // we check in here instead of in RecordState() because RecordState() should definitely record if we call it!
-            if (onlyRecordChanges)
-            {
-                // TODO maybe don't reuse the correction thresholds?
-                tf.GetPositionAndRotation(out Vector3 position, out Quaternion rotation);
-                // clean & simple:
-                // if (Vector3.Distance(lastRecorded.position, position) < positionCorrectionThreshold &&
-                //     Quaternion.Angle(lastRecorded.rotation, rotation) < rotationCorrectionThreshold)
-                // faster:
-                if ((lastRecorded.position - position).sqrMagnitude < positionCorrectionThresholdSqr &&
-                    Quaternion.Angle(lastRecorded.rotation, rotation) < rotationCorrectionThreshold)
-                {
-                    // Debug.Log($"FixedUpdate for {name}: taking optimized early return instead of recording state.");
-                    return;
-                }
-            }
-
-            RecordState();
         }
 
         void OnDrawGizmos()
@@ -404,82 +368,6 @@ namespace Mirror
 
             // start predicting the other object too.
             other.BeginPredicting();
-        }
-
-        // manually store last recorded so we can easily check against this
-        // without traversing the SortedList.
-        RigidbodyState lastRecorded;
-        double lastRecordTime;
-        void RecordState()
-        {
-            // performance optimization: only call NetworkTime.time getter once
-            double networkTime = NetworkTime.time;
-
-            // instead of recording every fixedupdate, let's record in an interval.
-            // we don't want to record every tiny move and correct too hard.
-            if (networkTime < lastRecordTime + recordInterval) return;
-            lastRecordTime = networkTime;
-
-            // NetworkTime.time is always behind by bufferTime.
-            // prediction aims to be on the exact same server time (immediately).
-            // use predictedTime to record state, otherwise we would record in the past.
-            double predictedTime = NetworkTime.predictedTime;
-
-            // FixedUpdate may run twice in the same frame / NetworkTime.time.
-            // for now, simply don't record if already recorded there.
-            // previously we checked ContainsKey which is O(logN) for SortedList
-            //   if (stateHistory.ContainsKey(predictedTime))
-            //       return;
-            // instead, simply store the last recorded time and don't insert if same.
-            if (predictedTime == lastRecorded.timestamp) return;
-
-            // keep state history within limit
-            if (stateHistory.Count >= stateHistoryLimit)
-                stateHistory.RemoveAt(0);
-
-            // grab current position/rotation/velocity only once.
-            // this is performance critical, avoid calling .transform multiple times.
-            tf.GetPositionAndRotation(out Vector3 currentPosition, out Quaternion currentRotation); // faster than accessing .position + .rotation manually
-            Vector3 currentVelocity = predictedRigidbody.velocity;
-            Vector3 currentAngularVelocity = predictedRigidbody.angularVelocity;
-
-            // calculate delta to previous state (if any)
-            Vector3 positionDelta = Vector3.zero;
-            Vector3 velocityDelta = Vector3.zero;
-            Vector3 angularVelocityDelta = Vector3.zero;
-            Quaternion rotationDelta = Quaternion.identity;
-            int stateHistoryCount = stateHistory.Count; // perf: only grab .Count once
-            if (stateHistoryCount > 0)
-            {
-                RigidbodyState last = stateHistory.Values[stateHistoryCount - 1];
-                positionDelta = currentPosition - last.position;
-                velocityDelta = currentVelocity - last.velocity;
-                // Quaternions always need to be normalized in order to be valid rotations after operations
-                rotationDelta = (currentRotation * Quaternion.Inverse(last.rotation)).normalized;
-                angularVelocityDelta = currentAngularVelocity - last.angularVelocity;
-
-                // debug draw the recorded state
-                // Debug.DrawLine(last.position, currentPosition, Color.red, lineTime);
-            }
-
-            // create state to insert
-            RigidbodyState state = new RigidbodyState(
-                predictedTime,
-                positionDelta,
-                currentPosition,
-                rotationDelta,
-                currentRotation,
-                velocityDelta,
-                currentVelocity,
-                angularVelocityDelta,
-                currentAngularVelocity
-            );
-
-            // add state to history
-            stateHistory.Add(predictedTime, state);
-
-            // manually remember last inserted state for faster .Last comparisons
-            lastRecorded = state;
         }
 
         // optional user callbacks, in case people need to know about events.
