@@ -33,8 +33,9 @@ namespace Mirror
         Vector3 lastPosition;
 
         [Header("Blending")]
-        [Tooltip("Blend to remote state over this period of time, accelerating the blending exponentially.")]
-        public float blendingTime = 0.500f;
+        [Tooltip("Blend to remote state over a N * rtt time.\n  For a 200ms ping, we blend over N * 200ms.\n  For 20ms ping, we blend over N * 20 ms.")]
+        public float blendingRttMultiplier = 3;
+        public float blendingTime => (float)NetworkTime.rtt * blendingRttMultiplier;
         [Tooltip("Blending speed over time from 0 to 1. Exponential is recommended.")]
         public AnimationCurve blendingCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
         ForecastState state = ForecastState.FOLLOWING; // follow until the player interacts
