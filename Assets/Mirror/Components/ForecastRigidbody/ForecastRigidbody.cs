@@ -48,21 +48,13 @@ namespace Mirror
         // motion smoothing happen on-demand, because it requires moving physics components to another GameObject.
         // this only starts at a given velocity and ends when stopped moving.
         // to avoid constant on/off/on effects, it also stays on for a minimum time.
-        [Header("Motion Smoothing")]
-        [Tooltip("Smoothing via Ghost-following only happens on demand, while moving with a minimum velocity.")]
-        public float motionSmoothingVelocityThreshold = 0.1f;
-        float motionSmoothingVelocityThresholdSqr; // ² cached in Awake
-        public float motionSmoothingAngularVelocityThreshold = 5.0f; // Billiards demo: 0.1 is way too small, takes forever for IsMoving()==false
-        float motionSmoothingAngularVelocityThresholdSqr; // ² cached in Awake
-        public float motionSmoothingTimeTolerance = 0.5f;
-        double motionSmoothingLastMovedTime;
-
-        [Header("Reconciliation")]
-        [Tooltip("Correction threshold in meters. For example, 0.1 means that if the client is off by more than 10cm, it gets corrected.")]
-        public double positionCorrectionThreshold = 0.10;
-        double positionCorrectionThresholdSqr; // ² cached in Awake
-        [Tooltip("Correction threshold in degrees. For example, 5 means that if the client is off by more than 5 degrees, it gets corrected.")]
-        public double rotationCorrectionThreshold = 5;
+        [Header("Sleeping")]
+        [Tooltip("Low send rate until velocity is above this threshold.")]
+        public float velocitySensitivity = 0.1f;
+        float velocitySensitivitySqr; // ² cached in Awake
+        [Tooltip("Low send rate until angular velocity is above this threshold.")]
+        public float angularVelocitySensitivity = 5.0f; // Billiards demo: 0.1 is way too small, takes forever for IsMoving()==false
+        float angularVelocitySensitivitySqr; // ² cached in Awake
 
         [Tooltip("Applying server corrections one frame ahead gives much better results. We don't know why yet, so this is an option for now.")]
         public bool oneFrameAhead = true;
@@ -92,9 +84,8 @@ namespace Mirror
             predictedRigidbody.interpolation = RigidbodyInterpolation.Interpolate;
 
             // cache computations
-            motionSmoothingVelocityThresholdSqr = motionSmoothingVelocityThreshold * motionSmoothingVelocityThreshold;
-            motionSmoothingAngularVelocityThresholdSqr = motionSmoothingAngularVelocityThreshold * motionSmoothingAngularVelocityThreshold;
-            positionCorrectionThresholdSqr = positionCorrectionThreshold * positionCorrectionThreshold;
+            velocitySensitivitySqr = velocitySensitivity * velocitySensitivity;
+            angularVelocitySensitivitySqr = angularVelocitySensitivity * angularVelocitySensitivity;
 
             // save renderer color
             originalColor = rend.material.color;
@@ -183,8 +174,8 @@ namespace Mirror
             //   predictedRigidbody.velocity.magnitude >= motionSmoothingVelocityThreshold ||
             //   predictedRigidbody.angularVelocity.magnitude >= motionSmoothingAngularVelocityThreshold;
             // faster implementation with cached ²
-            predictedRigidbody.velocity.sqrMagnitude >= motionSmoothingVelocityThresholdSqr ||
-            predictedRigidbody.angularVelocity.sqrMagnitude >= motionSmoothingAngularVelocityThresholdSqr;
+            predictedRigidbody.velocity.sqrMagnitude >= velocitySensitivitySqr ||
+            predictedRigidbody.angularVelocity.sqrMagnitude >= angularVelocitySensitivitySqr;
 
         // check if following the remote state would move us backwards, or forward.
         // we never want to interpolate backwards.
