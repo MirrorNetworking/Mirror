@@ -121,7 +121,7 @@ namespace Mirror
             // we know the time when our [Command] arrives on server: NetworkTime.predictedTime.
             predictionStartTime = NetworkTime.predictedTime; // !!! not .time !!!
             OnBeginPrediction();
-            Debug.Log($"{name} BEGIN PREDICTING @ {predictionStartTime:F2}");
+            // Debug.Log($"{name} BEGIN PREDICTING @ {predictionStartTime:F2}");
         }
 
         double blendingStartTime;
@@ -132,7 +132,7 @@ namespace Mirror
             // if (debugColors) rend.material.color = blendingAheadColor; set in update depending on ahead/behind
             blendingStartTime = NetworkTime.time;
             OnBeginBlending();
-            Debug.Log($"{name} BEGIN BLENDING");
+            // Debug.Log($"{name} BEGIN BLENDING");
         }
 
         protected void BeginFollowing()
@@ -141,7 +141,7 @@ namespace Mirror
             state = ForecastState.FOLLOWING;
             if (debugColors) rend.material.color = originalColor;
             OnBeginFollow();
-            Debug.Log($"{name} BEGIN FOLLOW");
+            // Debug.Log($"{name} BEGIN FOLLOW");
         }
 
         void UpdateServer()
@@ -177,17 +177,6 @@ namespace Mirror
             predictedRigidbody.velocity.sqrMagnitude >= velocitySensitivitySqr ||
             predictedRigidbody.angularVelocity.sqrMagnitude >= angularVelocitySensitivitySqr;
 
-        // check if following the remote state would move us backwards, or forward.
-        // we never want to interpolate backwards.
-        bool RemoteInSameDirection()
-        {
-            Vector3 direction = lastReceivedState.position - transform.position;
-
-            // is this in the direction we are going, or behind us (the opposite)?
-            bool opposite = Vector3.Dot(direction, predictedRigidbody.velocity) < 0;
-            return !opposite;
-        }
-
         // when using Fast mode, we don't create any ghosts.
         // but we still want to check IsMoving() in order to support the same
         // user callbacks.
@@ -204,7 +193,7 @@ namespace Mirror
                 //      but technically doesn't make a difference if it just barely moved anyway.
                 if (lastReceivedState.timestamp > predictionStartTime)
                 {
-                    Debug.Log($"{name} END PREDICTING because received state = {lastReceivedState.timestamp:F2} > prediction start = {predictionStartTime:F2}");
+                    // Debug.Log($"{name} END PREDICTING because received state = {lastReceivedState.timestamp:F2} > prediction start = {predictionStartTime:F2}");
                     BeginBlending();
                 }
             }
@@ -249,7 +238,7 @@ namespace Mirror
                 float blendingElapsed = BlendingElapsedTime();
                 float relativeElapsed = blendingElapsed / blendingTime;
                 float p = blendingCurve.Evaluate(relativeElapsed);
-                Debug.Log($"{name} BLENDING @ {blendingElapsed:F2} / {blendingTime:F2} => {(p*100):F0}%");
+                // Debug.Log($"{name} BLENDING @ {blendingElapsed:F2} / {blendingTime:F2} => {(p*100):F0}%");
 
                 // blend local position to remote position
                 Vector3 currentPosition = predictedRigidbody.position;
@@ -276,7 +265,7 @@ namespace Mirror
                 // transition to FOLLOWING once p = 100%
                 if (p >= 1)
                 {
-                    Debug.Log($"{name} END BLENDING");
+                    // Debug.Log($"{name} END BLENDING");
                     BeginFollowing();
                 }
             }
@@ -313,7 +302,7 @@ namespace Mirror
 
             // is the other object a ForecastRigidbody?
             if (!collision.collider.TryGetComponent(out ForecastRigidbody other)) return;
-            Debug.Log($"{name} @ {state} collided with {other.name} @ {other.state}");
+            // Debug.Log($"{name} @ {state} collided with {other.name} @ {other.state}");
 
             // is the other object already predicting? then don't call events again.
             if (other.state != ForecastState.FOLLOWING) return;
@@ -335,72 +324,6 @@ namespace Mirror
         protected virtual void OnBeginBlending() {}
         protected virtual void OnBeginFollow() {}
 
-        void ApplyState(double timestamp, Vector3 position, Quaternion rotation, Vector3 velocity, Vector3 angularVelocity)
-        {
-            /*
-            // fix rigidbodies seemingly dancing in place instead of coming to rest.
-            // hard snap to the position below a threshold velocity.
-            // this is fine because the visual object still smoothly interpolates to it.
-            // => consider both velocity and angular velocity (in case of Rigidbodies only rotating with joints etc.)
-            if (predictedRigidbody.velocity.magnitude <= snapThreshold &&
-                predictedRigidbody.angularVelocity.magnitude <= snapThreshold)
-            {
-                // Debug.Log($"Prediction: snapped {name} into place because velocity {predictedRigidbody.velocity.magnitude:F3} <= {snapThreshold:F3}");
-
-                // apply server state immediately.
-                // important to apply velocity as well, instead of Vector3.zero.
-                // in case an object is still slightly moving, we don't want it
-                // to stop and start moving again on client - slide as well here.
-                predictedRigidbody.position = position;
-                predictedRigidbody.rotation = rotation;
-                // projects may keep Rigidbodies as kinematic sometimes. in that case, setting velocity would log an error
-                if (!predictedRigidbody.isKinematic)
-                {
-                    predictedRigidbody.velocity = velocity;
-                    predictedRigidbody.angularVelocity = angularVelocity;
-                }
-
-                // clear history and insert the exact state we just applied.
-                // this makes future corrections more accurate.
-                stateHistory.Clear();
-                stateHistory.Add(timestamp, new RigidbodyState(
-                    timestamp,
-                    Vector3.zero,
-                    position,
-                    Quaternion.identity,
-                    rotation,
-                    Vector3.zero,
-                    velocity,
-                    Vector3.zero,
-                    angularVelocity
-                ));
-
-                // user callback
-                OnSnappedIntoPlace();
-                return;
-            }
-            */
-
-            // we have a callback for snapping into place (above).
-            // we also need one for corrections without snapping into place.
-            // call it before applying pos/rot/vel in case we need to set kinematic etc.
-            OnBeforeApplyState();
-
-            // apply the state to the Rigidbody
-            // Fast mode doesn't separate physics from rendering.
-            // The only smoothing we get is from Rigidbody.MovePosition.
-            predictedRigidbody.MovePosition(position);
-            predictedRigidbody.MoveRotation(rotation);
-
-            // there's only one way to set velocity.
-            // (projects may keep Rigidbodies as kinematic sometimes. in that case, setting velocity would log an error)
-            if (!predictedRigidbody.isKinematic)
-            {
-                predictedRigidbody.velocity = velocity;
-                predictedRigidbody.angularVelocity = angularVelocity;
-            }
-        }
-
         // process a received server state.
         // compares it against our history and applies corrections if needed.
         RigidbodyState lastReceivedState;
@@ -408,155 +331,6 @@ namespace Mirror
         {
             // store last time
             lastReceivedState = data;
-
-
-            /*
-
-            // performance: get Rigidbody position & rotation only once,
-            // and together via its transform
-            predictedRigidbodyTransform.GetPositionAndRotation(out Vector3 physicsPosition, out Quaternion physicsRotation);
-
-            // OPTIONAL performance optimization when comparing idle objects.
-            // even idle objects will have a history of ~32 entries.
-            // sampling & traversing through them is unnecessarily costly.
-            // instead, compare directly against the current rigidbody position!
-            // => this is technically not 100% correct if an object runs in
-            //    circles where it may revisit the same position twice.
-            // => but practically, objects that didn't move will have their
-            //    whole history look like the last inserted state.
-            // => comparing against that is free and gives us a significant
-            //    performance saving vs. a tiny chance of incorrect results due
-            //    to objects running in circles.
-            // => the RecordState() call below is expensive too, so we want to
-            //    do this before even recording the latest state. the only way
-            //    to do this (in case last recorded state is too old), is to
-            //    compare against live rigidbody.position without any recording.
-            //    this is as fast as it gets for skipping idle objects.
-            //
-            // if this ever causes issues, feel free to disable it.
-            float positionToStateDistanceSqr = Vector3.SqrMagnitude(state.position - physicsPosition);
-            if (compareLastFirst &&
-                // Vector3.Distance(state.position, physicsPosition) < positionCorrectionThreshold && // slow comparison
-                positionToStateDistanceSqr < positionCorrectionThresholdSqr &&                               // fast comparison
-                Quaternion.Angle(state.rotation, physicsRotation) < rotationCorrectionThreshold)
-            {
-                // Debug.Log($"OnReceivedState for {name}: taking optimized early return!");
-                return;
-            }
-
-            // we only capture state every 'interval' milliseconds.
-            // so the newest entry in 'history' may be up to 'interval' behind 'now'.
-            // if there's no latency, we may receive a server state for 'now'.
-            // sampling would fail, if we haven't recorded anything in a while.
-            // to solve this, always record the current state when receiving a server state.
-            RecordState();
-
-            // correction requires at least 2 existing states for 'before' and 'after'.
-            // if we don't have two yet, drop this state and try again next time once we recorded more.
-            if (stateHistory.Count < 2) return;
-
-            RigidbodyState oldest = stateHistory.Values[0];
-            RigidbodyState newest = stateHistory.Values[stateHistory.Count - 1];
-
-            // edge case: is the state older than the oldest state in history?
-            // this can happen if the client gets so far behind the server
-            // that it doesn't have a recored history to sample from.
-            // in that case, we should hard correct the client.
-            // otherwise it could be out of sync as long as it's too far behind.
-            if (state.timestamp < oldest.timestamp)
-            {
-                // when starting, client may only have 2-3 states in history.
-                // it's expected that server states would be behind those 2-3.
-                // only show a warning if it's behind the full history limit!
-                if (stateHistory.Count >= stateHistoryLimit)
-                    Debug.LogWarning($"Hard correcting client object {name} because the client is too far behind the server. History of size={stateHistory.Count} @ t={timestamp:F3} oldest={oldest.timestamp:F3} newest={newest.timestamp:F3}. This would cause the client to be out of sync as long as it's behind.");
-
-                // force apply the state
-                ApplyState(state.timestamp, state.position, state.rotation, state.velocity, state.angularVelocity);
-                return;
-            }
-
-            // edge case: is it newer than the newest state in history?
-            // this can happen if client's predictedTime predicts too far ahead of the server.
-            // in that case, log a warning for now but still apply the correction.
-            // otherwise it could be out of sync as long as it's too far ahead.
-            //
-            // for example, when running prediction on the same machine with near zero latency.
-            // when applying corrections here, this looks just fine on the local machine.
-            if (newest.timestamp < state.timestamp)
-            {
-                // the correction is for a state in the future.
-                // we clamp it to 'now'.
-                // but only correct if off by threshold.
-                // TODO maybe we should interpolate this back to 'now'?
-                // if (Vector3.Distance(state.position, physicsPosition) >= positionCorrectionThreshold) // slow comparison
-                if (positionToStateDistanceSqr >= positionCorrectionThresholdSqr) // fast comparison
-                {
-                    // this can happen a lot when latency is ~0. logging all the time allocates too much and is too slow.
-                    // double ahead = state.timestamp - newest.timestamp;
-                    // Debug.Log($"Hard correction because the client is ahead of the server by {(ahead*1000):F1}ms. History of size={stateHistory.Count} @ t={timestamp:F3} oldest={oldest.timestamp:F3} newest={newest.timestamp:F3}. This can happen when latency is near zero, and is fine unless it shows jitter.");
-                    ApplyState(state.timestamp, state.position, state.rotation, state.velocity, state.angularVelocity);
-                }
-                return;
-            }
-
-            // find the two closest client states between timestamp
-            if (!Prediction.Sample(stateHistory, timestamp, out RigidbodyState before, out RigidbodyState after, out int afterIndex, out double t))
-            {
-                // something went very wrong. sampling should've worked.
-                // hard correct to recover the error.
-                Debug.LogError($"Failed to sample history of size={stateHistory.Count} @ t={timestamp:F3} oldest={oldest.timestamp:F3} newest={newest.timestamp:F3}. This should never happen because the timestamp is within history.");
-                ApplyState(state.timestamp, state.position, state.rotation, state.velocity, state.angularVelocity);
-                return;
-            }
-
-            // interpolate between them to get the best approximation
-            RigidbodyState interpolated = RigidbodyState.Interpolate(before, after, (float)t);
-
-            // calculate the difference between where we were and where we should be
-            // TODO only position for now. consider rotation etc. too later
-            // float positionToInterpolatedDistance = Vector3.Distance(state.position, interpolated.position); // slow comparison
-            float positionToInterpolatedDistanceSqr = Vector3.SqrMagnitude(state.position - interpolated.position); // fast comparison
-            float rotationToInterpolatedDistance = Quaternion.Angle(state.rotation, interpolated.rotation);
-            // Debug.Log($"Sampled history of size={stateHistory.Count} @ {timestamp:F3}: client={interpolated.position} server={state.position} difference={difference:F3} / {correctionThreshold:F3}");
-
-            // too far off? then correct it
-            if (positionToInterpolatedDistanceSqr >= positionCorrectionThresholdSqr || // fast comparison
-                //positionToInterpolatedDistance >= positionCorrectionThreshold ||     // slow comparison
-                rotationToInterpolatedDistance >= rotationCorrectionThreshold)
-            {
-                // Debug.Log($"CORRECTION NEEDED FOR {name} @ {timestamp:F3}: client={interpolated.position} server={state.position} difference={difference:F3}");
-
-                // show the received correction position + velocity for debugging.
-                // helps to compare with the interpolated/applied correction locally.
-                //Debug.DrawLine(state.position, state.position + state.velocity * 0.1f, Color.white, lineTime);
-
-                // insert the correction and correct the history on top of it.
-                // returns the final recomputed state after rewinding.
-                RigidbodyState recomputed = Prediction.CorrectHistory(stateHistory, stateHistoryLimit, state, before, after, afterIndex);
-
-                // blend the final correction towards current server state over time.
-                // this is the idea of ForecastRigidbody.
-                // TODO once we are at server state, let snapshot interpolation take over.
-                // RigidbodyState blended = RigidbodyState.Interpolate(recomputed, state, blendPerSync);
-                // Debug.DrawLine(recomputed.position, blended.position, Color.green, 10.0f);
-
-                // log, draw & apply the final position.
-                // always do this here, not when iterating above, in case we aren't iterating.
-                // for example, on same machine with near zero latency.
-                // int correctedAmount = stateHistory.Count - afterIndex;
-                // Debug.Log($"Correcting {name}: {correctedAmount} / {stateHistory.Count} states to final position from: {rb.position} to: {last.position}");
-                //Debug.DrawLine(physicsCopyRigidbody.position, recomputed.position, Color.green, lineTime);
-                ApplyState(recomputed.timestamp, recomputed.position, recomputed.rotation, recomputed.velocity, recomputed.angularVelocity);
-
-                // insert the blended state into the history.
-                // this makes it permanent, instead of blending every time but rarely recording.
-                RecordState();
-
-                // user callback
-                OnCorrected();
-            }
-            */
         }
 
         // send state to clients every sendInterval.
