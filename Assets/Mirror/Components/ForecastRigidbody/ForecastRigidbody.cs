@@ -262,8 +262,11 @@ namespace Mirror
                 predictedRigidbody.MovePosition(newPosition);
                 predictedRigidbody.MoveRotation(newRotation);
 
-                // transition to FOLLOWING once p = 100%
-                if (p >= 1)
+                // transition to FOLLOWING after blending is done.
+                // we could check 'if p >= 1' but if the user's curve never
+                // reaches a value of '1' then we would never transition.
+                // best to reach if elapsed time > blend time.
+                if (blendingElapsed > blendingTime)
                 {
                     // Debug.Log($"{name} END BLENDING");
                     BeginFollowing();
