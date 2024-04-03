@@ -48,6 +48,9 @@ namespace Mirror
         [Header("Collision Chaining")]
         [Tooltip("Enable to have actively predicted Rigidbodies activate other Rigidbodies they collide with.")]
         public bool collisionChaining = true;
+        [Tooltip("If a player interacts with an object, it can recursively activate other objects it collides with.\nDepth is the chain link from A->B->C->etc., it doesn't mean the amount of A->B, A->C, etc.\nNeeds to be finite to avoid chain activations going on forever like A->B->C->A (easy to notice in the stacked prediction example.")]
+        public int maxCollisionChainingDepth = 2; // A->B->C is enough!
+        int remainingCollisionChainDepth;
 
         // motion smoothing happen on-demand, because it requires moving physics components to another GameObject.
         // this only starts at a given velocity and ends when stopped moving.
@@ -102,8 +105,7 @@ namespace Mirror
             predictedRigidbody.isKinematic = true;
         }
 
-        // client prediction API
-        public void AddPredictedForce(Vector3 force, ForceMode mode)
+        void AddPredictedForceInternal(Vector3 force, ForceMode mode)
         {
             // apply local force dampening.
             // client applies a bit less force than the server, so that
@@ -114,6 +116,26 @@ namespace Mirror
             // explicitly start predicting physics
             BeginPredicting();
             predictedRigidbody.AddForce(force, mode);
+        }
+
+        // client prediction API
+        public void AddPredictedForce(Vector3 force, ForceMode mode)
+        {
+            // player interacted with this object explicitly.
+            // restart the collision chain at max.
+            remainingCollisionChainDepth = maxCollisionChainingDepth;
+
+            // add the predicted force
+            AddPredictedForceInternal(force, mode);
+        }
+
+        void AddPredictedForceChain(Vector3 force, ForceMode mode, int newChainDepth)
+        {
+            // apply the collision chain depth
+            remainingCollisionChainDepth = newChainDepth;
+
+            // add the predicted force
+            AddPredictedForceInternal(force, mode);
         }
 
         protected void BeginPredicting()
@@ -144,6 +166,8 @@ namespace Mirror
             predictedRigidbody.isKinematic = true; // full transform sync
             state = ForecastState.FOLLOWING;
             if (debugColors) rend.material.color = originalColor;
+            // reset the collision chain depth so it starts at 0 again next time
+            remainingCollisionChainDepth = 0;
             OnBeginFollow();
             // Debug.Log($"{name} BEGIN FOLLOW");
         }
@@ -317,6 +341,14 @@ namespace Mirror
             // is the other object already predicting? then don't call events again.
             if (other.state != ForecastState.FOLLOWING) return;
 
+            // collided with an object that has not yet been activate.
+            // should this object still activate other objects?
+            // for example, chain depth = 3 means: A->B->C.
+            // so C->D would not activate anymore.
+            // (we always need to check this only for inactivate objects,
+            //  otherwise A->B->A->B etc. would reduce the chain depth forever).
+            if (remainingCollisionChainDepth <= 0) return;
+
             // the other object is in FOLLOWING mode (kinematic).
             // PhysX will register the collision, but not add the collision force while kinematic.
             // we need to add the force manually, which will also begin predicting it.
@@ -324,7 +356,9 @@ namespace Mirror
             // => we need to calculate the direction manually to always be A->B.
             Vector3 direction = other.transform.position - transform.position;
             Vector3 impulse = direction.normalized * collision.impulse.magnitude;
-            other.AddPredictedForce(impulse, ForceMode.Impulse);
+
+
+            other.AddPredictedForceChain(impulse, ForceMode.Impulse, remainingCollisionChainDepth - 1);
         }
 
         // optional user callbacks, in case people need to know about events.
