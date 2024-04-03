@@ -6,12 +6,12 @@ namespace Mirror.Examples.PredictionBenchmark
     {
         public float force = 10;
         public float interval = 3;
-        PredictedRigidbody prediction;
+        ForecastRigidbody prediction;
         Rigidbody rb => prediction.predictedRigidbody;
 
         void Awake()
         {
-            prediction = GetComponent<PredictedRigidbody>();
+            prediction = GetComponent<ForecastRigidbody>();
         }
 
         // every(!) connected client adds force to all objects(!)
@@ -23,7 +23,6 @@ namespace Mirror.Examples.PredictionBenchmark
             float randomStart = Random.Range(0, interval);
             InvokeRepeating(nameof(ApplyForce), randomStart, interval);
         }
-
 
         [ClientCallback]
         void ApplyForce()
@@ -39,7 +38,7 @@ namespace Mirror.Examples.PredictionBenchmark
 
             // predicted locally and sync to server for others to see.
             // PredictedRigidbody will take care of corrections automatically.
-            rb.AddForce(impulse, ForceMode.Impulse);
+            prediction.AddPredictedForce(impulse, ForceMode.Impulse);
             CmdApplyForce(impulse);
         }
 
