@@ -37,11 +37,6 @@ namespace Mirror
         public float blendingTime = 0.500f;
         [Tooltip("Blending speed over time from 0 to 1. Exponential is recommended.")]
         public AnimationCurve blendingCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
-        [Tooltip("How fast to interpolate to the target position, relative to how far we are away from it.\nHigher value will be more jitter but sharper moves, lower value will be less jitter but a little too smooth / rounded moves.")]
-        public float positionBlendingSpeed = 15; // 10 is a little too low for billiards at least
-        public float rotationBlendingSpeed = 10;
-        [Tooltip("Transition from BLENDING to FOLLOWING if within this distance to remote state.")]
-        public float distancedThreshold = 0.1f;
         ForecastState state = ForecastState.FOLLOWING; // follow until the player interacts
         double predictionStartTime;
 
@@ -247,6 +242,31 @@ namespace Mirror
                 float p = blendingCurve.Evaluate(relativeElapsed);
                 Debug.Log($"{name} BLENDING @ {blendingElapsed:F2} / {blendingTime:F2} => {(p*100):F0}%");
 
+                // blend local position to remote position
+
+                // FAST VERSION: this shows in profiler a lot, so cache EVERYTHING!
+                tf.GetPositionAndRotation(out Vector3 currentPosition, out Quaternion currentRotation); // faster than tf.position + tf.rotation
+
+                // perf: only access deltaTime once
+                float deltaTime = Time.deltaTime;
+
+                // smoothly interpolate to the target position.
+                // speed relative to how far away we are.
+                // => speed increases by distance² because the further away, the
+                //    sooner we need to catch the fuck up
+                // float positionStep = (distance * distance) * interpolationSpeed;
+                float distance = Vector3.Distance(currentPosition, lastReceivedState.position);
+                float positionStep = distance * p;
+                Vector3 newPosition = Vector3.MoveTowards(currentPosition, lastReceivedState.position, positionStep);
+
+                // smoothly interpolate to the target rotation.
+                // Quaternion.RotateTowards doesn't seem to work at all, so let's use SLerp.
+                // Quaternions always need to be normalized in order to be a valid rotation after operations
+                Quaternion newRotation = Quaternion.Slerp(currentRotation, lastReceivedState.rotation, p).normalized;
+
+                // assign rigidbody position & rotation while keeping velocity to keep moving
+                predictedRigidbody.MovePosition(newPosition);
+                predictedRigidbody.MoveRotation(newRotation);
 
                 /*
                 if (!RemoteInSameDirection())

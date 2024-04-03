@@ -302,7 +302,41 @@ MonoBehaviour:
   syncMode: 0
   syncInterval: 0
   predictedRigidbody: {fileID: 1848203816128897140}
-  blendPerSync: 0.1
+  blendingTime: 0.5
+  blendingCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.66882515
+      value: 0.39071766
+      inSlope: 2.1493528
+      outSlope: 2.1493528
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.13149448
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  localForceDampening: 0.2
   motionSmoothingVelocityThreshold: 0.1
   motionSmoothingAngularVelocityThreshold: 5
   motionSmoothingTimeTolerance: 0.5
