@@ -318,8 +318,10 @@ namespace Mirror
             // is the other object already predicting? then don't call events again.
             if (other.state != ForecastState.FOLLOWING) return;
 
-            // start predicting the other object too.
-            other.BeginPredicting();
+            // the other object is in FOLLOWING mode (kinematic).
+            // PhysX will register the collision, but not add the collision force while kinematic.
+            // we need to add the force manually, which will also begin predicting it.
+            other.AddPredictedForce(-collision.impulse, ForceMode.Impulse);
         }
 
         // optional user callbacks, in case people need to know about events.
