@@ -135,7 +135,7 @@ namespace Mirror
             Debug.Log($"{name} BEGIN BLENDING");
         }
 
-        protected void BeginFollow()
+        protected void BeginFollowing()
         {
             predictedRigidbody.isKinematic = true; // full transform sync
             state = ForecastState.FOLLOWING;
@@ -272,6 +272,13 @@ namespace Mirror
                 // assign rigidbody position & rotation while keeping velocity to keep moving
                 predictedRigidbody.MovePosition(newPosition);
                 predictedRigidbody.MoveRotation(newRotation);
+
+                // transition to FOLLOWING once p = 100%
+                if (p >= 1)
+                {
+                    Debug.Log($"{name} END BLENDING");
+                    BeginFollowing();
+                }
             }
             else if (state == ForecastState.FOLLOWING)
             {
