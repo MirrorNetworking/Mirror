@@ -227,6 +227,32 @@ namespace Mirror
             }
             else if (state == ForecastState.BLENDING)
             {
+                // BLENDING sets Rigidbody which happens in FixedUpdate()!
+            }
+            else if (state == ForecastState.FOLLOWING)
+            {
+                // hard set position & rotation.
+                // TODO snapshot interpolation
+                tf.SetPositionAndRotation(lastReceivedState.position, lastReceivedState.rotation);
+            }
+        }
+
+        void Update()
+        {
+            if (isServer) UpdateServer();
+            if (isClientOnly) UpdateClient();
+        }
+
+        void FixedUpdateClient()
+        {
+            // physics movements need to be done in FixedUpdate.
+
+            if (state == ForecastState.PREDICTING)
+            {
+                // PREDICTING checks state, which happens in update()
+            }
+            else if (state == ForecastState.BLENDING)
+            {
                 // TODO snapshot interpolation
 
                 // blend between local and remote position
@@ -319,24 +345,13 @@ namespace Mirror
             }
             else if (state == ForecastState.FOLLOWING)
             {
-                // hard set position & rotation.
-                // TODO snapshot interpolation
-                tf.SetPositionAndRotation(lastReceivedState.position, lastReceivedState.rotation);
+                // FOLLOWING sets Transform, which happens in Update().
             }
-        }
-
-        void Update()
-        {
-            if (isServer) UpdateServer();
-            if (isClientOnly) UpdateClient();
         }
 
         void FixedUpdate()
         {
-            // on clients (not host) we record the current state every FixedUpdate.
-            // this is cheap, and allows us to keep a dense history.
-            if (!isClientOnly) return;
-
+            if (isClientOnly) FixedUpdateClient();
         }
 
         void OnDrawGizmos()
