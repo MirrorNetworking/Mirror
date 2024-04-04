@@ -148,9 +148,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   syncDirection: 0
   syncMode: 0
-  syncInterval: 0
+  syncInterval: 0.05
   predictedRigidbody: {fileID: 0}
-  blendingRttMultiplier: 3
+  blendingRttMultiplier: 2
   blendingCurve:
     serializedVersion: 2
     m_Curve:
