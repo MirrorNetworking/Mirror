@@ -276,26 +276,6 @@ namespace Mirror
                 // blend local position to remote position.
                 // getting both at once is fastest.
                 tf.GetPositionAndRotation(out Vector3 currentPosition, out Quaternion currentRotation);
-                /*
-                // smoothly interpolate to the target position.
-                // speed relative to how far away we are.
-                // => speed increases by distance² because the further away, the
-                //    sooner we need to catch the fuck up
-                // float positionStep = (distance * distance) * interpolationSpeed;
-                float distance = Vector3.Distance(currentPosition, lastReceivedState.position);
-                float positionStep = distance * p;
-                Vector3 newPosition = Vector3.MoveTowards(currentPosition, lastReceivedState.position, positionStep);
-
-                // smoothly interpolate to the target rotation.
-                // Quaternion.RotateTowards doesn't seem to work at all, so let's use SLerp.
-                // Quaternions always need to be normalized in order to be a valid rotation after operations
-                Quaternion newRotation = Quaternion.Slerp(currentRotation, lastReceivedState.rotation, p).normalized;
-
-                // assign rigidbody position & rotation while keeping velocity to keep moving
-                predictedRigidbody.MovePosition(newPosition);
-                predictedRigidbody.MoveRotation(newRotation);
-                */
-
 
                 // slow and simple version:
                 //   float distance = Vector3.Distance(currentPosition, physicsPosition);
@@ -306,10 +286,6 @@ namespace Mirror
                 float distance = Mathf.Sqrt(sqrDistance);
 
                 // smoothly interpolate to the target position.
-                // speed relative to how far away we are.
-                // => speed increases by distance² because the further away, the
-                //    sooner we need to catch the fuck up
-                // float positionStep = (distance * distance) * interpolationSpeed;
                 float positionStep = distance * p;
 
                 Vector3 newPosition = PredictedRigidbody.MoveTowardsCustom(
