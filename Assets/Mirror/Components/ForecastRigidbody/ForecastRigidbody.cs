@@ -23,6 +23,7 @@ namespace Mirror
         Transform tf; // this component is performance critical. cache .transform getter!
         Renderer rend;
         Collider col;
+        float initialSyncInterval;
 
         // Prediction sometimes moves the Rigidbody to a ghost object.
         // .predictedRigidbody is always kept up to date to wherever the RB is.
@@ -85,6 +86,7 @@ namespace Mirror
             if (predictedRigidbody == null) throw new InvalidOperationException($"Prediction: {name} is missing a Rigidbody component.");
             predictedRigidbodyTransform = predictedRigidbody.transform;
 
+            initialSyncInterval = syncInterval;
 
             // in fast mode, we need to force enable Rigidbody.interpolation.
             // otherwise there's not going to be any smoothing whatsoever.
@@ -177,7 +179,7 @@ namespace Mirror
             // bandwidth optimization while idle.
             if (reduceSendsWhileIdle)
             {
-                // while moving, always sync every frame for immediate corrections.
+                // while moving, always sync every syncInterval..
                 // while idle, only sync once per second.
                 //
                 // we still need to sync occasionally because objects on client
@@ -188,7 +190,7 @@ namespace Mirror
                 // next round of optimizations: if client received nothing for 1s,
                 // force correct to last received state. then server doesn't need
                 // to send once per second anymore.
-                syncInterval = IsMoving() ? 0 : 1;
+                syncInterval = IsMoving() ? initialSyncInterval : 1;
             }
 
             // always set dirty to always serialize in next sync interval.
@@ -460,11 +462,6 @@ namespace Mirror
 
             // force syncDirection to be ServerToClient
             syncDirection = SyncDirection.ServerToClient;
-
-            // state should be synced immediately for now.
-            // later when we have prediction fully dialed in,
-            // then we can maybe relax this a bit.
-            syncInterval = 0;
         }
 
         // helper function for Physics tests to check if a Rigidbody belongs to
