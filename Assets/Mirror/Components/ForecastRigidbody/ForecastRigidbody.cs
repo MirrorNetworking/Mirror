@@ -401,7 +401,7 @@ namespace Mirror
             // writer.WriteVector3(predictedRigidbody.angularVelocity);
 
             // performance optimization: write a whole struct at once via blittable:
-            PredictedSyncData data = new PredictedSyncData(
+            ForecastSyncData data = new ForecastSyncData(
                 Time.deltaTime,
                 position,
                 rotation,
@@ -409,7 +409,7 @@ namespace Mirror
                 predictedRigidbody.angularVelocity);//,
                 // DO NOT SYNC SLEEPING! this cuts benchmark performance in half(!!!)
                 // predictedRigidbody.IsSleeping());
-            writer.WritePredictedSyncData(data);
+            writer.WriteForecastSyncData(data);
         }
 
         // read the server's state, compare with client state & correct if necessary.
@@ -427,7 +427,7 @@ namespace Mirror
             // Vector3 angularVelocity = reader.ReadVector3();
 
             // performance optimization: read a whole struct at once via blittable:
-            PredictedSyncData data = reader.ReadPredictedSyncData();
+            ForecastSyncData data = reader.ReadForecastSyncData();
             double serverDeltaTime = data.deltaTime;
             Vector3 position = data.position;
             Quaternion rotation = data.rotation;
