@@ -209,11 +209,17 @@ namespace Mirror
             predictedRigidbody.velocity.sqrMagnitude >= velocitySensitivitySqr ||
             predictedRigidbody.angularVelocity.sqrMagnitude >= angularVelocitySensitivitySqr;
 
-        // when using Fast mode, we don't create any ghosts.
-        // but we still want to check IsMoving() in order to support the same
-        // user callbacks.
-        void UpdateClient()
+        void Update()
         {
+            if (isServer) UpdateServer();
+        }
+
+        // Prediction always has a Rigidbody.
+        // position changes should always happen in FixedUpdate, even while kinematic.
+        // improves benchmark performance from 600 -> 870 FPS.
+        void FixedUpdateClient()
+        {
+            // PREDICTING checks state, which happens in update()
             if (state == ForecastState.PREDICTING)
             {
                 // we want to predict until the first server state came in.
@@ -230,32 +236,6 @@ namespace Mirror
                 }
             }
             else if (state == ForecastState.BLENDING)
-            {
-                // BLENDING sets Rigidbody which happens in FixedUpdate()!
-            }
-            else if (state == ForecastState.FOLLOWING)
-            {
-                // hard set position & rotation.
-                // TODO snapshot interpolation
-                tf.SetPositionAndRotation(lastReceivedState.position, lastReceivedState.rotation);
-            }
-        }
-
-        void Update()
-        {
-            if (isServer) UpdateServer();
-            if (isClientOnly) UpdateClient();
-        }
-
-        void FixedUpdateClient()
-        {
-            // physics movements need to be done in FixedUpdate.
-
-            // PREDICTING checks state, which happens in update()
-            // if (state == ForecastState.PREDICTING)
-            // {
-            // }
-            if (state == ForecastState.BLENDING)
             {
                 // TODO snapshot interpolation
 
@@ -315,9 +295,12 @@ namespace Mirror
                 }
             }
             // FOLLOWING sets Transform, which happens in Update().
-            // else if (state == ForecastState.FOLLOWING)
-            // {
-            // }
+            else if (state == ForecastState.FOLLOWING)
+            {
+                // hard set position & rotation.
+                // TODO snapshot interpolation
+                tf.SetPositionAndRotation(lastReceivedState.position, lastReceivedState.rotation);
+            }
         }
 
         void FixedUpdate()
