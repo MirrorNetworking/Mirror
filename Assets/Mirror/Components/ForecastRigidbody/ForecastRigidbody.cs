@@ -97,7 +97,10 @@ namespace Mirror
             angularVelocitySensitivitySqr = angularVelocitySensitivity * angularVelocitySensitivity;
 
             // save renderer color
-            originalColor = rend.material.color;
+            // note if objects share a material, accessing ".material" will
+            // instantiate one which can be a massive performance overhead.
+            // only use debug colors when debugging!
+            if (debugColors) originalColor = rend.material.color;
         }
 
         public override void OnStartClient()
