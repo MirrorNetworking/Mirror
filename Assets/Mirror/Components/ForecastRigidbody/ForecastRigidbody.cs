@@ -368,7 +368,7 @@ namespace Mirror
         // process a received server state.
         // compares it against our history and applies corrections if needed.
         ForecastRigidbodyState lastReceivedState;
-        void OnReceivedState(double timestamp, ForecastRigidbodyState data)//, bool sleeping)
+        void OnReceivedState(ForecastRigidbodyState data)//, bool sleeping)
         {
             // store last time
             lastReceivedState = data;
@@ -404,11 +404,7 @@ namespace Mirror
             ForecastSyncData data = new ForecastSyncData(
                 Time.deltaTime,
                 position,
-                rotation,
-                predictedRigidbody.velocity,
-                predictedRigidbody.angularVelocity);//,
-                // DO NOT SYNC SLEEPING! this cuts benchmark performance in half(!!!)
-                // predictedRigidbody.IsSleeping());
+                rotation);
             writer.WriteForecastSyncData(data);
         }
 
@@ -431,10 +427,6 @@ namespace Mirror
             double serverDeltaTime = data.deltaTime;
             Vector3 position = data.position;
             Quaternion rotation = data.rotation;
-            Vector3 velocity = data.velocity;
-            Vector3 angularVelocity = data.angularVelocity;
-            // DO NOT SYNC SLEEPING! this cuts benchmark performance in half(!!!)
-            // bool sleeping = data.sleeping != 0;
 
             // server sends state at the end of the frame.
             // parse and apply the server's delta time to our timestamp.
@@ -448,7 +440,7 @@ namespace Mirror
             if (oneFrameAhead) timestamp += serverDeltaTime;
 
             // process received state
-            OnReceivedState(timestamp, new ForecastRigidbodyState(timestamp, Vector3.zero, position, Quaternion.identity, rotation, Vector3.zero, velocity, Vector3.zero, angularVelocity));//, sleeping);
+            OnReceivedState(new ForecastRigidbodyState(timestamp, position, rotation));
         }
 
         protected override void OnValidate()
