@@ -182,7 +182,7 @@ MonoBehaviour:
   angularVelocitySensitivity: 5
   oneFrameAhead: 1
   reduceSendsWhileIdle: 1
-  debugColors: 1
+  debugColors: 0
   predictingColor: {r: 0, g: 1, b: 0, a: 1}
   blendingColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
 --- !u!114 &813163234907249251
