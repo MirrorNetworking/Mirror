@@ -156,7 +156,6 @@ namespace Mirror
         }
 
         double blendingStartTime;
-        float BlendingElapsedTime() => (float)(NetworkTime.time - blendingStartTime);
         protected void BeginBlending()
         {
             state = ForecastState.BLENDING;
@@ -252,11 +251,11 @@ namespace Mirror
         {
             // physics movements need to be done in FixedUpdate.
 
-            if (state == ForecastState.PREDICTING)
-            {
-                // PREDICTING checks state, which happens in update()
-            }
-            else if (state == ForecastState.BLENDING)
+            // PREDICTING checks state, which happens in update()
+            // if (state == ForecastState.PREDICTING)
+            // {
+            // }
+            if (state == ForecastState.BLENDING)
             {
                 // TODO snapshot interpolation
 
@@ -268,14 +267,15 @@ namespace Mirror
                 }
 
                 // sample the blending curve to find out how much to blend right now
-                float blendingElapsed = BlendingElapsedTime();
+
+                float blendingElapsed = (float)(NetworkTime.time - blendingStartTime);
                 float relativeElapsed = blendingElapsed / blendingTime;
                 float p = blendingCurve.Evaluate(relativeElapsed);
                 // Debug.Log($"{name} BLENDING @ {blendingElapsed:F2} / {blendingTime:F2} => {(p*100):F0}%");
 
-                // blend local position to remote position
-                Vector3 currentPosition = predictedRigidbody.position;
-                Quaternion currentRotation = predictedRigidbody.rotation;
+                // blend local position to remote position.
+                // getting both at once is fastest.
+                tf.GetPositionAndRotation(out Vector3 currentPosition, out Quaternion currentRotation);
 
                 // smoothly interpolate to the target position.
                 // speed relative to how far away we are.
@@ -305,10 +305,10 @@ namespace Mirror
                     BeginFollowing();
                 }
             }
-            else if (state == ForecastState.FOLLOWING)
-            {
-                // FOLLOWING sets Transform, which happens in Update().
-            }
+            // FOLLOWING sets Transform, which happens in Update().
+            // else if (state == ForecastState.FOLLOWING)
+            // {
+            // }
         }
 
         void FixedUpdate()
