@@ -160,7 +160,7 @@ namespace Mirror
         {
             state = ForecastState.BLENDING;
             // if (debugColors) rend.material.color = blendingAheadColor; set in update depending on ahead/behind
-            blendingStartTime = NetworkTime.time;
+            blendingStartTime = NetworkTime.localTime;
             OnBeginBlending();
             // Debug.Log($"{name} BEGIN BLENDING");
         }
@@ -268,7 +268,7 @@ namespace Mirror
 
                 // sample the blending curve to find out how much to blend right now
 
-                float blendingElapsed = (float)(NetworkTime.time - blendingStartTime);
+                float blendingElapsed = (float)(NetworkTime.localTime - blendingStartTime);
                 float relativeElapsed = blendingElapsed / blendingTime;
                 float p = blendingCurve.Evaluate(relativeElapsed);
                 // Debug.Log($"{name} BLENDING @ {blendingElapsed:F2} / {blendingTime:F2} => {(p*100):F0}%");
