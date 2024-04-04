@@ -276,7 +276,7 @@ namespace Mirror
                 // blend local position to remote position.
                 // getting both at once is fastest.
                 tf.GetPositionAndRotation(out Vector3 currentPosition, out Quaternion currentRotation);
-
+                /*
                 // smoothly interpolate to the target position.
                 // speed relative to how far away we are.
                 // => speed increases by distance² because the further away, the
@@ -294,12 +294,45 @@ namespace Mirror
                 // assign rigidbody position & rotation while keeping velocity to keep moving
                 predictedRigidbody.MovePosition(newPosition);
                 predictedRigidbody.MoveRotation(newRotation);
+                */
+
+
+                // slow and simple version:
+                //   float distance = Vector3.Distance(currentPosition, physicsPosition);
+                //   if (distance > smoothFollowThreshold)
+                // faster version
+                Vector3 delta = lastReceivedState.position - currentPosition;
+                float sqrDistance = Vector3.SqrMagnitude(delta);
+                float distance = Mathf.Sqrt(sqrDistance);
+
+                // smoothly interpolate to the target position.
+                // speed relative to how far away we are.
+                // => speed increases by distance² because the further away, the
+                //    sooner we need to catch the fuck up
+                // float positionStep = (distance * distance) * interpolationSpeed;
+                float positionStep = distance * p;
+
+                Vector3 newPosition = PredictedRigidbody.MoveTowardsCustom(
+                    currentPosition,
+                    lastReceivedState.position,
+                    delta,
+                    sqrDistance,
+                    distance,
+                    positionStep);
+
+                // smoothly interpolate to the target rotation.
+                // Quaternion.RotateTowards doesn't seem to work at all, so let's use SLerp.
+                // Quaternions always need to be normalized in order to be a valid rotation after operations
+                Quaternion newRotation = Quaternion.Slerp(currentRotation, lastReceivedState.rotation, p).normalized;
+
+                // assign position and rotation together. faster than accessing manually.
+                tf.SetPositionAndRotation(newPosition, newRotation);
 
                 // transition to FOLLOWING after blending is done.
                 // we could check 'if p >= 1' but if the user's curve never
                 // reaches a value of '1' then we would never transition.
                 // best to reach if elapsed time > blend time.
-                if (blendingElapsed > blendingTime)
+                if (blendingElapsed >= blendingTime)
                 {
                     // Debug.Log($"{name} END BLENDING");
                     BeginFollowing();

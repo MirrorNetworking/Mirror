@@ -365,7 +365,7 @@ namespace Mirror
         // faster version copied from MoveTowards:
         // this increases Prediction Benchmark Client's FPS from 615 -> 640.
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static Vector3 MoveTowardsCustom(
+        internal static Vector3 MoveTowardsCustom(
             Vector3 current,
             Vector3 target,
             Vector3 _delta,     // pass this in since we already calculated it
