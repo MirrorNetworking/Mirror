@@ -367,8 +367,8 @@ namespace Mirror
 
         // process a received server state.
         // compares it against our history and applies corrections if needed.
-        RigidbodyState lastReceivedState;
-        void OnReceivedState(double timestamp, RigidbodyState data)//, bool sleeping)
+        ForecastRigidbodyState lastReceivedState;
+        void OnReceivedState(double timestamp, ForecastRigidbodyState data)//, bool sleeping)
         {
             // store last time
             lastReceivedState = data;
@@ -448,7 +448,7 @@ namespace Mirror
             if (oneFrameAhead) timestamp += serverDeltaTime;
 
             // process received state
-            OnReceivedState(timestamp, new RigidbodyState(timestamp, Vector3.zero, position, Quaternion.identity, rotation, Vector3.zero, velocity, Vector3.zero, angularVelocity));//, sleeping);
+            OnReceivedState(timestamp, new ForecastRigidbodyState(timestamp, Vector3.zero, position, Quaternion.identity, rotation, Vector3.zero, velocity, Vector3.zero, angularVelocity));//, sleeping);
         }
 
         protected override void OnValidate()
