@@ -142,6 +142,23 @@ namespace Mirror
             // add the predicted force
             AddPredictedForceInternal(force, mode);
         }
+        
+        public void AddPredictedForceAtPosition(Vector3 force, Vector3 position, ForceMode mode)
+        {
+            // player interacted with this object explicitly.
+            // restart the collision chain at max.
+            remainingCollisionChainDepth = maxCollisionChainingDepth;
+
+            // apply local force dampening.
+            // client applies a bit less force than the server, so that
+            // catching up to blending state will be easier.
+            // for example: dampening = 0.1 means subtract 10% force
+            force *= (1 - localForceDampening);
+
+            // explicitly start predicting physics
+            BeginPredicting();
+            predictedRigidbody.AddForceAtPosition(force, position, mode);
+        }
 
         protected void BeginPredicting()
         {
