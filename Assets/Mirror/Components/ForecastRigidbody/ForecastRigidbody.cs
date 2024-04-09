@@ -92,7 +92,8 @@ namespace Mirror
 
             // in fast mode, we need to force enable Rigidbody.interpolation.
             // otherwise there's not going to be any smoothing whatsoever.
-            predictedRigidbody.interpolation = RigidbodyInterpolation.Interpolate;
+            // PERF: disable this for now!
+            // predictedRigidbody.interpolation = RigidbodyInterpolation.Interpolate;
 
             // cache computations
             velocitySensitivitySqr = velocitySensitivity * velocitySensitivity;
