@@ -35,7 +35,7 @@ namespace Mirror
 
         [Header("Blending")]
         [Tooltip("Blend to remote state over a N * rtt time.\n  For a 200ms ping, we blend over N * 200ms.\n  For 20ms ping, we blend over N * 20 ms.")]
-        public float blendingRttMultiplier = 3;
+        public float blendingRttMultiplier = 2;
         public float blendingTime => (float)NetworkTime.rtt * blendingRttMultiplier;
         [Tooltip("Blending speed over time from 0 to 1. Exponential is recommended.")]
         public AnimationCurve blendingCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
@@ -44,7 +44,7 @@ namespace Mirror
 
         [Header("Dampening")]
         [Tooltip("Locally applied force is slowed down a bit compared to the server force, to make catch up more smooth.")]
-        [Range(0.05f, 1)] public float localForceDampening = 0.2f; // never 0 to ensure blending ALWAYS catches up instead of same speed
+        [Range(0.05f, 1)] public float localForceDampening = 0.2f; // 50% is too obvious
 
         [Header("Collision Chaining")]
         [Tooltip("Enable to have actively predicted Rigidbodies activate other Rigidbodies they collide with.")]

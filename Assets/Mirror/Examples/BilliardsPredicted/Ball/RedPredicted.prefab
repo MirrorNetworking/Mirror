@@ -165,7 +165,7 @@ MonoBehaviour:
   syncMode: 0
   syncInterval: 0
   predictedRigidbody: {fileID: -177125271246800426}
-  blendingTime: 0.5
+  blendingRttMultiplier: 2
   blendingCurve:
     serializedVersion: 2
     m_Curve:
