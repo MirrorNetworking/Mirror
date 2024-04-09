@@ -161,6 +161,12 @@ SWARM is a fast-paced, arcade-style grapple shooter, with quick sessions, bright
 
 Available for the [Meta Quest](https://www.oculus.com/experiences/quest/2236053486488156/), made with Mirror.
 
+### [Castaways](https://www.castaways.com/)
+[![Castaways](https://user-images.githubusercontent.com/16416509/207313082-e6b95590-80c6-4685-b0d1-f1c39c236316.png)](https://www.castaways.com/)
+[Castaways](https://www.castaways.com/) is a sandbox game where you are castaway to a small remote island where you must work with others to survive and build a thriving new civilization. 
+
+Castaway runs in the Browser, thanks to Mirror's WebGL support.
+
 ### [Nimoyd](https://www.nimoyd.com/)
 [![nimoyd_smaller](https://user-images.githubusercontent.com/16416509/178142672-340bac2c-628a-4610-bbf1-8f718cb5b033.jpg)](https://www.nimoyd.com/)
 Nudge Nudge Games' first title: the colorful, post-apocalyptic open world sandbox game [Nimoyd](https://store.steampowered.com/app/1313210/Nimoyd__Survival_Sandbox/) is being developed with Mirror.
@@ -250,12 +256,6 @@ The [France based team](https://naicaonline.com/en/news/view/1) was one of Mirro
 ### [Empires Mobile](https://knightempire.online/)
 [![Empires Mobile](https://user-images.githubusercontent.com/16416509/207028553-c646f12c-c164-47d3-a1fc-ff79409c04fa.jpg)](https://knightempire.online/)
 [Empires Mobile](https://knightempire.online/) - Retro mobile MMORPG for Android and iOS, reaching 5000 CCU at times. Check out their [video](https://www.youtube.com/watch?v=v69lW9aWb-w) for some _early MMORPG_ nostalgia.
-
-### [Castaways](https://www.castaways.com/)
-[![Castaways](https://user-images.githubusercontent.com/16416509/207313082-e6b95590-80c6-4685-b0d1-f1c39c236316.png)](https://www.castaways.com/)
-[Castaways](https://www.castaways.com/) is a sandbox game where you are castaway to a small remote island where you must work with others to survive and build a thriving new civilization. 
-
-Castaway runs in the Browser, thanks to Mirror's WebGL support.
 
 ### [Overpowered](https://overpoweredcardgame.com/)
 [![Overpowered](https://github.com/MirrorNetworking/Mirror/assets/16416509/5bdbb227-970d-434e-b062-94fde1297f7c)](https://overpoweredcardgame.com/)
