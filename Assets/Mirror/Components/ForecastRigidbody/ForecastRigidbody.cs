@@ -313,6 +313,8 @@ namespace Mirror
                 // in theory we must always set rigidbody.position/rotation instead of transform:
                 // https://forum.unity.com/threads/how-expensive-is-physics-synctransforms.1366146/#post-9557491
                 // however, tf.SetPositionAndRotation is faster in our Prediction Benchmark.
+                //   predictedRigidbody.position = newPosition;
+                //   predictedRigidbody.rotation = newRotation;
                 tf.SetPositionAndRotation(newPosition, newRotation);
 
                 // transition to FOLLOWING after blending is done.
@@ -333,6 +335,8 @@ namespace Mirror
                 // https://forum.unity.com/threads/how-expensive-is-physics-synctransforms.1366146/#post-9557491
                 // however, tf.SetPositionAndRotation is faster in our Prediction Benchmark.
                 // TODO snapshot interpolation
+                //   predictedRigidbody.position = lastReceivedState.position;
+                //   predictedRigidbody.rotation = lastReceivedState.rotation;
                 tf.SetPositionAndRotation(lastReceivedState.position, lastReceivedState.rotation);
             }
         }
