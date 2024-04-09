@@ -309,6 +309,9 @@ namespace Mirror
                 Quaternion newRotation = Quaternion.Slerp(currentRotation, lastReceivedState.rotation, p).normalized;
 
                 // assign position and rotation together. faster than accessing manually.
+                // in theory we must always set rigidbody.position/rotation instead of transform:
+                // https://forum.unity.com/threads/how-expensive-is-physics-synctransforms.1366146/#post-9557491
+                // however, tf.SetPositionAndRotation is faster in our Prediction Benchmark.
                 tf.SetPositionAndRotation(newPosition, newRotation);
 
                 // transition to FOLLOWING after blending is done.
@@ -325,6 +328,9 @@ namespace Mirror
             else if (state == ForecastState.FOLLOWING)
             {
                 // hard set position & rotation.
+                // in theory we must always set rigidbody.position/rotation instead of transform:
+                // https://forum.unity.com/threads/how-expensive-is-physics-synctransforms.1366146/#post-9557491
+                // however, tf.SetPositionAndRotation is faster in our Prediction Benchmark.
                 // TODO snapshot interpolation
                 tf.SetPositionAndRotation(lastReceivedState.position, lastReceivedState.rotation);
             }
