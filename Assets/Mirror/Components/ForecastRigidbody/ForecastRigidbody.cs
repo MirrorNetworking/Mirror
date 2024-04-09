@@ -71,11 +71,13 @@ namespace Mirror
         [Tooltip("Reduce sends while velocity==0. Client's objects may slightly move due to gravity/physics, so we still want to send corrections occasionally even if an object is idle on the server the whole time.")]
         public bool reduceSendsWhileIdle = true;
 
+#if UNITY_EDITOR // PERF: only access .material in Editor, as it may instantiate!
         [Header("Debugging")]
         public bool debugColors = false;
         Color originalColor = Color.white;
         public Color predictingColor = Color.green;
         public Color blendingColor = Color.yellow; // when actually interpolating towards a blend in front of us
+#endif
 
         protected virtual void Awake()
         {
@@ -100,7 +102,9 @@ namespace Mirror
             // note if objects share a material, accessing ".material" will
             // instantiate one which can be a massive performance overhead.
             // only use debug colors when debugging!
+#if UNITY_EDITOR // PERF: only access .material in Editor, as it may instantiate!
             if (debugColors) originalColor = rend.material.color;
+#endif
         }
 
         public override void OnStartClient()
@@ -142,7 +146,7 @@ namespace Mirror
             // add the predicted force
             AddPredictedForceInternal(force, mode);
         }
-        
+
         public void AddPredictedForceAtPosition(Vector3 force, Vector3 position, ForceMode mode)
         {
             // player interacted with this object explicitly.
@@ -164,7 +168,9 @@ namespace Mirror
         {
             predictedRigidbody.isKinematic = false; // full physics sync
             state = ForecastState.PREDICTING;
+#if UNITY_EDITOR // PERF: only access .material in Editor, as it may instantiate!
             if (debugColors) rend.material.color = predictingColor;
+#endif
             // we want to predict until the first server state for our [Command] AddForce came in.
             // we know the time when our [Command] arrives on server: NetworkTime.predictedTime.
             predictionStartTime = NetworkTime.predictedTime; // !!! not .time !!!
@@ -186,7 +192,9 @@ namespace Mirror
         {
             predictedRigidbody.isKinematic = true; // full transform sync
             state = ForecastState.FOLLOWING;
+#if UNITY_EDITOR // PERF: only access .material in Editor, as it may instantiate!
             if (debugColors) rend.material.color = originalColor;
+#endif
             // reset the collision chain depth so it starts at 0 again next time
             remainingCollisionChainDepth = 0;
             OnBeginFollow();
@@ -258,10 +266,12 @@ namespace Mirror
 
                 // blend between local and remote position
                 // set debug color
+#if UNITY_EDITOR // PERF: only access .material in Editor, as it may instantiate!
                 if (debugColors)
                 {
                     rend.material.color = blendingColor;
                 }
+#endif
 
                 // sample the blending curve to find out how much to blend right now
 
@@ -325,6 +335,7 @@ namespace Mirror
             if (isClientOnly) FixedUpdateClient();
         }
 
+#if UNITY_EDITOR // PERF: only run gizmos in editor
         void OnDrawGizmos()
         {
             // draw server state while blending
@@ -334,6 +345,7 @@ namespace Mirror
                 Gizmos.DrawWireCube(lastReceivedState.position, col.bounds.size);
             }
         }
+#endif
 
         // while predicting on client, if we hit another object then we need to
         // start predicting this one too.
