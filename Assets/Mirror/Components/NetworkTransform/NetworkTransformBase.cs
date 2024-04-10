@@ -121,6 +121,36 @@ namespace Mirror
             if (coordinateSpace == CoordinateSpace.World) syncScale = false;
         }
 
+        // These are in global coordinates for calculating velocity and angular velocity.
+        Vector3 lastPosition;
+        Quaternion lastRotation;
+
+        public Vector3 velocity { get; internal set; } = Vector3.zero;
+        public Vector3 angularVelocity { get; internal set; } = Vector3.zero;
+
+        protected virtual void Start()
+        {
+            // Set last position and rotation to current values
+            // so we can calculate velocity and angular velocity.
+            lastPosition = target.position;
+            lastRotation = target.rotation;
+        }
+
+        void Update()
+        {
+            // Use global coordinates for velocity and angular velocity.
+            Vector3 pos = target.position;
+            Quaternion rot = target.rotation;
+
+            // Update velocity and angular velocity
+            velocity = (pos - lastPosition) / Time.deltaTime;
+            angularVelocity = (rot.eulerAngles - lastRotation.eulerAngles) / Time.deltaTime;
+
+            // Update last position and rotation
+            lastPosition = pos;
+            lastRotation = rot;
+        }
+
         // snapshot functions //////////////////////////////////////////////////
         // get local/world position
         protected virtual Vector3 GetPosition() =>
@@ -371,6 +401,14 @@ namespace Mirror
             // so let's clear the buffers.
             serverSnapshots.Clear();
             clientSnapshots.Clear();
+
+            // Reset last position and rotation
+            lastPosition = target.position;
+            lastRotation = target.rotation;
+
+            // Reset velocity / angular velocity
+            velocity = Vector3.zero;
+            angularVelocity = Vector3.zero;
         }
 
         public virtual void Reset()
