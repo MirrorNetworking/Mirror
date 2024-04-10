@@ -130,6 +130,9 @@ namespace Mirror
 
         protected virtual void Start()
         {
+            // set target to self if none yet
+            if (target == null) target = transform;
+
             // Set last position and rotation to current values
             // so we can calculate velocity and angular velocity.
             lastPosition = target.position;
@@ -138,6 +141,9 @@ namespace Mirror
 
         protected virtual void Update()
         {
+            // set target to self if none yet
+            if (target == null) target = transform;
+
             // Use global coordinates for velocity and angular velocity.
             Vector3 pos = target.position;
             Quaternion rot = target.rotation;
@@ -401,6 +407,9 @@ namespace Mirror
             // so let's clear the buffers.
             serverSnapshots.Clear();
             clientSnapshots.Clear();
+
+            // set target to self if none yet
+            if (target == null) target = transform;
 
             // Reset last position and rotation
             lastPosition = target.position;
