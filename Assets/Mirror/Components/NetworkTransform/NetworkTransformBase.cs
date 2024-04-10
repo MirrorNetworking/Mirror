@@ -135,8 +135,7 @@ namespace Mirror
 
             // Set last position and rotation to current values
             // so we can calculate velocity and angular velocity.
-            lastPosition = target.position;
-            lastRotation = target.rotation;
+            target.GetPositionAndRotation(out lastPosition, out lastRotation);
         }
 
         protected virtual void Update()
@@ -145,8 +144,7 @@ namespace Mirror
             if (target == null) target = transform;
 
             // Use global coordinates for velocity and angular velocity.
-            Vector3 pos = target.position;
-            Quaternion rot = target.rotation;
+            target.GetPositionAndRotation(out Vector3 pos, out Quaternion rot);
 
             // Update velocity and angular velocity
             velocity = (pos - lastPosition) / Time.deltaTime;
@@ -412,8 +410,7 @@ namespace Mirror
             if (target == null) target = transform;
 
             // Reset last position and rotation
-            lastPosition = target.position;
-            lastRotation = target.rotation;
+            target.GetPositionAndRotation(out lastPosition, out lastRotation);
 
             // Reset velocity / angular velocity
             velocity = Vector3.zero;
