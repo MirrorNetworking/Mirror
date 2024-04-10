@@ -10,8 +10,6 @@ namespace Mirror.Examples.MultipleMatch
         public GameObject canvas;
         public CanvasController canvasController;
 
-        public static new MatchNetworkManager singleton { get; private set; }
-
         /// <summary>
         /// Runs on both Server and Client
         /// Networking is NOT initialized when this fires
@@ -19,7 +17,6 @@ namespace Mirror.Examples.MultipleMatch
         public override void Awake()
         {
             base.Awake();
-            singleton = this;
             canvasController.InitializeData();
         }
 

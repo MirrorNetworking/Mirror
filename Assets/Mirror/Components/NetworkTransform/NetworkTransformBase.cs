@@ -46,6 +46,12 @@ namespace Mirror
         public bool syncRotation = true;  // do not change at runtime!
         public bool syncScale = false; // do not change at runtime! rare. off by default.
 
+        [Header("Bandwidth Savings")]
+        [Tooltip("When true, changes are not sent unless greater than sensitivity values below.")]
+        public bool onlySyncOnChange = true;
+        [Tooltip("Apply smallest-three quaternion compression. This is lossy, you can disable it if the small rotation inaccuracies are noticeable in your project.")]
+        public bool compressRotation = true;
+
         // interpolation is on by default, but can be disabled to jump to
         // the destination immediately. some projects need this.
         [Header("Interpolation")]
@@ -305,9 +311,9 @@ namespace Mirror
         }
 
         [ClientRpc]
-        void RpcReset()
+        void RpcResetState()
         {
-            Reset();
+            ResetState();
         }
 
         // common Teleport code for client->server and server->client
@@ -361,7 +367,7 @@ namespace Mirror
             // -> maybe add destination as first entry?
         }
 
-        public virtual void Reset()
+        public virtual void ResetState()
         {
             // disabled objects aren't updated anymore.
             // so let's clear the buffers.
@@ -369,9 +375,16 @@ namespace Mirror
             clientSnapshots.Clear();
         }
 
+        public virtual void Reset()
+        {
+            ResetState();
+            // default to ClientToServer so this works immediately for users
+            syncDirection = SyncDirection.ClientToServer;
+        }
+
         protected virtual void OnEnable()
         {
-            Reset();
+            ResetState();
 
             if (NetworkServer.active)
                 NetworkIdentity.clientAuthorityCallback += OnClientAuthorityChanged;
@@ -379,7 +392,7 @@ namespace Mirror
 
         protected virtual void OnDisable()
         {
-            Reset();
+            ResetState();
 
             if (NetworkServer.active)
                 NetworkIdentity.clientAuthorityCallback -= OnClientAuthorityChanged;
@@ -397,8 +410,8 @@ namespace Mirror
 
             if (syncDirection == SyncDirection.ClientToServer)
             {
-                Reset();
-                RpcReset();
+                ResetState();
+                RpcResetState();
             }
         }
 

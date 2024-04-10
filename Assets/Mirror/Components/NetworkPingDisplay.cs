@@ -13,7 +13,7 @@ namespace Mirror
     {
         public Color color = Color.white;
         public int padding = 2;
-        public int width = 100;
+        public int width = 150;
         public int height = 25;
 
         void OnGUI()

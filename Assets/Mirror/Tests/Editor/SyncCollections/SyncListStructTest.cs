@@ -47,8 +47,9 @@ namespace Mirror.Tests.SyncCollections
             player.item.price = 15;
             serverList[0] = player;
 
+#pragma warning disable 618 // Type or member is obsolete
             bool callbackCalled = false;
-            clientList.Callback += (SyncList<TestPlayer>.Operation op, int itemIndex, TestPlayer oldItem, TestPlayer newItem) =>
+            clientList.Callback = (SyncList<TestPlayer>.Operation op, int itemIndex, TestPlayer oldItem, TestPlayer newItem) =>
             {
                 Assert.That(op == SyncList<TestPlayer>.Operation.OP_SET, Is.True);
                 Assert.That(itemIndex, Is.EqualTo(0));
@@ -56,6 +57,7 @@ namespace Mirror.Tests.SyncCollections
                 Assert.That(newItem.item.price, Is.EqualTo(15));
                 callbackCalled = true;
             };
+#pragma warning restore 618 // Type or member is obsolete
 
             SyncListTest.SerializeDeltaTo(serverList, clientList);
             Assert.IsTrue(callbackCalled);

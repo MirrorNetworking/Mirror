@@ -74,7 +74,7 @@ namespace Mirror.Tests.SyncCollections
         [Test]
         public void CurlyBracesConstructor()
         {
-            SyncList<int> list = new SyncList<int>{1,2,3};
+            SyncList<int> list = new SyncList<int> { 1, 2, 3 };
             Assert.That(list.Count, Is.EqualTo(3));
         }
 
@@ -97,17 +97,58 @@ namespace Mirror.Tests.SyncCollections
         [Test]
         public void TestClear()
         {
+#pragma warning disable 618 // Type or member is obsolete
+            bool called = false;
+            clientSyncList.Callback = (op, index, oldItem, newItem) =>
+            {
+                called = true;
+
+                Assert.That(op, Is.EqualTo(SyncList<string>.Operation.OP_CLEAR));
+                Assert.That(clientSyncList.Count, Is.EqualTo(3));
+            };
+#pragma warning restore 618 // Type or member is obsolete
+
+            bool actionCalled = false;
+            clientSyncList.OnClear = () =>
+            {
+                actionCalled = true;
+                Assert.That(clientSyncList.Count, Is.EqualTo(3));
+            };
+
             serverSyncList.Clear();
             SerializeDeltaTo(serverSyncList, clientSyncList);
-            Assert.That(clientSyncList, Is.EquivalentTo(new string[] {}));
+            Assert.That(clientSyncList, Is.EquivalentTo(new string[] { }));
+            Assert.That(called, Is.True);
+            Assert.That(actionCalled, Is.True);
         }
 
         [Test]
         public void TestInsert()
         {
+#pragma warning disable 618 // Type or member is obsolete
+            bool called = false;
+            clientSyncList.Callback = (op, index, oldItem, newItem) =>
+            {
+                called = true;
+
+                Assert.That(op, Is.EqualTo(SyncList<string>.Operation.OP_INSERT));
+                Assert.That(index, Is.EqualTo(0));
+                Assert.That(newItem, Is.EqualTo("yay"));
+            };
+#pragma warning restore 618 // Type or member is obsolete
+
+            bool actionCalled = false;
+            clientSyncList.OnInsert = (index) =>
+            {
+                actionCalled = true;
+                Assert.That(index, Is.EqualTo(0));
+            };
+
             serverSyncList.Insert(0, "yay");
             SerializeDeltaTo(serverSyncList, clientSyncList);
             Assert.That(clientSyncList, Is.EquivalentTo(new[] { "yay", "Hello", "World", "!" }));
+            Assert.That(called, Is.True);
+            Assert.That(actionCalled, Is.True);
         }
 
         [Test]
@@ -121,19 +162,74 @@ namespace Mirror.Tests.SyncCollections
         [Test]
         public void TestSet()
         {
+#pragma warning disable 618 // Type or member is obsolete
+            bool called = false;
+            clientSyncList.Callback = (op, index, oldItem, newItem) =>
+            {
+                called = true;
+
+                Assert.That(op, Is.EqualTo(SyncList<string>.Operation.OP_SET));
+                Assert.That(index, Is.EqualTo(1));
+                Assert.That(oldItem, Is.EqualTo("World"));
+                Assert.That(newItem, Is.EqualTo("yay"));
+            };
+#pragma warning restore 618 // Type or member is obsolete
+
+            bool actionCalled = false;
+            clientSyncList.OnSet = (index, oldItem) =>
+            {
+                actionCalled = true;
+                Assert.That(index, Is.EqualTo(1));
+                Assert.That(oldItem, Is.EqualTo("World"));
+            };
+
             serverSyncList[1] = "yay";
             SerializeDeltaTo(serverSyncList, clientSyncList);
             Assert.That(clientSyncList[1], Is.EqualTo("yay"));
             Assert.That(clientSyncList, Is.EquivalentTo(new[] { "Hello", "yay", "!" }));
+            Assert.That(called, Is.True);
+            Assert.That(actionCalled, Is.True);
         }
 
         [Test]
         public void TestSetNull()
         {
+#pragma warning disable 618 // Type or member is obsolete
+            bool called = false;
+            clientSyncList.Callback = (op, index, oldItem, newItem) =>
+            {
+                called = true;
+
+                Assert.That(op, Is.EqualTo(SyncList<string>.Operation.OP_SET));
+                Assert.That(index, Is.EqualTo(1));
+                Assert.That(oldItem, Is.EqualTo("World"));
+                Assert.That(newItem, Is.EqualTo(null));
+            };
+#pragma warning restore 618 // Type or member is obsolete
+
+            bool actionCalled = false;
+            clientSyncList.OnSet = (index, oldItem) =>
+            {
+                actionCalled = true;
+                Assert.That(index, Is.EqualTo(1));
+                Assert.That(oldItem, Is.EqualTo("World"));
+            };
+
             serverSyncList[1] = null;
             SerializeDeltaTo(serverSyncList, clientSyncList);
             Assert.That(clientSyncList[1], Is.EqualTo(null));
             Assert.That(clientSyncList, Is.EquivalentTo(new[] { "Hello", null, "!" }));
+            Assert.That(called, Is.True);
+            Assert.That(actionCalled, Is.True);
+
+#pragma warning disable 618 // Type or member is obsolete
+            // clear callback so we don't get called again
+            clientSyncList.Callback = null;
+#pragma warning restore 618 // Type or member is obsolete
+
+            // clear handlers so we don't get called again
+            clientSyncList.OnSet = null;
+
             serverSyncList[1] = "yay";
             SerializeDeltaTo(serverSyncList, clientSyncList);
             Assert.That(clientSyncList, Is.EquivalentTo(new[] { "Hello", "yay", "!" }));
@@ -142,9 +238,33 @@ namespace Mirror.Tests.SyncCollections
         [Test]
         public void TestRemoveAll()
         {
+#pragma warning disable 618 // Type or member is obsolete
+            bool called = false;
+            clientSyncList.Callback = (op, index, oldItem, newItem) =>
+            {
+                called = true;
+
+                Assert.That(op, Is.EqualTo(SyncList<string>.Operation.OP_REMOVEAT));
+                Assert.That(index, Is.EqualTo(0));
+                Assert.That(oldItem, Is.Not.EqualTo("!"));
+                Assert.That(newItem, Is.EqualTo(default(string)));
+            };
+#pragma warning restore 618 // Type or member is obsolete
+
+            bool actionCalled = false;
+            clientSyncList.OnRemove = (index, item) =>
+            {
+                actionCalled = true;
+                Assert.That(index, Is.EqualTo(0));
+                Assert.That(item, Is.Not.EqualTo("!"));
+            };
+
+            // This will remove "Hello" and "World"
             serverSyncList.RemoveAll(entry => entry.Contains("l"));
             SerializeDeltaTo(serverSyncList, clientSyncList);
             Assert.That(clientSyncList, Is.EquivalentTo(new[] { "!" }));
+            Assert.That(called, Is.True);
+            Assert.That(actionCalled, Is.True);
         }
 
         [Test]
@@ -158,17 +278,63 @@ namespace Mirror.Tests.SyncCollections
         [Test]
         public void TestRemoveAt()
         {
+#pragma warning disable 618 // Type or member is obsolete
+            bool called = false;
+            clientSyncList.Callback = (op, index, oldItem, newItem) =>
+            {
+                called = true;
+
+                Assert.That(op, Is.EqualTo(SyncList<string>.Operation.OP_REMOVEAT));
+                Assert.That(index, Is.EqualTo(1));
+                Assert.That(oldItem, Is.EqualTo("World"));
+                Assert.That(newItem, Is.EqualTo(default(string)));
+            };
+#pragma warning restore 618 // Type or member is obsolete
+
+            bool actionCalled = false;
+            clientSyncList.OnRemove = (index, oldItem) =>
+            {
+                actionCalled = true;
+                Assert.That(index, Is.EqualTo(1));
+                Assert.That(oldItem, Is.EqualTo("World"));
+            };
+
             serverSyncList.RemoveAt(1);
             SerializeDeltaTo(serverSyncList, clientSyncList);
             Assert.That(clientSyncList, Is.EquivalentTo(new[] { "Hello", "!" }));
+            Assert.That(called, Is.True);
+            Assert.That(actionCalled, Is.True);
         }
 
         [Test]
         public void TestRemove()
         {
+#pragma warning disable 618 // Type or member is obsolete
+            bool called = false;
+            clientSyncList.Callback = (op, index, oldItem, newItem) =>
+            {
+                called = true;
+
+                Assert.That(op, Is.EqualTo(SyncList<string>.Operation.OP_REMOVEAT));
+                Assert.That(index, Is.EqualTo(1));
+                Assert.That(oldItem, Is.EqualTo("World"));
+                Assert.That(newItem, Is.EqualTo(default(string)));
+            };
+#pragma warning restore 618 // Type or member is obsolete
+
+            bool actionCalled = false;
+            clientSyncList.OnRemove = (index, oldItem) =>
+            {
+                actionCalled = true;
+                Assert.That(index, Is.EqualTo(1));
+                Assert.That(oldItem, Is.EqualTo("World"));
+            };
+
             serverSyncList.Remove("World");
             SerializeDeltaTo(serverSyncList, clientSyncList);
             Assert.That(clientSyncList, Is.EquivalentTo(new[] { "Hello", "!" }));
+            Assert.That(called, Is.True);
+            Assert.That(actionCalled, Is.True);
         }
 
         [Test]
@@ -276,9 +442,9 @@ namespace Mirror.Tests.SyncCollections
         [Test]
         public void CallbackTest()
         {
+#pragma warning disable 618 // Type or member is obsolete
             bool called = false;
-
-            clientSyncList.Callback += (op, index, oldItem, newItem) =>
+            clientSyncList.Callback = (op, index, oldItem, newItem) =>
             {
                 called = true;
 
@@ -287,19 +453,28 @@ namespace Mirror.Tests.SyncCollections
                 Assert.That(oldItem, Is.EqualTo(default(string)));
                 Assert.That(newItem, Is.EqualTo("yay"));
             };
+#pragma warning restore 618 // Type or member is obsolete
+
+            bool actionCalled = false;
+            clientSyncList.OnAdd = (index) =>
+            {
+                actionCalled = true;
+                Assert.That(index, Is.EqualTo(3));
+                Assert.That(clientSyncList[index], Is.EqualTo("yay"));
+            };
 
             serverSyncList.Add("yay");
             SerializeDeltaTo(serverSyncList, clientSyncList);
-
             Assert.That(called, Is.True);
+            Assert.That(actionCalled, Is.True);
         }
 
         [Test]
         public void CallbackRemoveTest()
         {
+#pragma warning disable 618 // Type or member is obsolete
             bool called = false;
-
-            clientSyncList.Callback += (op, index, oldItem, newItem) =>
+            clientSyncList.Callback = (op, index, oldItem, newItem) =>
             {
                 called = true;
 
@@ -307,18 +482,28 @@ namespace Mirror.Tests.SyncCollections
                 Assert.That(oldItem, Is.EqualTo("World"));
                 Assert.That(newItem, Is.EqualTo(default(string)));
             };
+#pragma warning restore 618 // Type or member is obsolete
+
+            bool actionCalled = false;
+            clientSyncList.OnRemove = (index, oldItem) =>
+            {
+                actionCalled = true;
+                Assert.That(index, Is.EqualTo(1));
+                Assert.That(oldItem, Is.EqualTo("World"));
+            };
+
             serverSyncList.Remove("World");
             SerializeDeltaTo(serverSyncList, clientSyncList);
-
             Assert.That(called, Is.True);
+            Assert.That(actionCalled, Is.True);
         }
 
         [Test]
         public void CallbackRemoveAtTest()
         {
+#pragma warning disable 618 // Type or member is obsolete
             bool called = false;
-
-            clientSyncList.Callback += (op, index, oldItem, newItem) =>
+            clientSyncList.Callback = (op, index, oldItem, newItem) =>
             {
                 called = true;
 
@@ -327,11 +512,20 @@ namespace Mirror.Tests.SyncCollections
                 Assert.That(oldItem, Is.EqualTo("World"));
                 Assert.That(newItem, Is.EqualTo(default(string)));
             };
+#pragma warning restore 618 // Type or member is obsolete
+
+            bool actionCalled = false;
+            clientSyncList.OnRemove = (index, oldItem) =>
+            {
+                actionCalled = true;
+                Assert.That(index, Is.EqualTo(1));
+                Assert.That(oldItem, Is.EqualTo("World"));
+            };
 
             serverSyncList.RemoveAt(1);
             SerializeDeltaTo(serverSyncList, clientSyncList);
-
             Assert.That(called, Is.True);
+            Assert.That(actionCalled, Is.True);
         }
 
         [Test]
