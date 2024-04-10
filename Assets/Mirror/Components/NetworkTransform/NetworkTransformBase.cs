@@ -136,7 +136,7 @@ namespace Mirror
             lastRotation = target.rotation;
         }
 
-        void Update()
+        protected virtual void Update()
         {
             // Use global coordinates for velocity and angular velocity.
             Vector3 pos = target.position;

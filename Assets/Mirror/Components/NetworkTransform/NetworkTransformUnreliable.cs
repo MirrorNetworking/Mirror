@@ -33,13 +33,15 @@ namespace Mirror
 
         // update //////////////////////////////////////////////////////////////
         // Update applies interpolation
-        void Update()
+        protected override void Update()
         {
             if (isServer) UpdateServerInterpolation();
             // for all other clients (and for local player if !authority),
             // we need to apply snapshots from the buffer.
             // 'else if' because host mode shouldn't interpolate client
             else if (isClient && !IsClientWithAuthority) UpdateClientInterpolation();
+
+            base.Update();
         }
 
         // LateUpdate broadcasts.

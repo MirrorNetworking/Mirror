@@ -44,13 +44,15 @@ namespace Mirror
         protected int lastClientCount = 1;
 
         // update //////////////////////////////////////////////////////////////
-        void Update()
+        protected override void Update()
         {
             // if server then always sync to others.
             if (isServer) UpdateServer();
             // 'else if' because host mode shouldn't send anything to server.
             // it is the server. don't overwrite anything there.
             else if (isClient) UpdateClient();
+
+            base.Update();
         }
 
         void LateUpdate()
