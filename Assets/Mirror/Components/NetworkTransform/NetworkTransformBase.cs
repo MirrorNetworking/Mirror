@@ -148,11 +148,24 @@ namespace Mirror
 
             // Update velocity and angular velocity
             velocity = (pos - lastPosition) / Time.deltaTime;
-            angularVelocity = (rot.eulerAngles - lastRotation.eulerAngles) / Time.deltaTime;
+            CalculateAngularVelocity(rot);
 
             // Update last position and rotation
             lastPosition = pos;
             lastRotation = rot;
+        }
+
+        void CalculateAngularVelocity(Quaternion currentRot)
+        {
+            // calculate angle between two rotations
+            Quaternion deltaRotation = currentRot * Quaternion.Inverse(lastRotation);
+
+            // convert to angle axis
+            deltaRotation.ToAngleAxis(out float angle, out Vector3 axis);
+
+            // we assume the angle is always the shortest path
+            // we don't need to check for 360 degree rotations
+            angularVelocity = axis * angle * Mathf.Deg2Rad / Time.deltaTime;
         }
 
         // snapshot functions //////////////////////////////////////////////////
