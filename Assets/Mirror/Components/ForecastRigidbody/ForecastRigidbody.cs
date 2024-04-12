@@ -46,6 +46,9 @@ namespace Mirror
         [Tooltip("Locally applied force is slowed down a bit compared to the server force, to make catch up more smooth.")]
         [Range(0.05f, 1)] public float localForceDampening = 0.2f; // 50% is too obvious
 
+        [Header("Smoothing")]
+        public readonly SortedList<double, TransformSnapshot> clientSnapshots = new SortedList<double, TransformSnapshot>(16);
+
         [Header("Collision Chaining")]
         [Tooltip("Enable to have actively predicted Rigidbodies activate other Rigidbodies they collide with.")]
         public bool collisionChaining = true;
@@ -175,6 +178,7 @@ namespace Mirror
             // we want to predict until the first server state for our [Command] AddForce came in.
             // we know the time when our [Command] arrives on server: NetworkTime.predictedTime.
             predictionStartTime = NetworkTime.predictedTime; // !!! not .time !!!
+
             OnBeginPrediction();
             // Debug.Log($"{name} BEGIN PREDICTING @ {predictionStartTime:F2}");
         }
@@ -186,6 +190,10 @@ namespace Mirror
             // if (debugColors) rend.material.color = blendingAheadColor; set in update depending on ahead/behind
             blendingStartTime = NetworkTime.localTime;
             OnBeginBlending();
+
+            // clear any previous snapshots from teleports, old states, while prediction etc.
+            // start building a buffer while blending, to later follow while FOLLOWING.
+            clientSnapshots.Clear();
             // Debug.Log($"{name} BEGIN BLENDING");
         }
 
@@ -334,10 +342,26 @@ namespace Mirror
                 // in theory we must always set rigidbody.position/rotation instead of transform:
                 // https://forum.unity.com/threads/how-expensive-is-physics-synctransforms.1366146/#post-9557491
                 // however, tf.SetPositionAndRotation is faster in our Prediction Benchmark.
-                // TODO snapshot interpolation
                 //   predictedRigidbody.position = lastReceivedState.position;
                 //   predictedRigidbody.rotation = lastReceivedState.rotation;
-                tf.SetPositionAndRotation(lastReceivedState.position, lastReceivedState.rotation);
+                // tf.SetPositionAndRotation(lastReceivedState.position, lastReceivedState.rotation);
+
+                // only while we have snapshots
+                if (clientSnapshots.Count > 0)
+                {
+                    // step the interpolation without touching time.
+                    // NetworkClient is responsible for time globally.
+                    SnapshotInterpolation.StepInterpolation(
+                        clientSnapshots,
+                        NetworkTime.time, // == NetworkClient.localTimeline from snapshot interpolation
+                        out TransformSnapshot from,
+                        out TransformSnapshot to,
+                        out double t);
+
+                    // interpolate & apply
+                    TransformSnapshot computed = TransformSnapshot.Interpolate(from, to, t);
+                    tf.SetPositionAndRotation(computed.position, computed.rotation); // scale is ignored
+                }
             }
         }
 
@@ -412,6 +436,30 @@ namespace Mirror
         {
             // store last time
             lastReceivedState = data;
+
+            // add to snapshot interpolation for smooth following.
+            // add a small timeline offset to account for decoupled arrival of
+            // NetworkTime and NetworkTransform snapshots.
+            // needs to be sendInterval. half sendInterval doesn't solve it.
+            // https://github.com/MirrorNetworking/Mirror/issues/3427
+            // remove this after LocalWorldState.
+
+            // insert transform transform snapshot.
+            // ignore while predicting since they'll be from old server state.
+            if (state != ForecastState.PREDICTING)
+            {
+                SnapshotInterpolation.InsertIfNotExists(
+                    clientSnapshots,
+                    NetworkClient.snapshotSettings.bufferLimit,
+                    new TransformSnapshot(
+                        NetworkClient.connection.remoteTimeStamp, // TODO use Ninja's offset from NT-R?: + timeStampAdjustment + offset, // arrival remote timestamp. NOT remote time.
+                        NetworkTime.localTime, // Unity 2019 doesn't have timeAsDouble yet
+                        data.position,
+                        data.rotation,
+                        Vector3.zero // scale is unused
+                    )
+                );
+            }
         }
 
         // send state to clients every sendInterval.
