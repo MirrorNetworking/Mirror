@@ -46,7 +46,7 @@ namespace Mirror.Tests.InterestManagement
             // A should not be seen by B because A is force hidden
             Assert.That(identityA.observers.ContainsKey(connectionB.connectionId), Is.False);
             // B should be seen by A because
-            Assert.That(identityB.observers.ContainsKey(connectionA.connectionId), Is.False);
+            Assert.That(identityB.observers.ContainsKey(connectionA.connectionId), Is.True);
         }
 
         // brute force interest management
