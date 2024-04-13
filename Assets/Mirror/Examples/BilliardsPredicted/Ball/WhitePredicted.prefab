@@ -232,11 +232,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9b91ecbcc199f4492b9a91e820070131, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  clientStarted: 0
   sceneId: 0
   _assetId: 2140274599
   serverOnly: 0
-  visible: 0
+  visibility: 0
   hasSpawned: 0
 --- !u!135 &3429911415116987811
 SphereCollider:
@@ -283,6 +282,7 @@ MonoBehaviour:
   syncMode: 0
   syncInterval: 0
   dragIndicator: {fileID: 982362982}
+  dragTolerance: 1
   rigidBody: {fileID: 1848203816128897140}
   forceMultiplier: 2
   maxForce: 40
@@ -300,10 +300,26 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   syncDirection: 0
   syncMode: 0
-  syncInterval: 0.1
+  syncInterval: 0
+  predictedRigidbody: {fileID: 1848203816128897140}
+  mode: 1
+  motionSmoothingVelocityThreshold: 0.1
+  motionSmoothingAngularVelocityThreshold: 5
+  motionSmoothingTimeTolerance: 0.5
   stateHistoryLimit: 32
-  correctionThreshold: 0.1
+  recordInterval: 0.05
+  onlyRecordChanges: 1
+  compareLastFirst: 1
+  positionCorrectionThreshold: 0.1
+  rotationCorrectionThreshold: 5
   oneFrameAhead: 1
-  correctionMode: 1
-  ghostMaterial: {fileID: 2100000, guid: 411a48b4a197d4924bec3e3809bc9320, type: 2}
-  lineTime: 10
+  snapThreshold: 2
+  showGhost: 1
+  ghostVelocityThreshold: 0.1
+  localGhostMaterial: {fileID: 2100000, guid: 411a48b4a197d4924bec3e3809bc9320, type: 2}
+  remoteGhostMaterial: {fileID: 2100000, guid: 04f0b2088c857414393bab3b80356776, type: 2}
+  checkGhostsEveryNthFrame: 4
+  positionInterpolationSpeed: 15
+  rotationInterpolationSpeed: 10
+  teleportDistanceMultiplier: 10
+  reduceSendsWhileIdle: 1

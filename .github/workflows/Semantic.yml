@@ -21,7 +21,7 @@ jobs:
           Remove-Item -Recurse -Force Assets\Mirror\Tests.meta
         
       - name: Setup dotnet
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '3.1.100'
   

@@ -332,8 +332,7 @@ namespace Mirror
             // but server's last delta will have been reset, causing offsets.
             //
             // instead, simply clear snapshots.
-            serverSnapshots.Clear();
-            clientSnapshots.Clear();
+            ResetState();
 
             // TODO
             // what if we still receive a snapshot from before the interpolation?
@@ -358,8 +357,7 @@ namespace Mirror
             // but server's last delta will have been reset, causing offsets.
             //
             // instead, simply clear snapshots.
-            serverSnapshots.Clear();
-            clientSnapshots.Clear();
+            ResetState();
 
             // TODO
             // what if we still receive a snapshot from before the interpolation?

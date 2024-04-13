@@ -31,11 +31,12 @@ namespace Mirror
         public Animator animator;
 
         /// <summary>
-        /// Syncs animator.speed
+        /// Syncs animator.speed.
+        /// Default to 1 because Animator.speed defaults to 1.
         /// </summary>
         [SyncVar(hook = nameof(OnAnimatorSpeedChanged))]
-        float animatorSpeed;
-        float previousSpeed;
+        float animatorSpeed = 1f;
+        float previousSpeed = 1f;
 
         // Note: not an object[] array because otherwise initialization is real annoying
         int[] lastIntParameters;
@@ -92,6 +93,11 @@ namespace Mirror
         // in case users call SetActive(false) -> SetActive(true).
         void Awake() => Initialize();
         void OnEnable() => Initialize();
+
+        public virtual void Reset()
+        {
+            syncDirection = SyncDirection.ClientToServer;
+        }
 
         void FixedUpdate()
         {

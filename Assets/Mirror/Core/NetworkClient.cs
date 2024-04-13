@@ -261,7 +261,8 @@ namespace Mirror
                 // the handler may want to send messages to the client
                 // thus we should set the connected state before calling the handler
                 connectState = ConnectState.Connected;
-                NetworkTime.UpdateClient();
+                // ping right away after connecting so client gets new time asap
+                NetworkTime.SendPing();
                 OnConnectedEvent?.Invoke();
             }
             else Debug.LogError("Skipped Connect message handling because connection is null.");

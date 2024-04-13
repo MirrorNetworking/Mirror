@@ -33,7 +33,7 @@ namespace Mirror.Examples.MultipleMatch
 
         void Awake()
         {
-#if UNITY_2021_3_OR_NEWER
+#if UNITY_2022_2_OR_NEWER
             canvasController = GameObject.FindAnyObjectByType<CanvasController>();
 #else
             // Deprecated in Unity 2023.1
@@ -58,7 +58,9 @@ namespace Mirror.Examples.MultipleMatch
 
         public override void OnStartClient()
         {
-            matchPlayerData.Callback += UpdateWins;
+#pragma warning disable CS0618 // Type or member is obsolete
+            matchPlayerData.Callback = UpdateWins;
+#pragma warning restore CS0618 // Type or member is obsolete
 
             canvasGroup.alpha = 1f;
             canvasGroup.interactable = true;
