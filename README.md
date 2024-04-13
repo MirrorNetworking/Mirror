@@ -48,8 +48,8 @@ Many of our features quickly became the norm across all Unity netcodes!<br>
 | ☁️ **Two Click Hosting**      | (Optional) <a href="https://mirror-networking.gitbook.io/docs/hosting/edgegap-hosting-plugin-guide">Build & Push</a> directly from Unity Editor to the Cloud. | **Preview**     |
 |                               |                                                                                                                                                               |                 |
 | 📏 **Snapshot Interp.**       | Perfectly smooth movement for all platforms and all games.                                                                                                    | **Stable**      |
-| 🔫 **Lag Compensation**       | Roll back state to see what the player saw during input.                                                                                                      | **Preview**     |
-| 🏎 **Prediction**             | Inputs are applied immediately & corrected automatically.                                                                                                     | **Preview**     |
+| 🏎 **Fast Prediction**        | Simulate Physics locally & apply server corrections **[VR ready]**                                                                                            | **Beta**        |
+| 🔫 **Lag Compensation**       | Roll back state to see what the player saw during input.                                                                                                      | **Beta**     |
 |                               |                                                                                                                                                               |                 |
 | 🧙‍♂️ **General Purpose**     | Mirror supports all genres for all your games!                                                                                                                |                 |
 | 🧘‍♀️ **Stable API**          | Long term (10 years)  stability instead of new versions!                                                                                                      |
@@ -58,9 +58,8 @@ Many of our features quickly became the norm across all Unity netcodes!<br>
 | ❤️ **Community**              | Join our Discord with nearly 15.000 developers world wide!                                                                                                    |                 |
 | 🧜🏻‍♀️ **Long Term Support** | Maintained since 2014 with optional LTS version!                                                                                                              |                 |
 |                               |                                                                                                                                                               |                 |
-| 🦖 **Deterministic Physics**  | Open source deterministic physics for C# & Unity!                                                                                                             | **Researching** |
+| 🔒 **Encryption**             | Secure communication with end-to-end encryption.                                                                                                              | **Preview** |
 | 📐 **Bitpacking**             | Optimized compression (bools as 1 bit etc.)                                                                                                                   | **Researching** |
-| 🔒 **Encryption**             | Secure communication with end-to-end encryption.                                                                                                              | **Researching** |
 
 ---
 ## Architecture
@@ -144,7 +143,7 @@ Without any breaking changes, ever!
 [![Population: ONE](https://github.com/MirrorNetworking/Mirror/assets/16416509/dddc778b-a97f-452d-b5f8-6ec42c6da4f1)](https://www.populationonevr.com/)
 The [BigBoxVR](https://www.bigboxvr.com/) team started using Mirror in February 2019 for what eventually became one of the most popular Oculus Rift games.
 
-In addition to [24/7 support](https://github.com/sponsors/vis2k) from the Mirror team, BigBoxVR also hired one of our engineers.
+In addition to [24/7 support](https://discordapp.com/invite/xVW4nU4C34) from the Mirror team, BigBoxVR also hired one of our engineers.
 
 **Population: ONE** was [acquired by Meta](https://uploadvr.com/population-one-facebook-bigbox-acquire/) in June 2021, and they've just released a new [Sandbox](https://www.youtube.com/watch?v=jcI0h8dn9tA) addon in 2022!
 
@@ -161,6 +160,12 @@ SPIDER-MAN WITH GUNS!
 SWARM is a fast-paced, arcade-style grapple shooter, with quick sessions, bright colorful worlds and globally competitive leaderboards that will take you back to the glory days of Arcade Games.
 
 Available for the [Meta Quest](https://www.oculus.com/experiences/quest/2236053486488156/), made with Mirror.
+
+### [Castaways](https://www.castaways.com/)
+[![Castaways](https://user-images.githubusercontent.com/16416509/207313082-e6b95590-80c6-4685-b0d1-f1c39c236316.png)](https://www.castaways.com/)
+[Castaways](https://www.castaways.com/) is a sandbox game where you are castaway to a small remote island where you must work with others to survive and build a thriving new civilization. 
+
+Castaway runs in the Browser, thanks to Mirror's WebGL support.
 
 ### [Nimoyd](https://www.nimoyd.com/)
 [![nimoyd_smaller](https://user-images.githubusercontent.com/16416509/178142672-340bac2c-628a-4610-bbf1-8f718cb5b033.jpg)](https://www.nimoyd.com/)
@@ -187,6 +192,10 @@ James Bendon initially made the game with UNET, and then [switched to Mirror](ht
 [A Glimpse of Luna](https://www.glimpse-luna.com/) - a tactical multiplayer card battle game with the most beautiful concept art & soundtrack.
 
 Made with Mirror by two brothers with [no prior game development](https://www.youtube.com/watch?v=5J2wj8l4pFA&start=12) experience.
+
+### [Havoc](https://store.steampowered.com/app/2149290/Havoc/)
+![havoc fps game](https://github.com/MirrorNetworking/Mirror/assets/16416509/f3549a95-5663-41f8-9868-283b3a0fcf63)
+Havoc is a tactical team-based first-person shooter with a fully destructible environment and a unique art style. Havoc has been one of our favorite made-with-Mirror games for a few years now, and we are excited to finally see it up there on Steam.
 
 ### [Sun Haven](https://store.steampowered.com/app/1432860/Sun_Haven/)
 [![sun haven](https://user-images.githubusercontent.com/16416509/185836661-2bfd6cd0-523a-4af4-bac7-c202ed01de7d.jpg)](https://store.steampowered.com/app/1432860/Sun_Haven/)
@@ -248,12 +257,6 @@ The [France based team](https://naicaonline.com/en/news/view/1) was one of Mirro
 [![Empires Mobile](https://user-images.githubusercontent.com/16416509/207028553-c646f12c-c164-47d3-a1fc-ff79409c04fa.jpg)](https://knightempire.online/)
 [Empires Mobile](https://knightempire.online/) - Retro mobile MMORPG for Android and iOS, reaching 5000 CCU at times. Check out their [video](https://www.youtube.com/watch?v=v69lW9aWb-w) for some _early MMORPG_ nostalgia.
 
-### [Castaways](https://www.castaways.com/)
-[![Castaways](https://user-images.githubusercontent.com/16416509/207313082-e6b95590-80c6-4685-b0d1-f1c39c236316.png)](https://www.castaways.com/)
-[Castaways](https://www.castaways.com/) is a sandbox game where you are castaway to a small remote island where you must work with others to survive and build a thriving new civilization. 
-
-Castaway runs in the Browser, thanks to Mirror's WebGL support.
-
 ### [Overpowered](https://overpoweredcardgame.com/)
 [![Overpowered](https://github.com/MirrorNetworking/Mirror/assets/16416509/5bdbb227-970d-434e-b062-94fde1297f7c)](https://overpoweredcardgame.com/)
 [Overwpowered](https://overpoweredcardgame.com/), the exciting new card game that combines strategy, myth, and fun into one riveting web-based experience. Launched in 2023, made with Mirror!
@@ -273,6 +276,7 @@ Castaway runs in the Browser, thanks to Mirror's WebGL support.
 <a href="https://store.steampowered.com/app/2168680/Nuclear_Option/"><img src="https://github.com/MirrorNetworking/Mirror/assets/16416509/4e98520e-9bde-4305-8b02-bada090a02dd" title="Nuclear Option" height="100"/></a>
 <a href="https://store.steampowered.com/app/2499940/Shattered_Lands/"><img src="https://github.com/MirrorNetworking/Mirror/assets/57072365/52930403-c1d1-4c27-9477-e03215acbda5" title="Shattered Lands" height="100"/></a>
 <a href="https://store.steampowered.com/app/1955340/Super_Raft_Boat_Together"><img src="https://github.com/MirrorNetworking/Mirror/assets/57072365/0d30b84a-0b2b-4790-8687-d95e2fa23df1" title="Super Raft Boat Together" height="100"/></a>
+<a href="https://store.steampowered.com/app/2585860/Ruins_To_Fortress/"><img src="https://github.com/MirrorNetworking/Mirror/assets/16416509/258ac5cf-d359-46cd-8af4-c7c1844dba9c" title="Ruins to Fortress" height="100"/></a>
 
 ## Modular Transports
 Mirror uses **KCP** (reliable UDP) by default, but you may use any of our community transports for low level packet sending:

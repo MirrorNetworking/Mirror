@@ -13,9 +13,9 @@ jobs:
         unityVersion:
           - 2019.4.40f1
           - 2020.3.48f1
-          - 2021.3.33f1
-          - 2022.3.15f1
-          - 2023.2.3f1
+          - 2021.3.36f1
+          - 2022.3.24f1
+          - 2023.2.16f1
 
     steps:
       - name: Checkout repository
@@ -47,7 +47,7 @@ jobs:
           customParameters: -stackTraceLogType None
         
       - name: Archive test results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: Test Results ${{ matrix.unityVersion }}

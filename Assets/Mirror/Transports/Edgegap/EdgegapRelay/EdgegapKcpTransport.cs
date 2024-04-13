@@ -10,7 +10,7 @@ using kcp2k;
 
 namespace Edgegap
 {
-    [DisallowMultipleComponent]
+    [HelpURL("https://mirror-networking.gitbook.io/docs/manual/transports/edgegap-transports/edgegap-relay")]
     public class EdgegapKcpTransport : KcpTransport
     {
         [Header("Relay")]
@@ -53,7 +53,7 @@ namespace Edgegap
             client = new EdgegapKcpClient(
                 () => OnClientConnected.Invoke(),
                 (message, channel) => OnClientDataReceived.Invoke(message, FromKcpChannel(channel)),
-                () => OnClientDisconnected.Invoke(),
+                () => OnClientDisconnected?.Invoke(), // may be null in StopHost(): https://github.com/MirrorNetworking/Mirror/issues/3708
                 (error, reason) => OnClientError.Invoke(ToTransportError(error), reason),
                 config
             );

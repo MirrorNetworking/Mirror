@@ -144,6 +144,12 @@ namespace Mirror.SimpleWeb
 
         string GetClientScheme() => (sslEnabled || clientUseWss) ? SecureScheme : NormalScheme;
 
+        public override bool IsEncrypted => ClientConnected() && (clientUseWss || sslEnabled) || ServerActive() && sslEnabled;
+
+        // Not technically correct, but there's no good way to get the actual cipher, especially in browser
+        // When using reverse proxy, connection between proxy and server is not encrypted.
+        public override string EncryptionCipher => "TLS";
+
         public override bool ClientConnected()
         {
             // not null and not NotConnected (we want to return true if connecting or disconnecting)

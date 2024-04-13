@@ -72,7 +72,10 @@ namespace Mirror.SimpleWeb
 
                 if (responseKey != expectedResponse)
                 {
-                    Log.Error($"[SWT-ClientHandshake]: Response key incorrect\nResponse:{responseKey}\nExpected:{expectedResponse}");
+                    Log.Error($"[SWT-ClientHandshake]: Response key incorrect\n" +
+                        $"Expected:{expectedResponse}\n" +
+                        $"Response:{responseKey}\n" +
+                        $"This can happen if Websocket Protocol is not installed in Windows Server Roles.");
                     return false;
                 }
 

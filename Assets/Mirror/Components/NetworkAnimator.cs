@@ -31,11 +31,12 @@ namespace Mirror
         public Animator animator;
 
         /// <summary>
-        /// Syncs animator.speed
+        /// Syncs animator.speed.
+        /// Default to 1 because Animator.speed defaults to 1.
         /// </summary>
         [SyncVar(hook = nameof(OnAnimatorSpeedChanged))]
-        float animatorSpeed;
-        float previousSpeed;
+        float animatorSpeed = 1f;
+        float previousSpeed = 1f;
 
         // Note: not an object[] array because otherwise initialization is real annoying
         int[] lastIntParameters;
@@ -71,7 +72,7 @@ namespace Mirror
             }
         }
 
-        void Awake()
+        void Initialize()
         {
             // store the animator parameters in a variable - the "Animator.parameters" getter allocates
             // a new parameter array every time it is accessed so we should avoid doing it in a loop
@@ -85,6 +86,17 @@ namespace Mirror
             animationHash = new int[animator.layerCount];
             transitionHash = new int[animator.layerCount];
             layerWeight = new float[animator.layerCount];
+        }
+
+        // fix https://github.com/MirrorNetworking/Mirror/issues/2810
+        // both Awake and Enable need to initialize arrays.
+        // in case users call SetActive(false) -> SetActive(true).
+        void Awake() => Initialize();
+        void OnEnable() => Initialize();
+
+        public virtual void Reset()
+        {
+            syncDirection = SyncDirection.ClientToServer;
         }
 
         void FixedUpdate()
@@ -302,9 +314,18 @@ namespace Mirror
 
         bool WriteParameters(NetworkWriter writer, bool forceAll = false)
         {
+            // fix: https://github.com/MirrorNetworking/Mirror/issues/2852
+            // serialize parameterCount to be 100% sure we deserialize correct amount of bytes.
+            // (255 parameters should be enough for everyone, write it as byte)
+            byte parameterCount = (byte)parameters.Length;
+            writer.WriteByte(parameterCount);
+
             ulong dirtyBits = forceAll ? (~0ul) : NextDirtyBits();
             writer.WriteULong(dirtyBits);
-            for (int i = 0; i < parameters.Length; i++)
+
+            // iterate on byte count. if it's >256, it won't break
+            // serialization - just not serialize excess layers.
+            for (int i = 0; i < parameterCount; i++)
             {
                 if ((dirtyBits & (1ul << i)) == 0)
                     continue;
@@ -331,11 +352,20 @@ namespace Mirror
 
         void ReadParameters(NetworkReader reader)
         {
+            // fix: https://github.com/MirrorNetworking/Mirror/issues/2852
+            // serialize parameterCount to be 100% sure we deserialize correct amount of bytes.
+            // mismatch shows error to make this super easy to debug.
+            byte parameterCount = reader.ReadByte();
+            if (parameterCount != parameters.Length)
+            {
+                Debug.LogError($"NetworkAnimator: serialized parameter count={parameterCount} does not match expected parameter count={parameters.Length}. Are you changing animators at runtime?", gameObject);
+                return;
+            }
+
             bool animatorEnabled = animator.enabled;
             // need to read values from NetworkReader even if animator is disabled
-
             ulong dirtyBits = reader.ReadULong();
-            for (int i = 0; i < parameters.Length; i++)
+            for (int i = 0; i < parameterCount; i++)
             {
                 if ((dirtyBits & (1ul << i)) == 0)
                     continue;
@@ -367,23 +397,24 @@ namespace Mirror
             base.OnSerialize(writer, initialState);
             if (initialState)
             {
-                for (int i = 0; i < animator.layerCount; i++)
+                // fix: https://github.com/MirrorNetworking/Mirror/issues/2852
+                // serialize layerCount to be 100% sure we deserialize correct amount of bytes.
+                // (255 layers should be enough for everyone, write it as byte)
+                byte layerCount = (byte)animator.layerCount;
+                writer.WriteByte(layerCount);
+
+                // iterate on byte count. if it's >256, it won't break
+                // serialization - just not serialize excess layers.
+                for (int i = 0; i < layerCount; i++)
                 {
-                    if (animator.IsInTransition(i))
-                    {
-                        AnimatorStateInfo st = animator.GetNextAnimatorStateInfo(i);
-                        writer.WriteInt(st.fullPathHash);
-                        writer.WriteFloat(st.normalizedTime);
-                    }
-                    else
-                    {
-                        AnimatorStateInfo st = animator.GetCurrentAnimatorStateInfo(i);
-                        writer.WriteInt(st.fullPathHash);
-                        writer.WriteFloat(st.normalizedTime);
-                    }
+                    AnimatorStateInfo st = animator.IsInTransition(i)
+                        ? animator.GetNextAnimatorStateInfo(i)
+                        : animator.GetCurrentAnimatorStateInfo(i);
+                    writer.WriteInt(st.fullPathHash);
+                    writer.WriteFloat(st.normalizedTime);
                     writer.WriteFloat(animator.GetLayerWeight(i));
                 }
-                WriteParameters(writer, initialState);
+                WriteParameters(writer, true);
             }
         }
 
@@ -392,11 +423,23 @@ namespace Mirror
             base.OnDeserialize(reader, initialState);
             if (initialState)
             {
-                for (int i = 0; i < animator.layerCount; i++)
+                // fix: https://github.com/MirrorNetworking/Mirror/issues/2852
+                // serialize layerCount to be 100% sure we deserialize correct amount of bytes.
+                // mismatch shows error to make this super easy to debug.
+                byte layerCount = reader.ReadByte();
+                if (layerCount != animator.layerCount)
+                {
+                    Debug.LogError($"NetworkAnimator: serialized layer count={layerCount} does not match expected layer count={animator.layerCount}. Are you changing animators at runtime?", gameObject);
+                    return;
+                }
+
+                for (int i = 0; i < layerCount; i++)
                 {
                     int stateHash = reader.ReadInt();
                     float normalizedTime = reader.ReadFloat();
-                    animator.SetLayerWeight(i, reader.ReadFloat());
+                    float weight = reader.ReadFloat();
+
+                    animator.SetLayerWeight(i, weight);
                     animator.Play(stateHash, i, normalizedTime);
                 }
 
@@ -424,13 +467,13 @@ namespace Mirror
             {
                 if (!isClient)
                 {
-                    Debug.LogWarning("Tried to set animation in the server for a client-controlled animator");
+                    Debug.LogWarning("Tried to set animation in the server for a client-controlled animator", gameObject);
                     return;
                 }
 
                 if (!isOwned)
                 {
-                    Debug.LogWarning("Only the client with authority can set animations");
+                    Debug.LogWarning("Only the client with authority can set animations", gameObject);
                     return;
                 }
 
@@ -444,7 +487,7 @@ namespace Mirror
             {
                 if (!isServer)
                 {
-                    Debug.LogWarning("Tried to set animation in the client for a server-controlled animator");
+                    Debug.LogWarning("Tried to set animation in the client for a server-controlled animator", gameObject);
                     return;
                 }
 
@@ -471,13 +514,13 @@ namespace Mirror
             {
                 if (!isClient)
                 {
-                    Debug.LogWarning("Tried to reset animation in the server for a client-controlled animator");
+                    Debug.LogWarning("Tried to reset animation in the server for a client-controlled animator", gameObject);
                     return;
                 }
 
                 if (!isOwned)
                 {
-                    Debug.LogWarning("Only the client with authority can reset animations");
+                    Debug.LogWarning("Only the client with authority can reset animations", gameObject);
                     return;
                 }
 
@@ -491,7 +534,7 @@ namespace Mirror
             {
                 if (!isServer)
                 {
-                    Debug.LogWarning("Tried to reset animation in the client for a server-controlled animator");
+                    Debug.LogWarning("Tried to reset animation in the client for a server-controlled animator", gameObject);
                     return;
                 }
 
@@ -596,21 +639,15 @@ namespace Mirror
                 HandleAnimParamsMsg(networkReader);
         }
 
-        [ClientRpc]
+        [ClientRpc(includeOwner = false)]
         void RpcOnAnimationTriggerClientMessage(int hash)
         {
-            // host/owner handles this before it is sent
-            if (isServer || (clientAuthority && isOwned)) return;
-
             HandleAnimTriggerMsg(hash);
         }
 
-        [ClientRpc]
+        [ClientRpc(includeOwner = false)]
         void RpcOnAnimationResetTriggerClientMessage(int hash)
         {
-            // host/owner handles this before it is sent
-            if (isServer || (clientAuthority && isOwned)) return;
-
             HandleAnimResetTriggerMsg(hash);
         }
 

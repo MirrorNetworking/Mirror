@@ -2,9 +2,8 @@
 using System;
 using System.Linq;
 using System.Net;
-using UnityEngine;
 using Mirror;
-using Unity.Collections;
+using UnityEngine;
 using UnityEngine.Serialization;
 
 namespace kcp2k
@@ -116,7 +115,7 @@ namespace kcp2k
             client = new KcpClient(
                 () => OnClientConnected.Invoke(),
                 (message, channel) => OnClientDataReceived.Invoke(message, FromKcpChannel(channel)),
-                () => OnClientDisconnected.Invoke(),
+                () => OnClientDisconnected?.Invoke(), // may be null in StopHost(): https://github.com/MirrorNetworking/Mirror/issues/3708
                 (error, reason) => OnClientError.Invoke(ToTransportError(error), reason),
                 config
             );
@@ -366,7 +365,7 @@ namespace kcp2k
             }
         }
 
-        public override string ToString() => $"KCP {port}";
+        public override string ToString() => $"KCP [{port}]";
     }
 }
 //#endif MIRROR <- commented out because MIRROR isn't defined on first import yet
