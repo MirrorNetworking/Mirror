@@ -290,10 +290,20 @@ namespace Mirror.Tests.SyncCollections
                 Assert.That(clientSyncDictionary[key], Is.EqualTo("yay"));
             };
 
+            bool changeActionCalled = false;
+            clientSyncDictionary.OnChange = (op, key, item) =>
+            {
+                changeActionCalled = true;
+                Assert.That(op, Is.EqualTo(SyncDictionary<int, string>.Operation.OP_ADD));
+                Assert.That(key, Is.EqualTo(3));
+                Assert.That(clientSyncDictionary[key], Is.EqualTo("yay"));
+            };
+
             serverSyncDictionary.Add(3, "yay");
             SerializeDeltaTo(serverSyncDictionary, clientSyncDictionary);
             Assert.That(called, Is.True);
             Assert.That(actionCalled, Is.True);
+            Assert.That(changeActionCalled, Is.True);
         }
 
         [Test]
@@ -320,9 +330,19 @@ namespace Mirror.Tests.SyncCollections
                 Assert.That(serverSyncDictionary[key], Is.EqualTo("yay"));
             };
 
+            bool changeActionCalled = false;
+            serverSyncDictionary.OnChange = (op, key, item) =>
+            {
+                changeActionCalled = true;
+                Assert.That(op, Is.EqualTo(SyncDictionary<int, string>.Operation.OP_ADD));
+                Assert.That(key, Is.EqualTo(3));
+                Assert.That(serverSyncDictionary[key], Is.EqualTo("yay"));
+            };
+
             serverSyncDictionary[3] = "yay";
             Assert.That(called, Is.True);
             Assert.That(actionCalled, Is.True);
+            Assert.That(changeActionCalled, Is.True);
         }
 
         [Test]
@@ -348,10 +368,20 @@ namespace Mirror.Tests.SyncCollections
                 Assert.That(!clientSyncDictionary.ContainsKey(1));
             };
 
+            bool changeActionCalled = false;
+            clientSyncDictionary.OnChange = (op, key, item) =>
+            {
+                changeActionCalled = true;
+                Assert.That(op, Is.EqualTo(SyncDictionary<int, string>.Operation.OP_REMOVE));
+                Assert.That(key, Is.EqualTo(1));
+                Assert.That(item, Is.EqualTo("World"));
+            };
+
             serverSyncDictionary.Remove(1);
             SerializeDeltaTo(serverSyncDictionary, clientSyncDictionary);
             Assert.That(called, Is.True);
             Assert.That(actionCalled, Is.True);
+            Assert.That(changeActionCalled, Is.True);
         }
 
         [Test]
