@@ -39,8 +39,8 @@ plugins:
   # Remove Test folder so it's excluded from Unity package
   # -f: force, -r: recursive, -q: quiet
   - - '@semantic-release/exec'
-    - prepareCmd: "rm -f -r -q Assets/Mirror/Tests Tests 
-                && rm -f -q Assets/Mirror/Tests.meta Tests.meta"
+    - prepareCmd: "rm -f -r -q Assets/Mirror/Tests 
+                && rm -f -q Assets/Mirror/Tests.meta"
 
   # Create Unity package with Mirror, ScriptTemplates, and LICENSE
   - - '@semantic-release/exec'
