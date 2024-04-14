@@ -6,9 +6,9 @@ using Mirror;
 
 public class NTRCustomSendInterval : NetworkTransformBase
 {
-    [Header("Sync Only If Changed")]
-    [Tooltip("When true, changes are not sent unless greater than sensitivity values below.")]
-    public bool onlySyncOnChange = true;
+    //[Header("Sync Only If Changed")]
+    //[Tooltip("When true, changes are not sent unless greater than sensitivity values below.")]
+    //public bool onlySyncOnChange = true;
     float onlySyncOnChangeInterval => onlySyncOnChangeCorrectionMultiplier * sendIntervalMultiplier;
 
     [Tooltip("If we only sync on change, then we need to correct old snapshots if more time than sendInterval * multiplier has elapsed.\n\nOtherwise the first move will always start interpolating from the last move sequence's time, which will make it stutter when starting every time.")]
@@ -22,8 +22,8 @@ public class NTRCustomSendInterval : NetworkTransformBase
     [Header("Rotation")]
     [Tooltip("Sensitivity of changes needed before an updated state is sent over the network")]
     public float rotationSensitivity = 0.01f;
-    [Tooltip("Apply smallest-three quaternion compression. This is lossy, you can disable it if the small rotation inaccuracies are noticeable in your project.")]
-    public bool compressRotation = false;
+    //[Tooltip("Apply smallest-three quaternion compression. This is lossy, you can disable it if the small rotation inaccuracies are noticeable in your project.")]
+    //public bool compressRotation = false;
 
     // delta compression is capable of detecting byte-level changes.
     // if we scale float position to bytes,

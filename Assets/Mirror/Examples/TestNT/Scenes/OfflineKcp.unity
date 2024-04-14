@@ -242,6 +242,10 @@ PrefabInstance:
       value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     - target: {fileID: 5678319891599719911, guid: 7cf6fcfd5a32c1545bc85a85bfa9c80b, type: 3}
+      propertyPath: m_Value
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5678319891599719911, guid: 7cf6fcfd5a32c1545bc85a85bfa9c80b, type: 3}
       propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 821201135}
@@ -377,6 +381,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5678319892216973634, guid: 7cf6fcfd5a32c1545bc85a85bfa9c80b, type: 3}
+      propertyPath: m_VertexColorAlwaysGammaSpace
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5678319892216973634, guid: 7cf6fcfd5a32c1545bc85a85bfa9c80b, type: 3}
+      propertyPath: m_AdditionalShaderChannelsFlag
+      value: 25
+      objectReference: {fileID: 0}
     - target: {fileID: 5678319892216973638, guid: 7cf6fcfd5a32c1545bc85a85bfa9c80b, type: 3}
       propertyPath: m_Name
       value: LoginUI
@@ -429,21 +441,27 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   dontDestroyOnLoad: 1
   runInBackground: 1
-  autoStartServerBuild: 1
-  autoConnectClientBuild: 0
+  headlessStartMode: 1
+  editorAutoStart: 0
   sendRate: 30
+  autoStartServerBuild: 0
+  autoConnectClientBuild: 0
   offlineScene: Assets/Mirror/Examples/TestNT/Scenes/OfflineKcp.unity
   onlineScene: Assets/Mirror/Examples/TestNT/Scenes/Online.unity
   transport: {fileID: 821201142}
-  networkAddress: mirror.clevertech.net
+  networkAddress: localhost
   maxConnections: 1000
+  disconnectInactiveConnections: 0
+  disconnectInactiveTimeout: 60
   authenticator: {fileID: 821201138}
-  playerPrefab: {fileID: 2033010110135952297, guid: 10f39bef276942448bfdfba062b6b6e0, type: 3}
+  playerPrefab: {fileID: 1428992836745641328, guid: 4b4e4d1a8090c7a45bab0cbc52ccfd76, type: 3}
   autoCreatePlayer: 1
   playerSpawnMethod: 0
   spawnPrefabs: []
+  exceptionsDisconnect: 1
   snapshotSettings:
     bufferTimeMultiplier: 2
+    bufferLimit: 32
     catchupNegativeThreshold: -1
     catchupPositiveThreshold: 1
     catchupSpeed: 0.019999999552965164
@@ -452,6 +470,8 @@ MonoBehaviour:
     dynamicAdjustment: 1
     dynamicAdjustmentTolerance: 1
     deliveryTimeEmaDuration: 2
+  evaluationMethod: 0
+  evaluationInterval: 3
   timeInterpolationGui: 1
   playerNinjaPrefab: {fileID: 9193589764031967748, guid: 7903ea74806680c4f9f3a62da96765c2, type: 3}
   botPrefab: {fileID: 629047657802428152, guid: 45e99b6415bfdc846bbbfc2d949d53f5, type: 3}
@@ -579,7 +599,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b0fecffa3f624585964b0d0eb21b18e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Port: 7777
+  port: 7777
   DualMode: 1
   NoDelay: 1
   Interval: 10
@@ -591,8 +611,8 @@ MonoBehaviour:
   SendWindowSize: 4096
   MaxRetransmit: 40
   MaximizeSocketBuffers: 1
-  ReliableMaxMessageSize: 298449
-  UnreliableMaxMessageSize: 1199
+  ReliableMaxMessageSize: 297433
+  UnreliableMaxMessageSize: 1194
   debugLog: 0
   statisticsGUI: 0
   statisticsLog: 0

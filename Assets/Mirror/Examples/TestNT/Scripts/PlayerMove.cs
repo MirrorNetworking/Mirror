@@ -12,7 +12,8 @@ namespace TestNT
         public enum MoveMode : byte { Walking, Sneaking, Running };
 
         [Header("Avatar Components")]
-        public NTRCustomSendInterval NTR;
+        //public NTRCustomSendInterval NTR;
+        public NTReliableExt NTR;
         public Animator animator;
         public CharacterController characterController;
 
@@ -65,7 +66,8 @@ namespace TestNT
         {
             base.OnValidate();
             if (NTR == null)
-                NTR = GetComponentInChildren<NTRCustomSendInterval>();
+                NTR = GetComponentInChildren<NTReliableExt>();
+                //NTR = GetComponentInChildren<NTRCustomSendInterval>();
 
             if (animator == null)
                 animator = GetComponentInChildren<Animator>();
@@ -324,7 +326,7 @@ namespace TestNT
         void OnVelRotChanged(Vector3 newVelocity, Vector3 newRotation)
         {
             // Only apply to other player objects
-            if (isLocalPlayer) return;
+            //if (isLocalPlayer) return;
 
             animVelocity = -MathF.Round(transform.InverseTransformDirection(newVelocity).z / moveSpeedMultiplier, 1);
             animRotation = -MathF.Round(newRotation.y / maxTurnSpeed, 1);
