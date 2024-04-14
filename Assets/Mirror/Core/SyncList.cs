@@ -6,23 +6,39 @@ namespace Mirror
 {
     public class SyncList<T> : SyncObject, IList<T>, IReadOnlyList<T>
     {
-        public delegate void SyncListChanged(Operation op, int itemIndex, T oldItem, T newItem);
+        public enum Operation : byte
+        {
+            OP_ADD,
+            OP_SET,
+            OP_INSERT,
+            OP_REMOVEAT,
+            OP_CLEAR
+        }
+
+        /// <summary>This is called after the item is added with index</summary>
+        public Action<int> OnAdd;
+
+        /// <summary>This is called after the item is inserted with inedx</summary>
+        public Action<int> OnInsert;
+
+        /// <summary>This is called after the item is set with index and OLD Value</summary>
+        public Action<int, T> OnSet;
+
+        /// <summary>This is called after the item is removed with index and OLD Value</summary>
+        public Action<int, T> OnRemove;
+
+        /// <summary>This is called before the list is cleared so the list can be iterated</summary>
+        public Action OnClear;
+
+        // Deprecated 2024-03-23
+        [Obsolete("Use individual Actions, which pass OLD values where appropriate, instead.")]
+        public Action<Operation, int, T, T> Callback;
 
         readonly IList<T> objects;
         readonly IEqualityComparer<T> comparer;
 
         public int Count => objects.Count;
         public bool IsReadOnly => !IsWritable();
-        public event SyncListChanged Callback;
-
-        public enum Operation : byte
-        {
-            OP_ADD,
-            OP_CLEAR,
-            OP_INSERT,
-            OP_REMOVEAT,
-            OP_SET
-        }
 
         struct Change
         {
@@ -43,7 +59,7 @@ namespace Mirror
         // so we need to skip them
         int changesAhead;
 
-        public SyncList() : this(EqualityComparer<T>.Default) {}
+        public SyncList() : this(EqualityComparer<T>.Default) { }
 
         public SyncList(IEqualityComparer<T> comparer)
         {
@@ -71,9 +87,7 @@ namespace Mirror
         void AddOperation(Operation op, int itemIndex, T oldItem, T newItem, bool checkAccess)
         {
             if (checkAccess && IsReadOnly)
-            {
                 throw new InvalidOperationException("Synclists can only be modified by the owner.");
-            }
 
             Change change = new Change
             {
@@ -88,7 +102,28 @@ namespace Mirror
                 OnDirty?.Invoke();
             }
 
+            switch (op)
+            {
+                case Operation.OP_ADD:
+                    OnAdd?.Invoke(itemIndex);
+                    break;
+                case Operation.OP_INSERT:
+                    OnInsert?.Invoke(itemIndex);
+                    break;
+                case Operation.OP_SET:
+                    OnSet?.Invoke(itemIndex, oldItem);
+                    break;
+                case Operation.OP_REMOVEAT:
+                    OnRemove?.Invoke(itemIndex, oldItem);
+                    break;
+                case Operation.OP_CLEAR:
+                    OnClear?.Invoke();
+                    break;
+            }
+
+#pragma warning disable CS0618 // Type or member is obsolete
             Callback?.Invoke(op, itemIndex, oldItem, newItem);
+#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         public override void OnSerializeAll(NetworkWriter writer)
@@ -195,12 +230,14 @@ namespace Mirror
                     case Operation.OP_CLEAR:
                         if (apply)
                         {
-                            objects.Clear();
                             // add dirty + changes.
                             // ClientToServer needs to set dirty in server OnDeserialize.
                             // no access check: server OnDeserialize can always
                             // write, even for ClientToServer (for broadcasting).
                             AddOperation(Operation.OP_CLEAR, 0, default, default, false);
+                            // clear after invoking the callback so users can iterate the list
+                            // and take appropriate action on the items before they are wiped.
+                            objects.Clear();
                         }
                         break;
 
@@ -265,15 +302,15 @@ namespace Mirror
         public void AddRange(IEnumerable<T> range)
         {
             foreach (T entry in range)
-            {
                 Add(entry);
-            }
         }
 
         public void Clear()
         {
-            objects.Clear();
             AddOperation(Operation.OP_CLEAR, 0, default, default, true);
+            // clear after invoking the callback so users can iterate the list
+            // and take appropriate action on the items before they are wiped.
+            objects.Clear();
         }
 
         public bool Contains(T item) => IndexOf(item) >= 0;
@@ -331,9 +368,8 @@ namespace Mirror
             int index = IndexOf(item);
             bool result = index >= 0;
             if (result)
-            {
                 RemoveAt(index);
-            }
+
             return result;
         }
 
@@ -352,9 +388,7 @@ namespace Mirror
                     toRemove.Add(objects[i]);
 
             foreach (T entry in toRemove)
-            {
                 Remove(entry);
-            }
 
             return toRemove.Count;
         }
@@ -393,6 +427,7 @@ namespace Mirror
         {
             readonly SyncList<T> list;
             int index;
+
             public T Current { get; private set; }
 
             public Enumerator(SyncList<T> list)
@@ -405,16 +440,15 @@ namespace Mirror
             public bool MoveNext()
             {
                 if (++index >= list.Count)
-                {
                     return false;
-                }
+
                 Current = list[index];
                 return true;
             }
 
             public void Reset() => index = -1;
             object IEnumerator.Current => Current;
-            public void Dispose() {}
+            public void Dispose() { }
         }
     }
 }

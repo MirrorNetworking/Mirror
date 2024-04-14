@@ -18,6 +18,7 @@ GameObject:
   - component: {fileID: 3539222710066621734}
   - component: {fileID: 3539222710066621732}
   - component: {fileID: 3539222710066621733}
+  - component: {fileID: 4431155707644151673}
   m_Layer: 0
   m_Name: PocketsCollider
   m_TagString: Untagged
@@ -188,6 +189,18 @@ CapsuleCollider:
   m_Height: 1
   m_Direction: 2
   m_Center: {x: -0.47, y: 0, z: 0}
+--- !u!114 &4431155707644151673
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3539222710066621743}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f17c923d118b941fb90a834d87e9ff27, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &3539222711229660005
 GameObject:
   m_ObjectHideFlags: 0

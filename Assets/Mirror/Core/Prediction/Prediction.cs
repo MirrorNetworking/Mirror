@@ -106,16 +106,26 @@ namespace Mirror
             T corrected,     // corrected state with timestamp
             T before,        // state in history before the correction
             T after,         // state in history after the correction
-            int afterIndex) // index of the 'after' value so we don't need to find it again here
+            int afterIndex)  // index of the 'after' value so we don't need to find it again here
             where T: PredictedState
         {
             // respect the limit
             // TODO unit test to check if it respects max size
             if (history.Count >= stateHistoryLimit)
+            {
                 history.RemoveAt(0);
+                afterIndex -= 1; // we removed the first value so all indices are off by one now
+            }
 
-            // insert the corrected state into the history, or overwrite if already exists
-            history[corrected.timestamp] = corrected;
+            // PERFORMANCE OPTIMIZATION: avoid O(N) insertion, only readjust all values after.
+            // the end result is the same since after.delta and after.position are both recalculated.
+            // it's technically not correct if we were to reconstruct final position from 0..after..end but
+            // we never do, we only ever iterate from after..end!
+            //
+            //   insert the corrected state into the history, or overwrite if already exists
+            //   SortedList insertions are O(N)!
+            //     history[corrected.timestamp] = corrected;
+            //     afterIndex += 1; // we inserted the corrected value before the previous index
 
             // the entry behind the inserted one still has the delta from (before, after).
             // we need to correct it to (corrected, after).

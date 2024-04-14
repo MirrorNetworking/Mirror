@@ -261,7 +261,7 @@ namespace Mirror
 #endif
                 {
                     // send and eat
-                    wrap.ClientSend(new ArraySegment<byte>(message.bytes), Channels.Reliable);
+                    wrap.ClientSend(new ArraySegment<byte>(message.bytes), Channels.Unreliable);
                     unreliableClientToServer.RemoveAt(i);
                     --i;
                 }
@@ -306,7 +306,7 @@ namespace Mirror
 #endif
                 {
                     // send and eat
-                    wrap.ServerSend(message.connectionId, new ArraySegment<byte>(message.bytes), Channels.Reliable);
+                    wrap.ServerSend(message.connectionId, new ArraySegment<byte>(message.bytes), Channels.Unreliable);
                     unreliableServerToClient.RemoveAt(i);
                     --i;
                 }
