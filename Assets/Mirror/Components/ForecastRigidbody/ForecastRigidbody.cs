@@ -321,9 +321,9 @@ namespace Mirror
                 // in theory we must always set rigidbody.position/rotation instead of transform:
                 // https://forum.unity.com/threads/how-expensive-is-physics-synctransforms.1366146/#post-9557491
                 // however, tf.SetPositionAndRotation is faster in our Prediction Benchmark.
-                //   predictedRigidbody.position = newPosition;
-                //   predictedRigidbody.rotation = newRotation;
-                tf.SetPositionAndRotation(newPosition, newRotation);
+                predictedRigidbody.position = newPosition;
+                predictedRigidbody.rotation = newRotation;
+                // tf.SetPositionAndRotation(newPosition, newRotation);
 
                 // transition to FOLLOWING after blending is done.
                 // we could check 'if p >= 1' but if the user's curve never
@@ -360,7 +360,9 @@ namespace Mirror
 
                     // interpolate & apply
                     TransformSnapshot computed = TransformSnapshot.Interpolate(from, to, t);
-                    tf.SetPositionAndRotation(computed.position, computed.rotation); // scale is ignored
+                    // tf.SetPositionAndRotation(computed.position, computed.rotation); // scale is ignored
+                    predictedRigidbody.position = computed.position;
+                    predictedRigidbody.rotation = computed.rotation;
                 }
             }
         }
