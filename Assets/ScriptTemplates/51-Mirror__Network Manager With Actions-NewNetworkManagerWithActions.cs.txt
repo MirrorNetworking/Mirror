@@ -28,11 +28,13 @@ public class #SCRIPTNAME# : NetworkManager
     public event Action<NetworkConnectionToClient> OnServerAddPlayerAction;
     public event Action<NetworkConnectionToClient> OnServerDisconnectAction;
     public event Action<NetworkConnectionToClient, TransportError, string> OnServerErrorAction;
+    public event Action<NetworkConnectionToClient, Exception> OnServerTransportExceptionAction;
 
     public event Action OnClientConnectAction;
     public event Action OnClientDisconnectAction;
     public event Action OnClientNotReadyAction;
     public event Action<TransportError, string> OnClientErrorAction;
+    public event Action<Exception> OnClientTransportExceptionAction;
 
     public event Action OnStartServerAction;
     public event Action OnStopServerAction;
@@ -239,6 +241,17 @@ public class #SCRIPTNAME# : NetworkManager
         OnServerErrorAction?.Invoke(conn, transportError, message);
     }
 
+    /// <summary>
+    /// Called on server when transport raises an exception.
+    /// <para>NetworkConnection may be null.</para>
+    /// </summary>
+    /// <param name="conn">Connection of the client...may be null</param>
+    /// <param name="exception">Exception thrown from the Transport.</param>
+    public override void OnServerTransportException(NetworkConnectionToClient conn, Exception exception)
+    {
+        OnServerTransportExceptionAction?.Invoke(conn, exception);
+    }
+
     #endregion
 
     #region Client System Callbacks
@@ -279,6 +292,15 @@ public class #SCRIPTNAME# : NetworkManager
     public override void OnClientError(TransportError transportError, string message)
     {
         OnClientErrorAction?.Invoke(transportError, message);
+    }
+
+    /// <summary>
+    /// Called on client when transport raises an exception.</summary>
+    /// </summary>
+    /// <param name="exception">Exception thrown from the Transport.</param>
+    public override void OnClientTransportException(Exception exception)
+    {
+        OnClientTransportExceptionAction?.Invoke(exception);
     }
 
     #endregion
