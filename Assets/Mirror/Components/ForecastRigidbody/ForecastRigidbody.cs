@@ -17,7 +17,51 @@ namespace Mirror
         FOLLOWING,  // 100% server sided physics, client only follows .transform
     }
 
-    [RequireComponent(typeof(Rigidbody))]
+    // keep Rigibody configuration in memory while the component is removed.
+    // this way we can add the same one later.
+    struct RigidbodyConfiguration
+    {
+        public float mass;
+        public float drag;
+        public float angularDrag;
+        public bool useGravity;
+        public bool isKinematic;
+        public RigidbodyInterpolation interpolation;
+        public CollisionDetectionMode collisionDetectionMode;
+        public RigidbodyConstraints constraints;
+        public float sleepThreshold;
+        public bool freezeRotation;
+
+        public RigidbodyConfiguration(Rigidbody rb)
+        {
+            this.mass = rb.mass;
+            this.drag = rb.drag;
+            this.angularDrag = rb.angularDrag;
+            this.useGravity = rb.useGravity;
+            this.isKinematic = rb.isKinematic;
+            this.interpolation = rb.interpolation;
+            this.collisionDetectionMode = rb.collisionDetectionMode;
+            this.constraints = rb.constraints;
+            this.sleepThreshold = rb.sleepThreshold;
+            this.freezeRotation = rb.freezeRotation;
+        }
+
+        public void ApplyTo(Rigidbody rb)
+        {
+            rb.mass = mass;
+            rb.drag = drag;
+            rb.angularDrag = angularDrag;
+            rb.useGravity = useGravity;
+            rb.isKinematic = isKinematic;
+            rb.interpolation = interpolation;
+            rb.collisionDetectionMode = collisionDetectionMode;
+            rb.constraints = constraints;
+            rb.sleepThreshold = sleepThreshold;
+            rb.freezeRotation = freezeRotation;
+        }
+    }
+
+    // [RequireComponent(typeof(Rigidbody))] <- RB is only kept on demand
     public class ForecastRigidbody : NetworkBehaviour
     {
         Transform tf; // this component is performance critical. cache .transform getter!
@@ -74,6 +118,13 @@ namespace Mirror
         [Tooltip("Reduce sends while velocity==0. Client's objects may slightly move due to gravity/physics, so we still want to send corrections occasionally even if an object is idle on the server the whole time.")]
         public bool reduceSendsWhileIdle = true;
 
+        [Header("Performance")]
+        // Rigidbody is kept only while predicting & blending.
+        // it's automatically removed while following to reduce any physics overhead.
+        [Tooltip("Option to only keep the Rigidbody while predicting. Automatically destroyed while following. For massive physics scenes.")]
+        public bool rigidbodyOnDemand = false;
+        RigidbodyConfiguration rbConfig;
+
 #if UNITY_EDITOR // PERF: only access .material in Editor, as it may instantiate!
         [Header("Debugging")]
         public bool debugColors = false;
@@ -116,6 +167,13 @@ namespace Mirror
             // set Rigidbody as kinematic by default on clients.
             // it's only dynamic on the server, and while predicting on clients.
             predictedRigidbody.isKinematic = true;
+
+            // copy Rigidbody settings and remove on clients until it's needed.
+            if (rigidbodyOnDemand)
+            {
+                rbConfig = new RigidbodyConfiguration(predictedRigidbody);
+                Destroy(predictedRigidbody);
+            }
         }
 
         void AddPredictedForceInternal(Vector3 force, ForceMode mode)
@@ -170,6 +228,13 @@ namespace Mirror
 
         protected void BeginPredicting()
         {
+            // add Rigidbody component on demand while predicting
+            if (rigidbodyOnDemand && predictedRigidbody == null)
+            {
+                predictedRigidbody = gameObject.AddComponent<Rigidbody>();
+                rbConfig.ApplyTo(predictedRigidbody);
+            }
+
             predictedRigidbody.isKinematic = false; // full physics sync
             state = ForecastState.PREDICTING;
 #if UNITY_EDITOR // PERF: only access .material in Editor, as it may instantiate!
@@ -200,6 +265,14 @@ namespace Mirror
         protected void BeginFollowing()
         {
             predictedRigidbody.isKinematic = true; // full transform sync
+
+            // remove rigidbody until it's needed again later
+            if (rigidbodyOnDemand)
+            {
+                rbConfig = new RigidbodyConfiguration(predictedRigidbody);
+                Destroy(predictedRigidbody);
+            }
+
             state = ForecastState.FOLLOWING;
 #if UNITY_EDITOR // PERF: only access .material in Editor, as it may instantiate!
             if (debugColors) rend.material.color = originalColor;
@@ -378,11 +451,19 @@ namespace Mirror
                         out TransformSnapshot to,
                         out double t);
 
-                    // interpolate & apply
+                    // interpolate & apply to transform.
                     TransformSnapshot computed = TransformSnapshot.Interpolate(from, to, t);
-                    // tf.SetPositionAndRotation(computed.position, computed.rotation); // scale is ignored
-                    predictedRigidbody.position = computed.position;
-                    predictedRigidbody.rotation = computed.rotation;
+                    if (rigidbodyOnDemand)
+                    {
+                        // Rigidbody is destroyed while following.
+                        tf.SetPositionAndRotation(computed.position, computed.rotation); // scale is ignored
+                    }
+                    else
+                    {
+                        // Rigidbody exists while following
+                        predictedRigidbody.position = computed.position;
+                        predictedRigidbody.rotation = computed.rotation;
+                    }
                 }
             }
         }
