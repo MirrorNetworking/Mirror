@@ -271,7 +271,27 @@ namespace Mirror
             }
             else if (state == ForecastState.BLENDING)
             {
-                // TODO snapshot interpolation
+                // snapshot interpolation: get the interpolated remote position at this time.
+                // if there is no snapshot yet, just use lastReceived
+                Vector3 targetPosition = lastReceivedState.position;
+                Quaternion targetRotation = lastReceivedState.rotation;
+                if (clientSnapshots.Count > 0)
+                {
+                    // step the interpolation without touching time.
+                    // NetworkClient is responsible for time globally.
+                    SnapshotInterpolation.StepInterpolation(
+                        clientSnapshots,
+                        NetworkTime.time, // == NetworkClient.localTimeline from snapshot interpolation
+                        out TransformSnapshot from,
+                        out TransformSnapshot to,
+                        out double t);
+
+                    // interpolate & apply
+                    TransformSnapshot computed = TransformSnapshot.Interpolate(from, to, t);
+                    targetPosition = computed.position;
+                    targetRotation = computed.rotation;
+                    // scale is ignored
+                }
 
                 // blend between local and remote position
                 // set debug color
@@ -297,7 +317,7 @@ namespace Mirror
                 //   float distance = Vector3.Distance(currentPosition, physicsPosition);
                 //   if (distance > smoothFollowThreshold)
                 // faster version
-                Vector3 delta = lastReceivedState.position - currentPosition;
+                Vector3 delta = targetPosition - currentPosition;
                 float sqrDistance = Vector3.SqrMagnitude(delta);
                 float distance = Mathf.Sqrt(sqrDistance);
 
@@ -306,7 +326,7 @@ namespace Mirror
 
                 Vector3 newPosition = PredictedRigidbody.MoveTowardsCustom(
                     currentPosition,
-                    lastReceivedState.position,
+                    targetPosition,
                     delta,
                     sqrDistance,
                     distance,
@@ -315,7 +335,7 @@ namespace Mirror
                 // smoothly interpolate to the target rotation.
                 // Quaternion.RotateTowards doesn't seem to work at all, so let's use SLerp.
                 // Quaternions always need to be normalized in order to be a valid rotation after operations
-                Quaternion newRotation = Quaternion.Slerp(currentRotation, lastReceivedState.rotation, p).normalized;
+                Quaternion newRotation = Quaternion.Slerp(currentRotation, targetRotation, p).normalized;
 
                 // assign position and rotation together. faster than accessing manually.
                 // in theory we must always set rigidbody.position/rotation instead of transform:
