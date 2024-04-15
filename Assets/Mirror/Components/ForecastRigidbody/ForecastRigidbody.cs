@@ -264,13 +264,15 @@ namespace Mirror
 
         protected void BeginFollowing()
         {
-            predictedRigidbody.isKinematic = true; // full transform sync
-
             // remove rigidbody until it's needed again later
             if (rigidbodyOnDemand)
             {
                 rbConfig = new RigidbodyConfiguration(predictedRigidbody);
                 Destroy(predictedRigidbody);
+            }
+            else
+            {
+                predictedRigidbody.isKinematic = true; // full transform sync
             }
 
             state = ForecastState.FOLLOWING;
