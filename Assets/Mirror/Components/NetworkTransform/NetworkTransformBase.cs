@@ -158,7 +158,7 @@ namespace Mirror
         void CalculateAngularVelocity(Quaternion currentRot)
         {
             // calculate angle between two rotations
-            Quaternion deltaRotation = currentRot * Quaternion.Inverse(lastRotation);
+            Quaternion deltaRotation = (currentRot * Quaternion.Inverse(lastRotation)).normalize;
 
             // convert to angle axis
             deltaRotation.ToAngleAxis(out float angle, out Vector3 axis);
