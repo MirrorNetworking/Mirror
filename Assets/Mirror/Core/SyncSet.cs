@@ -12,6 +12,14 @@ namespace Mirror
         /// <summary>This is called after the item is removed. T is the OLD item</summary>
         public Action<T> OnRemove;
 
+        /// <summary>
+        /// This is called for all changes to the Set.
+        /// <para>For OP_ADD, T is the NEW value of the entry.</para>
+        /// <para>For OP_REMOVE, T is the OLD value of the entry.</para>
+        /// <para>For OP_CLEAR, T is default.</para>
+        /// </summary>
+        public Action<Operation, T> OnChange;
+
         /// <summary>This is called BEFORE the data is cleared</summary>
         public Action OnClear;
 
@@ -66,16 +74,36 @@ namespace Mirror
         // this should be called after a successful sync
         public override void ClearChanges() => changes.Clear();
 
-        void AddOperation(Operation op, T item, bool checkAccess)
+        void AddOperation(Operation op, T oldItem, T newItem, bool checkAccess)
         {
             if (checkAccess && IsReadOnly)
                 throw new InvalidOperationException("SyncSets can only be modified by the owner.");
 
-            Change change = new Change
+            Change change = default;
+            switch (op)
             {
-                operation = op,
-                item = item
-            };
+                case Operation.OP_ADD:
+                    change = new Change
+                    {
+                        operation = op,
+                        item = newItem
+                    };
+                    break;
+                case Operation.OP_REMOVE:
+                    change = new Change
+                    {
+                        operation = op,
+                        item = oldItem
+                    };
+                    break;
+                case Operation.OP_CLEAR:
+                    change = new Change
+                    {
+                        operation = op,
+                        item = default
+                    };
+                    break;
+            }
 
             if (IsRecording())
             {
@@ -86,22 +114,30 @@ namespace Mirror
             switch (op)
             {
                 case Operation.OP_ADD:
-                    OnAdd?.Invoke(item);
+                    OnAdd?.Invoke(newItem);
+                    OnChange?.Invoke(op, newItem);
+#pragma warning disable CS0618 // Type or member is obsolete
+                    Callback?.Invoke(op, newItem);
+#pragma warning restore CS0618 // Type or member is obsolete
                     break;
                 case Operation.OP_REMOVE:
-                    OnRemove?.Invoke(item);
+                    OnRemove?.Invoke(oldItem);
+                    OnChange?.Invoke(op, oldItem);
+#pragma warning disable CS0618 // Type or member is obsolete
+                    Callback?.Invoke(op, oldItem);
+#pragma warning restore CS0618 // Type or member is obsolete
                     break;
                 case Operation.OP_CLEAR:
                     OnClear?.Invoke();
+                    OnChange?.Invoke(op, default);
+#pragma warning disable CS0618 // Type or member is obsolete
+                    Callback?.Invoke(op, default);
+#pragma warning restore CS0618 // Type or member is obsolete
                     break;
             }
-
-#pragma warning disable CS0618 // Type or member is obsolete
-            Callback?.Invoke(op, item);
-#pragma warning restore CS0618 // Type or member is obsolete
         }
 
-        void AddOperation(Operation op, bool checkAccess) => AddOperation(op, default, checkAccess);
+        void AddOperation(Operation op, bool checkAccess) => AddOperation(op, default, default, checkAccess);
 
         public override void OnSerializeAll(NetworkWriter writer)
         {
@@ -173,33 +209,34 @@ namespace Mirror
                 // apply the operation only if it is a new change
                 // that we have not applied yet
                 bool apply = changesAhead == 0;
-                T item = default;
+                T oldItem = default;
+                T newItem = default;
 
                 switch (operation)
                 {
                     case Operation.OP_ADD:
-                        item = reader.Read<T>();
+                        newItem = reader.Read<T>();
                         if (apply)
                         {
-                            objects.Add(item);
+                            objects.Add(newItem);
                             // add dirty + changes.
                             // ClientToServer needs to set dirty in server OnDeserialize.
                             // no access check: server OnDeserialize can always
                             // write, even for ClientToServer (for broadcasting).
-                            AddOperation(Operation.OP_ADD, item, false);
+                            AddOperation(Operation.OP_ADD, default, newItem, false);
                         }
                         break;
 
                     case Operation.OP_REMOVE:
-                        item = reader.Read<T>();
+                        oldItem = reader.Read<T>();
                         if (apply)
                         {
-                            objects.Remove(item);
+                            objects.Remove(oldItem);
                             // add dirty + changes.
                             // ClientToServer needs to set dirty in server OnDeserialize.
                             // no access check: server OnDeserialize can always
                             // write, even for ClientToServer (for broadcasting).
-                            AddOperation(Operation.OP_REMOVE, item, false);
+                            AddOperation(Operation.OP_REMOVE, oldItem, default, false);
                         }
                         break;
 
@@ -230,7 +267,7 @@ namespace Mirror
         {
             if (objects.Add(item))
             {
-                AddOperation(Operation.OP_ADD, item, true);
+                AddOperation(Operation.OP_ADD, default, item, true);
                 return true;
             }
             return false;
@@ -239,7 +276,7 @@ namespace Mirror
         void ICollection<T>.Add(T item)
         {
             if (objects.Add(item))
-                AddOperation(Operation.OP_ADD, item, true);
+                AddOperation(Operation.OP_ADD, default, item, true);
         }
 
         public void Clear()
@@ -258,7 +295,7 @@ namespace Mirror
         {
             if (objects.Remove(item))
             {
-                AddOperation(Operation.OP_REMOVE, item, true);
+                AddOperation(Operation.OP_REMOVE, item, default, true);
                 return true;
             }
             return false;

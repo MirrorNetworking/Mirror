@@ -14,7 +14,7 @@ jobs:
           - 2019.4.40f1
           - 2020.3.48f1
           - 2021.3.36f1
-          - 2022.3.22f1
+          - 2022.3.24f1
           - 2023.2.16f1
 
     steps:
@@ -31,11 +31,14 @@ jobs:
       #    key: Library-${{ matrix.unityVersion }}
 
       - name: Run editor Tests
-        uses: game-ci/unity-test-runner@v4.0.0
+        uses: game-ci/unity-test-runner@v4
 
         # We can use the same license for all Unity versions
+        # See https://game.ci/docs/github/activation/
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
 
         # testMode is set to editMode (editor tests only) until we fix playmode tests (or eliminate them)
         # `-stackTraceLogType None` speeds up the job and vastly shrinks the log output

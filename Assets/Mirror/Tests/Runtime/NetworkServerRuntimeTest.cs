@@ -130,7 +130,7 @@ namespace Mirror.Tests.Runtime
             Assert.IsTrue(identity1 != null);
             Assert.IsTrue(identity2 != null);
             Assert.IsFalse(identity1.gameObject.activeSelf);
-            Assert.IsFalse(identity1.gameObject.activeSelf);
+            Assert.IsFalse(identity2.gameObject.activeSelf);
 
             Assert.That(NetworkServer.spawned, Is.Empty);
         }
