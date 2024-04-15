@@ -121,7 +121,7 @@ namespace Mirror
         [Header("Performance")]
         // Rigidbody is kept only while predicting & blending.
         // it's automatically removed while following to reduce any physics overhead.
-        [Tooltip("Option to only keep the Rigidbody while predicting. Automatically destroyed while following. For massive physics scenes.")]
+        [Tooltip("Option to only keep the Rigidbody while predicting. Automatically destroyed while following.\nUseful for massive physics scenes where the client only ever predicts a few Rigidbodies at a time.")]
         public bool rigidbodyOnDemand = false;
         RigidbodyConfiguration rbConfig;
 
