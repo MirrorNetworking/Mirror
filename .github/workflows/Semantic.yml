@@ -34,6 +34,7 @@ jobs:
       - name: Release
         uses: cycjimmy/semantic-release-action@v4
         with:
+          semantic_version: 23
           extra_plugins: |
             @semantic-release/exec
             @semantic-release/changelog
