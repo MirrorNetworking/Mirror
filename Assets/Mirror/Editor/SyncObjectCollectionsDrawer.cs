@@ -23,7 +23,7 @@ namespace Mirror
             // so we split it and only take the first part so it looks nicer.
             // e.g. SyncList`1 -> SyncList
             // Better to do it one time here than in hot path in OnInspectorGUI
-            label = $"{field.Name} [{field.FieldType.Name.Split(@"`", System.StringSplitOptions.RemoveEmptyEntries)[0]}]";
+            label = $"{field.Name} [{field.FieldType.Name.Split(new string[] { @"`" }, System.StringSplitOptions.RemoveEmptyEntries)[0]}]";
         }
     }
 
