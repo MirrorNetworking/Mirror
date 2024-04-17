@@ -1710,6 +1710,11 @@ namespace Mirror
                 {
                     AddAllReadyServerConnectionsToObservers(identity);
                 }
+                else if (identity.connectionToClient != null)
+                {
+                    // force hidden, but add owner connection
+                    identity.AddObserver(identity.connectionToClient);
+                }
             }
         }
 
