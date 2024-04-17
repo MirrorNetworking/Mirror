@@ -2,6 +2,7 @@ using UnityEngine;
 
 namespace Mirror.Examples.PredictionBenchmark
 {
+    [AddComponentMenu("")]
     public class NetworkManagerPredictionBenchmark : NetworkManager
     {
         [Header("Spawns")]

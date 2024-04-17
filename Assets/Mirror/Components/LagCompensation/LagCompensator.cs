@@ -35,6 +35,7 @@ namespace Mirror
     }
 
     [DisallowMultipleComponent]
+    [AddComponentMenu("Network/ Lag Compensation/ Lag Compensator")]
     [HelpURL("https://mirror-networking.gitbook.io/docs/manual/general/lag-compensation")]
     public class LagCompensator : NetworkBehaviour
     {

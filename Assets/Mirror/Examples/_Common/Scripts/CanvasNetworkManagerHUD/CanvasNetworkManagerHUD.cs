@@ -6,6 +6,7 @@ using Mirror;
 
 namespace Mirror.Examples.Common
 {
+    [AddComponentMenu("")]
     public class CanvasNetworkManagerHUD : MonoBehaviour
     {
         [SerializeField] private GameObject startButtonsGroup;
