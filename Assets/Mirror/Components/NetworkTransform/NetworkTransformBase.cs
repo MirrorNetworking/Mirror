@@ -132,7 +132,12 @@ namespace Mirror
 
         // initialization //////////////////////////////////////////////////////
         // make sure to call this when inheriting too!
-        protected virtual void Awake() { }
+        protected virtual void Awake()
+        {
+            // set target to self if none yet.
+            // OnValidate() already does this, but sometimes OnValidate() doesn't run before launching a project.
+            if (target == null) target = transform;
+        }
 
         protected override void OnValidate()
         {
