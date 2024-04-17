@@ -2,6 +2,7 @@ using UnityEngine;
 
 namespace Mirror
 {
+    [AddComponentMenu("Network/Network Diagnostics Debugger")]
     public class NetworkDiagnosticsDebugger : MonoBehaviour
     {
         public bool logInMessages = true;

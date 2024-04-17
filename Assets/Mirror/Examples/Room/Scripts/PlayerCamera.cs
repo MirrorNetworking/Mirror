@@ -5,6 +5,7 @@ using UnityEngine.SceneManagement;
 
 namespace Mirror.Examples.NetworkRoom
 {
+    [AddComponentMenu("")]
     public class PlayerCamera : NetworkBehaviour
     {
         Camera mainCam;

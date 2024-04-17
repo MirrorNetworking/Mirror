@@ -2,6 +2,7 @@ using UnityEngine;
 
 namespace Mirror.Examples.NetworkRoom
 {
+    [AddComponentMenu("")]
     [RequireComponent(typeof(Common.RandomColor))]
     public class Reward : NetworkBehaviour
     {
