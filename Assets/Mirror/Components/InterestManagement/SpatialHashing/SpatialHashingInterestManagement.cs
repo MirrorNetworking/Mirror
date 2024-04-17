@@ -36,7 +36,7 @@ namespace Mirror
         [Tooltip("Spatial Hashing supports 3D (XZ) and 2D (XY) games.")]
         public CheckMethod checkMethod = CheckMethod.XZ_FOR_3D;
 
-        // debugging
+        [Header("Debug Settings")]
         public bool showSlider;
 
         // the grid
