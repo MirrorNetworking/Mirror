@@ -2,6 +2,7 @@
 
 namespace Mirror.Examples.Common
 {
+    [AddComponentMenu("Network/Network Random Color")]
     public class RandomColor : NetworkBehaviour
     {
         // Unity clones the material when GetComponent<Renderer>().material is called

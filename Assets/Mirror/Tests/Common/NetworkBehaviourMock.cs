@@ -1,7 +1,10 @@
 // simple network behaviour mock component which counts calls.
 // this is necessary for many tests.
+using UnityEngine;
+
 namespace Mirror.Tests
 {
+    [AddComponentMenu("")]
     public class NetworkBehaviourMock : NetworkBehaviour
     {
         // start

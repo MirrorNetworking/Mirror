@@ -1052,7 +1052,7 @@ namespace Mirror
             // Debug.Log($"SetSyncVarNetworkBehaviour NetworkIdentity {GetType().Name} bit [{dirtyBit}] netIdField:{oldField}->{syncField}");
         }
 
-        // helper function for [SyncVar] NetworkIdentities.
+        // helper function for [SyncVar] NetworkBehaviours.
         // -> ref GameObject as second argument makes OnDeserialize processing easier
         protected T GetSyncVarNetworkBehaviour<T>(NetworkBehaviourSyncVar syncNetBehaviour, ref T behaviourField) where T : NetworkBehaviour
         {
@@ -1068,6 +1068,15 @@ namespace Mirror
             // over and over again, which shouldn't null them forever
             if (!NetworkClient.spawned.TryGetValue(syncNetBehaviour.netId, out NetworkIdentity identity))
             {
+                return null;
+            }
+            
+            // ensure componentIndex is in range.
+            // show explicit errors if something went wrong, instead of IndexOutOfRangeException.
+            // removing components at runtime isn't allowed, yet this happened in a project so we need to check for it.
+            if (syncNetBehaviour.componentIndex >= identity.NetworkBehaviours.Length)
+            {
+                Debug.LogError($"[SyncVar] {typeof(T)} on {name}'s {GetType()}: can't access {identity.name} NetworkBehaviour[{syncNetBehaviour.componentIndex}] because it only has {identity.NetworkBehaviours.Length} components.\nWas a NetworkBeahviour accidentally destroyed at runtime?");
                 return null;
             }
 

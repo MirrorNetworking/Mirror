@@ -43,6 +43,14 @@ namespace Mirror
         Default = OnlySyncOnChange | CompressRotation
     }
 
+    [Flags]
+    public enum DebugOptions
+    {
+        Nothing,
+        ShowGizmos = 1 << 0,
+        ShowOverlay = 1 << 1
+    }
+
     public abstract class NetworkTransformBase : NetworkBehaviour
     {
         // target transform to sync. can be on a child.
@@ -60,7 +68,7 @@ namespace Mirror
         public readonly SortedList<double, TransformSnapshot> serverSnapshots = new SortedList<double, TransformSnapshot>(16);
 
         // selective sync //////////////////////////////////////////////////////
-        [Header("Synchronization - Do Not Change At Runtime")]
+        [Header("Configuration - Do Not Change At Runtime")]
         [SerializeField, Tooltip("Selectively syncs position, rotation, and scale.\nDo Not Change At Runtime!")]
         internal SyncInterpolateOptions synchronizationSelections = SyncInterpolateOptions.Default;
 
@@ -70,7 +78,6 @@ namespace Mirror
 
         // interpolation is on by default, but can be disabled to jump to
         // the destination immediately. some projects need this.
-        [Header("Interpolation - Do Not Change At Runtime")]
         [SerializeField, Tooltip("Interpolate smoothly between snapshots.\nDo Not Change At Runtime!")]
         internal SyncInterpolateOptions interpolationOptions = SyncInterpolateOptions.Default;
 
@@ -78,7 +85,6 @@ namespace Mirror
         public bool interpolateRotation => (interpolationOptions & SyncInterpolateOptions.Rotation) == SyncInterpolateOptions.Rotation;
         public bool interpolateScale => (interpolationOptions & SyncInterpolateOptions.Scale) == SyncInterpolateOptions.Scale;
 
-        [Header("Bandwidth Savings - Do Not Change At Runtime")]
         [SerializeField, Tooltip("Settings for reducing bandwidth usage.\nDo Not Change At Runtime!")]
         internal BandwidthSavingsOptions bandwidthSavingsOptions = BandwidthSavingsOptions.Default;
 
@@ -86,7 +92,6 @@ namespace Mirror
         public bool compressRotation => (bandwidthSavingsOptions & BandwidthSavingsOptions.CompressRotation) == BandwidthSavingsOptions.CompressRotation;
 
         // CoordinateSpace ///////////////////////////////////////////////////////////
-        [Header("Coordinate Space - Do Not Change At Runtime")]
         [Tooltip("Local by default. World may be better when changing hierarchy, or non-NetworkTransforms root position/rotation/scale values.")]
         public CoordinateSpace coordinateSpace = CoordinateSpace.Local;
 
@@ -116,14 +121,23 @@ namespace Mirror
         protected double offset => timelineOffset ? NetworkServer.sendInterval * sendIntervalMultiplier : 0;
 
         // debugging ///////////////////////////////////////////////////////////
-        [Header("Debug")]
-        public bool showGizmos;
-        public bool showOverlay;
+        [Header("Debug Settings")]
+        [SerializeField, Tooltip("Debug Options")]
+        internal DebugOptions debugOptions = DebugOptions.Nothing;
+
+        public bool showGizmos => (debugOptions & DebugOptions.ShowGizmos) == DebugOptions.ShowGizmos;
+        public bool showOverlay => (debugOptions & DebugOptions.ShowOverlay) == DebugOptions.ShowOverlay;
+
         public Color overlayColor = new Color(0, 0, 0, 0.5f);
 
         // initialization //////////////////////////////////////////////////////
         // make sure to call this when inheriting too!
-        protected virtual void Awake() { }
+        protected virtual void Awake()
+        {
+            // set target to self if none yet.
+            // OnValidate() already does this, but sometimes OnValidate() doesn't run before launching a project.
+            if (target == null) target = transform;
+        }
 
         protected override void OnValidate()
         {
