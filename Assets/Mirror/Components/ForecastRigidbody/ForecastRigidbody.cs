@@ -171,14 +171,16 @@ namespace Mirror
         protected void BeginPredicting()
         {
             predictedRigidbody.isKinematic = false; // full physics sync
-            
+
             // collision checking is disabled while following.
             // enable while predicting again.
             predictedRigidbody.detectCollisions = true;
-            
+
             state = ForecastState.PREDICTING;
+
 #if UNITY_EDITOR // PERF: only access .material in Editor, as it may instantiate!
-            if (debugColors) rend.material.color = predictingColor;
+            // only show debug colors in client-only mode when predicting
+            if (debugColors && isClientOnly) rend.material.color = predictingColor;
 #endif
             // we want to predict until the first server state for our [Command] AddForce came in.
             // we know the time when our [Command] arrives on server: NetworkTime.predictedTime.
@@ -205,17 +207,19 @@ namespace Mirror
         {
             predictedRigidbody.isKinematic = true; // full transform sync
             state = ForecastState.FOLLOWING;
+
 #if UNITY_EDITOR // PERF: only access .material in Editor, as it may instantiate!
-            if (debugColors) rend.material.color = originalColor;
+            // only show debug colors in client-only mode when predicting
+            if (debugColors && isClientOnly) rend.material.color = originalColor;
 #endif
             // reset the collision chain depth so it starts at 0 again next time
             remainingCollisionChainDepth = 0;
-            
+
             // perf: setting kinematic rigidbody's positions still causes
             // significant physics overhead on low end devices.
             // try disable collisions while purely following.
             predictedRigidbody.detectCollisions = false;
-            
+
             OnBeginFollow();
             // Debug.Log($"{name} BEGIN FOLLOW");
         }
@@ -257,7 +261,7 @@ namespace Mirror
         {
             if (isClientOnly) UpdateClient();
         }
-        
+
         // NetworkTransform improvement: server broadcast needs to run in LateUpdate
         // after other scripts may changed positions in Update().
         // otherwise this may run before user update, delaying detection until next frame.
