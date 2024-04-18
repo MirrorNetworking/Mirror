@@ -17,51 +17,7 @@ namespace Mirror
         FOLLOWING,  // 100% server sided physics, client only follows .transform
     }
 
-    // keep Rigibody configuration in memory while the component is removed.
-    // this way we can add the same one later.
-    struct RigidbodyConfiguration
-    {
-        public float mass;
-        public float drag;
-        public float angularDrag;
-        public bool useGravity;
-        public bool isKinematic;
-        public RigidbodyInterpolation interpolation;
-        public CollisionDetectionMode collisionDetectionMode;
-        public RigidbodyConstraints constraints;
-        public float sleepThreshold;
-        public bool freezeRotation;
-
-        public RigidbodyConfiguration(Rigidbody rb)
-        {
-            this.mass = rb.mass;
-            this.drag = rb.drag;
-            this.angularDrag = rb.angularDrag;
-            this.useGravity = rb.useGravity;
-            this.isKinematic = rb.isKinematic;
-            this.interpolation = rb.interpolation;
-            this.collisionDetectionMode = rb.collisionDetectionMode;
-            this.constraints = rb.constraints;
-            this.sleepThreshold = rb.sleepThreshold;
-            this.freezeRotation = rb.freezeRotation;
-        }
-
-        public void ApplyTo(Rigidbody rb)
-        {
-            rb.mass = mass;
-            rb.drag = drag;
-            rb.angularDrag = angularDrag;
-            rb.useGravity = useGravity;
-            rb.isKinematic = isKinematic;
-            rb.interpolation = interpolation;
-            rb.collisionDetectionMode = collisionDetectionMode;
-            rb.constraints = constraints;
-            rb.sleepThreshold = sleepThreshold;
-            rb.freezeRotation = freezeRotation;
-        }
-    }
-
-    // [RequireComponent(typeof(Rigidbody))] <- RB is only kept on demand
+    [RequireComponent(typeof(Rigidbody))]
     public class ForecastRigidbody : NetworkBehaviour
     {
         Transform tf; // this component is performance critical. cache .transform getter!
@@ -118,13 +74,6 @@ namespace Mirror
         [Tooltip("Reduce sends while velocity==0. Client's objects may slightly move due to gravity/physics, so we still want to send corrections occasionally even if an object is idle on the server the whole time.")]
         public bool reduceSendsWhileIdle = true;
 
-        [Header("Performance")]
-        // Rigidbody is kept only while predicting & blending.
-        // it's automatically removed while following to reduce any physics overhead.
-        [Tooltip("Option to only keep the Rigidbody while predicting. Automatically destroyed while following.\nUseful for massive physics scenes where the client only ever predicts a few Rigidbodies at a time.")]
-        public bool rigidbodyOnDemand = false;
-        RigidbodyConfiguration rbConfig;
-
 #if UNITY_EDITOR // PERF: only access .material in Editor, as it may instantiate!
         [Header("Debugging")]
         public bool debugColors = false;
@@ -167,13 +116,6 @@ namespace Mirror
             // set Rigidbody as kinematic by default on clients.
             // it's only dynamic on the server, and while predicting on clients.
             predictedRigidbody.isKinematic = true;
-
-            // copy Rigidbody settings and remove on clients until it's needed.
-            if (rigidbodyOnDemand)
-            {
-                rbConfig = new RigidbodyConfiguration(predictedRigidbody);
-                Destroy(predictedRigidbody);
-            }
         }
 
         void AddPredictedForceInternal(Vector3 force, ForceMode mode)
@@ -228,14 +170,12 @@ namespace Mirror
 
         protected void BeginPredicting()
         {
-            // add Rigidbody component on demand while predicting
-            if (rigidbodyOnDemand && predictedRigidbody == null)
-            {
-                predictedRigidbody = gameObject.AddComponent<Rigidbody>();
-                rbConfig.ApplyTo(predictedRigidbody);
-            }
-
             predictedRigidbody.isKinematic = false; // full physics sync
+            
+            // collision checking is disabled while following.
+            // enable while predicting again.
+            predictedRigidbody.detectCollisions = true;
+            
             state = ForecastState.PREDICTING;
 #if UNITY_EDITOR // PERF: only access .material in Editor, as it may instantiate!
             if (debugColors) rend.material.color = predictingColor;
@@ -243,7 +183,6 @@ namespace Mirror
             // we want to predict until the first server state for our [Command] AddForce came in.
             // we know the time when our [Command] arrives on server: NetworkTime.predictedTime.
             predictionStartTime = NetworkTime.predictedTime; // !!! not .time !!!
-
             OnBeginPrediction();
             // Debug.Log($"{name} BEGIN PREDICTING @ {predictionStartTime:F2}");
         }
@@ -264,23 +203,19 @@ namespace Mirror
 
         protected void BeginFollowing()
         {
-            // remove rigidbody until it's needed again later
-            if (rigidbodyOnDemand)
-            {
-                rbConfig = new RigidbodyConfiguration(predictedRigidbody);
-                Destroy(predictedRigidbody);
-            }
-            else
-            {
-                predictedRigidbody.isKinematic = true; // full transform sync
-            }
-
+            predictedRigidbody.isKinematic = true; // full transform sync
             state = ForecastState.FOLLOWING;
 #if UNITY_EDITOR // PERF: only access .material in Editor, as it may instantiate!
             if (debugColors) rend.material.color = originalColor;
 #endif
             // reset the collision chain depth so it starts at 0 again next time
             remainingCollisionChainDepth = 0;
+            
+            // perf: setting kinematic rigidbody's positions still causes
+            // significant physics overhead on low end devices.
+            // try disable collisions while purely following.
+            predictedRigidbody.detectCollisions = false;
+            
             OnBeginFollow();
             // Debug.Log($"{name} BEGIN FOLLOW");
         }
@@ -320,13 +255,21 @@ namespace Mirror
 
         void Update()
         {
+            if (isClientOnly) UpdateClient();
+        }
+        
+        // NetworkTransform improvement: server broadcast needs to run in LateUpdate
+        // after other scripts may changed positions in Update().
+        // otherwise this may run before user update, delaying detection until next frame.
+        // this could cause visible jitter.
+        void LateUpdate()
+        {
             if (isServer) UpdateServer();
         }
 
-        // Prediction always has a Rigidbody.
-        // position changes should always happen in FixedUpdate, even while kinematic.
-        // improves benchmark performance from 600 -> 870 FPS.
-        void FixedUpdateClient()
+        // Prediction uses a Rigidbody, which would suggest position changes to happen in FixedUpdate().
+        // However, snapshot interpolation needs to run in Update() in order to look perfectly smooth.
+        void UpdateClient()
         {
             // PREDICTING checks state, which happens in update()
             if (state == ForecastState.PREDICTING)
@@ -413,12 +356,7 @@ namespace Mirror
                 Quaternion newRotation = Quaternion.Slerp(currentRotation, targetRotation, p).normalized;
 
                 // assign position and rotation together. faster than accessing manually.
-                // in theory we must always set rigidbody.position/rotation instead of transform:
-                // https://forum.unity.com/threads/how-expensive-is-physics-synctransforms.1366146/#post-9557491
-                // however, tf.SetPositionAndRotation is faster in our Prediction Benchmark.
-                predictedRigidbody.position = newPosition;
-                predictedRigidbody.rotation = newRotation;
-                // tf.SetPositionAndRotation(newPosition, newRotation);
+                tf.SetPositionAndRotation(newPosition, newRotation);
 
                 // transition to FOLLOWING after blending is done.
                 // we could check 'if p >= 1' but if the user's curve never
@@ -455,25 +393,11 @@ namespace Mirror
 
                     // interpolate & apply to transform.
                     TransformSnapshot computed = TransformSnapshot.Interpolate(from, to, t);
-                    if (rigidbodyOnDemand)
-                    {
-                        // Rigidbody is destroyed while following.
-                        tf.SetPositionAndRotation(computed.position, computed.rotation); // scale is ignored
-                    }
-                    else
-                    {
-                        // Rigidbody exists while following
-                        predictedRigidbody.position = computed.position;
-                        predictedRigidbody.rotation = computed.rotation;
-                    }
+                    tf.SetPositionAndRotation(computed.position, computed.rotation); // scale is ignored
                 }
             }
         }
 
-        void FixedUpdate()
-        {
-            if (isClientOnly) FixedUpdateClient();
-        }
 
 #if UNITY_EDITOR // PERF: only run gizmos in editor
         void OnDrawGizmos()
@@ -528,8 +452,6 @@ namespace Mirror
         }
 
         // optional user callbacks, in case people need to know about events.
-        protected virtual void OnSnappedIntoPlace() {}
-        protected virtual void OnBeforeApplyState() {}
         protected virtual void OnBeginPrediction() {}
         protected virtual void OnBeginBlending() {}
         protected virtual void OnBeginFollow() {}
@@ -569,7 +491,6 @@ namespace Mirror
 
         // send state to clients every sendInterval.
         // reliable for now.
-        // TODO we should use the one from FixedUpdate
         public override void OnSerialize(NetworkWriter writer, bool initialState)
         {
             // Time.time was at the beginning of this frame.
@@ -642,33 +563,6 @@ namespace Mirror
 
             // force syncDirection to be ServerToClient
             syncDirection = SyncDirection.ServerToClient;
-        }
-
-        // helper function for Physics tests to check if a Rigidbody belongs to
-        // a ForecastRigidbody component (either on it, or on its ghost).
-        public static bool IsPredicted(Rigidbody rb, out ForecastRigidbody predictedRigidbody)
-        {
-            // by default, Rigidbody is on the ForecastRigidbody GameObject
-            if (rb.TryGetComponent(out predictedRigidbody))
-                return true;
-
-            // otherwise the Rigidbody does not belong to any ForecastRigidbody.
-            predictedRigidbody = null;
-            return false;
-        }
-
-        // helper function for Physics tests to check if a Collider (which may be in children) belongs to
-        // a ForecastRigidbody component (either on it, or on its ghost).
-        public static bool IsPredicted(Collider co, out ForecastRigidbody predictedRigidbody)
-        {
-            // by default, Collider is on the ForecastRigidbody GameObject or it's children.
-            predictedRigidbody = co.GetComponentInParent<ForecastRigidbody>();
-            if (predictedRigidbody != null)
-                return true;
-
-            // otherwise the Rigidbody does not belong to any ForecastRigidbody.
-            predictedRigidbody = null;
-            return false;
         }
     }
 }
