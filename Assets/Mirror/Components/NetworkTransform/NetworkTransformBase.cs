@@ -43,14 +43,6 @@ namespace Mirror
         Default = OnlySyncOnChange | CompressRotation
     }
 
-    [Flags]
-    public enum DebugOptions
-    {
-        Nothing,
-        ShowGizmos = 1 << 0,
-        ShowOverlay = 1 << 1
-    }
-
     public abstract class NetworkTransformBase : NetworkBehaviour
     {
         // target transform to sync. can be on a child.
@@ -121,13 +113,9 @@ namespace Mirror
         protected double offset => timelineOffset ? NetworkServer.sendInterval * sendIntervalMultiplier : 0;
 
         // debugging ///////////////////////////////////////////////////////////
-        [Header("Debug Settings")]
-        [SerializeField, Tooltip("Debug Options")]
-        internal DebugOptions debugOptions = DebugOptions.Nothing;
-
-        public bool showGizmos => (debugOptions & DebugOptions.ShowGizmos) == DebugOptions.ShowGizmos;
-        public bool showOverlay => (debugOptions & DebugOptions.ShowOverlay) == DebugOptions.ShowOverlay;
-
+        [Header("Debug")]
+        public bool showGizmos;
+        public bool showOverlay;
         public Color overlayColor = new Color(0, 0, 0, 0.5f);
 
         // initialization //////////////////////////////////////////////////////
