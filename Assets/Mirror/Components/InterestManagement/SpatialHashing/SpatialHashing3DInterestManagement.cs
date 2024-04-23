@@ -1,15 +1,15 @@
 // extremely fast spatial hashing interest management based on uMMORPG GridChecker.
 // => 30x faster in initial tests
 // => scales way higher
-// checks on two dimensions only(!), for example: XZ for 3D games or XY for 2D games.
-// this is faster than XYZ checking but doesn't check vertical distance.
+// checks on three dimensions (XYZ) which includes the vertical axes.
+// this is slower than XY checking for regular spatial hashing.
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace Mirror
 {
     [AddComponentMenu("Network/ Interest Management/ Spatial Hash/Spatial Hashing Interest Management")]
-    public class SpatialHashingInterestManagement : InterestManagement
+    public class SpatialHashing3DInterestManagement : InterestManagement
     {
         [Tooltip("The maximum range that objects will be visible at.")]
         public int visRange = 30;
@@ -24,44 +24,34 @@ namespace Mirror
         // on first sight, it seems we need distance / 3 (we see left/us/right).
         // but that's not the case.
         // resolution would be 10, and we only see 1 cell far, so 10+10=20.
-        public int resolution => visRange / 2;
+        public int resolution => visRange / 2; // same as XY because if XY is rotated 90 degree for 3D, it's still the same distance
 
         [Tooltip("Rebuild all every 'rebuildInterval' seconds.")]
         public float rebuildInterval = 1;
         double lastRebuildTime;
-
-        public enum CheckMethod
-        {
-            XZ_FOR_3D,
-            XY_FOR_2D
-        }
-        [Tooltip("Spatial Hashing supports 3D (XZ) and 2D (XY) games.")]
-        public CheckMethod checkMethod = CheckMethod.XZ_FOR_3D;
 
         [Header("Debug Settings")]
         public bool showSlider;
 
         // the grid
         // begin with a large capacity to avoid resizing & allocations.
-        Grid2D<NetworkConnectionToClient> grid = new Grid2D<NetworkConnectionToClient>(1024);
+        Grid3D<NetworkConnectionToClient> grid = new Grid3D<NetworkConnectionToClient>(1024);
 
         // project 3d world position to grid position
-        Vector2Int ProjectToGrid(Vector3 position) =>
-            checkMethod == CheckMethod.XZ_FOR_3D
-            ? Vector2Int.RoundToInt(new Vector2(position.x, position.z) / resolution)
-            : Vector2Int.RoundToInt(new Vector2(position.x, position.y) / resolution);
+        Vector3Int ProjectToGrid(Vector3 position) =>
+            Vector3Int.RoundToInt(position / resolution);
 
         public override bool OnCheckObserver(NetworkIdentity identity, NetworkConnectionToClient newObserver)
         {
             // calculate projected positions
-            Vector2Int projected = ProjectToGrid(identity.transform.position);
-            Vector2Int observerProjected = ProjectToGrid(newObserver.identity.transform.position);
+            Vector3Int projected = ProjectToGrid(identity.transform.position);
+            Vector3Int observerProjected = ProjectToGrid(newObserver.identity.transform.position);
 
             // distance needs to be at max one of the 8 neighbors, which is
             //   1 for the direct neighbors
             //   1.41 for the diagonal neighbors (= sqrt(2))
             // => use sqrMagnitude and '2' to avoid computations. same result.
-            return (projected - observerProjected).sqrMagnitude <= 2;
+            return (projected - observerProjected).sqrMagnitude <= 2; // same as XY because if XY is rotated 90 degree for 3D, it's still the same distance
         }
 
         public override void OnRebuildObservers(NetworkIdentity identity, HashSet<NetworkConnectionToClient> newObservers)
@@ -69,7 +59,7 @@ namespace Mirror
             // add everyone in 9 neighbour grid
             // -> pass observers to GetWithNeighbours directly to avoid allocations
             //    and expensive .UnionWith computations.
-            Vector2Int current = ProjectToGrid(identity.transform.position);
+            Vector3Int current = ProjectToGrid(identity.transform.position);
             grid.GetWithNeighbours(current, newObservers);
         }
 
@@ -113,7 +103,7 @@ namespace Mirror
                 if (connection.isAuthenticated && connection.identity != null)
                 {
                     // calculate current grid position
-                    Vector2Int position = ProjectToGrid(connection.identity.transform.position);
+                    Vector3Int position = ProjectToGrid(connection.identity.transform.position);
 
                     // put into grid
                     grid.Add(position, connection);
