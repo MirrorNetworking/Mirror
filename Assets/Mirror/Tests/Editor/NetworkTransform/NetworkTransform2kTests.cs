@@ -123,7 +123,9 @@ namespace Mirror.Tests.NetworkTransformTests
             Vector3 scale = new Vector3(4, 5, 6);
 
             // apply snapshot with interpolation
-            component.synchronizationSelections = SyncInterpolateOptions.Position | SyncInterpolateOptions.Rotation | SyncInterpolateOptions.Scale;
+            component.syncPosition = true;
+            component.syncRotation = true;
+            component.syncScale = true;
             component.Apply(new TransformSnapshot(0, 0, position, rotation, scale));
 
             // was it applied?
@@ -141,7 +143,9 @@ namespace Mirror.Tests.NetworkTransformTests
             Vector3 scale = new Vector3(4, 5, 6);
 
             // apply snapshot without position sync should not apply position
-            component.synchronizationSelections = SyncInterpolateOptions.Rotation | SyncInterpolateOptions.Scale;
+            component.syncPosition = false;
+            component.syncRotation = true;
+            component.syncScale = true;
             component.Apply(new TransformSnapshot(0, 0, position, rotation, scale));
 
             // was it applied?
@@ -159,7 +163,9 @@ namespace Mirror.Tests.NetworkTransformTests
             Vector3 scale = new Vector3(4, 5, 6);
 
             // apply snapshot without position sync should not apply position
-            component.synchronizationSelections = SyncInterpolateOptions.Position | SyncInterpolateOptions.Scale;
+            component.syncPosition = true;
+            component.syncRotation = false;
+            component.syncScale = true;
             component.Apply(new TransformSnapshot(0, 0, position, rotation, scale));
 
             // was it applied?
@@ -177,7 +183,9 @@ namespace Mirror.Tests.NetworkTransformTests
             Vector3 scale = new Vector3(4, 5, 6);
 
             // apply snapshot without position sync should not apply position
-            component.synchronizationSelections = SyncInterpolateOptions.Position | SyncInterpolateOptions.Rotation;
+            component.syncPosition = true;
+            component.syncRotation = true;
+            component.syncScale = false;
             component.Apply(new TransformSnapshot(0, 0, position, rotation, scale));
 
             // was it applied?
