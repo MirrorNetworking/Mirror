@@ -266,93 +266,6 @@ namespace Mirror
             return (!positionChanged && !rotationChanged && !scaleChanged);
         }
 #endif
-        // cmd /////////////////////////////////////////////////////////////////
-        // only unreliable. see comment above of this file.
-        [Command(channel = Channels.Unreliable)]
-        void CmdClientToServerSync(Vector3? position, Quaternion? rotation, Vector3? scale)
-        {
-            OnClientToServerSync(position, rotation, scale);
-            //For client authority, immediately pass on the client snapshot to all other
-            //clients instead of waiting for server to send its snapshots.
-            if (clientAuthority && connectionToClient != null) // BIGBOX CHANGE: DropPods are clientAuthority but don't count bots by excluding connectionToClient==null
-            {
-                RpcServerToClientSync(position, rotation, scale);
-            }
-        }
-
-        // local authority client sends sync message to server for broadcasting
-        protected virtual void OnClientToServerSync(Vector3? position, Quaternion? rotation, Vector3? scale)
-        {
-            // only apply if in client authority mode
-            if (!clientAuthority) return;
-
-            // protect against ever growing buffer size attacks
-            if (serverSnapshots.Count >= bufferSizeLimit) return;
-
-            // only player owned objects (with a connection) can send to
-            // server. we can get the timestamp from the connection.
-            double timestamp = connectionToClient.remoteTimeStamp;
-#if onlySyncOnChange_BANDWIDTH_SAVING
-            if (onlySyncOnChange)
-            {
-                double timeIntervalCheck = bufferResetMultiplier * sendInterval;
-
-                if (serverSnapshots.Count > 0 && serverSnapshots.Values[serverSnapshots.Count - 1].remoteTime + timeIntervalCheck < timestamp)
-                {
-                    Reset();
-                }
-            }
-#endif
-            // position, rotation, scale can have no value if same as last time.
-            // saves bandwidth.
-            // but we still need to feed it to snapshot interpolation. we can't
-            // just have gaps in there if nothing has changed. for example, if
-            //   client sends snapshot at t=0
-            //   client sends nothing for 10s because not moved
-            //   client sends snapshot at t=10
-            // then the server would assume that it's one super slow move and
-            // replay it for 10 seconds.
-            if (!position.HasValue) position = serverSnapshots.Count > 0 ? serverSnapshots.Values[serverSnapshots.Count - 1].position : target.localPosition;
-            if (!rotation.HasValue) rotation = serverSnapshots.Count > 0 ? serverSnapshots.Values[serverSnapshots.Count - 1].rotation : target.localRotation;
-            if (!scale.HasValue) scale = serverSnapshots.Count > 0 ? serverSnapshots.Values[serverSnapshots.Count - 1].scale : target.localScale;
-
-            // construct snapshot with batch timestamp to save bandwidth
-            NTSnapshot snapshot = new NTSnapshot(
-                timestamp,
-                NetworkTime.localTime,
-                position.Value, rotation.Value, scale.Value
-            );
-
-            // (optional) dynamic adjustment
-            if (dynamicAdjustment)
-            {
-                // set bufferTime on the fly.
-                // shows in inspector for easier debugging :)
-                bufferTimeMultiplier = SnapshotInterpolation.DynamicAdjustment(
-                    sendInterval,
-                    serverDeliveryTimeEma.StandardDeviation,
-                    dynamicAdjustmentTolerance
-                );
-                // Debug.Log($"[Server]: {name} delivery std={serverDeliveryTimeEma.StandardDeviation} bufferTimeMult := {bufferTimeMultiplier} ");
-            }
-
-            // insert into the server buffer & initialize / adjust / catchup
-            SnapshotInterpolation.InsertAndAdjust(
-                serverSnapshots,
-                bufferSizeLimit,
-                snapshot,
-                ref serverTimeline,
-                ref serverTimescale,
-                sendInterval,
-                bufferTime,
-                catchupSpeed,
-                slowdownSpeed,
-                ref serverDriftEma,
-                catchupNegativeThreshold,
-                catchupPositiveThreshold,
-                ref serverDeliveryTimeEma
-            );
-        }
 
         // rpc /////////////////////////////////////////////////////////////////
         // only unreliable. see comment above of this file.
@@ -548,72 +461,6 @@ namespace Mirror
             }
         }
 
-        void UpdateClientBroadcast() // V78 improvements
-        {
-            // https://github.com/vis2k/Mirror/pull/2992/
-            if (!NetworkClient.ready) return;
-
-            // send to server each 'sendInterval'
-            // NetworkTime.localTime for double precision until Unity has it too
-            //
-            // IMPORTANT:
-            // snapshot interpolation requires constant sending.
-            // DO NOT only send if position changed. for example:
-            // ---
-            // * client sends first position at t=0
-            // * ... 10s later ...
-            // * client moves again, sends second position at t=10
-            // ---
-            // * server gets first position at t=0
-            // * server gets second position at t=10
-            // * server moves from first to second within a time of 10s
-            //   => would be a super slow move, instead of a wait & move.
-            //
-            // IMPORTANT:
-            // DO NOT send nulls if not changed 'since last send' either. we
-            // send unreliable and don't know which 'last send' the other end
-            // received successfully.
-            if (NetworkTime.localTime >= lastClientSendTime + sendInterval)
-            {
-                // send snapshot without timestamp.
-                // receiver gets it from batch timestamp to save bandwidth.
-                NTSnapshot snapshot = ConstructSnapshot();
-#if onlySyncOnChange_BANDWIDTH_SAVING
-                cachedSnapshotComparison = CompareSnapshots(snapshot);
-                if (cachedSnapshotComparison && hasSentUnchangedPosition && onlySyncOnChange) { return; }
-#endif
-
-#if onlySyncOnChange_BANDWIDTH_SAVING
-                CmdClientToServerSync(
-                    // only sync what the user wants to sync
-                    syncPosition && positionChanged ? snapshot.position : default(Vector3?),
-                    syncRotation && rotationChanged ? snapshot.rotation : default(Quaternion?),
-                    syncScale && scaleChanged ? snapshot.scale : default(Vector3?)
-                );
-#else
-                CmdClientToServerSync(
-                    // only sync what the user wants to sync
-                    syncPosition ? snapshot.position : default(Vector3?),
-                    syncRotation ? snapshot.rotation : default(Quaternion?),
-                    syncScale ? snapshot.scale : default(Vector3?)
-                );
-#endif
-
-                lastClientSendTime = NetworkTime.localTime;
-#if onlySyncOnChange_BANDWIDTH_SAVING
-                if (cachedSnapshotComparison)
-                {
-                    hasSentUnchangedPosition = true;
-                }
-                else
-                {
-                    hasSentUnchangedPosition = false;
-                    lastSnapshot = snapshot;
-                }
-#endif
-            }
-        }
-
         void UpdateClientInterpolation() // V78 improvements
         {
             // client authority, and local player (= allowed to move myself)?
@@ -659,10 +506,6 @@ namespace Mirror
         {
             // if server then always sync to others.
             if (isServer) UpdateServerBroadcast();
-            // client authority, and local player (= allowed to move myself)?
-            // 'else if' because host mode shouldn't send anything to server.
-            // it is the server. don't overwrite anything there.
-            else if (isClient && IsClientWithAuthority) UpdateClientBroadcast();
         }
 
         // common Teleport code for client->server and server->client
