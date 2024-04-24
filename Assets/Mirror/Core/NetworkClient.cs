@@ -446,6 +446,7 @@ namespace Mirror
             // now that everything was handled, clear the connection.
             // previously this was done in Disconnect() already, but we still
             // need it for the above OnDisconnectedEvent.
+            connection?.Cleanup();
             connection = null;
 
             // transport handlers are only added when connecting.

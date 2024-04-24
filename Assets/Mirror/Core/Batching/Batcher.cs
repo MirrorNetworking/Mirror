@@ -146,5 +146,22 @@ namespace Mirror
             // nothing was written
             return false;
         }
+
+        // return all batches to the pool for cleanup
+        public void Clear()
+        {
+            // return batch in progress
+            if (batch != null)
+            {
+                NetworkWriterPool.Return(batch);
+                batch = null;
+            }
+
+            // return all queued batches
+            foreach (NetworkWriterPooled queued in batches)
+                NetworkWriterPool.Return(queued);
+
+            batches.Clear();
+        }
     }
 }

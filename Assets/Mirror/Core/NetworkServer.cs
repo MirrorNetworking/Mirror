@@ -824,6 +824,7 @@ namespace Mirror
             // Debug.Log($"Server disconnect client:{connectionId}");
             if (connections.TryGetValue(connectionId, out NetworkConnectionToClient conn))
             {
+                conn.Cleanup();
                 RemoveConnection(connectionId);
                 // Debug.Log($"Server lost client:{connectionId}");
 
