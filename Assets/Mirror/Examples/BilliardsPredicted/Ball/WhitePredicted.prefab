@@ -301,6 +301,30 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
+  target: {fileID: 3429911415116987812}
+  clientAuthority: 0
+  sendRate: 30
+  bufferTimeMultiplier: 2
+  bufferSizeLimit: 64
+  catchupNegativeThreshold: -1
+  catchupPositiveThreshold: 1
+  catchupSpeed: 0.009999999776482582
+  slowdownSpeed: 0.009999999776482582
+  driftEmaDuration: 1
+  dynamicAdjustment: 1
+  dynamicAdjustmentTolerance: 1
+  deliveryTimeEmaDuration: 2
+  onlySyncOnChange: 1
+  bufferResetMultiplier: 5
+  positionSensitivity: 0.01
+  rotationSensitivity: 0.01
+  scaleSensitivity: 0.01
+  syncPosition: 1
+  syncRotation: 1
+  syncScale: 0
+  showGizmos: 0
+  showOverlay: 0
+  overlayColor: {r: 0, g: 0, b: 0, a: 0.5}
   predictedRigidbody: {fileID: 1848203816128897140}
   blendingRttMultiplier: 2
   blendingCurve:
@@ -336,19 +360,12 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  localForceDampening: 0.2
-  motionSmoothingVelocityThreshold: 0.1
-  motionSmoothingAngularVelocityThreshold: 5
-  motionSmoothingTimeTolerance: 0.5
-  stateHistoryLimit: 32
-  recordInterval: 0.05
-  onlyRecordChanges: 1
-  compareLastFirst: 1
-  positionCorrectionThreshold: 0.1
-  rotationCorrectionThreshold: 5
-  oneFrameAhead: 1
-  snapThreshold: 2
-  reduceSendsWhileIdle: 1
+  localForceDampening: 0.5
+  collisionChaining: 1
+  maxCollisionChainingDepth: 2
+  velocitySensitivity: 0.1
+  angularVelocitySensitivity: 5
   debugColors: 1
   predictingColor: {r: 0, g: 1, b: 0, a: 1}
-  blendingColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  blendingAheadColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  blendingBehindColor: {r: 1, g: 0, b: 0, a: 1}

@@ -68,7 +68,8 @@ namespace Mirror
         public bool debugColors = false;
         Color originalColor = Color.white;
         public Color predictingColor = Color.green;
-        public Color blendingColor = Color.yellow; // when actually interpolating towards a blend in front of us
+        public Color blendingAheadColor = Color.yellow; // when actually interpolating towards a blend in front of us
+        public Color blendingBehindColor = Color.red; // when actually interpolating towards a blend in front of us
 
         protected override void Awake()
         {
@@ -212,8 +213,11 @@ namespace Mirror
         }
 
         Vector3 lastSetPosition = Vector3.zero;
+        Vector3 interpolatedPosition = Vector3.zero;
         protected override void ApplySnapshot(NTSnapshot interpolated)
         {
+            interpolatedPosition = interpolated.position;
+
             // ignore server snapshots while simulating physics
             if (state == ForecastState.PREDICTING)
             {
@@ -229,10 +233,10 @@ namespace Mirror
 
                 // blend between local and remote position
                 // set debug color
-                if (debugColors)
-                {
-                    rend.material.color = blendingColor;
-                }
+                // if (debugColors)
+                // {
+                //     rend.material.color = blendingColor;
+                // }
 
                 // sample the blending curve to find out how much to blend right now
                 float blendingElapsed = (float)(NetworkTime.localTime - blendingStartTime);
@@ -268,9 +272,21 @@ namespace Mirror
                 // Quaternions always need to be normalized in order to be a valid rotation after operations
                 Quaternion newRotation = Quaternion.Slerp(currentRotation, targetRotation, p).normalized;
 
+                // would the new position be ahead of us, or behind us?
+                Vector3 velocity = predictedRigidbody.velocity; // this is where we are going
+                Vector3 targetDelta = targetPosition - currentPosition; // this is where we would go
+                float dot = Vector3.Dot(velocity, targetDelta);
+                bool ahead = dot > 0;
+                // if (!ahead) return;
+                // visualize 'ahead'
+                if (debugColors)
+                {
+                    rend.material.color = ahead ? blendingAheadColor : blendingBehindColor;
+                }
+
                 // assign position and rotation together. faster than accessing manually.
                 // TODO reuse ApplySnapshot for consistency?
-                tf.SetPositionAndRotation(newPosition, newRotation);
+                //tf.SetPositionAndRotation(newPosition, newRotation);
                 //predictedRigidbody.MovePosition(newPosition); // smooth
                 //predictedRigidbody.MoveRotation(newRotation); // smooth
             }
@@ -284,10 +300,10 @@ namespace Mirror
                 if (Vector3.Distance(interpolated.position, lastSetPosition) >= epsilon)
                 {
                     base.ApplySnapshot(interpolated);
-                    lastSetPosition = interpolated.position;
                 }
                 // END CUSTOM CHANGE
             }
+            lastSetPosition = interpolated.position;
         }
 
         // Prediction uses a Rigidbody, which needs to be moved in FixedUpdate() even while kinematic.
@@ -371,6 +387,12 @@ namespace Mirror
             other.AddPredictedForceChain(impulse, ForceMode.Impulse, remainingCollisionChainDepth - 1);
         }
         */
+
+        private void OnDrawGizmos()
+        {
+            Bounds bounds = GetComponent<Collider>().bounds;
+            Gizmos.DrawWireCube(interpolatedPosition,bounds.size );
+        }
 
         // optional user callbacks, in case people need to know about events.
         protected virtual void OnBeginPrediction() {}
