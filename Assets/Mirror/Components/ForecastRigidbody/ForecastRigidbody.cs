@@ -18,7 +18,7 @@ namespace Mirror
     }
 
     [RequireComponent(typeof(Rigidbody))]
-    public class ForecastRigidbody : NetworkBehaviour
+    public class ForecastRigidbody : NetworkTransformOld // reuse NT for smooth sync for now. simplify into a lite-version later.
     {
         Transform tf; // this component is performance critical. cache .transform getter!
         Renderer rend;
@@ -35,7 +35,7 @@ namespace Mirror
 
         [Header("Blending")]
         [Tooltip("Blend to remote state over a N * rtt time.\n  For a 200ms ping, we blend over N * 200ms.\n  For 20ms ping, we blend over N * 20 ms.")]
-        public float blendingRttMultiplier = 2;
+        public float blendingRttMultiplier = 3;
         public float blendingTime => (float)NetworkTime.rtt * blendingRttMultiplier;
         [Tooltip("Blending speed over time from 0 to 1. Exponential is recommended.")]
         public AnimationCurve blendingCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
@@ -45,9 +45,6 @@ namespace Mirror
         [Header("Dampening")]
         [Tooltip("Locally applied force is slowed down a bit compared to the server force, to make catch up more smooth.")]
         [Range(0.05f, 1)] public float localForceDampening = 0.2f; // 50% is too obvious
-
-        [Header("Smoothing")]
-        public readonly SortedList<double, TransformSnapshot> clientSnapshots = new SortedList<double, TransformSnapshot>(16);
 
         [Header("Collision Chaining")]
         [Tooltip("Enable to have actively predicted Rigidbodies activate other Rigidbodies they collide with.")]
@@ -67,23 +64,16 @@ namespace Mirror
         public float angularVelocitySensitivity = 5.0f; // Billiards demo: 0.1 is way too small, takes forever for IsMoving()==false
         float angularVelocitySensitivitySqr; // ² cached in Awake
 
-        [Tooltip("Applying server corrections one frame ahead gives much better results. We don't know why yet, so this is an option for now.")]
-        public bool oneFrameAhead = true;
-
-        [Header("Bandwidth")]
-        [Tooltip("Reduce sends while velocity==0. Client's objects may slightly move due to gravity/physics, so we still want to send corrections occasionally even if an object is idle on the server the whole time.")]
-        public bool reduceSendsWhileIdle = true;
-
-#if UNITY_EDITOR // PERF: only access .material in Editor, as it may instantiate!
         [Header("Debugging")]
         public bool debugColors = false;
         Color originalColor = Color.white;
         public Color predictingColor = Color.green;
         public Color blendingColor = Color.yellow; // when actually interpolating towards a blend in front of us
-#endif
 
-        protected virtual void Awake()
+        protected override void Awake()
         {
+            base.Awake();
+
             tf = transform;
             rend = GetComponentInChildren<Renderer>();
             predictedRigidbody = GetComponent<Rigidbody>();
@@ -93,10 +83,8 @@ namespace Mirror
 
             initialSyncInterval = syncInterval;
 
-            // in fast mode, we need to force enable Rigidbody.interpolation.
-            // otherwise there's not going to be any smoothing whatsoever.
-            // PERF: disable this for now!
-            // predictedRigidbody.interpolation = RigidbodyInterpolation.Interpolate;
+            // make sure predicted physics look smooth
+            predictedRigidbody.interpolation = RigidbodyInterpolation.Interpolate;
 
             // cache computations
             velocitySensitivitySqr = velocitySensitivity * velocitySensitivity;
@@ -106,9 +94,7 @@ namespace Mirror
             // note if objects share a material, accessing ".material" will
             // instantiate one which can be a massive performance overhead.
             // only use debug colors when debugging!
-#if UNITY_EDITOR // PERF: only access .material in Editor, as it may instantiate!
             if (debugColors) originalColor = rend.material.color;
-#endif
         }
 
         public override void OnStartClient()
@@ -171,20 +157,22 @@ namespace Mirror
         protected void BeginPredicting()
         {
             predictedRigidbody.isKinematic = false; // full physics sync
-            
-            // collision checking is disabled while following.
-            // enable while predicting again.
-            predictedRigidbody.detectCollisions = true;
-            
+
             state = ForecastState.PREDICTING;
-#if UNITY_EDITOR // PERF: only access .material in Editor, as it may instantiate!
             if (debugColors) rend.material.color = predictingColor;
-#endif
             // we want to predict until the first server state for our [Command] AddForce came in.
             // we know the time when our [Command] arrives on server: NetworkTime.predictedTime.
             predictionStartTime = NetworkTime.predictedTime; // !!! not .time !!!
             OnBeginPrediction();
             // Debug.Log($"{name} BEGIN PREDICTING @ {predictionStartTime:F2}");
+
+            // CUSTOM CHANGE: NT is disabled until physics changes to dynamic.
+            // by default it gets enabled based on a syncvar.
+            // for prediction, we want to enable it immediately when we begin predicting.
+            // IMPORTANT: the syncvar also disables it at the right time,
+            //            BUT Unity Inspector sometimes doesn't refresh unless clicking A->B->A again. this works fine.
+            enabled = true;
+            // END CUSTOM CHANGE
         }
 
         double blendingStartTime;
@@ -197,7 +185,7 @@ namespace Mirror
 
             // clear any previous snapshots from teleports, old states, while prediction etc.
             // start building a buffer while blending, to later follow while FOLLOWING.
-            clientSnapshots.Clear();
+            //clientSnapshots.Clear();
             // Debug.Log($"{name} BEGIN BLENDING");
         }
 
@@ -205,123 +193,48 @@ namespace Mirror
         {
             predictedRigidbody.isKinematic = true; // full transform sync
             state = ForecastState.FOLLOWING;
-#if UNITY_EDITOR // PERF: only access .material in Editor, as it may instantiate!
             if (debugColors) rend.material.color = originalColor;
-#endif
             // reset the collision chain depth so it starts at 0 again next time
             remainingCollisionChainDepth = 0;
-            
-            // perf: setting kinematic rigidbody's positions still causes
-            // significant physics overhead on low end devices.
-            // try disable collisions while purely following.
-            predictedRigidbody.detectCollisions = false;
-            
+
+            // don't disable collisions while following!
+            // otherwise player can't interact with it again!
+            //  predictedRigidbody.detectCollisions = false;
+
             OnBeginFollow();
             // Debug.Log($"{name} BEGIN FOLLOW");
         }
 
-        void UpdateServer()
+        protected override void Update()
         {
-            // bandwidth optimization while idle.
-            if (reduceSendsWhileIdle)
-            {
-                // while moving, always sync every syncInterval..
-                // while idle, only sync once per second.
-                //
-                // we still need to sync occasionally because objects on client
-                // may still slide or move slightly due to gravity, physics etc.
-                // and those still need to get corrected if not moving on server.
-                //
-                // TODO
-                // next round of optimizations: if client received nothing for 1s,
-                // force correct to last received state. then server doesn't need
-                // to send once per second anymore.
-                syncInterval = IsMoving() ? initialSyncInterval : 1;
-            }
-
-            // always set dirty to always serialize in next sync interval.
-            SetDirty();
-        }
-
-        // movement detection is virtual, in case projects want to use other methods.
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected virtual bool IsMoving() =>
-            // straight forward implementation
-            //   predictedRigidbody.velocity.magnitude >= motionSmoothingVelocityThreshold ||
-            //   predictedRigidbody.angularVelocity.magnitude >= motionSmoothingAngularVelocityThreshold;
-            // faster implementation with cached ²
-            predictedRigidbody.velocity.sqrMagnitude >= velocitySensitivitySqr ||
-            predictedRigidbody.angularVelocity.sqrMagnitude >= angularVelocitySensitivitySqr;
-
-        void Update()
-        {
+            base.Update();
             if (isClientOnly) UpdateClient();
         }
-        
-        // NetworkTransform improvement: server broadcast needs to run in LateUpdate
-        // after other scripts may changed positions in Update().
-        // otherwise this may run before user update, delaying detection until next frame.
-        // this could cause visible jitter.
-        void LateUpdate()
-        {
-            if (isServer) UpdateServer();
-        }
 
-        // Prediction uses a Rigidbody, which would suggest position changes to happen in FixedUpdate().
-        // However, snapshot interpolation needs to run in Update() in order to look perfectly smooth.
-        void UpdateClient()
+        Vector3 lastSetPosition = Vector3.zero;
+        protected override void ApplySnapshot(NTSnapshot interpolated)
         {
-            // PREDICTING checks state, which happens in update()
+            // ignore server snapshots while simulating physics
             if (state == ForecastState.PREDICTING)
             {
-                // we want to predict until the first server state came in.
-                // -> our [Command] AddForce is sent locally.
-                // -> predictionStartTime was set to NetworkTime.predictedTime,
-                //    which is the time on server when the [Command] will arrive.
-                // -> we want to wait until the last received is at least >= start time.
-                // TODO add a safety buffer on top to make sure it's the state after [Command]?
-                //      but technically doesn't make a difference if it just barely moved anyway.
-                if (lastReceivedState.timestamp > predictionStartTime)
-                {
-                    // Debug.Log($"{name} END PREDICTING because received state = {lastReceivedState.timestamp:F2} > prediction start = {predictionStartTime:F2}");
-                    BeginBlending();
-                }
             }
+            // blend between local position and server snapshots
             else if (state == ForecastState.BLENDING)
             {
+                // DEBUG: force FOLLOW for now
                 // snapshot interpolation: get the interpolated remote position at this time.
                 // if there is no snapshot yet, just use lastReceived
-                Vector3 targetPosition = lastReceivedState.position;
-                Quaternion targetRotation = lastReceivedState.rotation;
-                if (clientSnapshots.Count > 0)
-                {
-                    // step the interpolation without touching time.
-                    // NetworkClient is responsible for time globally.
-                    SnapshotInterpolation.StepInterpolation(
-                        clientSnapshots,
-                        NetworkTime.time, // == NetworkClient.localTimeline from snapshot interpolation
-                        out TransformSnapshot from,
-                        out TransformSnapshot to,
-                        out double t);
-
-                    // interpolate & apply
-                    TransformSnapshot computed = TransformSnapshot.Interpolate(from, to, t);
-                    targetPosition = computed.position;
-                    targetRotation = computed.rotation;
-                    // scale is ignored
-                }
+                Vector3 targetPosition = interpolated.position;
+                Quaternion targetRotation = interpolated.rotation;
 
                 // blend between local and remote position
                 // set debug color
-#if UNITY_EDITOR // PERF: only access .material in Editor, as it may instantiate!
                 if (debugColors)
                 {
                     rend.material.color = blendingColor;
                 }
-#endif
 
                 // sample the blending curve to find out how much to blend right now
-
                 float blendingElapsed = (float)(NetworkTime.localTime - blendingStartTime);
                 float relativeElapsed = blendingElapsed / blendingTime;
                 float p = blendingCurve.Evaluate(relativeElapsed);
@@ -356,12 +269,54 @@ namespace Mirror
                 Quaternion newRotation = Quaternion.Slerp(currentRotation, targetRotation, p).normalized;
 
                 // assign position and rotation together. faster than accessing manually.
+                // TODO reuse ApplySnapshot for consistency?
                 tf.SetPositionAndRotation(newPosition, newRotation);
+                //predictedRigidbody.MovePosition(newPosition); // smooth
+                //predictedRigidbody.MoveRotation(newRotation); // smooth
+            }
+            // directly apply server snapshots while following
+            else if (state == ForecastState.FOLLOWING)
+            {
+                // BEGIN CUSTOM CHANGE MAGIC: -98% => -1% bots benchmark
+                // PERF: only set if changed in order to not trigger physics updates while kinematic(!)
+                // EPSILON: simply needs to be small enough so we can't perceive jitter.
+                const float epsilon = 0.00001f;
+                if (Vector3.Distance(interpolated.position, lastSetPosition) >= epsilon)
+                {
+                    base.ApplySnapshot(interpolated);
+                    lastSetPosition = interpolated.position;
+                }
+                // END CUSTOM CHANGE
+            }
+        }
 
+        // Prediction uses a Rigidbody, which needs to be moved in FixedUpdate() even while kinematic.
+        double lastReceivedRemoteTime = 0;
+        void UpdateClient()
+        {
+            // PREDICTING checks state, which happens in update()
+            if (state == ForecastState.PREDICTING)
+            {
+                // we want to predict until the first server state came in.
+                // -> our [Command] AddForce is sent locally.
+                // -> predictionStartTime was set to NetworkTime.predictedTime,
+                //    which is the time on server when the [Command] will arrive.
+                // -> we want to wait until the last received is at least >= start time.
+                // TODO add a safety buffer on top to make sure it's the state after [Command]?
+                //      but technically doesn't make a difference if it just barely moved anyway.
+                if (lastReceivedRemoteTime > predictionStartTime)
+                {
+                    // Debug.Log($"{name} END PREDICTING because received state = {lastReceivedState.timestamp:F2} > prediction start = {predictionStartTime:F2}");
+                    BeginBlending();
+                }
+            }
+            else if (state == ForecastState.BLENDING)
+            {
                 // transition to FOLLOWING after blending is done.
                 // we could check 'if p >= 1' but if the user's curve never
                 // reaches a value of '1' then we would never transition.
                 // best to reach if elapsed time > blend time.
+                float blendingElapsed = (float)(NetworkTime.localTime - blendingStartTime);
                 if (blendingElapsed >= blendingTime)
                 {
                     // Debug.Log($"{name} END BLENDING");
@@ -371,50 +326,15 @@ namespace Mirror
             // FOLLOWING sets Transform, which happens in Update().
             else if (state == ForecastState.FOLLOWING)
             {
-                // hard set position & rotation.
-                // in theory we must always set rigidbody.position/rotation instead of transform:
-                // https://forum.unity.com/threads/how-expensive-is-physics-synctransforms.1366146/#post-9557491
-                // however, tf.SetPositionAndRotation is faster in our Prediction Benchmark.
-                //   predictedRigidbody.position = lastReceivedState.position;
-                //   predictedRigidbody.rotation = lastReceivedState.rotation;
-                // tf.SetPositionAndRotation(lastReceivedState.position, lastReceivedState.rotation);
-
-                // only while we have snapshots
-                if (clientSnapshots.Count > 0)
-                {
-                    // step the interpolation without touching time.
-                    // NetworkClient is responsible for time globally.
-                    SnapshotInterpolation.StepInterpolation(
-                        clientSnapshots,
-                        NetworkTime.time, // == NetworkClient.localTimeline from snapshot interpolation
-                        out TransformSnapshot from,
-                        out TransformSnapshot to,
-                        out double t);
-
-                    // interpolate & apply to transform.
-                    TransformSnapshot computed = TransformSnapshot.Interpolate(from, to, t);
-                    tf.SetPositionAndRotation(computed.position, computed.rotation); // scale is ignored
-                }
+                // NetworkTransform sync happens while FOLLOWING
             }
         }
-
-
-#if UNITY_EDITOR // PERF: only run gizmos in editor
-        void OnDrawGizmos()
-        {
-            // draw server state while blending
-            if (state == ForecastState.BLENDING)
-            {
-                Gizmos.color = blendingColor;
-                Gizmos.DrawWireCube(lastReceivedState.position, col.bounds.size);
-            }
-        }
-#endif
 
         // while predicting on client, if we hit another object then we need to
         // start predicting this one too.
         // otherwise the collision response would be delayed until next server
         // state to follow comes in.
+        /*
         [ClientCallback]
         void OnCollisionEnter(Collision collision)
         {
@@ -450,6 +370,7 @@ namespace Mirror
 
             other.AddPredictedForceChain(impulse, ForceMode.Impulse, remainingCollisionChainDepth - 1);
         }
+        */
 
         // optional user callbacks, in case people need to know about events.
         protected virtual void OnBeginPrediction() {}
@@ -458,103 +379,12 @@ namespace Mirror
 
         // process a received server state.
         // compares it against our history and applies corrections if needed.
-        ForecastRigidbodyState lastReceivedState;
-        void OnReceivedState(ForecastRigidbodyState data)//, bool sleeping)
+        protected override void OnServerToClientSync(Vector3? position, Quaternion? rotation, Vector3? scale)
         {
+            base.OnServerToClientSync(position, rotation, scale);
+
             // store last time
-            lastReceivedState = data;
-
-            // add to snapshot interpolation for smooth following.
-            // add a small timeline offset to account for decoupled arrival of
-            // NetworkTime and NetworkTransform snapshots.
-            // needs to be sendInterval. half sendInterval doesn't solve it.
-            // https://github.com/MirrorNetworking/Mirror/issues/3427
-            // remove this after LocalWorldState.
-
-            // insert transform transform snapshot.
-            // ignore while predicting since they'll be from old server state.
-            if (state != ForecastState.PREDICTING)
-            {
-                SnapshotInterpolation.InsertIfNotExists(
-                    clientSnapshots,
-                    NetworkClient.snapshotSettings.bufferLimit,
-                    new TransformSnapshot(
-                        NetworkClient.connection.remoteTimeStamp, // TODO use Ninja's offset from NT-R?: + timeStampAdjustment + offset, // arrival remote timestamp. NOT remote time.
-                        NetworkTime.localTime, // Unity 2019 doesn't have timeAsDouble yet
-                        data.position,
-                        data.rotation,
-                        Vector3.zero // scale is unused
-                    )
-                );
-            }
-        }
-
-        // send state to clients every sendInterval.
-        // reliable for now.
-        public override void OnSerialize(NetworkWriter writer, bool initialState)
-        {
-            // Time.time was at the beginning of this frame.
-            // NetworkLateUpdate->Broadcast->OnSerialize is at the end of the frame.
-            // as result, client should use this to correct the _next_ frame.
-            // otherwise we see noticeable resets that seem off by one frame.
-            //
-            // to solve this, we can send the current deltaTime.
-            // server is technically supposed to be at a fixed frame rate, but this can vary.
-            // sending server's current deltaTime is the safest option.
-            // client then applies it on top of remoteTimestamp.
-
-
-            // FAST VERSION: this shows in profiler a lot, so cache EVERYTHING!
-            tf.GetPositionAndRotation(out Vector3 position, out Quaternion rotation);  // faster than tf.position + tf.rotation. server's rigidbody is on the same transform.
-
-            // simple but slow write:
-            // writer.WriteFloat(Time.deltaTime);
-            // writer.WriteVector3(position);
-            // writer.WriteQuaternion(rotation);
-            // writer.WriteVector3(predictedRigidbody.velocity);
-            // writer.WriteVector3(predictedRigidbody.angularVelocity);
-
-            // performance optimization: write a whole struct at once via blittable:
-            ForecastSyncData data = new ForecastSyncData(
-                Time.deltaTime,
-                position,
-                rotation);
-            writer.WriteForecastSyncData(data);
-        }
-
-        // read the server's state, compare with client state & correct if necessary.
-        public override void OnDeserialize(NetworkReader reader, bool initialState)
-        {
-            // deserialize data
-            // we want to know the time on the server when this was sent, which is remoteTimestamp.
-            double timestamp = NetworkClient.connection.remoteTimeStamp;
-
-            // simple but slow read:
-            // double serverDeltaTime = reader.ReadFloat();
-            // Vector3 position        = reader.ReadVector3();
-            // Quaternion rotation     = reader.ReadQuaternion();
-            // Vector3 velocity        = reader.ReadVector3();
-            // Vector3 angularVelocity = reader.ReadVector3();
-
-            // performance optimization: read a whole struct at once via blittable:
-            ForecastSyncData data = reader.ReadForecastSyncData();
-            double serverDeltaTime = data.deltaTime;
-            Vector3 position = data.position;
-            Quaternion rotation = data.rotation;
-
-            // server sends state at the end of the frame.
-            // parse and apply the server's delta time to our timestamp.
-            // otherwise we see noticeable resets that seem off by one frame.
-            timestamp += serverDeltaTime;
-
-            // however, adding yet one more frame delay gives much(!) better results.
-            // we don't know why yet, so keep this as an option for now.
-            // possibly because client captures at the beginning of the frame,
-            // with physics happening at the end of the frame?
-            if (oneFrameAhead) timestamp += serverDeltaTime;
-
-            // process received state
-            OnReceivedState(new ForecastRigidbodyState(timestamp, position, rotation));
+            lastReceivedRemoteTime = NetworkClient.connection.remoteTimeStamp;
         }
 
         protected override void OnValidate()
