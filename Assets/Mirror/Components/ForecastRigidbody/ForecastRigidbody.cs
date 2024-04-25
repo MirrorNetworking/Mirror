@@ -53,17 +53,6 @@ namespace Mirror
         public int maxCollisionChainingDepth = 2; // A->B->C is enough!
         int remainingCollisionChainDepth;
 
-        // motion smoothing happen on-demand, because it requires moving physics components to another GameObject.
-        // this only starts at a given velocity and ends when stopped moving.
-        // to avoid constant on/off/on effects, it also stays on for a minimum time.
-        [Header("Sleeping")]
-        [Tooltip("Low send rate until velocity is above this threshold.")]
-        public float velocitySensitivity = 0.1f;
-        float velocitySensitivitySqr; // ² cached in Awake
-        [Tooltip("Low send rate until angular velocity is above this threshold.")]
-        public float angularVelocitySensitivity = 5.0f; // Billiards demo: 0.1 is way too small, takes forever for IsMoving()==false
-        float angularVelocitySensitivitySqr; // ² cached in Awake
-
         [Header("Debugging")]
         public bool debugColors = false;
         Color originalColor = Color.white;
@@ -93,10 +82,6 @@ namespace Mirror
             // because addforce on server thinks the object is elsewhere.
             // TODO instead of only sync on change, we need only sync every 500ms if idle
             onlySyncOnChange = false;
-
-            // cache computations
-            velocitySensitivitySqr = velocitySensitivity * velocitySensitivity;
-            angularVelocitySensitivitySqr = angularVelocitySensitivity * angularVelocitySensitivity;
 
             // save renderer color
             // note if objects share a material, accessing ".material" will
