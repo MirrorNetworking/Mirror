@@ -308,6 +308,41 @@ namespace Mirror
             }
         }
 
+        // try sample snapshot buffer at a given time.
+        // returns true if it really had an entry around that time.
+        public static bool TrySample<T>(
+            SortedList<double, T> buffer, // snapshot buffer
+            double localTimeline,         // local interpolation time based on server time
+            out int from,                 // the snapshot <= time
+            out int to,                   // the snapshot >= time
+            out double t)                 // interpolation factor
+            where T : Snapshot
+        {
+            from = -1;
+            to = -1;
+            t = 0;
+
+            // sample from [0,count-1] so we always have two at 'i' and 'i+1'.
+            for (int i = 0; i < buffer.Count - 1; ++i)
+            {
+                // is local time between these two?
+                T first = buffer.Values[i];
+                T second = buffer.Values[i + 1];
+                if (localTimeline >= first.remoteTime &&
+                    localTimeline <= second.remoteTime)
+                {
+                    // use these two snapshots
+                    from = i;
+                    to = i + 1;
+                    t = Mathd.InverseLerp(first.remoteTime, second.remoteTime, localTimeline);
+                    return true;
+                }
+            }
+
+            // didn't find two snapshots around local time.
+            return false;
+        }
+
         // progress local timeline every update.
         //
         // ONLY CALL IF SNAPSHOTS.COUNT > 0!

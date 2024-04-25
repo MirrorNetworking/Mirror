@@ -45,8 +45,6 @@ namespace Mirror
         [Tooltip("Blend to remote state over a N * rtt time.\n  For a 200ms ping, we blend over N * 200ms.\n  For 20ms ping, we blend over N * 20 ms.")]
         public float blendingRttMultiplier = 3;
         public float blendingTime => (float)NetworkTime.rtt * blendingRttMultiplier;
-        [Tooltip("Blending speed over time from 0 to 1. Exponential is recommended.")]
-        public AnimationCurve blendingCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
         ForecastState state = ForecastState.FOLLOWING; // follow until the player interacts
         double predictionStartTime;
         [Tooltip("When Blending, we never want to move backwards while interpolating to server position as that would be obvious visual jitter. We do want to slow down so server can catch up. This decides how much many % we can slow down compared to server speed. Slowing down 100% is a bit too obvious because it would show a hard stop.")]
@@ -72,8 +70,8 @@ namespace Mirror
         public bool debugColors = false;
         Color originalColor = Color.white;
         public Color predictingColor = Color.green;
-        public Color blendingAheadColor = Color.yellow; // when actually interpolating towards a blend in front of us
-        public Color blendingBehindColor = Color.red; // when actually interpolating towards a blend in front of us
+        public Color blendingExactColor = Color.yellow;
+        public Color blendingGuessColor = Color.red;
 
         protected override void Awake()
         {
@@ -222,11 +220,24 @@ namespace Mirror
         }
 
         double blendingStartTime;
+        double blendingEndTime;
+        Vector3 predictionEndPosition = Vector3.zero;
+        Quaternion predictionEndRotation = Quaternion.identity;
         protected void BeginBlending()
         {
             state = ForecastState.BLENDING;
             // if (debugColors) rend.material.color = blendingAheadColor; set in update depending on ahead/behind
-            blendingStartTime = NetworkTime.localTime;
+
+            // remember exactly where blending started.
+            predictionEndPosition = predictedRigidbody.position;
+            predictionEndRotation = predictedRigidbody.rotation;
+
+            // decide exactly when blending starts & ends.
+            // we don't want to decide this dynamically base don RTT, which may change while blending.
+            // decide it right here, and stick with it.
+            // based on NetworkTime.timeline because that's the FOLLOWING timeline.
+            blendingStartTime = clientTimeline; // TODO use NetworkTime.time after upgrading NT
+            blendingEndTime = blendingStartTime + blendingTime;
             OnBeginBlending();
 
             // clear any previous snapshots from teleports, old states, while prediction etc.
@@ -258,19 +269,183 @@ namespace Mirror
         }
 
         Vector3 lastSetPosition = Vector3.zero;
-        Vector3 interpolatedPosition = Vector3.zero;
-        Vector3 lastValidVelocity = Vector3.zero;
         protected override void ApplySnapshot(NTSnapshot interpolated)
         {
-            interpolatedPosition = interpolated.position;
-
             // ignore server snapshots while simulating physics
             if (state == ForecastState.PREDICTING)
             {
+                // Rigidboby simulates local physics while predicting.
             }
             // blend between local position and server snapshots
             else if (state == ForecastState.BLENDING)
             {
+                // blending is done in UpdateClient()
+            }
+            // directly apply server snapshots while following
+            else if (state == ForecastState.FOLLOWING)
+            {
+                // BEGIN CUSTOM CHANGE MAGIC: -98% => -1% bots benchmark
+                // PERF: only set if changed in order to not trigger physics updates while kinematic(!)
+                // EPSILON: simply needs to be small enough so we can't perceive jitter.
+                const float epsilon = 0.00001f;
+                if (Vector3.Distance(interpolated.position, lastSetPosition) >= epsilon)
+                {
+                    base.ApplySnapshot(interpolated);
+                    // only set if actually changed.
+                    // avoids tiny moves accumulating and never being detected as changed move again.
+                    lastSetPosition = interpolated.position;
+                }
+                // END CUSTOM CHANGE
+            }
+        }
+
+        // store the latest FOLLOWING.startPosition guess for visual debugging
+        Vector3 followingStartPositionEstimate = Vector3.zero;
+
+        // Prediction uses a Rigidbody, which needs to be moved in FixedUpdate() even while kinematic.
+        double lastReceivedRemoteTime = 0;
+        Vector3 lastReceivedRemotePosition = Vector3.zero;
+        void UpdateClient()
+        {
+            // process pending forces
+            ProcessPendingForces();
+
+            // PREDICTING checks state, which happens in update()
+            if (state == ForecastState.PREDICTING)
+            {
+                // we want to predict until the first server state came in.
+                // -> our [Command] AddForce is sent locally.
+                // -> predictionStartTime was set to NetworkTime.predictedTime,
+                //    which is the time on server when the [Command] will arrive.
+                // -> we want to wait until the last received is at least >= start time.
+                // TODO add a safety buffer on top to make sure it's the state after [Command]?
+                //      but technically doesn't make a difference if it just barely moved anyway.
+                if (lastReceivedRemoteTime > predictionStartTime)
+                {
+                    // Debug.Log($"{name} END PREDICTING because received state = {lastReceivedState.timestamp:F2} > prediction start = {predictionStartTime:F2}");
+                    BeginBlending();
+                }
+            }
+            else if (state == ForecastState.BLENDING)
+            {
+                // blending finished?
+                if (clientTimeline >= blendingEndTime) // TODO use NetworkTime after upgrading NT
+                {
+                    // Debug.Log($"{name} END BLENDING");
+                    BeginFollowing();
+                    return;
+                }
+
+                // first principles:
+                //
+                // BLENDING needs to interpolate between PREDICTING & FOLLOWING.
+                // the only way to do this without jitter and jumps is by
+                // interpolating from PREDICTION.endPosition to FOLLOWING.startPosition.
+                // anything else, no matter how smooth, will always cause jumps.
+                //
+                // PREDICTION.endPosition is easy: just remember before transition.
+                //
+                // FOLLOWING.startPosition is a bit harder.
+                // => we can sample snapshots @ blendingEndTime (if any).
+                // => if we haven't received it yet, we need to extrpolate based
+                //    on current velocity to guess where we'll be at blendingEndTime.
+
+                Vector3 followStartPosition = Vector3.zero;
+                Quaternion followStartRotation = Quaternion.identity;
+
+                // first, see if there's a snapshot at blendingEndTime already.
+                // this would be super precise.
+                if (SnapshotInterpolation.TrySample(clientSnapshots, clientTimeline + blendingTime, out int from, out int to, out double t))
+                {
+                    // interpolate between from & to
+                    NTSnapshot fromSnapshot = clientSnapshots[from];
+                    NTSnapshot toSnapshot = clientSnapshots[to];
+                    NTSnapshot interpolated = NTSnapshot.Interpolate(fromSnapshot, toSnapshot, t);
+                    followStartPosition = interpolated.position;
+                    followStartRotation = interpolated.rotation;
+
+                    // debug colors
+                    if (debugColors)
+                    {
+                        rend.material.color = blendingExactColor;
+                    }
+                }
+                // if not, then we need to guess.
+                // calculate the velocity of the latest known state.
+                // because that's the most accurate velocity we have.
+                // then extrapolate forward to blendingEndTime.
+                // TODO UNIT TEST THIS
+                else if (clientSnapshots.Count >= 2)
+                {
+                    NTSnapshot latest = clientSnapshots.Values[clientSnapshots.Count - 1];
+                    NTSnapshot previous = clientSnapshots.Values[clientSnapshots.Count - 2];
+                    float timeDelta = (float)(latest.remoteTime - previous.remoteTime); // remote time gives us exact remote velocity
+                    Vector3 positionDelta = latest.position - previous.position;
+                    Quaternion rotationDelta = (latest.rotation * Quaternion.Inverse(previous.rotation)).normalized; // always need to normalize after mult
+
+                    // avoid division by zero
+                    if (timeDelta > 0)
+                    {
+                        // now we have the remote velocity
+                        Vector3 velocity = positionDelta / timeDelta;
+
+                        // extrapolate this from latest time to blendingEndTime
+                        // TODO validate rotation formula?
+                        float timeToBlendingEnd = (float)(blendingEndTime - clientTimeline);
+                        followStartPosition = latest.position + velocity * timeToBlendingEnd;
+                        followStartRotation = latest.rotation * Quaternion.Slerp(Quaternion.identity, rotationDelta, timeToBlendingEnd / timeDelta);
+
+                        // debug colors
+                        if (debugColors)
+                        {
+                            rend.material.color = blendingGuessColor;
+                        }
+                    }
+                    // this shouldn't really happen. if timedelta is zero: do nothing.
+                    else
+                    {
+                        return;
+                    }
+                }
+                // if we don't have enough snapshots: do nothing. wait for more.
+                else
+                {
+                    return;
+                }
+
+                // store the latest FOLLOWING.startPosition guess for visual debugging
+                followingStartPositionEstimate = followStartPosition;
+
+                // now we have the exact FOLLOW.startPosition, or a best guess.
+                // interpolate from where we started to where we are going.
+                // we started at predictionEndPosition @ blendingStartTime.
+                // we are going to followStartPosition @ blendingEndTime.
+                float totalBlendTime = (float)(blendingEndTime - blendingStartTime);
+                float elapsedBlendTime = (float)(blendingEndTime - clientTimeline); // TODO use NetworkTime.time after upgrading NT
+                float blendFactor = totalBlendTime > 0 ? Mathf.Clamp01(elapsedBlendTime / totalBlendTime) : 0; // avoids divide by zero
+
+                // interpolate
+                Vector3 targetPosition = Vector3.Lerp(followStartPosition, predictionEndPosition, blendFactor);
+                Quaternion targetRotation = Quaternion.Slerp(followStartRotation, predictionEndRotation, blendFactor);
+
+                // TODO
+                // one more adjustment.
+                // we never want to interpolate backwards.
+                // which could happen if our guess is still off.
+
+
+                // set position and rotation
+                tf.SetPositionAndRotation(targetPosition, targetRotation);
+
+
+
+                // to where server  state is going to be after blend time.
+                // blending anywhere else, no matter how smooth, would cause a
+                // final jump to the actual server position for FOLLOWING.
+
+                //
+
+                /*
                 // DEBUG: force FOLLOW for now
                 // snapshot interpolation: get the interpolated remote position at this time.
                 // if there is no snapshot yet, just use lastReceived
@@ -371,50 +546,10 @@ namespace Mirror
                     Vector3 newVelocity = Vector3.MoveTowards(velocity, minimumVelocity, positionStep);
                     predictedRigidbody.velocity = newVelocity;
                 }
-            }
-            // directly apply server snapshots while following
-            else if (state == ForecastState.FOLLOWING)
-            {
-                // BEGIN CUSTOM CHANGE MAGIC: -98% => -1% bots benchmark
-                // PERF: only set if changed in order to not trigger physics updates while kinematic(!)
-                // EPSILON: simply needs to be small enough so we can't perceive jitter.
-                const float epsilon = 0.00001f;
-                if (Vector3.Distance(interpolated.position, lastSetPosition) >= epsilon)
-                {
-                    base.ApplySnapshot(interpolated);
-                    // only set if actually changed.
-                    // avoids tiny moves accumulating and never being detected as changed move again.
-                    lastSetPosition = interpolated.position;
-                }
-                // END CUSTOM CHANGE
-            }
-        }
+                */
 
-        // Prediction uses a Rigidbody, which needs to be moved in FixedUpdate() even while kinematic.
-        double lastReceivedRemoteTime = 0;
-        void UpdateClient()
-        {
-            // process pending forces
-            ProcessPendingForces();
+                /*
 
-            // PREDICTING checks state, which happens in update()
-            if (state == ForecastState.PREDICTING)
-            {
-                // we want to predict until the first server state came in.
-                // -> our [Command] AddForce is sent locally.
-                // -> predictionStartTime was set to NetworkTime.predictedTime,
-                //    which is the time on server when the [Command] will arrive.
-                // -> we want to wait until the last received is at least >= start time.
-                // TODO add a safety buffer on top to make sure it's the state after [Command]?
-                //      but technically doesn't make a difference if it just barely moved anyway.
-                if (lastReceivedRemoteTime > predictionStartTime)
-                {
-                    // Debug.Log($"{name} END PREDICTING because received state = {lastReceivedState.timestamp:F2} > prediction start = {predictionStartTime:F2}");
-                    BeginBlending();
-                }
-            }
-            else if (state == ForecastState.BLENDING)
-            {
                 // transition to FOLLOWING after blending is done.
                 // we could check 'if p >= 1' but if the user's curve never
                 // reaches a value of '1' then we would never transition.
@@ -425,6 +560,7 @@ namespace Mirror
                     // Debug.Log($"{name} END BLENDING");
                     BeginFollowing();
                 }
+                */
             }
             // FOLLOWING sets Transform, which happens in Update().
             else if (state == ForecastState.FOLLOWING)
@@ -478,7 +614,18 @@ namespace Mirror
         private void OnDrawGizmos()
         {
             Bounds bounds = GetComponent<Collider>().bounds;
-            Gizmos.DrawWireCube(interpolatedPosition,bounds.size );
+
+            // show the latest received remote position
+            Gizmos.color = Color.white;
+            Gizmos.DrawWireCube(lastReceivedRemotePosition, bounds.size);
+
+            // show the latest blending end position guess
+            Gizmos.color = blendingGuessColor;
+            if (state == ForecastState.BLENDING)
+            {
+                Gizmos.DrawWireCube(followingStartPositionEstimate, bounds.size);
+            }
+
         }
 
         // optional user callbacks, in case people need to know about events.
@@ -494,6 +641,9 @@ namespace Mirror
 
             // store last time
             lastReceivedRemoteTime = NetworkClient.connection.remoteTimeStamp;
+
+            // position might be null if same as last to save bandwidth
+            if (position.HasValue) lastReceivedRemotePosition = position.Value;
         }
 
         protected override void OnValidate()
