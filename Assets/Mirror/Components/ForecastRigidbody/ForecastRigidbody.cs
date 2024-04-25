@@ -87,6 +87,13 @@ namespace Mirror
             // make sure predicted physics look smooth
             predictedRigidbody.interpolation = RigidbodyInterpolation.Interpolate;
 
+            // hard disable only-sync-on-change for now.
+            // causes issues where clients objects may be too far off from server pos.
+            // and then addforce puts them even further off and they get out of sync forever.
+            // because addforce on server thinks the object is elsewhere.
+            // TODO instead of only sync on change, we need only sync every 500ms if idle
+            onlySyncOnChange = false;
+
             // cache computations
             velocitySensitivitySqr = velocitySensitivity * velocitySensitivity;
             angularVelocitySensitivitySqr = angularVelocitySensitivity * angularVelocitySensitivity;
