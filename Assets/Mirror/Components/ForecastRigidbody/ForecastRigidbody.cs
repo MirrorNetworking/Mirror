@@ -355,7 +355,13 @@ namespace Mirror
 
                 // first, see if there's a snapshot at blendingEndTime already.
                 // this would be super precise.
-                if (SnapshotInterpolation.TrySample(clientSnapshots, clientTimeline + blendingTime, out int from, out int to, out double t))
+                // returns false if there isn't any yet.
+                if (SnapshotInterpolation.TrySample(
+                    clientSnapshots,
+                    clientTimeline + blendingTime,
+                    out int from,
+                    out int to,
+                    out double t))
                 {
                     // interpolate between from & to
                     NTSnapshot fromSnapshot = clientSnapshots[from];
