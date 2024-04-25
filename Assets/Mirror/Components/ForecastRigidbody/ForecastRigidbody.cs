@@ -49,6 +49,8 @@ namespace Mirror
         public AnimationCurve blendingCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
         ForecastState state = ForecastState.FOLLOWING; // follow until the player interacts
         double predictionStartTime;
+        [Tooltip("When Blending, we never want to move backwards while interpolating to server position as that would be obvious visual jitter. We do want to slow down so server can catch up. This decides how much many % we can slow down compared to server speed. Slowing down 100% is a bit too obvious because it would show a hard stop.")]
+        [Range(0, 1)] public float maximumSlowdownRatio = 0.5f; // 50% looks good in the Billiards demo
 
         [Header("Dampening")]
         [Tooltip("Locally applied force is slowed down a bit compared to the server force, to make catch up more smooth.")]
@@ -353,7 +355,20 @@ namespace Mirror
                 // cause a highly noticable jitter effect!
                 else
                 {
-                    Vector3 newVelocity = Vector3.MoveTowards(velocity, Vector3.zero, positionStep);
+                    // slow down velocity, but always keep a minimum velocity of % of server velocity.
+                    // coming to a hard stop would be too noticable.
+                    // first, calculate delta between the two latest server states (if any)
+                    Vector3 remoteVelocity = Vector3.zero;
+                    if (clientSnapshots.Count >= 2)
+                    {
+                        NTSnapshot last = clientSnapshots.Values[clientSnapshots.Count - 1];
+                        NTSnapshot secondLast = clientSnapshots.Values[clientSnapshots.Count - 2];
+                        Vector3 lastDelta = last.position - secondLast.position;
+                        float lastDeltaTime = (float)(last.remoteTime - secondLast.remoteTime);
+                        if (lastDeltaTime > 0) remoteVelocity = lastDelta / lastDeltaTime;
+                    }
+                    Vector3 minimumVelocity = remoteVelocity * (1 - maximumSlowdownRatio);
+                    Vector3 newVelocity = Vector3.MoveTowards(velocity, minimumVelocity, positionStep);
                     predictedRigidbody.velocity = newVelocity;
                 }
             }

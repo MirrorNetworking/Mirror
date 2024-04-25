@@ -360,11 +360,11 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  maximumSlowdownRatio: 0.5
   localForceDampening: 0.5
   collisionChaining: 1
   maxCollisionChainingDepth: 2
-  velocitySensitivity: 0.1
-  angularVelocitySensitivity: 5
+  localDelayRatio: 0.1
   debugColors: 1
   predictingColor: {r: 0, g: 1, b: 0, a: 1}
   blendingAheadColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
