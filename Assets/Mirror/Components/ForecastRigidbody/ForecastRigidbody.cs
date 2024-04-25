@@ -17,6 +17,14 @@ namespace Mirror
         FOLLOWING,  // 100% server sided physics, client only follows .transform
     }
 
+    struct PendingForce
+    {
+        public Vector3 force;
+        public Vector3? position; // in case of AddForceAtPosition
+        public ForceMode mode;
+        public double time;
+    }
+
     [RequireComponent(typeof(Rigidbody))]
     public class ForecastRigidbody : NetworkTransformOld // reuse NT for smooth sync for now. simplify into a lite-version later.
     {
@@ -52,6 +60,11 @@ namespace Mirror
         [Tooltip("If a player interacts with an object, it can recursively activate other objects it collides with.\nDepth is the chain link from A->B->C->etc., it doesn't mean the amount of A->B, A->C, etc.\nNeeds to be finite to avoid chain activations going on forever like A->B->C->A (easy to notice in the stacked prediction example.")]
         public int maxCollisionChainingDepth = 2; // A->B->C is enough!
         int remainingCollisionChainDepth;
+
+        [Header("Local Delay")]
+        [Tooltip("Intentionally add delay before applying forces on client, in order to minimize prediction drift while waiting for server state.\nThe delay is relative to 'RTT'.\nIf we can reduce the prediction time by a hard to notice 50ms worth of physics drift, that's a good thing.")]
+        [Range(0,1)] public float localDelayRatio = 0.1f;
+        Queue<PendingForce> pendingForces = new Queue<PendingForce>();
 
         [Header("Debugging")]
         public bool debugColors = false;
@@ -99,15 +112,17 @@ namespace Mirror
 
         void AddPredictedForceInternal(Vector3 force, ForceMode mode)
         {
-            // apply local force dampening.
-            // client applies a bit less force than the server, so that
-            // catching up to blending state will be easier.
-            // for example: dampening = 0.1 means subtract 10% force
-            force *= (1 - localForceDampening);
-
-            // explicitly start predicting physics
-            BeginPredicting();
-            predictedRigidbody.AddForce(force, mode);
+            // apply a local delay before applying forces.
+            // this minimize the prediction+drift workload while waiting for server state.
+            double delay = NetworkTime.rtt * localDelayRatio;
+            PendingForce pending = new PendingForce
+            {
+                force = force,
+                mode = mode,
+                time = NetworkTime.localTime + delay
+            };
+            pendingForces.Enqueue(pending);
+            Debug.Log($"[PREDICTION]: Add Force with {(delay*1000):F0} ms delay");
         }
 
         // client prediction API
@@ -121,6 +136,7 @@ namespace Mirror
             AddPredictedForceInternal(force, mode);
         }
 
+        /*
         void AddPredictedForceChain(Vector3 force, ForceMode mode, int newChainDepth)
         {
             // apply the collision chain depth
@@ -129,6 +145,7 @@ namespace Mirror
             // add the predicted force
             AddPredictedForceInternal(force, mode);
         }
+        */
 
         public void AddPredictedForceAtPosition(Vector3 force, Vector3 position, ForceMode mode)
         {
@@ -136,15 +153,49 @@ namespace Mirror
             // restart the collision chain at max.
             remainingCollisionChainDepth = maxCollisionChainingDepth;
 
-            // apply local force dampening.
-            // client applies a bit less force than the server, so that
-            // catching up to blending state will be easier.
-            // for example: dampening = 0.1 means subtract 10% force
-            force *= (1 - localForceDampening);
+            // apply a local delay before applying forces.
+            // this minimize the prediction+drift workload while waiting for server state.
+            double delay = NetworkTime.rtt * localDelayRatio;
+            PendingForce pending = new PendingForce
+            {
+                force = force,
+                position = position,
+                mode = mode,
+                time = NetworkTime.localTime + delay
+            };
+            pendingForces.Enqueue(pending);
+        }
 
-            // explicitly start predicting physics
-            BeginPredicting();
-            predictedRigidbody.AddForceAtPosition(force, position, mode);
+        void ProcessPendingForces()
+        {
+            while (pendingForces.TryPeek(out PendingForce pending))
+            {
+                // enough time passed for this force to be applied?
+                if (NetworkTime.localTime <= pending.time) return;
+
+                // apply local force dampening.
+                // client applies a bit less force than the server, so that
+                // catching up to blending state will be easier.
+                // for example: dampening = 0.1 means subtract 10% force
+                Vector3 force = pending.force * (1 - localForceDampening);
+
+                // explicitly start predicting physics now
+                BeginPredicting();
+
+                // apply force, or force at position
+                if (pending.position.HasValue)
+                {
+                    predictedRigidbody.AddForceAtPosition(force, pending.position.Value, pending.mode);
+                }
+                else
+                {
+                    predictedRigidbody.AddForce(force, pending.mode);
+                }
+
+                // remove it from the queue
+                pendingForces.Dequeue();
+            }
+
         }
 
         protected void BeginPredicting()
@@ -328,6 +379,9 @@ namespace Mirror
         double lastReceivedRemoteTime = 0;
         void UpdateClient()
         {
+            // process pending forces
+            ProcessPendingForces();
+
             // PREDICTING checks state, which happens in update()
             if (state == ForecastState.PREDICTING)
             {
