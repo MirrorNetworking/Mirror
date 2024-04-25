@@ -324,10 +324,12 @@ namespace Mirror
                 if (Vector3.Distance(interpolated.position, lastSetPosition) >= epsilon)
                 {
                     base.ApplySnapshot(interpolated);
+                    // only set if actually changed.
+                    // avoids tiny moves accumulating and never being detected as changed move again.
+                    lastSetPosition = interpolated.position;
                 }
                 // END CUSTOM CHANGE
             }
-            lastSetPosition = interpolated.position;
         }
 
         // Prediction uses a Rigidbody, which needs to be moved in FixedUpdate() even while kinematic.
