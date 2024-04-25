@@ -214,6 +214,7 @@ namespace Mirror
 
         Vector3 lastSetPosition = Vector3.zero;
         Vector3 interpolatedPosition = Vector3.zero;
+        Vector3 lastValidVelocity = Vector3.zero;
         protected override void ApplySnapshot(NTSnapshot interpolated)
         {
             interpolatedPosition = interpolated.position;
@@ -274,21 +275,44 @@ namespace Mirror
 
                 // would the new position be ahead of us, or behind us?
                 Vector3 velocity = predictedRigidbody.velocity; // this is where we are going
+
+                // we slow down velocity while server state is behind us.
+                // if it slows down to zero then the 'isAhead' check won't work since it compares velocity.
+                // solution: always store the last valid velocity, and use that if needed.
+                if (velocity == Vector3.zero)
+                {
+                    velocity = lastValidVelocity;
+                }
+                else
+                {
+                    lastValidVelocity = velocity;
+                }
+
                 Vector3 targetDelta = targetPosition - currentPosition; // this is where we would go
                 float dot = Vector3.Dot(velocity, targetDelta);
-                bool ahead = dot > 0;
-                // if (!ahead) return;
-                // visualize 'ahead'
+                bool ahead = dot > 0; // true if the new position is ahead of us
+                // visualize 'ahead' for easier debugging
                 if (debugColors)
                 {
                     rend.material.color = ahead ? blendingAheadColor : blendingBehindColor;
                 }
 
-                // assign position and rotation together. faster than accessing manually.
-                // TODO reuse ApplySnapshot for consistency?
-                //tf.SetPositionAndRotation(newPosition, newRotation);
-                //predictedRigidbody.MovePosition(newPosition); // smooth
-                //predictedRigidbody.MoveRotation(newRotation); // smooth
+                // do the best possible smoothing depending on ahead / behind
+                // if ahead: interpolate towards remote state more and more
+                if (ahead)
+                {
+                    // TODO reuse ApplySnapshot for consistency?
+                    // tf.SetPositionAndRotation(newPosition, newRotation);
+                    predictedRigidbody.MovePosition(newPosition); // smooth
+                    predictedRigidbody.MoveRotation(newRotation); // smooth
+                }
+                // if behind: only slow down. never move backwards, as that would
+                // cause a highly noticable jitter effect!
+                else
+                {
+                    Vector3 newVelocity = Vector3.MoveTowards(velocity, Vector3.zero, positionStep);
+                    predictedRigidbody.velocity = newVelocity;
+                }
             }
             // directly apply server snapshots while following
             else if (state == ForecastState.FOLLOWING)

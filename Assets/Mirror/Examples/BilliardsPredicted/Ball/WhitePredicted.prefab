@@ -326,7 +326,7 @@ MonoBehaviour:
   showOverlay: 0
   overlayColor: {r: 0, g: 0, b: 0, a: 0.5}
   predictedRigidbody: {fileID: 1848203816128897140}
-  blendingRttMultiplier: 5
+  blendingRttMultiplier: 2
   blendingCurve:
     serializedVersion: 2
     m_Curve:
