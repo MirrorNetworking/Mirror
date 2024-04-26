@@ -510,6 +510,12 @@ namespace Mirror
                     // extrapolate this from latest time to blendingEndTime
                     // TODO validate rotation formula?
                     float timeToBlendingEnd = (float)(blendingEndTime - clientTimeline);
+
+                    // right now, we aim exactly at the latest received state @ blendingEndTime.
+                    // transform sync is always 'bufferTime' behind though.
+                    // so aim for -buffertime behind to be perfectly smooth.
+                    timeToBlendingEnd -= (float)bufferTime;
+
                     position = latest.position + velocity * timeToBlendingEnd;
                     rotation = latest.rotation * Quaternion.Slerp(Quaternion.identity, rotationDelta, timeToBlendingEnd / timeDelta);
 
