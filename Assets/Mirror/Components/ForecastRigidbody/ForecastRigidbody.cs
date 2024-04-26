@@ -437,6 +437,12 @@ namespace Mirror
             // show the latest blending end position guess
             if (state == ForecastState.BLENDING)
             {
+                // show blending start position.
+                // helps debug the initial jump from prediction to blending.
+                Gizmos.color = predictingColor;
+                Gizmos.DrawWireCube(predictionEndPosition, bounds.size);
+
+                // show current estimate
                 if (followingStartPositionEstimate.HasValue)
                 {
                     Gizmos.color = blendingGuessColor;
