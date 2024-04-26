@@ -302,97 +302,6 @@ namespace Mirror
             }
         }
 
-        // guess FORECASTING.startPosition
-        bool GuessForecastingStartPosition(out Vector3 position, out Quaternion rotation)
-        {
-            // first principles:
-            //
-            // BLENDING needs to interpolate between PREDICTING & FOLLOWING.
-            // the only way to do this without jitter and jumps is by
-            // interpolating from PREDICTION.endPosition to FOLLOWING.startPosition.
-            // anything else, no matter how smooth, will always cause jumps.
-            //
-            // PREDICTION.endPosition is easy: just remember before transition.
-            //
-            // FOLLOWING.startPosition is a bit harder.
-            // => we can sample snapshots @ blendingEndTime (if any).
-            // => if we haven't received it yet, we need to extrpolate based
-            //    on current velocity to guess where we'll be at blendingEndTime.
-
-            position = Vector3.zero;
-            rotation = Quaternion.identity;
-
-            // first, see if there's a snapshot at blendingEndTime already.
-            // this would be super precise.
-            // returns false if there isn't any yet.
-            if (SnapshotInterpolation.TrySample(
-                clientSnapshots,
-                clientTimeline + blendingTime,
-                out int from,
-                out int to,
-                out double t))
-            {
-                // interpolate between from & to
-                NTSnapshot fromSnapshot = clientSnapshots[from];
-                NTSnapshot toSnapshot = clientSnapshots[to];
-                NTSnapshot interpolated = NTSnapshot.Interpolate(fromSnapshot, toSnapshot, t);
-                position = interpolated.position;
-                rotation = interpolated.rotation;
-
-                // debug colors
-                if (debugColors)
-                {
-                    rend.material.color = blendingExactColor;
-                }
-
-                return true;
-            }
-            // if not, then we need to guess.
-            // calculate the velocity of the latest known state.
-            // because that's the most accurate velocity we have.
-            // then extrapolate forward to blendingEndTime.
-            // TODO UNIT TEST THIS
-            else if (clientSnapshots.Count >= 2)
-            {
-                NTSnapshot latest = clientSnapshots.Values[clientSnapshots.Count - 1];
-                NTSnapshot previous = clientSnapshots.Values[clientSnapshots.Count - 2];
-                float timeDelta = (float)(latest.remoteTime - previous.remoteTime); // remote time gives us exact remote velocity
-                Vector3 positionDelta = latest.position - previous.position;
-                Quaternion rotationDelta = (latest.rotation * Quaternion.Inverse(previous.rotation)).normalized; // always need to normalize after mult
-
-                // avoid division by zero
-                if (timeDelta > 0)
-                {
-                    // now we have the remote velocity
-                    Vector3 velocity = positionDelta / timeDelta;
-
-                    // extrapolate this from latest time to blendingEndTime
-                    // TODO validate rotation formula?
-                    float timeToBlendingEnd = (float)(blendingEndTime - clientTimeline);
-                    position = latest.position + velocity * timeToBlendingEnd;
-                    rotation = latest.rotation * Quaternion.Slerp(Quaternion.identity, rotationDelta, timeToBlendingEnd / timeDelta);
-
-                    // debug colors
-                    if (debugColors)
-                    {
-                        rend.material.color = blendingGuessColor;
-                    }
-
-                    return true;
-                }
-                // this shouldn't really happen. if timedelta is zero: do nothing.
-                else
-                {
-                    return false;
-                }
-            }
-            // if we don't have enough snapshots: do nothing. wait for more.
-            else
-            {
-                return false;
-            }
-        }
-
         // store the latest FOLLOWING.startPosition guess for visual debugging
         Vector3 followingStartPositionEstimate = Vector3.zero;
 
@@ -528,6 +437,98 @@ namespace Mirror
                 Gizmos.DrawWireCube(followingStartPositionEstimate, bounds.size);
             }
 
+        }
+
+
+        // guess FORECASTING.startPosition
+        bool GuessForecastingStartPosition(out Vector3 position, out Quaternion rotation)
+        {
+            // first principles:
+            //
+            // BLENDING needs to interpolate between PREDICTING & FOLLOWING.
+            // the only way to do this without jitter and jumps is by
+            // interpolating from PREDICTION.endPosition to FOLLOWING.startPosition.
+            // anything else, no matter how smooth, will always cause jumps.
+            //
+            // PREDICTION.endPosition is easy: just remember before transition.
+            //
+            // FOLLOWING.startPosition is a bit harder.
+            // => we can sample snapshots @ blendingEndTime (if any).
+            // => if we haven't received it yet, we need to extrpolate based
+            //    on current velocity to guess where we'll be at blendingEndTime.
+
+            position = Vector3.zero;
+            rotation = Quaternion.identity;
+
+            // first, see if there's a snapshot at blendingEndTime already.
+            // this would be super precise.
+            // returns false if there isn't any yet.
+            if (SnapshotInterpolation.TrySample(
+                clientSnapshots,
+                clientTimeline + blendingTime,
+                out int from,
+                out int to,
+                out double t))
+            {
+                // interpolate between from & to
+                NTSnapshot fromSnapshot = clientSnapshots[from];
+                NTSnapshot toSnapshot = clientSnapshots[to];
+                NTSnapshot interpolated = NTSnapshot.Interpolate(fromSnapshot, toSnapshot, t);
+                position = interpolated.position;
+                rotation = interpolated.rotation;
+
+                // debug colors
+                if (debugColors)
+                {
+                    rend.material.color = blendingExactColor;
+                }
+
+                return true;
+            }
+            // if not, then we need to guess.
+            // calculate the velocity of the latest known state.
+            // because that's the most accurate velocity we have.
+            // then extrapolate forward to blendingEndTime.
+            // TODO UNIT TEST THIS
+            else if (clientSnapshots.Count >= 2)
+            {
+                NTSnapshot latest = clientSnapshots.Values[clientSnapshots.Count - 1];
+                NTSnapshot previous = clientSnapshots.Values[clientSnapshots.Count - 2];
+                float timeDelta = (float)(latest.remoteTime - previous.remoteTime); // remote time gives us exact remote velocity
+                Vector3 positionDelta = latest.position - previous.position;
+                Quaternion rotationDelta = (latest.rotation * Quaternion.Inverse(previous.rotation)).normalized; // always need to normalize after mult
+
+                // avoid division by zero
+                if (timeDelta > 0)
+                {
+                    // now we have the remote velocity
+                    Vector3 velocity = positionDelta / timeDelta;
+
+                    // extrapolate this from latest time to blendingEndTime
+                    // TODO validate rotation formula?
+                    float timeToBlendingEnd = (float)(blendingEndTime - clientTimeline);
+                    position = latest.position + velocity * timeToBlendingEnd;
+                    rotation = latest.rotation * Quaternion.Slerp(Quaternion.identity, rotationDelta, timeToBlendingEnd / timeDelta);
+
+                    // debug colors
+                    if (debugColors)
+                    {
+                        rend.material.color = blendingGuessColor;
+                    }
+
+                    return true;
+                }
+                // this shouldn't really happen. if timedelta is zero: do nothing.
+                else
+                {
+                    return false;
+                }
+            }
+            // if we don't have enough snapshots: do nothing. wait for more.
+            else
+            {
+                return false;
+            }
         }
 
         // optional user callbacks, in case people need to know about events.
