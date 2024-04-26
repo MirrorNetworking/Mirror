@@ -482,6 +482,9 @@ namespace Mirror
             // then extrapolate forward to blendingEndTime.
             if (clientSnapshots.Count >= 2)
             {
+                // TODO we should make sure snapshots are within blend time.
+                //      we don't want to interp to a position before blendStartTime or after blendEndTime.
+                //      ... but translated to clientTimeline?
                 NTSnapshot latest = clientSnapshots.Values[clientSnapshots.Count - 1];
                 NTSnapshot previous = clientSnapshots.Values[clientSnapshots.Count - 2];
                 float timeDelta = (float)(latest.remoteTime - previous.remoteTime); // remote time gives us exact remote velocity
