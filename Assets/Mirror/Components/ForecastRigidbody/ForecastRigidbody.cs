@@ -333,7 +333,9 @@ namespace Mirror
                     BeginBlending();
                 }
             }
-            else if (state == ForecastState.BLENDING)
+
+            // no else-if. if we switched to blending, interp immediately to avoid any kind of jitter!
+            if (state == ForecastState.BLENDING)
             {
                 // blending finished?
                 if (clientTimeline >= blendingEndTime) // TODO use NetworkTime after upgrading NT
