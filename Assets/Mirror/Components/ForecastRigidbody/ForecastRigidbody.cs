@@ -73,6 +73,17 @@ namespace Mirror
         public Color blendingExactColor = Color.yellow;
         public Color blendingGuessColor = Color.red;
 
+        // blending phase.
+        // exact start position.
+        double blendingStartTime;
+        double blendingEndTime;
+        Vector3 blendingStartPosition = Vector3.zero;
+        Quaternion blendingStartRotation = Quaternion.identity;
+
+        // esimated end position.
+        Vector3? blendingEndPositionEstimate;
+        Quaternion? blendingEndRotationEstimate;
+
         protected override void Awake()
         {
             base.Awake();
@@ -219,10 +230,6 @@ namespace Mirror
             // END CUSTOM CHANGE
         }
 
-        double blendingStartTime;
-        double blendingEndTime;
-        Vector3 predictionEndPosition = Vector3.zero;
-        Quaternion predictionEndRotation = Quaternion.identity;
         protected void BeginBlending()
         {
             // blending interpolates from prediction to expected transform sync.
@@ -233,12 +240,12 @@ namespace Mirror
             // if (debugColors) rend.material.color = blendingAheadColor; set in update depending on ahead/behind
 
             // reset old state
-            followingStartPositionEstimate = null;
-            followingStartRotationEstimate = null;
+            blendingEndPositionEstimate = null;
+            blendingEndRotationEstimate = null;
 
             // remember exactly where blending started.
-            predictionEndPosition = predictedRigidbody.position;
-            predictionEndRotation = predictedRigidbody.rotation;
+            blendingStartPosition = predictedRigidbody.position;
+            blendingStartRotation = predictedRigidbody.rotation;
 
             // decide exactly when blending starts & ends.
             // we don't want to decide this dynamically base don RTT, which may change while blending.
@@ -306,9 +313,6 @@ namespace Mirror
             }
         }
 
-        Vector3? followingStartPositionEstimate;
-        Quaternion? followingStartRotationEstimate;
-
         // Prediction uses a Rigidbody, which needs to be moved in FixedUpdate() even while kinematic.
         double lastReceivedRemoteTime = 0;
         Vector3 lastReceivedRemotePosition = Vector3.zero;
@@ -349,18 +353,18 @@ namespace Mirror
                 //
                 // BLENDING needs to interpolate between PREDICTING & FOLLOWING.
                 // the only way to do this without jitter and jumps is by
-                // interpolating from PREDICTION.endPosition to FOLLOWING.startPosition.
+                // interpolating from BLENDING.startPosition to BLENDING.endPosition.
                 // anything else, no matter how smooth, will always cause jumps.
                 //
-                // PREDICTION.endPosition is easy: just remember before transition.
+                // BLENDING.startPosition is easy: just remember before transition.
                 //
-                // FOLLOWING.startPosition is a bit harder.
+                // BLENDING.endPosition is a bit harder.
                 // => we can sample snapshots @ blendingEndTime (if any).
                 // => if we haven't received it yet, we need to extrpolate based
                 //    on current velocity to guess where we'll be at blendingEndTime.
 
                 // do we have an estimate yet?
-                if (!followingStartPositionEstimate.HasValue) return;
+                if (!blendingEndPositionEstimate.HasValue) return;
 
                 // now we have the exact FOLLOW.startPosition, or a best guess.
                 // interpolate from where we started to where we are going.
@@ -371,8 +375,8 @@ namespace Mirror
                 float blendFactor = totalBlendTime > 0 ? Mathf.Clamp01(elapsedBlendTime / totalBlendTime) : 0; // avoids divide by zero
 
                 // interpolate
-                Vector3 targetPosition = Vector3.Lerp(followingStartPositionEstimate.Value, predictionEndPosition, blendFactor);
-                Quaternion targetRotation = Quaternion.Slerp(followingStartRotationEstimate.Value, predictionEndRotation, blendFactor);
+                Vector3 targetPosition = Vector3.Lerp(blendingEndPositionEstimate.Value, blendingStartPosition, blendFactor);
+                Quaternion targetRotation = Quaternion.Slerp(blendingEndRotationEstimate.Value, blendingStartRotation, blendFactor);
 
                 // set position and rotation
                 tf.SetPositionAndRotation(targetPosition, targetRotation);
@@ -440,13 +444,13 @@ namespace Mirror
                 // show blending start position.
                 // helps debug the initial jump from prediction to blending.
                 Gizmos.color = predictingColor;
-                Gizmos.DrawWireCube(predictionEndPosition, bounds.size);
+                Gizmos.DrawWireCube(blendingStartPosition, bounds.size);
 
                 // show current estimate
-                if (followingStartPositionEstimate.HasValue)
+                if (blendingEndPositionEstimate.HasValue)
                 {
                     Gizmos.color = blendingGuessColor;
-                    Gizmos.DrawWireCube(followingStartPositionEstimate.Value, bounds.size);
+                    Gizmos.DrawWireCube(blendingEndPositionEstimate.Value, bounds.size);
                 }
             }
 
@@ -460,12 +464,12 @@ namespace Mirror
             //
             // BLENDING needs to interpolate between PREDICTING & FOLLOWING.
             // the only way to do this without jitter and jumps is by
-            // interpolating from PREDICTION.endPosition to FOLLOWING.startPosition.
+            // interpolating from BLENDING.startPosition to BLENDING.endPosition.
             // anything else, no matter how smooth, will always cause jumps.
             //
-            // PREDICTION.endPosition is easy: just remember before transition.
+            // BLENDING.startPosition is easy: just remember before transition.
             //
-            // FOLLOWING.startPosition is a bit harder.
+            // BLENDING.endPosition is a bit harder.
             // => we can sample snapshots @ blendingEndTime (if any).
             // => if we haven't received it yet, we need to extrpolate based
             //    on current velocity to guess where we'll be at blendingEndTime.
@@ -532,13 +536,13 @@ namespace Mirror
             {
                 if (GuessForecastingStartPosition(out Vector3 followStartPosition, out Quaternion followStartRotation))
                 {
-                    followingStartPositionEstimate = followStartPosition;
-                    followingStartRotationEstimate = followStartRotation;
+                    blendingEndPositionEstimate = followStartPosition;
+                    blendingEndRotationEstimate = followStartRotation;
                 }
                 else
                 {
-                    followingStartPositionEstimate = null;
-                    followingStartRotationEstimate = null;
+                    blendingEndPositionEstimate = null;
+                    blendingEndRotationEstimate = null;
                 }
             }
         }
