@@ -371,12 +371,12 @@ namespace Mirror
                 // we started at predictionEndPosition @ blendingStartTime.
                 // we are going to followStartPosition @ blendingEndTime.
                 float totalBlendTime = (float)(blendingEndTime - blendingStartTime);
-                float elapsedBlendTime = (float)(blendingEndTime - clientTimeline); // TODO use NetworkTime.time after upgrading NT
+                float elapsedBlendTime = (float)(clientTimeline - blendingStartTime); // TODO use NetworkTime.time after upgrading NT
                 float blendFactor = totalBlendTime > 0 ? Mathf.Clamp01(elapsedBlendTime / totalBlendTime) : 0; // avoids divide by zero
 
                 // interpolate
-                Vector3 targetPosition = Vector3.Lerp(blendingEndPositionEstimate.Value, blendingStartPosition, blendFactor);
-                Quaternion targetRotation = Quaternion.Slerp(blendingEndRotationEstimate.Value, blendingStartRotation, blendFactor);
+                Vector3 targetPosition = Vector3.Lerp(blendingStartPosition, blendingEndPositionEstimate.Value, blendFactor);
+                Quaternion targetRotation = Quaternion.Slerp(blendingStartRotation, blendingEndRotationEstimate.Value, blendFactor);
 
                 // set position and rotation
                 tf.SetPositionAndRotation(targetPosition, targetRotation);
