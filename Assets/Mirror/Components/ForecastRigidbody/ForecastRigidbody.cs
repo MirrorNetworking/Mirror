@@ -444,8 +444,8 @@ namespace Mirror
 
         }
 
-
         // guess FORECASTING.startPosition
+        // TODO UNIT TEST THIS
         bool GuessForecastingStartPosition(out Vector3 position, out Quaternion rotation)
         {
             // first principles:
@@ -465,37 +465,10 @@ namespace Mirror
             position = Vector3.zero;
             rotation = Quaternion.identity;
 
-            // first, see if there's a snapshot at blendingEndTime already.
-            // this would be super precise.
-            // returns false if there isn't any yet.
-            if (SnapshotInterpolation.TrySample(
-                clientSnapshots,
-                clientTimeline + blendingTime,
-                out int from,
-                out int to,
-                out double t))
-            {
-                // interpolate between from & to
-                NTSnapshot fromSnapshot = clientSnapshots[from];
-                NTSnapshot toSnapshot = clientSnapshots[to];
-                NTSnapshot interpolated = NTSnapshot.Interpolate(fromSnapshot, toSnapshot, t);
-                position = interpolated.position;
-                rotation = interpolated.rotation;
-
-                // debug colors
-                if (debugColors)
-                {
-                    rend.material.color = blendingExactColor;
-                }
-
-                return true;
-            }
-            // if not, then we need to guess.
             // calculate the velocity of the latest known state.
             // because that's the most accurate velocity we have.
             // then extrapolate forward to blendingEndTime.
-            // TODO UNIT TEST THIS
-            else if (clientSnapshots.Count >= 2)
+            if (clientSnapshots.Count >= 2)
             {
                 NTSnapshot latest = clientSnapshots.Values[clientSnapshots.Count - 1];
                 NTSnapshot previous = clientSnapshots.Values[clientSnapshots.Count - 2];
@@ -523,17 +496,9 @@ namespace Mirror
 
                     return true;
                 }
-                // this shouldn't really happen. if timedelta is zero: do nothing.
-                else
-                {
-                    return false;
-                }
             }
-            // if we don't have enough snapshots: do nothing. wait for more.
-            else
-            {
-                return false;
-            }
+
+            return false;
         }
 
         // optional user callbacks, in case people need to know about events.
