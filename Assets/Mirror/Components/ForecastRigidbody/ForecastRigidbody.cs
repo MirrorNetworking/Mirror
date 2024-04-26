@@ -225,6 +225,10 @@ namespace Mirror
         Quaternion predictionEndRotation = Quaternion.identity;
         protected void BeginBlending()
         {
+            // blending interpolates from prediction to expected transform sync.
+            // this can be done entirely in memory, without physics.
+            predictedRigidbody.isKinematic = true;
+
             state = ForecastState.BLENDING;
             // if (debugColors) rend.material.color = blendingAheadColor; set in update depending on ahead/behind
 
@@ -248,7 +252,6 @@ namespace Mirror
 
         protected void BeginFollowing()
         {
-            predictedRigidbody.isKinematic = true; // full transform sync
             state = ForecastState.FOLLOWING;
             if (debugColors) rend.material.color = originalColor;
             // reset the collision chain depth so it starts at 0 again next time
