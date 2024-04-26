@@ -232,9 +232,11 @@ namespace Mirror
 
         protected void BeginBlending()
         {
-            // blending interpolates from prediction to expected transform sync.
-            // this can be done entirely in memory, without physics.
-            predictedRigidbody.isKinematic = true;
+            // do not set kinematic just yet.
+            // we need to wait for 2 snapshots after blendStartTime before we
+            // can start interpolating without physics.
+            // otherwise there would be a short noticable delay in place.
+            //   predictedRigidbody.isKinematic = true;
 
             state = ForecastState.BLENDING;
             // if (debugColors) rend.material.color = blendingAheadColor; set in update depending on ahead/behind
@@ -364,7 +366,15 @@ namespace Mirror
                 //    on current velocity to guess where we'll be at blendingEndTime.
 
                 // do we have an estimate yet?
-                if (!blendingEndPositionEstimate.HasValue) return;
+                if (!blendingEndPositionEstimate.HasValue)
+                {
+                    // Debug.Log("Blending: waiting for estimate...");
+                    return;
+                }
+
+                // stop physics simulation now that we have an estimate.
+                // don't stop before we have an estimate, otherwise it would wait in places for 2-3 frames.
+                predictedRigidbody.isKinematic = true;
 
                 // now we have the exact FOLLOW.startPosition, or a best guess.
                 // interpolate from where we started to where we are going.
