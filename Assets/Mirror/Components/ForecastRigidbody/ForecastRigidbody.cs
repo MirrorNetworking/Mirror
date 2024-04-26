@@ -232,6 +232,10 @@ namespace Mirror
             state = ForecastState.BLENDING;
             // if (debugColors) rend.material.color = blendingAheadColor; set in update depending on ahead/behind
 
+            // reset old state
+            followingStartPositionEstimate = null;
+            followingStartRotationEstimate = null;
+
             // remember exactly where blending started.
             predictionEndPosition = predictedRigidbody.position;
             predictionEndRotation = predictedRigidbody.rotation;
@@ -302,8 +306,8 @@ namespace Mirror
             }
         }
 
-        // store the latest FOLLOWING.startPosition guess for visual debugging
-        Vector3 followingStartPositionEstimate = Vector3.zero;
+        Vector3? followingStartPositionEstimate;
+        Quaternion? followingStartRotationEstimate;
 
         // Prediction uses a Rigidbody, which needs to be moved in FixedUpdate() even while kinematic.
         double lastReceivedRemoteTime = 0;
@@ -352,11 +356,9 @@ namespace Mirror
                 // => we can sample snapshots @ blendingEndTime (if any).
                 // => if we haven't received it yet, we need to extrpolate based
                 //    on current velocity to guess where we'll be at blendingEndTime.
-                if (!GuessForecastingStartPosition(out Vector3 followStartPosition, out Quaternion followStartRotation))
-                    return;
 
-                // store the latest FOLLOWING.startPosition guess for visual debugging
-                followingStartPositionEstimate = followStartPosition;
+                // do we have an estimate yet?
+                if (!followingStartPositionEstimate.HasValue) return;
 
                 // now we have the exact FOLLOW.startPosition, or a best guess.
                 // interpolate from where we started to where we are going.
@@ -367,8 +369,8 @@ namespace Mirror
                 float blendFactor = totalBlendTime > 0 ? Mathf.Clamp01(elapsedBlendTime / totalBlendTime) : 0; // avoids divide by zero
 
                 // interpolate
-                Vector3 targetPosition = Vector3.Lerp(followStartPosition, predictionEndPosition, blendFactor);
-                Quaternion targetRotation = Quaternion.Slerp(followStartRotation, predictionEndRotation, blendFactor);
+                Vector3 targetPosition = Vector3.Lerp(followingStartPositionEstimate.Value, predictionEndPosition, blendFactor);
+                Quaternion targetRotation = Quaternion.Slerp(followingStartRotationEstimate.Value, predictionEndRotation, blendFactor);
 
                 // set position and rotation
                 tf.SetPositionAndRotation(targetPosition, targetRotation);
@@ -431,10 +433,13 @@ namespace Mirror
             Gizmos.DrawWireCube(lastReceivedRemotePosition, bounds.size);
 
             // show the latest blending end position guess
-            Gizmos.color = blendingGuessColor;
             if (state == ForecastState.BLENDING)
             {
-                Gizmos.DrawWireCube(followingStartPositionEstimate, bounds.size);
+                if (followingStartPositionEstimate.HasValue)
+                {
+                    Gizmos.color = blendingGuessColor;
+                    Gizmos.DrawWireCube(followingStartPositionEstimate.Value, bounds.size);
+                }
             }
 
         }
@@ -547,6 +552,22 @@ namespace Mirror
 
             // position might be null if same as last to save bandwidth
             if (position.HasValue) lastReceivedRemotePosition = position.Value;
+
+            // recalculate the FORECASTING.startPosition estimate is only needed
+            // whenever we receive a new state. doing it in update() would be wasteful.
+            if (state == ForecastState.BLENDING)
+            {
+                if (GuessForecastingStartPosition(out Vector3 followStartPosition, out Quaternion followStartRotation))
+                {
+                    followingStartPositionEstimate = followStartPosition;
+                    followingStartRotationEstimate = followStartRotation;
+                }
+                else
+                {
+                    followingStartPositionEstimate = null;
+                    followingStartRotationEstimate = null;
+                }
+            }
         }
 
         protected override void OnValidate()
