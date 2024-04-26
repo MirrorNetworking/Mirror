@@ -70,8 +70,15 @@ namespace Mirror
         public bool debugColors = false;
         Color originalColor = Color.white;
         public Color predictingColor = Color.green;
-        public Color blendingExactColor = Color.yellow;
         public Color blendingGuessColor = Color.red;
+        public Color blendingGuessAvgColor = Color.cyan;
+
+        // FOLLOWING.startPosition guessing.
+        // always average the last 3 positions to smooth out slightl jitter from guessing.
+        // exponential moving average for each float.
+        ExponentialMovingAverage guessXAvg = new ExponentialMovingAverage(3);
+        ExponentialMovingAverage guessYAvg = new ExponentialMovingAverage(3);
+        ExponentialMovingAverage guessZAvg = new ExponentialMovingAverage(3);
 
         protected override void Awake()
         {
@@ -235,6 +242,9 @@ namespace Mirror
             // reset old state
             followingStartPositionEstimate = null;
             followingStartRotationEstimate = null;
+            guessXAvg.Reset();
+            guessYAvg.Reset();
+            guessZAvg.Reset();
 
             // remember exactly where blending started.
             predictionEndPosition = predictedRigidbody.position;
@@ -308,6 +318,8 @@ namespace Mirror
 
         Vector3? followingStartPositionEstimate;
         Quaternion? followingStartRotationEstimate;
+        Vector3 followingStartPositionEstimateAvg =>
+            new Vector3((float)guessXAvg.Value, (float)guessYAvg.Value, (float)guessZAvg.Value);
 
         // Prediction uses a Rigidbody, which needs to be moved in FixedUpdate() even while kinematic.
         double lastReceivedRemoteTime = 0;
@@ -343,6 +355,12 @@ namespace Mirror
                     return;
                 }
 
+                // debug colors
+                if (debugColors)
+                {
+                    rend.material.color = blendingGuessColor;
+                }
+
                 // first principles:
                 //
                 // BLENDING needs to interpolate between PREDICTING & FOLLOWING.
@@ -360,6 +378,11 @@ namespace Mirror
                 // do we have an estimate yet?
                 if (!followingStartPositionEstimate.HasValue) return;
 
+                // use the moving average of the last 3 FOLLOWING.startPosition guesses
+                // TODO rotation avg?
+                Vector3 targetPosition = followingStartPositionEstimateAvg;
+                Quaternion targetRotation = followingStartRotationEstimate.Value;
+
                 // now we have the exact FOLLOW.startPosition, or a best guess.
                 // interpolate from where we started to where we are going.
                 // we started at predictionEndPosition @ blendingStartTime.
@@ -369,11 +392,11 @@ namespace Mirror
                 float blendFactor = totalBlendTime > 0 ? Mathf.Clamp01(elapsedBlendTime / totalBlendTime) : 0; // avoids divide by zero
 
                 // interpolate
-                Vector3 targetPosition = Vector3.Lerp(followingStartPositionEstimate.Value, predictionEndPosition, blendFactor);
-                Quaternion targetRotation = Quaternion.Slerp(followingStartRotationEstimate.Value, predictionEndRotation, blendFactor);
+                Vector3 position = Vector3.Lerp(targetPosition, predictionEndPosition, blendFactor);
+                Quaternion rotation = Quaternion.Slerp(targetRotation, predictionEndRotation, blendFactor);
 
                 // set position and rotation
-                tf.SetPositionAndRotation(targetPosition, targetRotation);
+                tf.SetPositionAndRotation(position, rotation);
             }
             // FOLLOWING sets Transform, which happens in Update().
             else if (state == ForecastState.FOLLOWING)
@@ -439,6 +462,9 @@ namespace Mirror
                 {
                     Gizmos.color = blendingGuessColor;
                     Gizmos.DrawWireCube(followingStartPositionEstimate.Value, bounds.size);
+
+                    Gizmos.color = blendingGuessAvgColor;
+                    Gizmos.DrawWireCube(followingStartPositionEstimateAvg, bounds.size);
                 }
             }
 
@@ -482,12 +508,6 @@ namespace Mirror
                 position = interpolated.position;
                 rotation = interpolated.rotation;
 
-                // debug colors
-                if (debugColors)
-                {
-                    rend.material.color = blendingExactColor;
-                }
-
                 return true;
             }
             // if not, then we need to guess.
@@ -514,12 +534,6 @@ namespace Mirror
                     float timeToBlendingEnd = (float)(blendingEndTime - clientTimeline);
                     position = latest.position + velocity * timeToBlendingEnd;
                     rotation = latest.rotation * Quaternion.Slerp(Quaternion.identity, rotationDelta, timeToBlendingEnd / timeDelta);
-
-                    // debug colors
-                    if (debugColors)
-                    {
-                        rend.material.color = blendingGuessColor;
-                    }
 
                     return true;
                 }
@@ -561,6 +575,12 @@ namespace Mirror
                 {
                     followingStartPositionEstimate = followStartPosition;
                     followingStartRotationEstimate = followStartRotation;
+
+                    // average the last 3 guesses to smooth out guess related jitter.
+                    // otherwise it's a bit noticable since guesses jump back & forth, and so would the interpolation.
+                    guessXAvg.Add(followStartPosition.x);
+                    guessYAvg.Add(followStartPosition.y);
+                    guessZAvg.Add(followStartPosition.z);
                 }
                 else
                 {
