@@ -313,8 +313,16 @@ namespace kcp2k
                 return false;
             }
 
-            // extract header & content without header
-            header = (KcpHeaderReliable)kcpMessageBuffer[0];
+            // safely extract header. attackers may send values out of enum range.
+            byte headerByte = kcpMessageBuffer[0];
+            if (!KcpHeader.ParseReliable(headerByte, out header))
+            {
+                OnError(ErrorCode.InvalidReceive, $"{GetType()}: Receive failed to parse header: {headerByte} is not defined in {typeof(KcpHeaderReliable)}.");
+                Disconnect();
+                return false;
+            }
+
+            // extract content without header
             message = new ArraySegment<byte>(kcpMessageBuffer, 1, msgSize - 1);
             lastReceiveTime = (uint)watch.ElapsedMilliseconds;
             return true;
@@ -529,9 +537,17 @@ namespace kcp2k
             // need at least one byte for the KcpHeader enum
             if (message.Count < 1) return;
 
-            // parse header and subtract it from message content.
+            // safely extract header. attackers may send values out of enum range.
+            byte headerByte = message.Array[message.Offset + 0];
+            if (!KcpHeader.ParseUnreliable(headerByte, out KcpHeaderUnreliable header))
+            {
+                OnError(ErrorCode.InvalidReceive, $"{GetType()}: Receive failed to parse header: {headerByte} is not defined in {typeof(KcpHeaderUnreliable)}.");
+                Disconnect();
+                return;
+            }
+
+            // subtract header from message content
             // (above we already ensure it's at least 1 byte long)
-            KcpHeaderUnreliable header = (KcpHeaderUnreliable)message.Array[message.Offset + 0];
             message = new ArraySegment<byte>(message.Array, message.Offset + 1, message.Count - 1);
 
             switch (header)
