@@ -99,18 +99,9 @@ namespace Mirror
         public Color overlayColor = new Color(0, 0, 0, 0.5f);
 
         // initialization //////////////////////////////////////////////////////
-        // make sure to call this when inheriting too!
-        protected virtual void Awake()
+        // forcec configuration of some settings
+        protected virtual void Configure()
         {
-            // set target to self if none yet.
-            // OnValidate() already does this, but sometimes OnValidate() doesn't run before launching a project.
-            if (target == null) target = transform;
-        }
-
-        protected override void OnValidate()
-        {
-            base.OnValidate();
-
             // set target to self if none yet
             if (target == null) target = transform;
 
@@ -124,6 +115,22 @@ namespace Mirror
             // Unity doesn't support setting world scale.
             // OnValidate force disables syncScale in world mode.
             if (coordinateSpace == CoordinateSpace.World) syncScale = false;
+        }
+
+        // make sure to call this when inheriting too!
+        protected virtual void Awake()
+        {
+            // sometimes OnValidate() doesn't run before launching a project.
+            // need to guarantee configuration runs.
+            Configure();
+        }
+
+        protected override void OnValidate()
+        {
+            base.OnValidate();
+
+            // configure in awake
+            Configure();
         }
 
         // snapshot functions //////////////////////////////////////////////////
