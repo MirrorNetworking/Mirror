@@ -296,11 +296,28 @@ namespace Mirror
             // blend between local position and server snapshots
             else if (state == ForecastState.BLENDING)
             {
-                // DEBUG: force FOLLOW for now
-                // snapshot interpolation: get the interpolated remote position at this time.
-                // if there is no snapshot yet, just use lastReceived
-                Vector3 targetPosition = interpolated.position;
-                Quaternion targetRotation = interpolated.rotation;
+                // first principles:
+                //
+                // BLENDING needs to interpolate between PREDICTING & FOLLOWING.
+                // the only way to do this without jitter and jumps is by
+                // interpolating from BLENDING.startPosition to BLENDING.endPosition.
+                // anything else, no matter how smooth, will always cause jumps.
+                //
+                // BLENDING.startPosition is easy: just remember before transition.
+                //
+                // BLENDING.endPosition is a bit harder.
+                // => we can sample snapshots @ blendingEndTime (if any).
+                // => if we haven't received it yet, we need to extrpolate based
+                //    on current velocity to guess where we'll be at blendingEndTime.
+
+                // do we have an estimate yet?
+                if (!blendingEndPositionEstimate.HasValue)
+                {
+                    // Debug.Log("Blending: waiting for estimate...");
+                    return;
+                }
+                Vector3 targetPosition = blendingEndPositionEstimate.Value;
+                Quaternion targetRotation = blendingEndRotationEstimate.Value;
 
                 // blend between local and remote position
                 // set debug color
