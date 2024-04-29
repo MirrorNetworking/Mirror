@@ -143,7 +143,7 @@ namespace Mirror
 
         // catchup / slowdown adjustments are applied to timescale,
         // to be adjusted in every update instead of when receiving messages.
-        double clientTimeline;
+        protected double clientTimeline;
         double clientTimescale;
 
         // only sync when changed hack /////////////////////////////////////////
