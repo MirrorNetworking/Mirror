@@ -1,3 +1,7 @@
+V1.42 [2024-05-03]
+- feature: Unreliable channel is now unreliable-sequenced, automatically dropping 
+  duplicate & out of order messages so high level doesn't need to worry about it.
+
 V1.41 [2024-04-28]
 - fix: KcpHeader is now parsed safely, handling attackers potentially sending values out of enum range
 - fix: KcpClient RawSend may throw ConnectionRefused SocketException when OnDisconnected calls SendDisconnect(), which is fine

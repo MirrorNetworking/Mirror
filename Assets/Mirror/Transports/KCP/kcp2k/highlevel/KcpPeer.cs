@@ -39,6 +39,9 @@ namespace kcp2k
         // Unity's time.deltaTime over long periods.
         readonly Stopwatch watch = new Stopwatch();
 
+        // current time property for convenience. uint is easy to serialize across platforms.
+        public uint time => (uint)watch.ElapsedMilliseconds;
+
         // buffer to receive kcp's processed messages (avoids allocations).
         // IMPORTANT: this is for KCP messages. so it needs to be of size:
         //            1 byte header + MaxMessageSize content
@@ -77,13 +80,16 @@ namespace kcp2k
         public int ReceiveQueueCount  => kcp.rcv_queue.Count;
         public int SendBufferCount    => kcp.snd_buf.Count;
         public int ReceiveBufferCount => kcp.rcv_buf.Count;
+        public int UnreliableSequenceDrops { get; private set; }
 
         // we need to subtract the channel and cookie bytes from every
         // MaxMessageSize calculation.
         // we also need to tell kcp to use MTU-1 to leave space for the byte.
         public const int CHANNEL_HEADER_SIZE = 1;
         public const int COOKIE_HEADER_SIZE = 4;
-        public const int METADATA_SIZE = CHANNEL_HEADER_SIZE + COOKIE_HEADER_SIZE;
+        public const int SEQUENCE_HEADER_SIZE = 4; // for unreliable-sequenced
+        public const int METADATA_SIZE_RELIABLE = CHANNEL_HEADER_SIZE + COOKIE_HEADER_SIZE;
+        public const int METADATA_SIZE_UNRELIABLE = CHANNEL_HEADER_SIZE + SEQUENCE_HEADER_SIZE + COOKIE_HEADER_SIZE;
 
         // reliable channel (= kcp) MaxMessageSize so the outside knows largest
         // allowed message to send. the calculation in Send() is not obvious at
@@ -108,7 +114,7 @@ namespace kcp2k
         //            => sending UNRELIABLE max message size most of the time is
         //               best for performance (use that one for batching!)
         static int ReliableMaxMessageSize_Unconstrained(int mtu, uint rcv_wnd) =>
-            (mtu - Kcp.OVERHEAD - METADATA_SIZE) * ((int)rcv_wnd - 1) - 1;
+            (mtu - Kcp.OVERHEAD - METADATA_SIZE_RELIABLE) * ((int)rcv_wnd - 1) - 1;
 
         // kcp encodes 'frg' as 1 byte.
         // max message size can only ever allow up to 255 fragments.
@@ -120,7 +126,7 @@ namespace kcp2k
 
         // unreliable max message size is simply MTU - channel header - kcp header
         public static int UnreliableMaxMessageSize(int mtu) =>
-            mtu - METADATA_SIZE - 1;
+            mtu - METADATA_SIZE_UNRELIABLE - 1;
 
         // maximum send rate per second can be calculated from kcp parameters
         // source: https://translate.google.com/translate?sl=auto&tl=en&u=https://wetest.qq.com/lab/view/391.html
@@ -139,6 +145,17 @@ namespace kcp2k
         // calculate max message sizes based on mtu and wnd only once
         public readonly int unreliableMax;
         public readonly int reliableMax;
+
+        // unreliable sequence number for unreliable sequenced messages.
+        // for lack of time, we use an infinitely growing integer for now.
+        // convert this to a wrap-around byte sequence in the future.
+        //   32 bit means 4294967295 messages can be delivered.
+        //   assuming 100 msgs / second: 11930 hours = 497 days.
+        //   that's enough for now, without worrying about wrap-around.
+        // => send needs to start at 1 so that first receive is > last which is 0
+        // => internal for testing
+        internal uint unreliableSendSequence = 1;
+        internal uint unreliableReceiveSequence = 0;
 
         // SetupKcp creates and configures a new KCP instance.
         // => useful to start from a fresh state every time the client connects
@@ -177,6 +194,12 @@ namespace kcp2k
             state = KcpState.Connected;
             lastReceiveTime = 0;
             lastPingTime = 0;
+
+            // reset sequence numbers.
+            // (send needs to start at 1 so that first receive is > last which is 0)
+            unreliableSendSequence = 1;
+            unreliableReceiveSequence = 0;
+
             watch.Restart(); // start at 0 each time
 
             // set up kcp over reliable channel (that's what kcp is for)
@@ -191,7 +214,7 @@ namespace kcp2k
             // message. so while Kcp.MTU_DEF is perfect, we actually need to
             // tell kcp to use MTU-1 so we can still put the header into the
             // message afterwards.
-            kcp.SetMtu((uint)config.Mtu - METADATA_SIZE);
+            kcp.SetMtu((uint)config.Mtu - METADATA_SIZE_RELIABLE);
 
             // set maximum retransmits (aka dead_link)
             kcp.dead_link = config.MaxRetransmits;
@@ -324,7 +347,7 @@ namespace kcp2k
 
             // extract content without header
             message = new ArraySegment<byte>(kcpMessageBuffer, 1, msgSize - 1);
-            lastReceiveTime = (uint)watch.ElapsedMilliseconds;
+            lastReceiveTime = time;
             return true;
         }
 
@@ -422,8 +445,6 @@ namespace kcp2k
 
         public virtual void TickIncoming()
         {
-            uint time = (uint)watch.ElapsedMilliseconds;
-
             try
             {
                 switch (state)
@@ -474,8 +495,6 @@ namespace kcp2k
 
         public virtual void TickOutgoing()
         {
-            uint time = (uint)watch.ElapsedMilliseconds;
-
             try
             {
                 switch (state)
@@ -534,8 +553,8 @@ namespace kcp2k
 
         protected void OnRawInputUnreliable(ArraySegment<byte> message)
         {
-            // need at least one byte for the KcpHeader enum
-            if (message.Count < 1) return;
+            // need at least one byte for the KcpHeader enum + 4 bytes for the sequence
+            if (message.Count < 5) return;
 
             // safely extract header. attackers may send values out of enum range.
             byte headerByte = message.Array[message.Offset + 0];
@@ -546,9 +565,29 @@ namespace kcp2k
                 return;
             }
 
+            // extract sequence number for unreliable-sequenced support
+            Utils.Decode32U(message.Array, message.Offset + 1, out uint messageSequence);
+
+            // ensure this message was sent after the last message.
+            // this solves both duplicates, and out of order messages.
+            // for now we simply drop out of order messages.
+            // in the future we could queue them for 1 frame before the cutoff.
+            // messages won't arrive out of order too often though, for now this
+            // is fine and avoids all the queueing + pooling overhead.
+            //    < check drops out of order
+            //    <= check drops duplicates too
+            if (messageSequence <= unreliableReceiveSequence)
+            {
+                // log and ignore out of order messages
+                UnreliableSequenceDrops += 1; // statistics
+                // Log.Info($"[KCP] {GetType()}: dropping out of order or duplicate message with sequence={messageSequence} while last={unreliableReceiveSequence}");
+                return;
+            }
+            unreliableReceiveSequence = messageSequence;
+
             // subtract header from message content
             // (above we already ensure it's at least 1 byte long)
-            message = new ArraySegment<byte>(message.Array, message.Offset + 1, message.Count - 1);
+            message = new ArraySegment<byte>(message.Array, message.Offset + 5, message.Count - 5);
 
             switch (header)
             {
@@ -585,7 +624,7 @@ namespace kcp2k
                         //    otherwise a connection might time out even
                         //    though unreliable were received, but no
                         //    reliable was received.
-                        lastReceiveTime = (uint)watch.ElapsedMilliseconds;
+                        lastReceiveTime = time;
                     }
                     else
                     {
@@ -682,13 +721,19 @@ namespace kcp2k
             // write kcp header
             rawSendBuffer[5] = (byte)header;
 
+            // write & increase sequence for unreliable-sequenced messages.
+            // sequence number is easier than a timestamp because it avoids
+            // duplicates.
+            Utils.Encode32U(rawSendBuffer, 9, unreliableSendSequence);
+            unreliableSendSequence += 1;
+
             // write data (if any)
             // from 6, with N bytes
             if (content.Count > 0)
-                Buffer.BlockCopy(content.Array, content.Offset, rawSendBuffer, 1 + 4 + 1, content.Count);
+                Buffer.BlockCopy(content.Array, content.Offset, rawSendBuffer, 10, content.Count);
 
             // IO send
-            ArraySegment<byte> segment = new ArraySegment<byte>(rawSendBuffer, 0, content.Count + 1 + 4 + 1);
+            ArraySegment<byte> segment = new ArraySegment<byte>(rawSendBuffer, 0, content.Count + 10);
             RawSend(segment);
         }
 
