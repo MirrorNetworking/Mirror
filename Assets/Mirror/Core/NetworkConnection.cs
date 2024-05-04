@@ -202,6 +202,18 @@ namespace Mirror
         // then later the transport events will do the clean up.
         public abstract void Disconnect();
 
+        // cleanup is called before the connection is removed.
+        // return any batches' pooled writers before the connection disappears.
+        // otherwise if a connection disappears before flushing, writers would
+        // never be returned to the pool.
+        public virtual void Cleanup()
+        {
+            foreach (Batcher batcher in batches.Values)
+            {
+                batcher.Clear();
+            }
+        }
+
         public override string ToString() => $"connection({connectionId})";
     }
 }
