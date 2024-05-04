@@ -284,5 +284,21 @@ namespace Mirror.Tests.Batching
             reader = new NetworkReader(message);
             Assert.That(reader.ReadByte(), Is.EqualTo(3));
         }
+
+        [Test]
+        public void ClearReturnsToPool()
+        {
+            int previousCount = NetworkWriterPool.Count;
+
+            // add a few messages
+            batcher.AddMessage(new ArraySegment<byte>(new byte[]{0x01}), TimeStamp);
+            batcher.AddMessage(new ArraySegment<byte>(new byte[]{0x02}), TimeStamp);
+            batcher.AddMessage(new ArraySegment<byte>(new byte[]{0x03}), TimeStamp);
+            Assert.That(NetworkWriterPool.Count, Is.LessThan(previousCount));
+
+            // clear
+            batcher.Clear();
+            Assert.That(NetworkWriterPool.Count, Is.EqualTo(previousCount));
+        }
     }
 }
