@@ -34,10 +34,10 @@ jobs:
         run: npm i -D conventional-changelog-conventionalcommits
 
       - name: Install Plugins
-        run: npm i -D @semantic-release/exec @semantic-release/changelog @semantic-release/git
+        run: npm i -D @semantic-release/exec @semantic-release/git
   
       - name: Release
         run: npx semantic-release
-          --plugins "@semantic-release/commit-analyzer,@semantic-release/release-notes-generator,@semantic-release/github,@semantic-release/exec,@semantic-release/changelog,@semantic-release/git"
+          --plugins "@semantic-release/commit-analyzer,@semantic-release/release-notes-generator,@semantic-release/github,@semantic-release/exec,@semantic-release/git"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
