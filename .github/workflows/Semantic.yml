@@ -8,6 +8,8 @@ jobs:
   SemanticRelease:
     name: Semantic Release
     runs-on: windows-latest
+    permissions:
+      contents: write # to be able to publish a GitHub release
 
     steps:
       - name: Checkout repository
