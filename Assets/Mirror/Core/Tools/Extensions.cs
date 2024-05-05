@@ -108,5 +108,40 @@ namespace Mirror
             rotation = transform.rotation;
         }
 #endif
+
+#if !UNITY_6000_0_OR_NEWER
+        // Rigidbody velocity was renamed to linearVelocity in Unity 6.0.0
+        public static Vector3 linearVelocity(this Rigidbody rb)
+        {
+            return rb.velocity;
+        }
+
+        public static void linearVelocity(this Rigidbody rb, Vector3 value)
+        {
+            rb.velocity = value;
+        }
+
+        // Rigidbody drag was renamed to linearDamping in Unity 6.0.0
+        public static float linearDamping(this Rigidbody rb)
+        {
+            return rb.drag;
+        }
+
+        public static void linearDamping(this Rigidbody rb, float value)
+        {
+            rb.drag = value;
+        }
+
+        // Rigidbody angularDrag was renamed to angularDamping in Unity 6.0.0
+        public static float angularDamping(this Rigidbody rb)
+        {
+            return rb.angularDrag;
+        }
+
+        public static void angularDamping(this Rigidbody rb, float value)
+        {
+            rb.angularDrag = value;
+        }
+#endif
     }
 }
