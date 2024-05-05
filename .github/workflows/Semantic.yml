@@ -39,5 +39,6 @@ jobs:
       - name: Release
         run: npx semantic-release
           --plugins "@semantic-release/commit-analyzer,@semantic-release/release-notes-generator,@semantic-release/github,@semantic-release/exec,@semantic-release/git"
+          --debug true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
