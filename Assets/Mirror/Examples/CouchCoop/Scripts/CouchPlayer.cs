@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -20,6 +21,23 @@ namespace Mirror.Examples.CouchCoop
         public int playerNumber = 0;
         public Text textPlayerNumber;
 
+        // a list of players, is used for camera
+        public readonly static List<GameObject> playersList = new List<GameObject>();
+
+        public void Start()
+        {
+            playersList.Add(this.gameObject);
+           // print("playersList: " + playersList.Count);
+
+            SetPlayerUI();
+        }
+
+        public void OnDestroy()
+        {
+            playersList.Remove(this.gameObject);
+           // print("playersList: " + playersList.Count);
+        }
+
         public override void OnStartAuthority()
         {
             this.enabled = true;
@@ -37,11 +55,6 @@ namespace Mirror.Examples.CouchCoop
                 leftKey = couchPlayerManager.playerKeyLeft[playerNumber];
                 rightKey = couchPlayerManager.playerKeyRight[playerNumber];
             }
-        }
-
-        public void Start()
-        {
-            SetPlayerUI();
         }
 
         void Update()
@@ -86,7 +99,7 @@ namespace Mirror.Examples.CouchCoop
             if (isOwned == false) { return; }
             isGrounded = true;
         }
-       
+
         void OnNumberChangedHook(int _old, int _new)
         {
             //Debug.Log(name + " - OnNumberChangedHook: " + playerNumber);
