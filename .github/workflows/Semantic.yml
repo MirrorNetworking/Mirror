@@ -8,6 +8,8 @@ jobs:
   SemanticRelease:
     name: Semantic Release
     runs-on: windows-latest
+    permissions:
+      contents: write # to be able to publish a GitHub release
 
     steps:
       - name: Checkout repository
@@ -15,30 +17,28 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup dotnet
+      - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '3.1.100'
   
-      # Installs nuget package from https://www.nuget.org/packages/unity-packer
-      # Used by Semantic Release to create the Unity package.
       - name: Install unity-packer
         run: dotnet tool install -g unity-packer
 
-      # Install conventional-changelog-conventionalcommits
-      # Required for Semantic Release Notes Generator
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+  
       - name: Install conventional-changelog-conventionalcommits
         run: npm i -D conventional-changelog-conventionalcommits
+
+      - name: Install Plugins
+        run: npm i -D @semantic-release/exec
   
-      # See .releaserc.yml for configuration of semantic-release
       - name: Release
-        uses: cycjimmy/semantic-release-action@v4
-        with:
-          semantic_version: 23
-          extra_plugins: |
-            @semantic-release/exec
-            @semantic-release/changelog
-            @semantic-release/git
-          branch: master
+        run: npx semantic-release
+          --plugins "@semantic-release/commit-analyzer,@semantic-release/release-notes-generator,@semantic-release/exec,@semantic-release/github"
+          --debug true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
