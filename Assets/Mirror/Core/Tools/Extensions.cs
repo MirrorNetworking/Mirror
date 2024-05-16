@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Net;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 
@@ -108,5 +109,19 @@ namespace Mirror
             rotation = transform.rotation;
         }
 #endif
+
+        // IPEndPoint address only to pretty string.
+        // useful for to get a connection's address for IP bans etc.
+        public static string PrettyAddress(this IPEndPoint endPoint)
+        {
+            if (endPoint == null) return "";
+
+            // Map to IPv4 if "IsIPv4MappedToIPv6" for readability
+            // "::ffff:127.0.0.1" -> "127.0.0.1"
+            return
+                endPoint.Address.IsIPv4MappedToIPv6
+                ? endPoint.Address.MapToIPv4().ToString()
+                : endPoint.Address.ToString();
+        }
     }
 }
