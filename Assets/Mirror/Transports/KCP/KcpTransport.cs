@@ -208,13 +208,14 @@ namespace kcp2k
         public override string ServerGetClientAddress(int connectionId)
         {
             IPEndPoint endPoint = server.GetClientEndPoint(connectionId);
-            return endPoint != null
-                // Map to IPv4 if "IsIPv4MappedToIPv6"
-                // "::ffff:127.0.0.1" -> "127.0.0.1"
-                ? (endPoint.Address.IsIPv4MappedToIPv6
+            if (endPoint == null) return "";
+
+            // Map to IPv4 if "IsIPv4MappedToIPv6" for readability
+            // "::ffff:127.0.0.1" -> "127.0.0.1"
+            return
+                endPoint.Address.IsIPv4MappedToIPv6
                 ? endPoint.Address.MapToIPv4().ToString()
-                : endPoint.Address.ToString())
-                : "";
+                : endPoint.Address.ToString();
         }
         public override void ServerStop() => server.Stop();
         public override void ServerEarlyUpdate()
