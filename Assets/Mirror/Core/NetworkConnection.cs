@@ -91,41 +91,29 @@ namespace Mirror
             return batch;
         }
 
-        // validate packet size before sending. show errors if too big/small.
-        // => it's best to check this here, we can't assume that all transports
-        //    would check max size and show errors internally. best to do it
-        //    in one place in Mirror.
-        // => it's important to log errors, so the user knows what went wrong.
-        protected static bool ValidatePacketSize(ArraySegment<byte> segment, int channelId)
-        {
-            int max = Transport.active.GetMaxPacketSize(channelId);
-            if (segment.Count > max)
-            {
-                Debug.LogError($"NetworkConnection.ValidatePacketSize: cannot send packet larger than {max} bytes, was {segment.Count} bytes");
-                return false;
-            }
-
-            if (segment.Count == 0)
-            {
-                // zero length packets getting into the packet queues are bad.
-                Debug.LogError("NetworkConnection.ValidatePacketSize: cannot send zero bytes");
-                return false;
-            }
-
-            // good size
-            return true;
-        }
-
         // Send stage one: NetworkMessage<T>
         /// <summary>Send a NetworkMessage to this connection over the given channel.</summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Send<T>(T message, int channelId = Channels.Reliable)
             where T : struct, NetworkMessage
         {
             using (NetworkWriterPooled writer = NetworkWriterPool.Get())
             {
-                // pack message and send allocation free
+                // pack message
                 NetworkMessages.Pack(message, writer);
+
+                // validate packet size immediately.
+                // we know how much can fit into one batch at max.
+                // if it's larger, log an error immediately with the type <T>.
+                // previously we only logged in Update() when processing batches,
+                // but there we don't have type information anymore.
+                int max = NetworkMessages.MaxMessageSize(channelId);
+                if (writer.Position > max)
+                {
+                    Debug.LogError($"NetworkConnection.Send: message of type {typeof(T)} with a size of {writer.Position} bytes is larger than the max allowed message size in one batch: {max}.\nThe message was dropped, please make it smaller.");
+                    return;
+                }
+
+                // send allocation free
                 NetworkDiagnostics.OnSend(message, channelId, writer.Position, 1);
                 Send(writer.ToArraySegment(), channelId);
             }
@@ -134,6 +122,7 @@ namespace Mirror
         // Send stage two: serialized NetworkMessage as ArraySegment<byte>
         // internal because no one except Mirror should send bytes directly to
         // the client. they would be detected as a message. send messages instead.
+        // => make sure to validate message<T> size before calling Send<byte>!
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal virtual void Send(ArraySegment<byte> segment, int channelId = Channels.Reliable)
         {
@@ -159,7 +148,6 @@ namespace Mirror
         }
 
         // Send stage three: hand off to transport
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected abstract void SendToTransport(ArraySegment<byte> segment, int channelId = Channels.Reliable);
 
         // flush batched messages at the end of every Update.
@@ -176,21 +164,16 @@ namespace Mirror
                     // make a batch with our local time (double precision)
                     while (kvp.Value.GetBatch(writer))
                     {
-                        // validate packet before handing the batch to the
-                        // transport. this guarantees that we always stay
-                        // within transport's max message size limit.
-                        // => just in case transport forgets to check it
-                        // => just in case mirror miscalulated it etc.
+                        // message size is validated in Send<T>, with test coverage.
+                        // we can send directly without checking again.
                         ArraySegment<byte> segment = writer.ToArraySegment();
-                        if (ValidatePacketSize(segment, kvp.Key))
-                        {
-                            // send to transport
-                            SendToTransport(segment, kvp.Key);
-                            //UnityEngine.Debug.Log($"sending batch of {writer.Position} bytes for channel={kvp.Key} connId={connectionId}");
 
-                            // reset writer for each new batch
-                            writer.Position = 0;
-                        }
+                        // send to transport
+                        SendToTransport(segment, kvp.Key);
+                        //UnityEngine.Debug.Log($"sending batch of {writer.Position} bytes for channel={kvp.Key} connId={connectionId}");
+
+                        // reset writer for each new batch
+                        writer.Position = 0;
                     }
                 }
             }
@@ -218,6 +201,18 @@ namespace Mirror
         // it simply asks the transport to disconnect.
         // then later the transport events will do the clean up.
         public abstract void Disconnect();
+
+        // cleanup is called before the connection is removed.
+        // return any batches' pooled writers before the connection disappears.
+        // otherwise if a connection disappears before flushing, writers would
+        // never be returned to the pool.
+        public virtual void Cleanup()
+        {
+            foreach (Batcher batcher in batches.Values)
+            {
+                batcher.Clear();
+            }
+        }
 
         public override string ToString() => $"connection({connectionId})";
     }

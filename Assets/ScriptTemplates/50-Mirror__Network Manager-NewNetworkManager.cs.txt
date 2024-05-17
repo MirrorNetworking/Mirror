@@ -12,7 +12,7 @@ public class #SCRIPTNAME# : NetworkManager
 {
     // Overrides the base singleton so we don't
     // have to cast to this type everywhere.
-    public static new #SCRIPTNAME# singleton { get; private set; }
+    public static new #SCRIPTNAME# singleton => (#SCRIPTNAME#)NetworkManager.singleton;
 
     /// <summary>
     /// Runs on both Server and Client
@@ -21,7 +21,6 @@ public class #SCRIPTNAME# : NetworkManager
     public override void Awake()
     {
         base.Awake();
-        singleton = this;
     }
 
     #region Unity Callbacks
@@ -172,6 +171,14 @@ public class #SCRIPTNAME# : NetworkManager
     /// <param name="message">String message of the error.</param>
     public override void OnServerError(NetworkConnectionToClient conn, TransportError transportError, string message) { }
 
+    /// <summary>
+    /// Called on server when transport raises an exception.
+    /// <para>NetworkConnection may be null.</para>
+    /// </summary>
+    /// <param name="conn">Connection of the client...may be null</param>
+    /// <param name="exception">Exception thrown from the Transport.</param>
+    public override void OnServerTransportException(NetworkConnectionToClient conn, Exception exception) { }
+
     #endregion
 
     #region Client System Callbacks
@@ -203,6 +210,12 @@ public class #SCRIPTNAME# : NetworkManager
     /// <param name="transportError">TransportError enum.</param>
     /// <param name="message">String message of the error.</param>
     public override void OnClientError(TransportError transportError, string message) { }
+
+    /// <summary>
+    /// Called on client when transport raises an exception.</summary>
+    /// </summary>
+    /// <param name="exception">Exception thrown from the Transport.</param>
+    public override void OnClientTransportException(Exception exception) { }
 
     #endregion
 

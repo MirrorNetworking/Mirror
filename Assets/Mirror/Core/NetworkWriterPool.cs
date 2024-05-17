@@ -18,8 +18,10 @@ namespace Mirror
             1000
         );
 
+        // expose count for testing
+        public static int Count => Pool.Count;
+
         /// <summary>Get a writer from the pool. Creates new one if pool is empty.</summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static NetworkWriterPooled Get()
         {
             // grab from pool & reset position

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using UnityEngine;
 
 namespace Mirror
@@ -44,25 +43,7 @@ namespace Mirror
         public static void WriteFloat(this NetworkWriter writer, float value) => writer.WriteBlittable(value);
         public static void WriteFloatNullable(this NetworkWriter writer, float? value) => writer.WriteBlittableNullable(value);
 
-        [StructLayout(LayoutKind.Explicit)]
-        internal struct UIntDouble
-        {
-            [FieldOffset(0)]
-            public double doubleValue;
-
-            [FieldOffset(0)]
-            public ulong longValue;
-        }
-
-        public static void WriteDouble(this NetworkWriter writer, double value)
-        {
-            // DEBUG: try to find the exact value that fails.
-            //UIntDouble convert = new UIntDouble{doubleValue = value};
-            //Debug.Log($"=> NetworkWriter.WriteDouble: {value} => 0x{convert.longValue:X8}");
-
-
-            writer.WriteBlittable(value);
-        }
+        public static void WriteDouble(this NetworkWriter writer, double value) => writer.WriteBlittable(value);
         public static void WriteDoubleNullable(this NetworkWriter writer, double? value) => writer.WriteBlittableNullable(value);
 
         public static void WriteDecimal(this NetworkWriter writer, decimal value) => writer.WriteBlittable(value);
@@ -89,7 +70,7 @@ namespace Mirror
             // reserve 2 bytes for header after we know how much was written.
             int written = writer.encoding.GetBytes(value, 0, value.Length, writer.buffer, writer.Position + 2);
 
-            // check if within max size
+            // check if within max size, otherwise Reader can't read it.
             if (written > NetworkWriter.MaxStringLength)
                 throw new IndexOutOfRangeException($"NetworkWriter.WriteString - Value too long: {written} bytes. Limit: {NetworkWriter.MaxStringLength} bytes");
 
@@ -101,14 +82,8 @@ namespace Mirror
             writer.Position += written;
         }
 
-        public static void WriteBytesAndSizeSegment(this NetworkWriter writer, ArraySegment<byte> buffer)
-        {
-            writer.WriteBytesAndSize(buffer.Array, buffer.Offset, buffer.Count);
-        }
-
         // Weaver needs a write function with just one byte[] parameter
         // (we don't name it .Write(byte[]) because it's really a WriteBytesAndSize since we write size / null info too)
-
         public static void WriteBytesAndSize(this NetworkWriter writer, byte[] buffer)
         {
             // buffer might be null, so we can't use .Length in that case
@@ -117,7 +92,6 @@ namespace Mirror
 
         // for byte arrays with dynamic size, where the reader doesn't know how many will come
         // (like an inventory with different items etc.)
-
         public static void WriteBytesAndSize(this NetworkWriter writer, byte[] buffer, int offset, int count)
         {
             // null is supported because [SyncVar]s might be structs with null byte[] arrays
@@ -132,6 +106,13 @@ namespace Mirror
             writer.WriteBytes(buffer, offset, count);
         }
 
+        // writes ArraySegment of byte (most common type) and size header
+        public static void WriteArraySegmentAndSize(this NetworkWriter writer, ArraySegment<byte> segment)
+        {
+            writer.WriteBytesAndSize(segment.Array, segment.Offset, segment.Count);
+        }
+
+        // writes ArraySegment of any type, and size header
         public static void WriteArraySegment<T>(this NetworkWriter writer, ArraySegment<T> segment)
         {
             int length = segment.Count;
@@ -205,6 +186,19 @@ namespace Mirror
                 writer.WriteRay(value.Value);
         }
 
+        // LayerMask is a struct with properties instead of fields
+        public static void WriteLayerMask(this NetworkWriter writer, LayerMask layerMask)
+        {
+            // 32 layers as a flags enum, max value of 496, we only need a UShort.
+            writer.WriteUShort((ushort)layerMask.value);
+        }
+        public static void WriteLayerMaskNullable(this NetworkWriter writer, LayerMask? layerMask)
+        {
+            writer.WriteBool(layerMask.HasValue);
+            if (layerMask.HasValue)
+                writer.WriteLayerMask(layerMask.Value);
+        }
+
         public static void WriteMatrix4x4(this NetworkWriter writer, Matrix4x4 value) => writer.WriteBlittable(value);
         public static void WriteMatrix4x4Nullable(this NetworkWriter writer, Matrix4x4? value) => writer.WriteBlittableNullable(value);
 
@@ -258,7 +252,7 @@ namespace Mirror
                 writer.WriteUInt(0);
                 return;
             }
-            
+
             // users might try to use unspawned / prefab NetworkBehaviours in
             // rpcs/cmds/syncvars/messages. they would be null on the other
             // end, and it might not be obvious why. let's make it obvious.
@@ -291,7 +285,9 @@ namespace Mirror
             }
             else
             {
-                Debug.LogWarning($"NetworkWriter {value} has no NetworkIdentity");
+                // if users attempt to pass a transform without NetworkIdentity
+                // to a [Command] or [SyncVar], it should show an obvious warning.
+                Debug.LogWarning($"Attempted to sync a Transform ({value}) which isn't networked. Transforms without a NetworkIdentity component can't be synced.");
                 writer.WriteUInt(0);
             }
         }
@@ -306,7 +302,7 @@ namespace Mirror
 
             // warn if the GameObject doesn't have a NetworkIdentity,
             if (!value.TryGetComponent(out NetworkIdentity identity))
-                Debug.LogWarning($"NetworkWriter {value} has no NetworkIdentity");
+                Debug.LogWarning($"Attempted to sync a GameObject ({value}) which isn't networked. GameObject without a NetworkIdentity component can't be synced.");
 
             // serialize the correct amount of data in any case to make sure
             // that the other end can read the expected amount of data too.
@@ -319,11 +315,17 @@ namespace Mirror
         // note that Weaver/Writers/GenerateWriter() handles this manually.
         public static void WriteList<T>(this NetworkWriter writer, List<T> list)
         {
+            // 'null' is encoded as '-1'
             if (list is null)
             {
                 writer.WriteInt(-1);
                 return;
             }
+
+            // check if within max size, otherwise Reader can't read it.
+            if (list.Count > NetworkReader.AllocationLimit)
+                throw new IndexOutOfRangeException($"NetworkWriter.WriteList - List<{typeof(T)}> too big: {list.Count} elements. Limit: {NetworkReader.AllocationLimit}");
+
             writer.WriteInt(list.Count);
             for (int i = 0; i < list.Count; i++)
                 writer.Write(list[i]);
@@ -350,11 +352,17 @@ namespace Mirror
 
         public static void WriteArray<T>(this NetworkWriter writer, T[] array)
         {
+            // 'null' is encoded as '-1'
             if (array is null)
             {
                 writer.WriteInt(-1);
                 return;
             }
+
+            // check if within max size, otherwise Reader can't read it.
+            if (array.Length > NetworkReader.AllocationLimit)
+                throw new IndexOutOfRangeException($"NetworkWriter.WriteArray - Array<{typeof(T)}> too big: {array.Length} elements. Limit: {NetworkReader.AllocationLimit}");
+
             writer.WriteInt(array.Length);
             for (int i = 0; i < array.Length; i++)
                 writer.Write(array[i]);
@@ -378,6 +386,11 @@ namespace Mirror
                 writer.WriteShort(-1);
                 return;
             }
+
+            // check if within max size, otherwise Reader can't read it.
+            int totalSize = texture2D.width * texture2D.height;
+            if (totalSize > NetworkReader.AllocationLimit)
+                throw new IndexOutOfRangeException($"NetworkWriter.WriteTexture2D - Texture2D total size (width*height) too big: {totalSize}. Limit: {NetworkReader.AllocationLimit}");
 
             // write dimensions first so reader can create the texture with size
             // 32k x 32k short is more than enough

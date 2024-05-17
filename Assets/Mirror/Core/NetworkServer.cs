@@ -14,7 +14,7 @@ namespace Mirror
 
         /// <summary>Server Update frequency, per second. Use around 60Hz for fast paced games like Counter-Strike to minimize latency. Use around 30Hz for games like WoW to minimize computations. Use around 1-10Hz for slow paced games like EVE.</summary>
         // overwritten by NetworkManager (if any)
-        public static int tickRate = 30;
+        public static int tickRate = 60;
 
         // tick rate is in Hz.
         // convert to interval in seconds for convenience where needed.
@@ -52,10 +52,6 @@ namespace Mirror
         // see also: https://github.com/vis2k/Mirror/pull/2595
         public static bool dontListen;
 
-        // Deprecated 2022-12-12
-        [Obsolete("NetworkServer.localClientActive was renamed to .activeHost to be more obvious")]
-        public static bool localClientActive => activeHost;
-
         /// <summary>active checks if the server has been started either has standalone or as host server.</summary>
         public static bool active { get; internal set; }
 
@@ -70,6 +66,21 @@ namespace Mirror
         // by default, everyone observes everyone
         public static InterestManagementBase aoi;
 
+        // For security, it is recommended to disconnect a player if a networked
+        // action triggers an exception\nThis could prevent components being
+        // accessed in an undefined state, which may be an attack vector for
+        // exploits.
+        //
+        // However, some games may want to allow exceptions in order to not
+        // interrupt the player's experience.
+        public static bool exceptionsDisconnect = true; // security by default
+
+        // Mirror global disconnect inactive option, independent of Transport.
+        // not all Transports do this properly, and it's easiest to configure this just once.
+        // this is very useful for some projects, keep it.
+        public static bool disconnectInactiveConnections;
+        public static float disconnectInactiveTimeout = 60;
+
         // OnConnected / OnDisconnected used to be NetworkMessages that were
         // invoked. this introduced a bug where external clients could send
         // Connected/Disconnected messages over the network causing undefined
@@ -78,6 +89,7 @@ namespace Mirror
         public static Action<NetworkConnectionToClient> OnConnectedEvent;
         public static Action<NetworkConnectionToClient> OnDisconnectedEvent;
         public static Action<NetworkConnectionToClient, TransportError, string> OnErrorEvent;
+        public static Action<NetworkConnectionToClient, Exception> OnTransportExceptionEvent;
 
         // keep track of actual achieved tick rate.
         // might become lower under heavy load.
@@ -106,7 +118,22 @@ namespace Mirror
             if (!dontListen)
             {
                 Transport.active.ServerStart();
-                //Debug.Log("Server started listening");
+
+                if (Transport.active is PortTransport portTransport)
+                {
+                    if (Utils.IsHeadless())
+                    {
+#if !UNITY_EDITOR
+                        Console.ForegroundColor = ConsoleColor.Green;
+                        Console.WriteLine($"Server listening on port {portTransport.Port}");
+                        Console.ResetColor();
+#else
+                        Debug.Log($"Server listening on port {portTransport.Port}");
+#endif
+                    }
+                }
+                else
+                    Debug.Log("Server started listening");
             }
 
             active = true;
@@ -119,6 +146,15 @@ namespace Mirror
             if (initialized)
                 return;
 
+            // safety: ensure Weaving succeded.
+            // if it silently failed, we would get lots of 'writer not found'
+            // and other random errors at runtime instead. this is cleaner.
+            if (!WeaverFuse.Weaved())
+            {
+                // if it failed, throw an exception to early exit all Listen calls.
+                throw new Exception("NetworkServer won't start because Weaving failed or didn't run.");
+            }
+
             // Debug.Log($"NetworkServer Created version {Version.Current}");
 
             //Make sure connections are cleared in case any old connections references exist from previous sessions
@@ -126,7 +162,7 @@ namespace Mirror
 
             // reset Interest Management so that rebuild intervals
             // start at 0 when starting again.
-            if (aoi != null) aoi.Reset();
+            if (aoi != null) aoi.ResetState();
 
             // reset NetworkTime
             NetworkTime.ResetStatics();
@@ -149,6 +185,7 @@ namespace Mirror
             Transport.active.OnServerDataReceived += OnTransportData;
             Transport.active.OnServerDisconnected += OnTransportDisconnected;
             Transport.active.OnServerError += OnTransportError;
+            Transport.active.OnServerTransportException += OnTransportException;
         }
 
         /// <summary>Shuts down the server and disconnects all clients</summary>
@@ -208,8 +245,9 @@ namespace Mirror
             OnConnectedEvent = null;
             OnDisconnectedEvent = null;
             OnErrorEvent = null;
+            OnTransportExceptionEvent = null;
 
-            if (aoi != null) aoi.Reset();
+            if (aoi != null) aoi.ResetState();
         }
 
         static void RemoveTransportHandlers()
@@ -231,21 +269,8 @@ namespace Mirror
             {
                 if (identity != null)
                 {
-                    // scene object
-                    if (identity.sceneId != 0)
-                    {
-                        // spawned scene objects are unspawned and reset.
-                        // afterwards we disable them again.
-                        // (they always stay in the scene, we don't destroy them)
-                        DestroyObject(identity, DestroyMode.Reset);
-                        identity.gameObject.SetActive(false);
-                    }
-                    // spawned prefabs
-                    else
-                    {
-                        // spawned prefabs are unspawned and destroyed.
-                        DestroyObject(identity, DestroyMode.Destroy);
-                    }
+                    // NetworkServer.Destroy resets if scene object, destroys if prefab.
+                    Destroy(identity.gameObject);
                 }
             }
 
@@ -257,6 +282,7 @@ namespace Mirror
             RegisterHandler<ReadyMessage>(OnClientReadyMessage);
             RegisterHandler<CommandMessage>(OnCommandMessage);
             RegisterHandler<NetworkPingMessage>(NetworkTime.OnServerPing, false);
+            RegisterHandler<NetworkPongMessage>(NetworkTime.OnServerPong, false);
             RegisterHandler<EntityStateMessage>(OnEntityStateMessage, true);
             RegisterHandler<TimeSnapshotMessage>(OnTimeSnapshotMessage, true);
         }
@@ -279,7 +305,18 @@ namespace Mirror
                 // Ignore commands that may have been in flight before client received NotReadyMessage message.
                 // Unreliable messages may be out of order, so don't spam warnings for those.
                 if (channelId == Channels.Reliable)
+                {
+                    // Attempt to identify the target object, component, and method to narrow down the cause of the error.
+                    if (spawned.TryGetValue(msg.netId, out NetworkIdentity netIdentity))
+                        if (msg.componentIndex < netIdentity.NetworkBehaviours.Length && netIdentity.NetworkBehaviours[msg.componentIndex] is NetworkBehaviour component)
+                            if (RemoteProcedureCalls.GetFunctionMethodName(msg.functionHash, out string methodName))
+                            {
+                                Debug.LogWarning($"Command {methodName} received for {netIdentity.name} [netId={msg.netId}] component {component.name} [index={msg.componentIndex}] when client not ready.\nThis may be ignored if client intentionally set NotReady.");
+                                return;
+                            }
+
                     Debug.LogWarning("Command received while client is not ready.\nThis may be ignored if client intentionally set NotReady.");
+                }
                 return;
             }
 
@@ -290,7 +327,7 @@ namespace Mirror
                 // for example, NetworkTransform.
                 // let's not spam the console for unreliable out of order messages.
                 if (channelId == Channels.Reliable)
-                    Debug.LogWarning($"Spawned object not found when handling Command message [netId={msg.netId}]");
+                    Debug.LogWarning($"Spawned object not found when handling Command message netId={msg.netId}");
                 return;
             }
 
@@ -300,7 +337,15 @@ namespace Mirror
             bool requiresAuthority = RemoteProcedureCalls.CommandRequiresAuthority(msg.functionHash);
             if (requiresAuthority && identity.connectionToClient != conn)
             {
-                Debug.LogWarning($"Command for object without authority [netId={msg.netId}]");
+                // Attempt to identify the component and method to narrow down the cause of the error.
+                if (msg.componentIndex < identity.NetworkBehaviours.Length && identity.NetworkBehaviours[msg.componentIndex] is NetworkBehaviour component)
+                    if (RemoteProcedureCalls.GetFunctionMethodName(msg.functionHash, out string methodName))
+                    {
+                        Debug.LogWarning($"Command {methodName} received for {identity.name} [netId={msg.netId}] component {component.name} [index={msg.componentIndex}] without authority");
+                        return;
+                    }
+
+                Debug.LogWarning($"Command received for {identity.name} [netId={msg.netId}] without authority");
                 return;
             }
 
@@ -329,8 +374,13 @@ namespace Mirror
                         // failure to deserialize disconnects to prevent exploits.
                         if (!identity.DeserializeServer(reader))
                         {
-                            Debug.LogWarning($"Server failed to deserialize client state for {identity.name} with netId={identity.netId}, Disconnecting.");
-                            connection.Disconnect();
+                            if (exceptionsDisconnect)
+                            {
+                                Debug.LogError($"Server failed to deserialize client state for {identity.name} with netId={identity.netId}, Disconnecting.");
+                                connection.Disconnect();
+                            }
+                            else
+                                Debug.LogWarning($"Server failed to deserialize client state for {identity.name} with netId={identity.netId}.");
                         }
                     }
                 }
@@ -339,7 +389,7 @@ namespace Mirror
                 // RemoveClientAuthority is called, so not malicious.
                 // Don't disconnect, just log the warning.
                 else
-                    Debug.LogWarning($"EntityStateMessage from {connection} for {identity} without authority.");
+                    Debug.LogWarning($"EntityStateMessage from {connection} for {identity.name} without authority.");
             }
             // no warning. don't spam server logs.
             // else Debug.LogWarning($"Did not find target for sync message for {message.netId} . Note: this can be completely normal because UDP messages may arrive out of order, so this message might have arrived after a Destroy message.");
@@ -360,6 +410,10 @@ namespace Mirror
             // for now, this is only used for client authority movement.
 
             // Unity 2019 doesn't have Time.timeAsDouble yet
+            //
+            // NetworkTime uses unscaled time and ignores Time.timeScale.
+            // fixes Time.timeScale getting server & client time out of sync:
+            // https://github.com/MirrorNetworking/Mirror/issues/3409
             connection.OnTimeSnapshot(new TimeSnapshot(connection.remoteTimeStamp, NetworkTime.localTime));
         }
 
@@ -440,6 +494,18 @@ namespace Mirror
                 NetworkMessages.Pack(message, writer);
                 ArraySegment<byte> segment = writer.ToArraySegment();
 
+                // validate packet size immediately.
+                // we know how much can fit into one batch at max.
+                // if it's larger, log an error immediately with the type <T>.
+                // previously we only logged in Update() when processing batches,
+                // but there we don't have type information anymore.
+                int max = NetworkMessages.MaxMessageSize(channelId);
+                if (writer.Position > max)
+                {
+                    Debug.LogError($"NetworkServer.SendToAll: message of type {typeof(T)} with a size of {writer.Position} bytes is larger than the max allowed message size in one batch: {max}.\nThe message was dropped, please make it smaller.");
+                    return;
+                }
+
                 // filter and then send to all internet connections at once
                 // -> makes code more complicated, but is HIGHLY worth it to
                 //    avoid allocations, allow for multicast, etc.
@@ -486,6 +552,18 @@ namespace Mirror
                 NetworkMessages.Pack(message, writer);
                 ArraySegment<byte> segment = writer.ToArraySegment();
 
+                // validate packet size immediately.
+                // we know how much can fit into one batch at max.
+                // if it's larger, log an error immediately with the type <T>.
+                // previously we only logged in Update() when processing batches,
+                // but there we don't have type information anymore.
+                int max = NetworkMessages.MaxMessageSize(channelId);
+                if (writer.Position > max)
+                {
+                    Debug.LogError($"NetworkServer.SendToObservers: message of type {typeof(T)} with a size of {writer.Position} bytes is larger than the max allowed message size in one batch: {max}.\nThe message was dropped, please make it smaller.");
+                    return;
+                }
+
                 foreach (NetworkConnectionToClient conn in identity.observers.Values)
                 {
                     conn.Send(segment, channelId);
@@ -509,6 +587,18 @@ namespace Mirror
                 // pack message only once
                 NetworkMessages.Pack(message, writer);
                 ArraySegment<byte> segment = writer.ToArraySegment();
+
+                // validate packet size immediately.
+                // we know how much can fit into one batch at max.
+                // if it's larger, log an error immediately with the type <T>.
+                // previously we only logged in Update() when processing batches,
+                // but there we don't have type information anymore.
+                int max = NetworkMessages.MaxMessageSize(channelId);
+                if (writer.Position > max)
+                {
+                    Debug.LogError($"NetworkServer.SendToReadyObservers: message of type {typeof(T)} with a size of {writer.Position} bytes is larger than the max allowed message size in one batch: {max}.\nThe message was dropped, please make it smaller.");
+                    return;
+                }
 
                 int count = 0;
                 foreach (NetworkConnectionToClient conn in identity.observers.Values)
@@ -630,8 +720,14 @@ namespace Mirror
                 //       always process all messages in the batch.
                 if (!connection.unbatcher.AddBatch(data))
                 {
-                    Debug.LogWarning($"NetworkServer: received Message was too short (messages should start with message id)");
-                    connection.Disconnect();
+                    if (exceptionsDisconnect)
+                    {
+                        Debug.LogError($"NetworkServer: received message from connectionId:{connectionId} was too short (messages should start with message id). Disconnecting.");
+                        connection.Disconnect();
+                    }
+                    else
+                        Debug.LogWarning($"NetworkServer: received message from connectionId:{connectionId} was too short (messages should start with message id).");
+
                     return;
                 }
 
@@ -646,37 +742,51 @@ namespace Mirror
                 //       the next time.
                 //       => consider moving processing to NetworkEarlyUpdate.
                 while (!isLoadingScene &&
-                       connection.unbatcher.GetNextMessage(out NetworkReader reader, out double remoteTimestamp))
+                       connection.unbatcher.GetNextMessage(out ArraySegment<byte> message, out double remoteTimestamp))
                 {
-                    // enough to read at least header size?
-                    if (reader.Remaining >= NetworkMessages.IdSize)
+                    using (NetworkReaderPooled reader = NetworkReaderPool.Get(message))
                     {
-                        // make remoteTimeStamp available to the user
-                        connection.remoteTimeStamp = remoteTimestamp;
-
-                        // handle message
-                        if (!UnpackAndInvoke(connection, reader, channelId))
+                        // enough to read at least header size?
+                        if (reader.Remaining >= NetworkMessages.IdSize)
                         {
-                            // warn, disconnect and return if failed
-                            // -> warning because attackers might send random data
-                            // -> messages in a batch aren't length prefixed.
-                            //    failing to read one would cause undefined
-                            //    behaviour for every message afterwards.
-                            //    so we need to disconnect.
-                            // -> return to avoid the below unbatches.count error.
-                            //    we already disconnected and handled it.
-                            Debug.LogWarning($"NetworkServer: failed to unpack and invoke message. Disconnecting {connectionId}.");
-                            connection.Disconnect();
+                            // make remoteTimeStamp available to the user
+                            connection.remoteTimeStamp = remoteTimestamp;
+
+                            // handle message
+                            if (!UnpackAndInvoke(connection, reader, channelId))
+                            {
+                                // warn, disconnect and return if failed
+                                // -> warning because attackers might send random data
+                                // -> messages in a batch aren't length prefixed.
+                                //    failing to read one would cause undefined
+                                //    behaviour for every message afterwards.
+                                //    so we need to disconnect.
+                                // -> return to avoid the below unbatches.count error.
+                                //    we already disconnected and handled it.
+                                if (exceptionsDisconnect)
+                                {
+                                    Debug.LogError($"NetworkServer: failed to unpack and invoke message. Disconnecting {connectionId}.");
+                                    connection.Disconnect();
+                                }
+                                else
+                                    Debug.LogWarning($"NetworkServer: failed to unpack and invoke message from connectionId:{connectionId}.");
+
+                                return;
+                            }
+                        }
+                        // otherwise disconnect
+                        else
+                        {
+                            if (exceptionsDisconnect)
+                            {
+                                Debug.LogError($"NetworkServer: received message from connectionId:{connectionId} was too short (messages should start with message id). Disconnecting.");
+                                connection.Disconnect();
+                            }
+                            else
+                                Debug.LogWarning($"NetworkServer: received message from connectionId:{connectionId} was too short (messages should start with message id).");
+
                             return;
                         }
-                    }
-                    // otherwise disconnect
-                    else
-                    {
-                        // WARNING, not error. can happen if attacker sends random data.
-                        Debug.LogWarning($"NetworkServer: received Message was too short (messages should start with message id). Disconnecting {connectionId}");
-                        connection.Disconnect();
-                        return;
                     }
                 }
 
@@ -714,6 +824,7 @@ namespace Mirror
             // Debug.Log($"Server disconnect client:{connectionId}");
             if (connections.TryGetValue(connectionId, out NetworkConnectionToClient conn))
             {
+                conn.Cleanup();
                 RemoveConnection(connectionId);
                 // Debug.Log($"Server lost client:{connectionId}");
 
@@ -741,6 +852,17 @@ namespace Mirror
             // try get connection. passes null otherwise.
             connections.TryGetValue(connectionId, out NetworkConnectionToClient conn);
             OnErrorEvent?.Invoke(conn, error, reason);
+        }
+
+        // transport errors are forwarded to high level
+        static void OnTransportException(int connectionId, Exception exception)
+        {
+            // transport errors will happen. logging a warning is enough.
+            // make sure the user does not panic.
+            Debug.LogWarning($"Server Transport Exception for connId={connectionId}: {exception}");
+            // try get connection. passes null otherwise.
+            connections.TryGetValue(connectionId, out NetworkConnectionToClient conn);
+            OnTransportExceptionEvent?.Invoke(conn, exception);
         }
 
         /// <summary>Destroys all of the connection's owned objects on the server.</summary>
@@ -772,7 +894,11 @@ namespace Mirror
             {
                 Debug.LogWarning($"NetworkServer.RegisterHandler replacing handler for {typeof(T).FullName}, id={msgType}. If replacement is intentional, use ReplaceHandler instead to avoid this warning.");
             }
-            handlers[msgType] = NetworkMessages.WrapHandler(handler, requireAuthentication);
+
+            // register Id <> Type in lookup for debugging.
+            NetworkMessages.Lookup[msgType] = typeof(T);
+
+            handlers[msgType] = NetworkMessages.WrapHandler(handler, requireAuthentication, exceptionsDisconnect);
         }
 
         /// <summary>Register a handler for message type T. Most should require authentication.</summary>
@@ -785,7 +911,11 @@ namespace Mirror
             {
                 Debug.LogWarning($"NetworkServer.RegisterHandler replacing handler for {typeof(T).FullName}, id={msgType}. If replacement is intentional, use ReplaceHandler instead to avoid this warning.");
             }
-            handlers[msgType] = NetworkMessages.WrapHandler(handler, requireAuthentication);
+
+            // register Id <> Type in lookup for debugging.
+            NetworkMessages.Lookup[msgType] = typeof(T);
+
+            handlers[msgType] = NetworkMessages.WrapHandler(handler, requireAuthentication, exceptionsDisconnect);
         }
 
         /// <summary>Replace a handler for message type T. Most should require authentication.</summary>
@@ -800,7 +930,23 @@ namespace Mirror
             where T : struct, NetworkMessage
         {
             ushort msgType = NetworkMessageId<T>.Id;
-            handlers[msgType] = NetworkMessages.WrapHandler(handler, requireAuthentication);
+
+            // register Id <> Type in lookup for debugging.
+            NetworkMessages.Lookup[msgType] = typeof(T);
+
+            handlers[msgType] = NetworkMessages.WrapHandler(handler, requireAuthentication, exceptionsDisconnect);
+        }
+
+        /// <summary>Replace a handler for message type T. Most should require authentication.</summary>
+        public static void ReplaceHandler<T>(Action<NetworkConnectionToClient, T, int> handler, bool requireAuthentication = true)
+            where T : struct, NetworkMessage
+        {
+            ushort msgType = NetworkMessageId<T>.Id;
+
+            // register Id <> Type in lookup for debugging.
+            NetworkMessages.Lookup[msgType] = typeof(T);
+
+            handlers[msgType] = NetworkMessages.WrapHandler(handler, requireAuthentication, exceptionsDisconnect);
         }
 
         /// <summary>Unregister a handler for a message type T.</summary>
@@ -895,7 +1041,7 @@ namespace Mirror
         {
             if (!player.TryGetComponent(out NetworkIdentity identity))
             {
-                Debug.LogWarning($"AddPlayer: playerGameObject has no NetworkIdentity. Please add a NetworkIdentity to {player}");
+                Debug.LogWarning($"AddPlayer: player GameObject has no NetworkIdentity. Please add a NetworkIdentity to {player}");
                 return false;
             }
 
@@ -1003,7 +1149,7 @@ namespace Mirror
 
         /// <summary>Removes the player object from the connection</summary>
         // destroyServerObject: Indicates whether the server object should be destroyed
-        public static void RemovePlayerForConnection(NetworkConnection conn, bool destroyServerObject)
+        public static void RemovePlayerForConnection(NetworkConnectionToClient conn, bool destroyServerObject)
         {
             if (conn.identity != null)
             {
@@ -1087,17 +1233,17 @@ namespace Mirror
                     // first!
 
                     // ForceShown: add no matter what
-                    if (identity.visible == Visibility.ForceShown)
+                    if (identity.visibility == Visibility.ForceShown)
                     {
                         identity.AddObserver(conn);
                     }
                     // ForceHidden: don't show no matter what
-                    else if (identity.visible == Visibility.ForceHidden)
+                    else if (identity.visibility == Visibility.ForceHidden)
                     {
                         // do nothing
                     }
                     // default: legacy system / new system / no system support
-                    else if (identity.visible == Visibility.Default)
+                    else if (identity.visibility == Visibility.Default)
                     {
                         // aoi system
                         if (aoi != null)
@@ -1385,7 +1531,7 @@ namespace Mirror
             // https://github.com/MirrorNetworking/Mirror/pull/3205
             if (spawned.ContainsKey(identity.netId))
             {
-                Debug.LogWarning($"{identity} with netId={identity.netId} was already spawned.", identity.gameObject);
+                Debug.LogWarning($"{identity.name} [netId={identity.netId}] was already spawned.", identity.gameObject);
                 return;
             }
 
@@ -1395,6 +1541,10 @@ namespace Mirror
             // on start server in host mode
             if (ownerConnection is LocalConnectionToClient)
                 identity.isOwned = true;
+
+            // NetworkServer.Unspawn sets object as inactive.
+            // NetworkServer.Spawn needs to set them active again in case they were previously unspawned / inactive.
+            identity.gameObject.SetActive(true);
 
             // only call OnStartServer if not spawned yet.
             // check used to be in NetworkIdentity. may not be necessary anymore.
@@ -1441,37 +1591,28 @@ namespace Mirror
         // Unlike when calling NetworkServer.Destroy(), on the server the object
         // will NOT be destroyed. This allows the server to re-use the object,
         // even spawn it again later.
-        public static void UnSpawn(GameObject obj) => DestroyObject(obj, DestroyMode.Reset);
-
-        // destroy /////////////////////////////////////////////////////////////
-        // sometimes we want to GameObject.Destroy it.
-        // sometimes we want to just unspawn on clients and .Reset() it on server.
-        // => 'bool destroy' isn't obvious enough. it's really destroy OR reset!
-        enum DestroyMode { Destroy, Reset }
-
-        /// <summary>Destroys this object and corresponding objects on all clients.</summary>
-        // In some cases it is useful to remove an object but not delete it on
-        // the server. For that, use NetworkServer.UnSpawn() instead of
-        // NetworkServer.Destroy().
-        public static void Destroy(GameObject obj) => DestroyObject(obj, DestroyMode.Destroy);
-
-        static void DestroyObject(GameObject obj, DestroyMode mode)
+        public static void UnSpawn(GameObject obj)
         {
-            if (obj == null)
+            // Debug.Log($"DestroyObject instance:{identity.netId}");
+
+            // NetworkServer.Unspawn should only be called on server or host.
+            // on client, show a warning to explain what it does.
+            if (!active)
             {
-                Debug.Log("NetworkServer DestroyObject is null");
+                Debug.LogWarning("NetworkServer.Unspawn() called without an active server. Servers can only destroy while active, clients can only ask the server to destroy (for example, with a [Command]), after which the server may decide to destroy the object and broadcast the change to all clients.");
                 return;
             }
 
-            if (GetNetworkIdentity(obj, out NetworkIdentity identity))
+            if (obj == null)
             {
-                DestroyObject(identity, mode);
+                Debug.Log("NetworkServer.Unspawn(): object is null");
+                return;
             }
-        }
 
-        static void DestroyObject(NetworkIdentity identity, DestroyMode mode)
-        {
-            // Debug.Log($"DestroyObject instance:{identity.netId}");
+            if (!GetNetworkIdentity(obj, out NetworkIdentity identity))
+            {
+                return;
+            }
 
             // only call OnRebuildObservers while active,
             // not while shutting down
@@ -1523,31 +1664,59 @@ namespace Mirror
             // we are on the server. call OnStopServer.
             identity.OnStopServer();
 
-            // are we supposed to GameObject.Destroy() it completely?
-            if (mode == DestroyMode.Destroy)
+            // finally reset the state and deactivate it
+            identity.ResetState();
+            identity.gameObject.SetActive(false);
+        }
+
+        // destroy /////////////////////////////////////////////////////////////
+        /// <summary>Destroys this object and corresponding objects on all clients.</summary>
+        // In some cases it is useful to remove an object but not delete it on
+        // the server. For that, use NetworkServer.UnSpawn() instead of
+        // NetworkServer.Destroy().
+        public static void Destroy(GameObject obj)
+        {
+            // NetworkServer.Destroy should only be called on server or host.
+            // on client, show a warning to explain what it does.
+            if (!active)
+            {
+                Debug.LogWarning("NetworkServer.Destroy() called without an active server. Servers can only destroy while active, clients can only ask the server to destroy (for example, with a [Command]), after which the server may decide to destroy the object and broadcast the change to all clients.");
+                return;
+            }
+
+            if (obj == null)
+            {
+                Debug.Log("NetworkServer.Destroy(): object is null");
+                return;
+            }
+
+            // first, we unspawn it on clients and server
+            UnSpawn(obj);
+
+            // additionally, if it's a prefab then we destroy it completely.
+            // we never destroy scene objects on server or on client, since once
+            // they are gone, they are gone forever and can't be instantiate again.
+            // for example, server may Destroy() a scene object and once a match
+            // restarts, the scene objects would be gone from the new match.
+            if (GetNetworkIdentity(obj, out NetworkIdentity identity) &&
+                identity.sceneId == 0)
             {
                 identity.destroyCalled = true;
 
                 // Destroy if application is running
                 if (Application.isPlaying)
                 {
-                    UnityEngine.Object.Destroy(identity.gameObject);
+                    UnityEngine.Object.Destroy(obj);
                 }
                 // Destroy can't be used in Editor during tests. use DestroyImmediate.
                 else
                 {
-                    GameObject.DestroyImmediate(identity.gameObject);
+                    GameObject.DestroyImmediate(obj);
                 }
-            }
-            // otherwise simply .Reset() and set inactive again
-            else if (mode == DestroyMode.Reset)
-            {
-                identity.Reset();
             }
         }
 
         // interest management /////////////////////////////////////////////////
-
         // Helper function to add all server connections as observers.
         // This is used if none of the components provides their own
         // OnRebuildObservers function.
@@ -1559,9 +1728,14 @@ namespace Mirror
             if (initialize)
             {
                 // not force hidden?
-                if (identity.visible != Visibility.ForceHidden)
+                if (identity.visibility != Visibility.ForceHidden)
                 {
                     AddAllReadyServerConnectionsToObservers(identity);
+                }
+                else if (identity.connectionToClient != null)
+                {
+                    // force hidden, but add owner connection
+                    identity.AddObserver(identity.connectionToClient);
                 }
             }
         }
@@ -1602,7 +1776,7 @@ namespace Mirror
         {
             // if there is no interest management system,
             // or if 'force shown' then add all connections
-            if (aoi == null || identity.visible == Visibility.ForceShown)
+            if (aoi == null || identity.visibility == Visibility.ForceShown)
             {
                 RebuildObserversDefault(identity, initialize);
             }
@@ -1691,6 +1865,21 @@ namespace Mirror
                 connection.observing.RemoveWhere(x => x == null);
         }
 
+        // helper function to check a connection for inactivity and disconnect if necessary
+        // returns true if disconnected
+        static bool DisconnectIfInactive(NetworkConnectionToClient connection)
+        {
+            // check for inactivity
+            if (disconnectInactiveConnections &&
+                !connection.IsAlive(disconnectInactiveTimeout))
+            {
+                Debug.LogWarning($"Disconnecting {connection} for inactivity!");
+                connection.Disconnect();
+                return true;
+            }
+            return false;
+        }
+
         // NetworkLateUpdate called after any Update/FixedUpdate/LateUpdate
         // (we add this to the UnityEngine in NetworkLoop)
         // internal for tests
@@ -1713,6 +1902,10 @@ namespace Mirror
             // go through all connections
             foreach (NetworkConnectionToClient connection in connectionsCopy)
             {
+                // check for inactivity. disconnects if necessary.
+                if (DisconnectIfInactive(connection))
+                    continue;
+
                 // has this connection joined the world yet?
                 // for each READY connection:
                 //   pull in UpdateVarsMessage for each entity it observes
@@ -1838,11 +2031,5 @@ namespace Mirror
                 fullUpdateDuration.End();
             }
         }
-
-        // calls OnStartClient for all SERVER objects in host mode once.
-        // client doesn't get spawn messages for those, so need to call manually.
-        // Deprecated 2022-12-12
-        [Obsolete("NetworkServer.ActivateHostScene was moved to HostMode.ActivateHostScene")]
-        public static void ActivateHostScene() => HostMode.ActivateHostScene();
     }
 }

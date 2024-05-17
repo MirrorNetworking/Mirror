@@ -31,27 +31,38 @@ namespace Mirror
 
     public class GUIConsole : MonoBehaviour
     {
-        public int height = 150;
+        public int height = 80;
+        public int offsetY = 40;
 
         // only keep the recent 'n' entries. otherwise memory would grow forever
         // and drawing would get slower and slower.
         public int maxLogCount = 50;
 
+        // Unity Editor has the Console window, we don't need to show it there.
+        // unless for testing, so keep it as option.
+        public bool showInEditor = false;
+
         // log as queue so we can remove the first entry easily
-        Queue<LogEntry> log = new Queue<LogEntry>();
+        readonly Queue<LogEntry> log = new Queue<LogEntry>();
 
         // hotkey to show/hide at runtime for easier debugging
         // (sometimes we need to temporarily hide/show it)
-        // => F12 makes sense. nobody can find ^ in other games.
-        public KeyCode hotKey = KeyCode.F12;
+        // Default is BackQuote, because F keys are already assigned in browsers
+        [Tooltip("Hotkey to show/hide the console at runtime\nBack Quote is usually on the left above Tab\nChange with caution - F keys are generally already taken in Browsers")]
+        public KeyCode hotKey = KeyCode.BackQuote;
 
         // GUI
         bool visible;
         Vector2 scroll = Vector2.zero;
 
+        // only show at runtime, or if showInEditor is enabled
+        bool show => !Application.isEditor || showInEditor;
+
         void Awake()
         {
-            Application.logMessageReceived += OnLog;
+            // only show at runtime, or if showInEditor is enabled
+            if (show)
+                Application.logMessageReceived += OnLog;
         }
 
         // OnLog logs everything, even Debug.Log messages in release builds
@@ -90,7 +101,7 @@ namespace Mirror
 
         void Update()
         {
-            if (Input.GetKeyDown(hotKey))
+            if (show && Input.GetKeyDown(hotKey))
                 visible = !visible;
         }
 
@@ -98,7 +109,12 @@ namespace Mirror
         {
             if (!visible) return;
 
-            scroll = GUILayout.BeginScrollView(scroll, "Box", GUILayout.Width(Screen.width), GUILayout.Height(height));
+            // If this offset is changed, also change width in NetworkManagerHUD::OnGUI
+            int offsetX = 300 + 20;
+
+            GUILayout.BeginArea(new Rect(offsetX, offsetY, Screen.width - offsetX - 10, height));
+
+            scroll = GUILayout.BeginScrollView(scroll, "Box", GUILayout.Width(Screen.width - offsetX - 10), GUILayout.Height(height));
             foreach (LogEntry entry in log)
             {
                 if (entry.type == LogType.Error || entry.type == LogType.Exception)
@@ -110,6 +126,8 @@ namespace Mirror
                 GUI.color = Color.white;
             }
             GUILayout.EndScrollView();
+
+            GUILayout.EndArea();
         }
     }
 }

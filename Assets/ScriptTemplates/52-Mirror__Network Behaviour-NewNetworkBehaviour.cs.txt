@@ -7,10 +7,29 @@ using Mirror;
 	API Reference: https://mirror-networking.com/docs/api/Mirror.NetworkBehaviour.html
 */
 
-// NOTE: Do not put objects in DontDestroyOnLoad (DDOL) in Awake.  You can do that in Start instead.
-
 public class #SCRIPTNAME# : NetworkBehaviour
 {
+    #region Unity Callbacks
+
+    /// <summary>
+    /// Add your validation code here after the base.OnValidate(); call.
+    /// </summary>
+    protected override void OnValidate()
+    {
+        base.OnValidate();
+    }
+
+    // NOTE: Do not put objects in DontDestroyOnLoad (DDOL) in Awake.  You can do that in Start instead.
+    void Awake()
+    {
+    }
+
+    void Start()
+    {
+    }
+
+    #endregion
+
     #region Start & Stop Callbacks
 
     /// <summary>

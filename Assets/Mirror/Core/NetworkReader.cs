@@ -45,6 +45,18 @@ namespace Mirror
         // this is safer. see test: ReadString_InvalidUTF8().
         internal readonly UTF8Encoding encoding = new UTF8Encoding(false, true);
 
+        // while allocation free ReadArraySegment is encouraged,
+        // some functions can allocate a new byte[], List<T>, Texture, etc.
+        // we should keep a reasonable allocation size limit:
+        // -> server won't accidentally allocate 2GB on a mobile device
+        // -> client won't allocate 2GB on server for ClientToServer [SyncVar]s
+        // -> unlike max string length of 64 KB, we need a larger limit here.
+        //    large enough to not break existing projects,
+        //    small enough to reasonably limit allocation attacks.
+        // -> we don't know the exact size of ReadList<T> etc. because <T> is
+        //    managed. instead, this is considered a 'collection length' limit.
+        public const int AllocationLimit = 1024 * 1024 * 16; // 16 MB * sizeof(T)
+
         public NetworkReader(ArraySegment<byte> segment)
         {
             buffer = segment;
@@ -105,7 +117,6 @@ namespace Mirror
         //
         // Note: inlining ReadBlittable is enough. don't inline ReadInt etc.
         //       we don't want ReadBlittable to be copied in place everywhere.
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal unsafe T ReadBlittable<T>()
             where T : unmanaged
         {
@@ -212,7 +223,6 @@ namespace Mirror
         }
 
         /// <summary>Reads any data type that mirror supports. Uses weaver populated Reader(T).read</summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public T Read<T>()
         {
             Func<NetworkReader, T> readerDelegate = Reader<T>.read;

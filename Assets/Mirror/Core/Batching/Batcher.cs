@@ -29,8 +29,17 @@ namespace Mirror
         //    they would not contain a timestamp
         readonly int threshold;
 
-        // TimeStamp header size for those who need it
-        public const int HeaderSize = sizeof(double);
+        // TimeStamp header size. each batch has one.
+        public const int TimestampSize = sizeof(double);
+
+        // Message header size. each message has one.
+        public static int MessageHeaderSize(int messageSize) =>
+            Compression.VarUIntSize((ulong)messageSize);
+
+        // maximum overhead for a single message.
+        // useful for the outside to calculate max message sizes.
+        public static int MaxMessageOverhead(int messageSize) =>
+            TimestampSize + MessageHeaderSize(messageSize);
 
         // full batches ready to be sent.
         // DO NOT queue NetworkMessage, it would box.
@@ -53,13 +62,17 @@ namespace Mirror
         // caller needs to make sure they are within max packet size.
         public void AddMessage(ArraySegment<byte> message, double timeStamp)
         {
+            // predict the needed size, which is varint(size) + content
+            int headerSize = Compression.VarUIntSize((ulong)message.Count);
+            int neededSize = headerSize + message.Count;
+
             // when appending to a batch in progress, check final size.
             // if it expands beyond threshold, then we should finalize it first.
             // => less than or exactly threshold is fine.
             //    GetBatch() will finalize it.
             // => see unit tests.
             if (batch != null &&
-                batch.Position + message.Count > threshold)
+                batch.Position + neededSize > threshold)
             {
                 batches.Enqueue(batch);
                 batch = null;
@@ -82,6 +95,16 @@ namespace Mirror
             // -> we do allow > threshold sized messages as single batch
             // -> WriteBytes instead of WriteSegment because the latter
             //    would add a size header. we want to write directly.
+            //
+            // include size prefix as varint!
+            // -> fixes NetworkMessage serialization mismatch corrupting the
+            //    next message in a batch.
+            // -> a _lot_ of time was wasted debugging corrupt batches.
+            //    no easy way to figure out which NetworkMessage has a mismatch.
+            // -> this is worth everyone's sanity.
+            // -> varint means we prefix with 1 byte most of the time.
+            // -> the same issue in NetworkIdentity was why Mirror started!
+            Compression.CompressVarUInt(batch, (ulong)message.Count);
             batch.WriteBytes(message.Array, message.Offset, message.Count);
         }
 
@@ -122,6 +145,23 @@ namespace Mirror
 
             // nothing was written
             return false;
+        }
+
+        // return all batches to the pool for cleanup
+        public void Clear()
+        {
+            // return batch in progress
+            if (batch != null)
+            {
+                NetworkWriterPool.Return(batch);
+                batch = null;
+            }
+
+            // return all queued batches
+            foreach (NetworkWriterPooled queued in batches)
+                NetworkWriterPool.Return(queued);
+
+            batches.Clear();
         }
     }
 }

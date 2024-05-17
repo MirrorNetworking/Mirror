@@ -12,11 +12,11 @@ namespace Mirror
         // the limit of ushort is so we can write string size prefix as only 2 bytes.
         // -1 so we can still encode 'null' into it too.
         public const ushort MaxStringLength = ushort.MaxValue - 1;
-        public const int DefaultCapacity = 1500;
 
         // create writer immediately with it's own buffer so no one can mess with it and so that we can resize it.
         // note: BinaryWriter allocates too much, so we only use a MemoryStream
         // => 1500 bytes by default because on average, most packets will be <= MTU
+        public const int DefaultCapacity = 1500;
         internal byte[] buffer = new byte[DefaultCapacity];
 
         /// <summary>Next position to write to the buffer</summary>
@@ -59,7 +59,6 @@ namespace Mirror
 
         /// <summary>Copies buffer until 'Position' to a new array.</summary>
         // Try to use ToArraySegment instead to avoid allocations!
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public byte[] ToArray()
         {
             byte[] data = new byte[Position];
@@ -123,7 +122,6 @@ namespace Mirror
         //
         // Note: inlining WriteBlittable is enough. don't inline WriteInt etc.
         //       we don't want WriteBlittable to be copied in place everywhere.
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal unsafe void WriteBlittable<T>(T value)
             where T : unmanaged
         {
@@ -221,7 +219,6 @@ namespace Mirror
         }
 
         /// <summary>Writes any type that mirror supports. Uses weaver populated Writer(T).write.</summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Write<T>(T value)
         {
             Action<NetworkWriter, T> writeDelegate = Writer<T>.write;

@@ -187,6 +187,7 @@ namespace Mirror
             // however, we only want to call NetworkServer/Client in play mode.
             if (!Application.isPlaying) return;
 
+            NetworkTime.EarlyUpdate();
             //Debug.Log($"NetworkEarlyUpdate {Time.time}");
             NetworkServer.NetworkEarlyUpdate();
             NetworkClient.NetworkEarlyUpdate();
