@@ -86,9 +86,9 @@ namespace Telepathy
                 listener = TcpListener.Create(port);
                 listener.Server.NoDelay = NoDelay;
                 // IMPORTANT: do not set send/receive timeouts on listener.
-                // On linux setting the recv timeout will cause the blocking 
-                // Accept call to timeout with EACCEPT (which mono interprets 
-                // as EWOULDBLOCK). 
+                // On linux setting the recv timeout will cause the blocking
+                // Accept call to timeout with EACCEPT (which mono interprets
+                // as EWOULDBLOCK).
                 // https://stackoverflow.com/questions/1917814/eagain-error-for-accept-on-blocking-socket/1918118#1918118
                 // => fixes https://github.com/vis2k/Mirror/issues/2695
                 //
@@ -318,12 +318,27 @@ namespace Telepathy
         // client's ip is sometimes needed by the server, e.g. for bans
         public string GetClientAddress(int connectionId)
         {
-            // find the connection
-            if (clients.TryGetValue(connectionId, out ConnectionState connection))
+            try
             {
-                return ((IPEndPoint)connection.client.Client.RemoteEndPoint).Address.ToString();
+                // find the connection
+                if (clients.TryGetValue(connectionId, out ConnectionState connection))
+                {
+                    return ((IPEndPoint)connection.client.Client.RemoteEndPoint).Address.ToString();
+                }
+                return "";
             }
-            return "";
+            catch (SocketException)
+            {
+                // using server.listener.LocalEndpoint causes an Exception
+                // in UWP + Unity 2019:
+                //   Exception thrown at 0x00007FF9755DA388 in UWF.exe:
+                //   Microsoft C++ exception: Il2CppExceptionWrapper at memory
+                //   location 0x000000E15A0FCDD0. SocketException: An address
+                //   incompatible with the requested protocol was used at
+                //   System.Net.Sockets.Socket.get_LocalEndPoint ()
+                // so let's at least catch it and recover
+                return "unknown";
+            }
         }
 
         // disconnect (kick) a client

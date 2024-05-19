@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using NUnit.Framework;
 
 namespace Mirror.Tests.Tools
@@ -29,6 +30,25 @@ namespace Mirror.Tests.Tools
         {
             ArraySegment<byte> segment = new ArraySegment<byte>(new byte[] {0xAA, 0xBB, 0xCC});
             Assert.That(segment.ToHexString(), Is.EqualTo("AA-BB-CC"));
+        }
+
+        [Test]
+        public void IPEndPoint_PrettyAddress()
+        {
+            // IPv4
+            IPEndPoint endPoint = new IPEndPoint(IPAddress.Loopback, 1337);
+            Assert.That(endPoint.PrettyAddress(), Is.EqualTo("127.0.0.1"));
+
+            endPoint = new IPEndPoint(IPAddress.Parse("255.255.255.255"), 1337);
+            Assert.That(endPoint.PrettyAddress(), Is.EqualTo("255.255.255.255"));
+
+            // IPv4 mapped to IPv6 should automatically display as IPv4 for readability
+            endPoint = new IPEndPoint(IPAddress.Loopback.MapToIPv6(), 1337);
+            Assert.That(endPoint.PrettyAddress(), Is.EqualTo("127.0.0.1"));
+
+            // IPv6
+            endPoint = new IPEndPoint(IPAddress.IPv6Loopback, 1337);
+            Assert.That(endPoint.PrettyAddress(), Is.EqualTo("::1"));
         }
     }
 }
