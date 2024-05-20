@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "com.james-frowen.mirage-profiler": "https://github.com/James-Frowen/Mirage.Profiler.git?path=/Assets/Mirage.Profiler#v1.1.0-mirror.10",
+    "com.james-frowen.mirage-profiler": "https://github.com/James-Frowen/Mirage.Profiler.git?path=/Assets/Mirage.Profiler#v1.1.0-mirror.12",
     "com.unity.profiling.core": {
       "version": "1.0.2",
       "depth": 1,
