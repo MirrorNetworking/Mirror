@@ -306,7 +306,7 @@ MonoBehaviour:
     deliveryTimeEmaDuration: 2
   evaluationMethod: 0
   evaluationInterval: 3
-  timeInterpolationGui: 0
+  timeInterpolationGui: 1
 --- !u!114 &809423204
 MonoBehaviour:
   m_ObjectHideFlags: 0
