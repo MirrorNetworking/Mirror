@@ -146,7 +146,7 @@ namespace Mirror
         [FormerlySerializedAs("connectionQualityInterval")]
         public float evaluationInterval = 3;
 
-        [Header("Debug")]
+        [Header("Interpolation UI - Requires Editor / Dev Build")]
         public bool timeInterpolationGui = false;
 
         /// <summary>The one and only NetworkManager</summary>
@@ -1503,11 +1503,13 @@ namespace Mirror
         /// <summary>This is called when a host is stopped.</summary>
         public virtual void OnStopHost() { }
 
+#if DEBUG
         // keep OnGUI even in builds. useful to debug snap interp.
         void OnGUI()
         {
             if (!timeInterpolationGui) return;
             NetworkClient.OnGUI();
         }
+#endif
     }
 }
