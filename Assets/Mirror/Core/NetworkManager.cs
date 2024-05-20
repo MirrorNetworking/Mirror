@@ -1360,7 +1360,17 @@ namespace Mirror
         }
 
         /// <summary>Called on the server when a new client connects.</summary>
-        public virtual void OnServerConnect(NetworkConnectionToClient conn) { }
+        public virtual void OnServerConnect(NetworkConnectionToClient conn)
+        {
+            Debug.Log($"{DateTime.Now:HH:mm:ss:fff} NetworkManager.OnServerConnectInternal {conn}");
+
+            if (Utils.IsHeadless())
+            {
+                Console.ForegroundColor = ConsoleColor.Cyan;
+                Console.WriteLine($"{DateTime.Now:HH:mm:ss:fff} NetworkManager.OnServerConnectInternal {conn}");
+                Console.ResetColor();
+            }
+        }
 
         /// <summary>Called on the server when a client disconnects.</summary>
         // Called by NetworkServer.OnTransportDisconnect!
@@ -1492,7 +1502,10 @@ namespace Mirror
         public virtual void OnStartServer() { }
 
         /// <summary>This is invoked when the client is started.</summary>
-        public virtual void OnStartClient() { }
+        public virtual void OnStartClient()
+        {
+            Debug.Log("OnStartClient");
+        }
 
         /// <summary>This is called when a server is stopped - including when a host is stopped.</summary>
         public virtual void OnStopServer() { }

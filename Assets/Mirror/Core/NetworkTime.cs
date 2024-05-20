@@ -147,6 +147,8 @@ namespace Mirror
         // Separate method so we can call it from NetworkClient directly.
         internal static void SendPing()
         {
+            Debug.Log($"SendPing");
+
             // send raw predicted time without the offset applied yet.
             // we then apply the offset to it after.
             NetworkPingMessage pingMessage = new NetworkPingMessage
@@ -164,6 +166,15 @@ namespace Mirror
         // and time from the server
         internal static void OnServerPing(NetworkConnectionToClient conn, NetworkPingMessage message)
         {
+            Debug.Log($"{DateTime.Now:HH:mm:ss:fff} OnServerPing {conn}");
+
+            if (Utils.IsHeadless())
+            {
+                Console.ForegroundColor = ConsoleColor.Cyan;
+                Console.WriteLine($"{DateTime.Now:HH:mm:ss:fff} OnServerPing {conn}");
+                Console.ResetColor();
+            }
+
             // calculate the prediction offset that the client needs to apply to unadjusted time to reach server time.
             // this will be sent back to client for corrections.
             double unadjustedError = localTime - message.localTime;
@@ -191,6 +202,7 @@ namespace Mirror
         // and update time offset & prediction offset.
         internal static void OnClientPong(NetworkPongMessage message)
         {
+            Debug.Log("OnClientPong");
             // prevent attackers from sending timestamps which are in the future
             if (message.localTime > localTime) return;
 
@@ -211,7 +223,7 @@ namespace Mirror
         // reply with a pong containing the time from the server
         internal static void OnClientPing(NetworkPingMessage message)
         {
-            // Debug.Log($"OnClientPing conn:{conn}");
+            Debug.Log("OnClientPing");
             NetworkPongMessage pongMessage = new NetworkPongMessage
             (
                 message.localTime,
@@ -225,6 +237,15 @@ namespace Mirror
         // and update time offset
         internal static void OnServerPong(NetworkConnectionToClient conn, NetworkPongMessage message)
         {
+            Debug.Log($"{DateTime.Now:HH:mm:ss:fff} OnServerPong {conn}");
+
+            if (Utils.IsHeadless())
+            {
+                Console.ForegroundColor = ConsoleColor.Cyan;
+                Console.WriteLine($"{DateTime.Now:HH:mm:ss:fff} OnServerPong {conn}");
+                Console.ResetColor();
+            }
+
             // prevent attackers from sending timestamps which are in the future
             if (message.localTime > localTime) return;
 
