@@ -100,6 +100,8 @@ namespace Mirror
         // => only for reliable channel. unreliable would always arrive earlier.
         static void OnTimeSnapshotMessage(TimeSnapshotMessage _)
         {
+            Debug.Log("OnTimeSnapshotMessage");
+
             // insert another snapshot for snapshot interpolation.
             // before calling OnDeserialize so components can use
             // NetworkTime.time and NetworkTime.timeStamp.

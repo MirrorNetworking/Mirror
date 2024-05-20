@@ -401,6 +401,15 @@ namespace Mirror
         // => only for reliable channel. unreliable would always arrive earlier.
         static void OnTimeSnapshotMessage(NetworkConnectionToClient connection, TimeSnapshotMessage _)
         {
+            Debug.Log($"{DateTime.Now:HH:mm:ss:fff} OnTimeSnapshotMessage {connection}");
+
+            if (Utils.IsHeadless())
+            {
+                Console.ForegroundColor = ConsoleColor.Cyan;
+                Console.WriteLine($"{DateTime.Now:HH:mm:ss:fff} OnTimeSnapshotMessage {connection}");
+                Console.ResetColor();
+            }
+
             // insert another snapshot for snapshot interpolation.
             // before calling OnDeserialize so components can use
             // NetworkTime.time and NetworkTime.timeStamp.
