@@ -22,9 +22,33 @@ namespace Mirror
 
     [HelpURL("https://mirror-networking.gitbook.io/docs/transports/latency-simulaton-transport")]
     [DisallowMultipleComponent]
-    public class LatencySimulation : Transport
+    public class LatencySimulation : Transport, PortTransport
     {
         public Transport wrap;
+
+        // implement PortTransport in case the underlying Tranpsport is a PortTransport too.
+        // otherwise gameplay code like 'if Transport is PortTransport' would completely break with Latency Simulation.
+        public ushort Port
+        {
+            get
+            {
+                if (wrap is PortTransport port)
+                    return port.Port;
+                
+                Debug.LogWarning($"LatencySimulation: attempted to get Port but {wrap} is not a PortTransport.");
+                return 0;   
+            }
+            set
+            {
+                if (wrap is PortTransport port)
+                {
+                    port.Port = value;
+                    return;
+                }
+                
+                Debug.LogWarning($"LatencySimulation: attempted to set Port but {wrap} is not a PortTransport.");
+            }
+        }
 
         [Header("Common")]
         // latency always needs to be applied to both channels!
