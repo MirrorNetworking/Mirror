@@ -46,7 +46,7 @@ namespace Mirror
                     return;
                 }
                 
-                Debug.LogWarning($"LatencySimulation: attempted to get Port but {wrap} is no PortTransport.");
+                Debug.LogWarning($"LatencySimulation: attempted to set Port but {wrap} is not a PortTransport.");
             }
         }
 
