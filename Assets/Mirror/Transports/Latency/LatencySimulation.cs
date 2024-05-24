@@ -35,7 +35,7 @@ namespace Mirror
                 if (wrap is PortTransport port)
                     return port.Port;
                 
-                Debug.LogWarning($"LatencySimulation: attempted to set Port but {wrap} is no PortTransport.");
+                Debug.LogWarning($"LatencySimulation: attempted to get Port but {wrap} is not a PortTransport.");
                 return 0;   
             }
             set
