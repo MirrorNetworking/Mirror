@@ -522,7 +522,61 @@ namespace Mirror
                 NetworkDiagnostics.OnSend(message, channelId, segment.Count, count);
             }
         }
+        
+        // send ////////////////////////////////////////////////////////////////
+        /// <summary>Send a message to a client, even if haven't joined the world yet (non ready)</summary>
+        public static void Send<T>(T message, int connectionId, int channelId = Channels.Reliable, bool sendIfReady = false) where T : struct, NetworkMessage
+        {
+            if (!active)
+            {
+                Debug.LogWarning("Can not send using NetworkServer.Send<T>(T msg) because NetworkServer is not active");
+                return;
+            }
 
+            // Debug.Log($"Server.Send {typeof(T)}");
+            using (NetworkWriterPooled writer = NetworkWriterPool.Get())
+            {
+                // pack message only once
+                NetworkMessages.Pack(message, writer);
+                ArraySegment<byte> segment = writer.ToArraySegment();
+
+                // validate packet size immediately.
+                // we know how much can fit into one batch at max.
+                // if it's larger, log an error immediately with the type <T>.
+                // previously we only logged in Update() when processing batches,
+                // but there we don't have type information anymore.
+                int max = NetworkMessages.MaxMessageSize(channelId);
+                if (writer.Position > max)
+                {
+                    Debug.LogError($"NetworkServer.Send: message of type {typeof(T)} with a size of {writer.Position} bytes is larger than the max allowed message size in one batch: {max}.\nThe message was dropped, please make it smaller.");
+                    return;
+                }
+
+                // send to target internet connection
+                // -> makes code more complicated, but is HIGHLY worth it to
+                //    avoid allocations, allow for multicast, etc.
+                int count = 0;
+                foreach (NetworkConnectionToClient conn in connections.Values)
+                {
+                    if (conn.connectionId != connectionId)
+                    {
+                        continue;
+                    }
+
+                    if (sendIfReady && !conn.isReady)
+                    {
+                        continue;
+                    }
+
+                    count++;
+                    conn.Send(segment, channelId);
+                    break;
+                }
+
+                NetworkDiagnostics.OnSend(message, channelId, segment.Count, count);
+            }
+        }
+        
         /// <summary>Send a message to all clients which have joined the world (are ready).</summary>
         // TODO put rpcs into NetworkServer.Update WorldState packet, then finally remove SendToReady!
         public static void SendToReady<T>(T message, int channelId = Channels.Reliable)
