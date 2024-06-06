@@ -13,6 +13,9 @@ public class PlayerTopDown : NetworkBehaviour
 
     public float moveSpeed = 5f;
     public CharacterController characterController;
+    public GameObject leftFoot, rightFoot;
+    public Vector3 previousPosition;
+    public Quaternion previousRotation;
 
     [SyncVar(hook = nameof(OnFlashLightChanged))]
     public bool flashLightStatus = true;
@@ -44,6 +47,8 @@ public class PlayerTopDown : NetworkBehaviour
     {
         playerList.Add(this);
         print("Player joined, total players: " + playerList.Count);
+
+        InvokeRepeating("AnimatePlayer",0.3f,0.3f);
     }
 
     public void OnDestroy()
@@ -183,6 +188,30 @@ public class PlayerTopDown : NetworkBehaviour
         if (isLocalPlayer)
         {
             canvasTopDown.UpdateKillsUI(kills);
+        }
+    }
+
+    void AnimatePlayer()
+    {
+        if (this.transform.position == previousPosition && Quaternion.Angle(this.transform.rotation, previousRotation) < 20.0f)
+        {
+            rightFoot.SetActive(false);
+            leftFoot.SetActive(false);
+        }
+        else
+        {
+            if (leftFoot.activeInHierarchy)
+            {
+                rightFoot.SetActive(true);
+                leftFoot.SetActive(false);
+            }
+            else
+            {
+                rightFoot.SetActive(false);
+                leftFoot.SetActive(true);
+            }
+            previousPosition = this.transform.position;
+            previousRotation = this.transform.rotation;
         }
     }
 }
