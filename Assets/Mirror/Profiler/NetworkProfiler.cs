@@ -210,7 +210,7 @@ namespace Mirror.Profiler
             }
         }
 
-        private GameObject GetPrefab(Guid assetId)
+        private GameObject GetPrefab(uint assetId)
         {
             var networkManager = NetworkManager.singleton;
 

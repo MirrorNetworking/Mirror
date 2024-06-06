@@ -22,7 +22,7 @@ namespace Mirror
     // [RequireComponent(typeof(NetworkIdentity))] disabled to allow child NetworkBehaviours
     [AddComponentMenu("")]
     [HelpURL("https://mirror-networking.gitbook.io/docs/guides/networkbehaviour")]
-    public abstract class NetworkBehaviour : MonoBehaviour
+    public abstract partial class NetworkBehaviour : MonoBehaviour
     {
         /// <summary>Sync direction for OnSerialize. ServerToClient by default. ClientToServer for client authority.</summary>
         [Tooltip("Server Authority calls OnSerialize on the server and syncs it to clients.\n\nClient Authority calls OnSerialize on the owning client, syncs it to server, which then broadcasts it to all other clients.\n\nUse server authority for cheat safety.")]
@@ -1070,7 +1070,7 @@ namespace Mirror
             {
                 return null;
             }
-            
+
             // ensure componentIndex is in range.
             // show explicit errors if something went wrong, instead of IndexOutOfRangeException.
             // removing components at runtime isn't allowed, yet this happened in a project so we need to check for it.
