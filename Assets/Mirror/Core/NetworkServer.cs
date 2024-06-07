@@ -1157,8 +1157,6 @@ namespace Mirror
                 RemovePlayerForConnection(conn, RemovePlayerOptions.Destroy);
             else
                 RemovePlayerForConnection(conn, RemovePlayerOptions.Unspawn);
-
-            conn.identity = null;
         }
 
         public enum RemovePlayerOptions 
@@ -1190,6 +1188,8 @@ namespace Mirror
                     Destroy(conn.identity.gameObject);
                     break;
             }
+
+            conn.identity = null;
         }
 
         // ready ///////////////////////////////////////////////////////////////
@@ -1386,7 +1386,7 @@ namespace Mirror
             {
                 netId = identity.netId,
                 isOwner = identity.connectionToClient == conn,
-                isLocalPlayer = conn.identity == identity
+                isLocalPlayer = (conn.identity == identity && identity.connectionToClient == conn)
             });
         }
 
