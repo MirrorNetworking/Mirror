@@ -2,6 +2,7 @@ using UnityEngine;
 
 namespace Mirror.Examples.Common
 {
+    [AddComponentMenu("")]
     public class FPS : MonoBehaviour
     {
         // fps accessible to the outside
