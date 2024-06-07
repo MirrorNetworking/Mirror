@@ -1170,7 +1170,7 @@ namespace Mirror
         }
 
         /// <summary>Replaces connection's player object. The old object is not destroyed.</summary>
-        public static void RemovePlayerForConnection(NetworkConnectionToClient conn, RemovePlayerOptions removeOptions)
+        public static void RemovePlayerForConnection(NetworkConnectionToClient conn, RemovePlayerOptions removeOptions = RemovePlayerOptions.DoNothing)
         {
             if (conn.identity == null) return;
 
