@@ -1149,18 +1149,47 @@ namespace Mirror
 
         /// <summary>Removes the player object from the connection</summary>
         // destroyServerObject: Indicates whether the server object should be destroyed
+        // Deprecated 2024-06-06
+        [Obsolete("Use RemovePlayerForConnection(NetworkConnectionToClient conn, RemovePlayerOptions removeOptions) instead")]
         public static void RemovePlayerForConnection(NetworkConnectionToClient conn, bool destroyServerObject)
         {
-            if (conn.identity != null)
-            {
-                if (destroyServerObject)
-                    Destroy(conn.identity.gameObject);
-                else
-                    UnSpawn(conn.identity.gameObject);
+            if (destroyServerObject)
+                RemovePlayerForConnection(conn, RemovePlayerOptions.Destroy);
+            else
+                RemovePlayerForConnection(conn, RemovePlayerOptions.Unspawn);
 
-                conn.identity = null;
+            conn.identity = null;
+        }
+
+        public enum RemovePlayerOptions 
+        {
+            /// <summary>Player Object remains on server and clients. Only ownership is removed</summary>
+            DoNothing,
+            /// <summary>Player Object is unspawned on clients but remains on server</summary>
+            Unspawn,
+            /// <summary>Player Object is destroyed on server and clients</summary>
+            Destroy
+        }
+
+        /// <summary>Replaces connection's player object. The old object is not destroyed.</summary>
+        public static void RemovePlayerForConnection(NetworkConnectionToClient conn, RemovePlayerOptions removeOptions)
+        {
+            if (conn.identity == null) return;
+
+            switch (removeOptions)
+            {
+                case RemovePlayerOptions.DoNothing:
+                    conn.identity.connectionToClient = null;
+                    conn.owned.Remove(conn.identity);
+                    SendChangeOwnerMessage(conn.identity, conn);
+                    break;
+                case RemovePlayerOptions.Unspawn:
+                    UnSpawn(conn.identity.gameObject);
+                    break;
+                case RemovePlayerOptions.Destroy:
+                    Destroy(conn.identity.gameObject);
+                    break;
             }
-            //else Debug.Log($"Connection {conn} has no identity");
         }
 
         // ready ///////////////////////////////////////////////////////////////
