@@ -1306,7 +1306,7 @@ namespace Mirror.Tests.NetworkServers
                 connectionToClient);
 
             // set it to not be owned by this connection anymore
-            NetworkServer.RemovePlayerForConnection(connectionToClient, NetworkServer.RemovePlayerOptions.DoNothing);
+            NetworkServer.RemovePlayerForConnection(connectionToClient, RemovePlayerOptions.KeepActive);
             ProcessMessages();
 
             // should call OnStopLocalPlayer on client

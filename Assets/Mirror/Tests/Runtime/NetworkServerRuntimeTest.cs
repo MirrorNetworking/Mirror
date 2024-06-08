@@ -40,7 +40,7 @@ namespace Mirror.Tests.Runtime
             CreateNetworkedAndSpawnPlayer(out GameObject player, out _, NetworkServer.localConnection);
 
             // remove player for connection, wait 1 frame for ownership removal
-            NetworkServer.RemovePlayerForConnection(NetworkServer.localConnection, NetworkServer.RemovePlayerOptions.DoNothing);
+            NetworkServer.RemovePlayerForConnection(NetworkServer.localConnection, RemovePlayerOptions.KeepActive);
             yield return null;
 
             Assert.That(player, Is.Not.Null, "Player should be not be destroyed");

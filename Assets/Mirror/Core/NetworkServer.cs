@@ -6,6 +6,16 @@ using UnityEngine;
 
 namespace Mirror
 {
+    public enum RemovePlayerOptions
+    {
+        /// <summary>Player Object remains active on server and clients. Only ownership is removed</summary>
+        KeepActive,
+        /// <summary>Player Object is unspawned on clients but remains on server</summary>
+        Unspawn,
+        /// <summary>Player Object is destroyed on server and clients</summary>
+        Destroy
+    }
+
     /// <summary>NetworkServer handles remote connections and has a local connection for a local client.</summary>
     public static partial class NetworkServer
     {
@@ -1159,24 +1169,14 @@ namespace Mirror
                 RemovePlayerForConnection(conn, RemovePlayerOptions.Unspawn);
         }
 
-        public enum RemovePlayerOptions 
-        {
-            /// <summary>Player Object remains on server and clients. Only ownership is removed</summary>
-            DoNothing,
-            /// <summary>Player Object is unspawned on clients but remains on server</summary>
-            Unspawn,
-            /// <summary>Player Object is destroyed on server and clients</summary>
-            Destroy
-        }
-
         /// <summary>Removes player object for the connection. Options to keep the object in play, unspawn it, or destroy it.</summary>
-        public static void RemovePlayerForConnection(NetworkConnectionToClient conn, RemovePlayerOptions removeOptions = RemovePlayerOptions.DoNothing)
+        public static void RemovePlayerForConnection(NetworkConnectionToClient conn, RemovePlayerOptions removeOptions = RemovePlayerOptions.KeepActive)
         {
             if (conn.identity == null) return;
 
             switch (removeOptions)
             {
-                case RemovePlayerOptions.DoNothing:
+                case RemovePlayerOptions.KeepActive:
                     conn.identity.connectionToClient = null;
                     conn.owned.Remove(conn.identity);
                     SendChangeOwnerMessage(conn.identity, conn);
