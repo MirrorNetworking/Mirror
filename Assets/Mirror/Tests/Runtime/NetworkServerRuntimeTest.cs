@@ -43,7 +43,7 @@ namespace Mirror.Tests.Runtime
             NetworkServer.RemovePlayerForConnection(NetworkServer.localConnection, RemovePlayerOptions.KeepActive);
             yield return null;
 
-            Assert.That(player, Is.Not.Null, "Player should be not be destroyed");
+            Assert.That(player, Is.Not.Null, "Player should not be destroyed");
             Assert.That(NetworkServer.localConnection.identity == null, "identity should be null");
 
             // respawn player
