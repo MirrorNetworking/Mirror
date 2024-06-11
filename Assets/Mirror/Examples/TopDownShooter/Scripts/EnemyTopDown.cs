@@ -14,6 +14,10 @@ public class EnemyTopDown : NetworkBehaviour
     private NavMeshAgent agent;
     private Transform closestTarget;
 
+    public GameObject enemyArt;
+    public GameObject idleSprite, aggroSprite;
+    public Vector3 previousPosition;
+
     void Awake()
     {
         //allow all players to run this, they may need it for reference
@@ -23,7 +27,14 @@ public class EnemyTopDown : NetworkBehaviour
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
-        InvokeRepeating("FindClosestTarget", findPlayersTime, findPlayersTime);
+        if (isServer)
+        {
+            InvokeRepeating("FindClosestTarget", findPlayersTime, findPlayersTime);
+        }
+        if (isClient)
+        {
+            InvokeRepeating("SetSprite", 0.1f, 0.1f);
+        }
     }
 
     [ServerCallback]
@@ -66,11 +77,65 @@ public class EnemyTopDown : NetworkBehaviour
 
     public void Kill()
     {
-        // reset enemy, rather than despawning, makes it look like a new enemy appears, better for performance too
-        closestTarget = null;
-        transform.position = new Vector3(Random.Range(canvasTopDown.networkTopDown.enemySpawnRangeX.x, canvasTopDown.networkTopDown.enemySpawnRangeX.y), 0, Random.Range(canvasTopDown.networkTopDown.enemySpawnRangeZ.x, canvasTopDown.networkTopDown.enemySpawnRangeZ.y));
-
-        // spawn another, this means for every 1 enemy killed, 2 more appear, increasing difficulty
-        canvasTopDown.networkTopDown.SpawnEnemy();
+        RpcKill();
+        if (isServerOnly)
+        {
+            StartCoroutine(KillCoroutine());
+        }
     }
+
+    [ClientRpc]
+    void RpcKill()
+    {
+        StartCoroutine(KillCoroutine());
+    }
+
+    IEnumerator KillCoroutine()
+    {
+        enemyArt.SetActive(false);
+        if (isClient)
+        {
+            GameObject splatter = Instantiate(canvasTopDown.deathSplatter,this.transform.position,this.transform.rotation);
+            Destroy(splatter, 5.0f);
+        }
+        yield return new WaitForSeconds(0.1f);
+
+        if (isServer)
+        {
+            // reset enemy, rather than despawning, makes it look like a new enemy appears, better for performance too
+            closestTarget = null;
+            transform.position = new Vector3(Random.Range(canvasTopDown.networkTopDown.enemySpawnRangeX.x, canvasTopDown.networkTopDown.enemySpawnRangeX.y), 0, Random.Range(canvasTopDown.networkTopDown.enemySpawnRangeZ.x, canvasTopDown.networkTopDown.enemySpawnRangeZ.y));
+        }
+
+        yield return new WaitForSeconds(0.1f);
+        enemyArt.SetActive(true);
+
+        if (isServer)
+        {
+            // spawn another, this means for every 1 enemy killed, 2 more appear, increasing difficulty
+            canvasTopDown.networkTopDown.SpawnEnemy();
+        }
+    }
+
+    void SetSprite()
+    {
+        if (this.transform.position == previousPosition)
+        {
+            if (idleSprite.activeInHierarchy == false)
+            {
+                idleSprite.SetActive(true);
+                aggroSprite.SetActive(false);
+            }
+        }
+        else
+        {
+            if (aggroSprite.activeInHierarchy == false)
+            {
+                idleSprite.SetActive(false);
+                aggroSprite.SetActive(true);
+            }
+            previousPosition = this.transform.position;
+        }
+    }
+
 }

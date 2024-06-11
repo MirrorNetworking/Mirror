@@ -24,6 +24,10 @@ public class PlayerTopDown : NetworkBehaviour
     [SyncVar(hook = nameof(OnKillsChanged))]
     public int kills = 0;
 
+    [SyncVar(hook = nameof(OnPlayerStatusChanged))]
+    public int playerStatus = 0;
+    public GameObject[] objectsToHideOnDeath;
+
     public GameObject muzzleFlash;
     public float shootDistance = 100f;  // Maximum distance for the raycast
     public LayerMask hitLayers;  // Layers that can be hit by the raycast
@@ -48,7 +52,11 @@ public class PlayerTopDown : NetworkBehaviour
         playerList.Add(this);
         print("Player joined, total players: " + playerList.Count);
 
-        InvokeRepeating("AnimatePlayer",0.3f,0.3f);
+        canvasTopDown.playerTopDown = this;
+        if (isClient)
+        {
+            InvokeRepeating("AnimatePlayer", 0.2f, 0.2f);
+        }
     }
 
     public void OnDestroy()
@@ -62,6 +70,7 @@ public class PlayerTopDown : NetworkBehaviour
     {
         if (!Application.isFocused) return;
         if (isOwned == false) { return; }
+        if (playerStatus != 0) { return; } // make sure we are alive
 
         // Handle movement
         float moveHorizontal = Input.GetAxis("Horizontal");
@@ -200,18 +209,90 @@ public class PlayerTopDown : NetworkBehaviour
         }
         else
         {
-            if (leftFoot.activeInHierarchy)
+            if (rightFoot.activeInHierarchy)
             {
-                rightFoot.SetActive(true);
-                leftFoot.SetActive(false);
+                leftFoot.SetActive(true);
+                rightFoot.SetActive(false);
             }
             else
             {
-                rightFoot.SetActive(false);
-                leftFoot.SetActive(true);
+                leftFoot.SetActive(false);
+                rightFoot.SetActive(true);
             }
             previousPosition = this.transform.position;
             previousRotation = this.transform.rotation;
         }
+    }
+
+    [Command]
+    public void CmdRespawnPlayer()
+    {
+        if (playerStatus == 0)
+        {
+            playerStatus = 1;
+        }
+        else
+        {
+            playerStatus = 0;
+        }
+    }
+
+    void OnPlayerStatusChanged(int _Old, int _New)
+    {
+        if (playerStatus == 0) // default/show
+        {
+            foreach (var obj in objectsToHideOnDeath)
+            {
+                obj.SetActive(true);
+            }
+
+            if (isLocalPlayer)
+            {
+                this.transform.position = NetworkManager.startPositions[Random.Range(0, NetworkManager.startPositions.Count)].position;
+                canvasTopDown.buttonRespawnPlayer.gameObject.SetActive(false);
+            }
+        }
+        else if (playerStatus == 1) // death
+        {
+            // have meshes hidden, disable movement and show respawn button
+            foreach (var obj in objectsToHideOnDeath)
+            {
+                obj.SetActive(false);
+            }
+
+            if (isLocalPlayer)
+            {
+                canvasTopDown.buttonRespawnPlayer.gameObject.SetActive(true);
+            }
+        }
+        // else if (playerStatus == 2) // can be used for other features, such as spectator, make local camera follow another player 
+
+    }
+
+    [ServerCallback]
+    void OnCollisionEnter(Collision collision)
+    {
+        print("OnCollisionEnter");
+
+        if (playerStatus != 0) { return; } // make sure we are alive
+
+        // you should check for a tag, not name contains
+        // this is a quick workaround to make sure the example works without custom tags that may not be in your project
+        if (collision.gameObject.name.Contains("Enemy"))
+        {
+            playerStatus = 1;
+        }
+    }
+
+    [ServerCallback]
+    void OnTriggerEnter(Collider collider)
+    {
+        print("OnTriggerEnter");
+    }
+
+    [ServerCallback]
+    void OnControllerColliderHit(ControllerColliderHit hit)
+    {
+        print("OnControllerColliderHit");
     }
 }
