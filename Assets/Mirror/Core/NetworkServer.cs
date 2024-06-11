@@ -6,6 +6,16 @@ using UnityEngine;
 
 namespace Mirror
 {
+    public enum RemovePlayerOptions
+    {
+        /// <summary>Player Object remains active on server and clients. Only ownership is removed</summary>
+        KeepActive,
+        /// <summary>Player Object is unspawned on clients but remains on server</summary>
+        Unspawn,
+        /// <summary>Player Object is destroyed on server and clients</summary>
+        Destroy
+    }
+
     /// <summary>NetworkServer handles remote connections and has a local connection for a local client.</summary>
     public static partial class NetworkServer
     {
@@ -1149,18 +1159,37 @@ namespace Mirror
 
         /// <summary>Removes the player object from the connection</summary>
         // destroyServerObject: Indicates whether the server object should be destroyed
+        // Deprecated 2024-06-06
+        [Obsolete("Use RemovePlayerForConnection(NetworkConnectionToClient conn, RemovePlayerOptions removeOptions) instead")]
         public static void RemovePlayerForConnection(NetworkConnectionToClient conn, bool destroyServerObject)
         {
-            if (conn.identity != null)
-            {
-                if (destroyServerObject)
-                    Destroy(conn.identity.gameObject);
-                else
-                    UnSpawn(conn.identity.gameObject);
+            if (destroyServerObject)
+                RemovePlayerForConnection(conn, RemovePlayerOptions.Destroy);
+            else
+                RemovePlayerForConnection(conn, RemovePlayerOptions.Unspawn);
+        }
 
-                conn.identity = null;
+        /// <summary>Removes player object for the connection. Options to keep the object in play, unspawn it, or destroy it.</summary>
+        public static void RemovePlayerForConnection(NetworkConnectionToClient conn, RemovePlayerOptions removeOptions = RemovePlayerOptions.KeepActive)
+        {
+            if (conn.identity == null) return;
+
+            switch (removeOptions)
+            {
+                case RemovePlayerOptions.KeepActive:
+                    conn.identity.connectionToClient = null;
+                    conn.owned.Remove(conn.identity);
+                    SendChangeOwnerMessage(conn.identity, conn);
+                    break;
+                case RemovePlayerOptions.Unspawn:
+                    UnSpawn(conn.identity.gameObject);
+                    break;
+                case RemovePlayerOptions.Destroy:
+                    Destroy(conn.identity.gameObject);
+                    break;
             }
-            //else Debug.Log($"Connection {conn} has no identity");
+
+            conn.identity = null;
         }
 
         // ready ///////////////////////////////////////////////////////////////
@@ -1378,7 +1407,7 @@ namespace Mirror
             {
                 netId = identity.netId,
                 isOwner = identity.connectionToClient == conn,
-                isLocalPlayer = conn.identity == identity
+                isLocalPlayer = (conn.identity == identity && identity.connectionToClient == conn)
             });
         }
 
