@@ -165,29 +165,27 @@ namespace Mirror
                 channelId
             );
 
-            switch (channelId)
+            // drop & scramble can only be simulated on Unreliable channel.
+            if (channelId == Channels.Unreliable)
             {
-                case Channels.Reliable:
-                    // simulate latency
-                    messageQueue.Add(message);
-                    break;
-                case Channels.Unreliable:
-                    // simulate latency, drop, scramble
-                    bool drop = random.NextDouble() < unreliableLoss/100;
-                    if (!drop)
-                    {
-                        // simulate scramble (Random.Next is < max, so +1)
-                        bool scramble = random.NextDouble() < unreliableScramble/100;
-                        int last = messageQueue.Count;
-                        int index = scramble ? random.Next(0, last + 1) : last;
+                // simulate drop
+                bool drop = random.NextDouble() < unreliableLoss/100;
+                if (!drop)
+                {
+                    // simulate scramble (Random.Next is < max, so +1)
+                    bool scramble = random.NextDouble() < unreliableScramble/100;
+                    int last = messageQueue.Count;
+                    int index = scramble ? random.Next(0, last + 1) : last;
 
-                        // simulate latency
-                        messageQueue.Insert(index, message);
-                    }
-                    break;
-                default:
-                    Debug.LogError($"{nameof(LatencySimulation)} unexpected channelId: {channelId}");
-                    break;
+                    // simulate latency
+                    messageQueue.Insert(index, message);
+                }
+            }
+            // any other channel may be relialbe / sequenced / ordered / etc.
+            // in that case we only simulate latency (above)
+            else
+            {
+                messageQueue.Add(message);
             }
         }
 
