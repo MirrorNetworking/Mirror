@@ -10,6 +10,7 @@ public class EnemyTopDown : NetworkBehaviour
 
     public float followDistance = 8f; // Distance at which the enemy will start following the target
     public float findPlayersTime = 1.0f; // we do not want this in Update, allow enemies to scan for playes every X time
+    public float distanceToKillAt = 0.5f;
 
     private NavMeshAgent agent;
     private Transform closestTarget;
@@ -58,11 +59,27 @@ public class EnemyTopDown : NetworkBehaviour
                 distanceToTarget = distanceToTarget / 2;
             }
 
-            if (distanceToTarget < closestDistance && distanceToTarget <= followDistance)
+            // chase only if alive
+            if (target.playerStatus ==0 && distanceToTarget < closestDistance && distanceToTarget <= followDistance)
             {
                 closestDistance = distanceToTarget;
                 closestTarget = target.transform;
+
+                float distanceKill = Vector3.Distance(transform.position, target.transform.position);
+                if (distanceKill < distanceToKillAt)
+                {
+                    target.Kill();
+                }
             }
+        }
+
+        if (closestTarget == null)
+        {
+            agent.isStopped = true;
+        }
+        else
+        {
+            agent.isStopped = false;
         }
     }
 

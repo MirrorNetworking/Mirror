@@ -10,7 +10,9 @@ public class NetworkTopDown : NetworkBehaviour
     public GameObject[] enemyPrefabs;
     public Vector2 enemySpawnRangeX;
     public Vector2 enemySpawnRangeZ;
-    private int enemyCounter = 0;
+
+    [SyncVar(hook = nameof(OnEnemyCounterChanged))]
+    public int enemyCounter = 0;
 
     public override void OnStartServer()
     {
@@ -38,5 +40,10 @@ public class NetworkTopDown : NetworkBehaviour
             enemyCounter += 1;
             canvasTopDown.UpdateEnemyUI(enemyCounter);
         }
+    }
+
+    void OnEnemyCounterChanged(int _Old, int _New)
+    {
+        canvasTopDown.UpdateEnemyUI(enemyCounter);
     }
 }

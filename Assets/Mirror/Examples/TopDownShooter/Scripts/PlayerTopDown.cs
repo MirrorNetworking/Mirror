@@ -39,6 +39,7 @@ public class PlayerTopDown : NetworkBehaviour
         cameraTopDown = mainCamera.GetComponent<CameraTopDown>();
         cameraTopDown.playerTransform = this.transform;
         cameraTopDown.offset.y = 20.0f; // dramatic zoom out once players setup
+        canvasTopDown.playerTopDown = this;
     }
 
     void Awake()
@@ -51,8 +52,7 @@ public class PlayerTopDown : NetworkBehaviour
     {
         playerList.Add(this);
         print("Player joined, total players: " + playerList.Count);
-
-        canvasTopDown.playerTopDown = this;
+  
         if (isClient)
         {
             InvokeRepeating("AnimatePlayer", 0.2f, 0.2f);
@@ -122,9 +122,7 @@ public class PlayerTopDown : NetworkBehaviour
 
             canvasTopDown.shotMarker.transform.position = hit.point;
 
-            // you should check for a tag, not name contains
-            // this is a quick workaround to make sure the example works without custom tags that may not be in your project
-            if (hit.collider.gameObject.name.Contains("Enemy"))
+            if (hit.collider.gameObject.GetComponent<NetworkIdentity>() != null)
             {
                 CmdShoot(hit.collider.gameObject);
             }
@@ -179,7 +177,18 @@ public class PlayerTopDown : NetworkBehaviour
         RpcShoot();
         if (target)
         {
-            target.GetComponent<EnemyTopDown>().Kill();
+            // you should check for a tag, not name contains
+            // this is a quick workaround to make sure the example works without custom tags that may not be in your project
+            if (target.name.Contains("Enemy"))
+            {
+                target.GetComponent<EnemyTopDown>().Kill();
+            }
+            else if (target.name.Contains("Player"))
+            {
+                // make sure they are alive/ dont shoot outself
+                if (target.GetComponent<PlayerTopDown>().playerStatus != 0 || target == this.gameObject) { return; } 
+                target.GetComponent<PlayerTopDown>().Kill();
+            }
             kills += 1; // update user kills
         }
     }
@@ -245,7 +254,7 @@ public class PlayerTopDown : NetworkBehaviour
             {
                 obj.SetActive(true);
             }
-
+            characterController.enabled = true;
             if (isLocalPlayer)
             {
                 this.transform.position = NetworkManager.startPositions[Random.Range(0, NetworkManager.startPositions.Count)].position;
@@ -259,7 +268,7 @@ public class PlayerTopDown : NetworkBehaviour
             {
                 obj.SetActive(false);
             }
-
+            characterController.enabled = false;
             if (isLocalPlayer)
             {
                 canvasTopDown.buttonRespawnPlayer.gameObject.SetActive(true);
@@ -269,30 +278,17 @@ public class PlayerTopDown : NetworkBehaviour
 
     }
 
-    [ServerCallback]
-    void OnCollisionEnter(Collision collision)
+    public void Kill()
     {
-        print("OnCollisionEnter");
-
-        if (playerStatus != 0) { return; } // make sure we are alive
-
-        // you should check for a tag, not name contains
-        // this is a quick workaround to make sure the example works without custom tags that may not be in your project
-        if (collision.gameObject.name.Contains("Enemy"))
-        {
-            playerStatus = 1;
-        }
+        //print("Kill Player");
+        playerStatus = 1;
+        RpcKill();
     }
 
-    [ServerCallback]
-    void OnTriggerEnter(Collider collider)
+    [ClientRpc]
+    void RpcKill()
     {
-        print("OnTriggerEnter");
-    }
-
-    [ServerCallback]
-    void OnControllerColliderHit(ControllerColliderHit hit)
-    {
-        print("OnControllerColliderHit");
+        GameObject splatter = Instantiate(canvasTopDown.deathSplatter, this.transform.position, this.transform.rotation);
+        Destroy(splatter, 5.0f);
     }
 }
