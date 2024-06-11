@@ -43,9 +43,9 @@ namespace Mirror
             {
                 if (wrap is PortTransport port)
                     return port.Port;
-                
+
                 Debug.LogWarning($"LatencySimulation: attempted to get Port but {wrap} is not a PortTransport.");
-                return 0;   
+                return 0;
             }
             set
             {
@@ -54,7 +54,7 @@ namespace Mirror
                     port.Port = value;
                     return;
                 }
-                
+
                 Debug.LogWarning($"LatencySimulation: attempted to set Port but {wrap} is not a PortTransport.");
             }
         }
@@ -149,16 +149,19 @@ namespace Mirror
             byte[] bytes = new byte[segment.Count];
             Buffer.BlockCopy(segment.Array, segment.Offset, bytes, 0, segment.Count);
 
-            // enqueue message. send after latency interval.
+            // simulate latency
+#if !UNITY_2020_3_OR_NEWER
+            double sendTime = NetworkTime.localTime + latency;
+#else
+            double sendTime = Time.unscaledTimeAsDouble + latency;
+#endif
+
+            // construct message
             QueuedMessage message = new QueuedMessage
             (
                 connectionId,
                 bytes,
-#if !UNITY_2020_3_OR_NEWER
-                NetworkTime.localTime + latency,
-#else
-                Time.unscaledTimeAsDouble + latency,
-#endif
+                sendTime,
                 channelId
             );
 
