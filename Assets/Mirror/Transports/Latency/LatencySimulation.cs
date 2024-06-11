@@ -18,6 +18,13 @@ namespace Mirror
         public int connectionId;
         public byte[] bytes;
         public double time;
+
+        public QueuedMessage(int connectionId, byte[] bytes, double time)
+        {
+            this.connectionId = connectionId;
+            this.bytes = bytes;
+            this.time = time;
+        }
     }
 
     [HelpURL("https://mirror-networking.gitbook.io/docs/transports/latency-simulaton-transport")]
@@ -145,15 +152,15 @@ namespace Mirror
 
             // enqueue message. send after latency interval.
             QueuedMessage message = new QueuedMessage
-            {
-                connectionId = connectionId,
-                bytes = bytes,
+            (
+                connectionId,
+                bytes,
 #if !UNITY_2020_3_OR_NEWER
-                time = NetworkTime.localTime + latency
+                NetworkTime.localTime + latency
 #else
-                time = Time.unscaledTimeAsDouble + latency
+                Time.unscaledTimeAsDouble + latency
 #endif
-            };
+            );
 
             switch (channelId)
             {
