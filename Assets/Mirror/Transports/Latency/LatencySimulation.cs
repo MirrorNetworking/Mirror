@@ -18,6 +18,15 @@ namespace Mirror
         public int connectionId;
         public byte[] bytes;
         public double time;
+        public int channelId;
+
+        public QueuedMessage(int connectionId, byte[] bytes, double time, int channelId)
+        {
+            this.connectionId = connectionId;
+            this.bytes = bytes;
+            this.time = time;
+            this.channelId = channelId;
+        }
     }
 
     [HelpURL("https://mirror-networking.gitbook.io/docs/transports/latency-simulaton-transport")]
@@ -34,9 +43,9 @@ namespace Mirror
             {
                 if (wrap is PortTransport port)
                     return port.Port;
-                
+
                 Debug.LogWarning($"LatencySimulation: attempted to get Port but {wrap} is not a PortTransport.");
-                return 0;   
+                return 0;
             }
             set
             {
@@ -45,7 +54,7 @@ namespace Mirror
                     port.Port = value;
                     return;
                 }
-                
+
                 Debug.LogWarning($"LatencySimulation: attempted to set Port but {wrap} is not a PortTransport.");
             }
         }
@@ -79,10 +88,8 @@ namespace Mirror
 
         // message queues
         // list so we can insert randomly (scramble)
-        readonly List<QueuedMessage> reliableClientToServer = new List<QueuedMessage>();
-        readonly List<QueuedMessage> reliableServerToClient = new List<QueuedMessage>();
-        readonly List<QueuedMessage> unreliableClientToServer = new List<QueuedMessage>();
-        readonly List<QueuedMessage> unreliableServerToClient = new List<QueuedMessage>();
+        readonly List<QueuedMessage> clientToServer = new List<QueuedMessage>();
+        readonly List<QueuedMessage> serverToClient = new List<QueuedMessage>();
 
         // random
         // UnityEngine.Random.value is [0, 1] with both upper and lower bounds inclusive
@@ -135,49 +142,50 @@ namespace Mirror
             ArraySegment<byte> segment,
             int channelId,
             float latency,
-            List<QueuedMessage> reliableQueue,
-            List<QueuedMessage> unreliableQueue)
+            List<QueuedMessage> messageQueue)
         {
             // segment is only valid after returning. copy it.
             // (allocates for now. it's only for testing anyway.)
             byte[] bytes = new byte[segment.Count];
             Buffer.BlockCopy(segment.Array, segment.Offset, bytes, 0, segment.Count);
 
-            // enqueue message. send after latency interval.
-            QueuedMessage message = new QueuedMessage
-            {
-                connectionId = connectionId,
-                bytes = bytes,
+            // simulate latency
 #if !UNITY_2020_3_OR_NEWER
-                time = NetworkTime.localTime + latency
+            double sendTime = NetworkTime.localTime + latency;
 #else
-                time = Time.unscaledTimeAsDouble + latency
+            double sendTime = Time.unscaledTimeAsDouble + latency;
 #endif
-            };
 
-            switch (channelId)
+            // construct message
+            QueuedMessage message = new QueuedMessage
+            (
+                connectionId,
+                bytes,
+                sendTime,
+                channelId
+            );
+
+            // drop & scramble can only be simulated on Unreliable channel.
+            if (channelId == Channels.Unreliable)
             {
-                case Channels.Reliable:
-                    // simulate latency
-                    reliableQueue.Add(message);
-                    break;
-                case Channels.Unreliable:
-                    // simulate packet loss
-                    bool drop = random.NextDouble() < unreliableLoss/100;
-                    if (!drop)
-                    {
-                        // simulate scramble (Random.Next is < max, so +1)
-                        bool scramble = random.NextDouble() < unreliableScramble/100;
-                        int last = unreliableQueue.Count;
-                        int index = scramble ? random.Next(0, last + 1) : last;
+                // simulate drop
+                bool drop = random.NextDouble() < unreliableLoss/100;
+                if (!drop)
+                {
+                    // simulate scramble (Random.Next is < max, so +1)
+                    bool scramble = random.NextDouble() < unreliableScramble/100;
+                    int last = messageQueue.Count;
+                    int index = scramble ? random.Next(0, last + 1) : last;
 
-                        // simulate latency
-                        unreliableQueue.Insert(index, message);
-                    }
-                    break;
-                default:
-                    Debug.LogError($"{nameof(LatencySimulation)} unexpected channelId: {channelId}");
-                    break;
+                    // simulate latency
+                    messageQueue.Insert(index, message);
+                }
+            }
+            // any other channel may be relialbe / sequenced / ordered / etc.
+            // in that case we only simulate latency (above)
+            else
+            {
+                messageQueue.Add(message);
             }
         }
 
@@ -208,14 +216,13 @@ namespace Mirror
         public override void ClientDisconnect()
         {
             wrap.ClientDisconnect();
-            reliableClientToServer.Clear();
-            unreliableClientToServer.Clear();
+            clientToServer.Clear();
         }
 
         public override void ClientSend(ArraySegment<byte> segment, int channelId)
         {
             float latency = SimulateLatency(channelId);
-            SimulateSend(0, segment, channelId, latency, reliableClientToServer, unreliableClientToServer);
+            SimulateSend(0, segment, channelId, latency, clientToServer);
         }
 
         public override Uri ServerUri() => wrap.ServerUri();
@@ -229,7 +236,7 @@ namespace Mirror
         public override void ServerSend(int connectionId, ArraySegment<byte> segment, int channelId)
         {
             float latency = SimulateLatency(channelId);
-            SimulateSend(connectionId, segment, channelId, latency, reliableServerToClient, unreliableServerToClient);
+            SimulateSend(connectionId, segment, channelId, latency, serverToClient);
         }
 
         public override void ServerStart()
@@ -245,20 +252,19 @@ namespace Mirror
         public override void ServerStop()
         {
             wrap.ServerStop();
-            reliableServerToClient.Clear();
-            unreliableServerToClient.Clear();
+            serverToClient.Clear();
         }
 
         public override void ClientEarlyUpdate() => wrap.ClientEarlyUpdate();
         public override void ServerEarlyUpdate() => wrap.ServerEarlyUpdate();
         public override void ClientLateUpdate()
         {
-            // flush reliable messages after latency.
+            // flush messages after latency.
             // need to iterate all, since queue isn't a sortedlist.
-            for (int i = 0; i < reliableClientToServer.Count; ++i)
+            for (int i = 0; i < clientToServer.Count; ++i)
             {
                 // message ready to be sent?
-                QueuedMessage message = reliableClientToServer[i];
+                QueuedMessage message = clientToServer[i];
 #if !UNITY_2020_3_OR_NEWER
                 if (message.time <= NetworkTime.localTime)
 #else
@@ -266,27 +272,8 @@ namespace Mirror
 #endif
                 {
                     // send and eat
-                    wrap.ClientSend(new ArraySegment<byte>(message.bytes), Channels.Reliable);
-                    reliableClientToServer.RemoveAt(i);
-                    --i;
-                }
-            }
-
-            // flush unreliable messages after latency.
-            // need to iterate all, since queue isn't a sortedlist.
-            for (int i = 0; i < unreliableClientToServer.Count; ++i)
-            {
-                // message ready to be sent?
-                QueuedMessage message = unreliableClientToServer[i];
-#if !UNITY_2020_3_OR_NEWER
-                if (message.time <= NetworkTime.localTime)
-#else
-                if (message.time <= Time.unscaledTimeAsDouble)
-#endif
-                {
-                    // send and eat
-                    wrap.ClientSend(new ArraySegment<byte>(message.bytes), Channels.Unreliable);
-                    unreliableClientToServer.RemoveAt(i);
+                    wrap.ClientSend(new ArraySegment<byte>(message.bytes), message.channelId);
+                    clientToServer.RemoveAt(i);
                     --i;
                 }
             }
@@ -296,13 +283,12 @@ namespace Mirror
         }
         public override void ServerLateUpdate()
         {
-
-            // flush reliable messages after latency.
+            // flush messages after latency.
             // need to iterate all, since queue isn't a sortedlist.
-            for (int i = 0; i < reliableServerToClient.Count; ++i)
+            for (int i = 0; i < serverToClient.Count; ++i)
             {
                 // message ready to be sent?
-                QueuedMessage message = reliableServerToClient[i];
+                QueuedMessage message = serverToClient[i];
 #if !UNITY_2020_3_OR_NEWER
                 if (message.time <= NetworkTime.localTime)
 #else
@@ -310,28 +296,8 @@ namespace Mirror
 #endif
                 {
                     // send and eat
-                    wrap.ServerSend(message.connectionId, new ArraySegment<byte>(message.bytes), Channels.Reliable);
-                    reliableServerToClient.RemoveAt(i);
-                    --i;
-                }
-            }
-
-
-            // flush unreliable messages after latency.
-            // need to iterate all, since queue isn't a sortedlist.
-            for (int i = 0; i < unreliableServerToClient.Count; ++i)
-            {
-                // message ready to be sent?
-                QueuedMessage message = unreliableServerToClient[i];
-#if !UNITY_2020_3_OR_NEWER
-                if (message.time <= NetworkTime.localTime)
-#else
-                if (message.time <= Time.unscaledTimeAsDouble)
-#endif
-                {
-                    // send and eat
-                    wrap.ServerSend(message.connectionId, new ArraySegment<byte>(message.bytes), Channels.Unreliable);
-                    unreliableServerToClient.RemoveAt(i);
+                    wrap.ServerSend(message.connectionId, new ArraySegment<byte>(message.bytes), message.channelId);
+                    serverToClient.RemoveAt(i);
                     --i;
                 }
             }
