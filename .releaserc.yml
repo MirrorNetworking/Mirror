@@ -47,6 +47,8 @@ plugins:
   - - '@semantic-release/exec'
     - prepareCmd: "rm -f -r Assets/Mirror/Tests && rm -f Assets/Mirror/Tests.meta"
   
+  # Move ScriptTemplates to Mirror folder so they're included in Unity package
+  # There's an editor script that moves them back to Assets when imported to Unity
   - - '@semantic-release/exec'
     - prepareCmd: "mv Assets/ScriptTemplates Assets/Mirror/ && mv Assets/ScriptTemplates.meta Assets/Mirror/"
 
