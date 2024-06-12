@@ -28,7 +28,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '*'
   
       - name: Install conventional-changelog-conventionalcommits
         run: npm i -D conventional-changelog-conventionalcommits
@@ -38,7 +38,5 @@ jobs:
   
       - name: Release
         run: npx semantic-release
-          # --plugins "@semantic-release/commit-analyzer,@semantic-release/release-notes-generator,@semantic-release/exec,@semantic-release/github"
-          # --debug true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
