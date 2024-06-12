@@ -6,6 +6,7 @@ plugins:
   # See https://github.com/angular/angular.js/blob/master/DEVELOPERS.md#type
   # More types can be added here and in release-notes-generator below.
   - - '@semantic-release/commit-analyzer'
+    - debug: true
     - preset: "angular"
       releaseRules:
       - type: "breaking"
@@ -19,6 +20,7 @@ plugins:
   # 'fix' and 'feat' are built in and don't need to be defined here.
   # More types can be added to correspond with commit-analyzer above.
   - - '@semantic-release/release-notes-generator'
+    - debug: true
     - preset: "conventionalcommits"
       presetConfig:
         types:
@@ -40,19 +42,23 @@ plugins:
 
   # Write the new version in version.txt
   - - '@semantic-release/exec'
+    - debug: true
     - prepareCmd: "echo ${nextRelease.version} > Assets/Mirror/version.txt"
 
   # Remove Test folder so it's excluded from Unity package
   # -f: force, -r: recursive
   - - '@semantic-release/exec'
+    - debug: true
     - prepareCmd: "rm -f -r Assets/Mirror/Tests && rm -f Assets/Mirror/Tests.meta"
 
   # Create Unity package with Mirror, ScriptTemplates, and LICENSE
   - - '@semantic-release/exec'
+    - debug: true
     - prepareCmd: "unity-packer pack Mirror.unitypackage Assets/Mirror Assets/Mirror Assets/ScriptTemplates Assets/ScriptTemplates LICENSE Assets/Mirror/LICENSE" 
 
   # Create a new release on GitHub
   - - '@semantic-release/github'
+    - debug: true
     - assets:
       - path: "Mirror.unitypackage"
         label: "Mirror Unity Package"
