@@ -7,7 +7,9 @@ namespace Mirror.Examples.TopDownShooter
     {
         public CanvasTopDown canvasTopDown;
 
+        // Have as many enemy variations as you want, remember to set them in NetworkManagers Registered Spawnable Prefabs array.
         public GameObject[] enemyPrefabs;
+        // For our square map with no obstacles, we'l just set a range, for your own game, you may have set spawn points
         public Vector2 enemySpawnRangeX;
         public Vector2 enemySpawnRangeZ;
 
@@ -19,8 +21,7 @@ namespace Mirror.Examples.TopDownShooter
 #if !UNITY_SERVER
             canvasTopDown.ResetUI();
 #endif
-            // spawn one enemy on start of game, then let host spawn more via button
-            // for more enemies when using dedicated server, you will need additional logic depending on your game, as it cannot press UI button.
+            // Spawn one enemy on start of game, then let player host spawn more via button
             SpawnEnemy();
         }
 
@@ -31,6 +32,7 @@ namespace Mirror.Examples.TopDownShooter
         }
 #endif
 
+        [ServerCallback]
         public void SpawnEnemy()
         {
             if (isServer == false)
@@ -39,16 +41,15 @@ namespace Mirror.Examples.TopDownShooter
             }
             else
             {
-                // select random enemy prefab if we have one
+                // Select random enemy prefab if we have more than one
                 GameObject enemy = Instantiate(enemyPrefabs[Random.Range(0, enemyPrefabs.Length)]);
-                // set random spawn position depending on our ranges set via inspector
+                // Set random spawn position depending on our ranges set via inspector
                 enemy.transform.position = new Vector3(Random.Range(enemySpawnRangeX.x, enemySpawnRangeX.y), 0, Random.Range(enemySpawnRangeZ.x, enemySpawnRangeZ.y));
-                // network spawn enemy to current and new players
+                // Network spawn enemy to current and new players
                 NetworkServer.Spawn(enemy);
-
-                // update UI
                 enemyCounter += 1;
 #if !UNITY_SERVER
+                // update UI
                 canvasTopDown.UpdateEnemyUI(enemyCounter);
 #endif
             }

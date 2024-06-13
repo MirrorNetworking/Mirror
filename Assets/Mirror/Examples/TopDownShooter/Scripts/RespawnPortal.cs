@@ -15,14 +15,15 @@ namespace Mirror.Examples.TopDownShooter
 #if !UNITY_SERVER
         void Awake()
         {
-            // Store the original scale of the portal
+            // Store the original setup
             originalScale = transform.localScale;
-            // Initialize the shrink timer
             shrinkTimer = shrinkDuration;
         }
 
         void OnEnable()
         {
+            // By using OnEnable, it shortcuts the function to be called automatically when gameobject is SetActive false/true.
+            // Here we reset variables, and then call the Portal respawn effect
             transform.localScale = originalScale;
             shrinkTimer = shrinkDuration;
 

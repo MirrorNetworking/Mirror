@@ -8,7 +8,7 @@ namespace Mirror.Examples.TopDownShooter
     public class CanvasTopDown : MonoBehaviour
     {
         public NetworkTopDown networkTopDown;
-        public PlayerTopDown playerTopDown;
+        public PlayerTopDown playerTopDown; // This is automatically set by local players script
 
         public Button buttonSpawnEnemy, buttonRespawnPlayer;
         public Text textEnemies, textKills;

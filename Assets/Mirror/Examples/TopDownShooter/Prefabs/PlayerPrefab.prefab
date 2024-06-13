@@ -219,8 +219,6 @@ MonoBehaviour:
   characterController: {fileID: 1790288584591764727}
   leftFoot: {fileID: 6191414367282045515}
   rightFoot: {fileID: 3046870300066046745}
-  previousPosition: {x: 0, y: 0, z: 0}
-  previousRotation: {x: 0, y: 0, z: 0, w: 0}
   flashLightStatus: 1
   flashLight: {fileID: 8452721561667678041}
   kills: 0
@@ -229,11 +227,11 @@ MonoBehaviour:
   - {fileID: 5322783982007742914}
   - {fileID: 7999677161565755595}
   - {fileID: 4951376454449298776}
-  muzzleFlash: {fileID: 4016014519988507597}
   shootDistance: 100
   hitLayers:
     serializedVersion: 2
     m_Bits: 1
+  muzzleFlash: {fileID: 4016014519988507597}
   soundGunShot: {fileID: 2645067005344126466}
   soundDeath: {fileID: 2747006221064839853}
   soundFlashLight: {fileID: 8591316074617070824}
@@ -888,7 +886,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: f4f72eab81e6943088b48eb9e4b666e6, type: 3}
   m_PlayOnAwake: 0
-  m_Volume: 0.75
+  m_Volume: 0.7
   m_Pitch: 1
   Loop: 0
   Mute: 0

@@ -10,26 +10,30 @@ namespace Mirror.Examples.TopDownShooter
         private CanvasTopDown canvasTopDown;
 
         public float followDistance = 8f; // Distance at which the enemy will start following the target
-        public float findPlayersTime = 1.0f; // we do not want this in Update, allow enemies to scan for playes every X time
+        public float findPlayersTime = 1.0f; // We want to avoid this being in Update, allow enemies to scan for playes every X time
         public float distanceToKillAt = 0.5f;
 
         private NavMeshAgent agent;
         private Transform closestTarget;
         public Vector3 previousPosition;
+
         public GameObject enemyArt;
         public GameObject idleSprite, aggroSprite;
         public AudioSource soundDeath, soundAggro;
+
         void Awake()
         {
-            //allow all players to run this, they may need it for reference
+            //allow all to run this, they may need it for reference
             canvasTopDown = GameObject.FindObjectOfType<CanvasTopDown>();
         }
 
         void Start()
         {
-            agent = GetComponent<NavMeshAgent>();
+            previousPosition = this.transform.position;
+
             if (isServer)
             {
+                agent = GetComponent<NavMeshAgent>();
                 InvokeRepeating("FindClosestTarget", findPlayersTime, findPlayersTime);
             }
 #if !UNITY_SERVER
@@ -52,6 +56,7 @@ namespace Mirror.Examples.TopDownShooter
             float closestDistance = Mathf.Infinity;
             closestTarget = null;
 
+            // This is our static player list, set and updated in players scripts via Start and OnDestroy.
             foreach (PlayerTopDown target in PlayerTopDown.playerList)
             {
                 float distanceToTarget = Vector3.Distance(transform.position, target.transform.position);
@@ -75,6 +80,8 @@ namespace Mirror.Examples.TopDownShooter
                 }
             }
 
+            // Even with no target, Unitys nav agent continues moving to last set position
+            // We do not want this for a respawning enemy, so we manually stop the agent.
             if (closestTarget == null)
             {
                 agent.isStopped = true;
@@ -94,9 +101,11 @@ namespace Mirror.Examples.TopDownShooter
             }
         }
 
+        [ServerCallback]
         public void Kill()
         {
             RpcKill();
+            // Player host will run the RPC, but Server-Only will not, and we need the function to run that the rpc calls, so check and call it.
             if (isServerOnly)
             {
                 StartCoroutine(KillCoroutine());
@@ -140,9 +149,12 @@ namespace Mirror.Examples.TopDownShooter
             }
         }
 
+        [ClientCallback]
         void SetSprite()
         {
 #if !UNITY_SERVER
+            // A simple way to change sprite animation, without networking it
+            // If not moving, be idle sprite, if moving, presume aggrod sprite.
             if (this.transform.position == previousPosition)
             {
                 if (idleSprite.activeInHierarchy == false)
