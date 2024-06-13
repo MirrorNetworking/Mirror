@@ -31,6 +31,7 @@ public class PlayerTopDown : NetworkBehaviour
     public GameObject muzzleFlash;
     public float shootDistance = 100f;  // Maximum distance for the raycast
     public LayerMask hitLayers;  // Layers that can be hit by the raycast
+    public AudioSource soundGunShot, soundDeath, soundFlashLight, soundLeftFoot, soundRightFoot;
 
     public override void OnStartLocalPlayer()
     {
@@ -40,6 +41,10 @@ public class PlayerTopDown : NetworkBehaviour
         cameraTopDown.playerTransform = this.transform;
         cameraTopDown.offset.y = 20.0f; // dramatic zoom out once players setup
         canvasTopDown.playerTopDown = this;
+
+        // we want 3D audio effects to be around the player, not the camera 50 meters in the air
+        mainCamera.GetComponent<AudioListener>().enabled = false;
+        this.gameObject.AddComponent<AudioListener>();
     }
 
     void Awake()
@@ -118,7 +123,7 @@ public class PlayerTopDown : NetworkBehaviour
 
         if (Physics.Raycast(ray, out hit, shootDistance, hitLayers))
         {
-            Debug.Log("Hit: " + hit.collider.gameObject.name);
+            //Debug.Log("Hit: " + hit.collider.gameObject.name);
 
             canvasTopDown.shotMarker.transform.position = hit.point;
 
@@ -133,12 +138,13 @@ public class PlayerTopDown : NetworkBehaviour
         }
         else
         {
-            Debug.Log("Missed");
+            //Debug.Log("Missed");
         }
     }
 
-    IEnumerator MuzzleFlashEffect()
+    IEnumerator GunShotEffect()
     {
+        soundGunShot.Play();
         muzzleFlash.SetActive(true);
         if (isLocalPlayer)
         {
@@ -163,12 +169,19 @@ public class PlayerTopDown : NetworkBehaviour
         {
             flashLightStatus = true;
         }
+        RpcFlashLight();
     }
 
     // our sync var hook, which sets flashlight status to the same on all clients for this player
     void OnFlashLightChanged(bool _Old, bool _New)
     {
         flashLight.enabled = _New;
+    }
+
+    [ClientRpc]
+    void RpcFlashLight()
+    {
+        soundFlashLight.Play();
     }
 
     [Command]
@@ -196,7 +209,7 @@ public class PlayerTopDown : NetworkBehaviour
     [ClientRpc]
     void RpcShoot()
     {
-        StartCoroutine(MuzzleFlashEffect());
+        StartCoroutine(GunShotEffect());
     }
 
     // hook for sync var kills
@@ -222,11 +235,13 @@ public class PlayerTopDown : NetworkBehaviour
             {
                 leftFoot.SetActive(true);
                 rightFoot.SetActive(false);
+                soundLeftFoot.Play();
             }
             else
             {
                 leftFoot.SetActive(false);
                 rightFoot.SetActive(true);
+                soundRightFoot.Play();
             }
             previousPosition = this.transform.position;
             previousRotation = this.transform.rotation;
@@ -288,6 +303,7 @@ public class PlayerTopDown : NetworkBehaviour
     [ClientRpc]
     void RpcKill()
     {
+        soundDeath.Play();
         GameObject splatter = Instantiate(canvasTopDown.deathSplatter, this.transform.position, this.transform.rotation);
         Destroy(splatter, 5.0f);
     }

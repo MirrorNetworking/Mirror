@@ -18,6 +18,7 @@ public class EnemyTopDown : NetworkBehaviour
     public GameObject enemyArt;
     public GameObject idleSprite, aggroSprite;
     public Vector3 previousPosition;
+    public AudioSource soundDeath, soundAggro;
 
     void Awake()
     {
@@ -109,6 +110,7 @@ public class EnemyTopDown : NetworkBehaviour
 
     IEnumerator KillCoroutine()
     {
+        soundDeath.Play();
         enemyArt.SetActive(false);
         if (isClient)
         {
@@ -150,9 +152,9 @@ public class EnemyTopDown : NetworkBehaviour
             {
                 idleSprite.SetActive(false);
                 aggroSprite.SetActive(true);
+                soundAggro.Play();
             }
             previousPosition = this.transform.position;
         }
     }
-
 }

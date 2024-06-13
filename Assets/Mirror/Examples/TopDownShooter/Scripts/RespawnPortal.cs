@@ -6,9 +6,11 @@ public class RespawnPortal : MonoBehaviour
 {
     public float rotationSpeed = 360f; // Degrees per second
     public float shrinkDuration = 1f;  // Time in seconds to shrink to zero
+    public AudioSource soundEffect;
 
     private Vector3 originalScale;
     private float shrinkTimer;
+    
 
     void Awake()
     {
@@ -28,6 +30,7 @@ public class RespawnPortal : MonoBehaviour
 
     IEnumerator StartEffect()
     {
+        soundEffect.Play();
         while (shrinkTimer > 0)
         {
             transform.Rotate(Vector3.up, rotationSpeed * Time.deltaTime);
