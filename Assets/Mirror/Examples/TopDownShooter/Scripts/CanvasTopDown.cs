@@ -15,9 +15,10 @@ namespace Mirror.Examples.TopDownShooter
 
         public GameObject shotMarker;
         public GameObject deathSplatter;
-
         public AudioSource soundGameIntro, soundGameLoop, soundButtonUI;
 
+
+#if !UNITY_SERVER
         private void Start()
         {
             buttonSpawnEnemy.onClick.AddListener(ButtonSpawnEnemy);
@@ -25,31 +26,41 @@ namespace Mirror.Examples.TopDownShooter
 
             StartCoroutine(BGSound());
         }
+#endif
 
         private void ButtonSpawnEnemy()
         {
+#if !UNITY_SERVER
             PlaySoundButtonUI();
             networkTopDown.SpawnEnemy();
+#endif
         }
 
         private void ButtonRespawnPlayer()
         {
+#if !UNITY_SERVER
             PlaySoundButtonUI();
             playerTopDown.CmdRespawnPlayer();
+#endif
         }
 
         public void UpdateEnemyUI(int value)
         {
+#if !UNITY_SERVER
             textEnemies.text = "Enemies: " + value;
+#endif
         }
 
         public void UpdateKillsUI(int value)
         {
+#if !UNITY_SERVER
             textKills.text = "Kills: " + value;
+#endif
         }
 
         public void ResetUI()
         {
+#if !UNITY_SERVER
             if (NetworkServer.active)
             {
                 buttonSpawnEnemy.gameObject.SetActive(true);
@@ -63,18 +74,24 @@ namespace Mirror.Examples.TopDownShooter
             shotMarker.SetActive(false);
             textEnemies.text = "Enemies: 0";
             textKills.text = "Kills: 0";
+#endif
         }
 
+#if !UNITY_SERVER
         IEnumerator BGSound()
         {
             soundGameIntro.Play();
             yield return new WaitForSeconds(4.1f);
             soundGameLoop.Play();
+
         }
+#endif
 
         public void PlaySoundButtonUI()
         {
+#if !UNITY_SERVER
             soundButtonUI.Play();
+#endif
         }
     }
 }

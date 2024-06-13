@@ -16,16 +16,20 @@ namespace Mirror.Examples.TopDownShooter
 
         public override void OnStartServer()
         {
+#if !UNITY_SERVER
             canvasTopDown.ResetUI();
+#endif
             // spawn one enemy on start of game, then let host spawn more via button
             // for more enemies when using dedicated server, you will need additional logic depending on your game, as it cannot press UI button.
             SpawnEnemy();
         }
 
+#if !UNITY_SERVER
         public override void OnStartClient()
         {
             canvasTopDown.ResetUI();
         }
+#endif
 
         public void SpawnEnemy()
         {
@@ -44,13 +48,17 @@ namespace Mirror.Examples.TopDownShooter
 
                 // update UI
                 enemyCounter += 1;
+#if !UNITY_SERVER
                 canvasTopDown.UpdateEnemyUI(enemyCounter);
+#endif
             }
         }
 
         void OnEnemyCounterChanged(int _Old, int _New)
         {
+#if !UNITY_SERVER
             canvasTopDown.UpdateEnemyUI(enemyCounter);
+#endif
         }
         
     }

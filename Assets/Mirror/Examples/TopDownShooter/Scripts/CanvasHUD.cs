@@ -22,6 +22,7 @@ namespace Mirror.Examples.TopDownShooter
         [SerializeField] private InputField inputNetworkAddress;
         [SerializeField] private InputField inputPort;
 
+#if !UNITY_SERVER
         private void Start()
         {
             // Init the input field with Network Manager's network address.
@@ -218,5 +219,6 @@ namespace Mirror.Examples.TopDownShooter
                 Debug.LogError("This component requires a NetworkManager component to be present in the scene. Please add!");
 #endif
         }
+#endif
     }
 }

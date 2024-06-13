@@ -4,11 +4,11 @@ namespace Mirror.Examples.TopDownShooter
 {
     public class CameraTopDown : MonoBehaviour
     {
-        public Transform playerTransform; // Reference to the player's transform
-        public Vector3 offset; // Offset from the player
+        public Transform playerTransform;
+        public Vector3 offset;
+        public float followSpeed = 5f;
 
-        public float followSpeed = 5f; // Speed at which the camera follows the player
-
+#if !UNITY_SERVER
         void LateUpdate()
         {
             if (playerTransform != null)
@@ -17,5 +17,6 @@ namespace Mirror.Examples.TopDownShooter
                 transform.position = Vector3.Lerp(transform.position, targetPosition, followSpeed * Time.deltaTime);
             }
         }
+#endif
     }
 }

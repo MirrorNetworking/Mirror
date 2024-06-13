@@ -15,6 +15,7 @@ namespace Mirror.Examples.TopDownShooter
 
         public float moveSpeed = 5f;
         public CharacterController characterController;
+
         public GameObject leftFoot, rightFoot;
         public Vector3 previousPosition;
         public Quaternion previousRotation;
@@ -30,11 +31,12 @@ namespace Mirror.Examples.TopDownShooter
         public int playerStatus = 0;
         public GameObject[] objectsToHideOnDeath;
 
+        public float shootDistance = 100f;
+        public LayerMask hitLayers;
         public GameObject muzzleFlash;
-        public float shootDistance = 100f;  // Maximum distance for the raycast
-        public LayerMask hitLayers;  // Layers that can be hit by the raycast
         public AudioSource soundGunShot, soundDeath, soundFlashLight, soundLeftFoot, soundRightFoot;
 
+#if !UNITY_SERVER
         public override void OnStartLocalPlayer()
         {
             // grab and setup camera for local player only
@@ -48,6 +50,7 @@ namespace Mirror.Examples.TopDownShooter
             mainCamera.GetComponent<AudioListener>().enabled = false;
             this.gameObject.AddComponent<AudioListener>();
         }
+#endif
 
         void Awake()
         {
@@ -59,11 +62,12 @@ namespace Mirror.Examples.TopDownShooter
         {
             playerList.Add(this);
             print("Player joined, total players: " + playerList.Count);
-
+#if !UNITY_SERVER
             if (isClient)
             {
                 InvokeRepeating("AnimatePlayer", 0.2f, 0.2f);
             }
+#endif
         }
 
         public void OnDestroy()
@@ -73,6 +77,7 @@ namespace Mirror.Examples.TopDownShooter
             if (mainCamera) { mainCamera.GetComponent<AudioListener>().enabled = true; }
         }
 
+#if !UNITY_SERVER
         [ClientCallback]
         void Update()
         {
@@ -101,7 +106,9 @@ namespace Mirror.Examples.TopDownShooter
                 Shoot();
             }
         }
+#endif
 
+#if !UNITY_SERVER
         [ClientCallback]
         void RotatePlayerToMouse()
         {
@@ -118,7 +125,9 @@ namespace Mirror.Examples.TopDownShooter
                 transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, moveSpeed * Time.deltaTime);
             }
         }
+#endif
 
+#if !UNITY_SERVER
         void Shoot()
         {
             Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
@@ -144,7 +153,9 @@ namespace Mirror.Examples.TopDownShooter
                 //Debug.Log("Missed");
             }
         }
+#endif
 
+#if !UNITY_SERVER
         IEnumerator GunShotEffect()
         {
             soundGunShot.Play();
@@ -160,6 +171,7 @@ namespace Mirror.Examples.TopDownShooter
                 canvasTopDown.shotMarker.SetActive(false);
             }
         }
+#endif
 
         [Command]
         public void CmdFlashLight()
@@ -178,13 +190,17 @@ namespace Mirror.Examples.TopDownShooter
         // our sync var hook, which sets flashlight status to the same on all clients for this player
         void OnFlashLightChanged(bool _Old, bool _New)
         {
+#if !UNITY_SERVER
             flashLight.enabled = _New;
+#endif
         }
 
         [ClientRpc]
         void RpcFlashLight()
         {
+#if !UNITY_SERVER
             soundFlashLight.Play();
+#endif
         }
 
         [Command]
@@ -212,21 +228,26 @@ namespace Mirror.Examples.TopDownShooter
         [ClientRpc]
         void RpcShoot()
         {
+#if !UNITY_SERVER
             StartCoroutine(GunShotEffect());
+#endif
         }
 
         // hook for sync var kills
         void OnKillsChanged(int _Old, int _New)
         {
+#if !UNITY_SERVER
             // all players get your latest kill data, however only local player updates their UI
             if (isLocalPlayer)
             {
                 canvasTopDown.UpdateKillsUI(kills);
             }
+#endif
         }
 
         void AnimatePlayer()
         {
+#if !UNITY_SERVER
             if (this.transform.position == previousPosition && Quaternion.Angle(this.transform.rotation, previousRotation) < 20.0f)
             {
                 rightFoot.SetActive(false);
@@ -249,6 +270,7 @@ namespace Mirror.Examples.TopDownShooter
                 previousPosition = this.transform.position;
                 previousRotation = this.transform.rotation;
             }
+#endif
         }
 
         [Command]
@@ -266,6 +288,7 @@ namespace Mirror.Examples.TopDownShooter
 
         void OnPlayerStatusChanged(int _Old, int _New)
         {
+#if !UNITY_SERVER
             if (playerStatus == 0) // default/show
             {
                 foreach (var obj in objectsToHideOnDeath)
@@ -293,7 +316,7 @@ namespace Mirror.Examples.TopDownShooter
                 }
             }
             // else if (playerStatus == 2) // can be used for other features, such as spectator, make local camera follow another player 
-
+#endif
         }
 
         public void Kill()
@@ -306,9 +329,11 @@ namespace Mirror.Examples.TopDownShooter
         [ClientRpc]
         void RpcKill()
         {
+#if !UNITY_SERVER
             soundDeath.Play();
             GameObject splatter = Instantiate(canvasTopDown.deathSplatter, this.transform.position, this.transform.rotation);
             Destroy(splatter, 5.0f);
+#endif
         }
     }
 }

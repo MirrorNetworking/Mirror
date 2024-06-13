@@ -15,12 +15,10 @@ namespace Mirror.Examples.TopDownShooter
 
         private NavMeshAgent agent;
         private Transform closestTarget;
-
+        public Vector3 previousPosition;
         public GameObject enemyArt;
         public GameObject idleSprite, aggroSprite;
-        public Vector3 previousPosition;
         public AudioSource soundDeath, soundAggro;
-
         void Awake()
         {
             //allow all players to run this, they may need it for reference
@@ -34,10 +32,12 @@ namespace Mirror.Examples.TopDownShooter
             {
                 InvokeRepeating("FindClosestTarget", findPlayersTime, findPlayersTime);
             }
+#if !UNITY_SERVER
             if (isClient)
             {
                 InvokeRepeating("SetSprite", 0.1f, 0.1f);
             }
+#endif
         }
 
         [ServerCallback]
@@ -111,6 +111,7 @@ namespace Mirror.Examples.TopDownShooter
 
         IEnumerator KillCoroutine()
         {
+#if !UNITY_SERVER
             soundDeath.Play();
             enemyArt.SetActive(false);
             if (isClient)
@@ -118,6 +119,7 @@ namespace Mirror.Examples.TopDownShooter
                 GameObject splatter = Instantiate(canvasTopDown.deathSplatter, this.transform.position, this.transform.rotation);
                 Destroy(splatter, 5.0f);
             }
+#endif
             yield return new WaitForSeconds(0.1f);
 
             if (isServer)
@@ -128,8 +130,9 @@ namespace Mirror.Examples.TopDownShooter
             }
 
             yield return new WaitForSeconds(0.1f);
+#if !UNITY_SERVER
             enemyArt.SetActive(true);
-
+#endif
             if (isServer)
             {
                 // spawn another, this means for every 1 enemy killed, 2 more appear, increasing difficulty
@@ -139,6 +142,7 @@ namespace Mirror.Examples.TopDownShooter
 
         void SetSprite()
         {
+#if !UNITY_SERVER
             if (this.transform.position == previousPosition)
             {
                 if (idleSprite.activeInHierarchy == false)
@@ -157,6 +161,7 @@ namespace Mirror.Examples.TopDownShooter
                 }
                 previousPosition = this.transform.position;
             }
+#endif
         }
     }
 }

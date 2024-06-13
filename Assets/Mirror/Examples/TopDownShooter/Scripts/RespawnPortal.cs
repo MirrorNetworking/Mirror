@@ -12,7 +12,7 @@ namespace Mirror.Examples.TopDownShooter
         private Vector3 originalScale;
         private float shrinkTimer;
 
-
+#if !UNITY_SERVER
         void Awake()
         {
             // Store the original scale of the portal
@@ -46,5 +46,6 @@ namespace Mirror.Examples.TopDownShooter
                 }
             }
         }
+#endif
     }
 }
