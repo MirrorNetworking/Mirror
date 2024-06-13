@@ -3,41 +3,78 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class CanvasTopDown : MonoBehaviour
+namespace Mirror.Examples.TopDownShooter
 {
-    public NetworkTopDown networkTopDown;
-    public PlayerTopDown playerTopDown;
-
-    public Button buttonSpawnEnemy, buttonRespawnPlayer;
-    public Text textEnemies, textKills;
-
-    public GameObject shotMarker;
-    public GameObject deathSplatter;
-
-    private void Start()
+    public class CanvasTopDown : MonoBehaviour
     {
-        buttonSpawnEnemy.onClick.AddListener(ButtonSpawnEnemy);
-        buttonRespawnPlayer.onClick.AddListener(ButtonRespawnPlayer);
-    }
+        public NetworkTopDown networkTopDown;
+        public PlayerTopDown playerTopDown;
 
-    private void ButtonSpawnEnemy()
-    {
-        networkTopDown.SpawnEnemy();
-    }
+        public Button buttonSpawnEnemy, buttonRespawnPlayer;
+        public Text textEnemies, textKills;
 
-    private void ButtonRespawnPlayer()
-    {
-        playerTopDown.CmdRespawnPlayer();
-    }
+        public GameObject shotMarker;
+        public GameObject deathSplatter;
 
-    public void UpdateEnemyUI(int value)
-    {
-        textEnemies.text = "Enemies: " + value;
-    }
+        public AudioSource soundGameIntro, soundGameLoop, soundButtonUI;
 
-    public void UpdateKillsUI(int value)
-    {
-        textKills.text = "Kills: " + value;
+        private void Start()
+        {
+            buttonSpawnEnemy.onClick.AddListener(ButtonSpawnEnemy);
+            buttonRespawnPlayer.onClick.AddListener(ButtonRespawnPlayer);
+
+            StartCoroutine(BGSound());
+        }
+
+        private void ButtonSpawnEnemy()
+        {
+            PlaySoundButtonUI();
+            networkTopDown.SpawnEnemy();
+        }
+
+        private void ButtonRespawnPlayer()
+        {
+            PlaySoundButtonUI();
+            playerTopDown.CmdRespawnPlayer();
+        }
+
+        public void UpdateEnemyUI(int value)
+        {
+            textEnemies.text = "Enemies: " + value;
+        }
+
+        public void UpdateKillsUI(int value)
+        {
+            textKills.text = "Kills: " + value;
+        }
+
+        public void ResetUI()
+        {
+            if (NetworkServer.active)
+            {
+                buttonSpawnEnemy.gameObject.SetActive(true);
+            }
+            else
+            {
+                buttonSpawnEnemy.gameObject.SetActive(false);
+            }
+
+            buttonRespawnPlayer.gameObject.SetActive(false);
+            shotMarker.SetActive(false);
+            textEnemies.text = "Enemies: 0";
+            textKills.text = "Kills: 0";
+        }
+
+        IEnumerator BGSound()
+        {
+            soundGameIntro.Play();
+            yield return new WaitForSeconds(4.1f);
+            soundGameLoop.Play();
+        }
+
+        public void PlaySoundButtonUI()
+        {
+            soundButtonUI.Play();
+        }
     }
-    
 }

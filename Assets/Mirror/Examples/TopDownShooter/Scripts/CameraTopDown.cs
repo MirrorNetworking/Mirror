@@ -1,20 +1,21 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class CameraTopDown : MonoBehaviour
+namespace Mirror.Examples.TopDownShooter
 {
-    public Transform playerTransform; // Reference to the player's transform
-    public Vector3 offset; // Offset from the player
-
-    public float followSpeed = 5f; // Speed at which the camera follows the player
-
-    void LateUpdate()
+    public class CameraTopDown : MonoBehaviour
     {
-        if (playerTransform != null)
+        public Transform playerTransform; // Reference to the player's transform
+        public Vector3 offset; // Offset from the player
+
+        public float followSpeed = 5f; // Speed at which the camera follows the player
+
+        void LateUpdate()
         {
-            Vector3 targetPosition = playerTransform.position + offset;
-            transform.position = Vector3.Lerp(transform.position, targetPosition, followSpeed * Time.deltaTime);
+            if (playerTransform != null)
+            {
+                Vector3 targetPosition = playerTransform.position + offset;
+                transform.position = Vector3.Lerp(transform.position, targetPosition, followSpeed * Time.deltaTime);
+            }
         }
     }
 }
