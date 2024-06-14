@@ -168,10 +168,10 @@ AudioSource:
   SpatializePostEffects: 0
   Priority: 99
   DopplerLevel: 1
-  MinDistance: 3
+  MinDistance: 5
   MaxDistance: 50
   Pan2D: 0
-  rolloffMode: 0
+  rolloffMode: 1
   BypassEffects: 0
   BypassListenerEffects: 0
   BypassReverbZones: 0

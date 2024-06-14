@@ -218,10 +218,10 @@ AudioSource:
   SpatializePostEffects: 0
   Priority: 128
   DopplerLevel: 1
-  MinDistance: 3
+  MinDistance: 5
   MaxDistance: 50
   Pan2D: 0
-  rolloffMode: 0
+  rolloffMode: 1
   BypassEffects: 0
   BypassListenerEffects: 0
   BypassReverbZones: 0
@@ -429,10 +429,10 @@ AudioSource:
   SpatializePostEffects: 0
   Priority: 100
   DopplerLevel: 1
-  MinDistance: 3
-  MaxDistance: 25
+  MinDistance: 5
+  MaxDistance: 30
   Pan2D: 0
-  rolloffMode: 0
+  rolloffMode: 1
   BypassEffects: 0
   BypassListenerEffects: 0
   BypassReverbZones: 0
@@ -849,10 +849,10 @@ AudioSource:
   SpatializePostEffects: 0
   Priority: 127
   DopplerLevel: 1
-  MinDistance: 3
-  MaxDistance: 25
+  MinDistance: 5
+  MaxDistance: 30
   Pan2D: 0
-  rolloffMode: 0
+  rolloffMode: 1
   BypassEffects: 0
   BypassListenerEffects: 0
   BypassReverbZones: 0

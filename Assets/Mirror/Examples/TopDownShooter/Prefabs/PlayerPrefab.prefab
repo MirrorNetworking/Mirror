@@ -306,10 +306,10 @@ AudioSource:
   SpatializePostEffects: 0
   Priority: 127
   DopplerLevel: 1
-  MinDistance: 3
-  MaxDistance: 25
+  MinDistance: 5
+  MaxDistance: 30
   Pan2D: 0
-  rolloffMode: 0
+  rolloffMode: 1
   BypassEffects: 0
   BypassListenerEffects: 0
   BypassReverbZones: 0
@@ -509,18 +509,18 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: 8456f55f865b54410a193bb16cd48ca0, type: 3}
   m_PlayOnAwake: 0
-  m_Volume: 0.75
+  m_Volume: 0.7
   m_Pitch: 1
   Loop: 0
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
-  Priority: 128
+  Priority: 110
   DopplerLevel: 1
-  MinDistance: 3
-  MaxDistance: 25
+  MinDistance: 5
+  MaxDistance: 30
   Pan2D: 0
-  rolloffMode: 0
+  rolloffMode: 1
   BypassEffects: 0
   BypassListenerEffects: 0
   BypassReverbZones: 0
@@ -886,7 +886,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: f4f72eab81e6943088b48eb9e4b666e6, type: 3}
   m_PlayOnAwake: 0
-  m_Volume: 0.7
+  m_Volume: 0.65
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -894,10 +894,10 @@ AudioSource:
   SpatializePostEffects: 0
   Priority: 128
   DopplerLevel: 1
-  MinDistance: 3
+  MinDistance: 5
   MaxDistance: 50
   Pan2D: 0
-  rolloffMode: 0
+  rolloffMode: 1
   BypassEffects: 0
   BypassListenerEffects: 0
   BypassReverbZones: 0
@@ -1149,10 +1149,10 @@ AudioSource:
   SpatializePostEffects: 0
   Priority: 101
   DopplerLevel: 1
-  MinDistance: 3
-  MaxDistance: 25
+  MinDistance: 5
+  MaxDistance: 30
   Pan2D: 0
-  rolloffMode: 0
+  rolloffMode: 1
   BypassEffects: 0
   BypassListenerEffects: 0
   BypassReverbZones: 0
@@ -1634,7 +1634,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: 506ce00208efa427f8bae7a742f55722, type: 3}
   m_PlayOnAwake: 0
-  m_Volume: 0.15
+  m_Volume: 0.2
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -1642,10 +1642,10 @@ AudioSource:
   SpatializePostEffects: 0
   Priority: 91
   DopplerLevel: 1
-  MinDistance: 3
-  MaxDistance: 25
+  MinDistance: 5
+  MaxDistance: 30
   Pan2D: 0
-  rolloffMode: 0
+  rolloffMode: 1
   BypassEffects: 0
   BypassListenerEffects: 0
   BypassReverbZones: 0
@@ -1762,7 +1762,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: ccf7de35293e248b6a37333d49a4e3f6, type: 3}
   m_PlayOnAwake: 0
-  m_Volume: 0.15
+  m_Volume: 0.2
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -1770,10 +1770,10 @@ AudioSource:
   SpatializePostEffects: 0
   Priority: 90
   DopplerLevel: 1
-  MinDistance: 3
-  MaxDistance: 25
+  MinDistance: 5
+  MaxDistance: 30
   Pan2D: 0
-  rolloffMode: 0
+  rolloffMode: 1
   BypassEffects: 0
   BypassListenerEffects: 0
   BypassReverbZones: 0
