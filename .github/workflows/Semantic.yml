@@ -38,5 +38,6 @@ jobs:
   
       - name: Release
         run: npx semantic-release
+          --debug true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
