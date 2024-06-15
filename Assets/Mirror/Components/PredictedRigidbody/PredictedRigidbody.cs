@@ -720,7 +720,11 @@ namespace Mirror
             // (projects may keep Rigidbodies as kinematic sometimes. in that case, setting velocity would log an error)
             if (!predictedRigidbody.isKinematic)
             {
+#if UNITY_6000_0_OR_NEWER
                 predictedRigidbody.linearVelocity = velocity;
+#else
+                predictedRigidbody.velocity = velocity;
+#endif
                 predictedRigidbody.angularVelocity = angularVelocity;
             }
         }
@@ -912,7 +916,11 @@ namespace Mirror
                 Time.deltaTime,
                 position,
                 rotation,
+#if UNITY_6000_0_OR_NEWER
                 predictedRigidbody.linearVelocity,
+#else
+                predictedRigidbody.velocity,
+#endif
                 predictedRigidbody.angularVelocity);//,
                 // DO NOT SYNC SLEEPING! this cuts benchmark performance in half(!!!)
                 // predictedRigidbody.IsSleeping());
