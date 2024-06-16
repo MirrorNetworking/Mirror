@@ -1,3 +1,12 @@
+/*
+    MIT License: The code in this script is mostly from https://github.com/MirageNet/unity-packer 
+    Specifically the Pack method of the Packer class, related methods, plus the Utils.GreateGUID and
+    Archive.AddFilesRecursive methods, adjusted for use in a .csx script called from a GitHub Action.
+
+    The AddDependenciesFile method is added to create a packagemanagermanifest asset file with
+    Newtonsoft.Json Unity Test Framework dependencies.
+*/
+
 #r "nuget: SharpZipLib, 1.4.2"
 #r "nuget: YamlDotNet, 15.1.6"
 
@@ -13,7 +22,7 @@ var args = Environment.GetCommandLineArgs();
 
 if (args.Length < 2)
 {
-    Console.WriteLine("Usage: <script> <outputFile> <source1> <destination1> [<source2> <destination2>...]");
+    Console.WriteLine("Usage: UnityPack.csx <outputFile> <source1> <destination1> [<source2> <destination2>...]");
     return;
 }
 
