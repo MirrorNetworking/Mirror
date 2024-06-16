@@ -1,4 +1,4 @@
-#r "nuget: dotnet-script, 1.1.0"
+#r "nuget: dotnet-script, 1.5.0"
 #r "nuget: SharpZipLib, 1.4.2"
 #r "nuget: YamlDotNet, 15.1.6"
 
