@@ -1,6 +1,5 @@
 #r "nuget: SharpZipLib, 1.4.2"
 #r "nuget: YamlDotNet, 15.1.6"
-#load "ArchiveExtension.csx"
 
 using System;
 using System.Collections.Generic;
@@ -186,16 +185,6 @@ static YamlDocument GetMeta(string filename)
     return yaml.Documents[0];
 }
 
-static void Compress(string outputFile, string tempPath)
-{
-    Console.WriteLine($"Compressing from {tempPath}");
-    using var stream = new FileStream(outputFile, FileMode.CreateNew);
-    using var zipStream = new GZipOutputStream(stream);
-    using var archive = TarArchive.CreateOutputTarArchive(zipStream);
-    archive.RootPath = Path.GetDirectoryName(tempPath);
-    archive.AddFilesRecursive(tempPath);
-}
-
 static string CreateGuid(string input)
 {
     using (MD5 md5 = MD5.Create())
@@ -211,5 +200,30 @@ static string CreateGuid(string input)
         }
 
         return stringBuilder.ToString();
+    }
+}
+
+static void Compress(string outputFile, string tempPath)
+{
+    Console.WriteLine($"Compressing from {tempPath}");
+    using var stream = new FileStream(outputFile, FileMode.CreateNew);
+    using var zipStream = new GZipOutputStream(stream);
+    using var archive = TarArchive.CreateOutputTarArchive(zipStream);
+    archive.RootPath = Path.GetDirectoryName(tempPath);
+    AddFilesRecursive(archive, tempPath);
+}
+
+static void AddFilesRecursive(TarArchive archive, string directory)
+{
+    string[] files = Directory.GetFiles(directory, "*", SearchOption.AllDirectories);
+
+    foreach (string filename in files)
+    {
+        var entry = TarEntry.CreateEntryFromFile(filename);
+        if (archive.RootPath != null && Path.IsPathRooted(filename))
+            entry.Name = Path.GetRelativePath(archive.RootPath, filename);
+
+        entry.Name = entry.Name.Replace('\\', '/');
+        archive.WriteEntry(entry, true);
     }
 }
