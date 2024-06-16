@@ -89,7 +89,7 @@ static void AddAssets(IDictionary<string, string> files, string tempPath)
 
 static void AddFolder(string tempPath, string folder, string destination)
 {
-    Console.Writeline($"UnityPack: Processing folder {folder}");
+    Console.WriteLine($"UnityPack: Processing folder {folder}");
 
     string[] folders = Directory.GetDirectories(folder, "*", SearchOption.AllDirectories);
     string[] files = Directory.GetFiles(folder, "*", SearchOption.AllDirectories);
