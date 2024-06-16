@@ -1,5 +1,6 @@
 #r "nuget: SharpZipLib, 1.4.2"
 #r "nuget: YamlDotNet, 15.1.6"
+#load "ArchiveExtensions.csx"
 
 using System;
 using System.Collections.Generic;
@@ -11,7 +12,7 @@ using YamlDotNet.RepresentationModel;
 
 var args = Environment.GetCommandLineArgs();
 
-if (args.Count < 2)
+if (args.Length < 2)
 {
     Console.WriteLine("Usage: <script> <outputFile> <source1> <destination1> [<source2> <destination2>...]");
     return;
@@ -210,29 +211,5 @@ static string CreateGuid(string input)
         }
 
         return stringBuilder.ToString();
-    }
-}
-
-static class Archive
-{
-    /// <summary>
-    /// Tar a folder recursively
-    /// </summary>
-    /// <param name="archive">Archive.</param>
-    /// <param name="directory">Directory.</param>
-    static void AddFilesRecursive(this TarArchive archive, string directory)
-    {
-        string[] files = Directory.GetFiles(directory, "*", SearchOption.AllDirectories);
-
-        foreach (string filename in files)
-        {
-            var entry = TarEntry.CreateEntryFromFile(filename);
-            if (archive.RootPath != null && Path.IsPathRooted(filename))
-            {
-                entry.Name = Path.GetRelativePath(archive.RootPath, filename);
-            }
-            entry.Name = entry.Name.Replace('\\', '/');
-            archive.WriteEntry(entry, true);
-        }
     }
 }
