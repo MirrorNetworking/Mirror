@@ -18,25 +18,25 @@ plugins:
   # Extends the behavior of semantic-release to generate release notes.
   # 'fix' and 'feat' are built in and don't need to be defined here.
   # More types can be added to correspond with commit-analyzer above.
-  # - - '@semantic-release/release-notes-generator'
-  #   - preset: "conventionalcommits"
-  #     presetConfig:
-  #       types:
-  #       - type: "breaking"
-  #         section: "Breaking Changes"
-  #         hidden: false
-  #       - type: "release"
-  #         section: "Release"
-  #         hidden: false
-  #       - type: "fix"
-  #         section: "Bug Fixes"
-  #         hidden: false
-  #       - type: "feat"
-  #         section: "Features"
-  #         hidden: false
-  #       - type: "feature"
-  #         section: "Features"
-  #         hidden: false
+  - - '@semantic-release/release-notes-generator'
+    - preset: "conventionalcommits"
+      presetConfig:
+        types:
+        - type: "breaking"
+          section: "Breaking Changes"
+          hidden: false
+        - type: "release"
+          section: "Release"
+          hidden: false
+        - type: "fix"
+          section: "Bug Fixes"
+          hidden: false
+        - type: "feat"
+          section: "Features"
+          hidden: false
+        - type: "feature"
+          section: "Features"
+          hidden: false
 
   # Write the new version in version.txt
   - - '@semantic-release/exec'
