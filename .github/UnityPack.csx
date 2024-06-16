@@ -33,7 +33,7 @@ string outputFile = args[0];
 if (!Path.IsPathRooted(outputFile))
     outputFile = Path.GetFullPath(outputFile);
 
-Console.Writeline($"UnityPack: outputFile: {outputFile}");
+Console.WriteLine($"UnityPack: outputFile: {outputFile}");
 
 var fileMap = new Dictionary<string, string>();
 
@@ -59,7 +59,7 @@ static void Pack(IDictionary<string, string> files, string outputFile)
 
     string tempPath = Path.Combine(Path.GetTempPath(), randomFile);
     Directory.CreateDirectory(tempPath);
-    Console.Writeline($"UnityPack: tempPath: {tempPath}")
+    Console.WriteLine($"UnityPack: tempPath: {tempPath}");
 
     AddAssets(files, tempPath);
 
@@ -89,7 +89,7 @@ static void AddAssets(IDictionary<string, string> files, string tempPath)
 
 static void AddFolder(string tempPath, string folder, string destination)
 {
-    Console.Writeline($"UnityPack: Processing folder {folder}")
+    Console.Writeline($"UnityPack: Processing folder {folder}");
 
     string[] folders = Directory.GetDirectories(folder, "*", SearchOption.AllDirectories);
     string[] files = Directory.GetFiles(folder, "*", SearchOption.AllDirectories);
