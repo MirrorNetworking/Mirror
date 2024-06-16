@@ -4,9 +4,19 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Security.Cryptography;
 using ICSharpCode.SharpZipLib.GZip;
 using ICSharpCode.SharpZipLib.Tar;
+using ICSharpCode.SharpZipLib.Tar.TarExtensions;
 using YamlDotNet.RepresentationModel;
+
+var args = ScriptArgs.Consume();
+
+if (args.Count < 2)
+{
+    Console.WriteLine("Usage: <script> <outputFile> <source1> <destination1> [<source2> <destination2>...]");
+    return;
+}
 
 string outputFile = args[1];
 
