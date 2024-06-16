@@ -20,13 +20,16 @@ using YamlDotNet.RepresentationModel;
 
 var args = Environment.GetCommandLineArgs();
 
+for (int i = 0; i < args.Length; i++)
+    Console.WriteLine($"UnityPack: args[{i}]: {args[i]}");
+
+return;
+
 if (args.Length < 2)
 {
     Console.WriteLine("Usage: UnityPack.csx <outputFile> <source1> <destination1> [<source2> <destination2>...]");
     return;
 }
-
-Console.ForegroundColor = ConsoleColor.Cyan;
 
 string outputFile = args[0];
 
@@ -50,8 +53,6 @@ for (int i = 1; i < args.Length; i += 2)
 }
 
 Pack(fileMap, outputFile);
-
-Console.ResetColor();
 
 static void Pack(IDictionary<string, string> files, string outputFile)
 {
