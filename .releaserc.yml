@@ -56,7 +56,7 @@ plugins:
   - - '@semantic-release/exec'
     # - prepareCmd: "unity-packer pack Mirror.unitypackage Assets/Mirror Assets/Mirror LICENSE Assets/Mirror/LICENSE" 
     - shell: bash
-      cmd: "dotnet ${{ github.workspace }}/.github/UnityPack.csx Mirror.unitypackage Assets/Mirror Assets/Mirror LICENSE Assets/Mirror/LICENSE"
+      cmd: "dotnet script .github/UnityPack.csx Mirror.unitypackage Assets/Mirror Assets/Mirror LICENSE Assets/Mirror/LICENSE"
 
   # Create a new release on GitHub
   - - '@semantic-release/github'
