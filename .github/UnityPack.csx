@@ -1,4 +1,4 @@
-#r "nuget: dotnet-script, 1.0.2"
+#r "nuget: dotnet-script, 1.1.0"
 #r "nuget: SharpZipLib, 1.4.2"
 #r "nuget: YamlDotNet, 15.1.6"
 
@@ -214,14 +214,14 @@ static string CreateGuid(string input)
     }
 }
 
-public static class Archive
+static class Archive
 {
     /// <summary>
     /// Tar a folder recursively
     /// </summary>
     /// <param name="archive">Archive.</param>
     /// <param name="directory">Directory.</param>
-    public static void AddFilesRecursive(this TarArchive archive, string directory)
+    static void AddFilesRecursive(this TarArchive archive, string directory)
     {
         string[] files = Directory.GetFiles(directory, "*", SearchOption.AllDirectories);
 
