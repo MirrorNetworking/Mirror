@@ -1,4 +1,9 @@
-public static class Archive
+#r "nuget: SharpZipLib, 1.4.2"
+
+using System.IO;
+using ICSharpCode.SharpZipLib.Tar;
+
+public static class ArchiveExtension
 {
     /// <summary>
     /// Tar a folder recursively
