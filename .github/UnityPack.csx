@@ -1,4 +1,3 @@
-#r "nuget: dotnet-script, 1.5.0"
 #r "nuget: SharpZipLib, 1.4.2"
 #r "nuget: YamlDotNet, 15.1.6"
 
@@ -10,7 +9,7 @@ using ICSharpCode.SharpZipLib.GZip;
 using ICSharpCode.SharpZipLib.Tar;
 using YamlDotNet.RepresentationModel;
 
-var args = ScriptArgs.Consume();
+var args = Environment.GetCommandLineArgs();
 
 if (args.Count < 2)
 {
