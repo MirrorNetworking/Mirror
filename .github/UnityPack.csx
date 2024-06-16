@@ -24,7 +24,7 @@ if (!Path.IsPathRooted(outputFile))
 
 var fileMap = new Dictionary<string, string>();
 
-for (int i = 2; i < args.Length; i += 2)
+for (int i = 1; i < args.Length; i += 2)
 {
     string fromPath = args[i];
 
