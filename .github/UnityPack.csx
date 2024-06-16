@@ -114,35 +114,19 @@ static void AddAsset(string tempPath, string fromFile, string toPath)
     SaveMeta(metaPath, meta);
 }
 
-static void AddDependeciesFile(string tempPath)
+static YamlDocument GetMeta(string filename)
 {
-    string depenciesJson = "{\"dependencies\" : {\r\n\"com.unity.nuget.newtonsoft-json\" : \"3.2.1\"\r\n}, \"testables\" : [\"com.unity.test-framework.performance\"]}";
-    string depenciesPath = Path.Combine(tempPath, "packagemanagermanifest");
-    Directory.CreateDirectory(depenciesPath);
-    File.WriteAllText(Path.Combine(depenciesPath, "asset"), depenciesJson);
-}
+    // do we have a .meta file?
+    string metaPath = filename + ".meta";
 
-static void SaveMeta(string metaPath, YamlDocument meta)
-{
-    using (var writer = new StreamWriter(metaPath))
-    {
-        new YamlStream(meta).Save(writer, false);
-    }
+    if (!File.Exists(metaPath))
+        return null;
 
-    var metaFile = new FileInfo(metaPath);
+    using var reader = new StreamReader(metaPath);
+    var yaml = new YamlStream();
+    yaml.Load(reader);
 
-    using FileStream metaFileStream = metaFile.Open(FileMode.Open);
-    metaFileStream.SetLength(metaFile.Length - 3 - Environment.NewLine.Length);
-}
-
-static string GetGuid(YamlDocument meta)
-{
-    var mapping = (YamlMappingNode)meta.RootNode;
-
-    var key = new YamlScalarNode("guid");
-
-    var value = (YamlScalarNode)mapping[key];
-    return value.Value;
+    return yaml.Documents[0];
 }
 
 static YamlDocument GenerateMeta(string fromFile, string toFile)
@@ -170,19 +154,14 @@ static YamlDocument GenerateMeta(string fromFile, string toFile)
     }
 }
 
-static YamlDocument GetMeta(string filename)
+static string GetGuid(YamlDocument meta)
 {
-    // do we have a .meta file?
-    string metaPath = filename + ".meta";
+    var mapping = (YamlMappingNode)meta.RootNode;
 
-    if (!File.Exists(metaPath))
-        return null;
+    var key = new YamlScalarNode("guid");
 
-    using var reader = new StreamReader(metaPath);
-    var yaml = new YamlStream();
-    yaml.Load(reader);
-
-    return yaml.Documents[0];
+    var value = (YamlScalarNode)mapping[key];
+    return value.Value;
 }
 
 static string CreateGuid(string input)
@@ -201,6 +180,27 @@ static string CreateGuid(string input)
 
         return stringBuilder.ToString();
     }
+}
+
+static void SaveMeta(string metaPath, YamlDocument meta)
+{
+    using (var writer = new StreamWriter(metaPath))
+    {
+        new YamlStream(meta).Save(writer, false);
+    }
+
+    var metaFile = new FileInfo(metaPath);
+
+    using FileStream metaFileStream = metaFile.Open(FileMode.Open);
+    metaFileStream.SetLength(metaFile.Length - 3 - Environment.NewLine.Length);
+}
+
+static void AddDependeciesFile(string tempPath)
+{
+    string depenciesJson = "{\"dependencies\" : {\r\n\"com.unity.nuget.newtonsoft-json\" : \"3.2.1\"\r\n}, \"testables\" : [\"com.unity.test-framework.performance\"]}";
+    string depenciesPath = Path.Combine(tempPath, "packagemanagermanifest");
+    Directory.CreateDirectory(depenciesPath);
+    File.WriteAllText(Path.Combine(depenciesPath, "asset"), depenciesJson);
 }
 
 static void Compress(string outputFile, string tempPath)
