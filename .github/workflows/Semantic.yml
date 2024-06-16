@@ -27,9 +27,6 @@ jobs:
           dotnet tool install -g dotnet-script
           dotnet script --version
 
-      # - name: Install unity-packer
-      #   run: dotnet tool install -g unity-packer
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
