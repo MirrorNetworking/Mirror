@@ -25,7 +25,7 @@ for (int i = 0; i < args.Length; i++)
 
 if (args.Length < 2)
 {
-    Console.WriteLine("Usage: UnityPack.csx <outputFile> <source1> <destination1> [<source2> <destination2>...]");
+    Console.WriteLine("Usage: UnityPack.csx <outputFile> <version> <source1> <destination1> [<source2> <destination2>...]");
     return;
 }
 
@@ -38,7 +38,7 @@ Console.WriteLine($"UnityPack: outputFile: {outputFile}");
 
 var fileMap = new Dictionary<string, string>();
 
-for (int i = 3; i < args.Length; i += 2)
+for (int i = 4; i < args.Length; i += 2)
 {
     string fromPath = args[i];
 
@@ -54,9 +54,10 @@ Pack(fileMap, outputFile);
 
 static void Pack(IDictionary<string, string> files, string outputFile)
 {
-    string randomFile = Path.GetRandomFileName();
+    //string randomFile = Path.GetRandomFileName();
+    string versionArg = args[3];
 
-    string tempPath = Path.Combine(Path.GetTempPath(), randomFile);
+    string tempPath = Path.Combine(Path.GetTempPath(), $"Mirror-{versionArg}");
     Directory.CreateDirectory(tempPath);
     Console.WriteLine($"UnityPack: tempPath: {tempPath}");
 
@@ -225,10 +226,11 @@ static void AddDependeciesFile(string tempPath)
 static void Compress(string outputFile, string tempPath)
 {
     Console.WriteLine($"UnityPack: Compressing from {tempPath} to {outputFile}");
+    // UnityPack: Compressing from C:\Users\runneradmin\AppData\Local\Temp\c2czrgnt.jxq to D:\a\Mirror\Mirror\Mirror.unitypackage
     using var stream = new FileStream(outputFile, FileMode.CreateNew);
     using var zipStream = new GZipOutputStream(stream);
     using var archive = TarArchive.CreateOutputTarArchive(zipStream);
-    archive.RootPath = Path.GetDirectoryName(tempPath);
+    archive.RootPath = tempPath;
     AddFilesRecursive(archive, tempPath);
 }
 
@@ -243,6 +245,9 @@ static void AddFilesRecursive(TarArchive archive, string directory)
             entry.Name = Path.GetRelativePath(archive.RootPath, filename);
 
         entry.Name = entry.Name.Replace('\\', '/');
+
+        Console.WriteLine($"UnityPack: Adding {filename} ({Path.IsPathRooted(filename)}) -> {entry.Name}");
+
         archive.WriteEntry(entry, true);
     }
 }
