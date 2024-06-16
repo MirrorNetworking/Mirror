@@ -230,7 +230,7 @@ static void Compress(string outputFile, string tempPath)
     using var stream = new FileStream(outputFile, FileMode.CreateNew);
     using var zipStream = new GZipOutputStream(stream);
     using var archive = TarArchive.CreateOutputTarArchive(zipStream);
-    archive.RootPath = tempPath;
+    archive.RootPath = Path.GetTempPath();
     AddFilesRecursive(archive, tempPath);
 }
 
@@ -244,7 +244,7 @@ static void AddFilesRecursive(TarArchive archive, string directory)
         if (archive.RootPath != null && Path.IsPathRooted(filename))
             entry.Name = Path.GetRelativePath(archive.RootPath, filename);
 
-        entry.Name = entry.Name.Replace('\\', '/');
+        //entry.Name = entry.Name.Replace('\\', '/');
 
         Console.WriteLine($"UnityPack: Adding {filename} ({Path.IsPathRooted(filename)}) -> {entry.Name}");
 
