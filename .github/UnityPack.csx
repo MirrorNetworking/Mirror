@@ -23,15 +23,13 @@ var args = Environment.GetCommandLineArgs();
 for (int i = 0; i < args.Length; i++)
     Console.WriteLine($"UnityPack: args[{i}]: {args[i]}");
 
-return;
-
 if (args.Length < 2)
 {
     Console.WriteLine("Usage: UnityPack.csx <outputFile> <source1> <destination1> [<source2> <destination2>...]");
     return;
 }
 
-string outputFile = args[0];
+string outputFile = args[2];
 
 if (!Path.IsPathRooted(outputFile))
     outputFile = Path.GetFullPath(outputFile);
@@ -40,7 +38,7 @@ Console.WriteLine($"UnityPack: outputFile: {outputFile}");
 
 var fileMap = new Dictionary<string, string>();
 
-for (int i = 1; i < args.Length; i += 2)
+for (int i = 3; i < args.Length; i += 2)
 {
     string fromPath = args[i];
 
