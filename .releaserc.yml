@@ -54,7 +54,8 @@ plugins:
 
   # Create Unity package with Mirror, ScriptTemplates, and LICENSE
   - - '@semantic-release/exec'
-    - prepareCmd: "unity-packer pack Mirror.unitypackage Assets/Mirror Assets/Mirror LICENSE Assets/Mirror/LICENSE" 
+    # - prepareCmd: "unity-packer pack Mirror.unitypackage Assets/Mirror Assets/Mirror LICENSE Assets/Mirror/LICENSE" 
+    - prepareCmd: "dotnet .github/UnityPack.csx Mirror.unitypackage Assets/Mirror Assets/Mirror LICENSE Assets/Mirror/LICENSE"
 
   # Create a new release on GitHub
   - - '@semantic-release/github'
