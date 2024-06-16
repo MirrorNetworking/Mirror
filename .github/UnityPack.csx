@@ -23,13 +23,14 @@ var args = Environment.GetCommandLineArgs();
 for (int i = 0; i < args.Length; i++)
     Console.WriteLine($"UnityPack: args[{i}]: {args[i]}");
 
-if (args.Length < 2)
+if (args.Length < 6)
 {
     Console.WriteLine("Usage: UnityPack.csx <outputFile> <version> <source1> <destination1> [<source2> <destination2>...]");
     return;
 }
 
 string outputFile = args[2];
+string versionArg = args[3];
 
 if (!Path.IsPathRooted(outputFile))
     outputFile = Path.GetFullPath(outputFile);
@@ -50,14 +51,13 @@ for (int i = 4; i < args.Length; i += 2)
     fileMap.Add(fromPath, toPath);
 }
 
-Pack(fileMap, outputFile);
+Pack(fileMap, outputFile, versionArg);
 
-static void Pack(IDictionary<string, string> files, string outputFile)
+static void Pack(IDictionary<string, string> files, string outputFile, string version)
 {
     //string randomFile = Path.GetRandomFileName();
-    string versionArg = args[3];
 
-    string tempPath = Path.Combine(Path.GetTempPath(), $"Mirror-{versionArg}");
+    string tempPath = Path.Combine(Path.GetTempPath(), $"Mirror-{version}");
     Directory.CreateDirectory(tempPath);
     Console.WriteLine($"UnityPack: tempPath: {tempPath}");
 
