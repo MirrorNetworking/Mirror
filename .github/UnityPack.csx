@@ -1,6 +1,6 @@
 #r "nuget: SharpZipLib, 1.4.2"
 #r "nuget: YamlDotNet, 15.1.6"
-#load "ArchiveExtensions.csx"
+#load "ArchiveExtension.csx"
 
 using System;
 using System.Collections.Generic;
