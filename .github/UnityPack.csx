@@ -26,10 +26,14 @@ if (args.Length < 2)
     return;
 }
 
-string outputFile = args[1];
+Console.ForegroundColor = ConsoleColor.Cyan;
+
+string outputFile = args[0];
 
 if (!Path.IsPathRooted(outputFile))
     outputFile = Path.GetFullPath(outputFile);
+
+Console.Writeline($"UnityPack: outputFile: {outputFile}");
 
 var fileMap = new Dictionary<string, string>();
 
@@ -47,12 +51,16 @@ for (int i = 1; i < args.Length; i += 2)
 
 Pack(fileMap, outputFile);
 
+Console.ResetColor();
+
 static void Pack(IDictionary<string, string> files, string outputFile)
 {
     string randomFile = Path.GetRandomFileName();
 
     string tempPath = Path.Combine(Path.GetTempPath(), randomFile);
     Directory.CreateDirectory(tempPath);
+    Console.Writeline($"UnityPack: tempPath: {tempPath}")
+
     AddAssets(files, tempPath);
 
     AddDependeciesFile(tempPath);
@@ -81,6 +89,8 @@ static void AddAssets(IDictionary<string, string> files, string tempPath)
 
 static void AddFolder(string tempPath, string folder, string destination)
 {
+    Console.Writeline($"UnityPack: Processing folder {folder}")
+
     string[] folders = Directory.GetDirectories(folder, "*", SearchOption.AllDirectories);
     string[] files = Directory.GetFiles(folder, "*", SearchOption.AllDirectories);
 
@@ -209,12 +219,13 @@ static void AddDependeciesFile(string tempPath)
     string depenciesJson = "{\"dependencies\" : {\r\n\"com.unity.nuget.newtonsoft-json\" : \"3.2.1\"\r\n}, \"testables\" : [\"com.unity.test-framework.performance\"]}";
     string depenciesPath = Path.Combine(tempPath, "packagemanagermanifest");
     Directory.CreateDirectory(depenciesPath);
+    Console.WriteLine($"UnityPack: Creating dependency file at {Path.Combine(depenciesPath, "asset")}");
     File.WriteAllText(Path.Combine(depenciesPath, "asset"), depenciesJson);
 }
 
 static void Compress(string outputFile, string tempPath)
 {
-    Console.WriteLine($"Compressing from {tempPath}");
+    Console.WriteLine($"UnityPack: Compressing from {tempPath} to {outputFile}");
     using var stream = new FileStream(outputFile, FileMode.CreateNew);
     using var zipStream = new GZipOutputStream(stream);
     using var archive = TarArchive.CreateOutputTarArchive(zipStream);
