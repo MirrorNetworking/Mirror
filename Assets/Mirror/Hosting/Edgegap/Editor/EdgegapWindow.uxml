@@ -79,22 +79,23 @@
                     <ui:Label name="DeploymentsConnectionURLHeaderLabel" text="URL" style="flex-grow: 1; -unity-font-style: bold; align-items: auto; justify-content: flex-start; align-self: auto;" />
                     <ui:Label name="DeploymentsConnectionControlHeaderLabel" text="Control" style="flex-grow: 0.08; -unity-text-align: upper-left; -unity-font-style: bold; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0;" />
                 </ui:GroupBox>
-                <ui:GroupBox name="DeploymentsConnectionGroupBox" style="flex-direction: row; padding-left: 0; align-items: center; align-self: stretch; justify-content: flex-start; height: 32px;">
+                <ui:GroupBox name="DeploymentsConnectionGroupBox" style="flex-direction: row; padding-left: 0; align-items: center; align-self: stretch; justify-content: flex-start; height: 64px;">
                     <ui:Label name="DeploymentsConnectionStatusLabel" text="Unknown" class="text--muted" style="flex-grow: 1; flex-direction: column; -unity-text-align: middle-left; justify-content: flex-start; align-items: center; width: 86px; margin-right: 15px;" />
                     <ui:VisualElement name="DeploymentConnectionUrlHorizGroup" style="flex-grow: 1; flex-direction: row; width: 304px; margin-left: 25px; margin-right: 25px; padding-right: 25px; padding-left: 25px;">
                         <ui:TextField picking-mode="Ignore" name="DeploymentConnectionUrlReadOnlyTxt" readonly="true" tooltip="Selectable" style="padding-left: 0; -unity-text-align: middle-center; width: 297px; align-items: center;">
                             <ui:Button name="DeploymentConnectionCopyUrlBtn" tooltip="Copy" class="text-edgegap bg-purple" style="min-width: 15px; visibility: visible; display: flex; overflow: hidden; width: 35px; -unity-background-scale-mode: scale-to-fit; min-height: 25px; background-color: rgb(44, 30, 210); -unity-background-image-tint-color: rgb(224, 224, 224); -unity-slice-left: 1; -unity-slice-top: 1; -unity-slice-right: 1; -unity-slice-bottom: 1; translate: -40px 0;" />
                         </ui:TextField>
                     </ui:VisualElement>
-                    <ui:VisualElement name="DeploymentsConnectionServerStopHorizBtnHorizGroup" style="flex-grow: 1; flex-direction: row; align-items: center; justify-content: center;">
+                    <ui:VisualElement name="DeploymentsConnectionServerStopHorizBtnHorizGroup" style="flex-grow: 1; flex-direction: column; align-items: center; justify-content: center; align-self: auto;">
                         <ui:Button name="DeploymentsConnectionServerStopBtn" text="Stop Server" class="button-edgegap text-edgegap" style="min-width: auto; width: 125px; max-width: none; visibility: visible; display: flex;" />
+                        <ui:Button name="DeploymentsConnectionContainerLogsBtn" text="Container Logs" class="button-edgegap text-edgegap" style="min-width: auto; width: 125px; max-width: none; visibility: visible; display: flex;" />
                     </ui:VisualElement>
                 </ui:GroupBox>
             </ui:Foldout>
             <ui:VisualElement name="ServerDataContainer" />
         </ui:VisualElement>
-        <ui:GroupBox name="FooterHorizGroup" class="container-row-parent" style="flex-direction: row; justify-content: center; align-items: auto; align-self: center; border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; border-top-left-radius: 1px; border-top-right-radius: 1px; border-bottom-right-radius: 1px; border-bottom-left-radius: 1px; border-right-color: rgb(0, 0, 0); border-left-color: rgb(0, 0, 0); padding-right: 135px; padding-left: 150px; padding-top: 15px; padding-bottom: 15px;">
-            <ui:Button text="Documentation" tooltip="Opens the documentation website. The website version changes depending on the selected API environment." name="FooterDocumentationBtn" class="button-edgegap text-edgegap" />
+        <ui:GroupBox name="FooterHorizGroup" class="container-row-parent" style="flex-direction: row; justify-content: center; align-items: stretch; align-self: auto; border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; border-top-left-radius: 1px; border-top-right-radius: 1px; border-bottom-right-radius: 1px; border-bottom-left-radius: 1px; border-right-color: rgb(0, 0, 0); border-left-color: rgb(0, 0, 0); padding-right: 135px; padding-left: 150px; padding-top: 15px; padding-bottom: 15px;">
+            <ui:Button text="Documentation" tooltip="Opens the documentation website. The website version changes depending on the selected API environment." name="FooterDocumentationBtn" class="button-edgegap text-edgegap" style="align-items: stretch;" />
             <ui:Button text="Add More Game Servers!" tooltip="Opens the documentation website. The website version changes depending on the selected API environment." name="FooterNeedMoreGameServersBtn" class="button-edgegap text-edgegap bg-purple" style="width: 220px; max-width: none; min-width: auto;" />
         </ui:GroupBox>
     </ui:ScrollView>

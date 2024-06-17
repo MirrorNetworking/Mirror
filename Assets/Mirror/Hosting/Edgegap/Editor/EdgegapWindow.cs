@@ -1,5 +1,6 @@
 // MIRROR CHANGE: disable this completely. otherwise InitUIElements can still throw NRE.
 /*
+#if UNITY_EDITOR
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -983,4 +984,5 @@ namespace Edgegap
         }
     }
 }
+#endif
 */
