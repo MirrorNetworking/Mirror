@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -34,9 +35,7 @@ namespace Edgegap.Editor
         private bool _isContainerRegistryReady;
         private Sprite _appIconSpriteObj;
         private string _appIconBase64Str;
- #pragma warning disable CS0414 // MIRROR CHANGE: hide unused warning
         private ApiEnvironment _apiEnvironment; // TODO: Swap out hard-coding with UI element?
- #pragma warning restore CS0414 // END MIRROR CHANGE
         private GetRegistryCredentialsResult _credentials;
         private static readonly Regex _appNameAllowedCharsRegex = new Regex(@"^[a-zA-Z0-9_\-+\.]*$"); // MIRROR CHANGE: 'new()' not supported in Unity 2020
         private GetCreateAppResult _loadedApp;
@@ -95,6 +94,7 @@ namespace Edgegap.Editor
         private TextField _deploymentsConnectionUrlReadonlyInput;
         private Label _deploymentsConnectionStatusLabel;
         private Button _deploymentsConnectionStopBtn;
+        private Button _deploymentsConnectionContainerLogsBtn;
 
         private Button _footerDocumentationBtn;
         private Button _footerNeedMoreGameServersBtn;
@@ -241,7 +241,9 @@ namespace Edgegap.Editor
             // this finds the placeholder and dynamically replaces it with a popup field
             VisualElement dropdownPlaceholder = rootVisualElement.Q<VisualElement>("MIRROR_CHANGE_PORT_HARDCODED");
             List<string> options = Enum.GetNames(typeof(ProtocolType)).Cast<string>().ToList();
-            _containerTransportTypeEnumInput = new PopupField<string>("Protocol Type", options, 0);
+            string containerTransportTypeEnum = EditorPrefs.GetString(EdgegapWindowMetadata.CONTAINER_REGISTRY_TRANSPORT_TYPE_ENUM_KEY_STR);
+            Enum.TryParse(containerTransportTypeEnum, out ProtocolType currentProtocolType);
+            _containerTransportTypeEnumInput = new PopupField<string>("Protocol Type", options, (int)currentProtocolType);
             dropdownPlaceholder.Add(_containerTransportTypeEnumInput);
             // END MIRROR CHANGE
             _containerUseCustomRegistryToggle = rootVisualElement.Q<Toggle>(EdgegapWindowMetadata.CONTAINER_USE_CUSTOM_REGISTRY_TOGGLE_ID);
@@ -262,6 +264,7 @@ namespace Edgegap.Editor
             _deploymentsConnectionUrlReadonlyInput = rootVisualElement.Q<TextField>(EdgegapWindowMetadata.DEPLOYMENTS_CONNECTION_URL_READONLY_TXT_ID);
             _deploymentsConnectionStatusLabel = rootVisualElement.Q<Label>(EdgegapWindowMetadata.DEPLOYMENTS_CONNECTION_STATUS_LABEL_ID);
             _deploymentsConnectionStopBtn = rootVisualElement.Q<Button>(EdgegapWindowMetadata.DEPLOYMENTS_CONNECTION_SERVER_ACTION_STOP_BTN_ID);
+            _deploymentsConnectionContainerLogsBtn = rootVisualElement.Q<Button>(EdgegapWindowMetadata.DEPLOYMENTS_CONNECTION_CONTAINER_LOGS_BTN_ID);
 
             _footerDocumentationBtn = rootVisualElement.Q<Button>(EdgegapWindowMetadata.FOOTER_DOCUMENTATION_BTN_ID);
             _footerNeedMoreGameServersBtn = rootVisualElement.Q<Button>(EdgegapWindowMetadata.FOOTER_NEED_MORE_GAME_SERVERS_BTN_ID);
@@ -402,6 +405,7 @@ namespace Edgegap.Editor
 
             _appNameInput.RegisterValueChangedCallback(onAppNameInputChanged);
             _containerPortNumInput.RegisterCallback<FocusOutEvent>(onContainerPortNumInputFocusOut);
+            _containerTransportTypeEnumInput.RegisterValueChangedCallback(onContainerTransportTypeEnumInputChanged);
 
             _containerUseCustomRegistryToggle.RegisterValueChangedCallback(onContainerUseCustomRegistryToggle);
             _containerNewTagVersionInput.RegisterValueChangedCallback(onContainerNewTagVersionInputChanged);
@@ -487,13 +491,18 @@ namespace Edgegap.Editor
 
             // We found some leftover connection cache >>
             _deploymentsConnectionStopBtn.visible = true;
+            _deploymentsConnectionContainerLogsBtn.visible = true;
             _deploymentsRefreshBtn.SetEnabled(true);
 
             // Enable stop btn?
             bool isDeployed = _deploymentsConnectionStatusLabel.text.ToLowerInvariant().Contains("deployed");
             _deploymentsConnectionStopBtn.SetEnabled(isDeployed);
+            _deploymentsConnectionContainerLogsBtn.SetEnabled(isDeployed);
             if (isDeployed)
+            {
                 _deploymentsConnectionStopBtn.clickable.clickedWithEventInfo += onDynamicStopServerBtnAsync; // Unsub'd from within
+                _deploymentsConnectionContainerLogsBtn.clickable.clickedWithEventInfo += onDynamicContainerLogsBtnAsync;
+            }
         }
 
         /// <summary>For example, result labels (success/err) should be hidden on init</summary>
@@ -719,6 +728,15 @@ namespace Edgegap.Editor
                 // If input is !valid, set to default
                 _containerPortNumInput.value = EdgegapWindowMetadata.PORT_DEFAULT.ToString();
             }
+        }
+
+        /// <summary>
+        /// Save the protocol type after it has been changed.
+        /// </summary>
+        /// <param name="evt"></param>
+        private void onContainerTransportTypeEnumInputChanged(ChangeEvent<string> evt)
+        {
+            EditorPrefs.SetString(EdgegapWindowMetadata.CONTAINER_REGISTRY_TRANSPORT_TYPE_ENUM_KEY_STR, evt.newValue);
         }
 
         /// <summary>
@@ -1001,7 +1019,8 @@ namespace Edgegap.Editor
         private void openGetApiTokenWebsite()
         {
             if (IsLogLevelDebug) Debug.Log("openGetApiTokenWebsite");
-            Application.OpenURL(EdgegapWindowMetadata.EDGEGAP_GET_A_TOKEN_URL);
+            Application.OpenURL(EdgegapWindowMetadata.EDGEGAP_GET_A_TOKEN_URL + "&" + 
+                                EdgegapWindowMetadata.DEFAULT_UTM_TAGS);
         }
 
         /// <returns>isSuccess; sets _isContainerRegistryReady + _loadedApp</returns>
@@ -1120,14 +1139,16 @@ namespace Edgegap.Editor
 
         /// <summary>Open contact form in desired locale</summary>
         private void openNeedMoreGameServersWebsite() =>
-            Application.OpenURL(EdgegapWindowMetadata.EDGEGAP_ADD_MORE_GAME_SERVERS_URL);
+            Application.OpenURL(EdgegapWindowMetadata.EDGEGAP_ADD_MORE_GAME_SERVERS_URL + "?" + 
+                                EdgegapWindowMetadata.DEFAULT_UTM_TAGS);
 
         private void openDocumentationWebsite()
         {
-            // MIRROR CHANGE
-            /*
-            string documentationUrl = _apiEnvironment.GetDocumentationUrl();
+            string documentationUrl = _apiEnvironment.GetDocumentationUrl() + "?" + 
+                                      EdgegapWindowMetadata.DEFAULT_UTM_TAGS;
 
+            // BEGIN MIRROR CHANGE
+            /*
             if (!string.IsNullOrEmpty(documentationUrl))
                 Application.OpenURL(documentationUrl);
             else
@@ -1189,6 +1210,8 @@ namespace Edgegap.Editor
             _deploymentsStatusLabel.style.display = DisplayStyle.None;
             _deploymentsConnectionStopBtn.SetEnabled(false);
             _deploymentsConnectionStopBtn.visible = true;
+            _deploymentsConnectionContainerLogsBtn.SetEnabled(false);
+            _deploymentsConnectionContainerLogsBtn.visible = true;
         }
 
         /// <summary>Don't use this if you want to keep the last-known connection info.</summary>
@@ -1197,6 +1220,7 @@ namespace Edgegap.Editor
             _deploymentsConnectionUrlReadonlyInput.value = "";
             _deploymentsConnectionStatusLabel.text = "";
             _deploymentsConnectionStopBtn.visible = false;
+            _deploymentsConnectionContainerLogsBtn.visible = false;
             _deploymentsRefreshBtn.SetEnabled(false);
         }
 
@@ -1306,6 +1330,10 @@ namespace Edgegap.Editor
             _deploymentsConnectionStopBtn.clickable.clickedWithEventInfo += onDynamicStopServerBtnAsync; // Unsubscribes on click
             _deploymentsConnectionStopBtn.visible = true;
             _deploymentsConnectionStopBtn.SetEnabled(true);
+            _deploymentsConnectionContainerLogsBtn.clickable.clickedWithEventInfo -= onDynamicContainerLogsBtnAsync; // Ensures there is only ever one event listener
+            _deploymentsConnectionContainerLogsBtn.clickable.clickedWithEventInfo += onDynamicContainerLogsBtnAsync;
+            _deploymentsConnectionContainerLogsBtn.visible = true;
+            _deploymentsConnectionContainerLogsBtn.SetEnabled(true);
 
             // Show refresh btn (currently targeting only this one)
             _deploymentsRefreshBtn.SetEnabled(true);
@@ -1340,6 +1368,7 @@ namespace Edgegap.Editor
         private void onDynamicStopServerBtnAsync(EventBase evt) =>
             _ = onDynamicStopServerAsync();
 
+
         /// <summary>
         /// Stops the deployment, updating the UI accordingly.
         /// TODO: Cache a list of deployments and/or store a hidden field for requestId.
@@ -1350,6 +1379,7 @@ namespace Edgegap.Editor
             if (IsLogLevelDebug) Debug.Log("onDynamicStopServerAsync");
             hideResultLabels();
             _deploymentsConnectionStopBtn.SetEnabled(false);
+            _deploymentsConnectionContainerLogsBtn.SetEnabled(false);
             _deploymentsRefreshBtn.SetEnabled(false);
             _deploymentsConnectionStatusLabel.text = EdgegapWindowMetadata.WrapRichTextInColor(
                 "<i>Requesting Stop...</i>", EdgegapWindowMetadata.StatusColors.Processing);
@@ -1379,6 +1409,7 @@ namespace Edgegap.Editor
             finally
             {
                 _deploymentsConnectionStopBtn.clickable.clickedWithEventInfo -= onDynamicStopServerBtnAsync;
+                _deploymentsConnectionContainerLogsBtn.clickable.clickedWithEventInfo -= onDynamicContainerLogsBtnAsync;
             }
 
             bool isStopSuccess = stopResponse.IsResultCode410;
@@ -1393,6 +1424,26 @@ namespace Edgegap.Editor
             string stoppedStr = getConnectionStoppedRichStr();
             _deploymentsStatusLabel.text = ""; // Overrides any previous errs, in case we attempted to created a new deployment while deleting
             setPersistDeploymentsConnectionStatusLabelTxt(stoppedStr);
+        }
+
+        /// <summary>
+        /// This is triggered from a dynamic button, so we need to pass in the event info (TODO: Use evt info later).
+        /// </summary>
+        /// <param name="evt"></param>
+        private void onDynamicContainerLogsBtnAsync(EventBase evt) =>
+            _ = onDynamicContainerLogsAsync();
+
+        /// <summary>
+        /// Links to the container logs page, updating the UI accordingly.
+        /// </summary>
+        private Task onDynamicContainerLogsAsync()
+        {
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+            {
+                FileName = String.Format("https://app.edgegap.com/deployment-management/deployments/{0}/details?tab=logs", _deploymentRequestId),
+                UseShellExecute = true
+            });
+            return Task.CompletedTask;
         }
 
         private string getConnectionStoppedRichStr() =>
@@ -1765,3 +1816,4 @@ namespace Edgegap.Editor
         #endregion // Persistence Helpers
     }
 }
+#endif
