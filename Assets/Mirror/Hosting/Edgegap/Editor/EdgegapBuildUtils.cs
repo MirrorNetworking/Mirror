@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if UNITY_EDITOR
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -22,12 +23,9 @@ namespace Edgegap
 
         public static BuildReport BuildServer()
         {
-            // MIRROR CHANGE: only include scenes which are enabled
             IEnumerable<string> scenes = EditorBuildSettings.scenes
                 .Where(s => s.enabled)
                 .Select(s => s.path);
-            // END MIRROR CHANGE
-
             BuildPlayerOptions options = new BuildPlayerOptions
             {
                 scenes = scenes.ToArray(),
@@ -306,3 +304,4 @@ ENTRYPOINT [ ""/root/build/ServerBuild"", ""-batchmode"", ""-nographics""]
 
     }
 }
+#endif
