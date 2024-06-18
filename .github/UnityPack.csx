@@ -226,7 +226,6 @@ static void AddDependeciesFile(string tempPath)
 static void Compress(string outputFile, string tempPath)
 {
     Console.WriteLine($"UnityPack: Compressing from {tempPath} to {outputFile}");
-    // UnityPack: Compressing from C:\Users\runneradmin\AppData\Local\Temp\c2czrgnt.jxq to D:\a\Mirror\Mirror\Mirror.unitypackage
     using var stream = new FileStream(outputFile, FileMode.CreateNew);
     using var zipStream = new GZipOutputStream(stream);
     using var archive = TarArchive.CreateOutputTarArchive(zipStream);
@@ -249,7 +248,7 @@ static void AddFilesRecursive(TarArchive archive, string tempPath)
 
         entry.Name = entry.Name.Replace('\\', '/');
 
-        Console.WriteLine($"UnityPack: Adding {filename} ({Path.IsPathRooted(filename)}) -> {entry.Name}");
+        //Console.WriteLine($"UnityPack: Adding {filename} ({Path.IsPathRooted(filename)}) -> {entry.Name}");
 
         archive.WriteEntry(entry, true);
     }
