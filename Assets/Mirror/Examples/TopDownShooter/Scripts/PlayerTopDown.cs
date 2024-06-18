@@ -61,8 +61,10 @@ namespace Mirror.Examples.TopDownShooter
 
         public void Start()
         {
+            // If only server needs access to a player list, place the Add and Remove in public override void OnStartServer/OnStopServer
             playerList.Add(this);
             print("Player joined, total players: " + playerList.Count);
+
 #if !UNITY_SERVER
             if (isClient)
             {
@@ -75,6 +77,7 @@ namespace Mirror.Examples.TopDownShooter
         {
             playerList.Remove(this);
             print("Player removed, total players: " + playerList.Count);
+
             if (mainCamera) { mainCamera.GetComponent<AudioListener>().enabled = true; }
         }
 
