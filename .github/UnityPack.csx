@@ -216,7 +216,7 @@ static void SaveMeta(string metaPath, YamlDocument meta)
 
 static void AddDependeciesFile(string tempPath)
 {
-    string depenciesJson = "{\"dependencies\":{\"com.unity.nuget.newtonsoft-json\":\">=3.2.1\"},\"testables\":[\"com.unity.test-framework.performance\"]}";
+    string depenciesJson = "{\"dependencies\":{\"com.unity.nuget.newtonsoft-json\":\"3.0.0\"},\"testables\":[\"com.unity.test-framework.performance\"]}";
     string depenciesPath = Path.Combine(tempPath, "packagemanagermanifest");
     Directory.CreateDirectory(depenciesPath);
     Console.WriteLine($"UnityPack: Creating dependency file at {Path.Combine(depenciesPath, "asset")}");
