@@ -47,6 +47,11 @@ plugins:
   - - '@semantic-release/exec'
     - prepareCmd: "rm -f -r Assets/Mirror/Tests && rm -f Assets/Mirror/Tests.meta"
   
+  # Remove EdgeGap Hosting folder so it's excluded from Unity package
+  # -f: force, -r: recursive
+  - - '@semantic-release/exec'
+    - prepareCmd: "rm -f -r Assets/Mirror/Hosting && rm -f Assets/Mirror/Hosting.meta"
+  
   # Move ScriptTemplates to Mirror folder so they're included in Unity package
   # There's an editor script that moves them back to Assets when imported to Unity
   - - '@semantic-release/exec'
@@ -54,7 +59,7 @@ plugins:
 
   # Create Unity package with Mirror, ScriptTemplates, and LICENSE
   - - '@semantic-release/exec'
-    - prepareCmd: "unity-packer pack Mirror.unitypackage Assets/Mirror Assets/Mirror LICENSE Assets/Mirror/LICENSE" 
+    - prepareCmd: "dotnet script .github/UnityPack.csx Mirror.unitypackage ${nextRelease.version} Assets/Mirror Assets/Mirror LICENSE Assets/Mirror/LICENSE"
 
   # Create a new release on GitHub
   - - '@semantic-release/github'
