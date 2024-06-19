@@ -1,5 +1,16 @@
 {
   "dependencies": {
+    "com.edgegap.unity-servers-plugin": {
+      "version": "https://github.com/edgegap/edgegap-unity-plugin.git#partner/mirror-source",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {
+        "com.unity.nuget.newtonsoft-json": "3.2.1",
+        "com.unity.toolchain.win-x86_64-linux-x86_64": "2.0.6",
+        "com.unity.modules.uielements": "1.0.0"
+      },
+      "hash": "ee6356d27144fd0379140a408b1b3bef2231ccf6"
+    },
     "com.unity.2d.sprite": {
       "version": "1.0.0",
       "depth": 0,
@@ -59,18 +70,18 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.sysroot": {
-      "version": "2.0.6",
-      "depth": 1,
+      "version": "2.0.7",
+      "depth": 2,
       "source": "registry",
       "dependencies": {},
       "url": "https://packages.unity.com"
     },
     "com.unity.sysroot.linux-x86_64": {
-      "version": "2.0.5",
-      "depth": 1,
+      "version": "2.0.6",
+      "depth": 2,
       "source": "registry",
       "dependencies": {
-        "com.unity.sysroot": "2.0.6"
+        "com.unity.sysroot": "2.0.7"
       },
       "url": "https://packages.unity.com"
     },
@@ -102,6 +113,16 @@
       "dependencies": {
         "com.unity.sysroot": "2.0.6",
         "com.unity.sysroot.linux-x86_64": "2.0.5"
+      },
+      "url": "https://packages.unity.com"
+    },
+    "com.unity.toolchain.win-x86_64-linux-x86_64": {
+      "version": "2.0.6",
+      "depth": 1,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.sysroot": "2.0.7",
+        "com.unity.sysroot.linux-x86_64": "2.0.6"
       },
       "url": "https://packages.unity.com"
     },
