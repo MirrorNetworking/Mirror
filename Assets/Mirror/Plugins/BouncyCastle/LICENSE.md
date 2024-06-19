@@ -1,3 +1,5 @@
+Version with renamed namespaces to avoid conflicts lives here: https://github.com/MirrorNetworking/bc-csharp
+
 Copyright (c) 2000-2024 The Legion of the Bouncy Castle Inc. (https://www.bouncycastle.org).
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 associated documentation files (the "Software"), to deal in the Software without restriction,
