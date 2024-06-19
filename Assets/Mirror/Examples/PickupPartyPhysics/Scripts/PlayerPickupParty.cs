@@ -7,15 +7,22 @@ public class PlayerPickupParty : NetworkBehaviour
 {
 
     public float moveSpeed = 8f;
+    public float jumpSpeed = 8f;
+    public float gravity = 20f;
+
+    private Vector3 movement = Vector3.zero;
+    private float verticalSpeed = 0f;
     public float armRotationSpeed = 25f;
     public bool canPickup = false;
-    public Transform pickedUpObject;
-    public Rigidbody pickedUpObjectRigidbody; // cache
-    public PlayerArmCollision playerArmCollision;
+    public Transform[] pickedUpObjects; // acts like inventory slots
+    public Rigidbody[] pickedUpRigidbodies; // cache pickups
+    public Transform[] armPivots; // acts like inventory slots
+    public PlayerArmSlot[] playerArmSlots; // acts like inventory slots
+    public bool freezeRBrotation = true;
 
     public CharacterController characterController;
-    public Transform armPivotR, armPivotL;
     private Camera mainCamera;
+    private int slotActive = 0; // 0 right arm, 1 left arm
     
 
 #if !UNITY_SERVER
@@ -33,26 +40,63 @@ public class PlayerPickupParty : NetworkBehaviour
         if (!Application.isFocused) return;
         if (isOwned == false) { return; }
 
-        // Handle movement
-        float moveHorizontal = Input.GetAxis("Horizontal");
-        float moveVertical = Input.GetAxis("Vertical");
-
-        Vector3 movement = new Vector3(moveHorizontal, 0f, moveVertical);
-        if (movement.magnitude > 1f) movement.Normalize();  // Normalize to prevent faster diagonal movement
-        characterController.Move(movement * moveSpeed * Time.deltaTime);
-
+        PlayerMovement();
         RotatePlayerToMouse();
-        RotateArmToMouse();
+        RotateArmsToMouse();
 
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.E))
         {
             Pickup();
+        }
+
+        if (Input.GetMouseButtonDown(1) || Input.GetKeyDown(KeyCode.Q))
+        {
+            if (slotActive == 0)
+            {
+                slotActive = 1;
+            }
+            else
+            {
+                slotActive = 0;
+            }
         }
     }
 #endif
 
 #if !UNITY_SERVER
     [ClientCallback]
+    void PlayerMovement()
+    {
+        float moveHorizontal = Input.GetAxis("Horizontal");
+        float moveVertical = Input.GetAxis("Vertical");
+
+        Vector3 horizontalMovement = new Vector3(moveHorizontal, 0f, moveVertical);
+        if (horizontalMovement.magnitude > 1f) horizontalMovement.Normalize();
+        horizontalMovement *= moveSpeed;
+
+        if (characterController.isGrounded)
+        {
+            verticalSpeed = -gravity * Time.deltaTime;
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                verticalSpeed = jumpSpeed;
+            }
+        }
+        else
+        {
+            verticalSpeed -= gravity * Time.deltaTime;
+        }
+
+        movement = horizontalMovement;
+        movement.y = verticalSpeed;
+        characterController.Move(movement * Time.deltaTime);
+    }
+#endif
+
+   
+
+#if !UNITY_SERVER
+[ClientCallback]
     void RotatePlayerToMouse()
     {
         Plane playerPlane = new Plane(Vector3.up, transform.position);
@@ -69,29 +113,30 @@ public class PlayerPickupParty : NetworkBehaviour
 
 #if !UNITY_SERVER
     [ClientCallback]
-    void RotateArmToMouse()
+    void RotateArmsToMouse()
     {
-        // Get the mouse position in screen space
-        Vector3 mouseScreenPosition = Input.mousePosition;
+        if (slotActive == 0)
+        {
+            Quaternion defaultArmRotation = Quaternion.Euler(-45, -90, 0);
+            armPivots[1].localRotation = Quaternion.Slerp(armPivots[1].localRotation, defaultArmRotation, (armRotationSpeed/5) * Time.deltaTime);
+        }
+        else
+        {
+            Quaternion defaultArmRotation = Quaternion.Euler(-45, 90, 0);
+            armPivots[0].localRotation = Quaternion.Slerp(armPivots[0].localRotation, defaultArmRotation, (armRotationSpeed/5) * Time.deltaTime);
+        }
 
-        // Convert the mouse position to world space
+        Vector3 mouseScreenPosition = Input.mousePosition;
         Ray ray = mainCamera.ScreenPointToRay(mouseScreenPosition);
-        Plane groundPlane = new Plane(Vector3.up, Vector3.zero); // Assuming the ground is at y = 0
+        Plane groundPlane = new Plane(Vector3.up, Vector3.zero);
         float rayLength;
 
         if (groundPlane.Raycast(ray, out rayLength))
         {
             Vector3 pointToLook = ray.GetPoint(rayLength);
-
-            // Calculate the direction from the pivot to the mouse position
-            Vector3 direction = pointToLook - armPivotR.position;
-
-            // Calculate the rotation required to look at the mouse position
+            Vector3 direction = pointToLook - armPivots[slotActive].position;
             Quaternion targetRotation = Quaternion.LookRotation(direction);
-
-            // Smoothly interpolate the rotation for better visual effect
-            armPivotR.rotation = Quaternion.Slerp(armPivotR.rotation, targetRotation, armRotationSpeed * Time.deltaTime);
-            //armPivotL.rotation = Quaternion.Slerp(armPivotL.rotation, targetRotation, armRotationSpeed * Time.deltaTime);
+            armPivots[slotActive].rotation = Quaternion.Slerp(armPivots[slotActive].rotation, targetRotation, armRotationSpeed * Time.deltaTime);
         }
     }
 #endif
@@ -100,25 +145,31 @@ public class PlayerPickupParty : NetworkBehaviour
     [ClientCallback]
     void Pickup()
     {
-        if (canPickup && pickedUpObject == null)
+        if (canPickup && pickedUpObjects[slotActive] == null)
         {
-            pickedUpObject = playerArmCollision.collidedGameObject;
-            pickedUpObjectRigidbody = pickedUpObject.GetComponent<Rigidbody>();
-            pickedUpObject.SetParent(armPivotR);
+            pickedUpObjects[slotActive] = playerArmSlots[slotActive].collidedGameObject;
+            pickedUpRigidbodies[slotActive] = pickedUpObjects[slotActive].GetComponent<Rigidbody>();
+            pickedUpObjects[slotActive].SetParent(armPivots[slotActive]);
             //pickedUpObjectRigidbody.isKinematic = true;
-            pickedUpObjectRigidbody.useGravity = false;
-            pickedUpObjectRigidbody.constraints = RigidbodyConstraints.FreezePosition;
-            playerArmCollision.triggerCollider.enabled = false;
+            pickedUpRigidbodies[slotActive].useGravity = false;
+            if (freezeRBrotation)
+            {
+                pickedUpRigidbodies[slotActive].constraints = RigidbodyConstraints.FreezePosition;
+            }
+            playerArmSlots[slotActive].triggerCollider.enabled = false;
             canPickup = false;
         }
-        else if(pickedUpObject != null)
+        else if(pickedUpObjects[slotActive] != null)
         {
-            pickedUpObject.SetParent(null);
+            pickedUpObjects[slotActive].SetParent(null);
             //pickedUpObjectRigidbody.isKinematic = false;
-            pickedUpObjectRigidbody.useGravity = true;
-            pickedUpObjectRigidbody.constraints = RigidbodyConstraints.None;
-            playerArmCollision.triggerCollider.enabled = true;
-            pickedUpObject = null;
+            pickedUpRigidbodies[slotActive].useGravity = true;
+            if (freezeRBrotation)
+            {
+                pickedUpRigidbodies[slotActive].constraints = RigidbodyConstraints.None;
+            }
+            playerArmSlots[slotActive].triggerCollider.enabled = true;
+            pickedUpObjects[slotActive] = null;
         }
     }
 #endif

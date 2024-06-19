@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerArmCollision : MonoBehaviour
+public class PlayerArmSlot : MonoBehaviour
 {
     public PlayerPickupParty playerPickupParty;
     public Collider triggerCollider;
@@ -14,7 +14,7 @@ public class PlayerArmCollision : MonoBehaviour
         //print("OnTriggerEnter: " + other.gameObject.name);
 
         // should be a tag, but we're not using tags in examples incase they do not copy across during import
-        if (other.gameObject.name.Contains("Pickup"))
+        if (other.gameObject.name.Contains("PickupObject"))
         {
             playerPickupParty.canPickup = true;
             collidedGameObject = other.transform;
@@ -26,7 +26,7 @@ public class PlayerArmCollision : MonoBehaviour
         //print("OnTriggerExit: " + other.gameObject.name);
 
         // should be a tag, but we're not using tags in examples incase they do not copy across during import
-        if (other.gameObject.name.Contains("Pickup"))
+        if (other.gameObject.name.Contains("PickupObject"))
         {
             playerPickupParty.canPickup = false;
             collidedGameObject = null;
