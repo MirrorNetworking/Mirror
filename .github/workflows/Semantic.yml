@@ -20,10 +20,12 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '3.1.100'
+          dotnet-version: '8.0.x'
   
-      - name: Install unity-packer
-        run: dotnet tool install -g unity-packer
+      - name: Install dotnet-script
+        run: |
+          dotnet tool install -g dotnet-script
+          dotnet script --version
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -38,6 +40,6 @@ jobs:
   
       - name: Release
         run: npx semantic-release
-          --debug true
+          --debug
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
