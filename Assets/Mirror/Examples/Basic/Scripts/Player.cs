@@ -176,6 +176,15 @@ namespace Mirror.Examples.Basic
             Destroy(playerUIObject);
         }
 
+        void OnDestroy()
+        {
+            Debug.Log("isClient " + isClient);
+            Debug.Log("isLocalPlayer " + isLocalPlayer);
+            Debug.Log("isServer " + isServer);
+            Debug.Log("NetworkClient.active " + NetworkClient.active);
+            Debug.Log("NetworkServer.active " + NetworkServer.active);
+        }
+
         #endregion
     }
 }
