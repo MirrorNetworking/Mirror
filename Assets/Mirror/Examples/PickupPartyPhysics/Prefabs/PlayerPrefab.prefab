@@ -609,6 +609,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6299839938573537759}
+  - component: {fileID: 1325586932094605749}
   m_Layer: 0
   m_Name: PlayerArmPivotL
   m_TagString: Untagged
@@ -633,6 +634,41 @@ Transform:
   - {fileID: 3871552658736460632}
   m_Father: {fileID: 3982489895616607845}
   m_LocalEulerAnglesHint: {x: -45, y: -90, z: 0}
+--- !u!114 &1325586932094605749
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3337348122071847668}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a553cb17010b2403e8523b558bffbc14, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncDirection: 1
+  syncMode: 0
+  syncInterval: 0
+  target: {fileID: 6299839938573537759}
+  syncPosition: 0
+  syncRotation: 1
+  syncScale: 0
+  onlySyncOnChange: 1
+  compressRotation: 1
+  interpolatePosition: 1
+  interpolateRotation: 1
+  interpolateScale: 0
+  coordinateSpace: 0
+  sendIntervalMultiplier: 3
+  timelineOffset: 0
+  showGizmos: 0
+  showOverlay: 0
+  overlayColor: {r: 0, g: 0, b: 0, a: 0.5}
+  bufferResetMultiplier: 6
+  changedDetection: 1
+  positionSensitivity: 0.01
+  rotationSensitivity: 0.5
+  scaleSensitivity: 0.01
 --- !u!1 &3505744635913726724
 GameObject:
   m_ObjectHideFlags: 0
@@ -792,7 +828,7 @@ MonoBehaviour:
   compressRotation: 1
   interpolatePosition: 1
   interpolateRotation: 1
-  interpolateScale: 1
+  interpolateScale: 0
   coordinateSpace: 0
   sendIntervalMultiplier: 3
   timelineOffset: 0
@@ -862,7 +898,7 @@ MonoBehaviour:
   playerArmSlots:
   - {fileID: 3397797976900785828}
   - {fileID: 1009485556880835443}
-  freezeRBrotation: 1
+  freezePositionRB: 1
   characterController: {fileID: 4117093369808553598}
 --- !u!1 &5473584597135620801
 GameObject:
@@ -1160,6 +1196,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2672433250560454}
+  - component: {fileID: 7204149903870050621}
   m_Layer: 0
   m_Name: PlayerArmPivotR
   m_TagString: Untagged
@@ -1184,6 +1221,41 @@ Transform:
   - {fileID: 6532467146160453607}
   m_Father: {fileID: 3982489895616607845}
   m_LocalEulerAnglesHint: {x: -45, y: 90, z: 0}
+--- !u!114 &7204149903870050621
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8085302157987762566}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a553cb17010b2403e8523b558bffbc14, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncDirection: 1
+  syncMode: 0
+  syncInterval: 0
+  target: {fileID: 2672433250560454}
+  syncPosition: 0
+  syncRotation: 1
+  syncScale: 0
+  onlySyncOnChange: 1
+  compressRotation: 1
+  interpolatePosition: 1
+  interpolateRotation: 1
+  interpolateScale: 0
+  coordinateSpace: 0
+  sendIntervalMultiplier: 3
+  timelineOffset: 0
+  showGizmos: 0
+  showOverlay: 0
+  overlayColor: {r: 0, g: 0, b: 0, a: 0.5}
+  bufferResetMultiplier: 6
+  changedDetection: 1
+  positionSensitivity: 0.01
+  rotationSensitivity: 0.5
+  scaleSensitivity: 0.01
 --- !u!1 &8909848922143598225
 GameObject:
   m_ObjectHideFlags: 0

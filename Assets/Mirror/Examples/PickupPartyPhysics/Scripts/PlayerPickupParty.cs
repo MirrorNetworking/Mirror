@@ -14,16 +14,16 @@ public class PlayerPickupParty : NetworkBehaviour
     private float verticalSpeed = 0f;
     public float armRotationSpeed = 25f;
     public bool canPickup = false;
-    public Transform[] pickedUpObjects; // acts like inventory slots
-    public Rigidbody[] pickedUpRigidbodies; // cache pickups
+    public Transform[] pickedUpObjects; // store pickups like an inventory
+    public Rigidbody[] pickedUpRigidbodies; // cache pickups to avoid re-referencing and get components
     public Transform[] armPivots; // acts like inventory slots
     public PlayerArmSlot[] playerArmSlots; // acts like inventory slots
-    public bool freezeRBrotation = true;
+    public bool freezeRotationRB = true; // if false, picked up objects rotate with collision
 
     public CharacterController characterController;
     private Camera mainCamera;
     private int slotActive = 0; // 0 right arm, 1 left arm
-    
+
 
 #if !UNITY_SERVER
     public override void OnStartLocalPlayer()
@@ -93,10 +93,8 @@ public class PlayerPickupParty : NetworkBehaviour
     }
 #endif
 
-   
-
 #if !UNITY_SERVER
-[ClientCallback]
+    [ClientCallback]
     void RotatePlayerToMouse()
     {
         Plane playerPlane = new Plane(Vector3.up, transform.position);
@@ -118,12 +116,12 @@ public class PlayerPickupParty : NetworkBehaviour
         if (slotActive == 0)
         {
             Quaternion defaultArmRotation = Quaternion.Euler(-45, -90, 0);
-            armPivots[1].localRotation = Quaternion.Slerp(armPivots[1].localRotation, defaultArmRotation, (armRotationSpeed/5) * Time.deltaTime);
+            armPivots[1].localRotation = Quaternion.Slerp(armPivots[1].localRotation, defaultArmRotation, (armRotationSpeed / 5) * Time.deltaTime);
         }
         else
         {
             Quaternion defaultArmRotation = Quaternion.Euler(-45, 90, 0);
-            armPivots[0].localRotation = Quaternion.Slerp(armPivots[0].localRotation, defaultArmRotation, (armRotationSpeed/5) * Time.deltaTime);
+            armPivots[0].localRotation = Quaternion.Slerp(armPivots[0].localRotation, defaultArmRotation, (armRotationSpeed / 5) * Time.deltaTime);
         }
 
         Vector3 mouseScreenPosition = Input.mousePosition;
@@ -152,19 +150,19 @@ public class PlayerPickupParty : NetworkBehaviour
             pickedUpObjects[slotActive].SetParent(armPivots[slotActive]);
             //pickedUpObjectRigidbody.isKinematic = true;
             pickedUpRigidbodies[slotActive].useGravity = false;
-            if (freezeRBrotation)
+            if (freezeRotationRB)
             {
-                pickedUpRigidbodies[slotActive].constraints = RigidbodyConstraints.FreezePosition;
+                pickedUpRigidbodies[slotActive].constraints = RigidbodyConstraints.FreezeRotation;
             }
             playerArmSlots[slotActive].triggerCollider.enabled = false;
             canPickup = false;
         }
-        else if(pickedUpObjects[slotActive] != null)
+        else if (pickedUpObjects[slotActive] != null)
         {
             pickedUpObjects[slotActive].SetParent(null);
             //pickedUpObjectRigidbody.isKinematic = false;
             pickedUpRigidbodies[slotActive].useGravity = true;
-            if (freezeRBrotation)
+            if (freezeRotationRB)
             {
                 pickedUpRigidbodies[slotActive].constraints = RigidbodyConstraints.None;
             }

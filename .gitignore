@@ -81,3 +81,5 @@ Thumbs.db
 
 # CompilationLog.txt created by tests
 Assets/Mirror/Tests/Editor/Weaver/*/CompilationLog.txt
+Assets/Mirage*
+Assets/ParrelSync*
