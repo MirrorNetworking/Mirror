@@ -48,11 +48,9 @@ namespace Mirror
             public string Name;
             public long TotalCount;
             public long TotalBytes;
-            public long TotalAverageSize => TotalBytes / TotalCount;
 
             public long RecentCount;
             public long RecentBytes;
-            public long RecentAverageSize => RecentBytes / RecentCount;
 
             public void ResetRecent()
             {
