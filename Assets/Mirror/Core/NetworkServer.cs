@@ -1592,14 +1592,12 @@ namespace Mirror
             RebuildObservers(identity, true);
         }
 
-        /// <summary>This takes an object that has been spawned and un-spawns it.</summary>
-        // The object will be removed from clients that it was spawned on, or
-        // the custom spawn handler function on the client will be called for
-        // the object.
-        // Unlike when calling NetworkServer.Destroy(), on the server the object
-        // will NOT be destroyed. This allows the server to re-use the object,
-        // even spawn it again later.
-        public static void UnSpawn(GameObject obj)
+        // internal Unspawn function which has the 'resetState' parameter.
+        // resetState calls .ResetState() on the object after unspawning.
+        // this is necessary for scene objects, but not for prefabs since we
+        // don't want to reset their isServer flags etc.
+        // fixes: https://github.com/MirrorNetworking/Mirror/issues/3832
+        static void UnSpawnInternal(GameObject obj, bool resetState)
         {
             // Debug.Log($"DestroyObject instance:{identity.netId}");
 
@@ -1673,9 +1671,21 @@ namespace Mirror
             identity.OnStopServer();
 
             // finally reset the state and deactivate it
-            identity.ResetState();
-            identity.gameObject.SetActive(false);
+            if (resetState)
+            {
+                identity.ResetState();
+                identity.gameObject.SetActive(false);
+            }
         }
+
+        /// <summary>This takes an object that has been spawned and un-spawns it.</summary>
+        // The object will be removed from clients that it was spawned on, or
+        // the custom spawn handler function on the client will be called for
+        // the object.
+        // Unlike when calling NetworkServer.Destroy(), on the server the object
+        // will NOT be destroyed. This allows the server to re-use the object,
+        // even spawn it again later.
+        public static void UnSpawn(GameObject obj) => UnSpawnInternal(obj, resetState: true);
 
         // destroy /////////////////////////////////////////////////////////////
         /// <summary>Destroys this object and corresponding objects on all clients.</summary>
@@ -1713,13 +1723,16 @@ namespace Mirror
             // restarts, the scene objects would be gone from the new match.
             if (identity.sceneId != 0)
             {
-                UnSpawn(obj);
+                UnSpawnInternal(obj, resetState: true);
             }
             // is this a prefab?
             // then we destroy it completely.
             else
             {
-                UnSpawn(obj);
+                // unspawn without calling ResetState.
+                // otherwise isServer/isClient flags might be reset in OnDestroy.
+                // fixes: https://github.com/MirrorNetworking/Mirror/issues/3832
+                UnSpawnInternal(obj, resetState: false);
                 identity.destroyCalled = true;
 
                 // Destroy if application is running
