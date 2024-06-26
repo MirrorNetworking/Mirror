@@ -1,3 +1,6 @@
+branches:
+  - name: master
+  
 verifyConditions:
   - "@semantic-release/github"
 
@@ -59,7 +62,7 @@ plugins:
 
   # Create Unity package with Mirror, ScriptTemplates, and LICENSE
   - - '@semantic-release/exec'
-    - prepareCmd: "dotnet script .github/UnityPack.csx Mirror.unitypackage ${nextRelease.version} Assets/Mirror Assets/Mirror LICENSE Assets/Mirror/LICENSE"
+    - prepareCmd: "dotnet script .github/UnityPack.csx ${nextRelease.version}"
 
   # Create a new release on GitHub
   - - '@semantic-release/github'
