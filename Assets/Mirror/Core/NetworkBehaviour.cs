@@ -373,6 +373,12 @@ namespace Mirror
                 return;
             }
 
+            if (netId == 0)
+            {
+                Debug.LogWarning($"Command {functionFullName} called on {name} with netId=0. Maybe it wasn't spawned yet?", gameObject);
+                return;
+            }
+
             // construct the message
             CommandMessage message = new CommandMessage
             {
