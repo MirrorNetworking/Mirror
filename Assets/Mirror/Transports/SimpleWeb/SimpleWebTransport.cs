@@ -51,7 +51,7 @@ namespace Mirror.SimpleWeb
         [Header("Server settings")]
 
         [Tooltip("Port to use for server")]
-        public ushort port = 7778;
+        public ushort port = 27777;
         public ushort Port
         {
             get
@@ -90,7 +90,7 @@ namespace Mirror.SimpleWeb
 
         [Tooltip("Sets connect scheme to wss. Useful when client needs to connect using wss when TLS is outside of transport.\nNOTE: if sslEnabled is true clientUseWss is also true")]
         public bool clientUseWss;
-        public ClientWebsocketSettings clientWebsocketSettings;
+        public ClientWebsocketSettings clientWebsocketSettings = new ClientWebsocketSettings { ClientPortOption = WebsocketPortOption.DefaultSameAsServer, CustomClientPort = 7777 };
 
         [Header("Logging")]
 
