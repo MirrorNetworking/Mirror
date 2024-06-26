@@ -5,9 +5,14 @@ public class MovingPlatform : NetworkBehaviour
 {
     public Transform endTarget; 
     public float moveSpeed = 0.5f;
-    // note, disabling this on server, wont automatically disable on clients
-    // could be a sync var, incase you do not want constantly moving platform
-    public bool moveObj = true; 
+    // allows for on demand syncing of stopping and starting platform movement, change via server
+    // note,sync vars changed via inspector do not sync. This is optional feature, can be removed
+    [SyncVar]
+    public bool moveObj = true;
+
+    // optional fancy features
+    public bool moveStopsUponExit = false;
+    public bool moveStartsUponCollision = false;
 
     private Vector3 startPosition;
     private Vector3 endPosition;
@@ -41,5 +46,31 @@ public class MovingPlatform : NetworkBehaviour
     {
         //print("RpcResyncPosition: " + _value);
         transform.position = _value == 1 ? endTarget.position : startPosition;
+    }
+
+    // optional
+    [ServerCallback]
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (moveStartsUponCollision)
+        {
+            if (collision.gameObject.tag == "Player")
+            {
+                moveObj = true;
+            }
+        }
+    }
+
+    // optional
+    [ServerCallback]
+    private void OnCollisionExit(Collision collision)
+    {
+        if (moveStopsUponExit)
+        {
+            if (collision.gameObject.tag == "Player")
+            {
+                moveObj = false;
+            }
+        }
     }
 }

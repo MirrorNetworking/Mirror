@@ -1945,7 +1945,9 @@ MonoBehaviour:
   syncInterval: 0
   endTarget: {fileID: 1745218773}
   moveSpeed: 0.5
-  moveObj: 1
+  moveObj: 0
+  moveStopsUponExit: 0
+  moveStartsUponCollision: 1
 --- !u!114 &1218169081
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2229,8 +2231,10 @@ MonoBehaviour:
   syncMode: 0
   syncInterval: 0
   endTarget: {fileID: 187966240}
-  moveSpeed: 0.2
+  moveSpeed: 0.3
   moveObj: 1
+  moveStopsUponExit: 0
+  moveStartsUponCollision: 0
 --- !u!114 &1284513252
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3353,7 +3357,9 @@ MonoBehaviour:
   syncInterval: 0
   endTarget: {fileID: 1036234662}
   moveSpeed: 0.8
-  moveObj: 1
+  moveObj: 0
+  moveStopsUponExit: 1
+  moveStartsUponCollision: 1
 --- !u!114 &2105958122
 MonoBehaviour:
   m_ObjectHideFlags: 0
