@@ -43,3 +43,13 @@ jobs:
           --debug
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          UNITYPACK_OUTPUT: "Mirror.unitypackage"
+          # source and destination separated by space
+          # add more assets as separate env vars using the naming pattern
+          UNITYPACK_ASSET1: "Assets/Mirror Assets/Mirror"
+          UNITYPACK_ASSET2: "LICENSE Assets/Mirror/LICENSE"
+          # name and version separated by space
+          # add more dependencies as separate env vars using the naming pattern
+          UNITYPACK_DEPENDENCY1: "com.unity.nuget.newtonsoft-json 3.0.0"
+          # package names separated by space (only one for now)
+          UNITYPACK_TESTABLES: "com.unity.test-framework.performance"
