@@ -1698,17 +1698,28 @@ namespace Mirror
                 return;
             }
 
-            // first, we unspawn it on clients and server
-            UnSpawn(obj);
+            // get the NetworkIdentity component first
+            if (!GetNetworkIdentity(obj, out NetworkIdentity identity))
+            {
+                Debug.LogWarning($"NetworkServer.Destroy() called on {obj.name} which doesn't have a NetworkIdentity component.");
+                return;
+            }
 
-            // additionally, if it's a prefab then we destroy it completely.
+            // is this a scene object?
+            // then we simply unspawn & reset it so it can still be spawned again.
             // we never destroy scene objects on server or on client, since once
             // they are gone, they are gone forever and can't be instantiate again.
             // for example, server may Destroy() a scene object and once a match
             // restarts, the scene objects would be gone from the new match.
-            if (GetNetworkIdentity(obj, out NetworkIdentity identity) &&
-                identity.sceneId == 0)
+            if (identity.sceneId != 0)
             {
+                UnSpawn(obj);
+            }
+            // is this a prefab?
+            // then we destroy it completely.
+            else
+            {
+                UnSpawn(obj);
                 identity.destroyCalled = true;
 
                 // Destroy if application is running
