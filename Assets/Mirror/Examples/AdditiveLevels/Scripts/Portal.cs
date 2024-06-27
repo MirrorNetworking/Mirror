@@ -3,6 +3,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 namespace Mirror.Examples.AdditiveLevels
 {
@@ -15,7 +16,7 @@ namespace Mirror.Examples.AdditiveLevels
         public Vector3 startPosition;
 
         [Tooltip("Reference to child TextMesh label")]
-        public TextMesh label; // don't depend on TMPro. 2019 errors.
+        public Text label; // don't depend on TMPro. 2019 errors.
 
         [SyncVar(hook = nameof(OnLabelTextChanged))]
         public string labelText;
