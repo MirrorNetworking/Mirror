@@ -56,7 +56,11 @@ namespace Mirror.Examples.TopDownShooter
         void Awake()
         {
             // Allow all players to run this, they may need it for reference
+#if UNITY_2022_2_OR_NEWER
+            canvasTopDown = GameObject.FindAnyObjectByType<CanvasTopDown>();
+#else
             canvasTopDown = GameObject.FindObjectOfType<CanvasTopDown>();
+#endif
         }
 
         public void Start()
