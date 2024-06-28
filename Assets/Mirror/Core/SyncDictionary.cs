@@ -45,7 +45,8 @@ namespace Mirror
             OP_ADD,
             OP_CLEAR,
             OP_REMOVE,
-            OP_SET
+            OP_SET,
+            OP_RENEW
         }
 
         struct Change
@@ -116,6 +117,8 @@ namespace Mirror
                         break;
                     case Operation.OP_CLEAR:
                         break;
+                    case Operation.OP_RENEW:
+                        break;
                 }
             }
         }
@@ -139,6 +142,9 @@ namespace Mirror
             // the next time the list is synchronized
             // because they have already been applied
             changesAhead = (int)reader.ReadUInt();
+
+            //Call OP_RENEW when all items have been changed.
+            AddOperation(Operation.OP_RENEW, default, default, false);
         }
 
         public override void OnDeserializeDelta(NetworkReader reader)
