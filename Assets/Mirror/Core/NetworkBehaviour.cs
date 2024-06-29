@@ -149,6 +149,35 @@ namespace Mirror
         // hook guard prevents that.
         ulong syncVarHookGuard;
 
+        protected virtual void OnValidate()
+        {
+            // Skip if Editor is in Play mode
+            if (Application.isPlaying) return;
+
+            // we now allow child NetworkBehaviours.
+            // we can not [RequireComponent(typeof(NetworkIdentity))] anymore.
+            // instead, we need to ensure a NetworkIdentity is somewhere in the
+            // parents.
+            // only run this in Editor. don't add more runtime overhead.
+
+            // GetComponentInParent(includeInactive) is needed because Prefabs are not
+            // considered active, so this check requires to scan inactive.
+#if UNITY_2021_3_OR_NEWER // 2021 has GetComponentInParent(bool includeInactive = false)
+            if (GetComponent<NetworkIdentity>() == null &&
+                GetComponentInParent<NetworkIdentity>(true) == null)
+            {
+                Debug.LogError($"{GetType()} on {name} requires a NetworkIdentity. Please add a NetworkIdentity component to {name} or it's parents.", this);
+            }
+#elif UNITY_2020_3_OR_NEWER // 2020 only has GetComponentsInParent(bool includeInactive = false), we can use this too
+            NetworkIdentity[] parentsIds = GetComponentsInParent<NetworkIdentity>(true);
+            int parentIdsCount = parentsIds != null ? parentsIds.Length : 0;
+            if (GetComponent<NetworkIdentity>() == null && parentIdsCount == 0)
+            {
+                Debug.LogError($"{GetType()} on {name} requires a NetworkIdentity. Please add a NetworkIdentity component to {name} or it's parents.", this);
+            }
+#endif
+        }
+
         // USED BY WEAVER to set syncvars in host mode without deadlocking
         protected bool GetSyncVarHookGuard(ulong dirtyBit) =>
             (syncVarHookGuard & dirtyBit) != 0UL;
@@ -300,34 +329,6 @@ namespace Mirror
                 // in that case, allow modifying but don't record changes yet.
                 return false;
             };
-        }
-
-        protected virtual void OnValidate()
-        {
-            // we now allow child NetworkBehaviours.
-            // we can not [RequireComponent(typeof(NetworkIdentity))] anymore.
-            // instead, we need to ensure a NetworkIdentity is somewhere in the
-            // parents.
-            // only run this in Editor. don't add more runtime overhead.
-
-            // GetComponentInParent(includeInactive) is needed because Prefabs are not
-            // considered active, so this check requires to scan inactive.
-#if UNITY_EDITOR
-#if UNITY_2021_3_OR_NEWER // 2021 has GetComponentInParent(bool includeInactive = false)
-            if (GetComponent<NetworkIdentity>() == null &&
-                GetComponentInParent<NetworkIdentity>(true) == null)
-            {
-                Debug.LogError($"{GetType()} on {name} requires a NetworkIdentity. Please add a NetworkIdentity component to {name} or it's parents.", this);
-            }
-#elif UNITY_2020_3_OR_NEWER // 2020 only has GetComponentsInParent(bool includeInactive = false), we can use this too
-            NetworkIdentity[] parentsIds = GetComponentsInParent<NetworkIdentity>(true);
-            int parentIdsCount = parentsIds != null ? parentsIds.Length : 0;
-            if (GetComponent<NetworkIdentity>() == null && parentIdsCount == 0)
-            {
-                Debug.LogError($"{GetType()} on {name} requires a NetworkIdentity. Please add a NetworkIdentity component to {name} or it's parents.", this);
-            }
-#endif
-#endif
         }
 
         // pass full function name to avoid ClassA.Func <-> ClassB.Func collisions
