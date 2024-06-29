@@ -11,6 +11,21 @@ namespace Mirror
         Rigidbody rb;
         bool wasKinematic;
 
+        protected override void OnValidate()
+        {
+            // Skip if Editor is in Play mode
+            if (Application.isPlaying) return;
+
+            base.OnValidate();
+
+            // we can't overwrite .target to be a Rigidbody.
+            // but we can ensure that .target has a Rigidbody, and use it.
+            if (target.GetComponent<Rigidbody>() == null)
+            {
+                Debug.LogWarning($"{name}'s NetworkRigidbody.target {target.name} is missing a Rigidbody", this);
+            }
+        }
+
         // cach Rigidbody and original isKinematic setting
         protected override void Awake()
         {
@@ -79,18 +94,6 @@ namespace Mirror
                 // otherwise don't touch isKinematic.
                 // the authority owner might use it either way.
                 if (!owned) rb.isKinematic = true;
-            }
-        }
-
-        protected override void OnValidate()
-        {
-            base.OnValidate();
-
-            // we can't overwrite .target to be a Rigidbody.
-            // but we can ensure that .target has a Rigidbody, and use it.
-            if (target.GetComponent<Rigidbody>() == null)
-            {
-                Debug.LogWarning($"{name}'s NetworkRigidbody.target {target.name} is missing a Rigidbody", this);
             }
         }
 

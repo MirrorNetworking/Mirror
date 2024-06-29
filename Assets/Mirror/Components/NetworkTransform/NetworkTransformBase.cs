@@ -98,6 +98,17 @@ namespace Mirror
         public bool showOverlay;
         public Color overlayColor = new Color(0, 0, 0, 0.5f);
 
+        protected override void OnValidate()
+        {
+            // Skip if Editor is in Play mode
+            if (Application.isPlaying) return;
+
+            base.OnValidate();
+
+            // configure in awake
+            Configure();
+        }
+
         // initialization //////////////////////////////////////////////////////
         // forcec configuration of some settings
         protected virtual void Configure()
@@ -122,14 +133,6 @@ namespace Mirror
         {
             // sometimes OnValidate() doesn't run before launching a project.
             // need to guarantee configuration runs.
-            Configure();
-        }
-
-        protected override void OnValidate()
-        {
-            base.OnValidate();
-
-            // configure in awake
             Configure();
         }
 
