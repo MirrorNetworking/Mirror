@@ -145,9 +145,6 @@ namespace Mirror.Examples.Common.Controllers.Player
         Vector3Int velocity;
 
         [ReadOnly, SerializeField]
-        Vector3 mouseDelta;
-
-        [ReadOnly, SerializeField]
         GameObject controllerUI;
 
         #region Network Setup
