@@ -393,9 +393,15 @@ namespace Mirror.Examples.Common.Controllers.Tank
         void DoShoot()
         {
             //Debug.Log($"DoShoot {isServerOnly} {isClient}");
-            if (isServer)
+            if (isServerOnly)
+            {
+                // Dedicated Server logic - no host client
+                Instantiate(projectilePrefab, projectileMount.position, projectileMount.rotation);
+            }
+            else if (isServer)
             {
                 // Server logic, including host client
+                animator.SetTrigger("Shoot");
                 Instantiate(projectilePrefab, projectileMount.position, projectileMount.rotation);
             }
 
