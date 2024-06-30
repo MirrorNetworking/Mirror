@@ -300,17 +300,11 @@ MonoBehaviour:
     TurnLeft: 113
     TurnRight: 101
     Jump: 32
-  flightKeys:
-    PitchDown: 273
-    PitchUp: 274
-    RollLeft: 276
-    RollRight: 275
-    AutoLevel: 108
   optionsKeys:
     MouseSteer: 109
     AutoRun: 114
     ToggleUI: 117
-  controlOptions: 12
+  controlOptions: 4
   maxMoveSpeed: 8
   inputSensitivity: 2
   inputGravity: 2
@@ -319,25 +313,14 @@ MonoBehaviour:
   jumpAcceleration: 4
   maxTurnSpeed: 100
   turnAcceleration: 3
-  mouseSensitivity: 1.5
+  mouseSensitivity: 0.01
   smoothTime: 0.2
-  maxPitchSpeed: 30
-  maxPitchUpAngle: 20
-  maxPitchDownAngle: 45
-  pitchAcceleration: 3
-  maxRollSpeed: 30
-  maxRollAngle: 45
-  rollAcceleration: 3
   groundState: 2
   horizontal: 0
   vertical: 0
   jumpSpeed: 0
   turnSpeed: 0
   turnSmoothSpeed: 0
-  pitchAngle: 0
-  pitchSpeed: 0
-  rollAngle: 0
-  rollSpeed: 0
   animVelocity: 0
   animRotation: 0
   direction: {x: 0, y: 0, z: 0}

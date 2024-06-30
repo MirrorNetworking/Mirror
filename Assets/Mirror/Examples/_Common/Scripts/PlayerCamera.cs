@@ -10,6 +10,9 @@ namespace Mirror.Examples.Common
     {
         Camera mainCam;
 
+        public Vector3 offset = new Vector3(0f, 3f, -8f);
+        public Vector3 rotation = new Vector3(10f, 0f, 0f);
+
         void Awake()
         {
             mainCam = Camera.main;
@@ -22,8 +25,8 @@ namespace Mirror.Examples.Common
                 // configure and make camera a child of player with 3rd person offset
                 mainCam.orthographic = false;
                 mainCam.transform.SetParent(transform);
-                mainCam.transform.localPosition = new Vector3(0f, 3f, -8f);
-                mainCam.transform.localEulerAngles = new Vector3(10f, 0f, 0f);
+                mainCam.transform.localPosition = offset;
+                mainCam.transform.localEulerAngles = rotation;
             }
             else
                 Debug.LogWarning("PlayerCamera: Could not find a camera in scene with 'MainCamera' tag.");

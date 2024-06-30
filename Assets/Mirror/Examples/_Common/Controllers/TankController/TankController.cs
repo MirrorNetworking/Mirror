@@ -31,6 +31,7 @@ namespace Mirror.Examples.Common.Controllers.Tank
     [RequireComponent(typeof(BoxCollider))]
     [RequireComponent(typeof(PlayerCamera))]
     [RequireComponent(typeof(CharacterController))]
+    [RequireComponent(typeof(Animator))]
     [RequireComponent(typeof(Rigidbody))]
     [RequireComponent(typeof(NetworkIdentity))]
     [RequireComponent(typeof(NetworkTransformReliable))]
@@ -50,12 +51,15 @@ namespace Mirror.Examples.Common.Controllers.Tank
 
         [Header("Avatar Components")]
         public BoxCollider boxCollider;
+        public Animator animator;
         public CharacterController characterController;
         public NetworkTransformReliable tankNTR;
         public NetworkTransformReliable turretNTR;
 
         [Header("Turret")]
         public Transform turret;
+        public Transform projectileMount;
+        public GameObject projectilePrefab;
 
         [Header("User Interface")]
         public GameObject ControllerUIPrefab;
@@ -116,9 +120,9 @@ namespace Mirror.Examples.Common.Controllers.Tank
         [Range(0, 360f)]
         [Tooltip("Max Rotation in degrees per second")]
         public float maxTurretSpeed = 180f;
-        [Range(0, 100f)]
+        [Range(0, 1f)]
         [Tooltip("Sensitivity factors into accelleration")]
-        public float mouseSensitivity = 3f;
+        public float mouseSensitivity = 0.01f;
         [Range(0, 0.5f)]
         [Tooltip("Time to reach the target rotation")]
         public float smoothTime = 0.2f;
@@ -174,8 +178,11 @@ namespace Mirror.Examples.Common.Controllers.Tank
             if (boxCollider == null)
                 boxCollider = GetComponent<BoxCollider>();
 
-            boxCollider.center = new Vector3(0, -0.5f, 0.25f);
-            boxCollider.size = new Vector3(1f, 1f, 2.2f);
+            if (animator == null)
+                animator = GetComponent<Animator>();
+
+            boxCollider.center = new Vector3(0, 0.65f, 0.75f);
+            boxCollider.size = new Vector3(4.5f, 3.5f, 9f);
 
             // Enable by default...it will be disabled when characterController is enabled
             boxCollider.enabled = true;
@@ -191,28 +198,29 @@ namespace Mirror.Examples.Common.Controllers.Tank
             GetComponent<Rigidbody>().isKinematic = true;
 
             if (turret == null)
-            {
-                // do a recursive search for a child named "Turret"
-                // it will be several levels deep in the hierarchy
-                // tranform.Find will fail - must do recursive search
-                // FindDeepChild doesn't exist in Unity so you have to write it.
                 turret = FindDeepChild(transform, "Turret");
 
-                Transform FindDeepChild(Transform aParent, string aName)
+            if (projectileMount == null)
+                projectileMount = FindDeepChild(turret, "ProjectileMount");
+
+            // do a recursive search for a child named "Turret"
+            // it will be several levels deep in the hierarchy
+            // tranform.Find will fail - must do recursive search
+            // FindDeepChild doesn't exist in Unity so you have to write it.
+            Transform FindDeepChild(Transform aParent, string aName)
+            {
+                var result = aParent.Find(aName);
+                if (result != null)
+                    return result;
+
+                foreach (Transform child in aParent)
                 {
-                    var result = aParent.Find(aName);
+                    result = FindDeepChild(child, aName);
                     if (result != null)
                         return result;
-
-                    foreach (Transform child in aParent)
-                    {
-                        result = FindDeepChild(child, aName);
-                        if (result != null)
-                            return result;
-                    }
-
-                    return null;
                 }
+
+                return null;
             }
 
             NetworkTransformReliable[] NTRs = GetComponents<NetworkTransformReliable>();
@@ -236,8 +244,8 @@ namespace Mirror.Examples.Common.Controllers.Tank
             }
 
 #if UNITY_EDITOR
-            // For convenience in the examples, we use the GUID of the PlayerControllerUI
-            // to find the correct prefab in the Mirror/Examples/_Common/PlayerController folder.
+            // For convenience in the examples, we use the GUID of the PlayerControllerUI and Projectile
+            // to find the correct prefabs in the Mirror/Examples/_Common/Controllers folder.
             // This avoids conflicts with user-created prefabs that may have the same name
             // and avoids polluting the user's project with Resources.
             // This is not recommended for production code...use Resources.Load or AssetBundles instead.
@@ -246,6 +254,12 @@ namespace Mirror.Examples.Common.Controllers.Tank
                 string path = UnityEditor.AssetDatabase.GUIDToAssetPath("e64b14552402f6745a7f0aca6237fae2");
                 ControllerUIPrefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(path);
             }
+
+            if (projectilePrefab == null)
+            {
+                string path = UnityEditor.AssetDatabase.GUIDToAssetPath("aec853915cd4f4477ba1532b5fe05488");
+                projectilePrefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(path);
+            }
 #endif
 
             this.enabled = false;
@@ -253,9 +267,6 @@ namespace Mirror.Examples.Common.Controllers.Tank
 
         public override void OnStartAuthority()
         {
-            Application.targetFrameRate = 120;
-            QualitySettings.vSyncCount = 0;
-
             SetCursor(controlOptions.HasFlag(ControlOptions.MouseLock));
 
             // capsuleCollider and characterController are mutually exclusive
@@ -360,13 +371,14 @@ namespace Mirror.Examples.Common.Controllers.Tank
             if (otherKeys.Shoot != KeyCode.None && Input.GetKeyUp(otherKeys.Shoot))
             {
                 CmdShoot();
-                DoShoot();
+                if (!isServer) DoShoot();
             }
         }
 
         [Command]
         void CmdShoot()
         {
+            //Debug.Log("CmdShoot");
             RpcShoot();
             DoShoot();
         }
@@ -374,19 +386,24 @@ namespace Mirror.Examples.Common.Controllers.Tank
         [ClientRpc(includeOwner = false)]
         void RpcShoot()
         {
-            DoShoot();
+            //Debug.Log("RpcShoot");
+            if (!isServer) DoShoot();
         }
 
         void DoShoot()
         {
-            if (isServerOnly)
+            //Debug.Log($"DoShoot {isServerOnly} {isClient}");
+            if (isServer)
             {
-                // Dedcicated Server logic
+                // Server logic, including host client
+                Instantiate(projectilePrefab, projectileMount.position, projectileMount.rotation);
             }
 
-            if (isClient)
+            if (isClientOnly)
             {
-                // Client-side logic, including host client
+                // Client-side logic, excluding host client
+                animator.SetTrigger("Shoot");
+                Instantiate(projectilePrefab, projectileMount.position, projectileMount.rotation);
             }
         }
 
@@ -405,8 +422,7 @@ namespace Mirror.Examples.Common.Controllers.Tank
             turretSpeed = Mathf.SmoothDamp(turretSpeed, targetTurnSpeed, ref turnSmoothSpeed, smoothTime);
 
             // Apply rotation
-            float rotationAmount = turretSpeed * deltaTime;
-            turret.Rotate(Vector3.up * rotationAmount, Space.World);
+            turret.Rotate(Vector3.up * turretSpeed, Space.World);
         }
 
         // Turning works while airborne...feature?

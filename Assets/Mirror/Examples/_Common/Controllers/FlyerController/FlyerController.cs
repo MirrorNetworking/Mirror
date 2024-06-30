@@ -118,9 +118,9 @@ namespace Mirror.Examples.Common.Controllers.Flyer
         [FormerlySerializedAs("turnDelta")]
         [Tooltip("Rotation acceleration in degrees per second squared")]
         public float turnAcceleration = 3f;
-        [Range(0, 100f)]
+        [Range(0, 1f)]
         [Tooltip("Sensitivity factors into accelleration")]
-        public float mouseSensitivity = 1.5f;
+        public float mouseSensitivity = 0.01f;
         [Range(0, 0.5f)]
         [Tooltip("Time to reach the target rotation")]
         public float smoothTime = 0.2f;
@@ -223,7 +223,7 @@ namespace Mirror.Examples.Common.Controllers.Flyer
 
 #if UNITY_EDITOR
             // For convenience in the examples, we use the GUID of the FlyerControllerUI
-            // to find the correct prefab in the Mirror/Examples/_Common/FlyerController folder.
+            // to find the correct prefab in the Mirror/Examples/_Common/Controllers folder.
             // This avoids conflicts with user-created prefabs that may have the same name
             // and avoids polluting the user's project with Resources.
             // This is not recommended for production code...use Resources.Load or AssetBundles instead.
@@ -239,9 +239,6 @@ namespace Mirror.Examples.Common.Controllers.Flyer
 
         public override void OnStartAuthority()
         {
-            Application.targetFrameRate = 120;
-            QualitySettings.vSyncCount = 0;
-
             SetCursor(controlOptions.HasFlag(ControlOptions.MouseSteer));
 
             // capsuleCollider and characterController are mutually exclusive
@@ -366,13 +363,13 @@ namespace Mirror.Examples.Common.Controllers.Flyer
 
             // Calculate target turn speed with sensitivity
             float targetTurnSpeed = mouseX * maxTurnSpeed * mouseSensitivity;
+            targetTurnSpeed = Mathf.Clamp(targetTurnSpeed, -maxTurnSpeed, maxTurnSpeed);
 
             // Smoothly interpolate the turn speed
             turnSpeed = Mathf.SmoothDamp(turnSpeed, targetTurnSpeed, ref turnSmoothSpeed, smoothTime);
 
             // Apply rotation
-            float rotationAmount = turnSpeed * deltaTime;
-            transform.Rotate(Vector3.up * rotationAmount, Space.World);
+            transform.Rotate(Vector3.up * turnSpeed, Space.World);
         }
 
         void HandlePitch(float deltaTime)
