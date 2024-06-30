@@ -373,14 +373,14 @@ MonoBehaviour:
   jumpAcceleration: 4
   maxTurnSpeed: 100
   turnAcceleration: 3
-  mouseSensitivity: 0.01
-  smoothTime: 0.2
+  mouseSensitivity: 2
   groundState: 2
   horizontal: 0
   vertical: 0
   jumpSpeed: 0
   turnSpeed: 0
   turnSmoothSpeed: 0
+  mouseInputX: 0
   animVelocity: 0
   animRotation: 0
   direction: {x: 0, y: 0, z: 0}
@@ -420,3 +420,5 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
+  offset: {x: 0, y: 3, z: -8}
+  rotation: {x: 10, y: 0, z: 0}
