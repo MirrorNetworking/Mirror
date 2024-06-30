@@ -124,15 +124,13 @@ namespace Mirror.Examples.Common.Controllers.Player
         [ReadOnly, SerializeField, Range(-1f, 1f)]
         float vertical;
 
-        [ReadOnly, SerializeField, Range(-10f, 10f)]
-        float jumpSpeed;
-
-        [ReadOnly, SerializeField, Range(-180f, 180f)]
-        float turnSpeed;
-        [ReadOnly, SerializeField, Range(-1000f, 1000f)]
-        float turnSmoothSpeed;
         [ReadOnly, SerializeField, Range(-1f, 1f)]
         float mouseInputX = 0f;
+        [ReadOnly, SerializeField, Range(-180f, 180f)]
+        float turnSpeed;
+
+        [ReadOnly, SerializeField, Range(-10f, 10f)]
+        float jumpSpeed;
 
         [ReadOnly, SerializeField, Range(-1.5f, 1.5f)]
         float animVelocity;
