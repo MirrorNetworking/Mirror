@@ -14,8 +14,6 @@ public class PlayerPickupParty : NetworkBehaviour
     private float verticalSpeed = 0f;
     public float armRotationSpeed = 25f;
     public bool canPickup = false;
-    public Transform[] pickedUpObjects; // store pickups like an inventory
-    public Rigidbody[] pickedUpRigidbodies; // cache pickups to avoid re-referencing and get components
     public Transform[] armPivots; // acts like inventory slots
     public PlayerArmSlot[] playerArmSlots; // acts like inventory slots
     public bool freezeRotationRB = true; // if false, picked up objects rotate with collision
@@ -23,6 +21,7 @@ public class PlayerPickupParty : NetworkBehaviour
     public CharacterController characterController;
     private Camera mainCamera;
     private int slotActive = 0; // 0 right arm, 1 left arm
+    private NetworkIdentity pickedUpNetworkIdentity;
 
 
 #if !UNITY_SERVER
@@ -37,6 +36,12 @@ public class PlayerPickupParty : NetworkBehaviour
     [ClientCallback]
     void Update()
     {
+        //foreach (PlayerArmSlot obj in playerArmSlots)
+        //{
+        //    obj.pickedUpNetworkObject.position = 
+        //}
+        //playerArmSlots[slotActive].pickedUpNetworkObject
+
         if (!Application.isFocused) return;
         if (isOwned == false) { return; }
 
@@ -143,31 +148,14 @@ public class PlayerPickupParty : NetworkBehaviour
     [ClientCallback]
     void Pickup()
     {
-        if (canPickup && pickedUpObjects[slotActive] == null)
+        if (canPickup && playerArmSlots[slotActive].pickedUpNetworkObject == null)
         {
-            pickedUpObjects[slotActive] = playerArmSlots[slotActive].collidedGameObject;
-            pickedUpRigidbodies[slotActive] = pickedUpObjects[slotActive].GetComponent<Rigidbody>();
-            pickedUpObjects[slotActive].SetParent(armPivots[slotActive]);
-            //pickedUpObjectRigidbody.isKinematic = true;
-            pickedUpRigidbodies[slotActive].useGravity = false;
-            if (freezeRotationRB)
-            {
-                pickedUpRigidbodies[slotActive].constraints = RigidbodyConstraints.FreezeRotation;
-            }
-            playerArmSlots[slotActive].triggerCollider.enabled = false;
+            playerArmSlots[slotActive].CmdPickup(playerArmSlots[slotActive].pickupObject.GetComponent<NetworkIdentity>());
             canPickup = false;
         }
-        else if (pickedUpObjects[slotActive] != null)
+        else if (playerArmSlots[slotActive].pickedUpNetworkObject != null)
         {
-            pickedUpObjects[slotActive].SetParent(null);
-            //pickedUpObjectRigidbody.isKinematic = false;
-            pickedUpRigidbodies[slotActive].useGravity = true;
-            if (freezeRotationRB)
-            {
-                pickedUpRigidbodies[slotActive].constraints = RigidbodyConstraints.None;
-            }
-            playerArmSlots[slotActive].triggerCollider.enabled = true;
-            pickedUpObjects[slotActive] = null;
+            playerArmSlots[slotActive].CmdDrop();
         }
     }
 #endif

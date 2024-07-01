@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 3478348578570543948}
   - component: {fileID: 3658412548173300767}
   m_Layer: 0
-  m_Name: PlayerEye L
+  m_Name: PlayerEye 2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -96,7 +96,7 @@ GameObject:
   - component: {fileID: 3829460655408399729}
   - component: {fileID: 5820231610708102091}
   m_Layer: 0
-  m_Name: PlayerEye R
+  m_Name: PlayerEye 1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -182,7 +182,7 @@ GameObject:
   - component: {fileID: 2237103095908280011}
   - component: {fileID: 1009485556880835443}
   m_Layer: 0
-  m_Name: ArmSlotCollider L
+  m_Name: ArmSlotCollider 2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -197,8 +197,8 @@ Transform:
   m_GameObject: {fileID: 723173361404745613}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.005, z: 1.85}
-  m_LocalScale: {x: 0.25, y: 0.25, z: 0.5727867}
+  m_LocalPosition: {x: 0, y: 0.005, z: 2}
+  m_LocalScale: {x: 0.35, y: 0.35, z: 0.5727867}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 6299839938573537759}
@@ -270,7 +270,7 @@ BoxCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 1
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
@@ -286,9 +286,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aaee09512f5224b5598c70bd776912b7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
   playerPickupParty: {fileID: 6283092024802340800}
-  triggerCollider: {fileID: 2237103095908280011}
+  armTrigger: {fileID: 2237103095908280011}
+  pickedUpRigidbody: {fileID: 0}
   collidedGameObject: {fileID: 0}
+  pickedUpNetworkObject: {fileID: 0}
 --- !u!1 &931337917895386524
 GameObject:
   m_ObjectHideFlags: 0
@@ -611,7 +616,7 @@ GameObject:
   - component: {fileID: 6299839938573537759}
   - component: {fileID: 1325586932094605749}
   m_Layer: 0
-  m_Name: PlayerArmPivotL
+  m_Name: PlayerArmPivot2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -655,7 +660,7 @@ MonoBehaviour:
   syncScale: 0
   onlySyncOnChange: 1
   compressRotation: 1
-  interpolatePosition: 1
+  interpolatePosition: 0
   interpolateRotation: 1
   interpolateScale: 0
   coordinateSpace: 0
@@ -886,19 +891,13 @@ MonoBehaviour:
   gravity: 40
   armRotationSpeed: 50
   canPickup: 0
-  pickedUpObjects:
-  - {fileID: 0}
-  - {fileID: 0}
-  pickedUpRigidbodies:
-  - {fileID: 0}
-  - {fileID: 0}
   armPivots:
   - {fileID: 2672433250560454}
   - {fileID: 6299839938573537759}
   playerArmSlots:
   - {fileID: 3397797976900785828}
   - {fileID: 1009485556880835443}
-  freezePositionRB: 1
+  freezeRotationRB: 1
   characterController: {fileID: 4117093369808553598}
 --- !u!1 &5473584597135620801
 GameObject:
@@ -1077,10 +1076,10 @@ GameObject:
   - component: {fileID: 6532467146160453607}
   - component: {fileID: 8544325029674056831}
   - component: {fileID: 6490762623754511389}
-  - component: {fileID: 1508319704737576609}
   - component: {fileID: 3397797976900785828}
+  - component: {fileID: 1508319704737576609}
   m_Layer: 0
-  m_Name: ArmSlotCollider R
+  m_Name: ArmSlotCollider 1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1095,8 +1094,8 @@ Transform:
   m_GameObject: {fileID: 7317027042101436788}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.005, z: 1.85}
-  m_LocalScale: {x: 0.25, y: 0.25, z: 0.5727868}
+  m_LocalPosition: {x: 0, y: 0.005, z: 2}
+  m_LocalScale: {x: 0.35, y: 0.35, z: 0.5727868}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2672433250560454}
@@ -1151,6 +1150,26 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &3397797976900785828
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7317027042101436788}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aaee09512f5224b5598c70bd776912b7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+  playerPickupParty: {fileID: 6283092024802340800}
+  armTrigger: {fileID: 1508319704737576609}
+  pickedUpRigidbody: {fileID: 0}
+  collidedGameObject: {fileID: 0}
+  pickedUpNetworkObject: {fileID: 0}
 --- !u!65 &1508319704737576609
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1168,25 +1187,10 @@ BoxCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 1
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &3397797976900785828
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7317027042101436788}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aaee09512f5224b5598c70bd776912b7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  playerPickupParty: {fileID: 6283092024802340800}
-  triggerCollider: {fileID: 1508319704737576609}
-  collidedGameObject: {fileID: 0}
 --- !u!1 &8085302157987762566
 GameObject:
   m_ObjectHideFlags: 0
@@ -1198,7 +1202,7 @@ GameObject:
   - component: {fileID: 2672433250560454}
   - component: {fileID: 7204149903870050621}
   m_Layer: 0
-  m_Name: PlayerArmPivotR
+  m_Name: PlayerArmPivot1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1242,7 +1246,7 @@ MonoBehaviour:
   syncScale: 0
   onlySyncOnChange: 1
   compressRotation: 1
-  interpolatePosition: 1
+  interpolatePosition: 0
   interpolateRotation: 1
   interpolateScale: 0
   coordinateSpace: 0
@@ -1362,4 +1366,4 @@ CapsuleCollider:
   m_Radius: 0.5000001
   m_Height: 2
   m_Direction: 1
-  m_Center: {x: 0.000000059604645, y: 0, z: -0.00000008940697}
+  m_Center: {x: 0.00000005960464, y: 0, z: -0.00000008940697}
