@@ -28,16 +28,16 @@ namespace Mirror.Examples.Common.Controllers.Tank
         public KeyCode ToggleUI;
     }
 
-    [RequireComponent(typeof(BoxCollider))]
     [RequireComponent(typeof(PlayerCamera))]
     [RequireComponent(typeof(CharacterController))]
-    [RequireComponent(typeof(Animator))]
     [RequireComponent(typeof(Rigidbody))]
     [RequireComponent(typeof(NetworkIdentity))]
     [RequireComponent(typeof(NetworkTransformReliable))]
     [DisallowMultipleComponent]
     public class TankController : NetworkBehaviour
     {
+        const float BASE_DPI = 96f;
+
         public enum GroundState : byte { Jumping, Falling, Grounded }
 
         [Flags]
@@ -95,7 +95,7 @@ namespace Mirror.Examples.Common.Controllers.Tank
         [Range(0, 20)]
         [FormerlySerializedAs("moveSpeedMultiplier")]
         [Tooltip("Speed in meters per second")]
-        public float maxMoveSpeed = 4f;
+        public float maxMoveSpeed = 5f;
 
         // Replacement for Sensitvity from Input Settings.
         [Range(0, 10f)]
@@ -108,24 +108,18 @@ namespace Mirror.Examples.Common.Controllers.Tank
         public float inputGravity = 2f;
 
         [Header("Turning")]
-        [Range(0, 180f)]
+        [Range(0, 300f)]
         [Tooltip("Max Rotation in degrees per second")]
         public float maxTurnSpeed = 100f;
-        [Range(0, 5f)]
+        [Range(0, 10f)]
         [FormerlySerializedAs("turnDelta")]
         [Tooltip("Rotation acceleration in degrees per second squared")]
         public float turnAcceleration = 3f;
 
         [Header("Turret (Mouse)")]
-        [Range(0, 360f)]
+        [Range(0, 300f)]
         [Tooltip("Max Rotation in degrees per second")]
         public float maxTurretSpeed = 180f;
-        [Range(0, 1f)]
-        [Tooltip("Sensitivity factors into accelleration")]
-        public float mouseSensitivity = 0.01f;
-        [Range(0, 0.5f)]
-        [Tooltip("Time to reach the target rotation")]
-        public float smoothTime = 0.2f;
 
         [Header("Diagnostics")]
         [ReadOnly, SerializeField]
@@ -136,12 +130,14 @@ namespace Mirror.Examples.Common.Controllers.Tank
         [ReadOnly, SerializeField, Range(-1f, 1f)]
         float vertical;
 
-        [ReadOnly, SerializeField, Range(-180f, 180f)]
+        [ReadOnly, SerializeField, Range(-1f, 1f)]
+        float mouseInputX;
+        [ReadOnly, SerializeField, Range(0, 30f)]
+        float mouseSensitivity;
+        [ReadOnly, SerializeField, Range(-300f, 300f)]
         float turnSpeed;
-        [ReadOnly, SerializeField, Range(-1000f, 1000f)]
-        private float turnSmoothSpeed;
 
-        [ReadOnly, SerializeField, Range(-360f, 360f)]
+        [ReadOnly, SerializeField, Range(-300f, 300f)]
         float turretSpeed;
 
         [ReadOnly, SerializeField, Range(-1.5f, 1.5f)]
@@ -155,9 +151,6 @@ namespace Mirror.Examples.Common.Controllers.Tank
 
         [ReadOnly, SerializeField]
         Vector3Int velocity;
-
-        [ReadOnly, SerializeField]
-        Vector3 mouseDelta;
 
         [ReadOnly, SerializeField]
         GameObject controllerUI;
@@ -175,14 +168,11 @@ namespace Mirror.Examples.Common.Controllers.Tank
 
         void Reset()
         {
-            if (boxCollider == null)
-                boxCollider = GetComponent<BoxCollider>();
-
             if (animator == null)
-                animator = GetComponent<Animator>();
+                animator = GetComponentInChildren<Animator>();
 
-            boxCollider.center = new Vector3(0, 0.65f, 0.75f);
-            boxCollider.size = new Vector3(4.5f, 3.5f, 9f);
+            if (boxCollider == null)
+                boxCollider = GetComponentInChildren<BoxCollider>();
 
             // Enable by default...it will be disabled when characterController is enabled
             boxCollider.enabled = true;
@@ -195,18 +185,20 @@ namespace Mirror.Examples.Common.Controllers.Tank
             characterController.skinWidth = 0.02f;
             characterController.minMoveDistance = 0f;
 
+            // Set default...this may be modified based on DPI at runtime
+            mouseSensitivity = turnAcceleration;
+
             GetComponent<Rigidbody>().isKinematic = true;
 
+            // Do a recursive search for a children named "Turret" and "ProjectileMount".
+            // They will be several levels deep in the hierarchy.
             if (turret == null)
                 turret = FindDeepChild(transform, "Turret");
 
             if (projectileMount == null)
                 projectileMount = FindDeepChild(turret, "ProjectileMount");
 
-            // do a recursive search for a child named "Turret"
-            // it will be several levels deep in the hierarchy
             // tranform.Find will fail - must do recursive search
-            // FindDeepChild doesn't exist in Unity so you have to write it.
             Transform FindDeepChild(Transform aParent, string aName)
             {
                 var result = aParent.Find(aName);
@@ -224,24 +216,21 @@ namespace Mirror.Examples.Common.Controllers.Tank
             }
 
             NetworkTransformReliable[] NTRs = GetComponents<NetworkTransformReliable>();
-            if (NTRs.Length > 0)
-            {
-                tankNTR = NTRs[0];
-                tankNTR.target = transform;
-            }
 
+            // RequireComponent will add the first one if it doesn't exist
+            tankNTR = NTRs[0];
+            tankNTR.target = transform;
+
+            // Add the second one if it doesn't exist for the turret
             if (NTRs.Length < 2)
             {
                 gameObject.AddComponent<NetworkTransformReliable>();
                 NTRs = GetComponents<NetworkTransformReliable>();
             }
 
-            if (NTRs.Length > 1)
-            {
-                turretNTR = NTRs[1];
-                if (turret != null)
-                    turretNTR.target = turret;
-            }
+            turretNTR = NTRs[1];
+            if (turret != null)
+                turretNTR.target = turret;
 
 #if UNITY_EDITOR
             // For convenience in the examples, we use the GUID of the PlayerControllerUI and Projectile
@@ -267,6 +256,11 @@ namespace Mirror.Examples.Common.Controllers.Tank
 
         public override void OnStartAuthority()
         {
+            // Calculate DPI-aware sensitivity
+            float dpiScale = (Screen.dpi > 0) ? (Screen.dpi / BASE_DPI) : 1f;
+            mouseSensitivity = turnAcceleration * dpiScale;
+            //Debug.Log($"Screen DPI: {Screen.dpi}, DPI Scale: {dpiScale}, Adjusted Turn Acceleration: {turnAccelerationDPI}");
+
             SetCursor(controlOptions.HasFlag(ControlOptions.MouseLock));
 
             // capsuleCollider and characterController are mutually exclusive
@@ -417,18 +411,25 @@ namespace Mirror.Examples.Common.Controllers.Tank
 
         void HandleMouseTurret(float deltaTime)
         {
-            // Use GetAxisRaw for more responsive input and clamp
-            float mouseX = Mathf.Clamp(Input.GetAxisRaw("Mouse X"), -1f, 1f);
+            // Accumulate mouse input over time
+            mouseInputX += Input.GetAxisRaw("Mouse X") * mouseSensitivity;
 
-            // Calculate target turn speed with sensitivity
-            float targetTurnSpeed = mouseX * maxTurnSpeed * mouseSensitivity;
-            targetTurnSpeed = Mathf.Clamp(targetTurnSpeed, -maxTurretSpeed, maxTurretSpeed);
+            // Clamp the accumulator to simulate key press behavior
+            mouseInputX = Mathf.Clamp(mouseInputX, -1f, 1f);
 
-            // Smoothly interpolate the turn speed
-            turretSpeed = Mathf.SmoothDamp(turretSpeed, targetTurnSpeed, ref turnSmoothSpeed, smoothTime);
+            // Calculate target turn speed
+            float targetTurnSpeed = mouseInputX * maxTurretSpeed;
+
+            // Use the same acceleration logic as HandleTurning
+            turretSpeed = Mathf.MoveTowards(turretSpeed, targetTurnSpeed, mouseSensitivity * maxTurretSpeed * deltaTime);
 
             // Apply rotation
-            turret.Rotate(Vector3.up * turretSpeed, Space.World);
+            turret.Rotate(0f, turretSpeed * deltaTime, 0f);
+
+            // Decay the accumulator over time
+            //float decayRate = 5f; // Adjust as needed
+            //mouseInputX = Mathf.MoveTowards(mouseInputX, 0f, decayRate * deltaTime);
+            mouseInputX = Mathf.MoveTowards(mouseInputX, 0f, mouseSensitivity * deltaTime);
         }
 
         // Turning works while airborne...feature?

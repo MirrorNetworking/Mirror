@@ -373,19 +373,16 @@ MonoBehaviour:
   jumpAcceleration: 4
   maxTurnSpeed: 100
   turnAcceleration: 3
-  mouseSensitivity: 2
   groundState: 2
   horizontal: 0
   vertical: 0
-  jumpSpeed: 0
-  turnSpeed: 0
-  turnSmoothSpeed: 0
   mouseInputX: 0
+  turnSpeed: 0
+  jumpSpeed: 0
   animVelocity: 0
   animRotation: 0
   direction: {x: 0, y: 0, z: 0}
   velocity: {x: 0, y: 0, z: 0}
-  mouseDelta: {x: 0, y: 0, z: 0}
   controllerUI: {fileID: 0}
 --- !u!114 &6315922853844755037
 MonoBehaviour:

@@ -33,6 +33,8 @@ namespace Mirror.Examples.Common.Controllers.Player
     [DisallowMultipleComponent]
     public class PlayerController : NetworkBehaviour
     {
+        const float BASE_DPI = 96f;
+
         public enum GroundState : byte { Jumping, Falling, Grounded }
 
         [Flags]
@@ -104,16 +106,16 @@ namespace Mirror.Examples.Common.Controllers.Player
         public float jumpAcceleration = 4f;
 
         [Header("Turning")]
-        [Range(0, 180f)]
+        [Range(0, 300f)]
         [Tooltip("Max Rotation in degrees per second")]
         public float maxTurnSpeed = 100f;
-        [Range(0, 5f)]
+        [Range(0, 10f)]
         [FormerlySerializedAs("turnDelta")]
         [Tooltip("Rotation acceleration in degrees per second squared")]
         public float turnAcceleration = 3f;
-        [Range(0, 10f)]
-        [Tooltip("Sensitivity factors into accelleration")]
-        public float mouseSensitivity = 2f;
+        //[Range(0, 10f)]
+        //[Tooltip("Sensitivity factors into accelleration")]
+        //public float mouseSensitivity = 2f;
 
         [Header("Diagnostics")]
         [ReadOnly, SerializeField]
@@ -125,8 +127,10 @@ namespace Mirror.Examples.Common.Controllers.Player
         float vertical;
 
         [ReadOnly, SerializeField, Range(-1f, 1f)]
-        float mouseInputX = 0f;
-        [ReadOnly, SerializeField, Range(-180f, 180f)]
+        float mouseInputX;
+        [ReadOnly, SerializeField, Range(0, 30f)]
+        float mouseSensitivity;
+        [ReadOnly, SerializeField, Range(-300f, 300f)]
         float turnSpeed;
 
         [ReadOnly, SerializeField, Range(-10f, 10f)]
@@ -194,6 +198,11 @@ namespace Mirror.Examples.Common.Controllers.Player
 
         public override void OnStartAuthority()
         {
+            // Calculate DPI-aware sensitivity
+            float dpiScale = (Screen.dpi > 0) ? (Screen.dpi / BASE_DPI) : 1f;
+            mouseSensitivity = turnAcceleration * dpiScale;
+            //Debug.Log($"Screen DPI: {Screen.dpi}, DPI Scale: {dpiScale}, Adjusted Turn Acceleration: {turnAccelerationDPI}");
+
             SetCursor(controlOptions.HasFlag(ControlOptions.MouseSteer));
 
             // capsuleCollider and characterController are mutually exclusive
@@ -319,85 +328,15 @@ namespace Mirror.Examples.Common.Controllers.Player
             float targetTurnSpeed = mouseInputX * maxTurnSpeed;
 
             // Use the same acceleration logic as HandleTurning
-            turnSpeed = Mathf.MoveTowards(turnSpeed, targetTurnSpeed, turnAcceleration * maxTurnSpeed * deltaTime);
+            turnSpeed = Mathf.MoveTowards(turnSpeed, targetTurnSpeed, mouseSensitivity * maxTurnSpeed * deltaTime);
 
             // Apply rotation
             transform.Rotate(0f, turnSpeed * deltaTime, 0f);
 
             // Decay the accumulator over time
-            float decayRate = 5f; // Adjust as needed
-            mouseInputX = Mathf.MoveTowards(mouseInputX, 0f, decayRate * deltaTime);
-        }
-
-        //void HandleMouseSteer(float deltaTime)
-        //{
-        //    // Use GetAxisRaw for more responsive input and clamp
-        //    float mouseX = Mathf.Clamp(Input.GetAxisRaw("Mouse X"), -1f, 1f);
-
-        //    // Calculate target turn speed with sensitivity
-        //    float targetTurnSpeed = mouseX * maxTurnSpeed * mouseSensitivity;
-
-        //    // Smoothly interpolate the turn speed
-        //    turnSpeed = Mathf.SmoothDamp(turnSpeed, targetTurnSpeed, ref turnSmoothSpeed, smoothTime);
-
-        //    // Apply rotation
-        //    float rotationAmount = turnSpeed * deltaTime;
-        //    transform.Rotate(Vector3.up * rotationAmount, Space.World);
-        //}
-
-        //void HandleMouseSteer(float deltaTime)
-        //{
-        //    // Use GetAxisRaw for more responsive input and clamp
-        //    float mouseX = Mathf.Clamp(Input.GetAxisRaw("Mouse X"), -1f, 1f);
-
-        //    // Calculate target turn speed with sensitivity
-        //    float targetTurnSpeed = mouseX * maxTurnSpeed * mouseSensitivity;
-        //    targetTurnSpeed = Mathf.Clamp(targetTurnSpeed, -maxTurnSpeed, maxTurnSpeed);
-
-        //    // Smoothly interpolate the turn speed
-        //    turnSpeed = Mathf.SmoothDamp(turnSpeed, targetTurnSpeed, ref turnSmoothSpeed, smoothTime);
-
-        //    // Apply rotation
-        //    transform.Rotate(Vector3.up * turnSpeed, Space.World);
-        //}
-
-        //void HandleMouseSteer(float deltaTime)
-        //{
-        //    // Use GetAxisRaw for more responsive input and clamp
-        //    float mouseX = Mathf.Clamp(Input.GetAxisRaw("Mouse X"), -1f, 1f);
-
-        //    // Calculate the target turn speed based on mouse input
-        //    float targetTurnSpeed = mouseX * maxTurnSpeed;
-
-        //    // Smoothly interpolate the current turn speed towards the target turn speed
-        //    turnSpeed = Mathf.MoveTowards(turnSpeed, targetTurnSpeed, turnAcceleration * maxTurnSpeed * deltaTime);
-
-        //    // Apply the rotation
-        //    transform.Rotate(0f, turnSpeed * deltaTime, 0f);
-        //}
-
-        void HandleMouseSteerX(float deltaTime)
-        {
-            // Use GetAxisRaw for more responsive input
-            float mouseX = Input.GetAxisRaw("Mouse X");
-
-            // Directly set the turn speed based on mouse input
-            float targetTurnSpeed = mouseX * maxTurnSpeed * mouseSensitivity;
-
-            // Accelerate or decelerate towards the target turn speed
-            if (Mathf.Abs(targetTurnSpeed) > Mathf.Abs(turnSpeed))
-            {
-                // Accelerating
-                turnSpeed = Mathf.MoveTowards(turnSpeed, targetTurnSpeed, turnAcceleration * maxTurnSpeed * deltaTime);
-            }
-            else
-            {
-                // Decelerating
-                turnSpeed = Mathf.MoveTowards(turnSpeed, 0, turnAcceleration * maxTurnSpeed * deltaTime);
-            }
-
-            // Apply the rotation
-            transform.Rotate(0f, turnSpeed * deltaTime, 0f);
+            //float decayRate = 5f; // Adjust as needed
+            //mouseInputX = Mathf.MoveTowards(mouseInputX, 0f, decayRate * deltaTime);
+            mouseInputX = Mathf.MoveTowards(mouseInputX, 0f, mouseSensitivity * deltaTime);
         }
 
         void HandleJumping(float deltaTime)

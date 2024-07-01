@@ -9,8 +9,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4659514702152478195}
-  - component: {fileID: 3078371500941330614}
-  - component: {fileID: 5432687646898339371}
   - component: {fileID: 3560139896991457593}
   - component: {fileID: 1584615235374487050}
   - component: {fileID: 796067987244239294}
@@ -34,7 +32,7 @@ Transform:
   m_GameObject: {fileID: 7863680369626900553}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1, y: 1.1, z: 0}
+  m_LocalPosition: {x: -1, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -42,48 +40,6 @@ Transform:
   - {fileID: 8174595063106582951}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!95 &3078371500941330614
-Animator:
-  serializedVersion: 5
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7863680369626900553}
-  m_Enabled: 1
-  m_Avatar: {fileID: 9000000, guid: 38b49695fc0a4418bbc350f2366660c5, type: 3}
-  m_Controller: {fileID: 9100000, guid: a7211483bbd794b6d85ed88576e7d85c, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
---- !u!65 &5432687646898339371
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7863680369626900553}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 4.5, y: 3.5, z: 9}
-  m_Center: {x: 0, y: 0.65, z: 0.75}
 --- !u!114 &3560139896991457593
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -126,7 +82,7 @@ CharacterController:
   m_StepOffset: 0.3
   m_SkinWidth: 0.02
   m_MinMoveDistance: 0
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Center: {x: 0, y: 1, z: 0}
 --- !u!54 &796067987244239294
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -254,8 +210,8 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
-  boxCollider: {fileID: 5432687646898339371}
-  animator: {fileID: 3078371500941330614}
+  boxCollider: {fileID: 848258961126524234}
+  animator: {fileID: 702109291319152264}
   characterController: {fileID: 1584615235374487050}
   tankNTR: {fileID: 943969255301123906}
   turretNTR: {fileID: 8667765936904249413}
@@ -275,25 +231,23 @@ MonoBehaviour:
     AutoRun: 114
     ToggleUI: 117
   controlOptions: 5
-  maxMoveSpeed: 4
+  maxMoveSpeed: 5
   inputSensitivity: 2
   inputGravity: 2
   maxTurnSpeed: 100
   turnAcceleration: 3
   maxTurretSpeed: 180
-  mouseSensitivity: 0.01
-  smoothTime: 0.2
   groundState: 2
   horizontal: 0
   vertical: 0
+  mouseInputX: 0
+  mouseSensitivity: 3
   turnSpeed: 0
-  turnSmoothSpeed: 0
   turretSpeed: 0
   animVelocity: 0
   animRotation: 0
   direction: {x: 0, y: 0, z: 0}
   velocity: {x: 0, y: 0, z: 0}
-  mouseDelta: {x: 0, y: 0, z: 0}
   controllerUI: {fileID: 0}
 --- !u!1 &9109672380512621037
 GameObject:
@@ -323,8 +277,8 @@ Transform:
   m_GameObject: {fileID: 9109672380512621037}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 3, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: 0, y: 4, z: 0}
+  m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4659514702152478195}
@@ -379,20 +333,20 @@ TextMesh:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9109672380512621037}
-  m_Text: ----
+  m_Text: -----
   m_OffsetZ: 0
-  m_CharacterSize: 0.02
+  m_CharacterSize: 1
   m_LineSpacing: 1
   m_Anchor: 4
   m_Alignment: 1
   m_TabSize: 4
-  m_FontSize: 500
-  m_FontStyle: 1
+  m_FontSize: 100
+  m_FontStyle: 0
   m_RichText: 1
   m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
   m_Color:
     serializedVersion: 2
-    rgba: 4285887999
+    rgba: 4294967295
 --- !u!114 &1151573331580713941
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -415,7 +369,19 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 3638700596990255941, guid: dad07e68d3659e6439279d0d4110cf4c, type: 3}
       propertyPath: m_Name
-      value: 3D Model
+      value: BasePrefab
+      objectReference: {fileID: 0}
+    - target: {fileID: 3638700596990361441, guid: dad07e68d3659e6439279d0d4110cf4c, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3638700596990361441, guid: dad07e68d3659e6439279d0d4110cf4c, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3638700596990361441, guid: dad07e68d3659e6439279d0d4110cf4c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3638700596990361445, guid: dad07e68d3659e6439279d0d4110cf4c, type: 3}
       propertyPath: m_LocalPosition.x
@@ -423,7 +389,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3638700596990361445, guid: dad07e68d3659e6439279d0d4110cf4c, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -1
+      value: 0.05
       objectReference: {fileID: 0}
     - target: {fileID: 3638700596990361445, guid: dad07e68d3659e6439279d0d4110cf4c, type: 3}
       propertyPath: m_LocalPosition.z
@@ -470,6 +436,16 @@ Transform:
 --- !u!4 &702109291309605222 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3638700596990361441, guid: dad07e68d3659e6439279d0d4110cf4c, type: 3}
+  m_PrefabInstance: {fileID: 4305764793209200135}
+  m_PrefabAsset: {fileID: 0}
+--- !u!95 &702109291319152264 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 3638700596980764815, guid: dad07e68d3659e6439279d0d4110cf4c, type: 3}
+  m_PrefabInstance: {fileID: 4305764793209200135}
+  m_PrefabAsset: {fileID: 0}
+--- !u!65 &848258961126524234 stripped
+BoxCollider:
+  m_CorrespondingSourceObject: {fileID: 3460094114880756557, guid: dad07e68d3659e6439279d0d4110cf4c, type: 3}
   m_PrefabInstance: {fileID: 4305764793209200135}
   m_PrefabAsset: {fileID: 0}
 --- !u!4 &5863288529097842480 stripped
