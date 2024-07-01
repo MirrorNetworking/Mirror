@@ -201,7 +201,7 @@ namespace Mirror.Tests
                     case EventType.Connected:
                         Debug.Log("MemoryTransport Server Message: Connected");
                         // event might be null in tests if no NetworkClient is used.
-                        OnServerConnected?.Invoke(message.connectionId);
+                        OnServerConnected?.Invoke(message.connectionId, "localhost");
                         break;
                     case EventType.Data:
                         Debug.Log($"MemoryTransport Server Message: Data: {BitConverter.ToString(message.data)}");

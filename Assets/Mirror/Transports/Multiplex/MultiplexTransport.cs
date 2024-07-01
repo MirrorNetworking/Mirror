@@ -261,12 +261,12 @@ namespace Mirror
                 int transportIndex = i;
                 Transport transport = transports[i];
 
-                transport.OnServerConnected = (originalConnectionId =>
+                transport.OnServerConnected = (originalConnectionId, originalAddress) =>
                 {
                     // invoke Multiplex event with multiplexed connectionId
                     int multiplexedId = AddToLookup(originalConnectionId, transportIndex);
-                    OnServerConnected.Invoke(multiplexedId);
-                });
+                    OnServerConnected.Invoke(multiplexedId, originalAddress);
+                };
 
                 transport.OnServerDataReceived = (originalConnectionId, data, channel) =>
                 {
@@ -282,7 +282,7 @@ namespace Mirror
                         }
                         else
                             Debug.LogWarning($"[Multiplexer] Received data for unknown connectionId={originalConnectionId} on transport={transportIndex}");
-              
+
                         return;
                     }
                     OnServerDataReceived.Invoke(multiplexedId, data, channel);
@@ -302,7 +302,7 @@ namespace Mirror
                         }
                         else
                             Debug.LogError($"[Multiplexer] Received error for unknown connectionId={originalConnectionId} on transport={transportIndex}");
-                        
+
                         return;
                     }
                     OnServerError.Invoke(multiplexedId, error, reason);
@@ -329,7 +329,7 @@ namespace Mirror
                         }
                         else
                             Debug.LogWarning($"[Multiplexer] Received disconnect for unknown connectionId={originalConnectionId} on transport={transportIndex}");
-                        
+
                         return;
                     }
                     OnServerDisconnected.Invoke(multiplexedId);

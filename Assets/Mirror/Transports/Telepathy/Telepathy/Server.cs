@@ -11,7 +11,7 @@ namespace Telepathy
     {
         // events to hook into
         // => OnData uses ArraySegment for allocation free receives later
-        public Action<int> OnConnected;
+        public Action<int, IPEndPoint> OnConnected; // connectionId, IPEndPoint
         public Action<int, ArraySegment<byte>> OnData;
         public Action<int> OnDisconnected;
 
@@ -316,16 +316,16 @@ namespace Telepathy
         }
 
         // client's ip is sometimes needed by the server, e.g. for bans
-        public string GetClientAddress(int connectionId)
+        IPEndPoint GetClientEndPoint(int connectionId)
         {
             try
             {
                 // find the connection
                 if (clients.TryGetValue(connectionId, out ConnectionState connection))
                 {
-                    return ((IPEndPoint)connection.client.Client.RemoteEndPoint).Address.ToString();
+                    return (IPEndPoint)connection.client.Client.RemoteEndPoint;
                 }
-                return "";
+                return null;
             }
             catch (SocketException)
             {
@@ -337,8 +337,15 @@ namespace Telepathy
                 //   incompatible with the requested protocol was used at
                 //   System.Net.Sockets.Socket.get_LocalEndPoint ()
                 // so let's at least catch it and recover
-                return "unknown";
+                return null;
             }
+        }
+
+        [Obsolete("Telepathy.Server.GetClientEndPoint() isn't needed anymore. Connection endpoints are now passed in the Telepathy.Server.OnConnected event in order to make threaded transports easier.")]
+        public string GetClientAddress(int connectionId)
+        {
+            IPEndPoint endPoint = GetClientEndPoint(connectionId);
+            return endPoint != null ? endPoint.Address.ToString() : "unknown";
         }
 
         // disconnect (kick) a client
@@ -388,7 +395,9 @@ namespace Telepathy
                     switch (eventType)
                     {
                         case EventType.Connected:
-                            OnConnected?.Invoke(connectionId);
+                            // pass address in OnConnected for easier ThreadedTransport support
+                            IPEndPoint endPoint = GetClientEndPoint(connectionId);
+                            OnConnected?.Invoke(connectionId, endPoint);
                             break;
                         case EventType.Data:
                             OnData?.Invoke(connectionId, message);

@@ -238,7 +238,7 @@ namespace Mirror.Tests.Transports
             ArraySegment<byte> segment = new ArraySegment<byte>(data);
 
             // on connect, send a message back
-            void SendMessage(int connectionId)
+            void SendMessage(int connectionId, string address)
             {
                 transport.ServerSend(connectionId, segment, 5);
             }
@@ -247,7 +247,7 @@ namespace Mirror.Tests.Transports
             transport.OnServerConnected = SendMessage;
             transport.ServerStart();
 
-            transport1.OnServerConnected.Invoke(1);
+            transport1.OnServerConnected.Invoke(1, "");
 
             transport1.Received().ServerSend(1, segment, 5);
         }
@@ -260,14 +260,14 @@ namespace Mirror.Tests.Transports
             transport.ServerStart();
             transport.ClientConnect("some.server.com");
 
-            transport.OnServerConnected    = _ => {};
+            transport.OnServerConnected    = (connId, address) => {};
             transport.OnServerDisconnected = _ => {};
 
             // connect two connectionIds.
             // one of them very large to prevent
             // https://github.com/vis2k/Mirror/issues/3280
-            transport1.OnServerConnected(10);
-            transport2.OnServerConnected(int.MaxValue);
+            transport1.OnServerConnected(10, "");
+            transport2.OnServerConnected(int.MaxValue, "");
 
             byte[] data = { 1, 2, 3 };
             ArraySegment<byte> segment = new ArraySegment<byte>(data);

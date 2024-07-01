@@ -3,6 +3,9 @@
 // Connecting:
 //   * Transports are responsible to call either OnConnected || OnDisconnected
 //     in a certain time after a Connect was called. It can not end in limbo.
+//   * OnConnected should always pass the connection address.
+//     This makes threaded transports easier.
+//     Otherwise we would need to keep a main thread connections copy.
 //
 // Disconnecting:
 //   * Connections might disconnect voluntarily by the other end.
@@ -67,7 +70,8 @@ namespace Mirror
 
         // server //////////////////////////////////////////////////////////////
         /// <summary>Called by Transport when a new client connected to the server.</summary>
-        public Action<int> OnServerConnected;
+        // parameters: <connectionId, address> to pass address directly instead of having a separate ServerGetClientAddress() function.
+        public Action<int, string> OnServerConnected;
 
         /// <summary>Called by Transport when the server received a message from a client.</summary>
         public Action<int, ArraySegment<byte>, int> OnServerDataReceived;
@@ -131,6 +135,8 @@ namespace Mirror
 
         /// <summary>Get a client's address on the server.</summary>
         // Can be useful for Game Master IP bans etc.
+        // DEPRECATED 2024-05-16
+        [Obsolete("Transport.ServerGetClientAddress() was deprecated. Each connection's address is now passed only once in OnServerConnected instead.")]
         public abstract string ServerGetClientAddress(int connectionId);
 
         /// <summary>Stop listening and disconnect all connections.</summary>

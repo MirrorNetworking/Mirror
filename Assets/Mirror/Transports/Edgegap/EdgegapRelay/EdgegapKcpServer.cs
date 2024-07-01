@@ -28,7 +28,7 @@ namespace Edgegap
         bool relayActive;
 
         public EdgegapKcpServer(
-            Action<int> OnConnected,
+            Action<int, IPEndPoint> OnConnected,
             Action<int, ArraySegment<byte>, KcpChannel> OnData,
             Action<int> OnDisconnected,
             Action<int, ErrorCode, string> OnError,
