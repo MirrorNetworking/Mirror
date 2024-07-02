@@ -59,6 +59,8 @@ namespace Mirror.Examples.Tanks
         void CmdFire()
         {
             GameObject projectile = Instantiate(projectilePrefab, projectileMount.position, projectileMount.rotation);
+            //Physics.IgnoreCollision(projectile.GetComponent<CapsuleCollider>(), GetComponentInChildren<CapsuleCollider>());
+            //Physics.IgnoreCollision(projectile.GetComponent<CapsuleCollider>(), GetComponentInChildren<BoxCollider>());
             NetworkServer.Spawn(projectile);
             RpcOnFire();
         }
@@ -70,16 +72,16 @@ namespace Mirror.Examples.Tanks
             animator.SetTrigger("Shoot");
         }
 
-        [ServerCallback]
-        void OnTriggerEnter(Collider other)
-        {
-            if (other.GetComponent<Projectile>() != null)
-            {
-                --health;
-                if (health == 0)
-                    NetworkServer.Destroy(gameObject);
-            }
-        }
+        //[ServerCallback]
+        //void OnTriggerEnter(Collider other)
+        //{
+        //    if (other.GetComponent<Projectile>() != null)
+        //    {
+        //        --health;
+        //        if (health == 0)
+        //            NetworkServer.Destroy(gameObject);
+        //    }
+        //}
 
         void RotateTurret()
         {

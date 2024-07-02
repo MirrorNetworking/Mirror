@@ -14,7 +14,6 @@ GameObject:
   - component: {fileID: 3464953498043699706}
   - component: {fileID: 114654712548978148}
   - component: {fileID: 6900008319038825817}
-  - component: {fileID: 5194388907919410155}
   m_Layer: 0
   m_Name: Tank
   m_TagString: Untagged
@@ -159,7 +158,7 @@ NavMeshAgent:
   m_GameObject: {fileID: 1916082411674582}
   m_Enabled: 1
   m_AgentTypeID: 0
-  m_Radius: 0.5
+  m_Radius: 4
   m_Speed: 5
   m_Acceleration: 1
   avoidancePriority: 50
@@ -168,31 +167,10 @@ NavMeshAgent:
   m_AutoTraverseOffMeshLink: 1
   m_AutoBraking: 1
   m_AutoRepath: 1
-  m_Height: 0.5
-  m_BaseOffset: 0
+  m_Height: 3.5
+  m_BaseOffset: 0.05
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 0
---- !u!135 &5194388907919410155
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1916082411674582}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Radius: 0.5
-  m_Center: {x: 0, y: 0.25, z: 0}
 --- !u!1 &6882277736259849937
 GameObject:
   m_ObjectHideFlags: 0
