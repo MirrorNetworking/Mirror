@@ -59,8 +59,6 @@ namespace Mirror.Examples.Tanks
         void CmdFire()
         {
             GameObject projectile = Instantiate(projectilePrefab, projectileMount.position, projectileMount.rotation);
-            //Physics.IgnoreCollision(projectile.GetComponent<CapsuleCollider>(), GetComponentInChildren<CapsuleCollider>());
-            //Physics.IgnoreCollision(projectile.GetComponent<CapsuleCollider>(), GetComponentInChildren<BoxCollider>());
             NetworkServer.Spawn(projectile);
             RpcOnFire();
         }
