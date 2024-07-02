@@ -31,8 +31,6 @@ public class PlayerPickupParty : NetworkBehaviour
         // Grab and setup camera for local player only
         mainCamera = Camera.main;
         cameraFollow = mainCamera.GetComponent<CameraFollow>();
-        cameraFollow.mapCamera.SetActive(false);
-        cameraFollow.gameObject.SetActive(true);
         cameraFollow.targetTransform = this.transform;
     }
 #endif
@@ -80,9 +78,17 @@ public class PlayerPickupParty : NetworkBehaviour
         float moveHorizontal = Input.GetAxis("Horizontal");
         float moveVertical = Input.GetAxis("Vertical");
 
-        Vector3 horizontalMovement = new Vector3(moveHorizontal, 0f, moveVertical);
-        if (horizontalMovement.magnitude > 1f) horizontalMovement.Normalize();
-        horizontalMovement *= moveSpeed;
+        //Vector3 horizontalMovement = new Vector3(moveHorizontal, 0f, moveVertical);
+        //if (horizontalMovement.magnitude > 1f) horizontalMovement.Normalize();
+        //horizontalMovement *= moveSpeed;
+
+        Vector3 cameraForward = Camera.main.transform.forward;
+        Vector3 cameraRight = Camera.main.transform.right;
+        cameraForward.y = 0f;
+        cameraRight.y = 0f;
+        cameraForward.Normalize();
+        cameraRight.Normalize();
+        Vector3 horizontalMovement = (cameraForward * moveVertical + cameraRight * moveHorizontal).normalized * moveSpeed;
 
         if (characterController.isGrounded)
         {
@@ -167,7 +173,11 @@ public class PlayerPickupParty : NetworkBehaviour
 
     public void OnDestroy()
     {
-        // switch cameras
-        //if (mainCamera) { mainCamera.GetComponent<AudioListener>().enabled = true; }
+        if (cameraFollow)
+        {
+            // reset camera, useful for testing without stopping editor, or using offline scenes.
+            cameraFollow.transform.position = new Vector3(0, 50, 0);
+            cameraFollow.transform.localEulerAngles = new Vector3(90, 0, 0);
+        }
     }
 }
