@@ -18,6 +18,7 @@ public class PlayerPickupParty : NetworkBehaviour
     public PlayerArmSlot[] playerArmSlots; // acts like inventory slots
     public bool freezeRotationRB = true; // if false, picked up objects rotate with collision
 
+    private CameraFollow cameraFollow;
     public CharacterController characterController;
     private Camera mainCamera;
     private int slotActive = 0; // 0 right arm, 1 left arm
@@ -29,6 +30,10 @@ public class PlayerPickupParty : NetworkBehaviour
     {
         // Grab and setup camera for local player only
         mainCamera = Camera.main;
+        cameraFollow = mainCamera.GetComponent<CameraFollow>();
+        cameraFollow.mapCamera.SetActive(false);
+        cameraFollow.gameObject.SetActive(true);
+        cameraFollow.targetTransform = this.transform;
     }
 #endif
 
@@ -51,7 +56,7 @@ public class PlayerPickupParty : NetworkBehaviour
 
         if (Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.E))
         {
-            Pickup();
+            Interact();
         }
 
         if (Input.GetMouseButtonDown(1) || Input.GetKeyDown(KeyCode.Q))
@@ -146,9 +151,9 @@ public class PlayerPickupParty : NetworkBehaviour
 
 #if !UNITY_SERVER
     [ClientCallback]
-    void Pickup()
+    void Interact()
     {
-        if (canPickup && playerArmSlots[slotActive].pickedUpNetworkObject == null)
+        if (canPickup && playerArmSlots[slotActive].pickedUpNetworkObject == null && playerArmSlots[slotActive].pickupObject != null)
         {
             playerArmSlots[slotActive].CmdPickup(playerArmSlots[slotActive].pickupObject.GetComponent<NetworkIdentity>());
             canPickup = false;
@@ -159,4 +164,10 @@ public class PlayerPickupParty : NetworkBehaviour
         }
     }
 #endif
+
+    public void OnDestroy()
+    {
+        // switch cameras
+        //if (mainCamera) { mainCamera.GetComponent<AudioListener>().enabled = true; }
+    }
 }

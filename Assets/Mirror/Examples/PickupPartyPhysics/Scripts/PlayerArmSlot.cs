@@ -37,7 +37,7 @@ public class PlayerArmSlot : NetworkBehaviour
 
     void OnTriggerExit(Collider other)
     {
-        if (pickedUpNetworkObject == null) return;
+        if (pickupObject == null) return;
         //print("OnTriggerExit: " + other.gameObject.name);
 
         // should be a tag, but we're not using tags in examples incase they do not copy across during import
@@ -80,23 +80,36 @@ public class PlayerArmSlot : NetworkBehaviour
     {
         // we cache rigidbody on pickup, not on trigger detection, so GetComponent will be called less frequently
         pickupObject = pickedUpNetworkObject.GetComponent<PickupObject>();
-        pickupObject.playerHolder = this.transform.root.gameObject;
-        pickupObject.pickupRigidbody.useGravity = false;
-        pickupObject.pickupRigidbody.constraints = RigidbodyConstraints.FreezeRotation;
-        //pickedUpNetworkObject.GetComponent<Collider>().enabled = false;
-        pickupObject.networkTransform.enabled = false;
-        armTrigger.enabled = false;
+        if (pickupObject)
+        {
+            pickupObject.playerHolder = this.transform.root.gameObject;
+            //pickedUpNetworkObject.GetComponent<Collider>().enabled = false;
+            if (pickupObject.pickupRigidbody)
+            {
+                pickupObject.pickupRigidbody.useGravity = false;
+                pickupObject.pickupRigidbody.constraints = RigidbodyConstraints.FreezeRotation;
+            }
+            if (pickupObject.networkTransform) { pickupObject.networkTransform.enabled = false; }
+            armTrigger.enabled = false;
+        }
     }
 
     public void DropResult()
     {
-        pickupObject.pickupRigidbody.useGravity = true;
-        pickupObject.pickupRigidbody.constraints = RigidbodyConstraints.None;
-        //pickedUpNetworkObject.GetComponent<Collider>().enabled = true;
-        armTrigger.enabled = true;
-        pickedUpNetworkObject = null;
-        pickupObject.networkTransform.enabled = true;
-        pickupObject.playerHolder = null;
+        if (pickupObject)
+        {
+            if (pickupObject.pickupRigidbody)
+            {
+                pickupObject.pickupRigidbody.useGravity = true;
+                pickupObject.pickupRigidbody.constraints = RigidbodyConstraints.None;
+            }
+            //pickedUpNetworkObject.GetComponent<Collider>().enabled = true;
+            armTrigger.enabled = true;
+            pickedUpNetworkObject = null;
+            if (pickupObject.networkTransform) { pickupObject.networkTransform.enabled = true; }
+            pickupObject.playerHolder = null;
+            pickupObject = null;
+        }
     }
 
     [Command]
