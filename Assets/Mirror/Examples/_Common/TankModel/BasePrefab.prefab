@@ -41,7 +41,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 100004, guid: 38b49695fc0a4418bbc350f2366660c5, type: 3}
       propertyPath: m_Name
-      value: Chassis
+      value: Chasis
       objectReference: {fileID: 0}
     - target: {fileID: 100010, guid: 38b49695fc0a4418bbc350f2366660c5, type: 3}
       propertyPath: m_Name
