@@ -267,7 +267,7 @@ namespace Mirror.Examples.Common.Controllers.Flyer
 
             if (controllerUI != null)
             {
-                if (controllerUI.TryGetComponent<FlyerControllerUI>(out FlyerControllerUI canvasControlPanel))
+                if (controllerUI.TryGetComponent(out FlyerControllerUI canvasControlPanel))
                     canvasControlPanel.Refresh(moveKeys, flightKeys, optionsKeys);
 
                 controllerUI.SetActive(controlOptions.HasFlag(ControlOptions.ShowUI));

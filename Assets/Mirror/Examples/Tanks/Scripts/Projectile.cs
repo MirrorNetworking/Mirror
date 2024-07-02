@@ -33,7 +33,7 @@ namespace Mirror.Examples.Tanks
         void OnTriggerEnter(Collider other)
         {
             Debug.Log("Hit: " + other.name);
-            if (other.transform.parent.TryGetComponent<Tank>(out Tank tank))
+            if (other.transform.parent.TryGetComponent(out Tank tank))
             {
                 --tank.health;
                 if (tank.health == 0)

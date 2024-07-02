@@ -289,7 +289,7 @@ namespace Mirror.Examples.Common.Controllers.Tank
 
             if (controllerUI != null)
             {
-                if (controllerUI.TryGetComponent<TankControllerUI>(out TankControllerUI canvasControlPanel))
+                if (controllerUI.TryGetComponent(out TankControllerUI canvasControlPanel))
                     canvasControlPanel.Refresh(moveKeys, otherKeys, optionsKeys);
 
                 controllerUI.SetActive(controlOptions.HasFlag(ControlOptions.ShowUI));

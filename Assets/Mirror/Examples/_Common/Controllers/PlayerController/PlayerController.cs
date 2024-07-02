@@ -47,7 +47,6 @@ namespace Mirror.Examples.Common.Controllers.Player
         }
 
         [Header("Avatar Components")]
-        public CapsuleCollider capsuleCollider;
         public CharacterController characterController;
 
         [Header("User Interface")]
@@ -164,12 +163,6 @@ namespace Mirror.Examples.Common.Controllers.Player
 
         void Reset()
         {
-            if (capsuleCollider == null)
-                capsuleCollider = GetComponent<CapsuleCollider>();
-
-            // Enable by default...it will be disabled when characterController is enabled
-            capsuleCollider.enabled = true;
-
             if (characterController == null)
                 characterController = GetComponent<CharacterController>();
 
@@ -205,9 +198,6 @@ namespace Mirror.Examples.Common.Controllers.Player
 
             SetCursor(controlOptions.HasFlag(ControlOptions.MouseSteer));
 
-            // capsuleCollider and characterController are mutually exclusive
-            // Having both enabled would double fire triggers and other collisions
-            capsuleCollider.enabled = false;
             characterController.enabled = true;
             this.enabled = true;
         }
@@ -215,12 +205,7 @@ namespace Mirror.Examples.Common.Controllers.Player
         public override void OnStopAuthority()
         {
             this.enabled = false;
-
-            // capsuleCollider and characterController are mutually exclusive
-            // Having both enabled would double fire triggers and other collisions
-            capsuleCollider.enabled = true;
             characterController.enabled = false;
-
             SetCursor(false);
         }
 
@@ -231,7 +216,7 @@ namespace Mirror.Examples.Common.Controllers.Player
 
             if (controllerUI != null)
             {
-                if (controllerUI.TryGetComponent<PlayerControllerUI>(out PlayerControllerUI canvasControlPanel))
+                if (controllerUI.TryGetComponent(out PlayerControllerUI canvasControlPanel))
                     canvasControlPanel.Refresh(moveKeys, optionsKeys);
 
                 controllerUI.SetActive(controlOptions.HasFlag(ControlOptions.ShowUI));
