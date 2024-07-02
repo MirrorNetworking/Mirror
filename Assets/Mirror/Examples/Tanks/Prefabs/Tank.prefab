@@ -11,8 +11,8 @@ GameObject:
   - component: {fileID: 4492442352427800}
   - component: {fileID: 114118589361100106}
   - component: {fileID: 114250499875391520}
+  - component: {fileID: 3464953498043699706}
   - component: {fileID: 114654712548978148}
-  - component: {fileID: 2240606817507776182}
   - component: {fileID: 6900008319038825817}
   - component: {fileID: 5194388907919410155}
   m_Layer: 0
@@ -31,7 +31,7 @@ Transform:
   m_GameObject: {fileID: 1916082411674582}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -91,6 +91,41 @@ MonoBehaviour:
   positionSensitivity: 0.01
   rotationSensitivity: 0.01
   scaleSensitivity: 0.01
+--- !u!114 &3464953498043699706
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1916082411674582}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a553cb17010b2403e8523b558bffbc14, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncDirection: 1
+  syncMode: 0
+  syncInterval: 0
+  target: {fileID: 5803173220413450936}
+  syncPosition: 0
+  syncRotation: 1
+  syncScale: 0
+  onlySyncOnChange: 1
+  compressRotation: 1
+  interpolatePosition: 0
+  interpolateRotation: 1
+  interpolateScale: 0
+  coordinateSpace: 0
+  sendIntervalMultiplier: 1
+  timelineOffset: 0
+  showGizmos: 0
+  showOverlay: 0
+  overlayColor: {r: 0, g: 0, b: 0, a: 0.5}
+  bufferResetMultiplier: 3
+  changedDetection: 1
+  positionSensitivity: 0.01
+  rotationSensitivity: 0.01
+  scaleSensitivity: 0.01
 --- !u!114 &114654712548978148
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -107,35 +142,14 @@ MonoBehaviour:
   syncMode: 0
   syncInterval: 0.1
   agent: {fileID: 6900008319038825817}
-  animator: {fileID: 2240606817507776182}
+  animator: {fileID: 5803173220405953878}
   healthBar: {fileID: 955977906578811009}
   turret: {fileID: 5803173220413450936}
   rotationSpeed: 80
   shootKey: 32
   projectilePrefab: {fileID: 5890560936853567077, guid: b7dd46dbf38c643f09e206f9fa4be008, type: 3}
   projectileMount: {fileID: 606281948174800110}
-  health: 4
---- !u!95 &2240606817507776182
-Animator:
-  serializedVersion: 5
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1916082411674582}
-  m_Enabled: 1
-  m_Avatar: {fileID: 9000000, guid: 38b49695fc0a4418bbc350f2366660c5, type: 3}
-  m_Controller: {fileID: 9100000, guid: a7211483bbd794b6d85ed88576e7d85c, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
+  health: 5
 --- !u!195 &6900008319038825817
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -146,7 +160,7 @@ NavMeshAgent:
   m_Enabled: 1
   m_AgentTypeID: 0
   m_Radius: 0.5
-  m_Speed: 1
+  m_Speed: 5
   m_Acceleration: 1
   avoidancePriority: 50
   m_AngularSpeed: 120
@@ -307,7 +321,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3638700596990361445, guid: dad07e68d3659e6439279d0d4110cf4c, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3638700596990361445, guid: dad07e68d3659e6439279d0d4110cf4c, type: 3}
       propertyPath: m_LocalPosition.z
@@ -349,6 +363,11 @@ PrefabInstance:
 --- !u!4 &606281948174800110 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7683056980803567927, guid: dad07e68d3659e6439279d0d4110cf4c, type: 3}
+  m_PrefabInstance: {fileID: 7130959241934869977}
+  m_PrefabAsset: {fileID: 0}
+--- !u!95 &5803173220405953878 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 3638700596980764815, guid: dad07e68d3659e6439279d0d4110cf4c, type: 3}
   m_PrefabInstance: {fileID: 7130959241934869977}
   m_PrefabAsset: {fileID: 0}
 --- !u!4 &5803173220413450936 stripped
