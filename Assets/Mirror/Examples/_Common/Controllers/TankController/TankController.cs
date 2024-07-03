@@ -29,8 +29,8 @@ namespace Mirror.Examples.Common.Controllers.Tank
     }
 
     [RequireComponent(typeof(PlayerCamera))]
-    [RequireComponent(typeof(CharacterController))]
     [RequireComponent(typeof(Rigidbody))]
+    [RequireComponent(typeof(CharacterController))]
     [RequireComponent(typeof(NetworkIdentity))]
     [RequireComponent(typeof(NetworkTransformReliable))]
     [DisallowMultipleComponent]

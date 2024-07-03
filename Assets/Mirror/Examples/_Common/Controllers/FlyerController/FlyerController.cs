@@ -34,9 +34,10 @@ namespace Mirror.Examples.Common.Controllers.Flyer
         public KeyCode ToggleUI;
     }
 
+    [RequireComponent(typeof(PlayerCamera))]
+    [RequireComponent(typeof(Rigidbody))]
     [RequireComponent(typeof(CapsuleCollider))]
     [RequireComponent(typeof(CharacterController))]
-    [RequireComponent(typeof(Rigidbody))]
     [RequireComponent(typeof(NetworkIdentity))]
     [RequireComponent(typeof(NetworkTransformReliable))]
     [DisallowMultipleComponent]

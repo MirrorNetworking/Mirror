@@ -4,9 +4,9 @@ namespace Mirror.Examples.Tanks
 {
     public class Projectile : NetworkBehaviour
     {
-        public float destroyAfter = 2;
+        public float destroyAfter = 3f;
         public Rigidbody rigidBody;
-        public float force = 1000;
+        public float force = 1000f;
 
         public override void OnStartServer()
         {
