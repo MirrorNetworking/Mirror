@@ -412,20 +412,23 @@ namespace Mirror.Examples.Common.Controllers.Tank
             if (isServerOnly)
             {
                 // Dedicated Server logic - no host client
-                Instantiate(projectilePrefab, projectileMount.position, projectileMount.rotation);
+                GameObject go = Instantiate(projectilePrefab, projectileMount.position, projectileMount.rotation);
+                Physics.IgnoreCollision(go.GetComponent<Collider>(), projectileMount.transform.parent.GetComponent<Collider>());
             }
             else if (isServer)
             {
                 // Server logic, including host client
                 animator.SetTrigger("Shoot");
-                Instantiate(projectilePrefab, projectileMount.position, projectileMount.rotation);
+                GameObject go = Instantiate(projectilePrefab, projectileMount.position, projectileMount.rotation);
+                Physics.IgnoreCollision(go.GetComponent<Collider>(), projectileMount.transform.parent.GetComponent<Collider>());
             }
 
             if (isClientOnly)
             {
                 // Client-side logic, excluding host client
                 animator.SetTrigger("Shoot");
-                Instantiate(projectilePrefab, projectileMount.position, projectileMount.rotation);
+                GameObject go = Instantiate(projectilePrefab, projectileMount.position, projectileMount.rotation);
+                Physics.IgnoreCollision(go.GetComponent<Collider>(), projectileMount.transform.parent.GetComponent<Collider>());
             }
         }
 
