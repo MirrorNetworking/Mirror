@@ -43,7 +43,7 @@ namespace Mirror.Examples.AdditiveLevels
         // up in the Physics collision matrix so only Player collides with Portal.
         void OnTriggerEnter(Collider other)
         {
-            if (other is not CapsuleCollider) return; // ignore CharacterController colliders
+            if (!(other is CapsuleCollider)) return; // ignore CharacterController colliders
 
             Debug.Log($"Portal.OnTriggerEnter {other}");
             // tag check in case you didn't set up the layers and matrix as noted above
