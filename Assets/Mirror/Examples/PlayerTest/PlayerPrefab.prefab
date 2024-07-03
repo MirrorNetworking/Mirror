@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 5246057292441020322}
   - component: {fileID: 7450643213444322531}
   - component: {fileID: 2343013367479929851}
-  m_Layer: 8
+  m_Layer: 0
   m_Name: Visor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -94,7 +94,7 @@ GameObject:
   - component: {fileID: 3834521907656645861}
   - component: {fileID: 7647174189108629449}
   - component: {fileID: 1712964438743777021}
-  m_Layer: 8
+  m_Layer: 0
   m_Name: Capsule
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -349,7 +349,6 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
-  capsuleCollider: {fileID: 4284051235536850638}
   characterController: {fileID: 1014105431373575527}
   ControllerUIPrefab: {fileID: 644766297742565710, guid: 7beee247444994f0281dadde274cc4af, type: 3}
   moveKeys:
@@ -377,6 +376,7 @@ MonoBehaviour:
   horizontal: 0
   vertical: 0
   mouseInputX: 0
+  mouseSensitivity: 0
   turnSpeed: 0
   jumpSpeed: 0
   animVelocity: 0

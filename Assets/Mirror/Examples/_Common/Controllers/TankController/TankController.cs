@@ -38,6 +38,10 @@ namespace Mirror.Examples.Common.Controllers.Tank
     {
         const float BASE_DPI = 96f;
 
+        // Unity clones the material when GetComponent<Renderer>().material is called
+        // Cache it here and destroy it in OnDestroy to prevent a memory leak
+        Material cachedMaterial;
+
         public enum GroundState : byte { Jumping, Falling, Grounded }
 
         [Flags]
@@ -60,6 +64,11 @@ namespace Mirror.Examples.Common.Controllers.Tank
         public Transform turret;
         public Transform projectileMount;
         public GameObject projectilePrefab;
+        public GameObject seatedPlayer;
+
+        [Header("SyncVars")]
+        [SyncVar(hook = nameof(OnPlayerColorChanged))]
+        public Color32 playerColor = Color.black;
 
         [Header("User Interface")]
         public GameObject ControllerUIPrefab;
@@ -119,7 +128,10 @@ namespace Mirror.Examples.Common.Controllers.Tank
         [Header("Turret (Mouse)")]
         [Range(0, 300f)]
         [Tooltip("Max Rotation in degrees per second")]
-        public float maxTurretSpeed = 180f;
+        public float maxTurretSpeed = 250f;
+        [Range(0, 10f)]
+        [Tooltip("Rotation acceleration in degrees per second squared")]
+        public float turretAcceleration = 10f;
 
         [Header("Diagnostics")]
         [ReadOnly, SerializeField]
@@ -198,6 +210,9 @@ namespace Mirror.Examples.Common.Controllers.Tank
             if (projectileMount == null)
                 projectileMount = FindDeepChild(turret, "ProjectileMount");
 
+            if (seatedPlayer == null)
+                seatedPlayer = FindDeepChild(turret, "SeatedPlayer").gameObject;
+
             // tranform.Find will fail - must do recursive search
             Transform FindDeepChild(Transform aParent, string aName)
             {
@@ -258,7 +273,7 @@ namespace Mirror.Examples.Common.Controllers.Tank
         {
             // Calculate DPI-aware sensitivity
             float dpiScale = (Screen.dpi > 0) ? (Screen.dpi / BASE_DPI) : 1f;
-            mouseSensitivity = turnAcceleration * dpiScale;
+            mouseSensitivity = turretAcceleration * dpiScale;
             //Debug.Log($"Screen DPI: {Screen.dpi}, DPI Scale: {dpiScale}, Adjusted Turn Acceleration: {turnAccelerationDPI}");
 
             SetCursor(controlOptions.HasFlag(ControlOptions.MouseLock));
@@ -301,6 +316,13 @@ namespace Mirror.Examples.Common.Controllers.Tank
             if (controllerUI != null)
                 Destroy(controllerUI);
             controllerUI = null;
+        }
+
+        void OnPlayerColorChanged(Color32 _, Color32 newColor)
+        {
+            if (cachedMaterial == null) cachedMaterial = seatedPlayer.GetComponent<Renderer>().material;
+            cachedMaterial.color = newColor;
+            seatedPlayer.SetActive(newColor != Color.black);
         }
 
         #endregion

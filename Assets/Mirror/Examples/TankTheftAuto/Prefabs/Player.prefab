@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 9057824595171805708}
   - component: {fileID: 662729490405160656}
   - component: {fileID: 3624570427921084598}
-  m_Layer: 8
+  m_Layer: 0
   m_Name: Capsule
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -95,7 +95,7 @@ GameObject:
   - component: {fileID: 3254954141432383832}
   - component: {fileID: 1800893346221236401}
   - component: {fileID: 136369082707552984}
-  m_Layer: 8
+  m_Layer: 0
   m_Name: Visor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -349,6 +349,8 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
+  offset: {x: 0, y: 3, z: -8}
+  rotation: {x: 10, y: 0, z: 0}
 --- !u!114 &-1122083471338389313
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -382,7 +384,6 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
-  capsuleCollider: {fileID: 1143206540915927667}
   characterController: {fileID: 8993127209816276930}
   ControllerUIPrefab: {fileID: 644766297742565710, guid: 7beee247444994f0281dadde274cc4af, type: 3}
   moveKeys:
@@ -406,17 +407,15 @@ MonoBehaviour:
   jumpAcceleration: 4
   maxTurnSpeed: 100
   turnAcceleration: 3
-  mouseSensitivity: 0.01
-  smoothTime: 0.2
   groundState: 2
   horizontal: 0
   vertical: 0
-  jumpSpeed: 0
+  mouseInputX: 0
+  mouseSensitivity: 0.01
   turnSpeed: 0
-  turnSmoothSpeed: 0
+  jumpSpeed: 0
   animVelocity: 0
   animRotation: 0
   direction: {x: 0, y: 0, z: 0}
   velocity: {x: 0, y: 0, z: 0}
-  mouseDelta: {x: 0, y: 0, z: 0}
   controllerUI: {fileID: 0}
