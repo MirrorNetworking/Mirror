@@ -27,9 +27,9 @@ namespace Mirror.Examples.Common
             rigidBody = GetComponent<Rigidbody>();
             rigidBody.useGravity = false;
             rigidBody.collisionDetectionMode = CollisionDetectionMode.Continuous;
+            rigidBody.constraints = RigidbodyConstraints.FreezeRotation;
 
             capsuleCollider = GetComponent<CapsuleCollider>();
-            capsuleCollider.isTrigger = true;
             capsuleCollider.direction = (int)CapsuleColliderDirection.ZAxis;
             capsuleCollider.radius = 0.1f;
             capsuleCollider.height = 0.4f;
@@ -43,9 +43,9 @@ namespace Mirror.Examples.Common
             Destroy(gameObject, destroyAfter);
         }
 
-        void OnTriggerEnter(Collider collider)
+        private void OnCollisionEnter(Collision collision)
         {
-            Debug.Log($"Hit: {collider}");
+            Debug.Log($"Hit: {collision.gameObject}");
             Destroy(gameObject);
         }
     }

@@ -234,7 +234,7 @@ MonoBehaviour:
     MouseLock: 109
     AutoRun: 114
     ToggleUI: 117
-  controlOptions: 5
+  controlOptions: 4
   maxMoveSpeed: 5
   inputSensitivity: 2
   inputGravity: 2
