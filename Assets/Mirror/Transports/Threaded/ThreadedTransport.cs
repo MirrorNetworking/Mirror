@@ -517,12 +517,12 @@ namespace Mirror
                 {
                     // SERVER EVENTS ///////////////////////////////////////////
                     case ServerMainEventType.OnServerConnected:
-                        {
-                            // call original transport event with connectionId, address
-                            string address = (string)elem.param;
-                            OnServerConnectedWithAddress?.Invoke(elem.connectionId.Value, address);
-                            break;
-                        }
+                    {
+                        // call original transport event with connectionId, address
+                        string address = (string)elem.param;
+                        OnServerConnectedWithAddress?.Invoke(elem.connectionId.Value, address);
+                        break;
+                    }
                     case ServerMainEventType.OnServerSent:
                     {
                         // call original transport event
