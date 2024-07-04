@@ -167,7 +167,7 @@ namespace Mirror
             Vector3 hitPoint,
             float tolerancePercent,
             int layerMask,
-            out RaycastHit hit)
+            out RaycastHit hit, float maxDistance)
         {
             // first, sample the history at -rtt of the viewer.
             if (Sample(viewer, out Capture3D capture))
