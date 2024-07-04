@@ -12,9 +12,9 @@ namespace Mirror
         // packet queue
         internal readonly Queue<NetworkWriterPooled> queue = new Queue<NetworkWriterPooled>();
 
-        public LocalConnectionToClient() : base(LocalConnectionId) {}
+        public LocalConnectionToClient() : base(LocalConnectionId, "localhost") {}
 
-        public override string address => "localhost";
+        //public override string address => "localhost";
 
         internal override void Send(ArraySegment<byte> segment, int channelId = Channels.Reliable)
         {

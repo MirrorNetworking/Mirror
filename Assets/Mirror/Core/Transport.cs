@@ -68,6 +68,7 @@ namespace Mirror
         // server //////////////////////////////////////////////////////////////
         /// <summary>Called by Transport when a new client connected to the server.</summary>
         public Action<int> OnServerConnected;
+        public Action<int, string> OnServerConnectedWithAddress;
 
         /// <summary>Called by Transport when the server received a message from a client.</summary>
         public Action<int, ArraySegment<byte>, int> OnServerDataReceived;
