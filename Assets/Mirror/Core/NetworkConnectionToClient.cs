@@ -14,7 +14,7 @@ namespace Mirror
         readonly NetworkWriter reliableRpcs = new NetworkWriter();
         readonly NetworkWriter unreliableRpcs = new NetworkWriter();
 
-        public virtual string address { get; private set; } // => Transport.active.ServerGetClientAddress(connectionId);
+        public virtual string address { get; private set; }
 
         /// <summary>NetworkIdentities that this connection can see</summary>
         // TODO move to server's NetworkConnectionToClient?
@@ -50,7 +50,7 @@ namespace Mirror
         /// <summary>Round trip time (in seconds) that it takes a message to go server->client->server.</summary>
         public double rtt => _rtt.Value;
 
-        public NetworkConnectionToClient(int networkConnectionId, string clientAddress = "")
+        public NetworkConnectionToClient(int networkConnectionId, string clientAddress = "localhost")
             : base(networkConnectionId)
         {
             address = clientAddress;
