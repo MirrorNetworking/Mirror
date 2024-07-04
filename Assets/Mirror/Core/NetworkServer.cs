@@ -637,19 +637,7 @@ namespace Mirror
         // transport events ////////////////////////////////////////////////////
         // called by transport
         static void OnTransportConnected(int connectionId)
-        {
-            if (IsConnectionAllowed(connectionId))
-            {
-                // create a connection
-                NetworkConnectionToClient conn = new NetworkConnectionToClient(connectionId, Transport.active.ServerGetClientAddress(connectionId));
-                OnConnected(conn);
-            }
-            else
-            {
-                // kick the client immediately
-                Transport.active.ServerDisconnect(connectionId);
-            }
-        }
+            => OnTransportConnectedWithAddress(connectionId, Transport.active.ServerGetClientAddress(connectionId));
 
         static void OnTransportConnectedWithAddress(int connectionId, string clientAddress)
         {
