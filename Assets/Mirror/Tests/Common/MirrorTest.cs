@@ -89,8 +89,6 @@ namespace Mirror.Tests
             go = new GameObject();
             identity = go.AddComponent<NetworkIdentity>();
             component = go.AddComponent<T>();
-            // always set syncinterval = 0 for immediate testing
-            component.syncInterval = 0;
             // Awake is only called in play mode.
             // call manually for initialization.
             identity.Awake();
@@ -111,8 +109,6 @@ namespace Mirror.Tests
             // setup NetworkIdentity + NetworkBehaviour in child
             identity = parent.AddComponent<NetworkIdentity>();
             component = child.AddComponent<T>();
-            // always set syncinterval = 0 for immediate testing
-            component.syncInterval = 0;
             // Awake is only called in play mode.
             // call manually for initialization.
             identity.Awake();
@@ -130,9 +126,6 @@ namespace Mirror.Tests
             identity = go.AddComponent<NetworkIdentity>();
             componentA = go.AddComponent<T>();
             componentB = go.AddComponent<U>();
-            // always set syncinterval = 0 for immediate testing
-            componentA.syncInterval = 0;
-            componentB.syncInterval = 0;
             // Awake is only called in play mode.
             // call manually for initialization.
             identity.Awake();
@@ -155,9 +148,6 @@ namespace Mirror.Tests
             identity = parent.AddComponent<NetworkIdentity>();
             componentA = child.AddComponent<T>();
             componentB = child.AddComponent<U>();
-            // always set syncinterval = 0 for immediate testing
-            componentA.syncInterval = 0;
-            componentB.syncInterval = 0;
             // Awake is only called in play mode.
             // call manually for initialization.
             identity.Awake();
@@ -177,10 +167,6 @@ namespace Mirror.Tests
             componentA = go.AddComponent<T>();
             componentB = go.AddComponent<U>();
             componentC = go.AddComponent<V>();
-            // always set syncinterval = 0 for immediate testing
-            componentA.syncInterval = 0;
-            componentB.syncInterval = 0;
-            componentC.syncInterval = 0;
             // Awake is only called in play mode.
             // call manually for initialization.
             identity.Awake();
@@ -205,10 +191,6 @@ namespace Mirror.Tests
             componentA = child.AddComponent<T>();
             componentB = child.AddComponent<U>();
             componentC = child.AddComponent<V>();
-            // always set syncinterval = 0 for immediate testing
-            componentA.syncInterval = 0;
-            componentB.syncInterval = 0;
-            componentC.syncInterval = 0;
             // Awake is only called in play mode.
             // call manually for initialization.
             identity.Awake();

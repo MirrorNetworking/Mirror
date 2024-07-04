@@ -40,8 +40,6 @@ namespace Mirror.Tests.NetworkTransformTests
 
             // create a networked object with NetworkTransform
             CreateNetworkedAndSpawn(out GameObject go, out NetworkIdentity _, out component, connectionToClient);
-            // sync immediately
-            component.syncInterval = 0;
             // remember transform for convenience
             transform = go.transform;
         }

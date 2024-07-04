@@ -41,10 +41,9 @@ namespace Mirror
         // it makes sense to keep every component's syncInterval setting at '0' by default.
         // otherwise, the overlapping timers could introduce unexpected latency.
         // careful: default of '0.1' may
-        [Tooltip("Time in seconds until next change is synchronized to the client. '0' means send immediately if changed. '0.5' means only send changes every 500ms.\n(This is for state synchronization like SyncVars, SyncLists, OnSerialize. Not for Cmds, Rpcs, etc.)")]
+        [Obsolete("NetworkBehaviour.syncInterval was removed. We are tightening up Mirror core in order to support fast paced games now too.")]
         [Range(0, 2)]
         [HideInInspector] public float syncInterval = 0;
-        internal double lastSyncTime;
 
         /// <summary>True if this object is on the server and has been spawned.</summary>
         // This is different from NetworkServer.active, which is true if the
@@ -149,35 +148,6 @@ namespace Mirror
         // hook guard prevents that.
         ulong syncVarHookGuard;
 
-        protected virtual void OnValidate()
-        {
-            // Skip if Editor is in Play mode
-            if (Application.isPlaying) return;
-
-            // we now allow child NetworkBehaviours.
-            // we can not [RequireComponent(typeof(NetworkIdentity))] anymore.
-            // instead, we need to ensure a NetworkIdentity is somewhere in the
-            // parents.
-            // only run this in Editor. don't add more runtime overhead.
-
-            // GetComponentInParent(includeInactive) is needed because Prefabs are not
-            // considered active, so this check requires to scan inactive.
-#if UNITY_2021_3_OR_NEWER // 2021 has GetComponentInParent(bool includeInactive = false)
-            if (GetComponent<NetworkIdentity>() == null &&
-                GetComponentInParent<NetworkIdentity>(true) == null)
-            {
-                Debug.LogError($"{GetType()} on {name} requires a NetworkIdentity. Please add a NetworkIdentity component to {name} or it's parents.", this);
-            }
-#elif UNITY_2020_3_OR_NEWER // 2020 only has GetComponentsInParent(bool includeInactive = false), we can use this too
-            NetworkIdentity[] parentsIds = GetComponentsInParent<NetworkIdentity>(true);
-            int parentIdsCount = parentsIds != null ? parentsIds.Length : 0;
-            if (GetComponent<NetworkIdentity>() == null && parentIdsCount == 0)
-            {
-                Debug.LogError($"{GetType()} on {name} requires a NetworkIdentity. Please add a NetworkIdentity component to {name} or it's parents.", this);
-            }
-#endif
-        }
-
         // USED BY WEAVER to set syncvars in host mode without deadlocking
         protected bool GetSyncVarHookGuard(ulong dirtyBit) =>
             (syncVarHookGuard & dirtyBit) != 0UL;
@@ -222,18 +192,13 @@ namespace Mirror
         // true if syncInterval elapsed and any SyncVar or SyncObject is dirty
         // OR both bitmasks. != 0 if either was dirty.
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool IsDirty() =>
-            // check bits first. this is basically free.
-            (syncVarDirtyBits | syncObjectDirtyBits) != 0UL &&
-            // only check time if bits were dirty. this is more expensive.
-            NetworkTime.localTime - lastSyncTime >= syncInterval;
+        public bool IsDirty() =>(syncVarDirtyBits | syncObjectDirtyBits) != 0UL;
 
         /// <summary>Clears all the dirty bits that were set by SetSyncVarDirtyBit() (formally SetDirtyBits)</summary>
         // automatically invoked when an update is sent for this object, but can
         // be called manually as well.
         public void ClearAllDirtyBits()
         {
-            lastSyncTime = NetworkTime.localTime;
             syncVarDirtyBits = 0L;
             syncObjectDirtyBits = 0L;
 
@@ -331,6 +296,34 @@ namespace Mirror
             };
         }
 
+        protected virtual void OnValidate()
+        {
+            // we now allow child NetworkBehaviours.
+            // we can not [RequireComponent(typeof(NetworkIdentity))] anymore.
+            // instead, we need to ensure a NetworkIdentity is somewhere in the
+            // parents.
+            // only run this in Editor. don't add more runtime overhead.
+
+            // GetComponentInParent(includeInactive) is needed because Prefabs are not
+            // considered active, so this check requires to scan inactive.
+#if UNITY_EDITOR
+#if UNITY_2021_3_OR_NEWER // 2021 has GetComponentInParent(bool includeInactive = false)
+            if (GetComponent<NetworkIdentity>() == null &&
+                GetComponentInParent<NetworkIdentity>(true) == null)
+            {
+                Debug.LogError($"{GetType()} on {name} requires a NetworkIdentity. Please add a NetworkIdentity component to {name} or it's parents.", this);
+            }
+#elif UNITY_2020_3_OR_NEWER // 2020 only has GetComponentsInParent(bool includeInactive = false), we can use this too
+            NetworkIdentity[] parentsIds = GetComponentsInParent<NetworkIdentity>(true);
+            int parentIdsCount = parentsIds != null ? parentsIds.Length : 0;
+            if (GetComponent<NetworkIdentity>() == null && parentIdsCount == 0)
+            {
+                Debug.LogError($"{GetType()} on {name} requires a NetworkIdentity. Please add a NetworkIdentity component to {name} or it's parents.", this);
+            }
+#endif
+#endif
+        }
+
         // pass full function name to avoid ClassA.Func <-> ClassB.Func collisions
         protected void SendCommandInternal(string functionFullName, int functionHashCode, NetworkWriter writer, int channelId, bool requiresAuthority = true)
         {
@@ -371,12 +364,6 @@ namespace Mirror
             if (NetworkClient.connection == null)
             {
                 Debug.LogError($"Command {functionFullName} called on {name} with no client running.", gameObject);
-                return;
-            }
-
-            if (netId == 0)
-            {
-                Debug.LogWarning($"Command {functionFullName} called on {name} with netId=0. Maybe it wasn't spawned yet?", gameObject);
                 return;
             }
 
@@ -1077,7 +1064,7 @@ namespace Mirror
             {
                 return null;
             }
-            
+
             // ensure componentIndex is in range.
             // show explicit errors if something went wrong, instead of IndexOutOfRangeException.
             // removing components at runtime isn't allowed, yet this happened in a project so we need to check for it.

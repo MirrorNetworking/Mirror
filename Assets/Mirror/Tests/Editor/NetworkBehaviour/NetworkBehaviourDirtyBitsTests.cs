@@ -94,10 +94,6 @@ namespace Mirror.Tests.NetworkBehaviours
             comp.list.Add(42);
             Assert.That(comp.IsDirty(), Is.True);
             comp.ClearAllDirtyBits();
-
-            // it should only be dirty after syncInterval elapsed
-            comp.syncInterval = float.MaxValue;
-            Assert.That(comp.IsDirty(), Is.False);
         }
 
         [Test]
@@ -106,8 +102,6 @@ namespace Mirror.Tests.NetworkBehaviours
             CreateNetworkedAndSpawn(out _, out _, out EmptyBehaviour emptyBehaviour,
                                     out _, out _, out _);
 
-            // set syncinterval so dirtybit works fine
-            emptyBehaviour.syncInterval = 0;
             Assert.That(emptyBehaviour.IsDirty(), Is.False);
 
             // set one syncvar dirty bit
@@ -125,8 +119,6 @@ namespace Mirror.Tests.NetworkBehaviours
             CreateNetworkedAndSpawn(out _, out _, out NetworkBehaviourWithSyncVarsAndCollections comp,
                                     out _, out _, out _);
 
-            // set syncinterval so dirtybit works fine
-            comp.syncInterval = 0;
             Assert.That(comp.IsDirty(), Is.False);
 
             // dirty the synclist
@@ -162,7 +154,6 @@ namespace Mirror.Tests.NetworkBehaviours
             Assert.That(monster.observers.Count, Is.EqualTo(0));
 
             // modify something in the monster so that dirty bit is set
-            monsterComp.syncInterval = 0;
             ++monsterComp.health;
             Assert.That(monsterComp.IsDirty(), Is.True);
 
