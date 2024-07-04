@@ -204,10 +204,9 @@ namespace Mirror
             {
                 if (netIdentity != null)
                 {
-                    // unspawn scene objects, destroy instantiated objects.
-                    // fixes: https://github.com/MirrorNetworking/Mirror/issues/3538
+                    // disown scene objects, destroy instantiated objects.
                     if (netIdentity.sceneId != 0)
-                        NetworkServer.UnSpawn(netIdentity.gameObject);
+                        NetworkServer.RemovePlayerForConnection(this, RemovePlayerOptions.KeepActive);
                     else
                         NetworkServer.Destroy(netIdentity.gameObject);
                 }
