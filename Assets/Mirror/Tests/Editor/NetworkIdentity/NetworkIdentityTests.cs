@@ -123,11 +123,11 @@ namespace Mirror.Tests.NetworkIdentities
             identity.OnStartServer();
 
             // add an observer connection
-            NetworkConnectionToClient connection = new NetworkConnectionToClient(42);
+            NetworkConnectionToClient connection = new NetworkConnectionToClient(42, "");
             identity.observers[connection.connectionId] = connection;
 
             // RemoveObserver with invalid connection should do nothing
-            identity.RemoveObserver(new NetworkConnectionToClient(43));
+            identity.RemoveObserver(new NetworkConnectionToClient(43, ""));
             Assert.That(identity.observers.Count, Is.EqualTo(1));
 
             // RemoveObserver with existing connection should remove it
@@ -324,7 +324,7 @@ namespace Mirror.Tests.NetworkIdentities
             // another connection
             // error log is expected
             LogAssert.ignoreFailingMessages = true;
-            result = identity.AssignClientAuthority(new NetworkConnectionToClient(43));
+            result = identity.AssignClientAuthority(new NetworkConnectionToClient(43, ""));
             LogAssert.ignoreFailingMessages = false;
             Assert.That(result, Is.False);
             Assert.That(identity.connectionToClient, Is.EqualTo(owner));
@@ -552,8 +552,8 @@ namespace Mirror.Tests.NetworkIdentities
             CreateNetworked(out GameObject _, out NetworkIdentity identity);
 
             // create some connections
-            NetworkConnectionToClient connection1 = new NetworkConnectionToClient(42);
-            NetworkConnectionToClient connection2 = new NetworkConnectionToClient(43);
+            NetworkConnectionToClient connection1 = new NetworkConnectionToClient(42, "");
+            NetworkConnectionToClient connection2 = new NetworkConnectionToClient(43, "");
 
             // call AddObservers
             identity.AddObserver(connection1);
@@ -565,7 +565,7 @@ namespace Mirror.Tests.NetworkIdentities
             Assert.That(identity.observers[connection2.connectionId], Is.EqualTo(connection2));
 
             // adding a duplicate connectionId shouldn't overwrite the original
-            NetworkConnectionToClient duplicate = new NetworkConnectionToClient(connection1.connectionId);
+            NetworkConnectionToClient duplicate = new NetworkConnectionToClient(connection1.connectionId, "");
             identity.AddObserver(duplicate);
             Assert.That(identity.observers.Count, Is.EqualTo(2));
             Assert.That(identity.observers.ContainsKey(connection1.connectionId));
@@ -583,8 +583,8 @@ namespace Mirror.Tests.NetworkIdentities
             identity.OnStartServer();
 
             // add some observers
-            identity.observers[42] = new NetworkConnectionToClient(42);
-            identity.observers[43] = new NetworkConnectionToClient(43);
+            identity.observers[42] = new NetworkConnectionToClient(42, "");
+            identity.observers[43] = new NetworkConnectionToClient(43, "");
 
             // call ClearObservers
             identity.ClearObservers();
@@ -632,9 +632,9 @@ namespace Mirror.Tests.NetworkIdentities
             identity.isClient = true;
             // creates .observers and generates a netId
             identity.OnStartServer();
-            identity.connectionToClient = new NetworkConnectionToClient(1);
+            identity.connectionToClient = new NetworkConnectionToClient(1, "");
             identity.connectionToServer = new NetworkConnectionToServer();
-            identity.observers[43] = new NetworkConnectionToClient(2);
+            identity.observers[43] = new NetworkConnectionToClient(2, "");
 
             // mark for reset and reset
             identity.ResetState();

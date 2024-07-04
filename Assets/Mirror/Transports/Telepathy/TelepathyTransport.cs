@@ -178,7 +178,7 @@ namespace Mirror
             // system's hook (e.g. statistics OnData) was added is to wrap
             // them all in a lambda and always call the latest hook.
             // (= lazy call)
-            server.OnConnected = (connectionId) => OnServerConnected.Invoke(connectionId);
+            server.OnConnected = (connectionId, endPoint) => OnServerConnected.Invoke(connectionId, endPoint.PrettyAddress());
             server.OnData = (connectionId, segment) => OnServerDataReceived.Invoke(connectionId, segment, Channels.Reliable);
             server.OnDisconnected = (connectionId) => OnServerDisconnected.Invoke(connectionId);
 

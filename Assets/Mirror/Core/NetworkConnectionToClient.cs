@@ -7,6 +7,8 @@ namespace Mirror
 {
     public class NetworkConnectionToClient : NetworkConnection
     {
+        // connection address, passed from transport
+
         // rpcs are collected in a buffer, and then flushed out together.
         // this way we don't need one NetworkMessage per rpc.
         // => prepares for LocalWorldState as well.
@@ -14,7 +16,7 @@ namespace Mirror
         readonly NetworkWriter reliableRpcs = new NetworkWriter();
         readonly NetworkWriter unreliableRpcs = new NetworkWriter();
 
-        public virtual string address => Transport.active.ServerGetClientAddress(connectionId);
+        public string address { get; private set; }
 
         /// <summary>NetworkIdentities that this connection can see</summary>
         // TODO move to server's NetworkConnectionToClient?
@@ -50,9 +52,29 @@ namespace Mirror
         /// <summary>Round trip time (in seconds) that it takes a message to go server->client->server.</summary>
         public double rtt => _rtt.Value;
 
+        public NetworkConnectionToClient(int networkConnectionId, string address)
+            : base(networkConnectionId)
+        {
+            this.address = address;
+
+            // initialize EMA with 'emaDuration' seconds worth of history.
+            // 1 second holds 'sendRate' worth of values.
+            // multiplied by emaDuration gives n-seconds.
+            driftEma = new ExponentialMovingAverage(NetworkServer.sendRate * NetworkClient.snapshotSettings.driftEmaDuration);
+            deliveryTimeEma = new ExponentialMovingAverage(NetworkServer.sendRate * NetworkClient.snapshotSettings.deliveryTimeEmaDuration);
+
+            // buffer limit should be at least multiplier to have enough in there
+            snapshotBufferSizeLimit = Mathf.Max((int)NetworkClient.snapshotSettings.bufferTimeMultiplier, snapshotBufferSizeLimit);
+        }
+
+        // keep the old contstructor for a while in order to not break all projects.
+        // DEPRECATED 2024-05-16
+        [Obsolete("'new NetworkConnection(connectionId)' constructor was changed to 'new NetworkConnection(connectionId, address)'")]
         public NetworkConnectionToClient(int networkConnectionId)
             : base(networkConnectionId)
         {
+            this.address = Transport.active.ServerGetClientAddress(connectionId);
+
             // initialize EMA with 'emaDuration' seconds worth of history.
             // 1 second holds 'sendRate' worth of values.
             // multiplied by emaDuration gives n-seconds.

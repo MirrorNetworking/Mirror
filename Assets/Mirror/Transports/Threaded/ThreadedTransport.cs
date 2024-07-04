@@ -5,6 +5,7 @@
 // note that ThreadLog.cs is required for Debug.Log from threads to work in builds.
 using System;
 using System.Collections.Concurrent;
+using System.Net;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using UnityEngine;
@@ -317,9 +318,11 @@ namespace Mirror
             EnqueueClientMain(ClientMainEventType.OnClientDisconnected, null, null, null);
         }
 
-        protected void OnThreadedServerConnected(int connectionId)
+        protected void OnThreadedServerConnected(int connectionId, IPEndPoint endPoint)
         {
-            EnqueueServerMain(ServerMainEventType.OnServerConnected, null, connectionId, null, null);
+            // create string copy of address immediately before sending to another thread
+            string address = endPoint.PrettyAddress();
+            EnqueueServerMain(ServerMainEventType.OnServerConnected, address, connectionId, null, null);
         }
 
         protected void OnThreadedServerSend(int connectionId, ArraySegment<byte> message, int channelId)
@@ -515,9 +518,9 @@ namespace Mirror
                     // SERVER EVENTS ///////////////////////////////////////////
                     case ServerMainEventType.OnServerConnected:
                     {
-                        // call original transport event
-                        // TODO pass client address in OnConnect here later
-                        OnServerConnected?.Invoke(elem.connectionId.Value);//, (string)elem.param);
+                        // call original transport event with connectionId, address
+                        string address = (string)elem.param;
+                        OnServerConnected?.Invoke(elem.connectionId.Value, address);
                         break;
                     }
                     case ServerMainEventType.OnServerSent:
@@ -612,7 +615,7 @@ namespace Mirror
         // querying this at runtime won't work for threaded transports.
         public override string ServerGetClientAddress(int connectionId)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException("ThreadedTransport passes each connection's address in OnServerConnected. Don't use ServerGetClientAddress.");
         }
 
         public override void ServerStop()

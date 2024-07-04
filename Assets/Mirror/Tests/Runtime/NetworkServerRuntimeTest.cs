@@ -95,7 +95,7 @@ namespace Mirror.Tests.Runtime
             NetworkServer.disconnectInactiveTimeout = 1;
 
             GameObject remotePlayer = new GameObject("RemotePlayer", typeof(NetworkIdentity));
-            NetworkConnectionToClient remoteConnection = new NetworkConnectionToClient(1);
+            NetworkConnectionToClient remoteConnection = new NetworkConnectionToClient(1, "localhost");
             NetworkServer.OnConnected(remoteConnection);
             NetworkServer.AddPlayerForConnection(remoteConnection, remotePlayer);
 

@@ -34,7 +34,7 @@ namespace Mirror.Tests.NetworkConnections
         public void Send_BatchesUntilUpdate()
         {
             // create connection and send
-            NetworkConnectionToClient connection = new NetworkConnectionToClient(42);
+            NetworkConnectionToClient connection = new NetworkConnectionToClient(42, "");
             NetworkTime.PingInterval = float.MaxValue; // disable ping for this test
             byte[] message = {0x01, 0x02};
             connection.Send(new ArraySegment<byte>(message));
@@ -63,7 +63,7 @@ namespace Mirror.Tests.NetworkConnections
             const int BatchHeader = 8;
 
             // create connection
-            NetworkConnectionToClient connection = new NetworkConnectionToClient(42);
+            NetworkConnectionToClient connection = new NetworkConnectionToClient(42, "");
             NetworkTime.PingInterval = float.MaxValue; // disable ping for this test
 
             // send and update big message

@@ -298,7 +298,7 @@ namespace Mirror.Tests.Transports
         public void TestServerConnectedCallback(int id)
         {
             int called = 0;
-            middleware.OnServerConnected = (i) =>
+            middleware.OnServerConnected = (i, addr) =>
             {
                 called++;
                 Assert.That(i, Is.EqualTo(id));
@@ -306,10 +306,10 @@ namespace Mirror.Tests.Transports
             // start to give callback to inner
             middleware.ServerStart();
 
-            inner.OnServerConnected.Invoke(id);
+            inner.OnServerConnected.Invoke(id, "");
             Assert.That(called, Is.EqualTo(1));
 
-            inner.OnServerConnected.Invoke(id);
+            inner.OnServerConnected.Invoke(id, "");
             Assert.That(called, Is.EqualTo(2));
         }
 
