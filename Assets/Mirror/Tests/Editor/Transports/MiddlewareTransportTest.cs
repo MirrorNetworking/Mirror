@@ -158,6 +158,7 @@ namespace Mirror.Tests.Transports
             inner.Received(0).ServerSend(Arg.Is<int>(x => x != id), Arg.Any<ArraySegment<byte>>(), Arg.Any<int>());
         }
 
+ #pragma warning disable CS0618
         [Test]
         [TestCase(0, "tcp4://localhost:7777")]
         [TestCase(19, "tcp4://example.com:7777")]
@@ -171,6 +172,7 @@ namespace Mirror.Tests.Transports
             inner.Received(0).ServerGetClientAddress(Arg.Is<int>(x => x != id));
 
         }
+ #pragma warning restore CS0618
 
         [Test]
         [TestCase("tcp4://localhost:7777")]

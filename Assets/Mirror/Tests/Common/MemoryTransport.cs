@@ -173,6 +173,7 @@ namespace Mirror.Tests
             serverActive = false;
         }
 
+        [Obsolete("Transport.ServerGetClientAddress() was deprecated. Each connection's address is now passed only once in OnServerConnected instead.")]
         public override string ServerGetClientAddress(int connectionId) => string.Empty;
         public override void ServerStop()
         {
