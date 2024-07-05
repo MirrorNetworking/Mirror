@@ -4,6 +4,8 @@ using UnityEngine.UI;
 
 namespace Mirror.Examples.Common.Controllers.Player
 {
+    [AddComponentMenu("")]
+    [DisallowMultipleComponent]
     public class PlayerControllerUI : ContollerUIBase
     {
         [Serializable]

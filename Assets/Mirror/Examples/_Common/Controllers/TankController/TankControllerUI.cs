@@ -4,6 +4,8 @@ using UnityEngine.UI;
 
 namespace Mirror.Examples.Common.Controllers.Tank
 {
+    [AddComponentMenu("")]
+    [DisallowMultipleComponent]
     public class TankControllerUI : ContollerUIBase
     {
         [Serializable]

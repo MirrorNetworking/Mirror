@@ -4,6 +4,8 @@ using UnityEngine.UI;
 
 namespace Mirror.Examples.Common.Controllers.Flyer
 {
+    [AddComponentMenu("")]
+    [DisallowMultipleComponent]
     public class FlyerControllerUI : ContollerUIBase
     {
         [Serializable]

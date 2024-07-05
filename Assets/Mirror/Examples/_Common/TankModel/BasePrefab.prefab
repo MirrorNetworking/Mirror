@@ -336,7 +336,7 @@ PrefabInstance:
       objectReference: {fileID: 9100000, guid: a7211483bbd794b6d85ed88576e7d85c, type: 2}
     - target: {fileID: 9500000, guid: 38b49695fc0a4418bbc350f2366660c5, type: 3}
       propertyPath: m_CullingMode
-      value: 0
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 13700000, guid: 38b49695fc0a4418bbc350f2366660c5, type: 3}
       propertyPath: m_Materials.Array.data[0]

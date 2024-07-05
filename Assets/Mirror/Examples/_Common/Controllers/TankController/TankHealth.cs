@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace Mirror.Examples.Common.Controllers.Tank
 {
+    [AddComponentMenu("")]
     [DisallowMultipleComponent]
     public class TankHealth : NetworkBehaviour
     {

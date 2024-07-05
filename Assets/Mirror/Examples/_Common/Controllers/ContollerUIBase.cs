@@ -4,6 +4,8 @@ using UnityEngine;
 
 namespace Mirror.Examples.Common.Controllers
 {
+    [AddComponentMenu("")]
+    [DisallowMultipleComponent]
     public class ContollerUIBase : MonoBehaviour
     {
 

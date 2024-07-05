@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace Mirror.Examples.Common.Controllers.Tank
 {
+    [AddComponentMenu("")]
     [RequireComponent(typeof(NetworkIdentity))]
     [RequireComponent(typeof(NetworkTransformReliable))]
     [RequireComponent(typeof(TankController))]

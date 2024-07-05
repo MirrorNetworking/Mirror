@@ -2,8 +2,10 @@
 
 namespace Mirror.Examples.Common
 {
+    [AddComponentMenu("")]
     [RequireComponent(typeof(Rigidbody))]
     [RequireComponent(typeof(CapsuleCollider))]
+    [DisallowMultipleComponent]
     public class TankProjectile : MonoBehaviour
     {
         [Header("Components")]

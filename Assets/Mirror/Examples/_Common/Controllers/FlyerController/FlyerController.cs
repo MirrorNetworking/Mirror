@@ -4,6 +4,7 @@ using UnityEngine.Serialization;
 
 namespace Mirror.Examples.Common.Controllers.Flyer
 {
+    [AddComponentMenu("")]
     [RequireComponent(typeof(PlayerCamera))]
     [RequireComponent(typeof(Rigidbody))]
     [RequireComponent(typeof(CapsuleCollider))]
