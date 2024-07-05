@@ -71,7 +71,9 @@ namespace Mirror.Tests.NetworkServers
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(1));
 
             // connect second: should fail
+            LogAssert.ignoreFailingMessages = true;
             transport.OnServerConnected.Invoke(43);
+            LogAssert.ignoreFailingMessages = false;
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(1));
         }
 
@@ -161,7 +163,9 @@ namespace Mirror.Tests.NetworkServers
             NetworkConnectionToClient original = NetworkServer.connections[42];
 
             // connect duplicate - shouldn't overwrite first one
+            LogAssert.ignoreFailingMessages = true;
             transport.OnServerConnected.Invoke(42);
+            LogAssert.ignoreFailingMessages = false;
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(1));
             Assert.That(NetworkServer.connections[42], Is.EqualTo(original));
         }
