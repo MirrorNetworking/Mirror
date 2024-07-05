@@ -209,6 +209,8 @@ namespace Mirror.Examples.Common.Controllers.Tank
 
             // Ensure SyncDirection is Client to Server
             turretNTR.syncDirection = SyncDirection.ClientToServer;
+            turretNTR.syncPosition = false;
+            turretNTR.compressRotation = false;
 
             // Set SyncPosition to false because we only want to sync rotation
             //turretNTR.syncPosition = false;
@@ -227,6 +229,8 @@ namespace Mirror.Examples.Common.Controllers.Tank
 
             // Ensure SyncDirection is Client to Server
             barrelNTR.syncDirection = SyncDirection.ClientToServer;
+            barrelNTR.syncPosition = false;
+            barrelNTR.compressRotation = false;
 
             // Set SyncPosition to false because we only want to sync rotation
             //barrelNTR.syncPosition = false;
@@ -395,6 +399,7 @@ namespace Mirror.Examples.Common.Controllers.Tank
             if (!isServer) DoShoot();
         }
 
+        // This has multiple callers in different contexts...don't consolidate, even if it looks like you could.
         void DoShoot()
         {
             //Debug.Log($"DoShoot isServerOnly:{isServerOnly} | isServer:{isServer} | isClient:{isClient}");
@@ -414,7 +419,7 @@ namespace Mirror.Examples.Common.Controllers.Tank
             else if (isServer)
             {
                 // Server logic, including host client
-                animator.SetTrigger("Shoot");
+                //animator.SetTrigger("Shoot");
                 GameObject go = Instantiate(projectilePrefab, projectileMount.position, projectileMount.rotation);
                 Physics.IgnoreCollision(go.GetComponent<Collider>(), projectileMount.transform.parent.parent.GetComponent<Collider>());
             }
@@ -422,7 +427,7 @@ namespace Mirror.Examples.Common.Controllers.Tank
             if (isClientOnly)
             {
                 // Client-side logic, excluding host client
-                animator.SetTrigger("Shoot");
+                //animator.SetTrigger("Shoot");
                 GameObject go = Instantiate(projectilePrefab, projectileMount.position, projectileMount.rotation);
                 Physics.IgnoreCollision(go.GetComponent<Collider>(), projectileMount.transform.parent.parent.GetComponent<Collider>());
             }

@@ -150,7 +150,7 @@ MonoBehaviour:
   syncRotation: 1
   syncScale: 0
   onlySyncOnChange: 1
-  compressRotation: 1
+  compressRotation: 0
   interpolatePosition: 1
   interpolateRotation: 1
   interpolateScale: 1
@@ -180,11 +180,11 @@ MonoBehaviour:
   syncMode: 0
   syncInterval: 0
   target: {fileID: 702109291309605222}
-  syncPosition: 1
+  syncPosition: 0
   syncRotation: 1
   syncScale: 0
   onlySyncOnChange: 1
-  compressRotation: 1
+  compressRotation: 0
   interpolatePosition: 1
   interpolateRotation: 1
   interpolateScale: 1
@@ -214,11 +214,11 @@ MonoBehaviour:
   syncMode: 0
   syncInterval: 0
   target: {fileID: 702109291309605224}
-  syncPosition: 1
+  syncPosition: 0
   syncRotation: 1
   syncScale: 0
   onlySyncOnChange: 1
-  compressRotation: 1
+  compressRotation: 0
   interpolatePosition: 1
   interpolateRotation: 1
   interpolateScale: 1
