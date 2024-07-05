@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Mirror;
+using System.Collections;
 
 /*
 	Documentation: https://mirror-networking.gitbook.io/docs/components/network-manager
@@ -152,9 +153,6 @@ namespace Mirror.Examples.PlayerTest
         public override void OnServerAddPlayer(NetworkConnectionToClient conn)
         {
             base.OnServerAddPlayer(conn);
-
-            if (conn.identity.TryGetComponent(out Common.Controllers.Tank.TankController tankController))
-                tankController.playerColor = UnityEngine.Random.ColorHSV(0f, 1f, 1f, 1f, 0.5f, 1f);
         }
 
         /// <summary>

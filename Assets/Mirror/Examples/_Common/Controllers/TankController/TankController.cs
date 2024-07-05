@@ -1,33 +1,9 @@
 using System;
 using UnityEngine;
 using UnityEngine.Serialization;
-using Mirror;
 
 namespace Mirror.Examples.Common.Controllers.Tank
 {
-    [Serializable]
-    public struct MoveKeys
-    {
-        public KeyCode Forward;
-        public KeyCode Back;
-        public KeyCode TurnLeft;
-        public KeyCode TurnRight;
-    }
-
-    [Serializable]
-    public struct OtherKeys
-    {
-        public KeyCode Shoot;
-    }
-
-    [Serializable]
-    public struct OptionsKeys
-    {
-        public KeyCode MouseLock;
-        public KeyCode AutoRun;
-        public KeyCode ToggleUI;
-    }
-
     [RequireComponent(typeof(PlayerCamera))]
     [RequireComponent(typeof(Rigidbody))]
     [RequireComponent(typeof(CharacterController))]
@@ -36,39 +12,36 @@ namespace Mirror.Examples.Common.Controllers.Tank
     [DisallowMultipleComponent]
     public class TankController : NetworkBehaviour
     {
-        const float BASE_DPI = 96f;
-
-        // Unity clones the material when GetComponent<Renderer>().material is called
-        // Cache it here and destroy it in OnDestroy to prevent a memory leak
-        Material cachedMaterial;
-
         public enum GroundState : byte { Jumping, Falling, Grounded }
+
+        [Serializable]
+        public struct MoveKeys
+        {
+            public KeyCode Forward;
+            public KeyCode Back;
+            public KeyCode TurnLeft;
+            public KeyCode TurnRight;
+        }
+
+        [Serializable]
+        public struct OptionsKeys
+        {
+            public KeyCode AutoRun;
+            public KeyCode ToggleUI;
+        }
 
         [Flags]
         public enum ControlOptions : byte
         {
             None,
-            MouseLock = 1 << 0,
-            AutoRun = 1 << 1,
-            ShowUI = 1 << 2
+            AutoRun = 1 << 0,
+            ShowUI = 1 << 1
         }
 
-        [Header("Avatar Components")]
+        [Header("Components")]
         public BoxCollider boxCollider;
-        public Animator animator;
         public CharacterController characterController;
         public NetworkTransformReliable tankNTR;
-        public NetworkTransformReliable turretNTR;
-
-        [Header("Turret")]
-        public Transform turret;
-        public Transform projectileMount;
-        public GameObject projectilePrefab;
-        public GameObject seatedPlayer;
-
-        [Header("SyncVars")]
-        [SyncVar(hook = nameof(OnPlayerColorChanged))]
-        public Color32 playerColor = Color.black;
 
         [Header("User Interface")]
         public GameObject ControllerUIPrefab;
@@ -84,21 +57,14 @@ namespace Mirror.Examples.Common.Controllers.Tank
         };
 
         [SerializeField]
-        public OtherKeys otherKeys = new OtherKeys
-        {
-            Shoot = KeyCode.Space
-        };
-
-        [SerializeField]
         public OptionsKeys optionsKeys = new OptionsKeys
         {
-            MouseLock = KeyCode.M,
             AutoRun = KeyCode.R,
             ToggleUI = KeyCode.U
         };
 
         [Space(5)]
-        public ControlOptions controlOptions = ControlOptions.MouseLock | ControlOptions.ShowUI;
+        public ControlOptions controlOptions = ControlOptions.ShowUI;
 
         [Header("Movement")]
         [Range(0, 20)]
@@ -125,14 +91,6 @@ namespace Mirror.Examples.Common.Controllers.Tank
         [Tooltip("Rotation acceleration in degrees per second squared")]
         public float turnAcceleration = 3f;
 
-        [Header("Turret (Mouse)")]
-        [Range(0, 300f)]
-        [Tooltip("Max Rotation in degrees per second")]
-        public float maxTurretSpeed = 250f;
-        [Range(0, 10f)]
-        [Tooltip("Rotation acceleration in degrees per second squared")]
-        public float turretAcceleration = 10f;
-
         [Header("Diagnostics")]
         [ReadOnly, SerializeField]
         GroundState groundState = GroundState.Grounded;
@@ -142,15 +100,8 @@ namespace Mirror.Examples.Common.Controllers.Tank
         [ReadOnly, SerializeField, Range(-1f, 1f)]
         float vertical;
 
-        [ReadOnly, SerializeField, Range(-1f, 1f)]
-        float mouseInputX;
-        [ReadOnly, SerializeField, Range(0, 30f)]
-        float mouseSensitivity;
         [ReadOnly, SerializeField, Range(-300f, 300f)]
         float turnSpeed;
-
-        [ReadOnly, SerializeField, Range(-300f, 300f)]
-        float turretSpeed;
 
         [ReadOnly, SerializeField, Range(-1.5f, 1.5f)]
         float animVelocity;
@@ -180,9 +131,6 @@ namespace Mirror.Examples.Common.Controllers.Tank
 
         void Reset()
         {
-            if (animator == null)
-                animator = GetComponentInChildren<Animator>();
-
             if (boxCollider == null)
                 boxCollider = GetComponentInChildren<BoxCollider>();
 
@@ -197,59 +145,13 @@ namespace Mirror.Examples.Common.Controllers.Tank
             characterController.skinWidth = 0.02f;
             characterController.minMoveDistance = 0f;
 
-            // Set default...this may be modified based on DPI at runtime
-            mouseSensitivity = turnAcceleration;
-
             GetComponent<Rigidbody>().isKinematic = true;
 
-            // Do a recursive search for a children named "Turret" and "ProjectileMount".
-            // They will be several levels deep in the hierarchy.
-            if (turret == null)
-                turret = FindDeepChild(transform, "Turret");
-
-            if (projectileMount == null)
-                projectileMount = FindDeepChild(turret, "ProjectileMount");
-
-            if (seatedPlayer == null)
-                seatedPlayer = FindDeepChild(turret, "SeatedPlayer").gameObject;
-
-            // tranform.Find will fail - must do recursive search
-            Transform FindDeepChild(Transform aParent, string aName)
-            {
-                var result = aParent.Find(aName);
-                if (result != null)
-                    return result;
-
-                foreach (Transform child in aParent)
-                {
-                    result = FindDeepChild(child, aName);
-                    if (result != null)
-                        return result;
-                }
-
-                return null;
-            }
-
-            NetworkTransformReliable[] NTRs = GetComponents<NetworkTransformReliable>();
-
-            // RequireComponent will add the first one if it doesn't exist
-            tankNTR = NTRs[0];
-            tankNTR.target = transform;
-
-            // Add the second one if it doesn't exist for the turret
-            if (NTRs.Length < 2)
-            {
-                gameObject.AddComponent<NetworkTransformReliable>();
-                NTRs = GetComponents<NetworkTransformReliable>();
-            }
-
-            turretNTR = NTRs[1];
-            if (turret != null)
-                turretNTR.target = turret;
+            tankNTR = GetComponent<NetworkTransformReliable>();
 
 #if UNITY_EDITOR
-            // For convenience in the examples, we use the GUID of the PlayerControllerUI and Projectile
-            // to find the correct prefabs in the Mirror/Examples/_Common/Controllers folder.
+            // For convenience in the examples, we use the GUID of the TankControllerUI prefab
+            // to find the correct prefab in the Mirror/Examples/_Common/Controllers folder.
             // This avoids conflicts with user-created prefabs that may have the same name
             // and avoids polluting the user's project with Resources.
             // This is not recommended for production code...use Resources.Load or AssetBundles instead.
@@ -258,12 +160,6 @@ namespace Mirror.Examples.Common.Controllers.Tank
                 string path = UnityEditor.AssetDatabase.GUIDToAssetPath("e64b14552402f6745a7f0aca6237fae2");
                 ControllerUIPrefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(path);
             }
-
-            if (projectilePrefab == null)
-            {
-                string path = UnityEditor.AssetDatabase.GUIDToAssetPath("aec853915cd4f4477ba1532b5fe05488");
-                projectilePrefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(path);
-            }
 #endif
 
             this.enabled = false;
@@ -271,13 +167,6 @@ namespace Mirror.Examples.Common.Controllers.Tank
 
         public override void OnStartAuthority()
         {
-            // Calculate DPI-aware sensitivity
-            float dpiScale = (Screen.dpi > 0) ? (Screen.dpi / BASE_DPI) : 1f;
-            mouseSensitivity = turretAcceleration * dpiScale;
-            //Debug.Log($"Screen DPI: {Screen.dpi}, DPI Scale: {dpiScale}, Adjusted Turn Acceleration: {turnAccelerationDPI}");
-
-            SetCursor(controlOptions.HasFlag(ControlOptions.MouseLock));
-
             // capsuleCollider and characterController are mutually exclusive
             // Having both enabled would double fire triggers and other collisions
             //boxCollider.enabled = false;
@@ -293,8 +182,6 @@ namespace Mirror.Examples.Common.Controllers.Tank
             // Having both enabled would double fire triggers and other collisions
             //boxCollider.enabled = true;
             characterController.enabled = false;
-
-            SetCursor(false);
         }
 
         public override void OnStartLocalPlayer()
@@ -305,7 +192,7 @@ namespace Mirror.Examples.Common.Controllers.Tank
             if (controllerUI != null)
             {
                 if (controllerUI.TryGetComponent(out TankControllerUI canvasControlPanel))
-                    canvasControlPanel.Refresh(moveKeys, otherKeys, optionsKeys);
+                    canvasControlPanel.Refresh(moveKeys, optionsKeys);
 
                 controllerUI.SetActive(controlOptions.HasFlag(ControlOptions.ShowUI));
             }
@@ -318,13 +205,6 @@ namespace Mirror.Examples.Common.Controllers.Tank
             controllerUI = null;
         }
 
-        void OnPlayerColorChanged(Color32 _, Color32 newColor)
-        {
-            if (cachedMaterial == null) cachedMaterial = seatedPlayer.GetComponent<Renderer>().material;
-            cachedMaterial.color = newColor;
-            seatedPlayer.SetActive(newColor != Color.black);
-        }
-
         #endregion
 
         void Update()
@@ -335,11 +215,6 @@ namespace Mirror.Examples.Common.Controllers.Tank
             float deltaTime = Time.deltaTime;
 
             HandleOptions();
-            HandleShooting();
-
-            if (controlOptions.HasFlag(ControlOptions.MouseLock))
-                HandleMouseTurret(deltaTime);
-
             HandleTurning(deltaTime);
             HandleMove(deltaTime);
             ApplyMove(deltaTime);
@@ -354,20 +229,8 @@ namespace Mirror.Examples.Common.Controllers.Tank
             velocity = Vector3Int.FloorToInt(characterController.velocity);
         }
 
-        void SetCursor(bool locked)
-        {
-            Cursor.lockState = locked ? CursorLockMode.Locked : CursorLockMode.None;
-            Cursor.visible = !locked;
-        }
-
         void HandleOptions()
         {
-            if (optionsKeys.MouseLock != KeyCode.None && Input.GetKeyUp(optionsKeys.MouseLock))
-            {
-                controlOptions ^= ControlOptions.MouseLock;
-                SetCursor(controlOptions.HasFlag(ControlOptions.MouseLock));
-            }
-
             if (optionsKeys.AutoRun != KeyCode.None && Input.GetKeyUp(optionsKeys.AutoRun))
                 controlOptions ^= ControlOptions.AutoRun;
 
@@ -378,83 +241,6 @@ namespace Mirror.Examples.Common.Controllers.Tank
                 if (controllerUI != null)
                     controllerUI.SetActive(controlOptions.HasFlag(ControlOptions.ShowUI));
             }
-        }
-
-        #region Shooting
-
-        void HandleShooting()
-        {
-            if (otherKeys.Shoot != KeyCode.None && Input.GetKeyUp(otherKeys.Shoot))
-            {
-                CmdShoot();
-                if (!isServer) DoShoot();
-            }
-        }
-
-        [Command]
-        void CmdShoot()
-        {
-            //Debug.Log("CmdShoot");
-            RpcShoot();
-            DoShoot();
-        }
-
-        [ClientRpc(includeOwner = false)]
-        void RpcShoot()
-        {
-            //Debug.Log("RpcShoot");
-            if (!isServer) DoShoot();
-        }
-
-        void DoShoot()
-        {
-            //Debug.Log($"DoShoot {isServerOnly} {isClient}");
-            if (isServerOnly)
-            {
-                // Dedicated Server logic - no host client
-                GameObject go = Instantiate(projectilePrefab, projectileMount.position, projectileMount.rotation);
-                Physics.IgnoreCollision(go.GetComponent<Collider>(), projectileMount.transform.parent.GetComponent<Collider>());
-            }
-            else if (isServer)
-            {
-                // Server logic, including host client
-                animator.SetTrigger("Shoot");
-                GameObject go = Instantiate(projectilePrefab, projectileMount.position, projectileMount.rotation);
-                Physics.IgnoreCollision(go.GetComponent<Collider>(), projectileMount.transform.parent.GetComponent<Collider>());
-            }
-
-            if (isClientOnly)
-            {
-                // Client-side logic, excluding host client
-                animator.SetTrigger("Shoot");
-                GameObject go = Instantiate(projectilePrefab, projectileMount.position, projectileMount.rotation);
-                Physics.IgnoreCollision(go.GetComponent<Collider>(), projectileMount.transform.parent.GetComponent<Collider>());
-            }
-        }
-
-        #endregion
-
-        void HandleMouseTurret(float deltaTime)
-        {
-            // Accumulate mouse input over time
-            mouseInputX += Input.GetAxisRaw("Mouse X") * mouseSensitivity;
-
-            // Clamp the accumulator to simulate key press behavior
-            mouseInputX = Mathf.Clamp(mouseInputX, -1f, 1f);
-
-            // Calculate target turn speed
-            float targetTurnSpeed = mouseInputX * maxTurretSpeed;
-
-            // Use the same acceleration logic as HandleTurning
-            turretSpeed = Mathf.MoveTowards(turretSpeed, targetTurnSpeed, mouseSensitivity * maxTurretSpeed * deltaTime);
-
-            // Apply rotation
-            turret.Rotate(0f, turretSpeed * deltaTime, 0f);
-
-            // Decay the accumulator over time
-            //float decayRate = 5f; // Adjust as needed
-            //mouseInputX = Mathf.MoveTowards(mouseInputX, 0f, decayRate * deltaTime);
-            mouseInputX = Mathf.MoveTowards(mouseInputX, 0f, mouseSensitivity * deltaTime);
         }
 
         // Turning works while airborne...feature?
@@ -512,6 +298,9 @@ namespace Mirror.Examples.Common.Controllers.Tank
 
             // Multiply for desired ground speed.
             direction *= maxMoveSpeed;
+
+            // Add gravity in case we drove off a cliff.
+            direction += Physics.gravity;
 
             // Finally move the character.
             characterController.Move(direction * deltaTime);

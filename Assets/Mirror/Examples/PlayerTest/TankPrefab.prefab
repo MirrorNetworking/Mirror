@@ -14,8 +14,11 @@ GameObject:
   - component: {fileID: 796067987244239294}
   - component: {fileID: 6595414911156405995}
   - component: {fileID: 943969255301123906}
-  - component: {fileID: 8667765936904249413}
+  - component: {fileID: 8662002890669114756}
+  - component: {fileID: 4362334322449175123}
   - component: {fileID: 4076420439305423835}
+  - component: {fileID: 4696500281269712544}
+  - component: {fileID: 36696637711815440}
   m_Layer: 0
   m_Name: TankPrefab
   m_TagString: Untagged
@@ -32,7 +35,7 @@ Transform:
   m_GameObject: {fileID: 7863680369626900553}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -161,7 +164,7 @@ MonoBehaviour:
   rotationSensitivity: 0.01
   positionPrecision: 0.01
   scalePrecision: 0.01
---- !u!114 &8667765936904249413
+--- !u!114 &8662002890669114756
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -177,6 +180,40 @@ MonoBehaviour:
   syncMode: 0
   syncInterval: 0
   target: {fileID: 702109291309605222}
+  syncPosition: 1
+  syncRotation: 1
+  syncScale: 0
+  onlySyncOnChange: 1
+  compressRotation: 1
+  interpolatePosition: 1
+  interpolateRotation: 1
+  interpolateScale: 1
+  coordinateSpace: 0
+  sendIntervalMultiplier: 1
+  timelineOffset: 0
+  showGizmos: 0
+  showOverlay: 0
+  overlayColor: {r: 0, g: 0, b: 0, a: 0.5}
+  onlySyncOnChangeCorrectionMultiplier: 2
+  rotationSensitivity: 0.01
+  positionPrecision: 0.01
+  scalePrecision: 0.01
+--- !u!114 &4362334322449175123
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7863680369626900553}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8ff3ba0becae47b8b9381191598957c8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncDirection: 1
+  syncMode: 0
+  syncInterval: 0
+  target: {fileID: 702109291309605224}
   syncPosition: 1
   syncRotation: 1
   syncScale: 0
@@ -211,49 +248,103 @@ MonoBehaviour:
   syncMode: 0
   syncInterval: 0
   boxCollider: {fileID: 848258961126524234}
-  animator: {fileID: 702109291319152264}
   characterController: {fileID: 1584615235374487050}
   tankNTR: {fileID: 943969255301123906}
-  turretNTR: {fileID: 8667765936904249413}
-  turret: {fileID: 702109291309605222}
-  projectileMount: {fileID: 5863288529097842480}
-  projectilePrefab: {fileID: 5890560936853567077, guid: aec853915cd4f4477ba1532b5fe05488, type: 3}
-  seatedPlayer: {fileID: 3185878892915811175}
-  playerColor:
-    serializedVersion: 2
-    rgba: 4278190080
   ControllerUIPrefab: {fileID: 644766297742565710, guid: e64b14552402f6745a7f0aca6237fae2, type: 3}
   moveKeys:
     Forward: 119
     Back: 115
     TurnLeft: 97
     TurnRight: 100
-  otherKeys:
-    Shoot: 32
   optionsKeys:
-    MouseLock: 109
     AutoRun: 114
     ToggleUI: 117
-  controlOptions: 5
+  controlOptions: 2
   maxMoveSpeed: 5
   inputSensitivity: 2
   inputGravity: 2
   maxTurnSpeed: 100
   turnAcceleration: 3
-  maxTurretSpeed: 250
-  turretAcceleration: 10
   groundState: 2
   horizontal: 0
   vertical: 0
-  mouseInputX: 0
-  mouseSensitivity: 3
   turnSpeed: 0
-  turretSpeed: 0
   animVelocity: 0
   animRotation: 0
   direction: {x: 0, y: 0, z: 0}
   velocity: {x: 0, y: 0, z: 0}
   controllerUI: {fileID: 0}
+--- !u!114 &4696500281269712544
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7863680369626900553}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2620edb022743ce4bafb12274ee78716, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+  TurretUIPrefab: {fileID: 644766297742565710, guid: 4d16730f7a8ba0a419530d1156d25080, type: 3}
+  projectilePrefab: {fileID: 5890560936853567077, guid: aec853915cd4f4477ba1532b5fe05488, type: 3}
+  animator: {fileID: 702109291319152264}
+  turretNTR: {fileID: 8662002890669114756}
+  barrelNTR: {fileID: 4362334322449175123}
+  turret: {fileID: 702109291309605222}
+  barrel: {fileID: 702109291309605224}
+  projectileMount: {fileID: 5863288529097842480}
+  playerObject: {fileID: 3185878892915811175}
+  playerColor:
+    serializedVersion: 2
+    rgba: 4278190080
+  moveKeys:
+    PitchUp: 273
+    PitchDown: 274
+    TurnLeft: 276
+    TurnRight: 275
+  otherKeys:
+    Shoot: 32
+  optionsKeys:
+    MouseLock: 109
+    AutoLevel: 108
+    ToggleUI: 117
+  controlOptions: 6
+  maxTurretSpeed: 250
+  turretAcceleration: 10
+  maxPitchSpeed: 30
+  maxPitchUpAngle: 25
+  maxPitchDownAngle: 0
+  pitchAcceleration: 3
+  mouseInputX: 0
+  mouseSensitivity: 10
+  turretSpeed: 0
+  pitchAngle: 0
+  pitchSpeed: 0
+  turretUI: {fileID: 0}
+--- !u!114 &36696637711815440
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7863680369626900553}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a98fd0a5ae4916d48bdcdb0e8c99a5cc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+  healthBar: {fileID: 3566980308471553575}
+  maxHealth: 5
+  health: 5
+  respawn: 1
+  respawnTime: 3
 --- !u!1 &9109672380512621037
 GameObject:
   m_ObjectHideFlags: 0
@@ -351,7 +442,7 @@ TextMesh:
   m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
   m_Color:
     serializedVersion: 2
-    rgba: 4294967295
+    rgba: 4278255360
 --- !u!114 &1151573331580713941
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -372,25 +463,9 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 4659514702152478195}
     m_Modifications:
-    - target: {fileID: 1727031213358021984, guid: dad07e68d3659e6439279d0d4110cf4c, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 3638700596990255941, guid: dad07e68d3659e6439279d0d4110cf4c, type: 3}
       propertyPath: m_Name
       value: BasePrefab
-      objectReference: {fileID: 0}
-    - target: {fileID: 3638700596990361441, guid: dad07e68d3659e6439279d0d4110cf4c, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3638700596990361441, guid: dad07e68d3659e6439279d0d4110cf4c, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3638700596990361441, guid: dad07e68d3659e6439279d0d4110cf4c, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3638700596990361445, guid: dad07e68d3659e6439279d0d4110cf4c, type: 3}
       propertyPath: m_LocalPosition.x
@@ -445,6 +520,11 @@ Transform:
 --- !u!4 &702109291309605222 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3638700596990361441, guid: dad07e68d3659e6439279d0d4110cf4c, type: 3}
+  m_PrefabInstance: {fileID: 4305764793209200135}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &702109291309605224 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 3638700596990361455, guid: dad07e68d3659e6439279d0d4110cf4c, type: 3}
   m_PrefabInstance: {fileID: 4305764793209200135}
   m_PrefabAsset: {fileID: 0}
 --- !u!95 &702109291319152264 stripped

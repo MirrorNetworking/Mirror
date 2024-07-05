@@ -34,7 +34,7 @@ namespace Mirror.Examples.Common
 
         public override void OnStopLocalPlayer()
         {
-            if (mainCam != null)
+            if (mainCam != null && mainCam.transform.parent == transform)
             {
                 mainCam.transform.SetParent(null);
                 SceneManager.MoveGameObjectToScene(mainCam.gameObject, SceneManager.GetActiveScene());

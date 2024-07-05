@@ -45,7 +45,11 @@ namespace Mirror.Examples.Common
 
         private void OnCollisionEnter(Collision collision)
         {
-            Debug.Log($"Hit: {collision.gameObject}");
+            //Debug.Log($"Hit: {collision.gameObject}");
+
+            if (NetworkServer.active && collision.gameObject.TryGetComponent(out Controllers.Tank.TankHealth tankHealth))
+                tankHealth.TakeDamage(1);
+
             Destroy(gameObject);
         }
     }

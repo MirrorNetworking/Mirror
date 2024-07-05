@@ -13,18 +13,25 @@ namespace Mirror.Examples.TankTheftAuto
         /// <param name="conn">Connection from client.</param>
         public override void OnServerDisconnect(NetworkConnectionToClient conn)
         {
-            // this code is to reset any objects belonging to disconnected clients
-            // make a copy because the original collection will change in the loop
-            NetworkIdentity[] copyOfOwnedObjects = conn.owned.ToArray();
-            // Loop the copy, skipping the player object.
-            // RemoveClientAuthority on everything else
-            foreach (NetworkIdentity identity in copyOfOwnedObjects)
-            {
-                if (identity != conn.identity)
-                    identity.RemoveClientAuthority();
-            }
+            // If the client was driving a tank, destroy the cached player object
+            if (conn.authenticationData is GameObject player)
+                NetworkServer.Destroy(player);
 
-            base.OnServerDisconnect(conn);
+
+
+
+            //// this code is to reset any objects belonging to disconnected clients
+            //// make a copy because the original collection will change in the loop
+            //NetworkIdentity[] copyOfOwnedObjects = conn.owned.ToArray();
+            //// Loop the copy, skipping the player object.
+            //// RemoveClientAuthority on everything else
+            //foreach (NetworkIdentity identity in copyOfOwnedObjects)
+            //{
+            //    if (identity != conn.identity)
+            //        identity.RemoveClientAuthority();
+            //}
+
+            //base.OnServerDisconnect(conn);
         }
     }
 }

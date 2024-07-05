@@ -1,30 +1,9 @@
 using System;
 using UnityEngine;
 using UnityEngine.Serialization;
-using Mirror;
 
 namespace Mirror.Examples.Common.Controllers.Player
 {
-    [Serializable]
-    public struct MoveKeys
-    {
-        public KeyCode Forward;
-        public KeyCode Back;
-        public KeyCode StrafeLeft;
-        public KeyCode StrafeRight;
-        public KeyCode TurnLeft;
-        public KeyCode TurnRight;
-        public KeyCode Jump;
-    }
-
-    [Serializable]
-    public struct OptionsKeys
-    {
-        public KeyCode MouseSteer;
-        public KeyCode AutoRun;
-        public KeyCode ToggleUI;
-    }
-
     [RequireComponent(typeof(PlayerCamera))]
     [RequireComponent(typeof(Rigidbody))]
     [RequireComponent(typeof(CapsuleCollider))]
@@ -37,6 +16,26 @@ namespace Mirror.Examples.Common.Controllers.Player
         const float BASE_DPI = 96f;
 
         public enum GroundState : byte { Jumping, Falling, Grounded }
+
+        [Serializable]
+        public struct MoveKeys
+        {
+            public KeyCode Forward;
+            public KeyCode Back;
+            public KeyCode StrafeLeft;
+            public KeyCode StrafeRight;
+            public KeyCode TurnLeft;
+            public KeyCode TurnRight;
+            public KeyCode Jump;
+        }
+
+        [Serializable]
+        public struct OptionsKeys
+        {
+            public KeyCode MouseSteer;
+            public KeyCode AutoRun;
+            public KeyCode ToggleUI;
+        }
 
         [Flags]
         public enum ControlOptions : byte

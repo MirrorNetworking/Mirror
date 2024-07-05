@@ -1,39 +1,9 @@
 using System;
 using UnityEngine;
 using UnityEngine.Serialization;
-using Mirror;
 
 namespace Mirror.Examples.Common.Controllers.Flyer
 {
-    [Serializable]
-    public struct MoveKeys
-    {
-        public KeyCode Forward;
-        public KeyCode Back;
-        public KeyCode StrafeLeft;
-        public KeyCode StrafeRight;
-        public KeyCode TurnLeft;
-        public KeyCode TurnRight;
-    }
-
-    [Serializable]
-    public struct FlightKeys
-    {
-        public KeyCode PitchDown;
-        public KeyCode PitchUp;
-        public KeyCode RollLeft;
-        public KeyCode RollRight;
-        public KeyCode AutoLevel;
-    }
-
-    [Serializable]
-    public struct OptionsKeys
-    {
-        public KeyCode MouseSteer;
-        public KeyCode AutoRun;
-        public KeyCode ToggleUI;
-    }
-
     [RequireComponent(typeof(PlayerCamera))]
     [RequireComponent(typeof(Rigidbody))]
     [RequireComponent(typeof(CapsuleCollider))]
@@ -45,7 +15,36 @@ namespace Mirror.Examples.Common.Controllers.Flyer
     {
         const float BASE_DPI = 96f;
 
+        [Serializable]
+        public struct OptionsKeys
+        {
+            public KeyCode MouseSteer;
+            public KeyCode AutoRun;
+            public KeyCode ToggleUI;
+        }
+
         public enum GroundState : byte { Jumping, Falling, Grounded }
+
+        [Serializable]
+        public struct MoveKeys
+        {
+            public KeyCode Forward;
+            public KeyCode Back;
+            public KeyCode StrafeLeft;
+            public KeyCode StrafeRight;
+            public KeyCode TurnLeft;
+            public KeyCode TurnRight;
+        }
+
+        [Serializable]
+        public struct FlightKeys
+        {
+            public KeyCode PitchDown;
+            public KeyCode PitchUp;
+            public KeyCode RollLeft;
+            public KeyCode RollRight;
+            public KeyCode AutoLevel;
+        }
 
         [Flags]
         public enum ControlOptions : byte
