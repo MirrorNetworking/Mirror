@@ -192,6 +192,7 @@ namespace Mirror
         {
             // += so that other systems can also hook into it (i.e. statistics)
             Transport.active.OnServerConnected += OnTransportConnected;
+            Transport.active.OnServerConnectedWithAddress += OnTransportConnectedWithAddress;
             Transport.active.OnServerDataReceived += OnTransportData;
             Transport.active.OnServerDisconnected += OnTransportDisconnected;
             Transport.active.OnServerError += OnTransportError;
@@ -636,25 +637,39 @@ namespace Mirror
         // transport events ////////////////////////////////////////////////////
         // called by transport
         static void OnTransportConnected(int connectionId)
-        {
-            // Debug.Log($"Server accepted client:{connectionId}");
+            => OnTransportConnectedWithAddress(connectionId, Transport.active.ServerGetClientAddress(connectionId));
 
+        static void OnTransportConnectedWithAddress(int connectionId, string clientAddress)
+        {
+            if (IsConnectionAllowed(connectionId))
+            {
+                // create a connection
+                NetworkConnectionToClient conn = new NetworkConnectionToClient(connectionId, clientAddress);
+                OnConnected(conn);
+            }
+            else
+            {
+                // kick the client immediately
+                Transport.active.ServerDisconnect(connectionId);
+            }
+        }
+
+        static bool IsConnectionAllowed(int connectionId)
+        {
             // connectionId needs to be != 0 because 0 is reserved for local player
             // note that some transports like kcp generate connectionId by
             // hashing which can be < 0 as well, so we need to allow < 0!
             if (connectionId == 0)
             {
                 Debug.LogError($"Server.HandleConnect: invalid connectionId: {connectionId} . Needs to be != 0, because 0 is reserved for local player.");
-                Transport.active.ServerDisconnect(connectionId);
-                return;
+                return false;
             }
 
             // connectionId not in use yet?
             if (connections.ContainsKey(connectionId))
             {
-                Transport.active.ServerDisconnect(connectionId);
-                // Debug.Log($"Server connectionId {connectionId} already in use...kicked client");
-                return;
+                Debug.LogError($"Server connectionId {connectionId} already in use...client will be kicked");
+                return false;
             }
 
             // are more connections allowed? if not, kick
@@ -662,18 +677,13 @@ namespace Mirror
             //  less code and third party transport might not do that anyway)
             // (this way we could also send a custom 'tooFull' message later,
             //  Transport can't do that)
-            if (connections.Count < maxConnections)
+            if (connections.Count >= maxConnections)
             {
-                // add connection
-                NetworkConnectionToClient conn = new NetworkConnectionToClient(connectionId);
-                OnConnected(conn);
+                Debug.LogError($"Server full, client {connectionId} will be kicked");
+                return false;
             }
-            else
-            {
-                // kick
-                Transport.active.ServerDisconnect(connectionId);
-                // Debug.Log($"Server full, kicked client {connectionId}");
-            }
+
+            return true;
         }
 
         internal static void OnConnected(NetworkConnectionToClient conn)
