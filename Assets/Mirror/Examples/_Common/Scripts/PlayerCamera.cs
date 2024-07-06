@@ -19,6 +19,11 @@ namespace Mirror.Examples.Common
             mainCam = Camera.main;
         }
 
+        void OnDisable()
+        {
+            //Debug.Log("PlayerCamera.OnDisable");
+        }
+
         public override void OnStartLocalPlayer()
         {
             if (mainCam != null)

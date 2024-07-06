@@ -77,7 +77,11 @@ namespace Mirror.Examples.TankTheftAuto
         void CmdTakeControl(NetworkConnectionToClient conn = null)
         {
             // someone else is already controlling this tank
-            if (connectionToClient != null) return;
+            if (connectionToClient != null)
+            {
+                Debug.LogWarning("Someone else is already controlling this tank");
+                return;
+            }
 
             // cache the regular player object
             conn.authenticationData = conn.identity.gameObject;
@@ -110,12 +114,13 @@ namespace Mirror.Examples.TankTheftAuto
                 // Set pos and rot to match the tank, plus 3m offset to the right
                 player.transform.SetPositionAndRotation(transform.position + transform.right * 3, transform.rotation);
 
-                // clear the player object
-                connectionToClient.authenticationData = null;
-
                 // set the player object back to the player
                 isControlled = false;
                 tankTurret.playerColor = Color.black;
+
+                // clear the player object
+                connectionToClient.authenticationData = null;
+
                 NetworkServer.ReplacePlayerForConnection(connectionToClient, player);
             }
         }
@@ -130,6 +135,17 @@ namespace Mirror.Examples.TankTheftAuto
         {
             if (triggerUI.TryGetComponent(out TextMesh textMesh))
                 textMesh.text = "Press 'C' to take control";
+        }
+
+        public override void OnStartClient()
+        {
+            tankTrigger.SetActive(!isControlled);
+        }
+
+        public override void OnStopClient()
+        {
+            triggerUI.SetActive(false);
+            tankTrigger.SetActive(true);
         }
     }
 }
