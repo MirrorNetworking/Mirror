@@ -93,7 +93,7 @@ namespace Mirror
         protected double timeStampAdjustment => NetworkServer.sendInterval * (sendIntervalMultiplier - 1);
         protected double offset => timelineOffset ? NetworkServer.sendInterval * sendIntervalMultiplier : 0;
 
-        // CoordinateSpace ///////////////////////////////////////////////////////////
+        // Update Method ///////////////////////////////////////////////////////////
         [Header("Update Method")]
         [Tooltip("Update by default. Try a different method when having problems with Physics or Animations.")]
         public UpdateMethod updateMethod = UpdateMethod.Update;
