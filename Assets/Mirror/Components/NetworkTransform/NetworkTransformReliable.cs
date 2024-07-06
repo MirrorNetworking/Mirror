@@ -47,15 +47,15 @@ namespace Mirror
         // update //////////////////////////////////////////////////////////////
         void Update()
         {
-            // if server then always sync to others.
-            if (isServer) UpdateServer();
-            // 'else if' because host mode shouldn't send anything to server.
-            // it is the server. don't overwrite anything there.
-            else if (isClient) UpdateClient();
+            if (updateMethod == UpdateMethod.Update)
+                UpdateCall();
         }
 
         void LateUpdate()
         {
+            if (updateMethod == UpdateMethod.LateUpdate)
+                UpdateCall();
+
             // set dirty to trigger OnSerialize. either always, or only if changed.
             // It has to be checked in LateUpdate() for onlySyncOnChange to avoid
             // the possibility of Update() running first before the object's movement
@@ -68,6 +68,21 @@ namespace Mirror
 
                 CheckLastSendTime();
             }
+        }
+
+        void FixedUpdate()
+        {
+            if (updateMethod == UpdateMethod.FixedUpdate)
+                UpdateCall();
+        }
+
+        void UpdateCall()
+        {
+            // if server then always sync to others.
+            if (isServer) UpdateServer();
+            // 'else if' because host mode shouldn't send anything to server.
+            // it is the server. don't overwrite anything there.
+            else if (isClient) UpdateClient();
         }
 
         protected virtual void UpdateServer()

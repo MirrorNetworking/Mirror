@@ -36,11 +36,8 @@ namespace Mirror
         // Update applies interpolation
         void Update()
         {
-            if (isServer) UpdateServerInterpolation();
-            // for all other clients (and for local player if !authority),
-            // we need to apply snapshots from the buffer.
-            // 'else if' because host mode shouldn't interpolate client
-            else if (isClient && !IsClientWithAuthority) UpdateClientInterpolation();
+            if (updateMethod == UpdateMethod.Update)
+                UpdateCall();
         }
 
         // LateUpdate broadcasts.
@@ -50,12 +47,30 @@ namespace Mirror
         // this could cause visible jitter.
         void LateUpdate()
         {
+            if (updateMethod == UpdateMethod.LateUpdate)
+                UpdateCall();
+
             // if server then always sync to others.
             if (isServer) UpdateServerBroadcast();
             // client authority, and local player (= allowed to move myself)?
             // 'else if' because host mode shouldn't send anything to server.
             // it is the server. don't overwrite anything there.
             else if (isClient && IsClientWithAuthority) UpdateClientBroadcast();
+        }
+
+        void FixedUpdate()
+        {
+            if (updateMethod == UpdateMethod.FixedUpdate)
+                UpdateCall();
+        }
+
+        void UpdateCall()
+        {
+            if (isServer) UpdateServerInterpolation();
+            // for all other clients (and for local player if !authority),
+            // we need to apply snapshots from the buffer.
+            // 'else if' because host mode shouldn't interpolate client
+            else if (isClient && !IsClientWithAuthority) UpdateClientInterpolation();
         }
 
         protected virtual void CheckLastSendTime()
