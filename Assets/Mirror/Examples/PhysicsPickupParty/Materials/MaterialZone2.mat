@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: MaterialZone3
+  m_Name: MaterialZone2
   m_Shader: {fileID: 46, guid: 0000000000000000f000000000000000, type: 0}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -84,5 +84,5 @@ Material:
     - _ZWrite: 0
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 0.003921569}
-    - _EmissionColor: {r: 0.2509804, g: 0.5019608, b: 0.2509804, a: 1}
+    - _EmissionColor: {r: 0.2732469, g: 0.36410186, b: 0.4038463, a: 1}
   m_BuildTextureStacks: []

@@ -291,8 +291,7 @@ MonoBehaviour:
   syncInterval: 0
   playerPickupParty: {fileID: 6283092024802340800}
   armTrigger: {fileID: 2237103095908280011}
-  pickedUpRigidbody: {fileID: 0}
-  collidedGameObject: {fileID: 0}
+  pickupObject: {fileID: 0}
   pickedUpNetworkObject: {fileID: 0}
 --- !u!1 &931337917895386524
 GameObject:
@@ -771,7 +770,7 @@ GameObject:
   - component: {fileID: 4117093369808553598}
   - component: {fileID: 6283092024802340800}
   m_Layer: 0
-  m_Name: PlayerPrefab
+  m_Name: PlayerPickupParty
   m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -899,6 +898,12 @@ MonoBehaviour:
   - {fileID: 1009485556880835443}
   freezeRotationRB: 1
   characterController: {fileID: 4117093369808553598}
+  playerRenderers:
+  - {fileID: 5538987523088558392}
+  - {fileID: 5556376109093240684}
+  - {fileID: 8944347813391762346}
+  materialTeamColour: {fileID: 0}
+  teamID: -1
 --- !u!1 &5473584597135620801
 GameObject:
   m_ObjectHideFlags: 0
@@ -1167,8 +1172,7 @@ MonoBehaviour:
   syncInterval: 0
   playerPickupParty: {fileID: 6283092024802340800}
   armTrigger: {fileID: 1508319704737576609}
-  pickedUpRigidbody: {fileID: 0}
-  collidedGameObject: {fileID: 0}
+  pickupObject: {fileID: 0}
   pickedUpNetworkObject: {fileID: 0}
 --- !u!65 &1508319704737576609
 BoxCollider:
