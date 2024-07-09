@@ -17,7 +17,7 @@ namespace Mirror.Examples.PhysicsPickupParty
         public int[] scoresSyncVars;
 
         private List<int> zoneResultsList = new List<int>();
-        private List<Tuple<int, int>> zoneResultsListTuple = new List<Tuple<int, int>>();
+        public List<Tuple<int, int>> zoneResultsListTuple = new List<Tuple<int, int>>();
 
         void OnScoresChanged(int[] _old, int[] _new)
         {
@@ -62,7 +62,6 @@ namespace Mirror.Examples.PhysicsPickupParty
             sceneReference.UpdateScoresUI(1,zoneResultsListTuple[1].Item2, zoneResultsListTuple[1].Item1);
             sceneReference.UpdateScoresUI(2,zoneResultsListTuple[2].Item2, zoneResultsListTuple[2].Item1);
             sceneReference.UpdateScoresUI(3,zoneResultsListTuple[3].Item2, zoneResultsListTuple[3].Item1);
-
         }
     }
 }

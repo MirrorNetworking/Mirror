@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using Mirror;
+using UnityEngine.SceneManagement;
 
 namespace Mirror.Examples.PhysicsPickupParty
 {
@@ -15,6 +16,8 @@ namespace Mirror.Examples.PhysicsPickupParty
         public List<int> teamCurrentPlayers = new List<int>();// { 0, 0, 0, 0 };
         public List<Transform> teamSpawnAreas = new List<Transform>();
         public int teamSpawnRange = 5;
+
+        public int restartRoundTime = 5;
 
         public void AddPlayerTeamList(PlayerPickupParty _playerPickupParty)
         {
@@ -46,7 +49,6 @@ namespace Mirror.Examples.PhysicsPickupParty
         public override void OnStartServer()
         {
             gameStatus = 0;
-            gameStartTimeOriginal = gameStartTime;
             StartCoroutine(GameStartTimerCountdown());
 
             sceneReference.skipGameStartTimerObj.SetActive(true);
@@ -101,6 +103,7 @@ namespace Mirror.Examples.PhysicsPickupParty
                 sceneReference.panelInfo.SetActive(true);
                 sceneReference.panelGameStartTimer.SetActive(false);
                 sceneReference.panelRoundEndTimer.SetActive(false);
+                sceneReference.EndGameUI();
             }
         }
 
@@ -124,7 +127,7 @@ namespace Mirror.Examples.PhysicsPickupParty
             if (roundEndTime <= 0)
             {
                 gameStatus = 2;
-               // CalculateResults();
+                StartCoroutine(RestartRoundCountdown());
             }
         }
 
@@ -136,15 +139,17 @@ namespace Mirror.Examples.PhysicsPickupParty
                 Random.Range(teamSpawnAreas[_teamID].position.z - teamSpawnRange, teamSpawnAreas[_teamID].position.z + teamSpawnRange));
         }
 
-        //private void CalculateResults()
-        //{
-
-        //}
-
-        //[ClientRpc]
-        //private void RpcCalculateResults(int _teamIDWinner)
-        //{
-
-        //}
+        private IEnumerator RestartRoundCountdown()
+        {
+            while (restartRoundTime > 0)
+            {
+                restartRoundTime -= 1;
+                yield return new WaitForSeconds(1.0f);
+            }
+            if (restartRoundTime <= 0)
+            {
+                NetworkManager.singleton.ServerChangeScene(SceneManager.GetActiveScene().name);
+            }
+        }
     }
 }
