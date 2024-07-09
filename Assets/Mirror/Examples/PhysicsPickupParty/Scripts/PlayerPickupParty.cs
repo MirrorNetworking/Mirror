@@ -20,7 +20,7 @@ namespace Mirror.Examples.PhysicsPickupParty
         public PlayerArmSlot[] playerArmSlots; // acts like inventory slots
         public bool freezeRotationRB = true; // if false, picked up objects rotate with collision
 
-        private CameraFollow cameraFollow;
+        public CameraFollow cameraFollow;
         public CharacterController characterController;
         private Camera mainCamera;
         private int slotActive = 0; // 0 right arm, 1 left arm
@@ -41,6 +41,7 @@ namespace Mirror.Examples.PhysicsPickupParty
 #if !UNITY_SERVER
         public override void OnStartLocalPlayer()
         {
+            sceneReference.playerPickupParty = this;
             // Grab and setup camera for local player only
             mainCamera = Camera.main;
             cameraFollow = mainCamera.GetComponent<CameraFollow>();
@@ -64,6 +65,7 @@ namespace Mirror.Examples.PhysicsPickupParty
             if (isOwned)
             {
                 sceneReference.SetUIBGTeamColour(teamID);
+                sceneReference.teamManager.SetPlayerSpawnPoint(teamID, this);
             }
 
             materialTeamColour = playerRenderers[0].material;
@@ -87,24 +89,30 @@ namespace Mirror.Examples.PhysicsPickupParty
             if (!Application.isFocused) return;
             if (isOwned == false) { return; }
 
-            PlayerMovement();
-            RotatePlayerToMouse();
-            RotateArmsToMouse();
-
-            if (Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.E))
+            if (sceneReference == null) { return; }
+            // make sure our game mode is in "play" status.
+            if (sceneReference.teamManager.gameStatus == 1)
             {
-                Interact();
-            }
 
-            if (Input.GetMouseButtonDown(1) || Input.GetKeyDown(KeyCode.Q))
-            {
-                if (slotActive == 0)
+                PlayerMovement();
+                RotatePlayerToMouse();
+                RotateArmsToMouse();
+
+                if (Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.E))
                 {
-                    slotActive = 1;
+                    Interact();
                 }
-                else
+
+                if (Input.GetMouseButtonDown(1) || Input.GetKeyDown(KeyCode.Q))
                 {
-                    slotActive = 0;
+                    if (slotActive == 0)
+                    {
+                        slotActive = 1;
+                    }
+                    else
+                    {
+                        slotActive = 0;
+                    }
                 }
             }
         }

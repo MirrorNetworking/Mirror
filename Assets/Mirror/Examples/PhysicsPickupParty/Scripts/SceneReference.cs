@@ -10,18 +10,35 @@ namespace Mirror.Examples.PhysicsPickupParty
         // We will use a non-networked object/script, to hold all our references to other scripts, objects and UI.
         // As networked objects may be disabled in certain situations.
 
-
+        public PlayerPickupParty playerPickupParty;
         public TeamManager teamManager;
         public Text gameStartTimer, roundEndTimer;
-        public Image[] UIBackgrounds;
+        public Button skipGameStartTimerButton;
         public GameObject panelControls, panelInfo, panelGameStartTimer, panelRoundEndTimer;
+        public GameObject skipGameStartTimerObj;
+        public Image[] UIBackgrounds;
+
+        private void Start()
+        {
+            skipGameStartTimerButton.onClick.AddListener(SkipGameStartTimerButton);
+
+            skipGameStartTimerObj.SetActive(false);
+        }
 
         public void SetUIBGTeamColour(int _team)
         {
-            print("SetUIBGTeamColour: " + _team);
+            //print("SetUIBGTeamColour: " + _team);
             foreach (Image item in UIBackgrounds)
             {
                 item.color = teamManager.teamColours[_team];
+            }
+        }
+
+        public void SkipGameStartTimerButton()
+        {
+            if (teamManager.isServer)
+            {
+                teamManager.gameStartTime = 0;
             }
         }
     }
