@@ -12,11 +12,16 @@ namespace Mirror.Examples.PhysicsPickupParty
 
         public PlayerPickupParty playerPickupParty;
         public TeamManager teamManager;
+        public ZonesManager zonesManager;
         public Text gameStartTimer, roundEndTimer;
         public Button skipGameStartTimerButton;
         public GameObject panelControls, panelInfo, panelGameStartTimer, panelRoundEndTimer;
         public GameObject skipGameStartTimerObj;
         public Image[] UIBackgrounds;
+
+        public Text[] scoresTeam;
+        public Image[] scoresTeamImageColour;
+        
 
         private void Start()
         {
@@ -40,6 +45,12 @@ namespace Mirror.Examples.PhysicsPickupParty
             {
                 teamManager.gameStartTime = 0;
             }
+        }
+
+        public void UpdateScoresUI(int _index, int _teamID, int _score)
+        {
+            scoresTeam[_index].text = _score.ToString();
+            scoresTeamImageColour[_index].color = teamManager.teamColours[_teamID];
         }
     }
 }

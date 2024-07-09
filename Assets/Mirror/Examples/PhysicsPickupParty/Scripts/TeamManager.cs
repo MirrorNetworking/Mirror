@@ -124,6 +124,7 @@ namespace Mirror.Examples.PhysicsPickupParty
             if (roundEndTime <= 0)
             {
                 gameStatus = 2;
+               // CalculateResults();
             }
         }
 
@@ -134,5 +135,16 @@ namespace Mirror.Examples.PhysicsPickupParty
                  teamSpawnAreas[_teamID].position.y,
                 Random.Range(teamSpawnAreas[_teamID].position.z - teamSpawnRange, teamSpawnAreas[_teamID].position.z + teamSpawnRange));
         }
+
+        //private void CalculateResults()
+        //{
+
+        //}
+
+        //[ClientRpc]
+        //private void RpcCalculateResults(int _teamIDWinner)
+        //{
+
+        //}
     }
 }

@@ -61,7 +61,7 @@ namespace Mirror.Examples.PhysicsPickupParty
 
         public void OnTeamChanged(int _old, int _new)
         {
-            print("OnTeamChanged: " + teamID);
+            //print("OnTeamChanged: " + teamID);
             if (isOwned)
             {
                 sceneReference.SetUIBGTeamColour(teamID);
@@ -90,29 +90,31 @@ namespace Mirror.Examples.PhysicsPickupParty
             if (isOwned == false) { return; }
 
             if (sceneReference == null) { return; }
+            
+            // allow rotation and arm movement always, as its fun to do whilst waiting/ending
+            RotatePlayerToMouse();
+            RotateArmsToMouse();
+
+            if (Input.GetMouseButtonDown(1) || Input.GetKeyDown(KeyCode.Q))
+            {
+                if (slotActive == 0)
+                {
+                    slotActive = 1;
+                }
+                else
+                {
+                    slotActive = 0;
+                }
+            }
+
             // make sure our game mode is in "play" status.
             if (sceneReference.teamManager.gameStatus == 1)
             {
-
                 PlayerMovement();
-                RotatePlayerToMouse();
-                RotateArmsToMouse();
 
                 if (Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.E))
                 {
                     Interact();
-                }
-
-                if (Input.GetMouseButtonDown(1) || Input.GetKeyDown(KeyCode.Q))
-                {
-                    if (slotActive == 0)
-                    {
-                        slotActive = 1;
-                    }
-                    else
-                    {
-                        slotActive = 0;
-                    }
                 }
             }
         }
