@@ -292,13 +292,13 @@ namespace Mirror.Tests.Transports
         }
 
         [Test]
-        [TestCase(0)]
-        [TestCase(1)]
-        [TestCase(19)]
-        public void TestServerConnectedCallback(int id)
+        [TestCase(0, "")]
+        [TestCase(1, "")]
+        [TestCase(19, "")]
+        public void TestServerConnectedCallback(int id, string remoteClientAddress)
         {
             int called = 0;
-            middleware.OnServerConnected = (i) =>
+            middleware.OnServerConnectedWithAddress = (i, remoteClientAddress) =>
             {
                 called++;
                 Assert.That(i, Is.EqualTo(id));
@@ -306,10 +306,10 @@ namespace Mirror.Tests.Transports
             // start to give callback to inner
             middleware.ServerStart();
 
-            inner.OnServerConnected.Invoke(id);
+            inner.OnServerConnectedWithAddress.Invoke(id, remoteClientAddress);
             Assert.That(called, Is.EqualTo(1));
 
-            inner.OnServerConnected.Invoke(id);
+            inner.OnServerConnectedWithAddress.Invoke(id, remoteClientAddress);
             Assert.That(called, Is.EqualTo(2));
         }
 
