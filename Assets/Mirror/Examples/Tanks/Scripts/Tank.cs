@@ -20,7 +20,7 @@ namespace Mirror.Examples.Tanks
         public Transform  projectileMount;
 
         [Header("Stats")]
-        [SyncVar] public int health = 4;
+        [SyncVar] public int health = 5;
 
         void Update()
         {
@@ -70,16 +70,16 @@ namespace Mirror.Examples.Tanks
             animator.SetTrigger("Shoot");
         }
 
-        [ServerCallback]
-        void OnTriggerEnter(Collider other)
-        {
-            if (other.GetComponent<Projectile>() != null)
-            {
-                --health;
-                if (health == 0)
-                    NetworkServer.Destroy(gameObject);
-            }
-        }
+        //[ServerCallback]
+        //void OnTriggerEnter(Collider other)
+        //{
+        //    if (other.GetComponent<Projectile>() != null)
+        //    {
+        //        --health;
+        //        if (health == 0)
+        //            NetworkServer.Destroy(gameObject);
+        //    }
+        //}
 
         void RotateTurret()
         {
