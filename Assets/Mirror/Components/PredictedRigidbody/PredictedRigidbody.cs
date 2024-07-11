@@ -92,10 +92,6 @@ namespace Mirror
         [Tooltip("Teleport if we are further than 'multiplier x collider size' behind.")]
         public float teleportDistanceMultiplier = 10;
 
-        [Header("Bandwidth")]
-        [Tooltip("Reduce sends while velocity==0. Client's objects may slightly move due to gravity/physics, so we still want to send corrections occasionally even if an object is idle on the server the whole time.")]
-        public bool reduceSendsWhileIdle = true;
-
         // Rigidbody & Collider are moved out into a separate object.
         // this way the visual object can smoothly follow.
         protected GameObject physicsCopy;
@@ -395,23 +391,6 @@ namespace Mirror
 
         void UpdateServer()
         {
-            // bandwidth optimization while idle.
-            if (reduceSendsWhileIdle)
-            {
-                // while moving, always sync every frame for immediate corrections.
-                // while idle, only sync once per second.
-                //
-                // we still need to sync occasionally because objects on client
-                // may still slide or move slightly due to gravity, physics etc.
-                // and those still need to get corrected if not moving on server.
-                //
-                // TODO
-                // next round of optimizations: if client received nothing for 1s,
-                // force correct to last received state. then server doesn't need
-                // to send once per second anymore.
-                syncInterval = IsMoving() ? 0 : 1;
-            }
-
             // always set dirty to always serialize in next sync interval.
             SetDirty();
         }
@@ -948,11 +927,6 @@ namespace Mirror
 
             // force syncDirection to be ServerToClient
             syncDirection = SyncDirection.ServerToClient;
-
-            // state should be synced immediately for now.
-            // later when we have prediction fully dialed in,
-            // then we can maybe relax this a bit.
-            syncInterval = 0;
         }
 
         // helper function for Physics tests to check if a Rigidbody belongs to
