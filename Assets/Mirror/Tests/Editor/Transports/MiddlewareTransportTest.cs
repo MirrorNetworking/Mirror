@@ -298,7 +298,7 @@ namespace Mirror.Tests.Transports
         public void TestServerConnectedCallback(int id, string remoteClientAddress)
         {
             int called = 0;
-            middleware.OnServerConnectedWithAddress = (i, remoteClientAddress) =>
+            middleware.OnServerConnectedWithAddress = (i, clientAddress) =>
             {
                 called++;
                 Assert.That(i, Is.EqualTo(id));
