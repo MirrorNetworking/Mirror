@@ -41,9 +41,9 @@ namespace Mirror
         // it makes sense to keep every component's syncInterval setting at '0' by default.
         // otherwise, the overlapping timers could introduce unexpected latency.
         // careful: default of '0.1' may
-        [Obsolete("NetworkBehaviour.syncInterval was removed. We are tightening up Mirror core in order to support fast paced games now too.")]
-        [Range(0, 2)]
-        [HideInInspector] public float syncInterval = 0;
+        // DEPRECATED 2024-07-11
+        [Obsolete("NetworkBehaviour.syncInterval was removed to better support fast paced games. All components now sync on '1 / NetworkManager sendRate'")]
+        public float syncInterval => 1f / NetworkManager.singleton.sendRate;
 
         /// <summary>True if this object is on the server and has been spawned.</summary>
         // This is different from NetworkServer.active, which is true if the
