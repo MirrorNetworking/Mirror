@@ -242,6 +242,7 @@ namespace Mirror
         public override void ServerStart()
         {
             wrap.OnServerConnected = OnServerConnected;
+            wrap.OnServerConnectedWithAddress = OnServerConnectedWithAddress;
             wrap.OnServerDataReceived = OnServerDataReceived;
             wrap.OnServerError = OnServerError;
             wrap.OnServerTransportException = OnServerTransportException;
