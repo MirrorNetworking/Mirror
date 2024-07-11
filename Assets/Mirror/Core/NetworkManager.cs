@@ -41,6 +41,9 @@ namespace Mirror
         [Tooltip("Server / Client send rate per second.\nUse 60-100Hz for fast paced games like Counter-Strike to minimize latency.\nUse around 30Hz for games like WoW to minimize computations.\nUse around 1-10Hz for slow paced games like EVE.")]
         [FormerlySerializedAs("serverTickRate")]
         public int sendRate = 60;
+        
+        // sendInterval := 1 / sendRate for convenience
+        public float sendInterval => 1f / sendRate;
 
         // Deprecated 2023-11-25
         // Using SerializeField and HideInInspector to self-correct for being
