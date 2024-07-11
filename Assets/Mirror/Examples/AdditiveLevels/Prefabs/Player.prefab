@@ -282,28 +282,50 @@ MonoBehaviour:
   m_GameObject: {fileID: 7619140271685878370}
   m_Enabled: 0
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 05e10150710dde14b83d3c8f5aa853c2, type: 3}
+  m_Script: {fileID: 11500000, guid: 9e212b6697536124ca0e7791fe5d8d6b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   syncDirection: 0
   syncMode: 0
-  syncInterval: 0.1
+  syncInterval: 0
+  capsuleCollider: {fileID: -2422551836510166228}
   characterController: {fileID: 5462452979215896872}
-  moveSpeedMultiplier: 8
+  ControllerUIPrefab: {fileID: 644766297742565710, guid: 7beee247444994f0281dadde274cc4af, type: 3}
+  moveKeys:
+    Forward: 119
+    Back: 115
+    StrafeLeft: 97
+    StrafeRight: 100
+    TurnLeft: 113
+    TurnRight: 101
+    Jump: 32
+  optionsKeys:
+    MouseSteer: 109
+    AutoRun: 114
+    ToggleUI: 117
+  controlOptions: 4
+  maxMoveSpeed: 8
+  inputSensitivity: 2
+  inputGravity: 2
+  initialJumpSpeed: 2.5
+  maxJumpSpeed: 3.5
+  jumpAcceleration: 4
   maxTurnSpeed: 100
-  turnDelta: 3
-  initialJumpSpeed: 0.2
-  maxJumpSpeed: 5
-  jumpDelta: 0.2
+  turnAcceleration: 3
+  mouseSensitivity: 0.01
+  smoothTime: 0.2
   groundState: 2
   horizontal: 0
   vertical: 0
-  turnSpeed: 0
   jumpSpeed: 0
+  turnSpeed: 0
+  turnSmoothSpeed: 0
   animVelocity: 0
   animRotation: 0
-  velocity: {x: 0, y: 0, z: 0}
   direction: {x: 0, y: 0, z: 0}
+  velocity: {x: 0, y: 0, z: 0}
+  mouseDelta: {x: 0, y: 0, z: 0}
+  controllerUI: {fileID: 0}
 --- !u!143 &5462452979215896872
 CharacterController:
   m_ObjectHideFlags: 0
