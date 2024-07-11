@@ -201,6 +201,7 @@ namespace Mirror
         void CheckSendRate()
         {
             double now = NetworkTime.localTime;
+            double syncInterval = 1f / NetworkManager.singleton.sendRate;
             if (SendMessagesAllowed && syncInterval >= 0 && now > nextSendTime)
             {
                 nextSendTime = now + syncInterval;
