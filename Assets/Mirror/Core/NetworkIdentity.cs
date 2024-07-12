@@ -1067,8 +1067,7 @@ namespace Mirror
             SerializeClient(true, writer);
 
         // deserialize components from the client on the server.
-        // there's no 'initialState'. server always knows the initial state.
-        internal bool DeserializeServerReliable(NetworkReader reader)
+        internal bool DeserializeServer(bool initialState, NetworkReader reader)
         {
             // ensure NetworkBehaviours are valid before usage
             ValidateComponents();
@@ -1092,7 +1091,7 @@ namespace Mirror
                         // deserialize this component
                         // server always knows the initial state (initial=false)
                         // disconnect if failed, to prevent exploits etc.
-                        if (!comp.Deserialize(reader, false)) return false;
+                        if (!comp.Deserialize(reader, initialState)) return false;
 
                         // server received state from the owner client.
                         // set dirty so it's broadcast to other clients too.
@@ -1109,6 +1108,16 @@ namespace Mirror
             // successfully deserialized everything
             return true;
         }
+
+        // deserialize components from the client on the server.
+        // there's no 'initialState'. server always knows the initial state.
+        internal bool DeserializeServerReliable(NetworkReader reader) =>
+            DeserializeServer(false, reader);
+
+        // deserialize components from the client on the server.
+        // unreliable state sync with initialState always true (full sync).
+        internal bool DeserializeServerUnreliable(NetworkReader reader) =>
+            DeserializeServer(true, reader);
 
         // deserialize components from server on the client.
         // reliable state sync with initialState true, and then false for delta.
