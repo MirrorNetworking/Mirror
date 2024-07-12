@@ -404,7 +404,7 @@ namespace Mirror.Tests.SyncVars
             NetworkWriter ownerWriter = new NetworkWriter();
             // not really used in this Test
             NetworkWriter observersWriter = new NetworkWriter();
-            serverIdentity.SerializeServer(true, ownerWriter, observersWriter);
+            serverIdentity.SerializeServerReliable(true, ownerWriter, observersWriter);
 
             // set up a "client" object
             CreateNetworked(out _, out NetworkIdentity clientIdentity, out SyncVarAbstractNetworkBehaviour clientBehaviour);
@@ -412,7 +412,7 @@ namespace Mirror.Tests.SyncVars
 
             // apply all the data from the server object
             NetworkReader reader = new NetworkReader(ownerWriter.ToArray());
-            clientIdentity.DeserializeClient(reader, true);
+            clientIdentity.DeserializeClientReliable(reader, true);
 
             // check that the syncvars got updated
             Debug.Log($"{clientBehaviour.monster1} and {serverBehaviour.monster1}");

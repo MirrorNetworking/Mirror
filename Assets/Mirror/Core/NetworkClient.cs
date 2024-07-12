@@ -1160,7 +1160,7 @@ namespace Mirror
             {
                 using (NetworkReaderPooled payloadReader = NetworkReaderPool.Get(message.payload))
                 {
-                    identity.DeserializeClient(payloadReader, true);
+                    identity.DeserializeClientReliable(payloadReader, true);
                 }
             }
 
@@ -1388,7 +1388,7 @@ namespace Mirror
             if (spawned.TryGetValue(message.netId, out NetworkIdentity identity) && identity != null)
             {
                 using (NetworkReaderPooled reader = NetworkReaderPool.Get(message.payload))
-                    identity.DeserializeClient(reader, false);
+                    identity.DeserializeClientReliable(reader, false);
             }
             else Debug.LogWarning($"Did not find target for sync message for {message.netId}. Were all prefabs added to the NetworkManager's spawnable list?\nNote: this can be completely normal because UDP messages may arrive out of order, so this message might have arrived after a Destroy message.");
         }
@@ -1543,7 +1543,7 @@ namespace Mirror
                     {
                         // get serialization for this entity viewed by this connection
                         // (if anything was serialized this time)
-                        identity.SerializeClient(writer);
+                        identity.SerializeClientReliable(writer);
                         if (writer.Position > 0)
                         {
                             // send state update message

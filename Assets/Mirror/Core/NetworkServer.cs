@@ -384,7 +384,7 @@ namespace Mirror
                     {
                         // DeserializeServer checks permissions internally.
                         // failure to deserialize disconnects to prevent exploits.
-                        if (!identity.DeserializeServer(reader))
+                        if (!identity.DeserializeServerReliable(reader))
                         {
                             if (exceptionsDisconnect)
                             {
@@ -1368,7 +1368,7 @@ namespace Mirror
 
             // serialize all components with initialState = true
             // (can be null if has none)
-            identity.SerializeServer(true, ownerWriter, observersWriter);
+            identity.SerializeServerReliable(true, ownerWriter, observersWriter);
 
             // convert to ArraySegment to avoid reader allocations
             // if nothing was written, .ToArraySegment returns an empty segment.

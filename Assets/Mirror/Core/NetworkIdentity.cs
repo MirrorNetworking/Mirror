@@ -912,7 +912,9 @@ namespace Mirror
         // check ownerWritten/observersWritten to know if anything was written
         // We pass dirtyComponentsMask into this function so that we can check
         // if any Components are dirty before creating writers
-        internal void SerializeServer(bool initialState, NetworkWriter ownerWriter, NetworkWriter observersWriter)
+        // reliable state sync with initialState true, and then false for delta.
+        // this is sent over the Transport's reliable channel.
+        internal void SerializeServerReliable(bool initialState, NetworkWriter ownerWriter, NetworkWriter observersWriter)
         {
             // ensure NetworkBehaviours are valid before usage
             ValidateComponents();
@@ -985,7 +987,9 @@ namespace Mirror
         }
 
         // serialize components into writer on the client.
-        internal void SerializeClient(NetworkWriter writer)
+        // reliable state sync with initialState true, and then false for delta.
+        // this is sent over the Transport's reliable channel.
+        internal void SerializeClientReliable(NetworkWriter writer)
         {
             // ensure NetworkBehaviours are valid before usage
             ValidateComponents();
@@ -1043,7 +1047,7 @@ namespace Mirror
 
         // deserialize components from the client on the server.
         // there's no 'initialState'. server always knows the initial state.
-        internal bool DeserializeServer(NetworkReader reader)
+        internal bool DeserializeServerReliable(NetworkReader reader)
         {
             // ensure NetworkBehaviours are valid before usage
             ValidateComponents();
@@ -1086,7 +1090,9 @@ namespace Mirror
         }
 
         // deserialize components from server on the client.
-        internal void DeserializeClient(NetworkReader reader, bool initialState)
+        // reliable state sync with initialState true, and then false for delta.
+        // this is sent over the Transport's reliable channel.
+        internal void DeserializeClientReliable(NetworkReader reader, bool initialState)
         {
             // ensure NetworkBehaviours are valid before usage
             ValidateComponents();
@@ -1130,9 +1136,9 @@ namespace Mirror
                 lastSerialization.observersWriter.Position = 0;
 
                 // serialize
-                SerializeServer(false,
-                                lastSerialization.ownerWriter,
-                                lastSerialization.observersWriter);
+                SerializeServerReliable(false,
+                                        lastSerialization.ownerWriter,
+                                        lastSerialization.observersWriter);
 
                 // set tick
                 lastSerialization.tick = tick;
