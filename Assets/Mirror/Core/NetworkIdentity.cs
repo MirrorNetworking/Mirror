@@ -986,6 +986,16 @@ namespace Mirror
             }
         }
 
+        // serialize components into writer on the server.
+        // check ownerWritten/observersWritten to know if anything was written
+        // We pass dirtyComponentsMask into this function so that we can check
+        // if any Components are dirty before creating writers
+        // unreliable state sync with initialState always true (full sync).
+        // this is sent over the Transport's unreliable channel.
+        internal void SerializeServerUnreliable(NetworkWriter ownerWriter, NetworkWriter observersWriter) =>
+            // unreliable simply always serializes with initialState=true.
+            SerializeServerReliable(true, ownerWriter, observersWriter);
+
         // serialize components into writer on the client.
         // reliable state sync with initialState true, and then false for delta.
         // this is sent over the Transport's reliable channel.
