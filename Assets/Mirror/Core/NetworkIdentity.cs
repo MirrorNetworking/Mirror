@@ -1144,6 +1144,11 @@ namespace Mirror
             }
         }
 
+        // deserialize components from server on the client.
+        // unreliable state sync with initialState always true (full sync).
+        internal void DeserializeClientUnreliable(NetworkReader reader) =>
+            DeserializeClientReliable(reader, true);
+
         // get cached serialization for this tick (or serialize if none yet).
         // IMPORTANT: int tick avoids floating point inaccuracy over days/weeks.
         // calls SerializeServer, so this function is to be called on server.
