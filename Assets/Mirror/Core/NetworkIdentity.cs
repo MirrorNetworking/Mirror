@@ -872,7 +872,7 @@ namespace Mirror
 
         // build dirty mask for client.
         // server always knows initialState, so we don't need it here.
-        ulong ClientDirtyMask()
+        ulong ClientDirtyMask(bool initialState)
         {
             ulong mask = 0;
 
@@ -892,7 +892,8 @@ namespace Mirror
                 {
                     // set the n-th bit if dirty
                     // shifting from small to large numbers is varint-efficient.
-                    if (component.IsDirty()) mask |= (1u << i);
+                    bool dirty = component.IsDirty();
+                    if (initialState || dirty) mask |= (1u << i);
                 }
             }
 
@@ -1012,7 +1013,8 @@ namespace Mirror
             // instead of writing a 1 byte index per component,
             // we limit components to 64 bits and write one ulong instead.
             // the ulong is also varint compressed for minimum bandwidth.
-            ulong dirtyMask = ClientDirtyMask();
+            // server always knows initialState, we never need to send it
+            ulong dirtyMask = ClientDirtyMask(false);
 
             // varint compresses the mask to 1 byte in most cases.
             // instead of writing an 8 byte ulong.
