@@ -998,9 +998,7 @@ namespace Mirror
             SerializeServerReliable(true, ownerWriter, observersWriter);
 
         // serialize components into writer on the client.
-        // reliable state sync with initialState true, and then false for delta.
-        // this is sent over the Transport's reliable channel.
-        internal void SerializeClientReliable(NetworkWriter writer)
+        internal void SerializeClient(bool initialState, NetworkWriter writer)
         {
             // ensure NetworkBehaviours are valid before usage
             ValidateComponents();
@@ -1014,7 +1012,7 @@ namespace Mirror
             // we limit components to 64 bits and write one ulong instead.
             // the ulong is also varint compressed for minimum bandwidth.
             // server always knows initialState, we never need to send it
-            ulong dirtyMask = ClientDirtyMask(false);
+            ulong dirtyMask = ClientDirtyMask(initialState);
 
             // varint compresses the mask to 1 byte in most cases.
             // instead of writing an 8 byte ulong.
@@ -1043,7 +1041,7 @@ namespace Mirror
                     {
                         // serialize into writer.
                         // server always knows initialState, we never need to send it
-                        comp.Serialize(writer, false);
+                        comp.Serialize(writer, initialState);
 
                         // clear dirty bits for the components that we serialized.
                         // do not clear for _all_ components, only the ones that
@@ -1056,6 +1054,17 @@ namespace Mirror
                 }
             }
         }
+
+        // serialize components into writer on the client.
+        // reliable state sync with initialState true, and then false for delta.
+        // this is sent over the Transport's reliable channel.
+        internal void SerializeClientReliable(NetworkWriter writer) =>
+            SerializeClient(false, writer);
+
+        // serialize components into writer on the client.
+        // unreliable state sync with initialState always true (full sync).
+        internal void SerializeClientUnreliable(NetworkWriter writer) =>
+            SerializeClient(true, writer);
 
         // deserialize components from the client on the server.
         // there's no 'initialState'. server always knows the initial state.
