@@ -122,7 +122,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sceneId: 0
-  _assetId: 89781525
+  _assetId: 1102137186
   serverOnly: 0
   visibility: 0
   hasSpawned: 0
@@ -311,9 +311,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 5494952544308740986}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a553cb17010b2403e8523b558bffbc14, type: 3}
+  m_Script: {fileID: 11500000, guid: d993bac37a92145448c1ea027b3e9ddc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  syncMethod: 0
   syncDirection: 1
   syncMode: 0
   syncInterval: 0
@@ -333,10 +334,6 @@ MonoBehaviour:
   showOverlay: 0
   overlayColor: {r: 0, g: 0, b: 0, a: 0.5}
   bufferResetMultiplier: 3
-  changedDetection: 1
-  positionSensitivity: 0.01
-  rotationSensitivity: 0.01
-  scaleSensitivity: 0.01
 --- !u!114 &-6612530066273007424
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -349,6 +346,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9f56acb44c5a747bea79199d6832c34d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  syncMethod: 0
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
@@ -398,6 +396,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3423ce099aa694162ac6f6b517c00ac4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  syncMethod: 0
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
@@ -432,6 +431,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 558b1c31c2abf40f2ac0db01688ab8ae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  syncMethod: 0
   syncDirection: 1
   syncMode: 0
   syncInterval: 0
@@ -474,6 +474,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 306eb44bdddc74fd787a0a72afb5dd6e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  syncMethod: 0
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
