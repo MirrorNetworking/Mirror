@@ -15,23 +15,6 @@ namespace Mirror
         // Testing under really bad network conditions, 2%-5% packet loss and 250-1200ms ping, 5 proved to eliminate any twitching, however this should not be the default as it is a rare case Developers may want to cover.
         [Tooltip("How much time, as a multiple of send interval, has passed before clearing buffers.\nA larger buffer means more delay, but results in smoother movement.\nExample: 1 for faster responses minimal smoothing, 5 covers bad pings but has noticable delay, 3 is recommended for balanced results,.")]
         public float bufferResetMultiplier = 3;
-        [Tooltip("Detect and send only changed data, such as Position X and Z, not the full Vector3 of X Y Z. Lowers network data at cost of extra calculations.")]
-        public bool changedDetection = true;
-
-        [Header("Sensitivity"), Tooltip("Sensitivity of changes needed before an updated state is sent over the network")]
-        public float positionSensitivity = 0.01f;
-        public float rotationSensitivity = 0.01f;
-        public float scaleSensitivity = 0.01f;
-
-        protected bool positionChanged;
-        protected bool rotationChanged;
-        protected bool scaleChanged;
-
-        // Used to store last sent snapshots
-        protected TransformSnapshot lastSnapshot;
-        protected bool cachedSnapshotComparison;
-        protected Changed cachedChangedComparison;
-        protected bool hasSentUnchangedPosition;
 
         // update //////////////////////////////////////////////////////////////
         // Update applies interpolation
@@ -118,67 +101,23 @@ namespace Mirror
                 // receiver gets it from batch timestamp to save bandwidth.
                 TransformSnapshot snapshot = Construct();
 
-                if (changedDetection)
+                if (compressRotation)
                 {
-                    cachedChangedComparison = CompareChangedSnapshots(snapshot);
-
-                    if ((cachedChangedComparison == Changed.None || cachedChangedComparison == Changed.CompressRot) && hasSentUnchangedPosition && onlySyncOnChange) { return; }
-
-                    SyncData syncData = new SyncData(cachedChangedComparison, snapshot);
-
-                    RpcServerToClientSync(syncData);
-
-                    if (cachedChangedComparison == Changed.None || cachedChangedComparison == Changed.CompressRot)
-                    {
-                        hasSentUnchangedPosition = true;
-                    }
-                    else
-                    {
-                        hasSentUnchangedPosition = false;
-                        UpdateLastSentSnapshot(cachedChangedComparison, snapshot);
-                    }
+                    RpcServerToClientSyncCompressRotation(
+                        // only sync what the user wants to sync
+                        syncPosition ? snapshot.position : default(Vector3?),
+                        syncRotation ? Compression.CompressQuaternion(snapshot.rotation) : default(uint?),
+                        syncScale ? snapshot.scale : default(Vector3?)
+                    );
                 }
                 else
                 {
-                    cachedSnapshotComparison = CompareSnapshots(snapshot);
-                    if (cachedSnapshotComparison && hasSentUnchangedPosition && onlySyncOnChange) { return; }
-
-                    if (compressRotation)
-                    {
-                        RpcServerToClientSyncCompressRotation(
-                            // only sync what the user wants to sync
-                            syncPosition && positionChanged ? snapshot.position : default(Vector3?),
-                            syncRotation && rotationChanged ? Compression.CompressQuaternion(snapshot.rotation) : default(uint?),
-                            syncScale && scaleChanged ? snapshot.scale : default(Vector3?)
-                        );
-                    }
-                    else
-                    {
-                        RpcServerToClientSync(
-                        // only sync what the user wants to sync
-                        syncPosition && positionChanged ? snapshot.position : default(Vector3?),
-                        syncRotation && rotationChanged ? snapshot.rotation : default(Quaternion?),
-                        syncScale && scaleChanged ? snapshot.scale : default(Vector3?)
-                        );
-                    }
-
-                    if (cachedSnapshotComparison)
-                    {
-                        hasSentUnchangedPosition = true;
-                    }
-                    else
-                    {
-                        hasSentUnchangedPosition = false;
-
-                        // Fixes https://github.com/MirrorNetworking/Mirror/issues/3572
-                        // This also fixes https://github.com/MirrorNetworking/Mirror/issues/3573
-                        // with the exception of Quaternion.Angle sensitivity has to be > 0.16.
-                        // Unity issue, we are leaving it as is.
-
-                        if (positionChanged) lastSnapshot.position = snapshot.position;
-                        if (rotationChanged) lastSnapshot.rotation = snapshot.rotation;
-                        if (positionChanged) lastSnapshot.scale = snapshot.scale;
-                    }
+                    RpcServerToClientSync(
+                    // only sync what the user wants to sync
+                    syncPosition ? snapshot.position : default(Vector3?),
+                    syncRotation ? snapshot.rotation : default(Quaternion?),
+                    syncScale ? snapshot.scale : default(Vector3?)
+                    );
                 }
             }
         }
@@ -246,66 +185,23 @@ namespace Mirror
                 // receiver gets it from batch timestamp to save bandwidth.
                 TransformSnapshot snapshot = Construct();
 
-                if (changedDetection)
+                if (compressRotation)
                 {
-                    cachedChangedComparison = CompareChangedSnapshots(snapshot);
-
-                    if ((cachedChangedComparison == Changed.None || cachedChangedComparison == Changed.CompressRot) && hasSentUnchangedPosition && onlySyncOnChange) { return; }
-
-                    SyncData syncData = new SyncData(cachedChangedComparison, snapshot);
-
-                    CmdClientToServerSync(syncData);
-
-                    if (cachedChangedComparison == Changed.None || cachedChangedComparison == Changed.CompressRot)
-                    {
-                        hasSentUnchangedPosition = true;
-                    }
-                    else
-                    {
-                        hasSentUnchangedPosition = false;
-                        UpdateLastSentSnapshot(cachedChangedComparison, snapshot);
-                    }
+                    CmdClientToServerSyncCompressRotation(
+                        // only sync what the user wants to sync
+                        syncPosition ? snapshot.position : default(Vector3?),
+                        syncRotation ? Compression.CompressQuaternion(snapshot.rotation) : default(uint?),
+                        syncScale ? snapshot.scale : default(Vector3?)
+                    );
                 }
                 else
                 {
-                    cachedSnapshotComparison = CompareSnapshots(snapshot);
-                    if (cachedSnapshotComparison && hasSentUnchangedPosition && onlySyncOnChange) { return; }
-
-                    if (compressRotation)
-                    {
-                        CmdClientToServerSyncCompressRotation(
-                            // only sync what the user wants to sync
-                            syncPosition && positionChanged ? snapshot.position : default(Vector3?),
-                            syncRotation && rotationChanged ? Compression.CompressQuaternion(snapshot.rotation) : default(uint?),
-                            syncScale && scaleChanged ? snapshot.scale : default(Vector3?)
-                        );
-                    }
-                    else
-                    {
-                        CmdClientToServerSync(
-                            // only sync what the user wants to sync
-                            syncPosition && positionChanged ? snapshot.position : default(Vector3?),
-                            syncRotation && rotationChanged ? snapshot.rotation : default(Quaternion?),
-                            syncScale && scaleChanged ? snapshot.scale : default(Vector3?)
-                        );
-                    }
-
-                    if (cachedSnapshotComparison)
-                    {
-                        hasSentUnchangedPosition = true;
-                    }
-                    else
-                    {
-                        hasSentUnchangedPosition = false;
-
-                        // Fixes https://github.com/MirrorNetworking/Mirror/issues/3572
-                        // This also fixes https://github.com/MirrorNetworking/Mirror/issues/3573
-                        // with the exception of Quaternion.Angle sensitivity has to be > 0.16.
-                        // Unity issue, we are leaving it as is.
-                        if (positionChanged) lastSnapshot.position = snapshot.position;
-                        if (rotationChanged) lastSnapshot.rotation = snapshot.rotation;
-                        if (positionChanged) lastSnapshot.scale = snapshot.scale;
-                    }
+                    CmdClientToServerSync(
+                        // only sync what the user wants to sync
+                        syncPosition ? snapshot.position : default(Vector3?),
+                        syncRotation ? snapshot.rotation : default(Quaternion?),
+                        syncScale ? snapshot.scale : default(Vector3?)
+                    );
                 }
             }
         }
@@ -353,16 +249,6 @@ namespace Mirror
                 if (syncRotation) SetRotation(reader.ReadQuaternion());
                 if (syncScale) SetScale(reader.ReadVector3());
             }
-        }
-
-        // Returns true if position, rotation AND scale are unchanged, within given sensitivity range.
-        protected virtual bool CompareSnapshots(TransformSnapshot currentSnapshot)
-        {
-            positionChanged = Vector3.SqrMagnitude(lastSnapshot.position - currentSnapshot.position) > positionSensitivity * positionSensitivity;
-            rotationChanged = Quaternion.Angle(lastSnapshot.rotation, currentSnapshot.rotation) > rotationSensitivity;
-            scaleChanged = Vector3.SqrMagnitude(lastSnapshot.scale - currentSnapshot.scale) > scaleSensitivity * scaleSensitivity;
-
-            return (!positionChanged && !rotationChanged && !scaleChanged);
         }
 
         // cmd /////////////////////////////////////////////////////////////////
@@ -476,81 +362,6 @@ namespace Mirror
             }
 
             AddSnapshot(clientSnapshots, NetworkClient.connection.remoteTimeStamp + timeStampAdjustment + offset, position, rotation, scale);
-        }
-
-        protected virtual void UpdateLastSentSnapshot(Changed change, TransformSnapshot currentSnapshot)
-        {
-            if (change == Changed.None || change == Changed.CompressRot) return;
-
-            if ((change & Changed.PosX) > 0) lastSnapshot.position.x = currentSnapshot.position.x;
-            if ((change & Changed.PosY) > 0) lastSnapshot.position.y = currentSnapshot.position.y;
-            if ((change & Changed.PosZ) > 0) lastSnapshot.position.z = currentSnapshot.position.z;
-
-            if (compressRotation)
-            {
-                if ((change & Changed.Rot) > 0) lastSnapshot.rotation = currentSnapshot.rotation;
-            }
-            else
-            {
-                Vector3 newRotation;
-                newRotation.x = (change & Changed.RotX) > 0 ? currentSnapshot.rotation.eulerAngles.x : lastSnapshot.rotation.eulerAngles.x;
-                newRotation.y = (change & Changed.RotY) > 0 ? currentSnapshot.rotation.eulerAngles.y : lastSnapshot.rotation.eulerAngles.y;
-                newRotation.z = (change & Changed.RotZ) > 0 ? currentSnapshot.rotation.eulerAngles.z : lastSnapshot.rotation.eulerAngles.z;
-
-                lastSnapshot.rotation = Quaternion.Euler(newRotation);
-            }
-
-            if ((change & Changed.Scale) > 0) lastSnapshot.scale = currentSnapshot.scale;
-        }
-
-        // Returns true if position, rotation AND scale are unchanged, within given sensitivity range.
-        // Note the sensitivity comparison are different for pos, rot and scale.
-        protected virtual Changed CompareChangedSnapshots(TransformSnapshot currentSnapshot)
-        {
-            Changed change = Changed.None;
-
-            if (syncPosition)
-            {
-                bool positionChanged = Vector3.SqrMagnitude(lastSnapshot.position - currentSnapshot.position) > positionSensitivity * positionSensitivity;
-                if (positionChanged)
-                {
-                    if (Mathf.Abs(lastSnapshot.position.x - currentSnapshot.position.x) > positionSensitivity) change |= Changed.PosX;
-                    if (Mathf.Abs(lastSnapshot.position.y - currentSnapshot.position.y) > positionSensitivity) change |= Changed.PosY;
-                    if (Mathf.Abs(lastSnapshot.position.z - currentSnapshot.position.z) > positionSensitivity) change |= Changed.PosZ;
-                }
-            }
-
-            if (syncRotation)
-            {
-                if (compressRotation)
-                {
-                    bool rotationChanged = Quaternion.Angle(lastSnapshot.rotation, currentSnapshot.rotation) > rotationSensitivity;
-                    if (rotationChanged)
-                    {
-                        // Here we set all Rot enum flags, to tell us if there was a change in rotation
-                        // when using compression. If no change, we don't write the compressed Quat.
-                        change |= Changed.CompressRot;
-                        change |= Changed.Rot;
-                    }
-                    else
-                    {
-                        change |= Changed.CompressRot;
-                    }
-                }
-                else
-                {
-                    if (Mathf.Abs(lastSnapshot.rotation.eulerAngles.x - currentSnapshot.rotation.eulerAngles.x) > rotationSensitivity) change |= Changed.RotX;
-                    if (Mathf.Abs(lastSnapshot.rotation.eulerAngles.y - currentSnapshot.rotation.eulerAngles.y) > rotationSensitivity) change |= Changed.RotY;
-                    if (Mathf.Abs(lastSnapshot.rotation.eulerAngles.z - currentSnapshot.rotation.eulerAngles.z) > rotationSensitivity) change |= Changed.RotZ;
-                }
-            }
-
-            if (syncScale)
-            {
-                if (Vector3.SqrMagnitude(lastSnapshot.scale - currentSnapshot.scale) > scaleSensitivity * scaleSensitivity) change |= Changed.Scale;
-            }
-
-            return change;
         }
 
         [Command(channel = Channels.Unreliable)]
