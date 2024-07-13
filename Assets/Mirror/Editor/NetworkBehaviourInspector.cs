@@ -98,8 +98,8 @@ namespace Mirror
             if (syncDirection.enumValueIndex == (int)SyncDirection.ServerToClient)
                 EditorGUILayout.PropertyField(serializedObject.FindProperty("syncMode"));
 
-            // sync interval: only shown for reliable sync
-            if (syncMethod.enumValueIndex == (int)SyncMethod.Reliable)
+            // sync interval: only shown for traditional sync
+            if (syncMethod.enumValueIndex == (int)SyncMethod.Traditional)
                 EditorGUILayout.PropertyField(serializedObject.FindProperty("syncInterval"));
 
             // apply

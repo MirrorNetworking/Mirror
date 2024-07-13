@@ -21,7 +21,7 @@ namespace Mirror
     // SyncMethod to choose between:
     //   * Reliable: oldschool reliable sync every syncInterval. If nothing changes, nothing is sent.
     //   * Unreliable: quake style unreliable state sync & delta compression, for fast paced games.
-    public enum SyncMethod { Reliable, Unreliable }
+    public enum SyncMethod { Traditional, FastPaced }
 
     /// <summary>Base class for networked components.</summary>
     // [RequireComponent(typeof(NetworkIdentity))] disabled to allow child NetworkBehaviours
@@ -29,8 +29,8 @@ namespace Mirror
     [HelpURL("https://mirror-networking.gitbook.io/docs/guides/networkbehaviour")]
     public abstract class NetworkBehaviour : MonoBehaviour
     {
-        [Tooltip("Choose between old school Reliable sync (every syncInterval if changed. no sync if unchanged.) vs. quake style Unreliable sync (sends the whole world state every tick, immediately) for fast paced games.\nReliable is recommended for most games.\nOnly choose Unreliable if you understand the tradeoffs.")]
-        [HideInInspector] public SyncMethod syncMethod = SyncMethod.Reliable;
+        [Tooltip("Choose between:\n- Traditional state sync (every syncInterval, if changed, over unreliable channel). This just works, and is recommended for most games.\n- Fast Paced (every tick, all the time, over unreliable channel, with restrictions). This is the Quake networking model, recommended for fast paced games like Shooters/Mobas/Physics Simulations/VR.\n\nPlease use 'Traditional' unless you understand the trade-offs.")]
+        [HideInInspector] public SyncMethod syncMethod = SyncMethod.Traditional;
         
         /// <summary>Sync direction for OnSerialize. ServerToClient by default. ClientToServer for client authority.</summary>
         [Tooltip("Server Authority calls OnSerialize on the server and syncs it to clients.\n\nClient Authority calls OnSerialize on the owning client, syncs it to server, which then broadcasts it to all other clients.\n\nUse server authority for cheat safety.")]
