@@ -1129,7 +1129,7 @@ namespace Mirror
 
         void SerializeSyncObjects(NetworkWriter writer, bool initialState)
         {
-            // if initialState: write all SyncVars.
+            // if initialState: write all SyncObjects (SyncList/Set/etc)
             // otherwise write dirtyBits+dirty SyncVars
             if (initialState)
                 SerializeObjectsAll(writer);

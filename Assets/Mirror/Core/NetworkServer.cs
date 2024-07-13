@@ -265,6 +265,7 @@ namespace Mirror
         {
             // -= so that other systems can also hook into it (i.e. statistics)
             Transport.active.OnServerConnected -= OnTransportConnected;
+            Transport.active.OnServerConnectedWithAddress -= OnTransportConnectedWithAddress;
             Transport.active.OnServerDataReceived -= OnTransportData;
             Transport.active.OnServerDisconnected -= OnTransportDisconnected;
             Transport.active.OnServerError -= OnTransportError;

@@ -43,6 +43,7 @@ namespace Mirror
         public override void ServerStart()
         {
             inner.OnServerConnected = OnServerConnected;
+            inner.OnServerConnectedWithAddress = OnServerConnectedWithAddress;
             inner.OnServerDataReceived = OnServerDataReceived;
             inner.OnServerDisconnected = OnServerDisconnected;
             inner.OnServerError = OnServerError;
