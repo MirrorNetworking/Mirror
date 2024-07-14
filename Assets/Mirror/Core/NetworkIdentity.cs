@@ -844,9 +844,9 @@ namespace Mirror
             for (int i = 0; i < components.Length; ++i)
             {
                 NetworkBehaviour component = components[i];
+                ulong nthBit = (1u << i);
 
                 bool dirty = component.IsDirty();
-                ulong nthBit = (1u << i);
 
                 // owner needs to be considered for both SyncModes, because
                 // Observers mode always includes the Owner.
@@ -888,11 +888,13 @@ namespace Mirror
 
                 // on client, only consider owned components with SyncDirection to server
                 NetworkBehaviour component = components[i];
+                ulong nthBit = (1u << i);
+
                 if (isOwned && component.syncDirection == SyncDirection.ClientToServer)
                 {
                     // set the n-th bit if dirty
                     // shifting from small to large numbers is varint-efficient.
-                    if (component.IsDirty()) mask |= (1u << i);
+                    if (component.IsDirty()) mask |= nthBit;
                 }
             }
 
