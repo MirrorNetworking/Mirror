@@ -5,8 +5,8 @@ using UnityEngine;
 
 namespace Mirror
 {
-    [AddComponentMenu("Network/Network Transform (Fast Mode)")]
-    public class NetworkTransformFastMode : NetworkTransformBase
+    [AddComponentMenu("Network/Network Transform (Fast Paced)")]
+    public class NetworkTransformFastPaced : NetworkTransformBase
     {
         uint sendIntervalCounter = 0;
         double lastSendIntervalTime = double.MinValue;

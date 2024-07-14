@@ -101,7 +101,7 @@ namespace Mirror.Examples.Billiards
         {
             rigidBody.position = startPosition;
             rigidBody.Sleep(); // reset forces
-            GetComponent<NetworkRigidbodyFastMode>().RpcTeleport(startPosition);
+            GetComponent<NetworkRigidbodyFastPaced>().RpcTeleport(startPosition);
         }
     }
 }
