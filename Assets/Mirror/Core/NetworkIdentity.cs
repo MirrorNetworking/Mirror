@@ -898,7 +898,8 @@ namespace Mirror
 
         // build dirty mask for client.
         // server always knows initialState, so we don't need it here.
-        ulong ClientDirtyMask()
+        // this is only for delta sync.
+        ulong ClientDirtyMask(SyncMethod method)
         {
             ulong mask = 0;
 
@@ -918,9 +919,24 @@ namespace Mirror
 
                 if (isOwned && component.syncDirection == SyncDirection.ClientToServer)
                 {
-                    // set the n-th bit if dirty
+                    // for initial sync, include all components.
+                    // for delta sync, it depends...
+                    bool delta = false;
+
+                    // traditional: only if dirty bits were set
+                    if (method == SyncMethod.Traditional && component.syncMethod == SyncMethod.Traditional)
+                    {
+                        delta = component.IsDirty();
+                    }
+                    // fast paced: always include the component since unreliable message isn't guaranteed to be delivered
+                    else if (method == SyncMethod.FastPaced && component.syncMethod == SyncMethod.FastPaced)
+                    {
+                        delta = true;
+                    }
+
+                    // set the n-th bit if delta sync is needed.
                     // shifting from small to large numbers is varint-efficient.
-                    if (component.IsDirty()) mask |= nthBit;
+                    if (delta) mask |= nthBit;
                 }
             }
 
