@@ -857,19 +857,8 @@ namespace Mirror
                 ulong nthBit = (1u << i);
 
                 // for initial sync, include all components.
-                // for delta sync, it depends...
-                bool delta = false;
-
-                // traditional: only if dirty bits were set
-                if (method == SyncMethod.Traditional && component.syncMethod == SyncMethod.Traditional)
-                {
-                    delta = component.IsDirty();
-                }
-                // fast paced: always include the component since unreliable message isn't guaranteed to be delivered
-                else if (method == SyncMethod.FastPaced && component.syncMethod == SyncMethod.FastPaced)
-                {
-                    delta = true;
-                }
+                // for delta sync, it depends on SyncMethod.
+                bool delta = component.IsDirtyFor(method);
 
                 // owner needs to be considered for both SyncModes, because
                 // Observers mode always includes the Owner.
@@ -920,19 +909,8 @@ namespace Mirror
                 if (isOwned && component.syncDirection == SyncDirection.ClientToServer)
                 {
                     // for initial sync, include all components.
-                    // for delta sync, it depends...
-                    bool delta = false;
-
-                    // traditional: only if dirty bits were set
-                    if (method == SyncMethod.Traditional && component.syncMethod == SyncMethod.Traditional)
-                    {
-                        delta = component.IsDirty();
-                    }
-                    // fast paced: always include the component since unreliable message isn't guaranteed to be delivered
-                    else if (method == SyncMethod.FastPaced && component.syncMethod == SyncMethod.FastPaced)
-                    {
-                        delta = true;
-                    }
+                    // for delta sync, it depends on SyncMethod.
+                    bool delta = component.IsDirtyFor(method);
 
                     // set the n-th bit if delta sync is needed.
                     // shifting from small to large numbers is varint-efficient.

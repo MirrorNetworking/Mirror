@@ -236,6 +236,27 @@ namespace Mirror
             // only check time if bits were dirty. this is more expensive.
             NetworkTime.localTime - lastSyncTime >= syncInterval;
 
+
+
+        // convenience function to check if a component is dirty for the given
+        // SyncMethod.
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal bool IsDirtyFor(SyncMethod method)
+        {
+            // traditional: only if dirty bits were set
+            if (method == SyncMethod.Traditional && syncMethod == SyncMethod.Traditional)
+            {
+                return IsDirty();
+            }
+            // fast paced: always include the component since unreliable message isn't guaranteed to be delivered
+            else if (method == SyncMethod.FastPaced && syncMethod == SyncMethod.FastPaced)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
         /// <summary>Clears all the dirty bits that were set by SetSyncVarDirtyBit() (formally SetDirtyBits)</summary>
         // automatically invoked when an update is sent for this object, but can
         // be called manually as well.
