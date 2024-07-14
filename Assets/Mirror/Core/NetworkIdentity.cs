@@ -857,14 +857,17 @@ namespace Mirror
                 if (initialState || (component.syncDirection == SyncDirection.ServerToClient && dirty))
                     ownerMask |= nthBit;
 
-                // observers need to be considered only in Observers mode
-                //
-                // for initial, it should always sync to observers.
-                // for delta, only if dirty.
-                // SyncDirection is irrelevant, as both are broadcast to
-                // observers which aren't the owner.
-                if (component.syncMode == SyncMode.Observers && (initialState || dirty))
-                    observerMask |= nthBit;
+                // observers need to be considered only in Observers mode,
+                // otherwise they receive no sync data of this component ever.
+                if (component.syncMode == SyncMode.Observers)
+                {
+                    // for initial, it should always sync to observers.
+                    // for delta, only if dirty.
+                    // SyncDirection is irrelevant, as both are broadcast to
+                    // observers which aren't the owner.
+                    if (initialState || dirty)
+                        observerMask |= nthBit;
+                }
             }
 
             return (ownerMask, observerMask);
