@@ -934,7 +934,9 @@ namespace Mirror
         // check ownerWritten/observersWritten to know if anything was written
         // We pass dirtyComponentsMask into this function so that we can check
         // if any Components are dirty before creating writers
-        internal void SerializeServer(bool initialState, NetworkWriter ownerWriter, NetworkWriter observersWriter)
+        // -> SyncMethod: Serialize handles all the magic internally depending
+        //    on SyncMethod, so that the user API (OnSerialize) remains the same.
+        internal void SerializeServer(bool initialState, SyncMethod method, NetworkWriter ownerWriter, NetworkWriter observersWriter)
         {
             // ensure NetworkBehaviours are valid before usage
             ValidateComponents();
@@ -947,7 +949,7 @@ namespace Mirror
             // instead of writing a 1 byte index per component,
             // we limit components to 64 bits and write one ulong instead.
             // the ulong is also varint compressed for minimum bandwidth.
-            (ulong ownerMask, ulong observerMask) = ServerDirtyMasks(initialState);
+            (ulong ownerMask, ulong observerMask) = ServerDirtyMasks(initialState, method);
 
             // if nothing dirty, then don't even write the mask.
             // otherwise, every unchanged object would send a 1 byte dirty mask!
@@ -981,7 +983,12 @@ namespace Mirror
                         // serialize into helper writer
                         using (NetworkWriterPooled temp = NetworkWriterPool.Get())
                         {
-                            comp.Serialize(temp, initialState);
+                            // SyncMethod support:
+                            //   Traditional: Serialize(initial) once, then Serialize(delta) all the time.
+                            //   FastPaced:   Serialize(initial) all the time because we always need full state for unreliable messages
+                            // => reusing OnSerialize(initial=true) for FastPaced allows us to keep the API clean and simple.
+                            //    this way the end user never needs to worry about SyncMethod serialization.
+                            comp.Serialize(temp, initialState || method == SyncMethod.FastPaced);
                             ArraySegment<byte> segment = temp.ToArraySegment();
 
                             // copy to owner / observers as needed
