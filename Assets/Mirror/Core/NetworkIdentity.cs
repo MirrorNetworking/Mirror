@@ -841,7 +841,11 @@ namespace Mirror
 
         // build dirty mask for server owner & observers (= all dirty components).
         // faster to do it in one iteration instead of iterating separately.
-        (ulong, ulong) ServerDirtyMasks(bool initialState)
+        // -> initialState: marks all components for spawn message no matter the method.
+        // -> delta sync:   depends on SyncMethod
+        //       Traditional: mark the dirty components
+        //       FastPaced:   mark all components (unreliable isn't guaranteed to be delivered)
+        (ulong, ulong) ServerDirtyMasks(bool initialState, SyncMethod method)
         {
             ulong ownerMask = 0;
             ulong observerMask = 0;
@@ -852,7 +856,20 @@ namespace Mirror
                 NetworkBehaviour component = components[i];
                 ulong nthBit = (1u << i);
 
-                bool dirty = component.IsDirty();
+                // for initial sync, include all components.
+                // for delta sync, it depends...
+                bool delta = false;
+
+                // traditional: only if dirty bits were set
+                if (method == SyncMethod.Traditional && component.syncMethod == SyncMethod.Traditional)
+                {
+                    delta = component.IsDirty();
+                }
+                // fast paced: always include the component since unreliable message isn't guaranteed to be delivered
+                else if (method == SyncMethod.FastPaced && component.syncMethod == SyncMethod.FastPaced)
+                {
+                    delta = true;
+                }
 
                 // owner needs to be considered for both SyncModes, because
                 // Observers mode always includes the Owner.
@@ -860,7 +877,7 @@ namespace Mirror
                 // for initial, it should always sync owner.
                 // for delta, only for ServerToClient and only if dirty.
                 //     ClientToServer comes from the owner client.
-                if (initialState || (component.syncDirection == SyncDirection.ServerToClient && dirty))
+                if (initialState || (component.syncDirection == SyncDirection.ServerToClient && delta))
                     ownerMask |= nthBit;
 
                 // observers need to be considered only in Observers mode,
@@ -871,7 +888,7 @@ namespace Mirror
                     // for delta, only if dirty.
                     // SyncDirection is irrelevant, as both are broadcast to
                     // observers which aren't the owner.
-                    if (initialState || dirty)
+                    if (initialState || delta)
                         observerMask |= nthBit;
                 }
             }
