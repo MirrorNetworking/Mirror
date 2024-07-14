@@ -16,6 +16,16 @@ namespace Mirror
         [Tooltip("How much time, as a multiple of send interval, has passed before clearing buffers.\nA larger buffer means more delay, but results in smoother movement.\nExample: 1 for faster responses minimal smoothing, 5 covers bad pings but has noticable delay, 3 is recommended for balanced results,.")]
         public float bufferResetMultiplier = 3;
 
+        // validation //////////////////////////////////////////////////////////
+        // Configure is called from OnValidate and Awake
+        protected override void Configure()
+        {
+            base.Configure();
+
+            // force syncMethod to fast paced
+            syncMethod = SyncMethod.FastPaced;
+        }
+
         // update //////////////////////////////////////////////////////////////
         // Update applies interpolation
         void Update()
