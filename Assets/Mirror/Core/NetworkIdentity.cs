@@ -1014,7 +1014,9 @@ namespace Mirror
         }
 
         // serialize components into writer on the client.
-        internal void SerializeClient(NetworkWriter writer)
+        // -> SyncMethod: Serialize handles all the magic internally depending
+        //    on SyncMethod, so that the user API (OnSerialize) remains the same.
+        internal void SerializeClient(SyncMethod method, NetworkWriter writer)
         {
             // ensure NetworkBehaviours are valid before usage
             ValidateComponents();
@@ -1027,7 +1029,7 @@ namespace Mirror
             // instead of writing a 1 byte index per component,
             // we limit components to 64 bits and write one ulong instead.
             // the ulong is also varint compressed for minimum bandwidth.
-            ulong dirtyMask = ClientDirtyMask();
+            ulong dirtyMask = ClientDirtyMask(method);
 
             // varint compresses the mask to 1 byte in most cases.
             // instead of writing an 8 byte ulong.
@@ -1056,7 +1058,14 @@ namespace Mirror
                     {
                         // serialize into writer.
                         // server always knows initialState, we never need to send it
-                        comp.Serialize(writer, false);
+
+
+                        // SyncMethod support:
+                        //   Traditional: always Serialize(delta) on client since server knows initial state.
+                        //   FastPaced:   always Serialize(initial) on client since we need full state for unreliable sync.
+                        // => reusing OnSerialize(initial=true) for FastPaced allows us to keep the API clean and simple.
+                        //    this way the end user never needs to worry about SyncMethod serialization.
+                        comp.Serialize(writer, method == SyncMethod.FastPaced);
 
                         // clear dirty bits for the components that we serialized.
                         // do not clear for _all_ components, only the ones that
