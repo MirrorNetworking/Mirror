@@ -33,13 +33,18 @@ namespace Mirror.Tests.NetworkIdentities
         // serialize -> deserialize. multiple components to be sure.
         // one for Owner, one for Observer
         [Test]
-        public void SerializeAndDeserializeAll()
+        [TestCase(SyncMethod.Traditional)]
+        [TestCase(SyncMethod.FastPaced)]
+        public void SerializeAndDeserializeAll_Traditional(SyncMethod method)
         {
             // need two of both versions so we can serialize -> deserialize
             CreateNetworkedAndSpawn(
                 out _, out NetworkIdentity serverIdentity, out SerializeTest2NetworkBehaviour serverOwnerComp, out SerializeTest1NetworkBehaviour serverObserversComp,
                 out _, out NetworkIdentity clientIdentity, out SerializeTest2NetworkBehaviour clientOwnerComp, out SerializeTest1NetworkBehaviour clientObserversComp
             );
+
+            // set sync methods
+            serverOwnerComp.syncMethod = clientOwnerComp.syncMethod = method;
 
             // set sync modes
             serverOwnerComp.syncMode     = clientOwnerComp.syncMode     = SyncMode.Owner;
@@ -50,7 +55,7 @@ namespace Mirror.Tests.NetworkIdentities
             serverObserversComp.value = 42;
 
             // serialize server object
-            serverIdentity.SerializeServer(true, ownerWriter, observersWriter);
+            serverIdentity.SerializeServer(true, method, ownerWriter, observersWriter);
 
             // deserialize client object with OWNER payload
             NetworkReader reader = new NetworkReader(ownerWriter.ToArray());
@@ -72,7 +77,9 @@ namespace Mirror.Tests.NetworkIdentities
         // serialization should work even if a component throws an exception.
         // so if first component throws, second should still be serialized fine.
         [Test]
-        public void SerializationException()
+        [TestCase(SyncMethod.Traditional)]
+        [TestCase(SyncMethod.FastPaced)]
+        public void SerializationException(SyncMethod method)
         {
             // the exception component will log exception errors all the way
             // through this function, starting from spawning where it's
@@ -96,7 +103,7 @@ namespace Mirror.Tests.NetworkIdentities
             // serialize server object
             // should work even if compExc throws an exception.
             // error log because of the exception is expected.
-            serverIdentity.SerializeServer(true, ownerWriter, observersWriter);
+            serverIdentity.SerializeServer(true, method, ownerWriter, observersWriter);
 
             // deserialize client object with OWNER payload
             // should work even if compExc throws an exception
@@ -176,7 +183,9 @@ namespace Mirror.Tests.NetworkIdentities
         // insane runtime errors like monsters that look like npcs. that's what
         // happened back in the day with UNET).
         [Test]
-        public void SerializationMismatch()
+        [TestCase(SyncMethod.Traditional)]
+        [TestCase(SyncMethod.FastPaced)]
+        public void SerializationMismatch(SyncMethod method)
         {
             // create spawned so that isServer/isClient is set properly
             CreateNetworkedAndSpawn(
@@ -187,7 +196,7 @@ namespace Mirror.Tests.NetworkIdentities
             serverComp.value = "42";
 
             // serialize server object
-            serverIdentity.SerializeServer(true, ownerWriter, observersWriter);
+            serverIdentity.SerializeServer(true, method, ownerWriter, observersWriter);
 
             // deserialize on client
             // ignore warning log because of serialization mismatch
@@ -201,12 +210,12 @@ namespace Mirror.Tests.NetworkIdentities
             Assert.That(clientComp.value, Is.EqualTo("42"));
         }
 
-        // ensure Serialize writes nothing if not dirty.
+        // ensure Traditional Serialize writes nothing if not dirty.
         // previously after the dirty mask improvement, it would write a 1 byte
         // 0-dirty-mask. instead, we need to ensure it writes nothing.
         // too easy to miss, with too significant bandwidth implications.
         [Test]
-        public void SerializeServer_NotInitial_NotDirty_WritesNothing()
+        public void SerializeServer_Traditional_NotInitial_NotDirty_WritesNothing()
         {
             // create spawned so that isServer/isClient is set properly
             CreateNetworkedAndSpawn(
@@ -219,13 +228,36 @@ namespace Mirror.Tests.NetworkIdentities
             // serialize server object.
             // 'initial' would write everything.
             // instead, try 'not initial' with 0 dirty bits
-            serverIdentity.SerializeServer(false, ownerWriter, observersWriter);
+            serverIdentity.SerializeServer(false, SyncMethod.Traditional, ownerWriter, observersWriter);
             Assert.That(ownerWriter.Position, Is.EqualTo(0));
             Assert.That(observersWriter.Position, Is.EqualTo(0));
         }
 
+        // ensure FastPaced Serialize still writes full state even if not dirty.
         [Test]
-        public void SerializeClient_NotInitial_NotDirty_WritesNothing()
+        public void SerializeServer_FastPaced_NotInitial_NotDirty_WritesFull()
+        {
+            // create spawned so that isServer/isClient is set properly
+            CreateNetworkedAndSpawn(
+                out _, out NetworkIdentity serverIdentity, out SerializeTest1NetworkBehaviour serverComp1, out SerializeTest2NetworkBehaviour serverComp2,
+                out _, out NetworkIdentity clientIdentity, out SerializeTest1NetworkBehaviour clientComp1, out SerializeTest2NetworkBehaviour clientComp2);
+
+            serverComp1.syncMethod = SyncMethod.FastPaced;
+            clientComp1.syncMethod = SyncMethod.FastPaced;
+
+            // change nothing
+            // serverComp.value = "42";
+
+            // serialize server object.
+            // 'initial' would write everything.
+            // instead, try 'not initial' with 0 dirty bits
+            serverIdentity.SerializeServer(false, SyncMethod.FastPaced, ownerWriter, observersWriter);
+            Assert.That(ownerWriter.Position, Is.GreaterThan(0));
+            Assert.That(observersWriter.Position, Is.GreaterThan(0));
+        }
+
+        [Test]
+        public void SerializeClient_Traditional_NotInitial_NotDirty_WritesNothing()
         {
             // create spawned so that isServer/isClient is set properly
             CreateNetworkedAndSpawn(
@@ -243,15 +275,44 @@ namespace Mirror.Tests.NetworkIdentities
             // clientComp.value = "42";
 
             // serialize client object
-            clientIdentity.SerializeClient(ownerWriter);
+            clientIdentity.SerializeClient(SyncMethod.Traditional, ownerWriter);
             Assert.That(ownerWriter.Position, Is.EqualTo(0));
+        }
+
+        // ensure FastPaced Serialize still writes full state even if not dirty.
+        [Test]
+        public void SerializeClient_FastPaced_NotInitial_NotDirty_WritesFull()
+        {
+            // create spawned so that isServer/isClient is set properly
+            CreateNetworkedAndSpawn(
+                out _, out NetworkIdentity serverIdentity, out SerializeTest1NetworkBehaviour serverComp1, out SerializeTest2NetworkBehaviour serverComp2,
+                out _, out NetworkIdentity clientIdentity, out SerializeTest1NetworkBehaviour clientComp1, out SerializeTest2NetworkBehaviour clientComp2);
+
+            // client only serializes owned ClientToServer components
+            clientIdentity.isOwned = true;
+            serverComp1.syncDirection = SyncDirection.ClientToServer;
+            serverComp2.syncDirection = SyncDirection.ClientToServer;
+            clientComp1.syncDirection = SyncDirection.ClientToServer;
+            clientComp2.syncDirection = SyncDirection.ClientToServer;
+
+            serverComp1.syncMethod = SyncMethod.FastPaced;
+            clientComp1.syncMethod = SyncMethod.FastPaced;
+
+            // change nothing
+            // clientComp.value = "42";
+
+            // serialize client object
+            clientIdentity.SerializeClient(SyncMethod.FastPaced, ownerWriter);
+            Assert.That(ownerWriter.Position, Is.GreaterThan(0));
         }
 
         // serialize -> deserialize. multiple components to be sure.
         // one for Owner, one for Observer
         // one ServerToClient, one ClientToServer
         [Test]
-        public void SerializeAndDeserialize_ClientToServer_NOT_OWNED()
+        [TestCase(SyncMethod.Traditional)]
+        [TestCase(SyncMethod.FastPaced)]
+        public void SerializeAndDeserialize_ClientToServer_NOT_OWNED(SyncMethod method)
         {
             CreateNetworked(out GameObject _, out NetworkIdentity identity,
                 out SerializeTest1NetworkBehaviour comp1,
@@ -267,7 +328,7 @@ namespace Mirror.Tests.NetworkIdentities
             comp2.value = "67890";
 
             // serialize all
-            identity.SerializeClient(ownerWriter);
+            identity.SerializeClient(method, ownerWriter);
 
             // shouldn't sync anything. because even though it's ClientToServer,
             // we don't own this one so we shouldn't serialize & sync it.
@@ -276,7 +337,9 @@ namespace Mirror.Tests.NetworkIdentities
 
         // server should still send initial even if Owner + ClientToServer
         [Test]
-        public void SerializeServer_OwnerMode_ClientToServer()
+        [TestCase(SyncMethod.Traditional)]
+        [TestCase(SyncMethod.FastPaced)]
+        public void SerializeServer_OwnerMode_ClientToServer(SyncMethod method)
         {
             CreateNetworked(out GameObject _, out NetworkIdentity identity,
                 out SyncVarTest1NetworkBehaviour comp);
@@ -292,7 +355,7 @@ namespace Mirror.Tests.NetworkIdentities
             comp.SetValue(11); // modify with helper function to avoid #3525
 
             // initial: should still write for owner
-            identity.SerializeServer(true, ownerWriter, observersWriter);
+            identity.SerializeServer(true, method, ownerWriter, observersWriter);
             Debug.Log("initial ownerWriter: " + ownerWriter);
             Debug.Log("initial observerWriter: " + observersWriter);
             Assert.That(ownerWriter.Position, Is.GreaterThan(0));
@@ -302,7 +365,7 @@ namespace Mirror.Tests.NetworkIdentities
             comp.SetValue(22); // modify with helper function to avoid #3525
             ownerWriter.Position = 0;
             observersWriter.Position = 0;
-            identity.SerializeServer(false, ownerWriter, observersWriter);
+            identity.SerializeServer(false,method, ownerWriter, observersWriter);
             Debug.Log("delta ownerWriter: " + ownerWriter);
             Debug.Log("delta observersWriter: " + observersWriter);
             Assert.That(ownerWriter.Position, Is.EqualTo(0));
@@ -314,13 +377,16 @@ namespace Mirror.Tests.NetworkIdentities
         // server should still broadcast ClientToServer components to everyone
         // except the owner.
         [Test]
-        public void SerializeServer_ObserversMode_ClientToServer()
+        [TestCase(SyncMethod.Traditional)]
+        [TestCase(SyncMethod.FastPaced)]
+        public void SerializeServer_ObserversMode_ClientToServer(SyncMethod method)
         {
             CreateNetworked(out GameObject _, out NetworkIdentity identity,
                 out SyncVarTest1NetworkBehaviour comp);
 
             // pretend to be owned
             identity.isOwned = true;
+            comp.syncMethod = method;
             comp.syncMode = SyncMode.Observers;
             comp.syncInterval = 0;
 
@@ -330,7 +396,7 @@ namespace Mirror.Tests.NetworkIdentities
             comp.SetValue(11); // modify with helper function to avoid #3525
 
             // initial: should write something for owner and observers
-            identity.SerializeServer(true, ownerWriter, observersWriter);
+            identity.SerializeServer(true, method, ownerWriter, observersWriter);
             Debug.Log("initial ownerWriter: " + ownerWriter);
             Debug.Log("initial observerWriter: " + observersWriter);
             Assert.That(ownerWriter.Position, Is.GreaterThan(0));
@@ -340,7 +406,7 @@ namespace Mirror.Tests.NetworkIdentities
             comp.SetValue(22); // modify with helper function to avoid #3525
             ownerWriter.Position = 0;
             observersWriter.Position = 0;
-            identity.SerializeServer(false, ownerWriter, observersWriter);
+            identity.SerializeServer(false, method, ownerWriter, observersWriter);
             Debug.Log("delta ownerWriter: " + ownerWriter);
             Debug.Log("delta observersWriter: " + observersWriter);
             Assert.That(ownerWriter.Position, Is.EqualTo(0));
