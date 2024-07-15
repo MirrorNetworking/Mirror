@@ -29,6 +29,12 @@ namespace Mirror
         public int tick;
         public NetworkWriter ownerWriter;
         public NetworkWriter observersWriter;
+
+        public void ResetWriters()
+        {
+            ownerWriter.Position = 0;
+            observersWriter.Position = 0;
+        }
     }
 
     /// <summary>NetworkIdentity identifies objects across the network.</summary>
@@ -1131,8 +1137,7 @@ namespace Mirror
                )
             {
                 // reset
-                lastSerialization.ownerWriter.Position = 0;
-                lastSerialization.observersWriter.Position = 0;
+                lastSerialization.ResetWriters();
 
                 // serialize
                 SerializeServer(false,
