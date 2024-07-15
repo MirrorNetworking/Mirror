@@ -1833,7 +1833,7 @@ namespace Mirror
 
         // broadcasting ////////////////////////////////////////////////////////
         // helper function to get the right serialization for a connection
-        static NetworkWriter SerializeForConnection(NetworkIdentity identity, NetworkConnectionToClient connection)
+        static NetworkWriter SerializeForConnection(NetworkIdentity identity, NetworkConnectionToClient connection, SyncMethod method)
         {
             // get serialization for this entity (cached)
             // IMPORTANT: int tick avoids floating point inaccuracy over days/weeks
@@ -1842,21 +1842,43 @@ namespace Mirror
             // is this entity owned by this connection?
             bool owned = identity.connectionToClient == connection;
 
-            // send serialized data
-            // owner writer if owned
-            if (owned)
+            if (method == SyncMethod.Traditional)
             {
-                // was it dirty / did we actually serialize anything?
-                if (serialization.ownerWriter.Position > 0)
-                    return serialization.ownerWriter;
+                // send serialized data
+                // owner writer if owned
+                if (owned)
+                {
+                    // was it dirty / did we actually serialize anything?
+                    if (serialization.ownerWriterTraditional.Position > 0)
+                        return serialization.ownerWriterTraditional;
+                }
+                // observers writer if not owned
+                else
+                {
+                    // was it dirty / did we actually serialize anything?
+                    if (serialization.observersWriterTraditional.Position > 0)
+                        return serialization.observersWriterTraditional;
+                }
             }
-            // observers writer if not owned
-            else
+            else if (method == SyncMethod.FastPaced)
             {
-                // was it dirty / did we actually serialize anything?
-                if (serialization.observersWriter.Position > 0)
-                    return serialization.observersWriter;
+                // send serialized data
+                // owner writer if owned
+                if (owned)
+                {
+                    // was it dirty / did we actually serialize anything?
+                    if (serialization.ownerWriterFastPaced.Position > 0)
+                        return serialization.ownerWriterFastPaced;
+                }
+                // observers writer if not owned
+                else
+                {
+                    // was it dirty / did we actually serialize anything?
+                    if (serialization.observersWriterFastPaced.Position > 0)
+                        return serialization.observersWriterFastPaced;
+                }
             }
+
 
             // nothing was serialized
             return null;
@@ -1874,9 +1896,10 @@ namespace Mirror
                 //  NetworkServer.Destroy)
                 if (identity != null)
                 {
+                    // 'Traditional' sync: send Traditional components over reliable with initial/delta
                     // get serialization for this entity viewed by this connection
                     // (if anything was serialized this time)
-                    NetworkWriter serialization = SerializeForConnection(identity, connection);
+                    NetworkWriter serialization = SerializeForConnection(identity, connection, SyncMethod.Traditional);
                     if (serialization != null)
                     {
                         EntityStateMessage message = new EntityStateMessage
@@ -1884,7 +1907,20 @@ namespace Mirror
                             netId = identity.netId,
                             payload = serialization.ToArraySegment()
                         };
-                        connection.Send(message);
+                        connection.Send(message, Channels.Reliable);
+                    }
+
+                    // 'Fast Paced' sync: send Fast Paced components over unreliable
+                    // state is always 'initial' since unreliable delivery isn't guaranteed,
+                    serialization = SerializeForConnection(identity, connection, SyncMethod.FastPaced);
+                    if (serialization != null)
+                    {
+                        EntityStateMessage message = new EntityStateMessage
+                        {
+                            netId = identity.netId,
+                            payload = serialization.ToArraySegment()
+                        };
+                        connection.Send(message, Channels.Unreliable);
                     }
                 }
                 // spawned list should have no null entries because we
