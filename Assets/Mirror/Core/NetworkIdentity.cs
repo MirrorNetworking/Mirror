@@ -27,13 +27,21 @@ namespace Mirror
     {
         // IMPORTANT: int tick avoids floating point inaccuracy over days/weeks
         public int tick;
-        public NetworkWriter ownerWriter;
-        public NetworkWriter observersWriter;
+
+        // traditional reliable sync
+        public NetworkWriter ownerWriterTraditional;
+        public NetworkWriter observersWriterTraditional;
+
+        // fast paced unreliable sync
+        public NetworkWriter ownerWriterFastPaced;
+        public NetworkWriter observersWriterFastPaced;
 
         public void ResetWriters()
         {
-            ownerWriter.Position = 0;
-            observersWriter.Position = 0;
+            ownerWriterTraditional.Position = 0;
+            observersWriterTraditional.Position = 0;
+            ownerWriterFastPaced.Position = 0;
+            observersWriterFastPaced.Position = 0;
         }
     }
 
@@ -225,8 +233,10 @@ namespace Mirror
         // => way easier to store them per object
         NetworkIdentitySerialization lastSerialization = new NetworkIdentitySerialization
         {
-            ownerWriter = new NetworkWriter(),
-            observersWriter = new NetworkWriter()
+            ownerWriterTraditional = new NetworkWriter(),
+            observersWriterTraditional = new NetworkWriter(),
+            ownerWriterFastPaced = new NetworkWriter(),
+            observersWriterFastPaced = new NetworkWriter(),
         };
 
         // Keep track of all sceneIds to detect scene duplicates
@@ -1166,10 +1176,17 @@ namespace Mirror
                 // reset
                 lastSerialization.ResetWriters();
 
-                // serialize
+                // serialize - traditional
                 SerializeServer(false,
-                                lastSerialization.ownerWriter,
-                                lastSerialization.observersWriter);
+                                SyncMethod.Traditional,
+                                lastSerialization.ownerWriterTraditional,
+                                lastSerialization.observersWriterTraditional);
+
+                // serialize - fast paced
+                SerializeServer(false,
+                                SyncMethod.FastPaced,
+                                lastSerialization.ownerWriterFastPaced,
+                                lastSerialization.observersWriterFastPaced);
 
                 // set tick
                 lastSerialization.tick = tick;
