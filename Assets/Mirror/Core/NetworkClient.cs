@@ -1539,11 +1539,12 @@ namespace Mirror
                 //  NetworkServer.Destroy)
                 if (identity != null)
                 {
+                    // 'Traditional' sync: send Traditional components over reliable.
                     using (NetworkWriterPooled writer = NetworkWriterPool.Get())
                     {
                         // get serialization for this entity viewed by this connection
                         // (if anything was serialized this time)
-                        identity.SerializeClient(writer);
+                        identity.SerializeClient(SyncMethod.Traditional, writer);
                         if (writer.Position > 0)
                         {
                             // send state update message
@@ -1552,7 +1553,26 @@ namespace Mirror
                                 netId = identity.netId,
                                 payload = writer.ToArraySegment()
                             };
-                            Send(message);
+                            Send(message, Channels.Reliable);
+                        }
+                    }
+
+                    // 'Fast Paced' sync: send Fast Paced components over unreliable
+                    // state is always 'initial' since unreliable delivery isn't guaranteed,
+                    using (NetworkWriterPooled writer = NetworkWriterPool.Get())
+                    {
+                        // get serialization for this entity viewed by this connection
+                        // (if anything was serialized this time)
+                        identity.SerializeClient(SyncMethod.FastPaced, writer);
+                        if (writer.Position > 0)
+                        {
+                            // send state update message
+                            EntityStateMessage message = new EntityStateMessage
+                            {
+                                netId = identity.netId,
+                                payload = writer.ToArraySegment()
+                            };
+                            Send(message, Channels.Unreliable);
                         }
                     }
                 }
