@@ -243,6 +243,10 @@ namespace Mirror
         static readonly Dictionary<ulong, NetworkIdentity> sceneIds =
             new Dictionary<ulong, NetworkIdentity>();
 
+        // unreliable state sync messages may arrive out of order, or duplicated.
+        // keep latest received timestamp so we don't apply older messages.
+        internal double lastUnreliableStateTime;
+
         // Helper function to handle Command/Rpc
         internal void HandleRemoteCall(byte componentIndex, ushort functionHash, RemoteCallType remoteCallType, NetworkReader reader, NetworkConnectionToClient senderConnection = null)
         {

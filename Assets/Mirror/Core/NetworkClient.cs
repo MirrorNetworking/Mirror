@@ -1400,6 +1400,19 @@ namespace Mirror
             // Debug.Log($"NetworkClient.OnUpdateVarsMessage {msg.netId}");
             if (spawned.TryGetValue(message.netId, out NetworkIdentity identity) && identity != null)
             {
+                // unreliable state sync messages may arrive out of order, or duplicated.
+                // only ever apply state that's newer than the last received state.
+                if (connection.lastMessageTime <= identity.lastUnreliableStateTime)
+                {
+                    // debug log to show that it's working.
+                    // can be tested via LatencySimulation scramble easily.
+                    Debug.Log($"Client caught out of order Unreliable state message for {identity.name}. This is fine.\nIdentity timestamp={identity.lastUnreliableStateTime} message timestamp={connection.lastMessageTime}");
+                    return;
+                }
+
+                // set the new last received time for unreliable
+                identity.lastUnreliableStateTime = connection.lastMessageTime;
+
                 // iniital is always 'true' because unreliable state sync alwasy serializes full
                 using (NetworkReaderPooled reader = NetworkReaderPool.Get(message.payload))
                     identity.DeserializeClient(reader, true);

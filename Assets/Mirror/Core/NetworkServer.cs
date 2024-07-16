@@ -421,6 +421,19 @@ namespace Mirror
                 // owned by the connection?
                 if (identity.connectionToClient == connection)
                 {
+                    // unreliable state sync messages may arrive out of order, or duplicated.
+                    // only ever apply state that's newer than the last received state.
+                    if (connection.lastMessageTime <= identity.lastUnreliableStateTime)
+                    {
+                        // debug log to show that it's working.
+                        // can be tested via LatencySimulation scramble easily.
+                        Debug.Log($"Server caught out of order Unreliable state message for {identity.name}. This is fine.\nIdentity timestamp={identity.lastUnreliableStateTime} message timestamp={connection.lastMessageTime}");
+                        return;
+                    }
+
+                    // set the new last received time for unreliable
+                    identity.lastUnreliableStateTime = connection.lastMessageTime;
+
                     using (NetworkReaderPooled reader = NetworkReaderPool.Get(message.payload))
                     {
                         // DeserializeServer checks permissions internally.
