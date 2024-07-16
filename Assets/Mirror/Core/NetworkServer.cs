@@ -296,6 +296,7 @@ namespace Mirror
             RegisterHandler<NetworkPingMessage>(NetworkTime.OnServerPing, false);
             RegisterHandler<NetworkPongMessage>(NetworkTime.OnServerPong, false);
             RegisterHandler<EntityStateMessage>(OnEntityStateMessage, true);
+            RegisterHandler<EntityStateMessageUnreliable>(OnEntityStateMessageUnreliable, true);
             RegisterHandler<TimeSnapshotMessage>(OnTimeSnapshotMessage, true);
         }
 
@@ -384,7 +385,8 @@ namespace Mirror
                     {
                         // DeserializeServer checks permissions internally.
                         // failure to deserialize disconnects to prevent exploits.
-                        if (!identity.DeserializeServer(reader))
+                        // for reliable sync, server always knows initial state so updates are initialState=false.
+                        if (!identity.DeserializeServer(reader, false))
                         {
                             if (exceptionsDisconnect)
                             {
@@ -393,6 +395,46 @@ namespace Mirror
                             }
                             else
                                 Debug.LogWarning($"Server failed to deserialize client state for {identity.name} with netId={identity.netId}.");
+                        }
+                    }
+                }
+                // An attacker may attempt to modify another connection's entity
+                // This could also be a race condition of message in flight when
+                // RemoveClientAuthority is called, so not malicious.
+                // Don't disconnect, just log the warning.
+                else
+                    Debug.LogWarning($"EntityStateMessage from {connection} for {identity.name} without authority.");
+            }
+            // no warning. don't spam server logs.
+            // else Debug.LogWarning($"Did not find target for sync message for {message.netId} . Note: this can be completely normal because UDP messages may arrive out of order, so this message might have arrived after a Destroy message.");
+        }
+
+        // for client's owned ClientToServer components.
+        static void OnEntityStateMessageUnreliable(NetworkConnectionToClient connection, EntityStateMessageUnreliable message)
+        {
+            // need to validate permissions carefully.
+            // an attacker may attempt to modify a not-owned or not-ClientToServer component.
+
+            // valid netId?
+            if (spawned.TryGetValue(message.netId, out NetworkIdentity identity) && identity != null)
+            {
+                // owned by the connection?
+                if (identity.connectionToClient == connection)
+                {
+                    using (NetworkReaderPooled reader = NetworkReaderPool.Get(message.payload))
+                    {
+                        // DeserializeServer checks permissions internally.
+                        // failure to deserialize disconnects to prevent exploits.
+                        // for unreliable sync, we always send full state (initialState=true).
+                        if (!identity.DeserializeServer(reader, true))
+                        {
+                            if (exceptionsDisconnect)
+                            {
+                                Debug.LogError($"Server failed to deserialize client unreliable state for {identity.name} with netId={identity.netId}, Disconnecting.");
+                                connection.Disconnect();
+                            }
+                            else
+                                Debug.LogWarning($"Server failed to deserialize client unreliable state for {identity.name} with netId={identity.netId}.");
                         }
                     }
                 }
@@ -1916,7 +1958,7 @@ namespace Mirror
                     serialization = SerializeForConnection(identity, connection, SyncMethod.FastPaced);
                     if (serialization != null)
                     {
-                        EntityStateMessage message = new EntityStateMessage
+                        EntityStateMessageUnreliable message = new EntityStateMessageUnreliable
                         {
                             netId = identity.netId,
                             payload = serialization.ToArraySegment()

@@ -505,6 +505,7 @@ namespace Mirror
                 RegisterHandler<ObjectSpawnFinishedMessage>(_ => { });
                 // host mode doesn't need state updates
                 RegisterHandler<EntityStateMessage>(_ => { });
+                RegisterHandler<EntityStateMessageUnreliable>(_ => { });
             }
             else
             {
@@ -516,6 +517,7 @@ namespace Mirror
                 RegisterHandler<ObjectSpawnStartedMessage>(OnObjectSpawnStarted);
                 RegisterHandler<ObjectSpawnFinishedMessage>(OnObjectSpawnFinished);
                 RegisterHandler<EntityStateMessage>(OnEntityStateMessage);
+                RegisterHandler<EntityStateMessageUnreliable>(OnEntityStateMessageUnreliable);
             }
 
             // These handlers are the same for host and remote clients
@@ -1393,6 +1395,18 @@ namespace Mirror
             else Debug.LogWarning($"Did not find target for sync message for {message.netId}. Were all prefabs added to the NetworkManager's spawnable list?\nNote: this can be completely normal because UDP messages may arrive out of order, so this message might have arrived after a Destroy message.");
         }
 
+        static void OnEntityStateMessageUnreliable(EntityStateMessageUnreliable message)
+        {
+            // Debug.Log($"NetworkClient.OnUpdateVarsMessage {msg.netId}");
+            if (spawned.TryGetValue(message.netId, out NetworkIdentity identity) && identity != null)
+            {
+                // iniital is always 'true' because unreliable state sync alwasy serializes full
+                using (NetworkReaderPooled reader = NetworkReaderPool.Get(message.payload))
+                    identity.DeserializeClient(reader, true);
+            }
+            else Debug.LogWarning($"Did not find target for sync message for {message.netId}. Were all prefabs added to the NetworkManager's spawnable list?\nNote: this can be completely normal because UDP messages may arrive out of order, so this message might have arrived after a Destroy message.");
+        }
+
         static void OnRPCMessage(RpcMessage message)
         {
             // Debug.Log($"NetworkClient.OnRPCMessage hash:{message.functionHash} netId:{message.netId}");
@@ -1567,7 +1581,7 @@ namespace Mirror
                         if (writer.Position > 0)
                         {
                             // send state update message
-                            EntityStateMessage message = new EntityStateMessage
+                            EntityStateMessageUnreliable message = new EntityStateMessageUnreliable
                             {
                                 netId = identity.netId,
                                 payload = writer.ToArraySegment()

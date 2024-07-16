@@ -67,7 +67,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d993bac37a92145448c1ea027b3e9ddc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  syncMethod: 0
+  syncMethod: 1
   syncDirection: 1
   syncMode: 0
   syncInterval: 0
@@ -99,7 +99,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d993bac37a92145448c1ea027b3e9ddc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  syncMethod: 0
+  syncMethod: 1
   syncDirection: 1
   syncMode: 0
   syncInterval: 0
@@ -131,7 +131,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7deadf756194d461e9140e42d651693b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  syncMethod: 0
+  syncMethod: 1
   syncDirection: 0
   syncMode: 0
   syncInterval: 0.1

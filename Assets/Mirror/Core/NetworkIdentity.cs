@@ -1090,8 +1090,9 @@ namespace Mirror
         }
 
         // deserialize components from the client on the server.
-        // there's no 'initialState'. server always knows the initial state.
-        internal bool DeserializeServer(NetworkReader reader)
+        // for reliable state sync, server always knows the initial state.
+        // for unreliable, we always sync full state so we still need the parameter.
+        internal bool DeserializeServer(NetworkReader reader, bool initialState)
         {
             // ensure NetworkBehaviours are valid before usage
             ValidateComponents();
@@ -1115,7 +1116,7 @@ namespace Mirror
                         // deserialize this component
                         // server always knows the initial state (initial=false)
                         // disconnect if failed, to prevent exploits etc.
-                        if (!comp.Deserialize(reader, false)) return false;
+                        if (!comp.Deserialize(reader, initialState)) return false;
 
                         // server received state from the owner client.
                         // set dirty so it's broadcast to other clients too.

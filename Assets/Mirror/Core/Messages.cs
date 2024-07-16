@@ -94,7 +94,17 @@ namespace Mirror
         public uint netId;
     }
 
+    // state update for Traditional reliable sync
     public struct EntityStateMessage : NetworkMessage
+    {
+        public uint netId;
+        // the serialized component data
+        // -> ArraySegment to avoid unnecessary allocations
+        public ArraySegment<byte> payload;
+    }
+
+    // state update for FastPaced unreliable sync
+    public struct EntityStateMessageUnreliable : NetworkMessage
     {
         public uint netId;
         // the serialized component data
