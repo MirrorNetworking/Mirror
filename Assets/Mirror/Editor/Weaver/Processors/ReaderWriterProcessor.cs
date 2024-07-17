@@ -22,19 +22,55 @@ namespace Mirror.Weaver
             // fixes: https://github.com/MirrorNetworking/Mirror/issues/2503
             //
             // find NetworkReader/Writer extensions in referenced assemblies
-            // save a copy of the collection enumerator since it appears to be modified at some point during iteration
-            IEnumerable<AssemblyNameReference> assemblyReferences = CurrentAssembly.MainModule.AssemblyReferences.ToList();
-            foreach (AssemblyNameReference assemblyNameReference in assemblyReferences)
+            IEnumerable<AssemblyDefinition> assemblyReferences = FindProcessTargetAssemblies(CurrentAssembly, resolver)
+                .Where(assembly => assembly != null && assembly != CurrentAssembly);
+
+            foreach (AssemblyDefinition referencedAssembly in assemblyReferences)
             {
-                AssemblyDefinition referencedAssembly = resolver.Resolve(assemblyNameReference);
-                if (referencedAssembly != null)
-                {
-                    ProcessAssemblyClasses(CurrentAssembly, referencedAssembly, writers, readers, ref WeavingFailed);
-                }
+                ProcessAssemblyClasses(CurrentAssembly, referencedAssembly, writers, readers, ref WeavingFailed);
             }
 
-            // find readers/writers in the assembly we are in right now.
             return ProcessAssemblyClasses(CurrentAssembly, CurrentAssembly, writers, readers, ref WeavingFailed);
+        }
+
+        static List<AssemblyDefinition> FindProcessTargetAssemblies(AssemblyDefinition assembly, IAssemblyResolver resolver)
+        {
+            HashSet<string> processedAssemblies = new HashSet<string>();
+            List<AssemblyDefinition> assemblies = new List<AssemblyDefinition>();
+
+            ProcessAssembly(assembly);
+
+            return assemblies;
+
+            void ProcessAssembly(AssemblyDefinition current)
+            {
+                // If the assembly has already been processed, we skip it
+                if (current.FullName == Weaver.MirrorAssemblyName || !processedAssemblies.Add(current.FullName))
+                {
+                    return;
+                }
+
+                IEnumerable<AssemblyNameReference> references = current.MainModule.AssemblyReferences;
+
+                // If there is no Mirror reference, there will be no ReaderWriter or NetworkMessage, so skip
+                if (references.All(reference => reference.Name != Weaver.MirrorAssemblyName))
+                {
+                    return;
+                }
+
+                // Add the assembly to the processed set and list
+                assemblies.Add(current);
+
+                // Process the references of the current assembly
+                foreach (AssemblyNameReference reference in references)
+                {
+                    AssemblyDefinition referencedAssembly = resolver.Resolve(reference);
+                    if (referencedAssembly != null)
+                    {
+                        ProcessAssembly(referencedAssembly);
+                    }
+                }
+            }
         }
 
         static void ProcessMirrorAssemblyClasses(AssemblyDefinition CurrentAssembly, IAssemblyResolver resolver, Logger Log, Writers writers, Readers readers, ref bool WeavingFailed)
