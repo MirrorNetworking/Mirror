@@ -85,7 +85,7 @@ namespace Mirror.Examples.PhysicsPickupParty
             if (pickupObject)
             {
                 pickupObject.playerHolder = this.transform.root.gameObject;
-                //pickedUpNetworkObject.GetComponent<Collider>().enabled = false;
+                pickupObject.GetComponent<Collider>().enabled = false;
                 if (pickupObject.pickupRigidbody)
                 {
                     pickupObject.pickupRigidbody.useGravity = false;
@@ -105,7 +105,7 @@ namespace Mirror.Examples.PhysicsPickupParty
                     pickupObject.pickupRigidbody.useGravity = true;
                     pickupObject.pickupRigidbody.constraints = RigidbodyConstraints.None;
                 }
-                //pickedUpNetworkObject.GetComponent<Collider>().enabled = true;
+                pickupObject.GetComponent<Collider>().enabled = true;
                 armTrigger.enabled = true;
                 pickedUpNetworkObject = null;
                 if (pickupObject.networkTransform) { pickupObject.networkTransform.enabled = true; }
