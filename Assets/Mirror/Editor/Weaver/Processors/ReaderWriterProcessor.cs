@@ -26,9 +26,7 @@ namespace Mirror.Weaver
                 .Where(assembly => assembly != null && assembly != CurrentAssembly);
 
             foreach (AssemblyDefinition referencedAssembly in assemblyReferences)
-            {
                 ProcessAssemblyClasses(CurrentAssembly, referencedAssembly, writers, readers, ref WeavingFailed);
-            }
 
             return ProcessAssemblyClasses(CurrentAssembly, CurrentAssembly, writers, readers, ref WeavingFailed);
         }
@@ -46,17 +44,13 @@ namespace Mirror.Weaver
             {
                 // If the assembly has already been processed, we skip it
                 if (current.FullName == Weaver.MirrorAssemblyName || !processedAssemblies.Add(current.FullName))
-                {
                     return;
-                }
 
                 IEnumerable<AssemblyNameReference> references = current.MainModule.AssemblyReferences;
 
                 // If there is no Mirror reference, there will be no ReaderWriter or NetworkMessage, so skip
                 if (references.All(reference => reference.Name != Weaver.MirrorAssemblyName))
-                {
                     return;
-                }
 
                 // Add the assembly to the processed set and list
                 assemblies.Add(current);
@@ -66,9 +60,7 @@ namespace Mirror.Weaver
                 {
                     AssemblyDefinition referencedAssembly = resolver.Resolve(reference);
                     if (referencedAssembly != null)
-                    {
                         ProcessAssembly(referencedAssembly);
-                    }
                 }
             }
         }
