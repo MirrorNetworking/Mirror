@@ -17,7 +17,7 @@ namespace Mirror
     // that wouldn't be accurate. server's OnDeserialize can still validate
     // client data before applying. it's really about direction, not authority.
     public enum SyncDirection { ServerToClient, ClientToServer }
-    
+
     // SyncMethod to choose between:
     //   * Reliable: oldschool reliable sync every syncInterval. If nothing changes, nothing is sent.
     //   * Unreliable: quake style unreliable state sync & delta compression, for fast paced games.
@@ -31,7 +31,7 @@ namespace Mirror
     {
         [Tooltip("Choose between:\n- Traditional state sync (every syncInterval, if changed, over unreliable channel). This just works, and is recommended for most games.\n- Fast Paced (every tick, all the time, over unreliable channel, with restrictions). This is the Quake networking model, recommended for fast paced games like Shooters/Mobas/Physics Simulations/VR.\n\nPlease use 'Traditional' unless you understand the trade-offs.")]
         [HideInInspector] public SyncMethod syncMethod = SyncMethod.Traditional;
-        
+
         /// <summary>Sync direction for OnSerialize. ServerToClient by default. ClientToServer for client authority.</summary>
         [Tooltip("Server Authority calls OnSerialize on the server and syncs it to clients.\n\nClient Authority calls OnSerialize on the owning client, syncs it to server, which then broadcasts it to all other clients.\n\nUse server authority for cheat safety.")]
         [HideInInspector] public SyncDirection syncDirection = SyncDirection.ServerToClient;
@@ -156,6 +156,23 @@ namespace Mirror
         // the setter would call the hook and we deadlock.
         // hook guard prevents that.
         ulong syncVarHookGuard;
+
+        // dirty bits history for each broadcast timestamp.
+        // this is needed for unreliable delta compression against last acked state.
+        //
+        // there are two ways to do this:
+        // a) store history of <timestamp, dirtybits> and aggregate when needed.
+        //    -> this is O(connections) * O(historyCount) but only called on demand.
+        // b) store history of <timestamp, aggregated> and aggregate as soon as we insert.
+        //    -> this is O(historyCount) but aggregation happens every broadcast.
+        //
+        // we choose b) because it scales better.
+        // this is only valid if SyncMethod is FastPaced/Unreliable.
+        // SortedList (not SortedDictionary) allows for easy .Values[0] (first) access.
+        // <timestamp, (syncVarDirtyBits, syncObjectDirtyBits)>
+        // TODO there might a better data structure for dirty bit aggregation?
+        readonly SortedList<double, (ulong, ulong)> dirtyBitHistory =
+            new SortedList<double, (ulong, ulong)>();
 
         protected virtual void OnValidate()
         {
@@ -1106,7 +1123,7 @@ namespace Mirror
             {
                 return null;
             }
-            
+
             // ensure componentIndex is in range.
             // show explicit errors if something went wrong, instead of IndexOutOfRangeException.
             // removing components at runtime isn't allowed, yet this happened in a project so we need to check for it.
