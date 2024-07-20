@@ -1433,7 +1433,7 @@ namespace Mirror
                 // set the new last received time for unreliable
                 identity.lastUnreliableStateTime = connection.remoteTimeStamp;
 
-                // iniital is always 'true' because unreliable state sync alwasy serializes full
+                // initial is always 'true' because unreliable state sync alwasy serializes full
                 using (NetworkReaderPooled reader = NetworkReaderPool.Get(message.payload))
                     identity.DeserializeClient(reader, true);
             }
