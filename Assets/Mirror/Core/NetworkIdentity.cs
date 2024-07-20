@@ -997,12 +997,7 @@ namespace Mirror
                         // serialize into helper writer
                         using (NetworkWriterPooled temp = NetworkWriterPool.Get())
                         {
-                            // SyncMethod support:
-                            //   Traditional: Serialize(initial) once, then Serialize(delta) all the time.
-                            //   FastPaced:   Serialize(initial) all the time because we always need full state for unreliable messages
-                            // => reusing OnSerialize(initial=true) for FastPaced allows us to keep the API clean and simple.
-                            //    this way the end user never needs to worry about SyncMethod serialization.
-                            comp.Serialize(temp, initialState || method == SyncMethod.FastPaced);
+                            comp.Serialize(temp, initialState, method);
                             ArraySegment<byte> segment = temp.ToArraySegment();
 
                             // copy to owner / observers as needed
@@ -1072,14 +1067,7 @@ namespace Mirror
                     {
                         // serialize into writer.
                         // server always knows initialState, we never need to send it
-
-
-                        // SyncMethod support:
-                        //   Traditional: always Serialize(delta) on client since server knows initial state.
-                        //   FastPaced:   always Serialize(initial) on client since we need full state for unreliable sync.
-                        // => reusing OnSerialize(initial=true) for FastPaced allows us to keep the API clean and simple.
-                        //    this way the end user never needs to worry about SyncMethod serialization.
-                        comp.Serialize(writer, method == SyncMethod.FastPaced);
+                        comp.Serialize(writer, false, method);
 
                         // clear dirty bits for the components that we serialized.
                         // do not clear for _all_ components, only the ones that
