@@ -521,7 +521,6 @@ namespace Mirror
                 RegisterHandler<ObjectSpawnFinishedMessage>(_ => { });
                 // host mode doesn't need state updates
                 RegisterHandler<EntityStateMessage>(_ => { });
-                RegisterHandler<EntityStateMessageUnreliable>(_ => { });
                 RegisterHandler<EntityStateMessageAck>(_ => { }, false);
             }
             else
@@ -534,7 +533,6 @@ namespace Mirror
                 RegisterHandler<ObjectSpawnStartedMessage>(OnObjectSpawnStarted);
                 RegisterHandler<ObjectSpawnFinishedMessage>(OnObjectSpawnFinished);
                 RegisterHandler<EntityStateMessage>(OnEntityStateMessage);
-                RegisterHandler<EntityStateMessageUnreliable>(OnEntityStateMessageUnreliable);
                 RegisterHandler<EntityStateMessageAck>(OnAckMessage, false);
             }
 
@@ -542,6 +540,7 @@ namespace Mirror
             RegisterHandler<TimeSnapshotMessage>(OnTimeSnapshotMessage);
             RegisterHandler<ChangeOwnerMessage>(OnChangeOwner);
             RegisterHandler<RpcMessage>(OnRPCMessage);
+            RegisterHandler<EntityStateMessageUnreliable>(OnEntityStateMessageUnreliable);
         }
 
         /// <summary>Register a handler for a message type T. Most should require authentication.</summary>
