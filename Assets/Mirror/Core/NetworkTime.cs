@@ -30,7 +30,9 @@ namespace Mirror
 
         static ExponentialMovingAverage _rtt = new ExponentialMovingAverage(PingWindowSize);
 
-        /// <summary>Returns double precision clock time _in this system_, unaffected by the network.</summary>
+        /// <summary>Returns unscaled time (double precision) at the beginning of this frame.</summary>
+        // this needs to be 'time at beginning of frame' for it to be usable as tick number.
+        // this can't be continous time.
 #if UNITY_2020_3_OR_NEWER
         public static double localTime
         {
