@@ -261,12 +261,14 @@ namespace Mirror
                 int transportIndex = i;
                 Transport transport = transports[i];
 
+#pragma warning disable CS0618 // Type or member is obsolete
                 transport.OnServerConnected = (originalConnectionId =>
                 {
                     // invoke Multiplex event with multiplexed connectionId
                     int multiplexedId = AddToLookup(originalConnectionId, transportIndex);
                     OnServerConnected.Invoke(multiplexedId);
                 });
+#pragma warning restore CS0618 // Type or member is obsolete
 
                 transport.OnServerConnectedWithAddress = (originalConnectionId, address) =>
                 {
