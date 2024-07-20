@@ -421,18 +421,20 @@ namespace Mirror
                 // owned by the connection?
                 if (identity.connectionToClient == connection)
                 {
-                    // unreliable state sync messages may arrive out of order, or duplicated.
+                    // unreliable state sync messages may arrive out of order.
                     // only ever apply state that's newer than the last received state.
-                    if (connection.lastMessageTime <= identity.lastUnreliableStateTime)
+                    // note that we send one EntityStateMessage per Entity,
+                    // so there will be multiple with the same == timestamp.
+                    if (connection.remoteTimeStamp < identity.lastUnreliableStateTime)
                     {
                         // debug log to show that it's working.
                         // can be tested via LatencySimulation scramble easily.
-                        Debug.Log($"Server caught out of order Unreliable state message for {identity.name}. This is fine.\nIdentity timestamp={identity.lastUnreliableStateTime} message timestamp={connection.lastMessageTime}");
+                        Debug.Log($"Server caught out of order Unreliable state message for {identity.name}. This is fine.\nIdentity timestamp={identity.lastUnreliableStateTime} batch remoteTimestamp={connection.remoteTimeStamp}");
                         return;
                     }
 
                     // set the new last received time for unreliable
-                    identity.lastUnreliableStateTime = connection.lastMessageTime;
+                    identity.lastUnreliableStateTime = connection.remoteTimeStamp;
 
                     using (NetworkReaderPooled reader = NetworkReaderPool.Get(message.payload))
                     {
