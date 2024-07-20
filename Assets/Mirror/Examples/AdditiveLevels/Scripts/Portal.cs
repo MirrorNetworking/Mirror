@@ -45,7 +45,7 @@ namespace Mirror.Examples.AdditiveLevels
         {
             if (!(other is CapsuleCollider)) return; // ignore CharacterController colliders
 
-            Debug.Log($"Portal.OnTriggerEnter {other}");
+            //Debug.Log($"Portal.OnTriggerEnter {other}");
             // tag check in case you didn't set up the layers and matrix as noted above
             if (!other.CompareTag("Player")) return;
 
@@ -68,8 +68,8 @@ namespace Mirror.Examples.AdditiveLevels
                 // Tell client to unload previous subscene with custom handling (see NetworkManager::OnClientChangeScene).
                 conn.Send(new SceneMessage { sceneName = gameObject.scene.path, sceneOperation = SceneOperation.UnloadAdditive, customHandling = true });
 
-                // wait for fader to complete
-                yield return new WaitForSeconds(AdditiveLevelsNetworkManager.singleton.fadeInOut.GetDuration());
+                // wait for fader to complete.
+                yield return new WaitForSeconds(AdditiveLevelsNetworkManager.singleton.fadeInOut.GetFadeInTime());
 
                 // Remove player after fader has completed
                 NetworkServer.RemovePlayerForConnection(conn, RemovePlayerOptions.Unspawn);
