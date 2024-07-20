@@ -418,15 +418,6 @@ namespace Mirror
                 {
                     Debug.LogError($"Still had {unbatcher.BatchesCount} batches remaining after processing, even though processing was not interrupted by a scene change. This should never happen, as it would cause ever growing batches.\nPossible reasons:\n* A message didn't deserialize as much as it serialized\n*There was no message handler for a message id, so the reader wasn't read until the end.");
                 }
-
-                // FastPaced unreliable sync:
-                // always acknowledge the last received batch so the other end
-                // knows what to delta compress against.
-                if (channelId == Channels.Unreliable)
-                {
-                    // Debug.Log($"NetworkClient: acknowledging batch {connection.remoteTimeStamp}");
-                    connection.Send(new EntityStateMessageAck{batchTimestamp = connection.remoteTimeStamp}, Channels.Unreliable);
-                }
             }
             else Debug.LogError("Skipped Data message handling because connection is null.");
         }
@@ -1412,6 +1403,7 @@ namespace Mirror
             else Debug.LogWarning($"Did not find target for sync message for {message.netId}. Were all prefabs added to the NetworkManager's spawnable list?\nNote: this can be completely normal because UDP messages may arrive out of order, so this message might have arrived after a Destroy message.");
         }
 
+        static double lastAckedBatchTimestamp = 0;
         static void OnEntityStateMessageUnreliable(EntityStateMessageUnreliable message)
         {
             // Debug.Log($"NetworkClient.OnUpdateVarsMessage {msg.netId}");
@@ -1437,6 +1429,16 @@ namespace Mirror
                     identity.DeserializeClient(reader, true);
             }
             else Debug.LogWarning($"Did not find target for sync message for {message.netId}. Were all prefabs added to the NetworkManager's spawnable list?\nNote: this can be completely normal because UDP messages may arrive out of order, so this message might have arrived after a Destroy message.");
+
+            // unreliable delta compression: always ack entity state messages.
+            // (that's enough. acking every batch would be too much overhead
+            //  since not every batch contains entity state data.)
+            // one batch may contain multiple EntityStateMessage, but only ack once per batch
+            if (lastAckedBatchTimestamp != connection.remoteTimeStamp)
+            {
+                connection.Send(new EntityStateMessageAck{ batchTimestamp = connection.remoteTimeStamp });
+                lastAckedBatchTimestamp = connection.remoteTimeStamp;
+            }
         }
 
         static void OnRPCMessage(RpcMessage message)
