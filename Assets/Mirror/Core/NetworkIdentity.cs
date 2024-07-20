@@ -29,6 +29,12 @@ namespace Mirror
         public int tick;
         public NetworkWriter ownerWriter;
         public NetworkWriter observersWriter;
+
+        public void ResetWriters()
+        {
+            ownerWriter.Position = 0;
+            observersWriter.Position = 0;
+        }
     }
 
     /// <summary>NetworkIdentity identifies objects across the network.</summary>
@@ -844,9 +850,9 @@ namespace Mirror
             for (int i = 0; i < components.Length; ++i)
             {
                 NetworkBehaviour component = components[i];
+                ulong nthBit = (1u << i);
 
                 bool dirty = component.IsDirty();
-                ulong nthBit = (1u << i);
 
                 // owner needs to be considered for both SyncModes, because
                 // Observers mode always includes the Owner.
@@ -857,14 +863,17 @@ namespace Mirror
                 if (initialState || (component.syncDirection == SyncDirection.ServerToClient && dirty))
                     ownerMask |= nthBit;
 
-                // observers need to be considered only in Observers mode
-                //
-                // for initial, it should always sync to observers.
-                // for delta, only if dirty.
-                // SyncDirection is irrelevant, as both are broadcast to
-                // observers which aren't the owner.
-                if (component.syncMode == SyncMode.Observers && (initialState || dirty))
-                    observerMask |= nthBit;
+                // observers need to be considered only in Observers mode,
+                // otherwise they receive no sync data of this component ever.
+                if (component.syncMode == SyncMode.Observers)
+                {
+                    // for initial, it should always sync to observers.
+                    // for delta, only if dirty.
+                    // SyncDirection is irrelevant, as both are broadcast to
+                    // observers which aren't the owner.
+                    if (initialState || dirty)
+                        observerMask |= nthBit;
+                }
             }
 
             return (ownerMask, observerMask);
@@ -888,11 +897,13 @@ namespace Mirror
 
                 // on client, only consider owned components with SyncDirection to server
                 NetworkBehaviour component = components[i];
+                ulong nthBit = (1u << i);
+
                 if (isOwned && component.syncDirection == SyncDirection.ClientToServer)
                 {
                     // set the n-th bit if dirty
                     // shifting from small to large numbers is varint-efficient.
-                    if (component.IsDirty()) mask |= (1u << i);
+                    if (component.IsDirty()) mask |= nthBit;
                 }
             }
 
@@ -1126,8 +1137,7 @@ namespace Mirror
                )
             {
                 // reset
-                lastSerialization.ownerWriter.Position = 0;
-                lastSerialization.observersWriter.Position = 0;
+                lastSerialization.ResetWriters();
 
                 // serialize
                 SerializeServer(false,
