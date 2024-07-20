@@ -305,7 +305,7 @@ namespace Mirror
             RegisterHandler<EntityStateMessage>(OnEntityStateMessage, true);
             RegisterHandler<EntityStateMessageUnreliable>(OnEntityStateMessageUnreliable, true);
             RegisterHandler<TimeSnapshotMessage>(OnTimeSnapshotMessage, true);
-            RegisterHandler<AckMessage>(OnAckMessage, false);
+            RegisterHandler<EntityStateMessageAck>(OnAckMessage, false);
         }
 
         // remote calls ////////////////////////////////////////////////////////
@@ -495,7 +495,7 @@ namespace Mirror
         }
 
         // ack delta compression ///////////////////////////////////////////////
-        static void OnAckMessage(NetworkConnectionToClient connection, AckMessage message)
+        static void OnAckMessage(NetworkConnectionToClient connection, EntityStateMessageAck message)
         {
             // for the acknowledged batch's timestamp:
             // update last ack for all NetworkIdentities that were in the batch.
@@ -911,7 +911,7 @@ namespace Mirror
                 if (channelId == Channels.Unreliable)
                 {
                     // Debug.Log($"NetworkServer: acknowledging batch {connection.remoteTimeStamp}");
-                    connection.Send(new AckMessage{batchTimestamp = connection.remoteTimeStamp}, Channels.Unreliable);
+                    connection.Send(new EntityStateMessageAck{batchTimestamp = connection.remoteTimeStamp}, Channels.Unreliable);
                 }
             }
             else Debug.LogError($"HandleData Unknown connectionId:{connectionId}");

@@ -112,11 +112,11 @@ namespace Mirror
         public ArraySegment<byte> payload;
     }
 
-    // ack for FastPaced unreliable sync.
+    // ack for FastPaced unreliable state sync.
     // acknowleges that the recent batch with 'timestamp' was received.
     // per-NetworkIdentity acks would be too costly (4 bytes per NI).
     // per-Batch is a good trade-off since we don't have worldstate (yet).
-    public struct AckMessage : NetworkMessage
+    public struct EntityStateMessageAck : NetworkMessage
     {
         public double batchTimestamp;
     }

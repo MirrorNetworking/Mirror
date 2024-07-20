@@ -425,7 +425,7 @@ namespace Mirror
                 if (channelId == Channels.Unreliable)
                 {
                     // Debug.Log($"NetworkClient: acknowledging batch {connection.remoteTimeStamp}");
-                    connection.Send(new AckMessage{batchTimestamp = connection.remoteTimeStamp}, Channels.Unreliable);
+                    connection.Send(new EntityStateMessageAck{batchTimestamp = connection.remoteTimeStamp}, Channels.Unreliable);
                 }
             }
             else Debug.LogError("Skipped Data message handling because connection is null.");
@@ -522,7 +522,7 @@ namespace Mirror
                 // host mode doesn't need state updates
                 RegisterHandler<EntityStateMessage>(_ => { });
                 RegisterHandler<EntityStateMessageUnreliable>(_ => { });
-                RegisterHandler<AckMessage>(_ => { }, false);
+                RegisterHandler<EntityStateMessageAck>(_ => { }, false);
             }
             else
             {
@@ -535,7 +535,7 @@ namespace Mirror
                 RegisterHandler<ObjectSpawnFinishedMessage>(OnObjectSpawnFinished);
                 RegisterHandler<EntityStateMessage>(OnEntityStateMessage);
                 RegisterHandler<EntityStateMessageUnreliable>(OnEntityStateMessageUnreliable);
-                RegisterHandler<AckMessage>(OnAckMessage, false);
+                RegisterHandler<EntityStateMessageAck>(OnAckMessage, false);
             }
 
             // These handlers are the same for host and remote clients
@@ -1518,7 +1518,7 @@ namespace Mirror
         }
 
         // ack delta compression ///////////////////////////////////////////////
-        static void OnAckMessage(AckMessage message)
+        static void OnAckMessage(EntityStateMessageAck message)
         {
             // for the acknowledged batch's timestamp:
             // update last ack for all NetworkIdentities that were in the batch.
