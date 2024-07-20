@@ -300,7 +300,7 @@ namespace Mirror.SimpleWeb
             SslConfig config = SslConfigLoader.Load(sslEnabled, sslCertJson, sslProtocols);
             server = new SimpleWebServer(serverMaxMsgsPerTick, TcpConfig, maxMessageSize, maxHandshakeSize, config);
 
-            server.onConnect += OnServerConnected.Invoke;
+            server.onConnect += OnServerConnectedWithAddress.Invoke;
             server.onDisconnect += OnServerDisconnected.Invoke;
             server.onData += (int connId, ArraySegment<byte> data) => OnServerDataReceived.Invoke(connId, data, Channels.Reliable);
 
