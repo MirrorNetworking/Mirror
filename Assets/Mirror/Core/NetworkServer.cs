@@ -109,6 +109,13 @@ namespace Mirror
         static double actualTickRateStart;   // start time when counting
         static int actualTickRateCounter; // current counter since start
 
+        // unreliable delta compression:
+        // define how much of a state history we should track for acks.
+        // for example: 60 Hz * 3s = 180 entries.
+        // the history is per-connection, so we don't want to make this too large.
+        public static int tickHistorySeconds = 3;
+        public static int tickHistorySize => sendRate * tickHistorySeconds;
+
         // profiling
         // includes transport update time, because transport calls handlers etc.
         // averaged over 1s by passing 'tickRate' to constructor.
