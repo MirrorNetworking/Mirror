@@ -304,8 +304,8 @@ namespace Mirror
             RegisterHandler<NetworkPongMessage>(NetworkTime.OnServerPong, false);
             RegisterHandler<EntityStateMessage>(OnEntityStateMessage, true);
             RegisterHandler<EntityStateMessageUnreliable>(OnEntityStateMessageUnreliable, true);
-            RegisterHandler<TimeSnapshotMessage>(OnTimeSnapshotMessage, true);
             RegisterHandler<EntityStateMessageAck>(OnAckMessage, false);
+            RegisterHandler<TimeSnapshotMessage>(OnTimeSnapshotMessage, true);
         }
 
         // remote calls ////////////////////////////////////////////////////////
