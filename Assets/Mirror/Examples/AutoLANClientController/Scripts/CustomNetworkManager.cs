@@ -44,7 +44,14 @@ namespace Mirror.Examples.AutoLANClientController
         {
             base.Start();
             if (canvasHUD == null)
-            { canvasHUD = GameObject.FindObjectOfType<CanvasHUD>(); }
+            {
+#if UNITY_2022_2_OR_NEWER
+                canvasHUD = GameObject.FindAnyObjectByType<CanvasHUD>();
+#else
+                // Deprecated in Unity 2023.1
+                canvasHUD = GameObject.FindObjectOfType<CanvasHUD>();
+#endif
+            }
         }
 
         /// <summary>
@@ -64,7 +71,7 @@ namespace Mirror.Examples.AutoLANClientController
             //UnityEngine.Debug.Log("OnDestroy");
         }
 
-        #endregion
+#endregion
 
         #region Start & Stop
 

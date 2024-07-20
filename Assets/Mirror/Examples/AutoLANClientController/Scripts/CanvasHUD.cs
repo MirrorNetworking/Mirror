@@ -39,7 +39,14 @@ namespace Mirror.Examples.AutoLANClientController
             inputFieldAddress.onValueChanged.AddListener(delegate { OnValueChangedAddress(); });
 
             if (networkDiscovery == null)
-            { networkDiscovery = GameObject.FindObjectOfType<AutoLANNetworkDiscovery>(); }
+            {
+#if UNITY_2022_2_OR_NEWER
+                networkDiscovery = GameObject.FindAnyObjectByType<AutoLANNetworkDiscovery>();
+#else
+                // Deprecated in Unity 2023.1
+                networkDiscovery = GameObject.FindObjectOfType<AutoLANNetworkDiscovery>(); 
+#endif
+            }
 
             // skips waiting for users to press ui button
             if (alwaysAutoStart)
@@ -194,5 +201,4 @@ namespace Mirror.Examples.AutoLANClientController
             NetworkManager.singleton.networkAddress = inputFieldAddress.text;
         }
     }
-
 }
