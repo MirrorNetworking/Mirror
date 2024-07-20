@@ -260,7 +260,7 @@ namespace Mirror.Tests.Transports
             transport.ServerStart();
             transport.ClientConnect("some.server.com");
 
-            transport.OnServerConnectedWithAddress = (_,_) => {};
+            transport.OnServerConnectedWithAddress = (connectionId, remoteClientAddress) => {};
             transport.OnServerDisconnected = _ => {};
 
             // connect two connectionIds.
