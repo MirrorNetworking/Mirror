@@ -497,7 +497,10 @@ namespace Mirror
         // ack delta compression ///////////////////////////////////////////////
         static void OnAckMessage(NetworkConnectionToClient connection, AckMessage message)
         {
-            Debug.Log($"NetworkServer received acknowledgement: {message.batchTimestamp} for connId={connection.connectionId}");
+            // for the acknowledged batch's timestamp:
+            // update last ack for all NetworkIdentities that were in the batch.
+            // Debug.Log($"NetworkServer received acknowledgement: {message.batchTimestamp} for connId={connection.connectionId}");
+            AckDeltaCompression.UpdateIdentityAcks(message.batchTimestamp, connection.identityTicks, connection.identityAcks);
         }
 
         // connections /////////////////////////////////////////////////////////

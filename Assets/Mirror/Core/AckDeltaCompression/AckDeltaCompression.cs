@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 
 namespace Mirror
 {
@@ -70,6 +71,31 @@ namespace Mirror
 
             // add the netid to the hashset
             netIds.Add(netId);
+        }
+
+        // when receiving an ack from a connection, update latest ack for
+        // all networkidentities that were in the acked batch.
+        internal static void UpdateIdentityAcks(
+            double timestamp,
+            SortedList<double, HashSet<uint>> identityTicks,
+            Dictionary<uint, double> identityAcks)
+        {
+            // find the identities that were in the acked batch
+            if (!identityTicks.TryGetValue(timestamp, out HashSet<uint> identities))
+            {
+                // for now, at least log a message so we know this happened.
+                Debug.Log($"UpdateLatestAck: batch @ {timestamp} was not in history anymore. This can happen if the other end was too far behind.");
+                return;
+            }
+
+            // update latest acks for all identities that were in the batch
+            foreach (uint netId in identities)
+            {
+                // unreliable messages may arrive out of order.
+                // only update if newer.
+                if (!identityAcks.TryGetValue(netId, out double ackTimestamp) || timestamp > ackTimestamp)
+                    identityAcks[netId] = timestamp;
+            }
         }
     }
 }

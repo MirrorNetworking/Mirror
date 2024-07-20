@@ -90,5 +90,48 @@ namespace Mirror.Tests.AckDeltaCompressionTests
             Assert.That(identityTicks[4.0].Contains(1337));
             Assert.That(identityTicks[4.0].Contains(101));
         }
+
+        [Test]
+        public void UpdateIdentityAcks()
+        {
+            // prepare a few batches that were sent, with NetworkIdentities included
+            SortedList<double, HashSet<uint>> identityTicks = new SortedList<double, HashSet<uint>>();
+            int MaxCount = 3;
+
+            // insert t = 1 with a few netids
+            AckDeltaCompression.TrackIdentityAtTick(1.0, 42, identityTicks, MaxCount);
+            AckDeltaCompression.TrackIdentityAtTick(1.0, 1337, identityTicks, MaxCount);
+
+            // insert t = 2 with a the same netIds and one new
+            AckDeltaCompression.TrackIdentityAtTick(2.0, 42, identityTicks, MaxCount);
+            AckDeltaCompression.TrackIdentityAtTick(2.0, 1337, identityTicks, MaxCount);
+            AckDeltaCompression.TrackIdentityAtTick(2.0, 101, identityTicks, MaxCount);
+
+            // insert t = 3 without one of the previous netIds
+            AckDeltaCompression.TrackIdentityAtTick(3.0, 1337, identityTicks, MaxCount);
+            AckDeltaCompression.TrackIdentityAtTick(3.0, 101, identityTicks, MaxCount);
+
+            // remote acks t = 1: 42, 1337
+            Dictionary<uint, double> identityAcks = new Dictionary<uint, double>();
+            AckDeltaCompression.UpdateIdentityAcks(1.0, identityTicks, identityAcks);
+            Assert.That(identityAcks.Count, Is.EqualTo(2));
+            Assert.That(identityAcks[42], Is.EqualTo(1.0));
+            Assert.That(identityAcks[1337], Is.EqualTo(1.0));
+
+            // remote acks t = 3 before t = 2: 1337, 101
+            AckDeltaCompression.UpdateIdentityAcks(3.0, identityTicks, identityAcks);
+            Assert.That(identityAcks.Count, Is.EqualTo(3));
+            Assert.That(identityAcks[42], Is.EqualTo(1.0));   // still from the first ack
+            Assert.That(identityAcks[1337], Is.EqualTo(3.0)); // acked
+            Assert.That(identityAcks[101], Is.EqualTo(3.0));  // acked
+
+            // remote acks t = 2: 42, 1337, 101.
+            // only 42 is should be updated since 1337 and 101 are already newer
+            AckDeltaCompression.UpdateIdentityAcks(2.0, identityTicks, identityAcks);
+            Assert.That(identityAcks.Count, Is.EqualTo(3));
+            Assert.That(identityAcks[42], Is.EqualTo(2.0));   // updated
+            Assert.That(identityAcks[1337], Is.EqualTo(3.0)); // already newer
+            Assert.That(identityAcks[101], Is.EqualTo(3.0));  // already newer
+        }
     }
 }

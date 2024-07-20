@@ -70,7 +70,7 @@ namespace Mirror
         // currently we sync one entity at a time in batches, so we also need to store acks for one at a time.
         // <netId, timestamp>
         // TODO remove old when unspawned
-        readonly Dictionary<uint, double> identityAcks = new Dictionary<uint, double>();
+        internal readonly Dictionary<uint, double> identityAcks = new Dictionary<uint, double>();
 
         //
 
