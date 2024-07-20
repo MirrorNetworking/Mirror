@@ -208,7 +208,9 @@ namespace Mirror.Transports.Encryption
             {
                 _credentials = EncryptionCredentials.Generate();
             }
+#pragma warning disable CS0618 // Type or member is obsolete
             inner.OnServerConnected = HandleInnerServerConnected;
+#pragma warning restore CS0618 // Type or member is obsolete
             inner.OnServerConnectedWithAddress = HandleInnerServerConnected;
             inner.OnServerDataReceived = HandleInnerServerDataReceived;
             inner.OnServerDataSent = (connId, bytes, channel) => OnServerDataSent?.Invoke(connId, bytes, channel);
