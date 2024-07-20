@@ -11,7 +11,7 @@ namespace Telepathy
     {
         // events to hook into
         // => OnData uses ArraySegment for allocation free receives later
-        public Action<int> OnConnected;
+        public Action<int, string> OnConnected;
         public Action<int, ArraySegment<byte>> OnData;
         public Action<int> OnDisconnected;
 
@@ -388,7 +388,7 @@ namespace Telepathy
                     switch (eventType)
                     {
                         case EventType.Connected:
-                            OnConnected?.Invoke(connectionId);
+                            OnConnected?.Invoke(connectionId, GetClientAddress(connectionId));
                             break;
                         case EventType.Data:
                             OnData?.Invoke(connectionId, message);
