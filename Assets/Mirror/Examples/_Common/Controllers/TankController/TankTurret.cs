@@ -49,7 +49,7 @@ namespace Mirror.Examples.Common.Controllers.Tank
         Material cachedMaterial;
 
         [Header("Prefabs")]
-        public GameObject TurretUIPrefab;
+        public GameObject turretUIPrefab;
         public GameObject projectilePrefab;
 
         [Header("Components")]
@@ -244,10 +244,10 @@ namespace Mirror.Examples.Common.Controllers.Tank
             // This avoids conflicts with user-created prefabs that may have the same name
             // and avoids polluting the user's project with Resources.
             // This is not recommended for production code...use Resources.Load or AssetBundles instead.
-            if (TurretUIPrefab == null)
+            if (turretUIPrefab == null)
             {
                 string path = UnityEditor.AssetDatabase.GUIDToAssetPath("4d16730f7a8ba0a419530d1156d25080");
-                TurretUIPrefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(path);
+                turretUIPrefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(path);
             }
 
             if (projectilePrefab == null)
@@ -441,8 +441,8 @@ namespace Mirror.Examples.Common.Controllers.Tank
 
         public override void OnStartLocalPlayer()
         {
-            if (TurretUIPrefab != null)
-                turretUI = Instantiate(TurretUIPrefab);
+            if (turretUIPrefab != null)
+                turretUI = Instantiate(turretUIPrefab);
 
             if (turretUI != null)
             {
