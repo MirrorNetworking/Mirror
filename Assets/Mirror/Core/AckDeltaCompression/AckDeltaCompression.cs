@@ -42,5 +42,32 @@ namespace Mirror
             // insert the most recent dirty bits
             history[timestamp] = (syncVarDirtyBits, syncObjectDirtyBits);
         }
+
+        // NetworkConnection keeping track of NetworkIdentity acks /////////////
+        internal static void TrackIdentityAtTick(
+            double timestamp,
+            uint netId,
+            SortedList<double, HashSet<uint>> identityTicks,
+            int historyCount)
+        {
+            // insert timestamp if not exists
+            if (!identityTicks.ContainsKey(timestamp))
+            {
+                // limit max count.
+                // we are going to insert one, so remove if >=.
+                // TODO reuse the HashSets instead of removing & reallocating.
+                if (identityTicks.Count >= historyCount)
+                    identityTicks.RemoveAt(0);
+
+                // allocate a new HashSet for netids
+                identityTicks[timestamp] = new HashSet<uint>();
+            }
+
+            // get the hashset for this tick
+            HashSet<uint> netIds = identityTicks[timestamp];
+
+            // add the netid to the hashset
+            netIds.Add(netId);
+        }
     }
 }

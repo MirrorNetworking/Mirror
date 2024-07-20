@@ -43,5 +43,52 @@ namespace Mirror.Tests.AckDeltaCompressionTests
             Assert.That(history[3.0], Is.EqualTo(((ulong)0b1100, (ulong)0b0110))); // [3] | inserted
             Assert.That(history[4.0], Is.EqualTo(((ulong)0b1000, (ulong)0b0010))); // inserted
         }
+
+        [Test]
+        public void TrackIdentityAtTick()
+        {
+            SortedList<double, HashSet<uint>> identityTicks = new SortedList<double, HashSet<uint>>();
+            int MaxCount = 3;
+
+            // insert t = 1 with a few netIds
+            AckDeltaCompression.TrackIdentityAtTick(1.0, 42, identityTicks, MaxCount);
+            AckDeltaCompression.TrackIdentityAtTick(1.0, 1337, identityTicks, MaxCount);
+            Assert.That(identityTicks.Count, Is.EqualTo(1)); // t=1
+            Assert.That(identityTicks[1.0].Count, Is.EqualTo(2)); // 42, 1337
+            Assert.That(identityTicks[1.0].Contains(42));
+            Assert.That(identityTicks[1.0].Contains(1337));
+
+            // insert t = 2 with a the same netIds and one new
+            AckDeltaCompression.TrackIdentityAtTick(2.0, 42, identityTicks, MaxCount);
+            AckDeltaCompression.TrackIdentityAtTick(2.0, 1337, identityTicks, MaxCount);
+            AckDeltaCompression.TrackIdentityAtTick(2.0, 101, identityTicks, MaxCount);
+            Assert.That(identityTicks.Count, Is.EqualTo(2)); // t=1;2
+            Assert.That(identityTicks[1.0].Count, Is.EqualTo(2)); // 42, 1337
+            Assert.That(identityTicks[2.0].Count, Is.EqualTo(3)); // 42, 1337, 101
+            Assert.That(identityTicks[2.0].Contains(42));
+            Assert.That(identityTicks[2.0].Contains(1337));
+            Assert.That(identityTicks[2.0].Contains(101));
+
+            // insert t = 3 without one of the previous netIds
+            AckDeltaCompression.TrackIdentityAtTick(3.0, 1337, identityTicks, MaxCount);
+            AckDeltaCompression.TrackIdentityAtTick(3.0, 101, identityTicks, MaxCount);
+            Assert.That(identityTicks.Count, Is.EqualTo(3)); // t=1;2;3
+            Assert.That(identityTicks[1.0].Count, Is.EqualTo(2)); // 42, 1337
+            Assert.That(identityTicks[2.0].Count, Is.EqualTo(3)); // 42, 1337, 101
+            Assert.That(identityTicks[3.0].Count, Is.EqualTo(2)); // 1337, 101
+            Assert.That(identityTicks[3.0].Contains(1337));
+            Assert.That(identityTicks[3.0].Contains(101));
+
+            // insert t = 4 with the same netIds.
+            // this should remove the entries at t=1.
+            AckDeltaCompression.TrackIdentityAtTick(4.0, 1337, identityTicks, MaxCount);
+            AckDeltaCompression.TrackIdentityAtTick(4.0, 101, identityTicks, MaxCount);
+            Assert.That(identityTicks.Count, Is.EqualTo(3)); // t=2;3;4
+            Assert.That(identityTicks[2.0].Count, Is.EqualTo(3)); // 42, 1337, 101
+            Assert.That(identityTicks[3.0].Count, Is.EqualTo(2)); // 1337, 101
+            Assert.That(identityTicks[4.0].Count, Is.EqualTo(2)); // 1337, 101
+            Assert.That(identityTicks[4.0].Contains(1337));
+            Assert.That(identityTicks[4.0].Contains(101));
+        }
     }
 }
