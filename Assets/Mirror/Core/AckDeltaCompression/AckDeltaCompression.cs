@@ -44,6 +44,8 @@ namespace Mirror
         }
 
         // NetworkConnection keeping track of NetworkIdentity acks /////////////
+        // when sending a batch, tracks the connection's identities that were in
+        // that batch @ timestamp.
         internal static void TrackIdentityAtTick(
             double timestamp,
             uint netId,
