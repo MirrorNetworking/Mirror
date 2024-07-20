@@ -5,18 +5,10 @@ namespace Mirror.Tests.AckDeltaCompressionTests
 {
     public class AckDeltaCompressionTests
     {
-        // exapmle history for convenience
-        SortedList<double, (ulong, ulong)> history;
-
-        [SetUp]
-        public void SetUp()
-        {
-            history = new SortedList<double, (ulong, ulong)>();
-        }
-
         [Test]
         public void InsertAndAggregate()
         {
+            SortedList<double, (ulong, ulong)> history = new SortedList<double, (ulong, ulong)>();
             int MaxCount = 3;
 
             // insert t = 1 with two dirty bits set.
