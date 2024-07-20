@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Diagnostics;
 using NUnit.Framework;
 
 namespace Mirror.Tests.AckDeltaCompressionTests
@@ -132,6 +133,30 @@ namespace Mirror.Tests.AckDeltaCompressionTests
             Assert.That(identityAcks[42], Is.EqualTo(2.0));   // updated
             Assert.That(identityAcks[1337], Is.EqualTo(3.0)); // already newer
             Assert.That(identityAcks[101], Is.EqualTo(3.0));  // already newer
+        }
+
+        [Test]
+        public void ORperf()
+        {
+            // we are going to need to OR quite a lot of dirty history.
+            // let's see if this is fast enough at all.
+            // 100.000 entities need 49 ms.
+            //  10.000 entities need  5 ms. hm that's quite a lot.
+            Stopwatch watch = Stopwatch.StartNew();
+            for (int identity = 0; identity < 100_000; ++identity)
+            {
+                for (int comp = 0; comp < 5; ++comp)
+                {
+                    ulong mask = 0;
+                    for (int history = 0; history < 60 * 3; ++history)
+                    {
+                        mask |= (ulong)1 << history;
+                    }
+                }
+            }
+            watch.Stop();
+            UnityEngine.Debug.Log("ORperf: " + watch.ElapsedMilliseconds + "ms");
+
         }
     }
 }
