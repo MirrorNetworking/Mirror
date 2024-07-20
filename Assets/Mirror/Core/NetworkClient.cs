@@ -1408,7 +1408,7 @@ namespace Mirror
                 {
                     // debug log to show that it's working.
                     // can be tested via LatencySimulation scramble easily.
-                    Debug.Log($"Client caught out of order Unreliable state message for {identity.name}. This is fine.\nIdentity timestamp={identity.lastUnreliableStateTime} batch remoteTimestamp={connection.remoteTimeStamp}");
+                    Debug.Log($"Client caught out of order Unreliable state message for {identity.name}. This is fine.\nIdentity timestamp={identity.lastUnreliableStateTime:F3} batch remoteTimestamp={connection.remoteTimeStamp:F3}");
                     return;
                 }
 
