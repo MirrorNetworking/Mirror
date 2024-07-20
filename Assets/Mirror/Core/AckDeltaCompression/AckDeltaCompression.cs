@@ -83,8 +83,36 @@ namespace Mirror
             // find the identities that were in the acked batch
             if (!identityTicks.TryGetValue(timestamp, out HashSet<uint> identities))
             {
-                // for now, at least log a message so we know this happened.
-                Debug.Log($"UpdateLatestAck: batch @ {timestamp} was not in history anymore. This can happen if the other end was too far behind.");
+                // if the timestamp was not in history, there could be multiple reasons.
+                // find out why exactly it happens and produce a useful(!) log message.
+
+                // empty history:
+                if (identityTicks.Count == 0)
+                {
+                    Debug.Log($"UpdateLatestAck: batch @ {timestamp:F3} was not in empty history. This can happen for batches during login / auth.");
+                }
+                // non emtpty
+                else
+                {
+                    double oldest = identityTicks.Keys[0];
+                    double newest = identityTicks.Keys[identityTicks.Count - 1];
+
+                    // older than oldest?
+                    if (timestamp < oldest)
+                    {
+                        Debug.Log($"UpdateLatestAck: batch @ {timestamp:F3} was older than history of size {identityTicks.Count} from {oldest:F3}..{newest:F3}.");
+                    }
+                    // newer than newest?
+                    else if (timestamp > newest)
+                    {
+                        Debug.Log($"UpdateLatestAck: batch @ {timestamp:F3} was newer than history of size {identityTicks.Count} from {oldest:F3}..{newest:F3}.");
+                    }
+                    // inbetween but couldn't sample?
+                    else
+                    {
+                        Debug.Log($"UpdateLatestAck: batch @ {timestamp:F3} was inbetween history of size {identityTicks.Count} from {oldest:F3}..{newest:F3} but couldn't sample.");
+                    }
+                }
                 return;
             }
 
