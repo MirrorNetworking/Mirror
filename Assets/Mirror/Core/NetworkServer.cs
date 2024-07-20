@@ -305,6 +305,7 @@ namespace Mirror
             RegisterHandler<EntityStateMessage>(OnEntityStateMessage, true);
             RegisterHandler<EntityStateMessageUnreliable>(OnEntityStateMessageUnreliable, true);
             RegisterHandler<TimeSnapshotMessage>(OnTimeSnapshotMessage, true);
+            RegisterHandler<AckMessage>(OnAckMessage, false);
         }
 
         // remote calls ////////////////////////////////////////////////////////
@@ -491,6 +492,12 @@ namespace Mirror
             // fixes Time.timeScale getting server & client time out of sync:
             // https://github.com/MirrorNetworking/Mirror/issues/3409
             connection.OnTimeSnapshot(new TimeSnapshot(connection.remoteTimeStamp, NetworkTime.localTime));
+        }
+
+        // ack delta compression ///////////////////////////////////////////////
+        static void OnAckMessage(NetworkConnectionToClient connection, AckMessage message)
+        {
+            Debug.Log($"NetworkServer received acknowledgement: {message.batchTimestamp} for connId={connection.connectionId}");
         }
 
         // connections /////////////////////////////////////////////////////////
