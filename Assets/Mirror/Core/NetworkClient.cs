@@ -115,6 +115,13 @@ namespace Mirror
 
         internal static Unbatcher unbatcher = new Unbatcher();
 
+        // unreliable delta compression:
+        // define how much of a state history we should track for acks.
+        // for example: 60 Hz * 3s = 180 entries.
+        // the history is per-connection, so we don't want to make this too large.
+        public static int tickHistorySeconds = 3;
+        public static int tickHistorySize => sendRate * tickHistorySeconds;
+
         // interest management component (optional)
         // only needed for SetHostVisibility
         public static InterestManagementBase aoi;
@@ -515,6 +522,7 @@ namespace Mirror
                 // host mode doesn't need state updates
                 RegisterHandler<EntityStateMessage>(_ => { });
                 RegisterHandler<EntityStateMessageUnreliable>(_ => { });
+                RegisterHandler<AckMessage>(_ => { }, false);
             }
             else
             {
@@ -527,6 +535,7 @@ namespace Mirror
                 RegisterHandler<ObjectSpawnFinishedMessage>(OnObjectSpawnFinished);
                 RegisterHandler<EntityStateMessage>(OnEntityStateMessage);
                 RegisterHandler<EntityStateMessageUnreliable>(OnEntityStateMessageUnreliable);
+                RegisterHandler<AckMessage>(OnAckMessage, false);
             }
 
             // These handlers are the same for host and remote clients
@@ -1508,6 +1517,16 @@ namespace Mirror
             }
         }
 
+        // ack delta compression ///////////////////////////////////////////////
+        static void OnAckMessage(AckMessage message)
+        {
+            // for the acknowledged batch's timestamp:
+            // update last ack for all NetworkIdentities that were in the batch.
+            // Debug.Log($"NetworkServer received acknowledgement: {message.batchTimestamp} for connId={connection.connectionId}");
+            AckDeltaCompression.UpdateIdentityAcks(message.batchTimestamp, connection.identityTicks, connection.identityAcks);
+        }
+
+        // spawning ////////////////////////////////////////////////////////////
         // set up NetworkIdentity flags on the client.
         // needs to be separate from invoking callbacks.
         // cleaner, and some places need to set flags first.
@@ -1611,6 +1630,10 @@ namespace Mirror
                                 payload = writer.ToArraySegment()
                             };
                             Send(message, Channels.Unreliable);
+
+                            // keep track of which entities we sent to the connection on this tick.
+                            // so when the connection sends back an ack, we know which entities were acked.
+                            AckDeltaCompression.TrackIdentityAtTick(NetworkTime.localTime, identity.netId, connection.identityTicks, tickHistorySize);
                         }
                     }
                 }
