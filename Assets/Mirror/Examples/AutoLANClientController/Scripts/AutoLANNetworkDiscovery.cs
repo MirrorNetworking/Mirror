@@ -89,7 +89,14 @@ namespace Mirror.Examples.AutoLANClientController
 
             //OnServerFound.Invoke(response);
             if (canvasHUD == null)
-            { canvasHUD = GameObject.FindObjectOfType<CanvasHUD>(); }
+            {
+#if UNITY_2022_2_OR_NEWER
+                canvasHUD = GameObject.FindAnyObjectByType<CanvasHUD>();
+#else
+                // Deprecated in Unity 2023.1
+                canvasHUD = GameObject.FindObjectOfType<CanvasHUD>();
+#endif
+            }
             canvasHUD.OnDiscoveredServer(response);
         }
 
