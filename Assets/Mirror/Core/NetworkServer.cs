@@ -1986,6 +1986,10 @@ namespace Mirror
                             payload = serialization.ToArraySegment()
                         };
                         connection.Send(message, Channels.Unreliable);
+
+                        // keep track of which entities we sent to the connection on this tick.
+                        // so when the connection sends back an ack, we know which entities were acked.
+                        AckDeltaCompression.TrackIdentityAtTick(NetworkTime.localTime, identity.netId, connection.identityTicks, tickHistorySize);
                     }
                 }
                 // spawned list should have no null entries because we

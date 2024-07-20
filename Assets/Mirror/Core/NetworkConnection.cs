@@ -61,6 +61,19 @@ namespace Mirror
         //       different connections.
         public double remoteTimeStamp { get; internal set; }
 
+        // unreliable delta compression: we need to keep track of which identities were in which sent batch @ timestamp.
+        // so when the ack comes back, we know which identities were acked.
+        // this is necessary since we sync per-identity not per-worldstate.
+        internal readonly SortedList<double, HashSet<uint>> identityTicks = new SortedList<double, HashSet<uint>>();
+
+        // unreliable delta compression: we need to know the last acked state for each connection.
+        // currently we sync one entity at a time in batches, so we also need to store acks for one at a time.
+        // <netId, timestamp>
+        // TODO remove old when unspawned
+        readonly Dictionary<uint, double> identityAcks = new Dictionary<uint, double>();
+
+        //
+
         internal NetworkConnection()
         {
             // set lastTime to current time when creating connection to make
