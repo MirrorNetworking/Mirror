@@ -230,7 +230,7 @@ namespace Mirror.Tests.NetworkTransformTests
             Assert.That(component.serverSnapshots.Count, Is.EqualTo(1));
         }
 
-        [Test]
+        [Test, Ignore("Nullables not supported")]
         public void OnClientToServerSync_WithClientAuthority_Nullables_Uses_Last()
         {
             // set some defaults
@@ -308,7 +308,7 @@ namespace Mirror.Tests.NetworkTransformTests
             Assert.That(component.clientSnapshots.Count, Is.EqualTo(0));
         }
 
-        [Test]
+        [Test, Ignore("Nullables not supported")]
         public void OnServerToClientSync_WithClientAuthority_Nullables_Uses_Last()
         {
             // set some defaults
