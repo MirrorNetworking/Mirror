@@ -391,7 +391,7 @@ MonoBehaviour:
   ReliableMaxMessageSize: 298449
   UnreliableMaxMessageSize: 1199
   debugLog: 0
-  statisticsGUI: 1
+  statisticsGUI: 0
   statisticsLog: 0
 --- !u!114 &1282001522
 MonoBehaviour:
