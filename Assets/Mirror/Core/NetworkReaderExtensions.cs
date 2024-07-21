@@ -33,17 +33,34 @@ namespace Mirror
         public static ushort ReadUShort(this NetworkReader reader) => reader.ReadBlittable<ushort>();
         public static ushort? ReadUShortNullable(this NetworkReader reader) => reader.ReadBlittableNullable<ushort>();
 
-        public static int ReadInt(this NetworkReader reader) => reader.ReadBlittable<int>();
-        public static int? ReadIntNullable(this NetworkReader reader) => reader.ReadBlittableNullable<int>();
+        // integer bandwidth optimization: write all ints as varint!
+        // reduces bandwidth for almost all integers.
+        // increaes bandwidth for very few large integers like hashes.
+        // => very much worth it for Mirror (see Benchmarks)
+        // => very much worth it for users (they won't have to compress manually)
+        public static int ReadInt(this NetworkReader reader) => (int)Compression.DecompressVarInt(reader);
+        public static int? ReadIntNullable(this NetworkReader reader)
+        {
+            return reader.ReadBool() ? (int)Compression.DecompressVarInt(reader) : default;
+        }
 
-        public static uint ReadUInt(this NetworkReader reader) => reader.ReadBlittable<uint>();
-        public static uint? ReadUIntNullable(this NetworkReader reader) => reader.ReadBlittableNullable<uint>();
+        public static uint ReadUInt(this NetworkReader reader) => (uint)Compression.DecompressVarUInt(reader);
+        public static uint? ReadUIntNullable(this NetworkReader reader)
+        {
+            return reader.ReadBool() ? (uint)Compression.DecompressVarUInt(reader) : default;
+        }
 
-        public static long ReadLong(this NetworkReader reader) => reader.ReadBlittable<long>();
-        public static long? ReadLongNullable(this NetworkReader reader) => reader.ReadBlittableNullable<long>();
+        public static long ReadLong(this NetworkReader reader) => Compression.DecompressVarInt(reader);
+        public static long? ReadLongNullable(this NetworkReader reader)
+        {
+            return reader.ReadBool() ? Compression.DecompressVarInt(reader) : default;
+        }
 
-        public static ulong ReadULong(this NetworkReader reader) => reader.ReadBlittable<ulong>();
-        public static ulong? ReadULongNullable(this NetworkReader reader) => reader.ReadBlittableNullable<ulong>();
+        public static ulong ReadULong(this NetworkReader reader) => Compression.DecompressVarUInt(reader);
+        public static ulong? ReadULongNullable(this NetworkReader reader)
+        {
+            return reader.ReadBool() ? Compression.DecompressVarUInt(reader) : default;
+        }
 
         public static float ReadFloat(this NetworkReader reader) => reader.ReadBlittable<float>();
         public static float? ReadFloatNullable(this NetworkReader reader) => reader.ReadBlittableNullable<float>();

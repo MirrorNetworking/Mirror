@@ -318,7 +318,6 @@ namespace Mirror
         {
             // straight forward implementation:
             // keep this for understanding & debugging.
-            /*
             if (value <= 240)
             {
                 writer.WriteByte((byte)value);
@@ -400,11 +399,12 @@ namespace Mirror
                 writer.WriteByte((byte)((value >> 48) & 0xFF));
                 writer.WriteByte((byte)((value >> 56) & 0xFF));
             }
-            */
 
+            // DISABLED: WriteInt() always calls WriteVarInt, so we can't recurse to WriteInt here
             // faster implementation writes multiple bytes at once.
             // avoids extra Space, WriteBlittable overhead.
             // VarInt is in hot path, performance matters here.
+            /*
             if (value <= 240)
             {
                 byte a = (byte)value;
@@ -474,7 +474,7 @@ namespace Mirror
             {
                 writer.WriteByte(255);
                 writer.WriteULong(value);
-            }
+            }*/
         }
 
         // zigzag encoding https://gist.github.com/mfuerstenau/ba870a29e16536fdbaba

@@ -28,17 +28,38 @@ namespace Mirror
         public static void WriteUShort(this NetworkWriter writer, ushort value) => writer.WriteBlittable(value);
         public static void WriteUShortNullable(this NetworkWriter writer, ushort? value) => writer.WriteBlittableNullable(value);
 
-        public static void WriteInt(this NetworkWriter writer, int value) => writer.WriteBlittable(value);
-        public static void WriteIntNullable(this NetworkWriter writer, int? value) => writer.WriteBlittableNullable(value);
+        // integer bandwidth optimization: write all ints as varint!
+        // reduces bandwidth for almost all integers.
+        // increaes bandwidth for very few large integers like hashes.
+        // => very much worth it for Mirror (see Benchmarks)
+        // => very much worth it for users (they won't have to compress manually)
+        public static void WriteInt(this NetworkWriter writer, int value) => Compression.CompressVarInt(writer, value);
+        public static void WriteIntNullable(this NetworkWriter writer, int? value)
+        {
+            writer.WriteBool(value.HasValue);
+            if (value.HasValue) WriteInt(writer, value.Value);
+        }
 
-        public static void WriteUInt(this NetworkWriter writer, uint value) => writer.WriteBlittable(value);
-        public static void WriteUIntNullable(this NetworkWriter writer, uint? value) => writer.WriteBlittableNullable(value);
+        public static void WriteUInt(this NetworkWriter writer, uint value) => Compression.CompressVarUInt(writer, value);
+        public static void WriteUIntNullable(this NetworkWriter writer, uint? value)
+        {
+            writer.WriteBool(value.HasValue);
+            if (value.HasValue) WriteUInt(writer, value.Value);
+        }
 
-        public static void WriteLong(this NetworkWriter writer, long value)  => writer.WriteBlittable(value);
-        public static void WriteLongNullable(this NetworkWriter writer, long? value) => writer.WriteBlittableNullable(value);
+        public static void WriteLong(this NetworkWriter writer, long value) => Compression.CompressVarInt(writer, value);
+        public static void WriteLongNullable(this NetworkWriter writer, long? value)
+        {
+            writer.WriteBool(value.HasValue);
+            if (value.HasValue) WriteLong(writer, value.Value);
+        }
 
-        public static void WriteULong(this NetworkWriter writer, ulong value) => writer.WriteBlittable(value);
-        public static void WriteULongNullable(this NetworkWriter writer, ulong? value) => writer.WriteBlittableNullable(value);
+        public static void WriteULong(this NetworkWriter writer, ulong value) => Compression.CompressVarUInt(writer, value);
+        public static void WriteULongNullable(this NetworkWriter writer, ulong? value)
+        {
+            writer.WriteBool(value.HasValue);
+            if (value.HasValue) WriteULong(writer, value.Value);
+        }
 
         public static void WriteFloat(this NetworkWriter writer, float value) => writer.WriteBlittable(value);
         public static void WriteFloatNullable(this NetworkWriter writer, float? value) => writer.WriteBlittableNullable(value);
