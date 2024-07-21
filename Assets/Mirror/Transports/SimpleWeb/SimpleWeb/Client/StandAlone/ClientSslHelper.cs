@@ -11,7 +11,7 @@ namespace Mirror.SimpleWeb
         internal bool TryCreateStream(Connection conn, Uri uri)
         {
             NetworkStream stream = conn.client.GetStream();
-            if (uri.Scheme != "wss")
+            if (uri.Scheme != "wss" && uri.Scheme != "https")
             {
                 conn.stream = stream;
                 return true;
