@@ -8,10 +8,12 @@ public class JointForce : MonoBehaviour
 
     private Vector3 lastPosition;
 
+#if !UNITY_SERVER
     void Start()
     {
         lastPosition = characterController.transform.position;
     }
+
 
     void FixedUpdate()
     {
@@ -20,4 +22,5 @@ public class JointForce : MonoBehaviour
         jointRigidbody.AddForce(force);
         lastPosition = characterController.transform.position;
     }
+#endif
 }
