@@ -51,10 +51,9 @@ namespace Mirror
 
         public static void WriteString(this NetworkWriter writer, string value)
         {
-            // write 0 for null support, increment real size by 1
-            // (note: original HLAPI would write "" for null strings, but if a
-            //        string is null on the server then it should also be null
-            //        on the client)
+            // we offset count by '1' to easily support null without writing another byte.
+            // encoding null as '0' instead of '-1' also allows for better compression
+            // (ushort vs. short / varuint vs. varint) etc.
             if (value == null)
             {
                 writer.WriteUShort(0);
@@ -94,9 +93,10 @@ namespace Mirror
         // (like an inventory with different items etc.)
         public static void WriteBytesAndSize(this NetworkWriter writer, byte[] buffer, int offset, int count)
         {
-            // null is supported because [SyncVar]s might be structs with null byte[] arrays
-            // write 0 for null array, increment normal size by 1 to save bandwidth
-            // (using size=-1 for null would limit max size to 32kb instead of 64kb)
+            // null is supported because [SyncVar]s might be structs with null byte[] arrays.
+            // we offset count by '1' to easily support null without writing another byte.
+            // encoding null as '0' instead of '-1' also allows for better compression
+            // (ushort vs. short / varuint vs. varint) etc.
             if (buffer == null)
             {
                 writer.WriteUInt(0u);
