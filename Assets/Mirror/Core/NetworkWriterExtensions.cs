@@ -40,6 +40,15 @@ namespace Mirror
         public static void WriteULong(this NetworkWriter writer, ulong value) => writer.WriteBlittable(value);
         public static void WriteULongNullable(this NetworkWriter writer, ulong? value) => writer.WriteBlittableNullable(value);
 
+        // WriteInt/UInt/Long/ULong writes full bytes by default.
+        // define additional "_Compressed" versions that Weaver will automatically prefer.
+        // using VarInt compression for all users types gives significant bandwidth reductions.
+        // 99% of the time [SyncVar] ints are small values, which makes this worth it.
+        public static void WriteInt_Compressed(this NetworkWriter writer, int value) => Compression.CompressVarInt(writer, value);
+        public static void WriteUInt_Compressed(this NetworkWriter writer, uint value) => Compression.CompressVarUInt(writer, value);
+        public static void WriteLong_Compressed(this NetworkWriter writer, long value) => Compression.CompressVarInt(writer, value);
+        public static void WriteULong_Compressed(this NetworkWriter writer, ulong value) => Compression.CompressVarUInt(writer, value);
+
         public static void WriteFloat(this NetworkWriter writer, float value) => writer.WriteBlittable(value);
         public static void WriteFloatNullable(this NetworkWriter writer, float? value) => writer.WriteBlittableNullable(value);
 
