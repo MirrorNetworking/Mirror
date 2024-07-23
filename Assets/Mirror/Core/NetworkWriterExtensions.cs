@@ -99,10 +99,14 @@ namespace Mirror
             // (ushort vs. short / varuint vs. varint) etc.
             if (buffer == null)
             {
-                writer.WriteUInt(0u);
+                // most sizes are small, write size as VarUInt!
+                Compression.CompressVarUInt(writer, 0u);
+                // writer.WriteUInt(0u);
                 return;
             }
-            writer.WriteUInt(checked((uint)count) + 1u);
+            // most sizes are small, write size as VarUInt!
+            Compression.CompressVarUInt(writer, checked((uint)count) + 1u);
+            // writer.WriteUInt(checked((uint)count) + 1u);
             writer.WriteBytes(buffer, offset, count);
         }
 
@@ -124,7 +128,9 @@ namespace Mirror
             // - ReadArray
             // in which case ReadArray needs null support. both need to be compatible.
             int count = segment.Count;
-            writer.WriteUInt(checked((uint)count) + 1u);
+            // most sizes are small, write size as VarUInt!
+            Compression.CompressVarUInt(writer, checked((uint)count) + 1u);
+            // writer.WriteUInt(checked((uint)count) + 1u);
             for (int i = 0; i < count; i++)
             {
                 writer.Write(segment.Array[segment.Offset + i]);
@@ -328,7 +334,9 @@ namespace Mirror
             // (ushort vs. short / varuint vs. varint) etc.
             if (list is null)
             {
-                writer.WriteUInt(0);
+                // most sizes are small, write size as VarUInt!
+                Compression.CompressVarUInt(writer, 0u);
+                // writer.WriteUInt(0);
                 return;
             }
 
@@ -336,7 +344,9 @@ namespace Mirror
             if (list.Count > NetworkReader.AllocationLimit)
                 throw new IndexOutOfRangeException($"NetworkWriter.WriteList - List<{typeof(T)}> too big: {list.Count} elements. Limit: {NetworkReader.AllocationLimit}");
 
-            writer.WriteUInt(checked((uint)list.Count) + 1u);
+            // most sizes are small, write size as VarUInt!
+            Compression.CompressVarUInt(writer, checked((uint)list.Count) + 1u);
+            // writer.WriteUInt(checked((uint)list.Count) + 1u);
             for (int i = 0; i < list.Count; i++)
                 writer.Write(list[i]);
         }
@@ -346,22 +356,27 @@ namespace Mirror
         // fully serialize for NetworkMessages etc.
         // note that Weaver/Writers/GenerateWriter() handles this manually.
         // TODO writer not found. need to adjust weaver first. see tests.
-        /*
-        public static void WriteHashSet<T>(this NetworkWriter writer, HashSet<T> hashSet)
-        {
-            // we offset count by '1' to easily support null without writing another byte.
-            // encoding null as '0' instead of '-1' also allows for better compression
-            // (ushort vs. short / varuint vs. varint) etc.
-            if (hashSet is null)
-            {
-                writer.WriteUInt(0);
-                return;
-            }
-            writer.WriteUInt(checked((uint)hashSet.Count) + 1u);
-            foreach (T item in hashSet)
-                writer.Write(item);
-        }
-        */
+        // /*
+        // public static void WriteHashSet<T>(this NetworkWriter writer, HashSet<T> hashSet)
+        // {
+        //     // we offset count by '1' to easily support null without writing another byte.
+        //     // encoding null as '0' instead of '-1' also allows for better compression
+        //     // (ushort vs. short / varuint vs. varint) etc.
+        //     if (hashSet is null)
+        //     {
+        //         // most sizes are small, write size as VarUInt!
+        //         Compression.CompressVarUInt(writer, 0u);
+        //         //writer.WriteUInt(0);
+        //         return;
+        //     }
+        //
+        //     // most sizes are small, write size as VarUInt!
+        //     Compression.CompressVarUInt(writer, checked((uint)hashSet.Count) + 1u);
+        //     //writer.WriteUInt(checked((uint)hashSet.Count) + 1u);
+        //     foreach (T item in hashSet)
+        //         writer.Write(item);
+        // }
+        // */
 
         public static void WriteArray<T>(this NetworkWriter writer, T[] array)
         {
@@ -370,7 +385,9 @@ namespace Mirror
             // (ushort vs. short / varuint vs. varint) etc.
             if (array is null)
             {
-                writer.WriteUInt(0);
+                // most sizes are small, write size as VarUInt!
+                Compression.CompressVarUInt(writer, 0u);
+                // writer.WriteUInt(0);
                 return;
             }
 
@@ -378,7 +395,9 @@ namespace Mirror
             if (array.Length > NetworkReader.AllocationLimit)
                 throw new IndexOutOfRangeException($"NetworkWriter.WriteArray - Array<{typeof(T)}> too big: {array.Length} elements. Limit: {NetworkReader.AllocationLimit}");
 
-            writer.WriteUInt(checked((uint)array.Length) + 1u);
+            // most sizes are small, write size as VarUInt!
+            Compression.CompressVarUInt(writer, checked((uint)array.Length) + 1u);
+            // writer.WriteUInt(checked((uint)array.Length) + 1u);
             for (int i = 0; i < array.Length; i++)
                 writer.Write(array[i]);
         }

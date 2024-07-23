@@ -17,12 +17,13 @@ namespace Mirror.Tests.NetworkServers
     {
         // weaver serializes byte[] wit WriteBytesAndSize
         public byte[] payload;
-        // so payload := size - 4
+        // so payload := size - header
+        //   where header is VarUInt compression(size)
         // then the message is exactly maxed size.
         //
         // NOTE: we have a LargerMaxMessageSize test which guarantees that
         //       variablesized + 1 is exactly transport.max + 1
-        public VariableSizedMessage(int size) => payload = new byte[size - 4];
+        public VariableSizedMessage(int size) => payload = new byte[size - Compression.VarUIntSize((uint)size)];
     }
 
     public class CommandTestNetworkBehaviour : NetworkBehaviour
