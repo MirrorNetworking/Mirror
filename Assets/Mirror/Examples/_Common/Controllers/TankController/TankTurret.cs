@@ -210,7 +210,7 @@ namespace Mirror.Examples.Common.Controllers.Tank
             // Ensure SyncDirection is Client to Server
             turretNTR.syncDirection = SyncDirection.ClientToServer;
             turretNTR.syncPosition = false;
-            turretNTR.compressRotation = false;
+            turretNTR.compressRotation = true;
 
             // Set SyncPosition to false because we only want to sync rotation
             //turretNTR.syncPosition = false;
@@ -230,7 +230,7 @@ namespace Mirror.Examples.Common.Controllers.Tank
             // Ensure SyncDirection is Client to Server
             barrelNTR.syncDirection = SyncDirection.ClientToServer;
             barrelNTR.syncPosition = false;
-            barrelNTR.compressRotation = false;
+            barrelNTR.compressRotation = true;
 
             // Set SyncPosition to false because we only want to sync rotation
             //barrelNTR.syncPosition = false;

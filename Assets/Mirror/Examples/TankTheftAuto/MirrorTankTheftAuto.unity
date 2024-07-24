@@ -648,6 +648,10 @@ PrefabInstance:
       propertyPath: sceneId
       value: 2401096628
       objectReference: {fileID: 0}
+    - target: {fileID: 160176459, guid: d502982feecd043d8bfc6a5c64cd09f9, type: 3}
+      propertyPath: serverOnly
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 275309355690048611, guid: d502982feecd043d8bfc6a5c64cd09f9, type: 3}
       propertyPath: m_IsActive
       value: 0
@@ -1031,6 +1035,10 @@ PrefabInstance:
     - target: {fileID: 160176459, guid: d502982feecd043d8bfc6a5c64cd09f9, type: 3}
       propertyPath: sceneId
       value: 2890115873
+      objectReference: {fileID: 0}
+    - target: {fileID: 160176459, guid: d502982feecd043d8bfc6a5c64cd09f9, type: 3}
+      propertyPath: serverOnly
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

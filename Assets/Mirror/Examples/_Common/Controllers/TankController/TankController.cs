@@ -149,7 +149,7 @@ namespace Mirror.Examples.Common.Controllers.Tank
             GetComponent<Rigidbody>().isKinematic = true;
 
             tankNTR = GetComponent<NetworkTransformReliable>();
-            tankNTR.compressRotation = false;
+            tankNTR.compressRotation = true;
 
 #if UNITY_EDITOR
             // For convenience in the examples, we use the GUID of the TankControllerUI prefab
