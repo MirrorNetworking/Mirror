@@ -38,10 +38,9 @@ namespace Mirror.Weaver
             //   WriteInt()     // alwasy writes 4 bytes: should be available to the user for binary protocols etc.
             //   WriteVarInt()  // varint compression: we may want Weaver to always use this for minimal bandwidth
             // give the user a way to define the weaver prefered one if two exists:
-            //   "_Weaver" suffix is automatically detected and prefered.
-            //   need to check for .Contains not .EndsWith because function names look like this:
-            //   "NetworkWriterExtensions::WriteInt_Weaver(Mirror.NetworkWriter,System.Int32)"
-            bool priority = methodReference.FullName.Contains(Weaver.PrioritySuffix);
+            //   "[WeaverPriority]" attribute is automatically detected and prefered.
+            MethodDefinition methodDefinition = methodReference.Resolve();
+            bool priority = methodDefinition.HasCustomAttribute<WeaverPriorityAttribute>();
             // if (priority) Log.Warning($"Weaver: Registering priority Write<{dataType.FullName}> with {methodReference.FullName}.", methodReference);
 
             // Weaver sometimes calls Register for <T> multiple times because we resolve assemblies multiple times.
