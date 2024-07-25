@@ -55,7 +55,7 @@ namespace kcp2k
             byte[] rawSendBuffer,
             byte[] kcpMessageBuffer,
             byte[] kcpSendBuffer)
-            : base(config, cookie, rawSendBuffer, kcpMessageBuffer, rawSendBuffer)
+            : base(config, cookie, rawSendBuffer, kcpMessageBuffer, kcpSendBuffer)
         {
             OnConnectedCallback = OnConnected;
             OnDataCallback = OnData;
