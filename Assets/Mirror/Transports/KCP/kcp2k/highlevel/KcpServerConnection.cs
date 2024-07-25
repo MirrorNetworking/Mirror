@@ -43,6 +43,29 @@ namespace kcp2k
             this.remoteEndPoint = remoteEndPoint;
         }
 
+        public KcpServerConnection(
+            Action<KcpServerConnection> OnConnected,
+            Action<ArraySegment<byte>, KcpChannel> OnData,
+            Action OnDisconnected,
+            Action<ErrorCode, string> OnError,
+            Action<ArraySegment<byte>> OnRawSend,
+            KcpConfig config,
+            uint cookie,
+            EndPoint remoteEndPoint,
+            byte[] rawSendBuffer,
+            byte[] kcpMessageBuffer,
+            byte[] kcpSendBuffer)
+            : base(config, cookie, rawSendBuffer, kcpMessageBuffer, rawSendBuffer)
+        {
+            OnConnectedCallback = OnConnected;
+            OnDataCallback = OnData;
+            OnDisconnectedCallback = OnDisconnected;
+            OnErrorCallback = OnError;
+            RawSendCallback = OnRawSend;
+
+            this.remoteEndPoint = remoteEndPoint;
+        }
+
         // callbacks ///////////////////////////////////////////////////////////
         protected override void OnAuthenticated()
         {

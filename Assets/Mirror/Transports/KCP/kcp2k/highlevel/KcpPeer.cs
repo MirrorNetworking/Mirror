@@ -168,6 +168,34 @@ namespace kcp2k
             kcpSendBuffer    = new byte[1 + reliableMax];
         }
 
+        // SetupKcp creates and configures a new KCP instance.
+        // => useful to start from a fresh state every time the client connects
+        // => NoDelay, interval, wnd size are the most important configurations.
+        //    let's force require the parameters so we don't forget it anywhere.
+        protected KcpPeer(KcpConfig config, uint cookie, byte[] rawSendBuffer, byte[] kcpMessageBuffer, byte[] kcpSendBuffer)
+        {
+            // initialize variable state in extra function so we can reuse it
+            // when reconnecting to reset state
+            Reset(config);
+
+            // set the cookie after resetting state so it's not overwritten again.
+            // with log message for debugging in case of cookie issues.
+            this.cookie = cookie;
+            Log.Info($"[KCP] {GetType()}: created with cookie={cookie}");
+
+            // create mtu sized send buffer
+            this.rawSendBuffer = rawSendBuffer;
+
+            // calculate max message sizes once
+            unreliableMax = UnreliableMaxMessageSize(config.Mtu);
+            reliableMax = ReliableMaxMessageSize(config.Mtu, config.ReceiveWindowSize);
+
+            // create message buffers AFTER window size is set
+            // see comments on buffer definition for the "+1" part
+            this.kcpMessageBuffer = kcpMessageBuffer;
+            this.kcpSendBuffer    = kcpSendBuffer;
+        }
+
         // Reset all state once.
         // useful for KcpClient to reconned with a fresh kcp state.
         protected void Reset(KcpConfig config)
