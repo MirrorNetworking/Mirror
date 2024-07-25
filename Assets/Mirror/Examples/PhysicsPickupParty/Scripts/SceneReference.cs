@@ -13,6 +13,7 @@ namespace Mirror.Examples.PhysicsPickupParty
         public PlayerPickupParty playerPickupParty;
         public TeamManager teamManager;
         public ZonesManager zonesManager;
+        public PickupManager pickupManager;
         public Text gameStartTimer, roundEndTimer;
         public Button skipGameStartTimerButton;
         public GameObject panelControls, panelInfo, panelGameStartTimer, panelRoundEndTimer, panelEndGame;
@@ -21,6 +22,8 @@ namespace Mirror.Examples.PhysicsPickupParty
 
         public Text[] scoresTeam;
         public Image[] scoresTeamImageColour;
+
+        public AudioSource winSound, loseSound, spawnPickupSound, UIButtonSound, scoreSound, startGameSound, BGSoundWaiting, BGSoundGameplay;
         
 
         private void Start()
@@ -48,6 +51,7 @@ namespace Mirror.Examples.PhysicsPickupParty
             {
                 teamManager.gameStartTime = 0;
             }
+            PlayUIButtonSound();
         }
 
         public void UpdateScoresUI(int _index, int _teamID, int _score)
@@ -63,12 +67,19 @@ namespace Mirror.Examples.PhysicsPickupParty
             {
                 panelEndGame.SetActive(true);
                 winObj.SetActive(true);
+                winSound.Play();
             }
             else
             {
                 panelEndGame.SetActive(true);
                 loseObj.SetActive(true);
+                loseSound.Play();
             }
+        }
+
+        public void PlayUIButtonSound()
+        {
+            UIButtonSound.Play();
         }
     }
 }

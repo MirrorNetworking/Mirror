@@ -29,6 +29,9 @@ namespace Mirror.Examples.PhysicsPickupParty
         public Renderer[] playerRenderers;
         public Material materialTeamColour;
 
+        public AudioSource[] jumpSounds;
+        public AudioSource pickupSound, dropSound, Arm1Sound, Arm2Sound;
+
         [SyncVar(hook = nameof(OnTeamChanged))]
         public int teamID = -1; // use -1 so 0 triggers hook
 
@@ -100,10 +103,14 @@ namespace Mirror.Examples.PhysicsPickupParty
                 if (slotActive == 0)
                 {
                     slotActive = 1;
+                    PlayAudio(3);
+                    CmdPlayAudio(3);
                 }
                 else
                 {
                     slotActive = 0;
+                    PlayAudio(4);
+                    CmdPlayAudio(4);
                 }
             }
 
@@ -145,6 +152,8 @@ namespace Mirror.Examples.PhysicsPickupParty
                 if (Input.GetKeyDown(KeyCode.Space))
                 {
                     verticalSpeed = jumpSpeed;
+                    PlayAudio(5);
+                    CmdPlayAudio(5);
                 }
             }
             else
@@ -212,10 +221,14 @@ namespace Mirror.Examples.PhysicsPickupParty
             {
                 playerArmSlots[slotActive].CmdPickup(playerArmSlots[slotActive].pickupObject.GetComponent<NetworkIdentity>());
                 canPickup = false;
+                PlayAudio(1);
+                CmdPlayAudio(1);
             }
             else if (playerArmSlots[slotActive].pickedUpNetworkObject != null)
             {
                 playerArmSlots[slotActive].CmdDrop();
+                PlayAudio(2);
+                CmdPlayAudio(2);
             }
         }
 #endif
@@ -227,6 +240,42 @@ namespace Mirror.Examples.PhysicsPickupParty
                 // reset camera, useful for testing without stopping editor, or using offline scenes.
                 cameraFollow.transform.position = new Vector3(0, 50, 0);
                 cameraFollow.transform.localEulerAngles = new Vector3(90, 0, 0);
+            }
+        }
+
+        [Command]
+        public void CmdPlayAudio(int _value)
+        {
+            RpcPlayAudio(_value);
+        }
+
+        [ClientRpc(includeOwner = false)]
+        public void RpcPlayAudio(int _value)
+        {
+            PlayAudio(_value);
+        }
+
+        public void PlayAudio(int _value)
+        {
+            if (_value == 1)
+            {
+                pickupSound.Play();
+            }
+            else if (_value == 2)
+            {
+                dropSound.Play();
+            }
+            else if (_value == 3)
+            {
+                Arm1Sound.Play();
+            }
+            else if (_value == 4)
+            {
+                Arm2Sound.Play();
+            }
+            else if (_value == 5)
+            {
+                jumpSounds[Random.Range(0,jumpSounds.Length)].Play();
             }
         }
     }

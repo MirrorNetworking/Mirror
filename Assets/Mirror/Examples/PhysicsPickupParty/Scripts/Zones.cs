@@ -6,6 +6,8 @@ namespace Mirror.Examples.PhysicsPickupParty
 {
     public class Zones : MonoBehaviour
     {
+        // this needs to only run on server?
+
         private PickupObject pickupObject;
         public TextMesh textMesh;
         public byte zonesID = 0;

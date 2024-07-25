@@ -39,6 +39,11 @@ namespace Mirror.Examples.PhysicsPickupParty
             Array.Copy(scoresSyncVars, temp, scoresSyncVars.Length);
             temp[_zonesID] += _score;
             scoresSyncVars = temp;
+
+            if (sceneReference.playerPickupParty.teamID == _zonesID)
+            {
+                RpcPlayAudio();
+            }
         }
 
         public void CalculateZoneWinnersList()
@@ -62,6 +67,17 @@ namespace Mirror.Examples.PhysicsPickupParty
             sceneReference.UpdateScoresUI(1,zoneResultsListTuple[1].Item2, zoneResultsListTuple[1].Item1);
             sceneReference.UpdateScoresUI(2,zoneResultsListTuple[2].Item2, zoneResultsListTuple[2].Item1);
             sceneReference.UpdateScoresUI(3,zoneResultsListTuple[3].Item2, zoneResultsListTuple[3].Item1);
+        }
+
+        [ClientRpc]
+        public void RpcPlayAudio()
+        {
+            PlayAudio();
+        }
+
+        public void PlayAudio()
+        {
+            sceneReference.scoreSound.Play();
         }
     }
 }

@@ -65,6 +65,7 @@ namespace Mirror.Examples.PhysicsPickupParty
             {
                 gameStatus = 1;
                 StartCoroutine(RoundEndTimerCountdown());
+                StartCoroutine(sceneReference.pickupManager.StartPickupInterval());
             }
         }
 
@@ -78,6 +79,10 @@ namespace Mirror.Examples.PhysicsPickupParty
             {
                 sceneReference.gameStartTimer.text = "Go!";
                 sceneReference.playerPickupParty.cameraFollow.enabled = true;
+                sceneReference.startGameSound.Play();
+
+                sceneReference.BGSoundGameplay.Play();
+                sceneReference.BGSoundWaiting.Stop();
             }
         }
 
@@ -115,6 +120,14 @@ namespace Mirror.Examples.PhysicsPickupParty
         public void OnRoundEndTimerChanged(int _old, int _new)
         {
             sceneReference.roundEndTimer.text = roundEndTime + "s";
+            if (roundEndTime <= 0)
+            {
+                sceneReference.startGameSound.Play();
+
+                sceneReference.BGSoundGameplay.Stop();
+                sceneReference.BGSoundWaiting.volume = 0.3f;
+                sceneReference.BGSoundWaiting.Play();
+            }
         }
 
         private IEnumerator RoundEndTimerCountdown()
@@ -128,6 +141,7 @@ namespace Mirror.Examples.PhysicsPickupParty
             {
                 gameStatus = 2;
                 StartCoroutine(RestartRoundCountdown());
+                sceneReference.pickupManager.currentSpawns = sceneReference.pickupManager.maxSpawns;
             }
         }
 
