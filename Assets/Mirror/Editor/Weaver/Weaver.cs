@@ -19,9 +19,6 @@ namespace Mirror.Weaver
         // Mirror.dll name
         public const string MirrorAssemblyName = "Mirror";
 
-        // if two writers of same type are defined, prefer the one with this suffix
-        public const string PrioritySuffix = "_Compressed";
-
         WeaverTypes weaverTypes;
         SyncVarAccessLists syncVarAccessLists;
         AssemblyDefinition CurrentAssembly;
