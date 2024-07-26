@@ -76,6 +76,9 @@ namespace Mirror
         [Tooltip("Scene that Mirror will switch to when the server is started. Clients will recieve a Scene Message to load the server's current scene when they connect.")]
         public string onlineScene = "";
 
+        [Tooltip("Optional delay that can be used after disconnecting to show a 'Connection lost...' message or similar before loading the offline scene, which may take a long time in big projects.")]
+        public float offlineSceneLoadDelaySeconds = 0;
+
         // transport layer
         [Header("Network Info")]
         [Tooltip("Transport component attached to this object that server and client will use to connect")]
@@ -1333,11 +1336,15 @@ namespace Mirror
             // Check if NetworkServer.active because we can get here via Disconnect before server has started to change scenes.
             if (!string.IsNullOrWhiteSpace(offlineScene) && !Utils.IsSceneActive(offlineScene) && loadingSceneAsync == null && !NetworkServer.active)
             {
-                ClientChangeScene(offlineScene, SceneOperation.Normal);
+                Invoke(nameof(ClientChangeOfflineScene), offlineSceneLoadDelaySeconds);
             }
 
             networkSceneName = "";
         }
+
+        // wrap ClientChangeScene call without parameters for use in Invoke.
+        void ClientChangeOfflineScene() =>
+            ClientChangeScene(offlineScene, SceneOperation.Normal);
 
         void OnClientNotReadyMessageInternal(NotReadyMessage msg)
         {
