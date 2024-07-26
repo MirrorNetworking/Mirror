@@ -57,17 +57,24 @@ namespace Mirror.Examples.PhysicsPickupParty
 
         void OnPickupChangedHook(NetworkIdentity _old, NetworkIdentity _new)
         {
+            StartCoroutine(WaitForResult());
+        }
+
+        private IEnumerator WaitForResult()
+        {
+            // we use a delay, as network spawned objects may not be spawned in and ready, hooks get called very early
+            yield return new WaitForEndOfFrame();
+            //print("OnPickupChangedHook 1" + pickedUpNetworkObject);
             if (pickedUpNetworkObject)
             {
-                //Debug.Log("OnPickupChangedHook: " + pickedUpNetworkObject);
+                //print("OnPickupChangedHook 2" + pickedUpNetworkObject);
                 PickupResult();
             }
             else
             {
+                //print("OnPickupChangedHook 3");
                 DropResult();
             }
-
-
         }
 
         private void Update()
@@ -80,12 +87,15 @@ namespace Mirror.Examples.PhysicsPickupParty
 
         public void PickupResult()
         {
+            print("PickupResult 1");
             // we cache rigidbody on pickup, not on trigger detection, so GetComponent will be called less frequently
             pickupObject = pickedUpNetworkObject.GetComponent<PickupObject>();
             if (pickupObject)
             {
+                print("PickupResult 2");
                 pickupObject.playerHolder = this.transform.root.gameObject;
-                pickupObject.GetComponent<Collider>().enabled = false;
+                //pickupObject.GetComponent<Collider>().enabled = false;
+                pickupObject.GetComponent<Collider>().isTrigger = true;
                 if (pickupObject.pickupRigidbody)
                 {
                     pickupObject.pickupRigidbody.useGravity = false;
@@ -105,7 +115,8 @@ namespace Mirror.Examples.PhysicsPickupParty
                     pickupObject.pickupRigidbody.useGravity = true;
                     pickupObject.pickupRigidbody.constraints = RigidbodyConstraints.None;
                 }
-                pickupObject.GetComponent<Collider>().enabled = true;
+                //pickupObject.GetComponent<Collider>().enabled = true;
+                pickupObject.GetComponent<Collider>().isTrigger = false;
                 armTrigger.enabled = true;
                 pickedUpNetworkObject = null;
                 if (pickupObject.networkTransform) { pickupObject.networkTransform.enabled = true; }

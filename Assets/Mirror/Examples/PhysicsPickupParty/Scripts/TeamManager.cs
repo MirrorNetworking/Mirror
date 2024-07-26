@@ -71,6 +71,7 @@ namespace Mirror.Examples.PhysicsPickupParty
 
         public void OnGameStartTimerChanged(int _old, int _new)
         {
+            //print("OnGameStartTimerChanged: " + _new);
             if (gameStartTime > 0)
             {
                 sceneReference.gameStartTimer.text = gameStartTime + "s";
@@ -78,7 +79,10 @@ namespace Mirror.Examples.PhysicsPickupParty
             else
             {
                 sceneReference.gameStartTimer.text = "Go!";
-                sceneReference.playerPickupParty.cameraFollow.enabled = true;
+                if (sceneReference.playerPickupParty)
+                {
+                    sceneReference.playerPickupParty.cameraFollow.enabled = true;
+                }
                 sceneReference.startGameSound.Play();
 
                 sceneReference.BGSoundGameplay.Play();

@@ -6,13 +6,20 @@ namespace Mirror.Examples.PhysicsPickupParty
 {
     public class Zones : MonoBehaviour
     {
-        // this needs to only run on server?
+        // this script, and the collider should only run on server
 
         private PickupObject pickupObject;
         public TextMesh textMesh;
         public byte zonesID = 0;
         public ZonesManager gameManager;
 
+        [ServerCallback]
+        private void Start()
+        {
+            GetComponent<Collider>().enabled = true;
+        }
+
+        [ServerCallback]
         void OnTriggerEnter(Collider other)
         {
             //print("OnTriggerEnter: " + other.gameObject.name);
@@ -25,6 +32,7 @@ namespace Mirror.Examples.PhysicsPickupParty
             }
         }
 
+        [ServerCallback]
         void OnTriggerExit(Collider other)
         {
             //print("OnTriggerExit: " + other.gameObject.name);

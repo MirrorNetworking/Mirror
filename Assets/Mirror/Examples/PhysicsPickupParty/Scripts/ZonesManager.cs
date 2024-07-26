@@ -19,6 +19,14 @@ namespace Mirror.Examples.PhysicsPickupParty
         private List<int> zoneResultsList = new List<int>();
         public List<Tuple<int, int>> zoneResultsListTuple = new List<Tuple<int, int>>();
 
+        public override void OnStartServer()
+        {
+            foreach (Zones zone in zonesArray)
+            {
+                zone.enabled = true;
+            }
+        }
+
         void OnScoresChanged(int[] _old, int[] _new)
         {
             //print("OnScoresChanged");

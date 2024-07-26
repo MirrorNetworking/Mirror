@@ -49,6 +49,13 @@ namespace Mirror.Examples.PhysicsPickupParty
             mainCamera = Camera.main;
             cameraFollow = mainCamera.GetComponent<CameraFollow>();
             cameraFollow.targetTransform = this.transform;
+
+            // a check for late joiners, hooks get called before references are set
+            // so we need this here
+            if (sceneReference.teamManager.gameStatus == 1)
+            {
+                cameraFollow.enabled = true;
+            }
         }
 #endif
 
