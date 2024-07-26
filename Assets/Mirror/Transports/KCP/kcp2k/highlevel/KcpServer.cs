@@ -18,7 +18,7 @@ namespace kcp2k
         // events are readonly, set in constructor.
         // this ensures they are always initialized when used.
         // fixes https://github.com/MirrorNetworking/Mirror/issues/3337 and more
-        protected readonly Action<int> OnConnected;
+        protected readonly Action<int, IPEndPoint> OnConnected; // connectionId, address
         protected readonly Action<int, ArraySegment<byte>, KcpChannel> OnData;
         protected readonly Action<int> OnDisconnected;
         protected readonly Action<int, ErrorCode, string> OnError;
@@ -43,7 +43,7 @@ namespace kcp2k
         public Dictionary<int, KcpServerConnection> connections =
             new Dictionary<int, KcpServerConnection>();
 
-        public KcpServer(Action<int> OnConnected,
+        public KcpServer(Action<int, IPEndPoint> OnConnected,
                          Action<int, ArraySegment<byte>, KcpChannel> OnData,
                          Action<int> OnDisconnected,
                          Action<int, ErrorCode, string> OnError,
@@ -285,7 +285,8 @@ namespace kcp2k
 
                 // finally, call mirror OnConnected event
                 Log.Info($"[KCP] Server: OnConnected({connectionId})");
-                OnConnected(connectionId);
+                IPEndPoint endPoint = conn.remoteEndPoint as IPEndPoint;
+                OnConnected(connectionId, endPoint);
             }
 
             void OnDisconnectedCallback()

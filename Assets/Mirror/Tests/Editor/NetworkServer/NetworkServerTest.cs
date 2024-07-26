@@ -67,11 +67,13 @@ namespace Mirror.Tests.NetworkServers
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
 
             // connect first: should work
-            transport.OnServerConnected.Invoke(42);
+            transport.OnServerConnectedWithAddress.Invoke(42, "");
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(1));
 
             // connect second: should fail
-            transport.OnServerConnected.Invoke(43);
+            LogAssert.ignoreFailingMessages = true;
+            transport.OnServerConnectedWithAddress.Invoke(43, "");
+            LogAssert.ignoreFailingMessages = false;
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(1));
         }
 
@@ -84,7 +86,7 @@ namespace Mirror.Tests.NetworkServers
 
             // listen & connect
             NetworkServer.Listen(1);
-            transport.OnServerConnected.Invoke(42);
+            transport.OnServerConnectedWithAddress.Invoke(42, "");
             Assert.That(connectCalled, Is.True);
         }
 
@@ -97,7 +99,7 @@ namespace Mirror.Tests.NetworkServers
 
             // listen & connect
             NetworkServer.Listen(1);
-            transport.OnServerConnected.Invoke(42);
+            transport.OnServerConnectedWithAddress.Invoke(42, "");
 
             // disconnect
             transport.OnServerDisconnected.Invoke(42);
@@ -112,12 +114,12 @@ namespace Mirror.Tests.NetworkServers
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
 
             // connect first
-            transport.OnServerConnected.Invoke(42);
+            transport.OnServerConnectedWithAddress.Invoke(42, "");
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(1));
             Assert.That(NetworkServer.connections.ContainsKey(42), Is.True);
 
             // connect second
-            transport.OnServerConnected.Invoke(43);
+            transport.OnServerConnectedWithAddress.Invoke(43, "");
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(2));
             Assert.That(NetworkServer.connections.ContainsKey(43), Is.True);
 
@@ -144,7 +146,7 @@ namespace Mirror.Tests.NetworkServers
             // connect with connectionId == 0 should fail
             // (it will show an error message, which is expected)
             LogAssert.ignoreFailingMessages = true;
-            transport.OnServerConnected.Invoke(0);
+            transport.OnServerConnectedWithAddress.Invoke(0, "");
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
             LogAssert.ignoreFailingMessages = false;
         }
@@ -156,12 +158,14 @@ namespace Mirror.Tests.NetworkServers
             NetworkServer.Listen(2);
 
             // connect first
-            transport.OnServerConnected.Invoke(42);
+            transport.OnServerConnectedWithAddress.Invoke(42, "");
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(1));
             NetworkConnectionToClient original = NetworkServer.connections[42];
 
             // connect duplicate - shouldn't overwrite first one
-            transport.OnServerConnected.Invoke(42);
+            LogAssert.ignoreFailingMessages = true;
+            transport.OnServerConnectedWithAddress.Invoke(42, "");
+            LogAssert.ignoreFailingMessages = false;
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(1));
             Assert.That(NetworkServer.connections[42], Is.EqualTo(original));
         }

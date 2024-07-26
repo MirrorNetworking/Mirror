@@ -42,7 +42,10 @@ namespace Mirror
         public override bool ServerActive() => inner.ServerActive();
         public override void ServerStart()
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             inner.OnServerConnected = OnServerConnected;
+#pragma warning restore CS0618 // Type or member is obsolete
+            inner.OnServerConnectedWithAddress = OnServerConnectedWithAddress;
             inner.OnServerDataReceived = OnServerDataReceived;
             inner.OnServerDisconnected = OnServerDisconnected;
             inner.OnServerError = OnServerError;

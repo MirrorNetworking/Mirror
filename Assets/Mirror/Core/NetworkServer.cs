@@ -191,7 +191,10 @@ namespace Mirror
         static void AddTransportHandlers()
         {
             // += so that other systems can also hook into it (i.e. statistics)
+#pragma warning disable CS0618 // Type or member is obsolete
             Transport.active.OnServerConnected += OnTransportConnected;
+#pragma warning restore CS0618 // Type or member is obsolete
+            Transport.active.OnServerConnectedWithAddress += OnTransportConnectedWithAddress;
             Transport.active.OnServerDataReceived += OnTransportData;
             Transport.active.OnServerDisconnected += OnTransportDisconnected;
             Transport.active.OnServerError += OnTransportError;
@@ -263,7 +266,10 @@ namespace Mirror
         static void RemoveTransportHandlers()
         {
             // -= so that other systems can also hook into it (i.e. statistics)
+#pragma warning disable CS0618 // Type or member is obsolete
             Transport.active.OnServerConnected -= OnTransportConnected;
+#pragma warning restore CS0618 // Type or member is obsolete
+            Transport.active.OnServerConnectedWithAddress -= OnTransportConnectedWithAddress;
             Transport.active.OnServerDataReceived -= OnTransportData;
             Transport.active.OnServerDisconnected -= OnTransportDisconnected;
             Transport.active.OnServerError -= OnTransportError;
@@ -636,25 +642,39 @@ namespace Mirror
         // transport events ////////////////////////////////////////////////////
         // called by transport
         static void OnTransportConnected(int connectionId)
-        {
-            // Debug.Log($"Server accepted client:{connectionId}");
+            => OnTransportConnectedWithAddress(connectionId, Transport.active.ServerGetClientAddress(connectionId));
 
+        static void OnTransportConnectedWithAddress(int connectionId, string clientAddress)
+        {
+            if (IsConnectionAllowed(connectionId))
+            {
+                // create a connection
+                NetworkConnectionToClient conn = new NetworkConnectionToClient(connectionId, clientAddress);
+                OnConnected(conn);
+            }
+            else
+            {
+                // kick the client immediately
+                Transport.active.ServerDisconnect(connectionId);
+            }
+        }
+
+        static bool IsConnectionAllowed(int connectionId)
+        {
             // connectionId needs to be != 0 because 0 is reserved for local player
             // note that some transports like kcp generate connectionId by
             // hashing which can be < 0 as well, so we need to allow < 0!
             if (connectionId == 0)
             {
                 Debug.LogError($"Server.HandleConnect: invalid connectionId: {connectionId} . Needs to be != 0, because 0 is reserved for local player.");
-                Transport.active.ServerDisconnect(connectionId);
-                return;
+                return false;
             }
 
             // connectionId not in use yet?
             if (connections.ContainsKey(connectionId))
             {
-                Transport.active.ServerDisconnect(connectionId);
-                // Debug.Log($"Server connectionId {connectionId} already in use...kicked client");
-                return;
+                Debug.LogError($"Server connectionId {connectionId} already in use...client will be kicked");
+                return false;
             }
 
             // are more connections allowed? if not, kick
@@ -662,18 +682,13 @@ namespace Mirror
             //  less code and third party transport might not do that anyway)
             // (this way we could also send a custom 'tooFull' message later,
             //  Transport can't do that)
-            if (connections.Count < maxConnections)
+            if (connections.Count >= maxConnections)
             {
-                // add connection
-                NetworkConnectionToClient conn = new NetworkConnectionToClient(connectionId);
-                OnConnected(conn);
+                Debug.LogError($"Server full, client {connectionId} will be kicked");
+                return false;
             }
-            else
-            {
-                // kick
-                Transport.active.ServerDisconnect(connectionId);
-                // Debug.Log($"Server full, kicked client {connectionId}");
-            }
+
+            return true;
         }
 
         internal static void OnConnected(NetworkConnectionToClient conn)
@@ -1592,14 +1607,12 @@ namespace Mirror
             RebuildObservers(identity, true);
         }
 
-        /// <summary>This takes an object that has been spawned and un-spawns it.</summary>
-        // The object will be removed from clients that it was spawned on, or
-        // the custom spawn handler function on the client will be called for
-        // the object.
-        // Unlike when calling NetworkServer.Destroy(), on the server the object
-        // will NOT be destroyed. This allows the server to re-use the object,
-        // even spawn it again later.
-        public static void UnSpawn(GameObject obj)
+        // internal Unspawn function which has the 'resetState' parameter.
+        // resetState calls .ResetState() on the object after unspawning.
+        // this is necessary for scene objects, but not for prefabs since we
+        // don't want to reset their isServer flags etc.
+        // fixes: https://github.com/MirrorNetworking/Mirror/issues/3832
+        static void UnSpawnInternal(GameObject obj, bool resetState)
         {
             // Debug.Log($"DestroyObject instance:{identity.netId}");
 
@@ -1673,9 +1686,21 @@ namespace Mirror
             identity.OnStopServer();
 
             // finally reset the state and deactivate it
-            identity.ResetState();
-            identity.gameObject.SetActive(false);
+            if (resetState)
+            {
+                identity.ResetState();
+                identity.gameObject.SetActive(false);
+            }
         }
+
+        /// <summary>This takes an object that has been spawned and un-spawns it.</summary>
+        // The object will be removed from clients that it was spawned on, or
+        // the custom spawn handler function on the client will be called for
+        // the object.
+        // Unlike when calling NetworkServer.Destroy(), on the server the object
+        // will NOT be destroyed. This allows the server to re-use the object,
+        // even spawn it again later.
+        public static void UnSpawn(GameObject obj) => UnSpawnInternal(obj, resetState: true);
 
         // destroy /////////////////////////////////////////////////////////////
         /// <summary>Destroys this object and corresponding objects on all clients.</summary>
@@ -1698,17 +1723,31 @@ namespace Mirror
                 return;
             }
 
-            // first, we unspawn it on clients and server
-            UnSpawn(obj);
+            // get the NetworkIdentity component first
+            if (!GetNetworkIdentity(obj, out NetworkIdentity identity))
+            {
+                Debug.LogWarning($"NetworkServer.Destroy() called on {obj.name} which doesn't have a NetworkIdentity component.");
+                return;
+            }
 
-            // additionally, if it's a prefab then we destroy it completely.
+            // is this a scene object?
+            // then we simply unspawn & reset it so it can still be spawned again.
             // we never destroy scene objects on server or on client, since once
             // they are gone, they are gone forever and can't be instantiate again.
             // for example, server may Destroy() a scene object and once a match
             // restarts, the scene objects would be gone from the new match.
-            if (GetNetworkIdentity(obj, out NetworkIdentity identity) &&
-                identity.sceneId == 0)
+            if (identity.sceneId != 0)
             {
+                UnSpawnInternal(obj, resetState: true);
+            }
+            // is this a prefab?
+            // then we destroy it completely.
+            else
+            {
+                // unspawn without calling ResetState.
+                // otherwise isServer/isClient flags might be reset in OnDestroy.
+                // fixes: https://github.com/MirrorNetworking/Mirror/issues/3832
+                UnSpawnInternal(obj, resetState: false);
                 identity.destroyCalled = true;
 
                 // Destroy if application is running

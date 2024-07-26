@@ -6,7 +6,7 @@ namespace Mirror.SimpleWeb
 {
     public class SimpleWebServer
     {
-        public event Action<int> onConnect;
+        public event Action<int, string> onConnect;
         public event Action<int> onDisconnect;
         public event Action<int, ArraySegment<byte>> onData;
         public event Action<int, Exception> onError;
@@ -91,7 +91,7 @@ namespace Mirror.SimpleWeb
                 switch (next.type)
                 {
                     case EventType.Connected:
-                        onConnect?.Invoke(next.connId);
+                        onConnect?.Invoke(next.connId, GetClientAddress(next.connId));
                         break;
                     case EventType.Data:
                         onData?.Invoke(next.connId, next.data.ToSegment());

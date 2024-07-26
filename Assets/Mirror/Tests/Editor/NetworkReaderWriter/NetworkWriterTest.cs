@@ -1404,7 +1404,8 @@ namespace Mirror.Tests.NetworkReaderWriter
 
             void WriteBadArray()
             {
-                writer.WriteInt(badLength);
+                // Reader/Writer encode null as count=0 and [] as count=1 (+1 offset)
+                writer.WriteUInt((uint)(badLength+1));
                 int[] array = new int[testArraySize] { 1, 2, 3, 4 };
                 for (int i = 0; i < array.Length; i++)
                     writer.Write(array[i]);

@@ -232,11 +232,18 @@ namespace Mirror.Tests.NetworkIdentities
                 out _, out NetworkIdentity serverIdentity, out SerializeTest1NetworkBehaviour serverComp1, out SerializeTest2NetworkBehaviour serverComp2,
                 out _, out NetworkIdentity clientIdentity, out SerializeTest1NetworkBehaviour clientComp1, out SerializeTest2NetworkBehaviour clientComp2);
 
+            // client only serializes owned ClientToServer components
+            clientIdentity.isOwned = true;
+            serverComp1.syncDirection = SyncDirection.ClientToServer;
+            serverComp2.syncDirection = SyncDirection.ClientToServer;
+            clientComp1.syncDirection = SyncDirection.ClientToServer;
+            clientComp2.syncDirection = SyncDirection.ClientToServer;
+
             // change nothing
             // clientComp.value = "42";
 
             // serialize client object
-            serverIdentity.SerializeClient(ownerWriter);
+            clientIdentity.SerializeClient(ownerWriter);
             Assert.That(ownerWriter.Position, Is.EqualTo(0));
         }
 

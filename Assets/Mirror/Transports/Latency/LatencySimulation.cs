@@ -241,7 +241,10 @@ namespace Mirror
 
         public override void ServerStart()
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             wrap.OnServerConnected = OnServerConnected;
+#pragma warning restore CS0618 // Type or member is obsolete
+            wrap.OnServerConnectedWithAddress = OnServerConnectedWithAddress;
             wrap.OnServerDataReceived = OnServerDataReceived;
             wrap.OnServerError = OnServerError;
             wrap.OnServerTransportException = OnServerTransportException;

@@ -277,6 +277,7 @@ The [France based team](https://naicaonline.com/en/news/view/1) was one of Mirro
 <a href="https://store.steampowered.com/app/2499940/Shattered_Lands/"><img src="https://github.com/MirrorNetworking/Mirror/assets/57072365/52930403-c1d1-4c27-9477-e03215acbda5" title="Shattered Lands" height="100"/></a>
 <a href="https://store.steampowered.com/app/1955340/Super_Raft_Boat_Together"><img src="https://github.com/MirrorNetworking/Mirror/assets/57072365/0d30b84a-0b2b-4790-8687-d95e2fa23df1" title="Super Raft Boat Together" height="100"/></a>
 <a href="https://store.steampowered.com/app/2585860/Ruins_To_Fortress/"><img src="https://github.com/MirrorNetworking/Mirror/assets/16416509/258ac5cf-d359-46cd-8af4-c7c1844dba9c" title="Ruins to Fortress" height="100"/></a>
+<a href="https://store.steampowered.com/app/2967080/Block_Trucks_Multiplayer_Racing/"><img src="https://github.com/user-attachments/assets/120794c6-81c2-445c-8f9b-b2be2bada376" title="Block Trucks" height="100"/></a>
 
 ## Modular Transports
 Mirror uses **KCP** (reliable UDP) by default, but you may use any of our community transports for low level packet sending:
