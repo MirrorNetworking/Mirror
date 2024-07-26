@@ -38,7 +38,11 @@ namespace Mirror.Examples.PhysicsPickupParty
         void Awake()
         {
             // Allow all players to run this, they may need it for reference
+#if UNITY_2022_2_OR_NEWER
+            sceneReference = GameObject.FindAnyObjectByType<SceneReference>();
+#else
             sceneReference = GameObject.FindObjectOfType<SceneReference>();
+#endif
         }
 
 #if !UNITY_SERVER
