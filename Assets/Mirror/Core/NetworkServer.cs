@@ -1963,30 +1963,6 @@ namespace Mirror
                 // update connection to flush out batched messages
                 connection.Update();
             }
-
-            // TODO this is way too slow because we iterate ALL spawned :/
-            // TODO this is way too complicated :/
-            // to understand what this tries to prevent, consider this example:
-            //   monster has health=100
-            //   we change health=200, dirty bit is set
-            //   player comes in range, gets full serialization spawn packet.
-            //   next Broadcast(), player gets the health=200 change because dirty bit was set.
-            //
-            // this code clears all dirty bits if no players are around to prevent it.
-            // BUT there are two issues:
-            //   1. what if a playerB was around the whole time?
-            //   2. why don't we handle broadcast and spawn packets both HERE?
-            //      handling spawn separately is why we need this complex magic
-            //
-            // see test: DirtyBitsAreClearedForSpawnedWithoutObservers()
-            // see test: SyncObjectChanges_DontGrowWithoutObservers()
-            //
-            // PAUL: we also do this to avoid ever growing SyncList .changes
-            //ClearSpawnedDirtyBits();
-            //
-            // this was moved to NetworkIdentity.AddObserver!
-            // same result, but no more O(N) loop in here!
-            // TODO remove this comment after moving spawning into Broadcast()!
         }
 
         // update //////////////////////////////////////////////////////////////

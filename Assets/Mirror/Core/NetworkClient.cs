@@ -1512,24 +1512,10 @@ namespace Mirror
         }
 
         // broadcast ///////////////////////////////////////////////////////////
-        static void BroadcastTimeSnapshot()
+        // NetworkServer has BroadcastToConnection.
+        // NetworkClient has BroadcastToServer.
+        static void BroadcastToServer()
         {
-            Send(new TimeSnapshotMessage(), Channels.Unreliable);
-        }
-
-        // make sure Broadcast() is only called every sendInterval.
-        // calling it every update() would require too much bandwidth.
-        static void Broadcast()
-        {
-            // joined the world yet?
-            if (!connection.isReady) return;
-
-            // nothing to do in host mode. server already knows the state.
-            if (NetworkServer.active) return;
-
-            // send time snapshot every sendInterval.
-            BroadcastTimeSnapshot();
-
             // for each entity that the client owns
             foreach (NetworkIdentity identity in connection.owned)
             {
@@ -1561,6 +1547,23 @@ namespace Mirror
                 // if it does have null then we missed something.
                 else Debug.LogWarning($"Found 'null' entry in owned list for client. This is unexpected behaviour.");
             }
+        }
+
+        // make sure Broadcast() is only called every sendInterval.
+        // calling it every update() would require too much bandwidth.
+        static void Broadcast()
+        {
+            // joined the world yet?
+            if (!connection.isReady) return;
+
+            // nothing to do in host mode. server already knows the state.
+            if (NetworkServer.active) return;
+
+            // send time snapshot every sendInterval.
+            Send(new TimeSnapshotMessage(), Channels.Unreliable);
+
+            // broadcast client state to server
+            BroadcastToServer();
         }
 
         // update //////////////////////////////////////////////////////////////
