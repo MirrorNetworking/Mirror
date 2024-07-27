@@ -1598,8 +1598,8 @@ namespace Mirror
                 // snapshots _but_ not every single tick.
                 //
                 // Unity 2019 doesn't have Time.timeAsDouble yet
-                if (!Application.isPlaying ||
-                    AccurateInterval.Elapsed(NetworkTime.localTime, sendInterval, ref lastSendTime))
+                bool sendIntervalElapsed = AccurateInterval.Elapsed(NetworkTime.localTime, sendInterval, ref lastSendTime);
+                if (!Application.isPlaying || sendIntervalElapsed)
                 {
                     Broadcast();
                 }
