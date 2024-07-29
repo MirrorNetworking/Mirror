@@ -36,7 +36,11 @@ namespace Mirror
                 Debug.LogError($"{name}'s NetworkRigidbody2D.target {target.name} is missing a Rigidbody2D", this);
                 return;
             }
+#if UNITY_6000_0_OR_NEWER
+            wasKinematic = rb.bodyType.HasFlag(RigidbodyType2D.Kinematic);
+#else
             wasKinematic = rb.isKinematic;
+#endif
             base.Awake();
         }
 
@@ -45,8 +49,13 @@ namespace Mirror
         // for example, a game may run as client, set rigidbody.iskinematic=true,
         // then run as server, where .iskinematic isn't touched and remains at
         // the overwritten=true, even though the user set it to false originally.
+#if UNITY_6000_0_OR_NEWER
+        public override void OnStopServer() => rb.bodyType = wasKinematic ? RigidbodyType2D.Kinematic : RigidbodyType2D.Dynamic;
+        public override void OnStopClient() => rb.bodyType = wasKinematic ? RigidbodyType2D.Kinematic : RigidbodyType2D.Dynamic;
+#else
         public override void OnStopServer() => rb.isKinematic = wasKinematic;
         public override void OnStopClient() => rb.isKinematic = wasKinematic;
+#endif
 
         // overwriting Construct() and Apply() to set Rigidbody.MovePosition
         // would give more jittery movement.
@@ -69,7 +78,11 @@ namespace Mirror
                 // only set to kinematic if we don't own it
                 // otherwise don't touch isKinematic.
                 // the authority owner might use it either way.
+#if UNITY_6000_0_OR_NEWER
+                if (!owned) rb.bodyType = RigidbodyType2D.Kinematic;
+#else
                 if (!owned) rb.isKinematic = true;
+#endif
             }
             // client only
             else if (isClient)
@@ -81,7 +94,11 @@ namespace Mirror
                 // only set to kinematic if we don't own it
                 // otherwise don't touch isKinematic.
                 // the authority owner might use it either way.
+#if UNITY_6000_0_OR_NEWER
+                if (!owned) rb.bodyType = RigidbodyType2D.Kinematic;
+#else
                 if (!owned) rb.isKinematic = true;
+#endif
             }
             // server only
             else if (isServer)
@@ -92,7 +109,11 @@ namespace Mirror
                 // only set to kinematic if we don't own it
                 // otherwise don't touch isKinematic.
                 // the authority owner might use it either way.
+#if UNITY_6000_0_OR_NEWER
+                if (!owned) rb.bodyType = RigidbodyType2D.Kinematic;
+#else
                 if (!owned) rb.isKinematic = true;
+#endif
             }
         }
 
