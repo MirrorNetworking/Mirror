@@ -240,7 +240,7 @@ MonoBehaviour:
   MaxRetransmit: 40
   MaximizeSocketBuffers: 1
   ReliableMaxMessageSize: 297433
-  UnreliableMaxMessageSize: 1195
+  UnreliableMaxMessageSize: 1194
   debugLog: 0
   statisticsGUI: 0
   statisticsLog: 0
@@ -259,11 +259,13 @@ MonoBehaviour:
   dontDestroyOnLoad: 1
   runInBackground: 1
   headlessStartMode: 1
+  editorAutoStart: 0
   sendRate: 30
   autoStartServerBuild: 0
   autoConnectClientBuild: 0
   offlineScene: Assets/Mirror/Examples/Room/Scenes/MirrorRoomOffline.unity
   onlineScene: Assets/Mirror/Examples/Room/Scenes/MirrorRoomOnline.unity
+  offlineSceneLoadDelay: 0
   transport: {fileID: 2008127830}
   networkAddress: localhost
   maxConnections: 5
@@ -288,7 +290,8 @@ MonoBehaviour:
     dynamicAdjustment: 1
     dynamicAdjustmentTolerance: 1
     deliveryTimeEmaDuration: 2
-  connectionQualityInterval: 3
+  evaluationMethod: 0
+  evaluationInterval: 3
   timeInterpolationGui: 0
   showRoomGUI: 1
   minPlayers: 1
@@ -297,7 +300,6 @@ MonoBehaviour:
   RoomScene: Assets/Mirror/Examples/Room/Scenes/MirrorRoomOnline.unity
   GameplayScene: Assets/Mirror/Examples/Room/Scenes/MirrorRoomGame.unity
   _allPlayersReady: 0
-  roomSlots: []
   clientIndex: 0
   rewardPrefab: {fileID: 1139254171913846, guid: 52f1c9ea06cfd154cb68ff9d1b66fc13,
     type: 3}
