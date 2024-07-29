@@ -21,6 +21,8 @@ namespace Mirror.Examples.PhysicsPickupParty
 
         public override void OnStartServer()
         {
+            // zone scripts disabled by default, and enabled only if server
+            // as server is the one that calculates score
             foreach (Zones zone in zonesArray)
             {
                 zone.enabled = true;
@@ -29,8 +31,6 @@ namespace Mirror.Examples.PhysicsPickupParty
 
         void OnScoresChanged(int[] _old, int[] _new)
         {
-            //print("OnScoresChanged");
-
             for (int i = 0; i < zonesArray.Length; i++)
             {
                 zonesArray[i].textMesh.text = "Score: " + scoresSyncVars[i].ToString();
@@ -40,18 +40,13 @@ namespace Mirror.Examples.PhysicsPickupParty
 
         public void UpdateScores(int _zonesID, int _score)
         {
-            //print("UpdateScores, for Zone ID: " + _zonesID);
-
             // we need to call the sync var array this way, to trigger a change detection, so hook is called
             int[] temp = new int[scoresSyncVars.Length];
             Array.Copy(scoresSyncVars, temp, scoresSyncVars.Length);
             temp[_zonesID] += _score;
             scoresSyncVars = temp;
 
-            if (sceneReference.playerPickupParty.teamID == _zonesID)
-            {
-                RpcPlayAudio();
-            }
+            RpcPlayAudio(_zonesID);
         }
 
         public void CalculateZoneWinnersList()
@@ -62,14 +57,8 @@ namespace Mirror.Examples.PhysicsPickupParty
             for (int i = 0; i < zoneResultsList.Count; i++)
             {
                 zoneResultsListTuple.Add(new Tuple<int, int>(zoneResultsList[i], i));
-                //print($"Value: {zoneResultsListTuple[i]}");
             }
             zoneResultsListTuple.Sort((a, b) => b.Item1.CompareTo(a.Item1));
-
-            //print("1st winner is teamID: " + zoneResultsListTuple[0].Item2 + " - with score of: "  + zoneResultsListTuple[0].Item1);
-            //print("2nd winner is teamID: " + zoneResultsListTuple[1].Item2 + " - with score of: " + zoneResultsListTuple[1].Item1);
-            //print("3rd winner is teamID: " + zoneResultsListTuple[2].Item2 + " - with score of: " + zoneResultsListTuple[2].Item1);
-            //print("4th winner is teamID: " + zoneResultsListTuple[3].Item2 + " - with score of: " + zoneResultsListTuple[3].Item1);
 
             sceneReference.UpdateScoresUI(0,zoneResultsListTuple[0].Item2, zoneResultsListTuple[0].Item1);
             sceneReference.UpdateScoresUI(1,zoneResultsListTuple[1].Item2, zoneResultsListTuple[1].Item1);
@@ -78,14 +67,18 @@ namespace Mirror.Examples.PhysicsPickupParty
         }
 
         [ClientRpc]
-        public void RpcPlayAudio()
+        public void RpcPlayAudio(int _zonesID)
         {
-            PlayAudio();
+            PlayAudio(_zonesID);
         }
 
-        public void PlayAudio()
+        public void PlayAudio(int _zonesID)
         {
-            sceneReference.scoreSound.Play();
+            // only play score sound if this is our players zone
+            if (sceneReference.playerPickupParty.teamID == _zonesID)
+            {
+                sceneReference.scoreSound.Play();
+            }
         }
     }
 }

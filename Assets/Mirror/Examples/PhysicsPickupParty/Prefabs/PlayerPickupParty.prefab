@@ -98,7 +98,7 @@ HingeJoint:
   m_Anchor: {x: 0, y: 0, z: 0}
   m_Axis: {x: 0, y: 0, z: 0}
   m_AutoConfigureConnectedAnchor: 1
-  m_ConnectedAnchor: {x: -0.096000016, y: 0.19900016, z: 0}
+  m_ConnectedAnchor: {x: -0.029999964, y: 0.5700001, z: 0}
   serializedVersion: 2
   m_UseSpring: 1
   m_Spring:
@@ -329,8 +329,8 @@ Transform:
   m_GameObject: {fileID: 723173361404745613}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.005, z: 2}
-  m_LocalScale: {x: 0.35, y: 0.35, z: 0.5727867}
+  m_LocalPosition: {x: 0, y: 0.005, z: 1.95}
+  m_LocalScale: {x: 0.35, y: 0.35, z: 0.8}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 6299839938573537759}
@@ -651,7 +651,7 @@ HingeJoint:
   m_Anchor: {x: 0, y: 0, z: 0}
   m_Axis: {x: 0, y: 0, z: 0}
   m_AutoConfigureConnectedAnchor: 1
-  m_ConnectedAnchor: {x: 0, y: 0, z: 0}
+  m_ConnectedAnchor: {x: 0.08600002, y: 1.9759998, z: 0}
   serializedVersion: 2
   m_UseSpring: 1
   m_Spring:
@@ -1386,7 +1386,6 @@ MonoBehaviour:
   showOverlay: 0
   overlayColor: {r: 0, g: 0, b: 0, a: 0.5}
   bufferResetMultiplier: 3
-  changedDetection: 1
   positionSensitivity: 0.01
   rotationSensitivity: 0.5
   scaleSensitivity: 0.01
@@ -1546,8 +1545,8 @@ Transform:
   m_GameObject: {fileID: 4115217665775924637}
   serializedVersion: 2
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: -0, y: -0, z: 1.06}
-  m_LocalScale: {x: 0.2, y: 1.0625, z: 0.2}
+  m_LocalPosition: {x: -0, y: -0, z: 1.1}
+  m_LocalScale: {x: 0.2, y: 1.15, z: 0.2}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2672433250560454}
@@ -1619,7 +1618,7 @@ CapsuleCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 2
   m_Radius: 0.5000001
   m_Height: 2
@@ -2060,7 +2059,6 @@ MonoBehaviour:
   showOverlay: 0
   overlayColor: {r: 0, g: 0, b: 0, a: 0.5}
   bufferResetMultiplier: 3
-  changedDetection: 1
   positionSensitivity: 0.01
   rotationSensitivity: 0.01
   scaleSensitivity: 0.01
@@ -2484,8 +2482,8 @@ Transform:
   m_GameObject: {fileID: 7317027042101436788}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.005, z: 2}
-  m_LocalScale: {x: 0.35, y: 0.35, z: 0.5727868}
+  m_LocalPosition: {x: 0, y: 0.005, z: 1.95}
+  m_LocalScale: {x: 0.35, y: 0.35, z: 0.8}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2672433250560454}
@@ -2645,7 +2643,6 @@ MonoBehaviour:
   showOverlay: 0
   overlayColor: {r: 0, g: 0, b: 0, a: 0.5}
   bufferResetMultiplier: 3
-  changedDetection: 1
   positionSensitivity: 0.01
   rotationSensitivity: 0.5
   scaleSensitivity: 0.01
@@ -2715,8 +2712,8 @@ Transform:
   m_GameObject: {fileID: 8938897292254725238}
   serializedVersion: 2
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: -0, y: -0, z: 1.06}
-  m_LocalScale: {x: 0.2, y: 1.0625, z: 0.2}
+  m_LocalPosition: {x: -0, y: -0, z: 1.1}
+  m_LocalScale: {x: 0.2, y: 1.15, z: 0.2}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 6299839938573537759}
@@ -2788,7 +2785,7 @@ CapsuleCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 2
   m_Radius: 0.5000001
   m_Height: 2

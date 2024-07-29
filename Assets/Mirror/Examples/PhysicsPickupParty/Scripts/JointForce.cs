@@ -14,9 +14,9 @@ public class JointForce : MonoBehaviour
         lastPosition = characterController.transform.position;
     }
 
-
     void FixedUpdate()
     {
+        // Apply force to joints depending on player characters movement
         Vector3 movementDelta = characterController.transform.position - lastPosition;
         Vector3 force = -movementDelta * forceMultiplier;
         jointRigidbody.AddForce(force);

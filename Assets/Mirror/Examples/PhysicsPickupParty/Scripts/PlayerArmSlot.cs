@@ -15,7 +15,7 @@ namespace Mirror.Examples.PhysicsPickupParty
 
         public override void OnStartLocalPlayer()
         {
-            // disable trigger by default, and enable if client
+            // disable trigger by default, and enable if local client
             // this is to lighten collision and calculations on dedicated server and non owners
             armTrigger.enabled = true;
         }
@@ -25,27 +25,23 @@ namespace Mirror.Examples.PhysicsPickupParty
             //print("OnTriggerEnter: " + other.gameObject.name);
             if (pickedUpNetworkObject != null) return;
 
-
-
-            // should be a tag, but we're not using tags in examples incase they do not copy across during import
+            // could be a tag, but we're not using tags in examples incase they do not copy across during import
             pickupObject = other.GetComponent<PickupObject>();
             if (pickupObject != null)
-            //if (  other.gameObject.name.Contains("PickupObject"))
             {
                 playerPickupParty.canPickup = true;
-                //collidedGameObject = other.transform;
             }
         }
 
         void OnTriggerExit(Collider other)
         {
-            if (pickupObject == null) return;
             //print("OnTriggerExit: " + other.gameObject.name);
 
-            // should be a tag, but we're not using tags in examples incase they do not copy across during import
+            if (pickupObject == null) return;
+
+            // could be a tag, but we're not using tags in examples incase they do not copy across during import
             pickupObject = other.GetComponent<PickupObject>();
             if (pickupObject != null)
-            // if (other.gameObject.name.Contains("PickupObject"))
             {
                 playerPickupParty.canPickup = false;
                 pickupObject = null;
@@ -64,15 +60,13 @@ namespace Mirror.Examples.PhysicsPickupParty
         {
             // we use a delay, as network spawned objects may not be spawned in and ready, hooks get called very early
             yield return new WaitForEndOfFrame();
-            //print("OnPickupChangedHook 1" + pickedUpNetworkObject);
+
             if (pickedUpNetworkObject)
             {
-                //print("OnPickupChangedHook 2" + pickedUpNetworkObject);
                 PickupResult();
             }
             else
             {
-                //print("OnPickupChangedHook 3");
                 DropResult();
             }
         }
@@ -81,20 +75,21 @@ namespace Mirror.Examples.PhysicsPickupParty
         {
             if (pickedUpNetworkObject)
             {
+                // set object to hand locally, without child/parenting, as this can cause weird results with multiplayer, best to avoid
                 pickedUpNetworkObject.transform.position = this.transform.position;
             }
         }
 
         public void PickupResult()
         {
-            print("PickupResult 1");
             // we cache rigidbody on pickup, not on trigger detection, so GetComponent will be called less frequently
             pickupObject = pickedUpNetworkObject.GetComponent<PickupObject>();
             if (pickupObject)
             {
-                print("PickupResult 2");
                 pickupObject.playerHolder = this.transform.root.gameObject;
-                //pickupObject.GetComponent<Collider>().enabled = false;
+
+                // set to trigger, to allow zones to detect object, disabling collider would stop the detection
+                // keeping the collider active during pickup, can cause collision jank with local player
                 pickupObject.GetComponent<Collider>().isTrigger = true;
                 if (pickupObject.pickupRigidbody)
                 {
@@ -115,7 +110,6 @@ namespace Mirror.Examples.PhysicsPickupParty
                     pickupObject.pickupRigidbody.useGravity = true;
                     pickupObject.pickupRigidbody.constraints = RigidbodyConstraints.None;
                 }
-                //pickupObject.GetComponent<Collider>().enabled = true;
                 pickupObject.GetComponent<Collider>().isTrigger = false;
                 armTrigger.enabled = true;
                 pickedUpNetworkObject = null;

@@ -17,8 +17,8 @@ namespace Mirror.Examples.PhysicsPickupParty
 
         //public override void OnStartServer()
         //{
-        // removed in favour of waiting until game starts, and then call the interval
-        //    StartCoroutine(StartPickupInterval());
+        // StartPickupInterval is called via start game timer, so objects do not appear upon server start
+        //    if you dont want objects in the scene to begin with, remove them, call X amount here (optional)
         //}
 
         public IEnumerator StartPickupInterval()

@@ -25,13 +25,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6902534888765376181}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &6902534888765376180
 MonoBehaviour:
@@ -47,18 +47,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   dontDestroyOnLoad: 1
   runInBackground: 1
-  autoStartServerBuild: 1
-  autoConnectClientBuild: 0
+  headlessStartMode: 1
+  editorAutoStart: 0
   sendRate: 20
-  offlineScene: 
-  onlineScene: 
+  autoStartServerBuild: 0
+  autoConnectClientBuild: 0
+  offlineScene: Assets/Mirror/Examples/BenchmarkStinkySteak/Main.unity
+  onlineScene: Assets/Mirror/Examples/BenchmarkStinkySteak/Main.unity
   transport: {fileID: 6712455278405722842}
   networkAddress: localhost
   maxConnections: 100
   disconnectInactiveConnections: 0
   disconnectInactiveTimeout: 60
   authenticator: {fileID: 0}
-  playerPrefab: {fileID: 388937345275023605, guid: fc40b1557a4729e4e9cfaad99e1097ff, type: 3}
+  playerPrefab: {fileID: 388937345275023605, guid: fc40b1557a4729e4e9cfaad99e1097ff,
+    type: 3}
   autoCreatePlayer: 1
   playerSpawnMethod: 0
   spawnPrefabs: []
@@ -74,7 +77,8 @@ MonoBehaviour:
     dynamicAdjustment: 1
     dynamicAdjustmentTolerance: 1
     deliveryTimeEmaDuration: 2
-  connectionQualityInterval: 3
+  evaluationMethod: 0
+  evaluationInterval: 3
   timeInterpolationGui: 0
 --- !u!114 &6712455278405722842
 MonoBehaviour:
@@ -101,7 +105,7 @@ MonoBehaviour:
   MaxRetransmit: 40
   MaximizeSocketBuffers: 1
   ReliableMaxMessageSize: 297433
-  UnreliableMaxMessageSize: 1195
+  UnreliableMaxMessageSize: 1194
   debugLog: 0
   statisticsGUI: 0
   statisticsLog: 0

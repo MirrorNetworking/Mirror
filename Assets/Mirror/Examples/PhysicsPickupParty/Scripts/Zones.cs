@@ -24,7 +24,7 @@ namespace Mirror.Examples.PhysicsPickupParty
         {
             //print("OnTriggerEnter: " + other.gameObject.name);
 
-            // should be a tag, but we're not using tags in examples incase they do not copy across during import
+            // could be a tag, but we're not using tags in examples incase they do not copy across during import
             pickupObject = other.GetComponent<PickupObject>();
             if (pickupObject != null)
             {
@@ -37,7 +37,7 @@ namespace Mirror.Examples.PhysicsPickupParty
         {
             //print("OnTriggerExit: " + other.gameObject.name);
 
-            // should be a tag, but we're not using tags in examples incase they do not copy across during import
+            // could be a tag, but we're not using tags in examples incase they do not copy across during import
             pickupObject = other.GetComponent<PickupObject>();
             if (pickupObject != null)
             {

@@ -45,7 +45,7 @@ namespace Mirror.Examples.PhysicsPickupParty
 #endif
         }
 
-#if !UNITY_SERVER
+//#if !UNITY_SERVER
         public override void OnStartLocalPlayer()
         {
             sceneReference.playerPickupParty = this;
@@ -61,7 +61,7 @@ namespace Mirror.Examples.PhysicsPickupParty
                 cameraFollow.enabled = true;
             }
         }
-#endif
+//#endif
 
         public override void OnStartServer()
         {
@@ -90,7 +90,7 @@ namespace Mirror.Examples.PhysicsPickupParty
             }
         }
 
-#if !UNITY_SERVER
+//#if !UNITY_SERVER
         [ClientCallback]
         void Update()
         {
@@ -136,9 +136,9 @@ namespace Mirror.Examples.PhysicsPickupParty
                 }
             }
         }
-#endif
+//#endif
 
-#if !UNITY_SERVER
+//#if !UNITY_SERVER
         [ClientCallback]
         void PlayerMovement()
         {
@@ -176,9 +176,9 @@ namespace Mirror.Examples.PhysicsPickupParty
             movement.y = verticalSpeed;
             characterController.Move(movement * Time.deltaTime);
         }
-#endif
+//#endif
 
-#if !UNITY_SERVER
+//#if !UNITY_SERVER
         [ClientCallback]
         void RotatePlayerToMouse()
         {
@@ -192,20 +192,20 @@ namespace Mirror.Examples.PhysicsPickupParty
                 transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, moveSpeed * Time.deltaTime);
             }
         }
-#endif
+//#endif
 
-#if !UNITY_SERVER
+//#if !UNITY_SERVER
         [ClientCallback]
         void RotateArmsToMouse()
         {
             if (slotActive == 0)
             {
-                Quaternion defaultArmRotation = Quaternion.Euler(-45, -90, 0);
+                Quaternion defaultArmRotation = Quaternion.Euler(-45, 0, 0);
                 armPivots[1].localRotation = Quaternion.Slerp(armPivots[1].localRotation, defaultArmRotation, (armRotationSpeed / 5) * Time.deltaTime);
             }
             else
             {
-                Quaternion defaultArmRotation = Quaternion.Euler(-45, 90, 0);
+                Quaternion defaultArmRotation = Quaternion.Euler(-45, 180, 0);
                 armPivots[0].localRotation = Quaternion.Slerp(armPivots[0].localRotation, defaultArmRotation, (armRotationSpeed / 5) * Time.deltaTime);
             }
 
@@ -222,9 +222,9 @@ namespace Mirror.Examples.PhysicsPickupParty
                 armPivots[slotActive].rotation = Quaternion.Slerp(armPivots[slotActive].rotation, targetRotation, armRotationSpeed * Time.deltaTime);
             }
         }
-#endif
+//#endif
 
-#if !UNITY_SERVER
+//#if !UNITY_SERVER
         [ClientCallback]
         void Interact()
         {
@@ -242,7 +242,7 @@ namespace Mirror.Examples.PhysicsPickupParty
                 CmdPlayAudio(2);
             }
         }
-#endif
+//#endif
 
         public void OnDestroy()
         {

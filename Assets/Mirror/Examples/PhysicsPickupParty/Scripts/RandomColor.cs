@@ -2,7 +2,6 @@
 
 namespace Mirror.Examples.PhysicsPickupParty
 {
-    [AddComponentMenu("")]
     public class RandomColor : NetworkBehaviour
     {
         // Unity clones the material when GetComponent<Renderer>().material is called
@@ -21,15 +20,14 @@ namespace Mirror.Examples.PhysicsPickupParty
 
         public override void OnStartServer()
         {
-            // Only set the color once. Players may be respawned,
-            // and we don't want to keep changing their colors.
             if (color == Color.black)
                 color = Random.ColorHSV(0f, 1f, 1f, 1f, 0.5f, 1f);
         }
 
         void OnDestroy()
         {
-            Destroy(cachedMaterial);
+            if (cachedMaterial != null)
+                Destroy(cachedMaterial);
         }
     }
 }
