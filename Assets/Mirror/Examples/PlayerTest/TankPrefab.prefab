@@ -241,7 +241,7 @@ MonoBehaviour:
     AutoRun: 114
     ToggleUI: 117
   controlOptions: 2
-  maxMoveSpeed: 5
+  maxMoveSpeed: 8
   inputSensitivity: 2
   inputGravity: 2
   maxTurnSpeed: 100
