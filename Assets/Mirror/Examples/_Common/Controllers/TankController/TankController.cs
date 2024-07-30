@@ -71,7 +71,7 @@ namespace Mirror.Examples.Common.Controllers.Tank
         [Range(0, 20)]
         [FormerlySerializedAs("moveSpeedMultiplier")]
         [Tooltip("Speed in meters per second")]
-        public float maxMoveSpeed = 5f;
+        public float maxMoveSpeed = 8f;
 
         // Replacement for Sensitvity from Input Settings.
         [Range(0, 10f)]

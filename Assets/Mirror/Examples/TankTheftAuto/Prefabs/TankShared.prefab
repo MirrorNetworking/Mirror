@@ -244,7 +244,7 @@ MonoBehaviour:
     AutoRun: 114
     ToggleUI: 117
   controlOptions: 2
-  maxMoveSpeed: 5
+  maxMoveSpeed: 8
   inputSensitivity: 2
   inputGravity: 2
   maxTurnSpeed: 100
@@ -653,7 +653,7 @@ BoxCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 2, y: 2, z: 2}
+  m_Size: {x: 1, y: 1, z: 1.0000001}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1001 &1451775205222924547
 PrefabInstance:
