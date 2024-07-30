@@ -30,6 +30,16 @@ namespace Mirror
         protected Changed cachedChangedComparison;
         protected bool hasSentUnchangedPosition;
 
+        // validation //////////////////////////////////////////////////////////
+        // Configure is called from OnValidate and Awake
+        protected override void Configure()
+        {
+            base.Configure();
+
+            // force syncMethod to unreliable
+            syncMethod = SyncMethod.Unreliable;
+        }
+
         // update //////////////////////////////////////////////////////////////
         // Update applies interpolation
         void Update()

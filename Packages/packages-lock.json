@@ -1,5 +1,12 @@
 {
   "dependencies": {
+    "com.jeffjadulco.guidregenerator": {
+      "version": "https://github.com/jeffjadulco/unity-guid-regenerator.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "7dbce4b94bd7f92c33de382439f662a0731a1db9"
+    },
     "com.unity.2d.sprite": {
       "version": "1.0.0",
       "depth": 0,

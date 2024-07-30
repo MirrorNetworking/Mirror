@@ -42,6 +42,10 @@ namespace Mirror
         [FormerlySerializedAs("serverTickRate")]
         public int sendRate = 60;
 
+        /// <summary> </summary>
+        [Tooltip("Ocassionally send a full reliable state for unreliable components to delta compress against. This only applies to Components with SyncMethod=Unreliable.")]
+        public int unreliableFullSendRate = 1;
+
         // Deprecated 2023-11-25
         // Using SerializeField and HideInInspector to self-correct for being
         // replaced by headlessStartMode. This can be removed in the future.
@@ -199,6 +203,11 @@ namespace Mirror
             autoConnectClientBuild = false;
 #pragma warning restore 618
 
+            // unreliable full send rate needs to be >= 0.
+            // we need to have something to delta compress against.
+            // it should also be <= sendRate otherwise there's no point.
+            unreliableFullSendRate = Mathf.Clamp(unreliableFullSendRate, 1, sendRate);
+
             // always >= 0
             maxConnections = Mathf.Max(maxConnections, 0);
 
@@ -308,6 +317,7 @@ namespace Mirror
         void ApplyConfiguration()
         {
             NetworkServer.tickRate = sendRate;
+            NetworkServer.unreliableFullSendRate = unreliableFullSendRate;
             NetworkClient.snapshotSettings = snapshotSettings;
             NetworkClient.connectionQualityInterval = evaluationInterval;
             NetworkClient.connectionQualityMethod = evaluationMethod;

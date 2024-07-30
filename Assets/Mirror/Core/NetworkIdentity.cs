@@ -27,13 +27,23 @@ namespace Mirror
     {
         // IMPORTANT: int tick avoids floating point inaccuracy over days/weeks
         public int tick;
-        public NetworkWriter ownerWriter;
-        public NetworkWriter observersWriter;
+
+        // reliable sync
+        public NetworkWriter ownerWriterReliable;
+        public NetworkWriter observersWriterReliable;
+
+        // unreliable sync
+        public bool unreliableInitialState;
+        public NetworkWriter ownerWriterFastPaced;
+        public NetworkWriter observersWriterFastPaced;
 
         public void ResetWriters()
         {
-            ownerWriter.Position = 0;
-            observersWriter.Position = 0;
+            ownerWriterReliable.Position = 0;
+            observersWriterReliable.Position = 0;
+            unreliableInitialState = false;
+            ownerWriterFastPaced.Position = 0;
+            observersWriterFastPaced.Position = 0;
         }
     }
 
@@ -225,13 +235,20 @@ namespace Mirror
         // => way easier to store them per object
         NetworkIdentitySerialization lastSerialization = new NetworkIdentitySerialization
         {
-            ownerWriter = new NetworkWriter(),
-            observersWriter = new NetworkWriter()
+            ownerWriterReliable = new NetworkWriter(),
+            observersWriterReliable = new NetworkWriter(),
+            unreliableInitialState = false,
+            ownerWriterFastPaced = new NetworkWriter(),
+            observersWriterFastPaced = new NetworkWriter(),
         };
 
         // Keep track of all sceneIds to detect scene duplicates
         static readonly Dictionary<ulong, NetworkIdentity> sceneIds =
             new Dictionary<ulong, NetworkIdentity>();
+
+        // unreliable state sync messages may arrive out of order, or duplicated.
+        // keep latest received timestamp so we don't apply older messages.
+        internal double lastUnreliableStateTime;
 
         // Helper function to handle Command/Rpc
         internal void HandleRemoteCall(byte componentIndex, ushort functionHash, RemoteCallType remoteCallType, NetworkReader reader, NetworkConnectionToClient senderConnection = null)
@@ -841,7 +858,9 @@ namespace Mirror
 
         // build dirty mask for server owner & observers (= all dirty components).
         // faster to do it in one iteration instead of iterating separately.
-        (ulong, ulong) ServerDirtyMasks(bool initialState)
+        // -> initialState=true:  marks all components for spawn message no matter the method.
+        // -> initialState=false: marks only the dirty components.
+        (ulong, ulong) ServerDirtyMasks(bool initialState, SyncMethod method)
         {
             ulong ownerMask = 0;
             ulong observerMask = 0;
@@ -852,7 +871,9 @@ namespace Mirror
                 NetworkBehaviour component = components[i];
                 ulong nthBit = (1u << i);
 
-                bool dirty = component.IsDirty();
+                // for initial sync, include all components.
+                // for delta sync, it depends on SyncMethod.
+                bool delta = component.IsDirtyFor(method);
 
                 // owner needs to be considered for both SyncModes, because
                 // Observers mode always includes the Owner.
@@ -860,7 +881,7 @@ namespace Mirror
                 // for initial, it should always sync owner.
                 // for delta, only for ServerToClient and only if dirty.
                 //     ClientToServer comes from the owner client.
-                if (initialState || (component.syncDirection == SyncDirection.ServerToClient && dirty))
+                if (initialState || (component.syncDirection == SyncDirection.ServerToClient && delta))
                     ownerMask |= nthBit;
 
                 // observers need to be considered only in Observers mode,
@@ -871,7 +892,7 @@ namespace Mirror
                     // for delta, only if dirty.
                     // SyncDirection is irrelevant, as both are broadcast to
                     // observers which aren't the owner.
-                    if (initialState || dirty)
+                    if (initialState || delta)
                         observerMask |= nthBit;
                 }
             }
@@ -881,7 +902,8 @@ namespace Mirror
 
         // build dirty mask for client.
         // server always knows initialState, so we don't need it here.
-        ulong ClientDirtyMask()
+        // this is only for delta sync.
+        ulong ClientDirtyMask(SyncMethod method)
         {
             ulong mask = 0;
 
@@ -901,9 +923,13 @@ namespace Mirror
 
                 if (isOwned && component.syncDirection == SyncDirection.ClientToServer)
                 {
-                    // set the n-th bit if dirty
+                    // for initial sync, include all components.
+                    // for delta sync, it depends on SyncMethod.
+                    bool delta = component.IsDirtyFor(method);
+
+                    // set the n-th bit if delta sync is needed.
                     // shifting from small to large numbers is varint-efficient.
-                    if (component.IsDirty()) mask |= nthBit;
+                    if (delta) mask |= nthBit;
                 }
             }
 
@@ -923,7 +949,11 @@ namespace Mirror
         // check ownerWritten/observersWritten to know if anything was written
         // We pass dirtyComponentsMask into this function so that we can check
         // if any Components are dirty before creating writers
-        internal void SerializeServer(bool initialState, NetworkWriter ownerWriter, NetworkWriter observersWriter)
+        // -> SyncMethod: Serialize handles all the magic internally depending
+        //    on SyncMethod, so that the user API (OnSerialize) remains the same.
+        // -> unreliableFullSendIntervalElapsed: indicates that unreliable sync components need a reliable baseline sync this time.
+        //    for reliable components, it just means sync as usual.
+        internal void SerializeServer(bool initialState, SyncMethod method, NetworkWriter ownerWriter, NetworkWriter observersWriter, bool unreliableFullSendIntervalElapsed)
         {
             // ensure NetworkBehaviours are valid before usage
             ValidateComponents();
@@ -936,7 +966,14 @@ namespace Mirror
             // instead of writing a 1 byte index per component,
             // we limit components to 64 bits and write one ulong instead.
             // the ulong is also varint compressed for minimum bandwidth.
-            (ulong ownerMask, ulong observerMask) = ServerDirtyMasks(initialState);
+            (ulong ownerMask, ulong observerMask) =
+                // initialState: if true, flags all dirty bits.
+                //   Reliable:   initialState is true once, and then false on subsequent serializations.
+                //   Unreliable: spawn message is Reliable with initialState=true. and for subsequent serializations:
+                //               initialState is alwasy false because we only want to send reliable baseline (or unreliable deltas)
+                //               while dirty bits are set.
+                //               bits are reset after every reliable baseline send.
+                ServerDirtyMasks(method == SyncMethod.Reliable ? initialState : false, method);
 
             // if nothing dirty, then don't even write the mask.
             // otherwise, every unchanged object would send a 1 byte dirty mask!
@@ -970,7 +1007,7 @@ namespace Mirror
                         // serialize into helper writer
                         using (NetworkWriterPooled temp = NetworkWriterPool.Get())
                         {
-                            comp.Serialize(temp, initialState);
+                            comp.Serialize(temp, method == SyncMethod.Reliable ? initialState : unreliableFullSendIntervalElapsed);
                             ArraySegment<byte> segment = temp.ToArraySegment();
 
                             // copy to owner / observers as needed
@@ -984,19 +1021,39 @@ namespace Mirror
                         //
                         // we don't want to clear bits before the syncInterval
                         // was elapsed, as then they wouldn't be synced.
-                        //
-                        // only clear for delta, not for full (spawn messages).
-                        // otherwise if a player joins, we serialize monster,
-                        // and shouldn't clear dirty bits not yet synced to
-                        // other players.
-                        if (!initialState) comp.ClearAllDirtyBits();
+                        if (method == SyncMethod.Reliable)
+                        {
+                            // for reliable, only clear for delta, not for full (spawn messages).
+                            // otherwise if a player joins, we serialize monster,
+                            // and shouldn't clear dirty bits not yet synced to
+                            // other players.
+                            if (!initialState) comp.ClearAllDirtyBits();
+                        }
+                        else if (method == SyncMethod.Unreliable)
+                        {
+                            // for unreliable: only clear for delta, not for full (spawn messages).
+                            // otherwise if a player joins, we serialize monster,
+                            // and shouldn't clear dirty bits not yet synced to
+                            // other players.
+                            //
+                            // for delta: only clear for full syncs.
+                            // delta syncs over unreliable may not be delivered,
+                            // so we can only clear dirty bits for guaranteed to
+                            // be delivered full syncs.
+                            if (!initialState && unreliableFullSendIntervalElapsed) comp.ClearAllDirtyBits();
+                        }
                     }
                 }
             }
         }
 
         // serialize components into writer on the client.
-        internal void SerializeClient(NetworkWriter writer)
+        // -> SyncMethod: Serialize handles all the magic internally depending
+        //    on SyncMethod, so that the user API (OnSerialize) remains the same.
+        //
+        // unreliableFullSendIntervalElapsed: indicates that unreliable sync components need a reliable baseline sync this time.
+        //   for reliable components, it just means sync as usual.
+        internal void SerializeClient(SyncMethod method, NetworkWriter writer, bool unreliableFullSendIntervalElapsed)
         {
             // ensure NetworkBehaviours are valid before usage
             ValidateComponents();
@@ -1009,7 +1066,7 @@ namespace Mirror
             // instead of writing a 1 byte index per component,
             // we limit components to 64 bits and write one ulong instead.
             // the ulong is also varint compressed for minimum bandwidth.
-            ulong dirtyMask = ClientDirtyMask();
+            ulong dirtyMask = ClientDirtyMask(method);
 
             // varint compresses the mask to 1 byte in most cases.
             // instead of writing an 8 byte ulong.
@@ -1038,7 +1095,7 @@ namespace Mirror
                     {
                         // serialize into writer.
                         // server always knows initialState, we never need to send it
-                        comp.Serialize(writer, false);
+                        comp.Serialize(writer, method == SyncMethod.Reliable ? false : unreliableFullSendIntervalElapsed);
 
                         // clear dirty bits for the components that we serialized.
                         // do not clear for _all_ components, only the ones that
@@ -1046,15 +1103,30 @@ namespace Mirror
                         //
                         // we don't want to clear bits before the syncInterval
                         // was elapsed, as then they wouldn't be synced.
-                        comp.ClearAllDirtyBits();
+                        if (method == SyncMethod.Reliable)
+                        {
+                            // for reliable: server knows initial. we only send deltas.
+                            // so always clear for deltas.
+                            comp.ClearAllDirtyBits();
+                        }
+                        else if (method == SyncMethod.Unreliable)
+                        {
+                            // for unreliable: server knows initial. we only send deltas.
+                            // but only clear for full syncs.
+                            // delta syncs over unreliable may not be delivered,
+                            // so we can only clear dirty bits for guaranteed to
+                            // be delivered full syncs.
+                            if (unreliableFullSendIntervalElapsed) comp.ClearAllDirtyBits();
+                        }
                     }
                 }
             }
         }
 
         // deserialize components from the client on the server.
-        // there's no 'initialState'. server always knows the initial state.
-        internal bool DeserializeServer(NetworkReader reader)
+        // for reliable state sync, server always knows the initial state.
+        // for unreliable, we always sync full state so we still need the parameter.
+        internal bool DeserializeServer(NetworkReader reader, bool initialState)
         {
             // ensure NetworkBehaviours are valid before usage
             ValidateComponents();
@@ -1078,7 +1150,7 @@ namespace Mirror
                         // deserialize this component
                         // server always knows the initial state (initial=false)
                         // disconnect if failed, to prevent exploits etc.
-                        if (!comp.Deserialize(reader, false)) return false;
+                        if (!comp.Deserialize(reader, initialState)) return false;
 
                         // server received state from the owner client.
                         // set dirty so it's broadcast to other clients too.
@@ -1122,7 +1194,10 @@ namespace Mirror
         // get cached serialization for this tick (or serialize if none yet).
         // IMPORTANT: int tick avoids floating point inaccuracy over days/weeks.
         // calls SerializeServer, so this function is to be called on server.
-        internal NetworkIdentitySerialization GetServerSerializationAtTick(int tick)
+        //
+        // unreliableFullSendIntervalElapsed: indicates that unreliable sync components need a reliable baseline sync this time.
+        //   for reliable components, it just means sync as usual.
+        internal NetworkIdentitySerialization GetServerSerializationAtTick(int tick, bool unreliableFullSendIntervalElapsed)
         {
             // only rebuild serialization once per tick. reuse otherwise.
             // except for tests, where Time.frameCount never increases.
@@ -1130,7 +1205,9 @@ namespace Mirror
             // (otherwise [SyncVar] changes would never be serialized in tests)
             //
             // NOTE: != instead of < because int.max+1 overflows at some point.
-            if (lastSerialization.tick != tick
+            if (lastSerialization.tick != tick ||
+                // if last one was for unreliable delta and we request unreliable full, then we need to resync.
+                lastSerialization.unreliableInitialState != unreliableFullSendIntervalElapsed
 #if UNITY_EDITOR
                 || !Application.isPlaying
 #endif
@@ -1139,13 +1216,23 @@ namespace Mirror
                 // reset
                 lastSerialization.ResetWriters();
 
-                // serialize
+                // serialize - reliable
                 SerializeServer(false,
-                                lastSerialization.ownerWriter,
-                                lastSerialization.observersWriter);
+                                SyncMethod.Reliable,
+                                lastSerialization.ownerWriterReliable,
+                                lastSerialization.observersWriterReliable,
+                                unreliableFullSendIntervalElapsed);
+
+                // serialize - unreliable
+                SerializeServer(false,
+                                SyncMethod.Unreliable,
+                                lastSerialization.ownerWriterFastPaced,
+                                lastSerialization.observersWriterFastPaced,
+                                unreliableFullSendIntervalElapsed);
 
                 // set tick
                 lastSerialization.tick = tick;
+                lastSerialization.unreliableInitialState = unreliableFullSendIntervalElapsed;
                 //Debug.Log($"{name} (netId={netId}) serialized for tick={tickTimeStamp}");
             }
 
