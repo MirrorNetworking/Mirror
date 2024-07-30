@@ -183,15 +183,7 @@ namespace Mirror.Examples.TopDownShooter
         [Command]
         public void CmdFlashLight()
         {
-            if (flashLightStatus == true)
-            {
-                flashLightStatus = false;
-            }
-            else
-            {
-                flashLightStatus = true;
-            }
-            RpcFlashLight();
+            flashLightStatus = !flashLightStatus;
         }
 
         // our sync var hook, which sets flashlight status to the same on all clients for this player
@@ -199,13 +191,6 @@ namespace Mirror.Examples.TopDownShooter
         {
 #if !UNITY_SERVER
             flashLight.enabled = _New;
-#endif
-        }
-
-        [ClientRpc]
-        void RpcFlashLight()
-        {
-#if !UNITY_SERVER
             soundFlashLight.Play();
 #endif
         }
