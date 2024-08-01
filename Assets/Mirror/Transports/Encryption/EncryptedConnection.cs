@@ -1,5 +1,6 @@
 using System;
 using System.Security.Cryptography;
+using Mirror.Transports.Encryption.Native;
 using System.Text;
 using Mirror.BouncyCastle.Crypto;
 using Mirror.BouncyCastle.Crypto.Agreement;
@@ -131,6 +132,7 @@ namespace Mirror.Transports.Encryption
          * The client does this, since the fin is not acked explicitly, but by receiving data to decrypt
          */
         private readonly bool _sendsFirst;
+        private byte[] _keyRaw;
 
         public EncryptedConnection(EncryptionCredentials credentials,
             bool isClient,
@@ -168,120 +170,131 @@ namespace Mirror.Transports.Encryption
 
         public void OnReceiveRaw(ArraySegment<byte> data, int channel)
         {
-            if (data.Count < 1)
+            try
             {
-                _error(TransportError.Unexpected, "Received empty packet");
-                return;
-            }
-
-            using (NetworkReaderPooled reader = NetworkReaderPool.Get(data))
-            {
-                OpCodes opcode = (OpCodes)reader.ReadByte();
-                switch (opcode)
+                Profiler.BeginSample("EncryptedConnection.OnReceiveRaw");
+                if (data.Count < 1)
                 {
-                    case OpCodes.Data:
-                        // first sender ready is implicit when data is received
-                        if (_sendsFirst && _state == State.WaitingHandshakeReply)
-                        {
+                    _error(TransportError.Unexpected, "Received empty packet");
+                    return;
+                }
+
+                using (NetworkReaderPooled reader = NetworkReaderPool.Get(data))
+                {
+                    OpCodes opcode = (OpCodes)reader.ReadByte();
+                    switch (opcode)
+                    {
+                        case OpCodes.Data:
+                            // first sender ready is implicit when data is received
+                            if (_sendsFirst && _state == State.WaitingHandshakeReply)
+                            {
+                                SetReady();
+                            }
+                            else if (!IsReady)
+                            {
+                                _error(TransportError.Unexpected, "Unexpected data while not ready.");
+                            }
+
+                            if (reader.Remaining < Overhead)
+                            {
+                                _error(TransportError.Unexpected, "received data packet smaller than metadata size");
+                                return;
+                            }
+
+                            ArraySegment<byte> ciphertext = reader.ReadBytesSegment(reader.Remaining - NonceSize);
+                            reader.ReadBytes(ReceiveNonce, NonceSize);
+
+                            Profiler.BeginSample("EncryptedConnection.Decrypt");
+                            ArraySegment<byte> plaintext = Decrypt(ciphertext);
+                            Profiler.EndSample();
+                            if (plaintext.Count == 0)
+                            {
+                                // error
+                                return;
+                            }
+                            Profiler.BeginSample("EncryptedConnection._receive");
+                            _receive(plaintext, channel);
+                            Profiler.EndSample();
+                            break;
+                        case OpCodes.HandshakeStart:
+                            if (_sendsFirst)
+                            {
+                                _error(TransportError.Unexpected, "Received HandshakeStart packet, we don't expect this.");
+                                return;
+                            }
+
+                            if (_state == State.WaitingHandshakeReply)
+                            {
+                                // this is fine, packets may arrive out of order
+                                return;
+                            }
+
+                            _state = State.WaitingHandshakeReply;
+                            ResetTimeouts();
+                            CompleteExchange(reader.ReadBytesSegment(reader.Remaining), _hkdfSalt);
+                            SendHandshakeAndPubKey(OpCodes.HandshakeAck);
+                            break;
+                        case OpCodes.HandshakeAck:
+                            if (!_sendsFirst)
+                            {
+                                _error(TransportError.Unexpected, "Received HandshakeAck packet, we don't expect this.");
+                                return;
+                            }
+
+                            if (IsReady)
+                            {
+                                // this is fine, packets may arrive out of order
+                                return;
+                            }
+
+                            if (_state == State.WaitingHandshakeReply)
+                            {
+                                // this is fine, packets may arrive out of order
+                                return;
+                            }
+
+
+                            _state = State.WaitingHandshakeReply;
+                            ResetTimeouts();
+                            reader.ReadBytes(_tmpRemoteSaltBuffer, HkdfSaltSize);
+                            CompleteExchange(reader.ReadBytesSegment(reader.Remaining), _tmpRemoteSaltBuffer);
+                            SendHandshakeFin();
+                            break;
+                        case OpCodes.HandshakeFin:
+                            if (_sendsFirst)
+                            {
+                                _error(TransportError.Unexpected, "Received HandshakeFin packet, we don't expect this.");
+                                return;
+                            }
+
+                            if (IsReady)
+                            {
+                                // this is fine, packets may arrive out of order
+                                return;
+                            }
+
+                            if (_state != State.WaitingHandshakeReply)
+                            {
+                                _error(TransportError.Unexpected,
+                                    "Received HandshakeFin packet, we didn't expect this yet.");
+                                return;
+                            }
+
                             SetReady();
-                        }
-                        else if (!IsReady)
-                        {
-                            _error(TransportError.Unexpected, "Unexpected data while not ready.");
-                        }
 
-                        if (reader.Remaining < Overhead)
-                        {
-                            _error(TransportError.Unexpected, "received data packet smaller than metadata size");
-                            return;
-                        }
-
-                        ArraySegment<byte> ciphertext = reader.ReadBytesSegment(reader.Remaining - NonceSize);
-                        reader.ReadBytes(ReceiveNonce, NonceSize);
-
-                        Profiler.BeginSample("EncryptedConnection.Decrypt");
-                        ArraySegment<byte> plaintext = Decrypt(ciphertext);
-                        Profiler.EndSample();
-                        if (plaintext.Count == 0)
-                        {
-                            // error
-                            return;
-                        }
-                        _receive(plaintext, channel);
-                        break;
-                    case OpCodes.HandshakeStart:
-                        if (_sendsFirst)
-                        {
-                            _error(TransportError.Unexpected, "Received HandshakeStart packet, we don't expect this.");
-                            return;
-                        }
-
-                        if (_state == State.WaitingHandshakeReply)
-                        {
-                            // this is fine, packets may arrive out of order
-                            return;
-                        }
-
-                        _state = State.WaitingHandshakeReply;
-                        ResetTimeouts();
-                        CompleteExchange(reader.ReadBytesSegment(reader.Remaining), _hkdfSalt);
-                        SendHandshakeAndPubKey(OpCodes.HandshakeAck);
-                        break;
-                    case OpCodes.HandshakeAck:
-                        if (!_sendsFirst)
-                        {
-                            _error(TransportError.Unexpected, "Received HandshakeAck packet, we don't expect this.");
-                            return;
-                        }
-
-                        if (IsReady)
-                        {
-                            // this is fine, packets may arrive out of order
-                            return;
-                        }
-
-                        if (_state == State.WaitingHandshakeReply)
-                        {
-                            // this is fine, packets may arrive out of order
-                            return;
-                        }
-
-
-                        _state = State.WaitingHandshakeReply;
-                        ResetTimeouts();
-                        reader.ReadBytes(_tmpRemoteSaltBuffer, HkdfSaltSize);
-                        CompleteExchange(reader.ReadBytesSegment(reader.Remaining), _tmpRemoteSaltBuffer);
-                        SendHandshakeFin();
-                        break;
-                    case OpCodes.HandshakeFin:
-                        if (_sendsFirst)
-                        {
-                            _error(TransportError.Unexpected, "Received HandshakeFin packet, we don't expect this.");
-                            return;
-                        }
-
-                        if (IsReady)
-                        {
-                            // this is fine, packets may arrive out of order
-                            return;
-                        }
-
-                        if (_state != State.WaitingHandshakeReply)
-                        {
-                            _error(TransportError.Unexpected,
-                                "Received HandshakeFin packet, we didn't expect this yet.");
-                            return;
-                        }
-
-                        SetReady();
-
-                        break;
-                    default:
-                        _error(TransportError.InvalidReceive, $"Unhandled opcode {(byte)opcode:x}");
-                        break;
+                            break;
+                        default:
+                            _error(TransportError.InvalidReceive, $"Unhandled opcode {(byte)opcode:x}");
+                            break;
+                    }
                 }
             }
+            finally
+            {
+                Profiler.EndSample();
+            }
         }
+
         private void SetReady()
         {
             // done with credentials, null out the reference
@@ -299,22 +312,33 @@ namespace Mirror.Transports.Encryption
 
         public void Send(ArraySegment<byte> data, int channel)
         {
-            using (NetworkWriterPooled writer = NetworkWriterPool.Get())
+            try
             {
-                writer.WriteByte((byte)OpCodes.Data);
-                Profiler.BeginSample("EncryptedConnection.Encrypt");
-                ArraySegment<byte> encrypted = Encrypt(data);
-                Profiler.EndSample();
+                Profiler.BeginSample("EncryptedConnection.Send");
 
-                if (encrypted.Count == 0)
+                using (NetworkWriterPooled writer = NetworkWriterPool.Get())
                 {
-                    // error
-                    return;
+                    writer.WriteByte((byte)OpCodes.Data);
+                    Profiler.BeginSample("EncryptedConnection.Encrypt");
+                    ArraySegment<byte> encrypted = Encrypt(data);
+                    Profiler.EndSample();
+
+                    if (encrypted.Count == 0)
+                    {
+                        // error
+                        return;
+                    }
+                    writer.WriteBytes(encrypted.Array, 0, encrypted.Count);
+                    // write nonce after since Encrypt will update it
+                    writer.WriteBytes(_nonce, 0, NonceSize);
+                    Profiler.BeginSample("EncryptedConnection._send");
+                    _send(writer.ToArraySegment(), channel);
+                    Profiler.EndSample();
                 }
-                writer.WriteBytes(encrypted.Array, 0, encrypted.Count);
-                // write nonce after since Encrypt will update it
-                writer.WriteBytes(_nonce, 0, NonceSize);
-                _send(writer.ToArraySegment(), channel);
+            }
+            finally
+            {
+                Profiler.EndSample();
             }
         }
 
@@ -327,20 +351,34 @@ namespace Mirror.Transports.Encryption
             }
             // Need to make the nonce unique again before encrypting another message
             UpdateNonce();
+            int outSize = plaintext.Count + MacSizeBytes;
+            // Resize the static buffer to fit
+            EnsureSize(ref _tmpCryptBuffer, outSize);
+            if (AesGCMEncryptionNative.IsSupported)
+            {
+                ArraySegment<byte> nativeRes = AesGCMEncryptionNative.Encrypt(_keyRaw, _nonce, plaintext, new ArraySegment<byte>(_tmpCryptBuffer));
+                if (nativeRes.Count == 0)
+                {
+                    _error(TransportError.Unexpected, $"Native Encryption failed. Please check STDERR (or editor log) for the error.");
+                    return new ArraySegment<byte>();
+                }
+                return nativeRes;
+            }
+
             // Re-initialize the cipher with our cached parameters
             Cipher.Init(true, _cipherParametersEncrypt);
 
-            // Calculate the expected output size, this should always be input size + mac size
-            int outSize = Cipher.GetOutputSize(plaintext.Count);
 #if UNITY_EDITOR
+            // Sanity check!
+            // Calculate the expected output size, this should always be input size + mac size
+            int calcOutSize = Cipher.GetOutputSize(plaintext.Count);
             // expecting the outSize to be input size + MacSize
-            if (outSize != plaintext.Count + MacSizeBytes)
+            if (calcOutSize != outSize)
             {
-                throw new Exception($"Encrypt: Unexpected output size (Expected {plaintext.Count + MacSizeBytes}, got {outSize}");
+                throw new Exception($"Encrypt: Unexpected output size (Expected {outSize}, got {calcOutSize}");
             }
 #endif
-            // Resize the static buffer to fit
-            EnsureSize(ref _tmpCryptBuffer, outSize);
+
             int resultLen;
             try
             {
@@ -375,20 +413,36 @@ namespace Mirror.Transports.Encryption
                 // Invalid
                 return new ArraySegment<byte>();
             }
+
+
+            int outSize = ciphertext.Count - MacSizeBytes;
+            // Resize the static buffer to fit
+            EnsureSize(ref _tmpCryptBuffer, outSize);
+            if (AesGCMEncryptionNative.IsSupported)
+            {
+                var nativeRes = AesGCMEncryptionNative.Decrypt(_keyRaw, ReceiveNonce, ciphertext, new ArraySegment<byte>(_tmpCryptBuffer));
+                if (nativeRes.Count == 0)
+                {
+                    _error(TransportError.Unexpected, $"Native Encryption failed. Please check STDERR (or editor log) for the error.");
+                    return new ArraySegment<byte>();
+                }
+                return nativeRes;
+            }
+
             // Re-initialize the cipher with our cached parameters
             Cipher.Init(false, _cipherParametersDecrypt);
 
-            // Calculate the expected output size, this should always be input size - mac size
-            int outSize = Cipher.GetOutputSize(ciphertext.Count);
 #if UNITY_EDITOR
+            // Sanity check!
+            // Calculate the expected output size, this should always be input size - mac size
+            int calcOutSize = Cipher.GetOutputSize(ciphertext.Count);
             // expecting the outSize to be input size - MacSize
-            if (outSize != ciphertext.Count - MacSizeBytes)
+            if (outSize != calcOutSize)
             {
                 throw new Exception($"Decrypt: Unexpected output size (Expected {ciphertext.Count - MacSizeBytes}, got {outSize}");
             }
 #endif
-            // Resize the static buffer to fit
-            EnsureSize(ref _tmpCryptBuffer, outSize);
+
             int resultLen;
             try
             {
@@ -515,12 +569,12 @@ namespace Mirror.Transports.Encryption
             Hkdf.Init(new HkdfParameters(sharedSecret, salt, HkdfInfo));
 
             // Allocate a buffer for the output key
-            byte[] keyRaw = new byte[KeyLength];
+            _keyRaw = new byte[KeyLength];
 
             // Generate the output keying material
-            Hkdf.GenerateBytes(keyRaw, 0, keyRaw.Length);
+            Hkdf.GenerateBytes(_keyRaw, 0, _keyRaw.Length);
 
-            KeyParameter key = new KeyParameter(keyRaw);
+            KeyParameter key = new KeyParameter(_keyRaw);
 
             // generate a starting nonce
             _nonce = GenerateSecureBytes(NonceSize);
