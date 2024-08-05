@@ -2,20 +2,15 @@ using System;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-namespace Mirror.Examples.Common.Controllers.Player
+namespace Mirror.Examples.Common.Controllers.Tank
 {
     [AddComponentMenu("")]
-    [RequireComponent(typeof(PlayerCamera))]
     [RequireComponent(typeof(Rigidbody))]
-    [RequireComponent(typeof(CapsuleCollider))]
     [RequireComponent(typeof(CharacterController))]
     [RequireComponent(typeof(NetworkIdentity))]
-    [RequireComponent(typeof(NetworkTransformReliable))]
     [DisallowMultipleComponent]
-    public class PlayerController : NetworkBehaviour
+    public class TankControllerBase : NetworkBehaviour
     {
-        const float BASE_DPI = 96f;
-
         public enum GroundState : byte { Jumping, Falling, Grounded }
 
         [Serializable]
@@ -23,17 +18,13 @@ namespace Mirror.Examples.Common.Controllers.Player
         {
             public KeyCode Forward;
             public KeyCode Back;
-            public KeyCode StrafeLeft;
-            public KeyCode StrafeRight;
             public KeyCode TurnLeft;
             public KeyCode TurnRight;
-            public KeyCode Jump;
         }
 
         [Serializable]
         public struct OptionsKeys
         {
-            public KeyCode MouseSteer;
             public KeyCode AutoRun;
             public KeyCode ToggleUI;
         }
@@ -42,12 +33,12 @@ namespace Mirror.Examples.Common.Controllers.Player
         public enum ControlOptions : byte
         {
             None,
-            MouseSteer = 1 << 0,
-            AutoRun = 1 << 1,
-            ShowUI = 1 << 2
+            AutoRun = 1 << 0,
+            ShowUI = 1 << 1
         }
 
-        [Header("Avatar Components")]
+        [Header("Components")]
+        public BoxCollider boxCollider;
         public CharacterController characterController;
 
         [Header("User Interface")]
@@ -59,17 +50,13 @@ namespace Mirror.Examples.Common.Controllers.Player
         {
             Forward = KeyCode.W,
             Back = KeyCode.S,
-            StrafeLeft = KeyCode.A,
-            StrafeRight = KeyCode.D,
-            TurnLeft = KeyCode.Q,
-            TurnRight = KeyCode.E,
-            Jump = KeyCode.Space,
+            TurnLeft = KeyCode.A,
+            TurnRight = KeyCode.D,
         };
 
         [SerializeField]
         public OptionsKeys optionsKeys = new OptionsKeys
         {
-            MouseSteer = KeyCode.M,
             AutoRun = KeyCode.R,
             ToggleUI = KeyCode.U
         };
@@ -93,18 +80,6 @@ namespace Mirror.Examples.Common.Controllers.Player
         [Tooltip("Gravity factors into decelleration")]
         public float inputGravity = 2f;
 
-        [Header("Jumping")]
-        [Range(0, 10f)]
-        [Tooltip("Initial jump speed in meters per second")]
-        public float initialJumpSpeed = 2.5f;
-        [Range(0, 10f)]
-        [Tooltip("Maximum jump speed in meters per second")]
-        public float maxJumpSpeed = 3.5f;
-        [Range(0, 10f)]
-        [FormerlySerializedAs("jumpDelta")]
-        [Tooltip("Jump acceleration in meters per second squared")]
-        public float jumpAcceleration = 4f;
-
         [Header("Turning")]
         [Range(0, 300f)]
         [Tooltip("Max Rotation in degrees per second")]
@@ -113,9 +88,6 @@ namespace Mirror.Examples.Common.Controllers.Player
         [FormerlySerializedAs("turnDelta")]
         [Tooltip("Rotation acceleration in degrees per second squared")]
         public float turnAcceleration = 3f;
-        //[Range(0, 10f)]
-        //[Tooltip("Sensitivity factors into accelleration")]
-        //public float mouseSensitivity = 2f;
 
         [Header("Diagnostics")]
         [ReadOnly, SerializeField]
@@ -126,15 +98,8 @@ namespace Mirror.Examples.Common.Controllers.Player
         [ReadOnly, SerializeField, Range(-1f, 1f)]
         float vertical;
 
-        [ReadOnly, SerializeField, Range(-1f, 1f)]
-        float mouseInputX;
-        [ReadOnly, SerializeField, Range(0, 30f)]
-        float mouseSensitivity;
         [ReadOnly, SerializeField, Range(-300f, 300f)]
         float turnSpeed;
-
-        [ReadOnly, SerializeField, Range(-10f, 10f)]
-        float jumpSpeed;
 
         [ReadOnly, SerializeField, Range(-1.5f, 1.5f)]
         float animVelocity;
@@ -162,8 +127,14 @@ namespace Mirror.Examples.Common.Controllers.Player
             Reset();
         }
 
-        void Reset()
+        protected virtual void Reset()
         {
+            if (boxCollider == null)
+                boxCollider = GetComponentInChildren<BoxCollider>();
+
+            // Enable by default...it will be disabled when characterController is enabled
+            boxCollider.enabled = true;
+
             if (characterController == null)
                 characterController = GetComponent<CharacterController>();
 
@@ -175,14 +146,14 @@ namespace Mirror.Examples.Common.Controllers.Player
             GetComponent<Rigidbody>().isKinematic = true;
 
 #if UNITY_EDITOR
-            // For convenience in the examples, we use the GUID of the PlayerControllerUI
+            // For convenience in the examples, we use the GUID of the TankControllerUI prefab
             // to find the correct prefab in the Mirror/Examples/_Common/Controllers folder.
             // This avoids conflicts with user-created prefabs that may have the same name
             // and avoids polluting the user's project with Resources.
             // This is not recommended for production code...use Resources.Load or AssetBundles instead.
             if (ControllerUIPrefab == null)
             {
-                string path = UnityEditor.AssetDatabase.GUIDToAssetPath("7beee247444994f0281dadde274cc4af");
+                string path = UnityEditor.AssetDatabase.GUIDToAssetPath("e64b14552402f6745a7f0aca6237fae2");
                 ControllerUIPrefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(path);
             }
 #endif
@@ -192,13 +163,9 @@ namespace Mirror.Examples.Common.Controllers.Player
 
         public override void OnStartAuthority()
         {
-            // Calculate DPI-aware sensitivity
-            float dpiScale = (Screen.dpi > 0) ? (Screen.dpi / BASE_DPI) : 1f;
-            mouseSensitivity = turnAcceleration * dpiScale;
-            //Debug.Log($"Screen DPI: {Screen.dpi}, DPI Scale: {dpiScale}, Adjusted Turn Acceleration: {turnAccelerationDPI}");
-
-            SetCursor(controlOptions.HasFlag(ControlOptions.MouseSteer));
-
+            // capsuleCollider and characterController are mutually exclusive
+            // Having both enabled would double fire triggers and other collisions
+            //boxCollider.enabled = false;
             characterController.enabled = true;
             this.enabled = true;
         }
@@ -206,8 +173,11 @@ namespace Mirror.Examples.Common.Controllers.Player
         public override void OnStopAuthority()
         {
             this.enabled = false;
+
+            // capsuleCollider and characterController are mutually exclusive
+            // Having both enabled would double fire triggers and other collisions
+            //boxCollider.enabled = true;
             characterController.enabled = false;
-            SetCursor(false);
         }
 
         public override void OnStartLocalPlayer()
@@ -217,7 +187,7 @@ namespace Mirror.Examples.Common.Controllers.Player
 
             if (controllerUI != null)
             {
-                if (controllerUI.TryGetComponent(out PlayerControllerUI canvasControlPanel))
+                if (controllerUI.TryGetComponent(out TankControllerUI canvasControlPanel))
                     canvasControlPanel.Refresh(moveKeys, optionsKeys);
 
                 controllerUI.SetActive(controlOptions.HasFlag(ControlOptions.ShowUI));
@@ -241,13 +211,7 @@ namespace Mirror.Examples.Common.Controllers.Player
             float deltaTime = Time.deltaTime;
 
             HandleOptions();
-
-            if (controlOptions.HasFlag(ControlOptions.MouseSteer))
-                HandleMouseSteer(deltaTime);
-            else
-                HandleTurning(deltaTime);
-
-            HandleJumping(deltaTime);
+            HandleTurning(deltaTime);
             HandleMove(deltaTime);
             ApplyMove(deltaTime);
 
@@ -261,20 +225,8 @@ namespace Mirror.Examples.Common.Controllers.Player
             velocity = Vector3Int.FloorToInt(characterController.velocity);
         }
 
-        void SetCursor(bool locked)
-        {
-            Cursor.lockState = locked ? CursorLockMode.Locked : CursorLockMode.None;
-            Cursor.visible = !locked;
-        }
-
         void HandleOptions()
         {
-            if (optionsKeys.MouseSteer != KeyCode.None && Input.GetKeyUp(optionsKeys.MouseSteer))
-            {
-                controlOptions ^= ControlOptions.MouseSteer;
-                SetCursor(controlOptions.HasFlag(ControlOptions.MouseSteer));
-            }
-
             if (optionsKeys.AutoRun != KeyCode.None && Input.GetKeyUp(optionsKeys.AutoRun))
                 controlOptions ^= ControlOptions.AutoRun;
 
@@ -302,62 +254,6 @@ namespace Mirror.Examples.Common.Controllers.Player
             transform.Rotate(0f, turnSpeed * deltaTime, 0f);
         }
 
-        void HandleMouseSteer(float deltaTime)
-        {
-            // Accumulate mouse input over time
-            mouseInputX += Input.GetAxisRaw("Mouse X") * mouseSensitivity;
-
-            // Clamp the accumulator to simulate key press behavior
-            mouseInputX = Mathf.Clamp(mouseInputX, -1f, 1f);
-
-            // Calculate target turn speed
-            float targetTurnSpeed = mouseInputX * maxTurnSpeed;
-
-            // Use the same acceleration logic as HandleTurning
-            turnSpeed = Mathf.MoveTowards(turnSpeed, targetTurnSpeed, mouseSensitivity * maxTurnSpeed * deltaTime);
-
-            // Apply rotation
-            transform.Rotate(0f, turnSpeed * deltaTime, 0f);
-
-            // Decay the accumulator over time
-            //float decayRate = 5f; // Adjust as needed
-            //mouseInputX = Mathf.MoveTowards(mouseInputX, 0f, decayRate * deltaTime);
-            mouseInputX = Mathf.MoveTowards(mouseInputX, 0f, mouseSensitivity * deltaTime);
-        }
-
-        void HandleJumping(float deltaTime)
-        {
-            if (groundState != GroundState.Falling && moveKeys.Jump != KeyCode.None && Input.GetKey(moveKeys.Jump))
-            {
-                if (groundState != GroundState.Jumping)
-                {
-                    groundState = GroundState.Jumping;
-                    jumpSpeed = initialJumpSpeed;
-                }
-                else if (jumpSpeed < maxJumpSpeed)
-                {
-                    // Increase jumpSpeed using a square root function for a fast start and slow finish
-                    float jumpProgress = (jumpSpeed - initialJumpSpeed) / (maxJumpSpeed - initialJumpSpeed);
-                    jumpSpeed += (jumpAcceleration * Mathf.Sqrt(1 - jumpProgress)) * deltaTime;
-                }
-
-                if (jumpSpeed >= maxJumpSpeed)
-                {
-                    jumpSpeed = maxJumpSpeed;
-                    groundState = GroundState.Falling;
-                }
-            }
-            else if (groundState != GroundState.Grounded)
-            {
-                groundState = GroundState.Falling;
-                jumpSpeed = Mathf.Min(jumpSpeed, maxJumpSpeed);
-                jumpSpeed += Physics.gravity.y * deltaTime;
-            }
-            else
-                // maintain small downward speed for when falling off ledges
-                jumpSpeed = Physics.gravity.y * deltaTime;
-        }
-
         void HandleMove(float deltaTime)
         {
             // Initialize target movement variables
@@ -367,8 +263,6 @@ namespace Mirror.Examples.Common.Controllers.Player
             // Check for WASD key presses and adjust target movement variables accordingly
             if (moveKeys.Forward != KeyCode.None && Input.GetKey(moveKeys.Forward)) targetMoveZ = 1f;
             if (moveKeys.Back != KeyCode.None && Input.GetKey(moveKeys.Back)) targetMoveZ = -1f;
-            if (moveKeys.StrafeLeft != KeyCode.None && Input.GetKey(moveKeys.StrafeLeft)) targetMoveX = -1f;
-            if (moveKeys.StrafeRight != KeyCode.None && Input.GetKey(moveKeys.StrafeRight)) targetMoveX = 1f;
 
             if (targetMoveX == 0f)
             {
@@ -401,8 +295,8 @@ namespace Mirror.Examples.Common.Controllers.Player
             // Multiply for desired ground speed.
             direction *= maxMoveSpeed;
 
-            // Add jumpSpeed to direction as last step.
-            direction.y = jumpSpeed;
+            // Add gravity in case we drove off a cliff.
+            direction += Physics.gravity;
 
             // Finally move the character.
             characterController.Move(direction * deltaTime);

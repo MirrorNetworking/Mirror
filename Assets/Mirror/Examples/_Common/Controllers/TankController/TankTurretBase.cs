@@ -5,10 +5,8 @@ namespace Mirror.Examples.Common.Controllers.Tank
 {
     [AddComponentMenu("")]
     [RequireComponent(typeof(NetworkIdentity))]
-    [RequireComponent(typeof(NetworkTransformReliable))]
-    [RequireComponent(typeof(TankController))]
     [DisallowMultipleComponent]
-    public class TankTurret : NetworkBehaviour
+    public class TankTurretBase : NetworkBehaviour
     {
         [Serializable]
         public struct OptionsKeys
@@ -54,8 +52,6 @@ namespace Mirror.Examples.Common.Controllers.Tank
 
         [Header("Components")]
         public Animator animator;
-        public NetworkTransformReliable turretNTR;
-        public NetworkTransformReliable barrelNTR;
         public Transform turret;
         public Transform barrel;
         public Transform projectileMount;
@@ -154,7 +150,7 @@ namespace Mirror.Examples.Common.Controllers.Tank
         }
 
         // NOTE: Do not put objects in DontDestroyOnLoad (DDOL) in Awake.  You can do that in Start instead.
-        void Reset()
+        protected virtual void Reset()
         {
             if (animator == null)
                 animator = GetComponentInChildren<Animator>();
@@ -192,51 +188,6 @@ namespace Mirror.Examples.Common.Controllers.Tank
 
                 return null;
             }
-
-            // The base Tank uses the first NetworkTransformReliable for the tank body
-            // Add additional NetworkTransformReliable components for the turret and barrel
-            // Set SyncPosition to false because we only want to sync rotation
-            NetworkTransformReliable[] NTRs = GetComponents<NetworkTransformReliable>();
-
-            if (NTRs.Length < 2)
-            {
-                turretNTR = gameObject.AddComponent<NetworkTransformReliable>();
-                turretNTR.transform.SetSiblingIndex(NTRs[0].transform.GetSiblingIndex() + 1);
-                NTRs = GetComponents<NetworkTransformReliable>();
-            }
-            else
-                turretNTR = NTRs[1];
-
-            // Ensure SyncDirection is Client to Server
-            turretNTR.syncDirection = SyncDirection.ClientToServer;
-            turretNTR.syncPosition = false;
-            turretNTR.compressRotation = true;
-
-            // Set SyncPosition to false because we only want to sync rotation
-            //turretNTR.syncPosition = false;
-
-            if (turret != null)
-                turretNTR.target = turret;
-
-            if (NTRs.Length < 3)
-            {
-                barrelNTR = gameObject.AddComponent<NetworkTransformReliable>();
-                barrelNTR.transform.SetSiblingIndex(NTRs[1].transform.GetSiblingIndex() + 1);
-                NTRs = GetComponents<NetworkTransformReliable>();
-            }
-            else
-                barrelNTR = NTRs[2];
-
-            // Ensure SyncDirection is Client to Server
-            barrelNTR.syncDirection = SyncDirection.ClientToServer;
-            barrelNTR.syncPosition = false;
-            barrelNTR.compressRotation = true;
-
-            // Set SyncPosition to false because we only want to sync rotation
-            //barrelNTR.syncPosition = false;
-
-            if (barrel != null)
-                barrelNTR.target = barrel;
 
 #if UNITY_EDITOR
             // For convenience in the examples, we use the GUID of the Projectile prefab

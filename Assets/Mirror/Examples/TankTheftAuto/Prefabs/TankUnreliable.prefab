@@ -13,15 +13,15 @@ GameObject:
   - component: {fileID: -3663159771046410010}
   - component: {fileID: 6068304543228546507}
   - component: {fileID: 9011654894794846298}
-  - component: {fileID: 7596397783725454330}
-  - component: {fileID: 1696720273189594966}
-  - component: {fileID: 7169244018383349727}
-  - component: {fileID: 7830157450682276248}
-  - component: {fileID: 2567556615025523050}
   - component: {fileID: 3519933858578404829}
   - component: {fileID: -1177881442708440307}
+  - component: {fileID: -7893703745375808080}
+  - component: {fileID: 5305657484878254739}
+  - component: {fileID: -8195396223309571671}
+  - component: {fileID: 3555053558530271693}
+  - component: {fileID: -1846505870324383132}
   m_Layer: 0
-  m_Name: TankShared
+  m_Name: TankUnreliable
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -58,7 +58,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sceneId: 0
-  _assetId: 1372560619
+  _assetId: 3558518609
   serverOnly: 0
   visibility: 0
   hasSpawned: 0
@@ -113,204 +113,6 @@ CharacterController:
   m_SkinWidth: 0.02
   m_MinMoveDistance: 0
   m_Center: {x: 0, y: 1, z: 0}
---- !u!114 &7596397783725454330
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 160176457}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8ff3ba0becae47b8b9381191598957c8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  syncDirection: 1
-  syncMode: 0
-  syncInterval: 0
-  target: {fileID: 160176456}
-  syncPosition: 1
-  syncRotation: 1
-  syncScale: 0
-  onlySyncOnChange: 1
-  compressRotation: 1
-  interpolatePosition: 1
-  interpolateRotation: 1
-  interpolateScale: 1
-  coordinateSpace: 0
-  sendIntervalMultiplier: 1
-  timelineOffset: 0
-  showGizmos: 0
-  showOverlay: 0
-  overlayColor: {r: 0, g: 0, b: 0, a: 0.5}
-  onlySyncOnChangeCorrectionMultiplier: 2
-  rotationSensitivity: 0.01
-  positionPrecision: 0.01
-  scalePrecision: 0.01
---- !u!114 &1696720273189594966
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 160176457}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8ff3ba0becae47b8b9381191598957c8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  syncDirection: 1
-  syncMode: 0
-  syncInterval: 0
-  target: {fileID: 2763801909253176930}
-  syncPosition: 0
-  syncRotation: 1
-  syncScale: 0
-  onlySyncOnChange: 1
-  compressRotation: 1
-  interpolatePosition: 1
-  interpolateRotation: 1
-  interpolateScale: 1
-  coordinateSpace: 0
-  sendIntervalMultiplier: 1
-  timelineOffset: 0
-  showGizmos: 0
-  showOverlay: 0
-  overlayColor: {r: 0, g: 0, b: 0, a: 0.5}
-  onlySyncOnChangeCorrectionMultiplier: 2
-  rotationSensitivity: 0.01
-  positionPrecision: 0.01
-  scalePrecision: 0.01
---- !u!114 &7169244018383349727
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 160176457}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8ff3ba0becae47b8b9381191598957c8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  syncDirection: 1
-  syncMode: 0
-  syncInterval: 0
-  target: {fileID: 2763801909253176940}
-  syncPosition: 0
-  syncRotation: 1
-  syncScale: 0
-  onlySyncOnChange: 1
-  compressRotation: 1
-  interpolatePosition: 1
-  interpolateRotation: 1
-  interpolateScale: 1
-  coordinateSpace: 0
-  sendIntervalMultiplier: 1
-  timelineOffset: 0
-  showGizmos: 0
-  showOverlay: 0
-  overlayColor: {r: 0, g: 0, b: 0, a: 0.5}
-  onlySyncOnChangeCorrectionMultiplier: 2
-  rotationSensitivity: 0.01
-  positionPrecision: 0.01
-  scalePrecision: 0.01
---- !u!114 &7830157450682276248
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 160176457}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 047024b2ae9afb74485837a482ea4175, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  syncDirection: 0
-  syncMode: 0
-  syncInterval: 0
-  boxCollider: {fileID: 2603367113295616590}
-  characterController: {fileID: 9011654894794846298}
-  tankNTR: {fileID: 7596397783725454330}
-  ControllerUIPrefab: {fileID: 644766297742565710, guid: e64b14552402f6745a7f0aca6237fae2,
-    type: 3}
-  moveKeys:
-    Forward: 119
-    Back: 115
-    TurnLeft: 97
-    TurnRight: 100
-  optionsKeys:
-    AutoRun: 114
-    ToggleUI: 117
-  controlOptions: 2
-  maxMoveSpeed: 8
-  inputSensitivity: 2
-  inputGravity: 2
-  maxTurnSpeed: 100
-  turnAcceleration: 3
-  groundState: 2
-  horizontal: 0
-  vertical: 0
-  turnSpeed: 0
-  animVelocity: 0
-  animRotation: 0
-  direction: {x: 0, y: 0, z: 0}
-  velocity: {x: 0, y: 0, z: 0}
-  controllerUI: {fileID: 0}
---- !u!114 &2567556615025523050
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 160176457}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2620edb022743ce4bafb12274ee78716, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  syncDirection: 0
-  syncMode: 0
-  syncInterval: 0
-  turretUIPrefab: {fileID: 644766297742565710, guid: 4d16730f7a8ba0a419530d1156d25080,
-    type: 3}
-  projectilePrefab: {fileID: 5890560936853567077, guid: aec853915cd4f4477ba1532b5fe05488,
-    type: 3}
-  animator: {fileID: 2763801909243548044}
-  turretNTR: {fileID: 1696720273189594966}
-  barrelNTR: {fileID: 7169244018383349727}
-  turret: {fileID: 2763801909253176930}
-  barrel: {fileID: 2763801909253176940}
-  projectileMount: {fileID: 9131626885722767412}
-  playerObject: {fileID: 275309355690048611}
-  playerColor:
-    serializedVersion: 2
-    rgba: 4278190080
-  moveKeys:
-    PitchUp: 273
-    PitchDown: 274
-    TurnLeft: 276
-    TurnRight: 275
-  otherKeys:
-    Shoot: 32
-  optionsKeys:
-    MouseLock: 109
-    AutoLevel: 108
-    ToggleUI: 117
-  controlOptions: 6
-  maxTurretSpeed: 250
-  turretAcceleration: 10
-  maxPitchSpeed: 30
-  maxPitchUpAngle: 25
-  maxPitchDownAngle: 0
-  pitchAcceleration: 3
-  mouseInputX: 0
-  mouseSensitivity: 10
-  turretSpeed: 0
-  pitchAngle: 0
-  pitchSpeed: 0
-  turretUI: {fileID: 0}
 --- !u!114 &3519933858578404829
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -347,9 +149,206 @@ MonoBehaviour:
   syncMode: 0
   syncInterval: 0
   triggerUI: {fileID: 5287524317864410934}
-  tankTurret: {fileID: 2567556615025523050}
+  tankTurret: {fileID: -8195396223309571671}
   tankTrigger: {fileID: 8654251059059140940}
   isControlled: 0
+--- !u!114 &-7893703745375808080
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 160176457}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a553cb17010b2403e8523b558bffbc14, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncDirection: 1
+  syncMode: 0
+  syncInterval: 0
+  target: {fileID: 160176456}
+  syncPosition: 1
+  syncRotation: 1
+  syncScale: 0
+  onlySyncOnChange: 1
+  compressRotation: 1
+  interpolatePosition: 1
+  interpolateRotation: 1
+  interpolateScale: 1
+  coordinateSpace: 0
+  sendIntervalMultiplier: 1
+  timelineOffset: 0
+  showGizmos: 0
+  showOverlay: 0
+  overlayColor: {r: 0, g: 0, b: 0, a: 0.5}
+  bufferResetMultiplier: 3
+  positionSensitivity: 0.01
+  rotationSensitivity: 0.01
+  scaleSensitivity: 0.01
+--- !u!114 &5305657484878254739
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 160176457}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54174134d990edc4b8d3ba4242a9a61a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+  boxCollider: {fileID: 2603367113295616590}
+  characterController: {fileID: 9011654894794846298}
+  ControllerUIPrefab: {fileID: 644766297742565710, guid: e64b14552402f6745a7f0aca6237fae2,
+    type: 3}
+  moveKeys:
+    Forward: 119
+    Back: 115
+    TurnLeft: 97
+    TurnRight: 100
+  optionsKeys:
+    AutoRun: 114
+    ToggleUI: 117
+  controlOptions: 2
+  maxMoveSpeed: 8
+  inputSensitivity: 2
+  inputGravity: 2
+  maxTurnSpeed: 100
+  turnAcceleration: 3
+  groundState: 2
+  horizontal: 0
+  vertical: 0
+  turnSpeed: 0
+  animVelocity: 0
+  animRotation: 0
+  direction: {x: 0, y: 0, z: 0}
+  velocity: {x: 0, y: 0, z: 0}
+  controllerUI: {fileID: 0}
+--- !u!114 &-8195396223309571671
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 160176457}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2cd78b1021803ce4fa7c95ca67f19aec, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+  turretUIPrefab: {fileID: 644766297742565710, guid: 4d16730f7a8ba0a419530d1156d25080,
+    type: 3}
+  projectilePrefab: {fileID: 5890560936853567077, guid: aec853915cd4f4477ba1532b5fe05488,
+    type: 3}
+  animator: {fileID: 2763801909243548044}
+  turret: {fileID: 2763801909253176930}
+  barrel: {fileID: 2763801909253176940}
+  projectileMount: {fileID: 9131626885722767412}
+  playerObject: {fileID: 275309355690048611}
+  playerColor:
+    serializedVersion: 2
+    rgba: 4278190080
+  moveKeys:
+    PitchUp: 273
+    PitchDown: 274
+    TurnLeft: 276
+    TurnRight: 275
+  otherKeys:
+    Shoot: 32
+  optionsKeys:
+    MouseLock: 109
+    AutoLevel: 108
+    ToggleUI: 117
+  controlOptions: 6
+  maxTurretSpeed: 250
+  turretAcceleration: 10
+  maxPitchSpeed: 30
+  maxPitchUpAngle: 25
+  maxPitchDownAngle: 0
+  pitchAcceleration: 3
+  mouseInputX: 0
+  mouseSensitivity: 10
+  turretSpeed: 0
+  pitchAngle: 0
+  pitchSpeed: 0
+  turretUI: {fileID: 0}
+  turretNTR: {fileID: 3555053558530271693}
+  barrelNTR: {fileID: -1846505870324383132}
+--- !u!114 &3555053558530271693
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 160176457}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a553cb17010b2403e8523b558bffbc14, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncDirection: 1
+  syncMode: 0
+  syncInterval: 0
+  target: {fileID: 2763801909253176930}
+  syncPosition: 0
+  syncRotation: 1
+  syncScale: 0
+  onlySyncOnChange: 1
+  compressRotation: 1
+  interpolatePosition: 1
+  interpolateRotation: 1
+  interpolateScale: 1
+  coordinateSpace: 0
+  sendIntervalMultiplier: 1
+  timelineOffset: 0
+  showGizmos: 0
+  showOverlay: 0
+  overlayColor: {r: 0, g: 0, b: 0, a: 0.5}
+  bufferResetMultiplier: 3
+  positionSensitivity: 0.01
+  rotationSensitivity: 0.01
+  scaleSensitivity: 0.01
+--- !u!114 &-1846505870324383132
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 160176457}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a553cb17010b2403e8523b558bffbc14, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncDirection: 1
+  syncMode: 0
+  syncInterval: 0
+  target: {fileID: 2763801909253176940}
+  syncPosition: 0
+  syncRotation: 1
+  syncScale: 0
+  onlySyncOnChange: 1
+  compressRotation: 1
+  interpolatePosition: 1
+  interpolateRotation: 1
+  interpolateScale: 1
+  coordinateSpace: 0
+  sendIntervalMultiplier: 1
+  timelineOffset: 0
+  showGizmos: 0
+  showOverlay: 0
+  overlayColor: {r: 0, g: 0, b: 0, a: 0.5}
+  bufferResetMultiplier: 3
+  positionSensitivity: 0.01
+  rotationSensitivity: 0.01
+  scaleSensitivity: 0.01
 --- !u!1 &3186135298788407273
 GameObject:
   m_ObjectHideFlags: 0

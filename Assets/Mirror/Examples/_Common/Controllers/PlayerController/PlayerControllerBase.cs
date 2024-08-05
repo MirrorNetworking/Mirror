@@ -2,27 +2,17 @@ using System;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-namespace Mirror.Examples.Common.Controllers.Flyer
+namespace Mirror.Examples.Common.Controllers.Player
 {
     [AddComponentMenu("")]
-    [RequireComponent(typeof(PlayerCamera))]
     [RequireComponent(typeof(Rigidbody))]
     [RequireComponent(typeof(CapsuleCollider))]
     [RequireComponent(typeof(CharacterController))]
     [RequireComponent(typeof(NetworkIdentity))]
-    [RequireComponent(typeof(NetworkTransformReliable))]
     [DisallowMultipleComponent]
-    public class FlyerController : NetworkBehaviour
+    public class PlayerControllerBase : NetworkBehaviour
     {
         const float BASE_DPI = 96f;
-
-        [Serializable]
-        public struct OptionsKeys
-        {
-            public KeyCode MouseSteer;
-            public KeyCode AutoRun;
-            public KeyCode ToggleUI;
-        }
 
         public enum GroundState : byte { Jumping, Falling, Grounded }
 
@@ -35,16 +25,15 @@ namespace Mirror.Examples.Common.Controllers.Flyer
             public KeyCode StrafeRight;
             public KeyCode TurnLeft;
             public KeyCode TurnRight;
+            public KeyCode Jump;
         }
 
         [Serializable]
-        public struct FlightKeys
+        public struct OptionsKeys
         {
-            public KeyCode PitchDown;
-            public KeyCode PitchUp;
-            public KeyCode RollLeft;
-            public KeyCode RollRight;
-            public KeyCode AutoLevel;
+            public KeyCode MouseSteer;
+            public KeyCode AutoRun;
+            public KeyCode ToggleUI;
         }
 
         [Flags]
@@ -53,12 +42,10 @@ namespace Mirror.Examples.Common.Controllers.Flyer
             None,
             MouseSteer = 1 << 0,
             AutoRun = 1 << 1,
-            AutoLevel = 1 << 2,
-            ShowUI = 1 << 3
+            ShowUI = 1 << 2
         }
 
         [Header("Avatar Components")]
-        public CapsuleCollider capsuleCollider;
         public CharacterController characterController;
 
         [Header("User Interface")]
@@ -73,17 +60,8 @@ namespace Mirror.Examples.Common.Controllers.Flyer
             StrafeLeft = KeyCode.A,
             StrafeRight = KeyCode.D,
             TurnLeft = KeyCode.Q,
-            TurnRight = KeyCode.E
-        };
-
-        [SerializeField]
-        public FlightKeys flightKeys = new FlightKeys
-        {
-            PitchDown = KeyCode.UpArrow,
-            PitchUp = KeyCode.DownArrow,
-            RollLeft = KeyCode.LeftArrow,
-            RollRight = KeyCode.RightArrow,
-            AutoLevel = KeyCode.L
+            TurnRight = KeyCode.E,
+            Jump = KeyCode.Space,
         };
 
         [SerializeField]
@@ -95,7 +73,7 @@ namespace Mirror.Examples.Common.Controllers.Flyer
         };
 
         [Space(5)]
-        public ControlOptions controlOptions = ControlOptions.AutoLevel | ControlOptions.ShowUI;
+        public ControlOptions controlOptions = ControlOptions.ShowUI;
 
         [Header("Movement")]
         [Range(0, 20)]
@@ -122,30 +100,17 @@ namespace Mirror.Examples.Common.Controllers.Flyer
         [Tooltip("Rotation acceleration in degrees per second squared")]
         public float turnAcceleration = 3f;
 
-        [Header("Pitch")]
-        [Range(0, 180f)]
-        [Tooltip("Max Pitch in degrees per second")]
-        public float maxPitchSpeed = 30f;
-        [Range(0, 180f)]
-        [Tooltip("Max Pitch in degrees")]
-        public float maxPitchUpAngle = 20f;
-        [Range(0, 180f)]
-        [Tooltip("Max Pitch in degrees")]
-        public float maxPitchDownAngle = 45f;
+        [Header("Jumping")]
         [Range(0, 10f)]
-        [Tooltip("Pitch acceleration in degrees per second squared")]
-        public float pitchAcceleration = 3f;
-
-        [Header("Roll")]
-        [Range(0, 180f)]
-        [Tooltip("Max Roll in degrees per second")]
-        public float maxRollSpeed = 30f;
-        [Range(0, 180f)]
-        [Tooltip("Max Roll in degrees")]
-        public float maxRollAngle = 45f;
+        [Tooltip("Initial jump speed in meters per second")]
+        public float initialJumpSpeed = 2.5f;
         [Range(0, 10f)]
-        [Tooltip("Roll acceleration in degrees per second squared")]
-        public float rollAcceleration = 3f;
+        [Tooltip("Maximum jump speed in meters per second")]
+        public float maxJumpSpeed = 3.5f;
+        [Range(0, 10f)]
+        [FormerlySerializedAs("jumpDelta")]
+        [Tooltip("Jump acceleration in meters per second squared")]
+        public float jumpAcceleration = 4f;
 
         [Header("Diagnostics")]
         [ReadOnly, SerializeField]
@@ -163,15 +128,8 @@ namespace Mirror.Examples.Common.Controllers.Flyer
         [ReadOnly, SerializeField, Range(-300f, 300f)]
         float turnSpeed;
 
-        [ReadOnly, SerializeField, Range(-180f, 180f)]
-        float pitchAngle;
-        [ReadOnly, SerializeField, Range(-180f, 180f)]
-        float pitchSpeed;
-
-        [ReadOnly, SerializeField, Range(-180f, 180f)]
-        float rollAngle;
-        [ReadOnly, SerializeField, Range(-180f, 180f)]
-        float rollSpeed;
+        [ReadOnly, SerializeField, Range(-10f, 10f)]
+        float jumpSpeed;
 
         [ReadOnly, SerializeField, Range(-1.5f, 1.5f)]
         float animVelocity;
@@ -201,12 +159,6 @@ namespace Mirror.Examples.Common.Controllers.Flyer
 
         void Reset()
         {
-            if (capsuleCollider == null)
-                capsuleCollider = GetComponent<CapsuleCollider>();
-
-            // Enable by default...it will be disabled when characterController is enabled
-            capsuleCollider.enabled = true;
-
             if (characterController == null)
                 characterController = GetComponent<CharacterController>();
 
@@ -218,14 +170,14 @@ namespace Mirror.Examples.Common.Controllers.Flyer
             GetComponent<Rigidbody>().isKinematic = true;
 
 #if UNITY_EDITOR
-            // For convenience in the examples, we use the GUID of the FlyerControllerUI
+            // For convenience in the examples, we use the GUID of the PlayerControllerUI
             // to find the correct prefab in the Mirror/Examples/_Common/Controllers folder.
             // This avoids conflicts with user-created prefabs that may have the same name
             // and avoids polluting the user's project with Resources.
             // This is not recommended for production code...use Resources.Load or AssetBundles instead.
             if (ControllerUIPrefab == null)
             {
-                string path = UnityEditor.AssetDatabase.GUIDToAssetPath("493615025d304c144bacfb91f6aac90e");
+                string path = UnityEditor.AssetDatabase.GUIDToAssetPath("7beee247444994f0281dadde274cc4af");
                 ControllerUIPrefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(path);
             }
 #endif
@@ -242,9 +194,6 @@ namespace Mirror.Examples.Common.Controllers.Flyer
 
             SetCursor(controlOptions.HasFlag(ControlOptions.MouseSteer));
 
-            // capsuleCollider and characterController are mutually exclusive
-            // Having both enabled would double fire triggers and other collisions
-            capsuleCollider.enabled = false;
             characterController.enabled = true;
             this.enabled = true;
         }
@@ -252,12 +201,7 @@ namespace Mirror.Examples.Common.Controllers.Flyer
         public override void OnStopAuthority()
         {
             this.enabled = false;
-
-            // capsuleCollider and characterController are mutually exclusive
-            // Having both enabled would double fire triggers and other collisions
-            capsuleCollider.enabled = true;
             characterController.enabled = false;
-
             SetCursor(false);
         }
 
@@ -268,8 +212,8 @@ namespace Mirror.Examples.Common.Controllers.Flyer
 
             if (controllerUI != null)
             {
-                if (controllerUI.TryGetComponent(out FlyerControllerUI canvasControlPanel))
-                    canvasControlPanel.Refresh(moveKeys, flightKeys, optionsKeys);
+                if (controllerUI.TryGetComponent(out PlayerControllerUI canvasControlPanel))
+                    canvasControlPanel.Refresh(moveKeys, optionsKeys);
 
                 controllerUI.SetActive(controlOptions.HasFlag(ControlOptions.ShowUI));
             }
@@ -298,8 +242,7 @@ namespace Mirror.Examples.Common.Controllers.Flyer
             else
                 HandleTurning(deltaTime);
 
-            HandlePitch(deltaTime);
-            HandleRoll(deltaTime);
+            HandleJumping(deltaTime);
             HandleMove(deltaTime);
             ApplyMove(deltaTime);
 
@@ -337,9 +280,6 @@ namespace Mirror.Examples.Common.Controllers.Flyer
                 if (controllerUI != null)
                     controllerUI.SetActive(controlOptions.HasFlag(ControlOptions.ShowUI));
             }
-
-            if (flightKeys.AutoLevel != KeyCode.None && Input.GetKeyUp(flightKeys.AutoLevel))
-                controlOptions ^= ControlOptions.AutoLevel;
         }
 
         // Turning works while airborne...feature?
@@ -380,75 +320,37 @@ namespace Mirror.Examples.Common.Controllers.Flyer
             mouseInputX = Mathf.MoveTowards(mouseInputX, 0f, mouseSensitivity * deltaTime);
         }
 
-        void HandlePitch(float deltaTime)
+        void HandleJumping(float deltaTime)
         {
-            float targetPitchSpeed = 0f;
-            bool inputDetected = false;
-
-            // Up and Down arrows for pitch
-            if (flightKeys.PitchUp != KeyCode.None && Input.GetKey(flightKeys.PitchUp))
+            if (groundState != GroundState.Falling && moveKeys.Jump != KeyCode.None && Input.GetKey(moveKeys.Jump))
             {
-                targetPitchSpeed -= maxPitchSpeed;
-                inputDetected = true;
-            }
+                if (groundState != GroundState.Jumping)
+                {
+                    groundState = GroundState.Jumping;
+                    jumpSpeed = initialJumpSpeed;
+                }
+                else if (jumpSpeed < maxJumpSpeed)
+                {
+                    // Increase jumpSpeed using a square root function for a fast start and slow finish
+                    float jumpProgress = (jumpSpeed - initialJumpSpeed) / (maxJumpSpeed - initialJumpSpeed);
+                    jumpSpeed += (jumpAcceleration * Mathf.Sqrt(1 - jumpProgress)) * deltaTime;
+                }
 
-            if (flightKeys.PitchDown != KeyCode.None && Input.GetKey(flightKeys.PitchDown))
+                if (jumpSpeed >= maxJumpSpeed)
+                {
+                    jumpSpeed = maxJumpSpeed;
+                    groundState = GroundState.Falling;
+                }
+            }
+            else if (groundState != GroundState.Grounded)
             {
-                targetPitchSpeed += maxPitchSpeed;
-                inputDetected = true;
+                groundState = GroundState.Falling;
+                jumpSpeed = Mathf.Min(jumpSpeed, maxJumpSpeed);
+                jumpSpeed += Physics.gravity.y * deltaTime;
             }
-
-            pitchSpeed = Mathf.MoveTowards(pitchSpeed, targetPitchSpeed, pitchAcceleration * maxPitchSpeed * deltaTime);
-
-            // Apply pitch rotation
-            pitchAngle += pitchSpeed * deltaTime;
-            pitchAngle = Mathf.Clamp(pitchAngle, -maxPitchUpAngle, maxPitchDownAngle);
-
-            // Return to zero when no input
-            if (!inputDetected && controlOptions.HasFlag(ControlOptions.AutoLevel))
-                pitchAngle = Mathf.MoveTowards(pitchAngle, 0f, maxPitchSpeed * deltaTime);
-
-            ApplyRotation();
-        }
-
-        void HandleRoll(float deltaTime)
-        {
-            float targetRollSpeed = 0f;
-            bool inputDetected = false;
-
-            // Left and Right arrows for roll
-            if (flightKeys.RollRight != KeyCode.None && Input.GetKey(flightKeys.RollRight))
-            {
-                targetRollSpeed -= maxRollSpeed;
-                inputDetected = true;
-            }
-
-            if (flightKeys.RollLeft != KeyCode.None && Input.GetKey(flightKeys.RollLeft))
-            {
-                targetRollSpeed += maxRollSpeed;
-                inputDetected = true;
-            }
-
-            rollSpeed = Mathf.MoveTowards(rollSpeed, targetRollSpeed, rollAcceleration * maxRollSpeed * deltaTime);
-
-            // Apply roll rotation
-            rollAngle += rollSpeed * deltaTime;
-            rollAngle = Mathf.Clamp(rollAngle, -maxRollAngle, maxRollAngle);
-
-            // Return to zero when no input
-            if (!inputDetected && controlOptions.HasFlag(ControlOptions.AutoLevel))
-                rollAngle = Mathf.MoveTowards(rollAngle, 0f, maxRollSpeed * deltaTime);
-
-            ApplyRotation();
-        }
-
-        void ApplyRotation()
-        {
-            // Get the current yaw (Y-axis rotation)
-            float currentYaw = transform.localRotation.eulerAngles.y;
-
-            // Apply all rotations
-            transform.localRotation = Quaternion.Euler(pitchAngle, currentYaw, rollAngle);
+            else
+                // maintain small downward speed for when falling off ledges
+                jumpSpeed = Physics.gravity.y * deltaTime;
         }
 
         void HandleMove(float deltaTime)
@@ -494,8 +396,8 @@ namespace Mirror.Examples.Common.Controllers.Flyer
             // Multiply for desired ground speed.
             direction *= maxMoveSpeed;
 
-            //// Add jumpSpeed to direction as last step.
-            //direction.y = jumpSpeed;
+            // Add jumpSpeed to direction as last step.
+            direction.y = jumpSpeed;
 
             // Finally move the character.
             characterController.Move(direction * deltaTime);

@@ -589,25 +589,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 160176457, guid: d502982feecd043d8bfc6a5c64cd09f9, type: 3}
       propertyPath: m_Name
-      value: TankShared 2
+      value: TankReliable
       objectReference: {fileID: 0}
     - target: {fileID: 160176459, guid: d502982feecd043d8bfc6a5c64cd09f9, type: 3}
       propertyPath: sceneId
-      value: 2401096628
-      objectReference: {fileID: 0}
-    - target: {fileID: 160176459, guid: d502982feecd043d8bfc6a5c64cd09f9, type: 3}
-      propertyPath: serverOnly
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 275309355690048611, guid: d502982feecd043d8bfc6a5c64cd09f9,
-        type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8654251059059140979, guid: d502982feecd043d8bfc6a5c64cd09f9,
-        type: 3}
-      propertyPath: m_LocalScale.x
-      value: 6
+      value: 3796419665
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d502982feecd043d8bfc6a5c64cd09f9, type: 3}
@@ -980,15 +966,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 160176457, guid: d502982feecd043d8bfc6a5c64cd09f9, type: 3}
       propertyPath: m_Name
-      value: TankShared 1
+      value: TankReliable
       objectReference: {fileID: 0}
     - target: {fileID: 160176459, guid: d502982feecd043d8bfc6a5c64cd09f9, type: 3}
       propertyPath: sceneId
-      value: 2890115873
-      objectReference: {fileID: 0}
-    - target: {fileID: 160176459, guid: d502982feecd043d8bfc6a5c64cd09f9, type: 3}
-      propertyPath: serverOnly
-      value: 0
+      value: 175119952
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d502982feecd043d8bfc6a5c64cd09f9, type: 3}
