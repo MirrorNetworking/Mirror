@@ -1,75 +1,78 @@
 using UnityEngine;
 using Mirror;
 
-public class MovingPlatform : NetworkBehaviour
+namespace Mirror.Examples.CouchCoop
 {
-    public Transform endTarget; 
-    public float moveSpeed = 0.5f;
-    // allows for on demand syncing of stopping and starting platform movement, change via server
-    // note,sync vars changed via inspector do not sync. This is optional feature, can be removed
-    [SyncVar]
-    public bool moveObj = true;
-
-    // optional fancy features
-    public bool moveStopsUponExit = false;
-    public bool moveStartsUponCollision = false;
-
-    private Vector3 startPosition;
-    private Vector3 endPosition;
-
-    void Awake()
+    public class MovingPlatform : NetworkBehaviour
     {
-        startPosition = transform.position;
-        endPosition = endTarget.position;
-    }
+        public Transform endTarget;
+        public float moveSpeed = 0.5f;
+        // allows for on demand syncing of stopping and starting platform movement, change via server
+        // note,sync vars changed via inspector do not sync. This is optional feature, can be removed
+        [SyncVar]
+        public bool moveObj = true;
 
-    void Update()
-    {
-        if (moveObj)
+        // optional fancy features
+        public bool moveStopsUponExit = false;
+        public bool moveStartsUponCollision = false;
+
+        private Vector3 startPosition;
+        private Vector3 endPosition;
+
+        void Awake()
         {
-            float step = moveSpeed * Time.deltaTime;
-            transform.position = Vector3.MoveTowards(transform.position, endPosition, step);
+            startPosition = transform.position;
+            endPosition = endTarget.position;
+        }
 
-            if (Vector3.Distance(transform.position, endPosition) < 0.001f)
+        void Update()
+        {
+            if (moveObj)
             {
-                endPosition = endPosition == startPosition ? endTarget.position : startPosition;
-                if (isServer)
+                float step = moveSpeed * Time.deltaTime;
+                transform.position = Vector3.MoveTowards(transform.position, endPosition, step);
+
+                if (Vector3.Distance(transform.position, endPosition) < 0.001f)
                 {
-                    RpcResyncPosition(endPosition == startPosition ? (byte)1 : (byte)0);
+                    endPosition = endPosition == startPosition ? endTarget.position : startPosition;
+                    if (isServer)
+                    {
+                        RpcResyncPosition(endPosition == startPosition ? (byte)1 : (byte)0);
+                    }
                 }
             }
         }
-    }
 
-    [ClientRpc]
-    void RpcResyncPosition(byte _value)
-    {
-        //print("RpcResyncPosition: " + _value);
-        transform.position = _value == 1 ? endTarget.position : startPosition;
-    }
-
-    // optional
-    [ServerCallback]
-    private void OnCollisionEnter(Collision collision)
-    {
-        if (moveStartsUponCollision)
+        [ClientRpc]
+        void RpcResyncPosition(byte _value)
         {
-            if (collision.gameObject.tag == "Player")
+            //print("RpcResyncPosition: " + _value);
+            transform.position = _value == 1 ? endTarget.position : startPosition;
+        }
+
+        // optional
+        [ServerCallback]
+        private void OnCollisionEnter(Collision collision)
+        {
+            if (moveStartsUponCollision)
             {
-                moveObj = true;
+                if (collision.gameObject.tag == "Player")
+                {
+                    moveObj = true;
+                }
             }
         }
-    }
 
-    // optional
-    [ServerCallback]
-    private void OnCollisionExit(Collision collision)
-    {
-        if (moveStopsUponExit)
+        // optional
+        [ServerCallback]
+        private void OnCollisionExit(Collision collision)
         {
-            if (collision.gameObject.tag == "Player")
+            if (moveStopsUponExit)
             {
-                moveObj = false;
+                if (collision.gameObject.tag == "Player")
+                {
+                    moveObj = false;
+                }
             }
         }
     }

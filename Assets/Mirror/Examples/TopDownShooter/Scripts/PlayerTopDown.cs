@@ -103,7 +103,7 @@ namespace Mirror.Examples.TopDownShooter
 
             RotatePlayerToMouse();
 
-            if (Input.GetKeyDown(KeyCode.F))
+            if (Input.GetKeyUp(KeyCode.F))
             {
                 // We could optionally call this locally too, to avoid minor delay in the command->sync var hook result
                 CmdFlashLight();
@@ -183,29 +183,15 @@ namespace Mirror.Examples.TopDownShooter
         [Command]
         public void CmdFlashLight()
         {
-            if (flashLightStatus == true)
-            {
-                flashLightStatus = false;
-            }
-            else
-            {
-                flashLightStatus = true;
-            }
-            RpcFlashLight();
+            flashLightStatus = !flashLightStatus;
         }
 
         // our sync var hook, which sets flashlight status to the same on all clients for this player
         void OnFlashLightChanged(bool _Old, bool _New)
         {
 #if !UNITY_SERVER
+            Debug.Log($"OnFlashLightChanged: {_New}");
             flashLight.enabled = _New;
-#endif
-        }
-
-        [ClientRpc]
-        void RpcFlashLight()
-        {
-#if !UNITY_SERVER
             soundFlashLight.Play();
 #endif
         }
