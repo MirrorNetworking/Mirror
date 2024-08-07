@@ -45,7 +45,7 @@ namespace Mirror.Examples.Common
             Destroy(gameObject, destroyAfter);
         }
 
-        private void OnCollisionEnter(Collision collision)
+        void OnCollisionEnter(Collision collision)
         {
             //Debug.Log($"Hit: {collision.gameObject}");
 

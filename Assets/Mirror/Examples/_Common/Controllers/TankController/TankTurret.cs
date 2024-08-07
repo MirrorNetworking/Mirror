@@ -141,9 +141,6 @@ namespace Mirror.Examples.Common.Controllers.Tank
 
         #region Unity Callbacks
 
-        /// <summary>
-        /// Add your validation code here after the base.OnValidate(); call.
-        /// </summary>
         protected override void OnValidate()
         {
             // Skip if Editor is in Play mode
@@ -153,7 +150,6 @@ namespace Mirror.Examples.Common.Controllers.Tank
             Reset();
         }
 
-        // NOTE: Do not put objects in DontDestroyOnLoad (DDOL) in Awake.  You can do that in Start instead.
         void Reset()
         {
             if (animator == null)
@@ -195,7 +191,6 @@ namespace Mirror.Examples.Common.Controllers.Tank
 
             // The base Tank uses the first NetworkTransformReliable for the tank body
             // Add additional NetworkTransformReliable components for the turret and barrel
-            // Set SyncPosition to false because we only want to sync rotation
             NetworkTransformReliable[] NTRs = GetComponents<NetworkTransformReliable>();
 
             if (NTRs.Length < 2)
@@ -207,13 +202,8 @@ namespace Mirror.Examples.Common.Controllers.Tank
             else
                 turretNTR = NTRs[1];
 
-            // Ensure SyncDirection is Client to Server
-            turretNTR.syncDirection = SyncDirection.ClientToServer;
-            turretNTR.syncPosition = false;
-            turretNTR.compressRotation = true;
-
             // Set SyncPosition to false because we only want to sync rotation
-            //turretNTR.syncPosition = false;
+            turretNTR.syncPosition = false;
 
             if (turret != null)
                 turretNTR.target = turret;
@@ -227,13 +217,8 @@ namespace Mirror.Examples.Common.Controllers.Tank
             else
                 barrelNTR = NTRs[2];
 
-            // Ensure SyncDirection is Client to Server
-            barrelNTR.syncDirection = SyncDirection.ClientToServer;
-            barrelNTR.syncPosition = false;
-            barrelNTR.compressRotation = true;
-
             // Set SyncPosition to false because we only want to sync rotation
-            //barrelNTR.syncPosition = false;
+            barrelNTR.syncPosition = false;
 
             if (barrel != null)
                 barrelNTR.target = barrel;
@@ -334,9 +319,6 @@ namespace Mirror.Examples.Common.Controllers.Tank
             // Apply rotation
             turret.Rotate(0f, turretSpeed * deltaTime, 0f);
 
-            // Decay the accumulator over time
-            //float decayRate = 5f; // Adjust as needed
-            //mouseInputX = Mathf.MoveTowards(mouseInputX, 0f, decayRate * deltaTime);
             mouseInputX = Mathf.MoveTowards(mouseInputX, 0f, mouseSensitivity * deltaTime);
         }
 
