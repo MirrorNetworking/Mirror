@@ -314,9 +314,6 @@ namespace Mirror.Examples.Common.Controllers.Player
             // Apply rotation
             transform.Rotate(0f, turnSpeed * deltaTime, 0f);
 
-            // Decay the accumulator over time
-            //float decayRate = 5f; // Adjust as needed
-            //mouseInputX = Mathf.MoveTowards(mouseInputX, 0f, decayRate * deltaTime);
             mouseInputX = Mathf.MoveTowards(mouseInputX, 0f, mouseSensitivity * deltaTime);
         }
 

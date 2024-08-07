@@ -165,7 +165,6 @@ namespace Mirror.Examples.Common.Controllers.Tank
         {
             // capsuleCollider and characterController are mutually exclusive
             // Having both enabled would double fire triggers and other collisions
-            //boxCollider.enabled = false;
             characterController.enabled = true;
             this.enabled = true;
         }
@@ -176,7 +175,6 @@ namespace Mirror.Examples.Common.Controllers.Tank
 
             // capsuleCollider and characterController are mutually exclusive
             // Having both enabled would double fire triggers and other collisions
-            //boxCollider.enabled = true;
             characterController.enabled = false;
         }
 
