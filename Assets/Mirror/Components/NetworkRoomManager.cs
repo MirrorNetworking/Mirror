@@ -146,7 +146,7 @@ namespace Mirror
                 return;
 
             // replace room player with game player
-            NetworkServer.ReplacePlayerForConnection(conn, gamePlayer, true);
+            NetworkServer.ReplacePlayerForConnection(conn, gamePlayer, ReplacePlayerOptions.KeepAuthority);
         }
 
         internal void CallOnClientEnterRoom()
@@ -342,7 +342,7 @@ namespace Mirror
                     {
                         // re-add the room object
                         roomPlayer.GetComponent<NetworkRoomPlayer>().readyToBegin = false;
-                        NetworkServer.ReplacePlayerForConnection(identity.connectionToClient, roomPlayer.gameObject);
+                        NetworkServer.ReplacePlayerForConnection(identity.connectionToClient, roomPlayer.gameObject, ReplacePlayerOptions.KeepAuthority);
                     }
                 }
 
