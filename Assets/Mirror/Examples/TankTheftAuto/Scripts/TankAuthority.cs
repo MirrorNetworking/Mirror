@@ -111,8 +111,10 @@ namespace Mirror.Examples.TankTheftAuto
             // get the regular player object
             if (connectionToClient.authenticationData is GameObject player)
             {
-                // Set pos and rot to match the tank, plus 3m offset to the right
-                player.transform.SetPositionAndRotation(transform.position + transform.right * 3, transform.rotation);
+                // Set pos and rot to match the tank, plus 3m offset to the right plus 1m up
+                // because character controller pivot is at the center, not at the bottom.
+                Vector3 pos = transform.position + transform.right * 3 + Vector3.up;
+                player.transform.SetPositionAndRotation(pos, transform.rotation);
 
                 // set the player object back to the player
                 isControlled = false;
