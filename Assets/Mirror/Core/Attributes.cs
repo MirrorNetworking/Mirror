@@ -92,4 +92,10 @@ namespace Mirror
     /// </summary>
     [AttributeUsage(AttributeTargets.Field)]
     public class ReadOnlyAttribute : PropertyAttribute {}
+
+    /// <summary>
+    /// When defining multiple Readers/Writers for the same type, indicate which one Weaver must use.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Method)]
+    public class WeaverPriorityAttribute : Attribute {}
 }
