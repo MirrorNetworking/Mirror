@@ -100,7 +100,10 @@ namespace Mirror
             // we offset count by '1' to easily support null without writing another byte.
             // encoding null as '0' instead of '-1' also allows for better compression
             // (ushort vs. short / varuint vs. varint) etc.
-            uint count = reader.ReadUInt();
+
+            // most sizes are small, read size as VarUInt!
+            uint count = (uint)Compression.DecompressVarUInt(reader);
+            // uint count = reader.ReadUInt();
             // Use checked() to force it to throw OverflowException if data is invalid
             return count == 0 ? null : reader.ReadBytes(checked((int)(count - 1u)));
         }
@@ -111,7 +114,10 @@ namespace Mirror
             // we offset count by '1' to easily support null without writing another byte.
             // encoding null as '0' instead of '-1' also allows for better compression
             // (ushort vs. short / varuint vs. varint) etc.
-            uint count = reader.ReadUInt();
+
+            // most sizes are small, read size as VarUInt!
+            uint count = (uint)Compression.DecompressVarUInt(reader);
+            // uint count = reader.ReadUInt();
             // Use checked() to force it to throw OverflowException if data is invalid
             return count == 0 ? default : reader.ReadBytesSegment(checked((int)(count - 1u)));
         }
@@ -269,7 +275,10 @@ namespace Mirror
             // we offset count by '1' to easily support null without writing another byte.
             // encoding null as '0' instead of '-1' also allows for better compression
             // (ushort vs. short / varuint vs. varint) etc.
-            uint length = reader.ReadUInt();
+
+            // most sizes are small, read size as VarUInt!
+            uint length = (uint)Compression.DecompressVarUInt(reader);
+            // uint length = reader.ReadUInt();
             if (length == 0) return null;
             length -= 1;
 
@@ -301,7 +310,10 @@ namespace Mirror
             // we offset count by '1' to easily support null without writing another byte.
             // encoding null as '0' instead of '-1' also allows for better compression
             // (ushort vs. short / varuint vs. varint) etc.
-            uint length = reader.ReadUInt();
+
+            // most sizes are small, read size as VarUInt!
+            uint length = (uint)Compression.DecompressVarUInt(reader);
+            //uint length = reader.ReadUInt();
             if (length == 0) return null;
             length -= 1;
 
@@ -319,7 +331,10 @@ namespace Mirror
             // we offset count by '1' to easily support null without writing another byte.
             // encoding null as '0' instead of '-1' also allows for better compression
             // (ushort vs. short / varuint vs. varint) etc.
-            uint length = reader.ReadUInt();
+
+            // most sizes are small, read size as VarUInt!
+            uint length = (uint)Compression.DecompressVarUInt(reader);
+            //uint length = reader.ReadUInt();
             if (length == 0) return null;
             length -= 1;
 
