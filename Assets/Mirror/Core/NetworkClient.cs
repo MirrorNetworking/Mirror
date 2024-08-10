@@ -1493,11 +1493,11 @@ namespace Mirror
         // cleaner, and some places need to set flags first.
         static void InvokeIdentityCallbacks(NetworkIdentity identity)
         {
-            // invoke OnStartAuthority
-            identity.NotifyAuthority();
-
             // invoke OnStartClient
             identity.OnStartClient();
+
+            // invoke OnStartAuthority
+            identity.NotifyAuthority();
 
             // invoke OnStartLocalPlayer
             if (identity.isLocalPlayer)
