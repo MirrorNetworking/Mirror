@@ -33,12 +33,24 @@ namespace Mirror.Weaver
 
         internal void Register(TypeReference dataType, MethodReference methodReference)
         {
-            if (readFuncs.ContainsKey(dataType))
+            // sometimes we define multiple read methods for the same type.
+            // for example:
+            //   ReadInt()     // alwasy writes 4 bytes: should be available to the user for binary protocols etc.
+            //   ReadVarInt()  // varint compression: we may want Weaver to always use this for minimal bandwidth
+            // give the user a way to define the weaver prefered one if two exists:
+            //   "[WeaverPriority]" attribute is automatically detected and prefered.
+            MethodDefinition methodDefinition = methodReference.Resolve();
+            bool priority = methodDefinition.HasCustomAttribute<WeaverPriorityAttribute>();
+            // if (priority) Log.Warning($"Weaver: Registering priority Read<{dataType.FullName}> with {methodReference.FullName}.", methodReference);
+
+            // Weaver sometimes calls Register for <T> multiple times because we resolve assemblies multiple times.
+            // if the function name is the same: always use the latest one.
+            // if the function name differes: use the priority one.
+            if (readFuncs.TryGetValue(dataType, out MethodReference existingMethod) && // if it was already defined
+                existingMethod.FullName != methodReference.FullName && // and this one is a different name
+                !priority) // and it's not the priority one
             {
-                // TODO enable this again later.
-                // Reader has some obsolete functions that were renamed.
-                // Don't want weaver warnings for all of them.
-                //Log.Warning($"Registering a Read method for {dataType.FullName} when one already exists", methodReference);
+                return; // then skip
             }
 
             // we need to import type when we Initialize Readers so import here in case it is used anywhere else
