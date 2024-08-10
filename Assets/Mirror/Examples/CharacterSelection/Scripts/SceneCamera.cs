@@ -52,10 +52,7 @@ namespace Mirror.Examples.CharacterSelection
                 characterSelection.floatingInfo.forward = cameraObj.transform.forward;
 
             if (cameraObj && cameraTarget)
-            {
-                cameraObj.position = cameraTarget.position;
-                cameraObj.rotation = cameraTarget.rotation;
-            }
+                cameraObj.SetPositionAndRotation(cameraTarget.position, cameraTarget.rotation);
         }
     }
 }
