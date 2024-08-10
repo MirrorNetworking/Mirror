@@ -778,6 +778,7 @@ GameObject:
   - component: {fileID: -2538202292241907205}
   - component: {fileID: 689587676988298619}
   - component: {fileID: -4146909649929904479}
+  - component: {fileID: -6188707919164901343}
   m_Layer: 0
   m_Name: CharacterMedic
   m_TagString: Untagged
@@ -977,6 +978,25 @@ MonoBehaviour:
   direction: {x: 0, y: 0, z: 0}
   velocity: {x: 0, y: 0, z: 0}
   controllerUI: {fileID: 0}
+--- !u!114 &-6188707919164901343
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9105303183089727057}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db9418a9e709a7844acac42de096cba6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+  characterSelection: {fileID: 4511077071076738942}
+  cameraTarget: {fileID: 2977242866262118958}
+  sceneReferencer: {fileID: 0}
+  cameraObj: {fileID: 0}
 --- !u!1 &9105303183937996607
 GameObject:
   m_ObjectHideFlags: 0
