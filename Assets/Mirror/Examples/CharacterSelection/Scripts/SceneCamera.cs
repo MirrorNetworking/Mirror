@@ -46,7 +46,8 @@ namespace Mirror.Examples.CharacterSelection
 
         void Update()
         {
-            if (!Application.isFocused) return;
+            if (!Application.isFocused)
+                return;
 
             if (cameraObj && characterSelection)
                 characterSelection.floatingInfo.forward = cameraObj.transform.forward;
