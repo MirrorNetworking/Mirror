@@ -55,18 +55,10 @@ namespace Mirror.Examples.CharacterSelection
         [ReadOnly, SerializeField] Vector3Int velocity;
         [ReadOnly, SerializeField] Vector3 direction;
 
-        private Transform cameraObj;
-        public Transform cameraTarget;
-        private SceneReferencer sceneReferencer;
-        private CharacterSelection characterSelection;
-
         public void Awake()
         {
-
             if (characterController == null)
                 characterController = GetComponent<CharacterController>();
-            if (characterSelection == null)
-                characterSelection = GetComponent<CharacterSelection>();
 
             // Override CharacterController default values
             characterController.enabled = false;
@@ -82,14 +74,6 @@ namespace Mirror.Examples.CharacterSelection
         {
             characterController.enabled = true;
             this.enabled = true;
-
-#if UNITY_2022_2_OR_NEWER
-            sceneReferencer = GameObject.FindAnyObjectByType<SceneReferencer>();
-#else
-            // Deprecated in Unity 2023.1
-            sceneReferencer = GameObject.FindObjectOfType<SceneReferencer>();
-#endif
-            cameraObj = sceneReferencer.cameraObject.transform;
         }
 
         public override void OnStopAuthority()
@@ -100,12 +84,9 @@ namespace Mirror.Examples.CharacterSelection
 
         void Update()
         {
-            if (cameraObj && characterSelection)
-            {
-                characterSelection.floatingInfo.forward = cameraObj.transform.forward;
-            }
+            if (!Application.isFocused)
+                return;
 
-            if (!Application.isFocused) return;
             if (!characterController.enabled)
                 return;
 
@@ -121,12 +102,6 @@ namespace Mirror.Examples.CharacterSelection
 
             // Diagnostic velocity...FloorToInt for display purposes
             velocity = Vector3Int.FloorToInt(characterController.velocity);
-
-            if (cameraObj != null)
-            {
-                cameraObj.position = cameraTarget.position;
-                cameraObj.rotation = cameraTarget.rotation;
-            }
         }
 
         // TODO: Turning works while airborne...feature?
