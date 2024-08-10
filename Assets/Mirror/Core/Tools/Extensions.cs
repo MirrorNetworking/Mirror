@@ -108,6 +108,12 @@ namespace Mirror
             position = transform.position;
             rotation = transform.rotation;
         }
+
+        public static void SetPositionAndRotation(this Transform transform, Vector3 position, Quaternion rotation)
+        {
+            transform.position = position;
+            transform.rotation = rotation;
+        }
 #endif
 
         // IPEndPoint address only to pretty string.
