@@ -1870,6 +1870,7 @@ namespace Mirror
         static void BroadcastToConnection(NetworkConnectionToClient connection)
         {
             // for each entity that this connection is seeing
+            bool hasNull = false;
             foreach (NetworkIdentity identity in connection.observing)
             {
                 // make sure it's not null or destroyed.
@@ -1895,8 +1896,16 @@ namespace Mirror
                 // always call Remove in OnObjectDestroy everywhere.
                 // if it does have null then someone used
                 // GameObject.Destroy instead of NetworkServer.Destroy.
-                else Debug.LogWarning($"Found 'null' entry in observing list for connectionId={connection.connectionId}. Please call NetworkServer.Destroy to destroy networked objects. Don't use GameObject.Destroy.");
+                else
+                {
+                    hasNull = true;
+                    Debug.LogWarning($"Found 'null' entry in observing list for connectionId={connection.connectionId}. Please call NetworkServer.Destroy to destroy networked objects. Don't use GameObject.Destroy.");
+                }
             }
+
+            // recover from null entries.
+            // otherwise every broadcast will spam the warning and slow down performance until restart.
+            if (hasNull) connection.observing.RemoveWhere(identity => identity == null);
         }
 
         // helper function to check a connection for inactivity and disconnect if necessary
