@@ -8,6 +8,7 @@ namespace Mirror.Examples.Common.Controllers.Tank
     [RequireComponent(typeof(Rigidbody))]
     [RequireComponent(typeof(CharacterController))]
     [RequireComponent(typeof(NetworkIdentity))]
+    [RequireComponent(typeof(TankHealth))]
     [DisallowMultipleComponent]
     public class TankControllerBase : NetworkBehaviour
     {
