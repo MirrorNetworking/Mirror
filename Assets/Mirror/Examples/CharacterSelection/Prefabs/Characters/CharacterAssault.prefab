@@ -1404,6 +1404,7 @@ GameObject:
   - component: {fileID: 3603318197913287424}
   - component: {fileID: -5286820321314269966}
   - component: {fileID: 108717044788610704}
+  - component: {fileID: 8165614180483664709}
   m_Layer: 0
   m_Name: CharacterAssault
   m_TagString: Untagged
@@ -1541,7 +1542,6 @@ MonoBehaviour:
   animRotation: 0
   velocity: {x: 0, y: 0, z: 0}
   direction: {x: 0, y: 0, z: 0}
-  cameraTarget: {fileID: 8318204445083151948}
 --- !u!114 &-5286820321314269966
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1588,6 +1588,25 @@ MonoBehaviour:
   - {fileID: 3074504445760471458}
   - {fileID: 3074504446469250245}
   - {fileID: 3074504445848950737}
+--- !u!114 &8165614180483664709
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3074504447143314537}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db9418a9e709a7844acac42de096cba6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+  characterSelection: {fileID: 108717044788610704}
+  cameraTarget: {fileID: 8318204445083151948}
+  sceneReferencer: {fileID: 0}
+  cameraObj: {fileID: 0}
 --- !u!1 &3074504447184887503
 GameObject:
   m_ObjectHideFlags: 0

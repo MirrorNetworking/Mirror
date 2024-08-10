@@ -778,6 +778,7 @@ GameObject:
   - component: {fileID: -4474909813393930685}
   - component: {fileID: 3540726253812090381}
   - component: {fileID: 4511077071076738942}
+  - component: {fileID: 958723225240916811}
   m_Layer: 0
   m_Name: CharacterMedic
   m_TagString: Untagged
@@ -915,7 +916,6 @@ MonoBehaviour:
   animRotation: 0
   velocity: {x: 0, y: 0, z: 0}
   direction: {x: 0, y: 0, z: 0}
-  cameraTarget: {fileID: 2977242866262118958}
 --- !u!114 &3540726253812090381
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -958,6 +958,25 @@ MonoBehaviour:
   - {fileID: 9105303183086384159}
   - {fileID: 9105303183046110706}
   - {fileID: 9105303183986044559}
+--- !u!114 &958723225240916811
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9105303183089727057}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db9418a9e709a7844acac42de096cba6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+  characterSelection: {fileID: 4511077071076738942}
+  cameraTarget: {fileID: 2977242866262118958}
+  sceneReferencer: {fileID: 0}
+  cameraObj: {fileID: 0}
 --- !u!1 &9105303183937996607
 GameObject:
   m_ObjectHideFlags: 0

@@ -343,6 +343,7 @@ GameObject:
   - component: {fileID: -7643125540303550518}
   - component: {fileID: -7784293741018888422}
   - component: {fileID: 597190161414468650}
+  - component: {fileID: -6486408998751470869}
   m_Layer: 0
   m_Name: CharacterHeavy
   m_TagString: Untagged
@@ -480,7 +481,6 @@ MonoBehaviour:
   animRotation: 0
   velocity: {x: 0, y: 0, z: 0}
   direction: {x: 0, y: 0, z: 0}
-  cameraTarget: {fileID: 5721588646566991880}
 --- !u!114 &-7784293741018888422
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -524,6 +524,25 @@ MonoBehaviour:
   - {fileID: 2320049527593028056}
   - {fileID: 2320049526879068635}
   - {fileID: 2320049528211028347}
+--- !u!114 &-6486408998751470869
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2320049526911491159}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db9418a9e709a7844acac42de096cba6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+  characterSelection: {fileID: 597190161414468650}
+  cameraTarget: {fileID: 5721588646566991880}
+  sceneReferencer: {fileID: 0}
+  cameraObj: {fileID: 0}
 --- !u!1 &2320049527168386026
 GameObject:
   m_ObjectHideFlags: 0
