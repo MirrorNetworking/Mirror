@@ -40,6 +40,9 @@ plugins:
         - type: "feature"
           section: "Features"
           hidden: false
+        - type: "perf"
+          section: "Performance Improvements"
+          hidden: false
 
   # Write the new version in version.txt
   - - '@semantic-release/exec'
