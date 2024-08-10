@@ -1342,7 +1342,7 @@ namespace Mirror.Tests.NetworkServers
             clientNextIdentity.name = nameof(clientNextIdentity);
 
             // replace connection's player from 'previous' to 'next'
-            NetworkServer.ReplacePlayerForConnection(connectionToClient, serverNextIdentity.gameObject);
+            NetworkServer.ReplacePlayerForConnection(connectionToClient, serverNextIdentity.gameObject, ReplacePlayerOptions.KeepActive);
             ProcessMessages();
 
             // should call OnStartLocalPlayer on 'next' since it became the new local player.
@@ -1372,7 +1372,7 @@ namespace Mirror.Tests.NetworkServers
             clientNextIdentity.name = nameof(clientNextIdentity);
 
             // replace connection's player from 'previous' to 'next'
-            NetworkServer.ReplacePlayerForConnection(connectionToClient, serverNextIdentity.gameObject);
+            NetworkServer.ReplacePlayerForConnection(connectionToClient, serverNextIdentity.gameObject, ReplacePlayerOptions.KeepActive);
             ProcessMessages();
 
             // should call OnStopLocalPlayer on 'previous' since it's not owned anymore now.
