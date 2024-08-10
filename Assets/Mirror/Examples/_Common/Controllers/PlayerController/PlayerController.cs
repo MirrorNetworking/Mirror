@@ -5,7 +5,6 @@ using UnityEngine.Serialization;
 namespace Mirror.Examples.Common.Controllers.Player
 {
     [AddComponentMenu("")]
-    [RequireComponent(typeof(PlayerCamera))]
     [RequireComponent(typeof(Rigidbody))]
     [RequireComponent(typeof(CapsuleCollider))]
     [RequireComponent(typeof(CharacterController))]
