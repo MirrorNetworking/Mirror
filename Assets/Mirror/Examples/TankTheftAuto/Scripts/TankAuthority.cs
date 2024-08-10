@@ -92,17 +92,7 @@ namespace Mirror.Examples.TankTheftAuto
 
             isControlled = true;
 
-            // set the player object to be the tank, keep ownership of
-            // the original player object to avoid ChangeOwner message.
-            NetworkServer.ReplacePlayerForConnection(conn, gameObject);
-
-            StartCoroutine(UnspawnOldPlayer((GameObject)conn.authenticationData));
-        }
-
-        IEnumerator UnspawnOldPlayer(GameObject player)
-        {
-            yield return new WaitForSeconds(0.1f);
-            NetworkServer.UnSpawn(player);
+            NetworkServer.ReplacePlayerForConnection(conn, gameObject, ReplacePlayerOptions.Unspawn);
         }
 
         [Command]
@@ -123,7 +113,7 @@ namespace Mirror.Examples.TankTheftAuto
                 // clear the player object
                 connectionToClient.authenticationData = null;
 
-                NetworkServer.ReplacePlayerForConnection(connectionToClient, player);
+                NetworkServer.ReplacePlayerForConnection(connectionToClient, player, ReplacePlayerOptions.KeepActive);
             }
         }
 
