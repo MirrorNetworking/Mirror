@@ -230,6 +230,9 @@ namespace Mirror.Examples.Common.Controllers.Player
 
         void Update()
         {
+            if (!Application.isFocused)
+                return;
+
             if (!characterController.enabled)
                 return;
 

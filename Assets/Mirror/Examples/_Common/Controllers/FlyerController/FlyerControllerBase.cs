@@ -284,6 +284,9 @@ namespace Mirror.Examples.Common.Controllers.Flyer
 
         void Update()
         {
+            if (!Application.isFocused)
+                return;
+
             if (!characterController.enabled)
                 return;
 

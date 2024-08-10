@@ -203,6 +203,9 @@ namespace Mirror.Examples.Common.Controllers.Tank
 
         void Update()
         {
+            if (!Application.isFocused)
+                return;
+
             if (!characterController.enabled)
                 return;
 
