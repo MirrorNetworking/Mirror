@@ -17,12 +17,13 @@ namespace Mirror.Tests.NetworkServers
     {
         // weaver serializes byte[] wit WriteBytesAndSize
         public byte[] payload;
-        // so payload := size - 4
+        // so payload := size - header
+        //   where header is VarUInt compression(size)
         // then the message is exactly maxed size.
         //
         // NOTE: we have a LargerMaxMessageSize test which guarantees that
         //       variablesized + 1 is exactly transport.max + 1
-        public VariableSizedMessage(int size) => payload = new byte[size - 4];
+        public VariableSizedMessage(int size) => payload = new byte[size - Compression.VarUIntSize((uint)size)];
     }
 
     public class CommandTestNetworkBehaviour : NetworkBehaviour
@@ -1341,7 +1342,7 @@ namespace Mirror.Tests.NetworkServers
             clientNextIdentity.name = nameof(clientNextIdentity);
 
             // replace connection's player from 'previous' to 'next'
-            NetworkServer.ReplacePlayerForConnection(connectionToClient, serverNextIdentity.gameObject);
+            NetworkServer.ReplacePlayerForConnection(connectionToClient, serverNextIdentity.gameObject, ReplacePlayerOptions.KeepActive);
             ProcessMessages();
 
             // should call OnStartLocalPlayer on 'next' since it became the new local player.
@@ -1371,7 +1372,7 @@ namespace Mirror.Tests.NetworkServers
             clientNextIdentity.name = nameof(clientNextIdentity);
 
             // replace connection's player from 'previous' to 'next'
-            NetworkServer.ReplacePlayerForConnection(connectionToClient, serverNextIdentity.gameObject);
+            NetworkServer.ReplacePlayerForConnection(connectionToClient, serverNextIdentity.gameObject, ReplacePlayerOptions.KeepActive);
             ProcessMessages();
 
             // should call OnStopLocalPlayer on 'previous' since it's not owned anymore now.

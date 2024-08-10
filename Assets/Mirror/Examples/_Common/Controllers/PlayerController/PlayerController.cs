@@ -93,6 +93,15 @@ namespace Mirror.Examples.Common.Controllers.Player
         [Tooltip("Gravity factors into decelleration")]
         public float inputGravity = 2f;
 
+        [Header("Turning")]
+        [Range(0, 300f)]
+        [Tooltip("Max Rotation in degrees per second")]
+        public float maxTurnSpeed = 100f;
+        [Range(0, 10f)]
+        [FormerlySerializedAs("turnDelta")]
+        [Tooltip("Rotation acceleration in degrees per second squared")]
+        public float turnAcceleration = 3f;
+
         [Header("Jumping")]
         [Range(0, 10f)]
         [Tooltip("Initial jump speed in meters per second")]
@@ -104,18 +113,6 @@ namespace Mirror.Examples.Common.Controllers.Player
         [FormerlySerializedAs("jumpDelta")]
         [Tooltip("Jump acceleration in meters per second squared")]
         public float jumpAcceleration = 4f;
-
-        [Header("Turning")]
-        [Range(0, 300f)]
-        [Tooltip("Max Rotation in degrees per second")]
-        public float maxTurnSpeed = 100f;
-        [Range(0, 10f)]
-        [FormerlySerializedAs("turnDelta")]
-        [Tooltip("Rotation acceleration in degrees per second squared")]
-        public float turnAcceleration = 3f;
-        //[Range(0, 10f)]
-        //[Tooltip("Sensitivity factors into accelleration")]
-        //public float mouseSensitivity = 2f;
 
         [Header("Diagnostics")]
         [ReadOnly, SerializeField]
@@ -319,9 +316,6 @@ namespace Mirror.Examples.Common.Controllers.Player
             // Apply rotation
             transform.Rotate(0f, turnSpeed * deltaTime, 0f);
 
-            // Decay the accumulator over time
-            //float decayRate = 5f; // Adjust as needed
-            //mouseInputX = Mathf.MoveTowards(mouseInputX, 0f, decayRate * deltaTime);
             mouseInputX = Mathf.MoveTowards(mouseInputX, 0f, mouseSensitivity * deltaTime);
         }
 

@@ -42,7 +42,6 @@ namespace Mirror.Examples.Common.Controllers.Tank
         [Header("Components")]
         public BoxCollider boxCollider;
         public CharacterController characterController;
-        public NetworkTransformReliable tankNTR;
 
         [Header("User Interface")]
         public GameObject ControllerUIPrefab;
@@ -148,9 +147,6 @@ namespace Mirror.Examples.Common.Controllers.Tank
 
             GetComponent<Rigidbody>().isKinematic = true;
 
-            tankNTR = GetComponent<NetworkTransformReliable>();
-            tankNTR.compressRotation = true;
-
 #if UNITY_EDITOR
             // For convenience in the examples, we use the GUID of the TankControllerUI prefab
             // to find the correct prefab in the Mirror/Examples/_Common/Controllers folder.
@@ -171,7 +167,6 @@ namespace Mirror.Examples.Common.Controllers.Tank
         {
             // capsuleCollider and characterController are mutually exclusive
             // Having both enabled would double fire triggers and other collisions
-            //boxCollider.enabled = false;
             characterController.enabled = true;
             this.enabled = true;
         }
@@ -182,7 +177,6 @@ namespace Mirror.Examples.Common.Controllers.Tank
 
             // capsuleCollider and characterController are mutually exclusive
             // Having both enabled would double fire triggers and other collisions
-            //boxCollider.enabled = true;
             characterController.enabled = false;
         }
 

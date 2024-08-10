@@ -30,7 +30,7 @@ namespace Mirror.Examples.Common.Controllers.Tank
                 healthBar.color = Color.yellow;
             if (newHealth < 2)
                 healthBar.color = Color.red;
-            if (newHealth <= 0)
+            if (newHealth < 1)
                 healthBar.color = Color.black;
         }
 
@@ -62,14 +62,15 @@ namespace Mirror.Examples.Common.Controllers.Tank
         public void TakeDamage(byte damage)
         {
             // Skip if health is already 0
-            if (health <= 0) return;
+            if (health == 0) return;
 
-            health -= damage;
-
-            if (health <= 0)
-            {
+            if (damage > health)
                 health = 0;
+            else
+                health -= damage;
 
+            if (health == 0)
+            {
                 if (connectionToClient != null)
                     Respawn.RespawnPlayer(respawn, respawnTime, connectionToClient);
                 else if (netIdentity.sceneId != 0)
