@@ -101,7 +101,7 @@ namespace Mirror
         }
 #endif
 
-#if !UNITY_2022_0_OR_NEWER
+#if !UNITY_2021_3_OR_NEWER
         // Some patch versions of Unity 2021.3 and earlier don't have transform.GetPositionAndRotation which we use for performance in some places
         public static void GetPositionAndRotation(this Transform transform, out Vector3 position, out Quaternion rotation)
         {
