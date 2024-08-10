@@ -773,11 +773,11 @@ GameObject:
   - component: {fileID: 9105303183089727062}
   - component: {fileID: -2656374960411940230}
   - component: {fileID: -236522517169955124}
-  - component: {fileID: -9221279038569592884}
   - component: {fileID: 6097642395301875386}
-  - component: {fileID: -4474909813393930685}
   - component: {fileID: 3540726253812090381}
   - component: {fileID: 4511077071076738942}
+  - component: {fileID: -6295477058686318049}
+  - component: {fileID: 3152477792515584470}
   - component: {fileID: 958723225240916811}
   m_Layer: 0
   m_Name: CharacterMedic
@@ -835,40 +835,6 @@ CharacterController:
   m_SkinWidth: 0.02
   m_MinMoveDistance: 0
   m_Center: {x: 0, y: 1, z: 0}
---- !u!114 &-9221279038569592884
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9105303183089727057}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a553cb17010b2403e8523b558bffbc14, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  syncDirection: 1
-  syncMode: 0
-  syncInterval: 0
-  target: {fileID: 9105303183089727062}
-  syncPosition: 1
-  syncRotation: 1
-  syncScale: 0
-  onlySyncOnChange: 1
-  compressRotation: 1
-  interpolatePosition: 1
-  interpolateRotation: 1
-  interpolateScale: 0
-  coordinateSpace: 0
-  sendIntervalMultiplier: 1
-  timelineOffset: 0
-  showGizmos: 0
-  showOverlay: 0
-  overlayColor: {r: 0, g: 0, b: 0, a: 0.5}
-  bufferResetMultiplier: 3
-  positionSensitivity: 0.01
-  rotationSensitivity: 0.01
-  scaleSensitivity: 0.01
 --- !u!54 &6097642395301875386
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -885,37 +851,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!114 &-4474909813393930685
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9105303183089727057}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2a507efeb4218499aaa7cd74f326f5de, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  syncDirection: 0
-  syncMode: 0
-  syncInterval: 0
-  characterController: {fileID: -236522517169955124}
-  moveSpeedMultiplier: 8
-  maxTurnSpeed: 100
-  turnDelta: 3
-  initialJumpSpeed: 0.2
-  maxJumpSpeed: 5
-  jumpDelta: 0.2
-  groundState: 2
-  horizontal: 0
-  vertical: 0
-  turnSpeed: 0
-  jumpSpeed: 0
-  animVelocity: 0
-  animRotation: 0
-  velocity: {x: 0, y: 0, z: 0}
-  direction: {x: 0, y: 0, z: 0}
 --- !u!114 &3540726253812090381
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -958,6 +893,91 @@ MonoBehaviour:
   - {fileID: 9105303183086384159}
   - {fileID: 9105303183046110706}
   - {fileID: 9105303183986044559}
+--- !u!114 &-6295477058686318049
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9105303183089727057}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8ff3ba0becae47b8b9381191598957c8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncDirection: 1
+  syncMode: 0
+  syncInterval: 0
+  target: {fileID: 9105303183089727062}
+  syncPosition: 1
+  syncRotation: 1
+  syncScale: 0
+  onlySyncOnChange: 1
+  compressRotation: 1
+  interpolatePosition: 1
+  interpolateRotation: 1
+  interpolateScale: 1
+  coordinateSpace: 0
+  sendIntervalMultiplier: 1
+  timelineOffset: 0
+  showGizmos: 0
+  showOverlay: 0
+  overlayColor: {r: 0, g: 0, b: 0, a: 0.5}
+  onlySyncOnChangeCorrectionMultiplier: 2
+  rotationSensitivity: 0.01
+  positionPrecision: 0.01
+  scalePrecision: 0.01
+--- !u!114 &3152477792515584470
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9105303183089727057}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e212b6697536124ca0e7791fe5d8d6b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+  characterController: {fileID: -236522517169955124}
+  ControllerUIPrefab: {fileID: 644766297742565710, guid: 7beee247444994f0281dadde274cc4af,
+    type: 3}
+  moveKeys:
+    Forward: 119
+    Back: 115
+    StrafeLeft: 97
+    StrafeRight: 100
+    TurnLeft: 113
+    TurnRight: 101
+    Jump: 32
+  optionsKeys:
+    MouseSteer: 109
+    AutoRun: 114
+    ToggleUI: 117
+  controlOptions: 4
+  maxMoveSpeed: 8
+  inputSensitivity: 2
+  inputGravity: 2
+  maxTurnSpeed: 100
+  turnAcceleration: 3
+  initialJumpSpeed: 2.5
+  maxJumpSpeed: 3.5
+  jumpAcceleration: 4
+  groundState: 2
+  horizontal: 0
+  vertical: 0
+  mouseInputX: 0
+  mouseSensitivity: 0
+  turnSpeed: 0
+  jumpSpeed: 0
+  animVelocity: 0
+  animRotation: 0
+  direction: {x: 0, y: 0, z: 0}
+  velocity: {x: 0, y: 0, z: 0}
+  controllerUI: {fileID: 0}
 --- !u!114 &958723225240916811
 MonoBehaviour:
   m_ObjectHideFlags: 0
