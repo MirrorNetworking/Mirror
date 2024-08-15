@@ -43,11 +43,11 @@ namespace Edgegap
             return BuildPipeline.BuildPlayer(options);
         }
 
-        public static async Task<bool> DockerSetupAndInstallationCheck()
+        public static async Task<bool> DockerSetupAndInstallationCheck(string path)
         {
-            if (!File.Exists("Dockerfile"))
+            if (!File.Exists(path))
             {
-                File.WriteAllText("Dockerfile", dockerFileText);
+                throw new Exception("Dockerfile not found, please notify plugin maintainer about this issue.");
             }
 
             string output = null;
@@ -77,7 +77,7 @@ namespace Edgegap
         }
 
         // MIRROR CHANGE
-        public static async Task RunCommand_DockerBuild(string registry, string imageRepo, string tag, Action<string> onStatusUpdate)
+        public static async Task RunCommand_DockerBuild(string dockerfilePath, string registry, string imageRepo, string tag, string projectPath, Action<string> onStatusUpdate)
         {
             string realErrorMessage = null;
 
@@ -89,11 +89,11 @@ namespace Edgegap
             string buildCommand = IsArmCPU() ? "buildx build --platform linux/amd64" : "build";
 
 #if UNITY_EDITOR_WIN
-            await RunCommand("docker.exe", $"{buildCommand} -t {registry}/{imageRepo}:{tag} .", onStatusUpdate,
+            await RunCommand("docker.exe", $"{buildCommand} -f \"{dockerfilePath}\" -t \"{registry}/{imageRepo}:{tag}\" \"{projectPath}\"", onStatusUpdate,
 #elif UNITY_EDITOR_OSX
-            await RunCommand("/bin/bash", $"-c \"docker {buildCommand} -t {registry}/{imageRepo}:{tag} .\"", onStatusUpdate,
+            await RunCommand("/bin/bash", $"-c \"docker {buildCommand} -f {dockerfilePath} -t {registry}/{imageRepo}:{tag} {projectPath}\"", onStatusUpdate,
 #elif UNITY_EDITOR_LINUX
-            await RunCommand("/bin/bash", $"-c \"docker {buildCommand} -t {registry}/{imageRepo}:{tag} .\"", onStatusUpdate,
+            await RunCommand("/bin/bash", $"-c \"docker {buildCommand} -f {dockerfilePath} -t {registry}/{imageRepo}:{tag} {projectPath}\"", onStatusUpdate,
 #endif
                 (msg) =>
                 {
@@ -219,25 +219,6 @@ namespace Edgegap
         {
            // throw new NotImplementedException();
         }
-
-        // -batchmode -nographics remains for Unity 2019/2020 support pre-dedicated server builds
-        static string dockerFileText = @"FROM ubuntu:bionic
-
-ARG DEBIAN_FRONTEND=noninteractive
-
-COPY Builds/EdgegapServer /root/build/
-
-WORKDIR /root/
-
-RUN chmod +x /root/build/ServerBuild
-
-RUN apt-get update && \
-    apt-get install -y ca-certificates && \
-    apt-get clean && \
-    update-ca-certificates
-
-ENTRYPOINT [ ""/root/build/ServerBuild"", ""-batchmode"", ""-nographics""]
-";
 
         /// <summary>Run a Docker cmd with streaming log response. TODO: Plugin to other Docker cmds</summary>
         /// <returns>Throws if logs contain "ERROR"</returns>
