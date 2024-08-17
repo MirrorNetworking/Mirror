@@ -14,7 +14,7 @@ namespace Mirror.Examples.TankTheftAuto
 
             if (conn.identity != null)
             {
-                if (conn.identity.TryGetComponent(out TankTurret tankTurret))
+                if (conn.identity.TryGetComponent(out TankTurretBase tankTurret))
                     tankTurret.playerColor = Color.black;
 
                 if (conn.identity.TryGetComponent(out TankAuthority tankAuthority))

@@ -35,7 +35,7 @@ namespace Mirror.Examples.Common.Controllers.Tank
         [SerializeField] OtherTexts otherKeys;
         [SerializeField] OptionsTexts optionsTexts;
 
-        public void Refresh(TankController.MoveKeys moveKeys, TankController.OptionsKeys optionsKeys)
+        public void Refresh(TankControllerBase.MoveKeys moveKeys, TankControllerBase.OptionsKeys optionsKeys)
         {
             // Movement Keys
             moveTexts.keyTextTurnLeft.text = GetKeyText(moveKeys.TurnLeft);

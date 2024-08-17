@@ -12,7 +12,7 @@ namespace Mirror.Examples.TankTheftAuto
     {
         [Header("Components")]
         public GameObject triggerUI;
-        public TankTurret tankTurret;
+        public TankTurretBase tankTurret;
         public GameObject tankTrigger;
 
         [SyncVar(hook = nameof(OnIsControlledChanged))]
@@ -40,7 +40,7 @@ namespace Mirror.Examples.TankTheftAuto
                 tankTrigger = transform.Find("TankTrigger").gameObject;
 
             if (tankTurret == null)
-                tankTurret = GetComponent<TankTurret>();
+                tankTurret = GetComponent<TankTurretBase>();
 
             triggerUI.SetActive(false);
         }
