@@ -19,7 +19,7 @@ namespace Mirror.Examples.Common.Controllers.Tank
 
         [SerializeField] MoveTexts moveTexts;
 
-        public void Refresh(TankTurret.MoveKeys moveKeys, TankTurret.OptionsKeys optionsKeys)
+        public void Refresh(TankTurretBase.MoveKeys moveKeys, TankTurretBase.OptionsKeys optionsKeys)
         {
             // Movement Keys
             moveTexts.keyTextPitchUp.text = GetKeyText(moveKeys.PitchUp);
