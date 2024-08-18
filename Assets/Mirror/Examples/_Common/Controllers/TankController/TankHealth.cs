@@ -48,7 +48,7 @@ namespace Mirror.Examples.Common.Controllers.Tank
         public void Reset()
         {
             if (healthBar == null)
-                healthBar = GetComponentInChildren<TextMesh>();
+                healthBar = transform.Find("HealthBar").GetComponent<TextMesh>();
         }
 
         #endregion

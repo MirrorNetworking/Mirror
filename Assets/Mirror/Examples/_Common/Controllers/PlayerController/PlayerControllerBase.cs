@@ -5,14 +5,12 @@ using UnityEngine.Serialization;
 namespace Mirror.Examples.Common.Controllers.Player
 {
     [AddComponentMenu("")]
-    [RequireComponent(typeof(PlayerCamera))]
     [RequireComponent(typeof(Rigidbody))]
     [RequireComponent(typeof(CapsuleCollider))]
     [RequireComponent(typeof(CharacterController))]
     [RequireComponent(typeof(NetworkIdentity))]
-    [RequireComponent(typeof(NetworkTransformReliable))]
     [DisallowMultipleComponent]
-    public class PlayerController : NetworkBehaviour
+    public class PlayerControllerBase : NetworkBehaviour
     {
         const float BASE_DPI = 96f;
 
@@ -232,6 +230,9 @@ namespace Mirror.Examples.Common.Controllers.Player
 
         void Update()
         {
+            if (!Application.isFocused)
+                return;
+
             if (!characterController.enabled)
                 return;
 

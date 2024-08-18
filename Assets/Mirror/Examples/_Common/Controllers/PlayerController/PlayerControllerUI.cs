@@ -31,7 +31,7 @@ namespace Mirror.Examples.Common.Controllers.Player
         [SerializeField] MoveTexts moveTexts;
         [SerializeField] OptionsTexts optionsTexts;
 
-        public void Refresh(PlayerController.MoveKeys moveKeys, PlayerController.OptionsKeys optionsKeys)
+        public void Refresh(PlayerControllerBase.MoveKeys moveKeys, PlayerControllerBase.OptionsKeys optionsKeys)
         {
             // Movement Keys
             moveTexts.keyTextTurnLeft.text = GetKeyText(moveKeys.TurnLeft);
