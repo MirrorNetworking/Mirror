@@ -336,13 +336,19 @@ namespace Mirror
                 {
                     // Attempt to identify the target object, component, and method to narrow down the cause of the error.
                     if (spawned.TryGetValue(msg.netId, out NetworkIdentity netIdentity))
+                    {
+                        if (netIdentity == null)
+                        {
+                            Debug.LogWarning($"Command received for non-existent netIdentity:{msg.netId} when client not ready.");
+                            return;
+                        }
                         if (msg.componentIndex < netIdentity.NetworkBehaviours.Length && netIdentity.NetworkBehaviours[msg.componentIndex] is NetworkBehaviour component)
                             if (RemoteProcedureCalls.GetFunctionMethodName(msg.functionHash, out string methodName))
                             {
                                 Debug.LogWarning($"Command {methodName} received for {netIdentity.name} [netId={msg.netId}] component {component.name} [index={msg.componentIndex}] when client not ready.\nThis may be ignored if client intentionally set NotReady.");
                                 return;
                             }
-
+                    }
                     Debug.LogWarning("Command received while client is not ready.\nThis may be ignored if client intentionally set NotReady.");
                 }
                 return;
