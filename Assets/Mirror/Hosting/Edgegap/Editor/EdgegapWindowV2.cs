@@ -1,3 +1,4 @@
+#if UNITY_2021_3_OR_NEWER // MIRROR CHANGE
 #if UNITY_EDITOR
 
 using System;
@@ -1815,4 +1816,5 @@ namespace Edgegap.Editor
         #endregion // Persistence Helpers
     }
 }
+#endif
 #endif
