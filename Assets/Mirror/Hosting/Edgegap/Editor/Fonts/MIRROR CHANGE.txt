@@ -1,1 +1,0 @@
-Removed font files to avoid all kinds of runtime errors.
