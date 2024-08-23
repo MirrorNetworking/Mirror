@@ -15,9 +15,7 @@
     width: 400px;
     top: -10px;
     right: -150px;
-    /* MIRROR CHANGE: disable hardcoded image path. this is inserted from the script now.
-    background-image: url('project://database/Assets/Edgegap/Editor/Images/logo_transparent_400_alpha25.png?fileID=21300000&guid=b7012da4ebf9008458abc3ef9a741f3c&type=3#logo_transparent_400_alpha25');
-    */
+    background-image: url('./Images/logo_transparent_400_alpha25.png?fileID=21300000&guid=b7012da4ebf9008458abc3ef9a741f3c&type=3#logo_transparent_400_alpha25');
     -unity-background-scale-mode: scale-and-crop;
 }
 
@@ -28,7 +26,7 @@
     padding-bottom: 8px;
     -unity-text-align: middle-center;
     /* MIRROR CHANGE: disable hardcoded font path
-    -unity-font: url('project://database/Assets/Edgegap/Editor/Fonts/Src/BaronNeue.otf?fileID=12800000&guid=fb67205c672fbb04d829783b9f771fc9&type=3#BaronNeue');
+    -unity-font: url('./Fonts/Src/BaronNeue.otf?fileID=12800000&guid=fb67205c672fbb04d829783b9f771fc9&type=3#BaronNeue');
     */
 }
 
@@ -122,7 +120,7 @@
     font-size: 11px;
     color: rgb(222, 222, 222);
     /* MIRROR CHANGE: disable hardcoded font path
-    -unity-font-definition: url('project://database/Assets/Edgegap/Editor/Fonts/Spartan-Regular%20SDF.asset?fileID=11400000&guid=8b0fb2c68be09174f8ea5057b27a545c&type=2#Spartan-Regular SDF');
+    -unity-font-definition: url('./Fonts/Spartan-Regular%20SDF.asset?fileID=11400000&guid=8b0fb2c68be09174f8ea5057b27a545c&type=2#Spartan-Regular SDF');
     */
 }
 
@@ -184,7 +182,7 @@ Toggle > #unity-checkmark {
 .unity-text-field__input > TextElement {
     color: rgb(255, 255, 255);
     /* MIRROR CHANGE: disable hardcoded font path
-    -unity-font-definition: url('project://database/Assets/Edgegap/Editor/Fonts/UbuntuMono-R%20SDF.asset?fileID=11400000&guid=2635d61c9807d6c46bcb00a3d8645b37&type=2#UbuntuMono-R SDF');
+    -unity-font-definition: url('./Fonts/UbuntuMono-R%20SDF.asset?fileID=11400000&guid=2635d61c9807d6c46bcb00a3d8645b37&type=2#UbuntuMono-R SDF');
     */
     font-size: 12px;
     white-space: nowrap;

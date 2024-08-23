@@ -1,4 +1,6 @@
+#if UNITY_2021_3_OR_NEWER // MIRROR CHANGE
 #if UNITY_EDITOR
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,6 +14,7 @@ using Edgegap.Editor.Api.Models;
 using Edgegap.Editor.Api.Models.Requests;
 using Edgegap.Editor.Api.Models.Results;
 using UnityEditor;
+using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
 using UnityEditor.UIElements;
 using UnityEngine;
@@ -98,7 +101,7 @@ namespace Edgegap.Editor
 
         private Button _footerDocumentationBtn;
         private Button _footerNeedMoreGameServersBtn;
-        #endregion // Vars
+        #endregion // Vars\
 
         // MIRROR CHANGE
         // get the path of this .cs file so we don't need to hardcode paths to
@@ -108,13 +111,10 @@ namespace Edgegap.Editor
         internal string StylesheetPath =>
             Path.GetDirectoryName(AssetDatabase.GetAssetPath(MonoScript.FromScriptableObject(this)));
         // END MIRROR CHANGE
+        internal string ProjectRootPath => Directory.GetCurrentDirectory();
+        internal string DockerFilePath => $"{Directory.GetParent(Directory.GetFiles(ProjectRootPath, GetType().Name + ".cs", SearchOption.AllDirectories)[0]).FullName}{Path.DirectorySeparatorChar}Dockerfile";
 
-        // MIRROR CHANGE: images are dragged into the script in inspector and assigned to the UI at runtime. this way we don't need to hardcode it.
-        public Texture2D LogoImage;
-        public Texture2D ClipboardImage;
-        // END MIRROR CHANGE
-
-        [MenuItem("Edgegap/Edgegap Hosting")] // MIRROR CHANGE: more obvious title
+        [MenuItem("Tools/Edgegap Hosting")] // MIRROR CHANGE: more obvious title
         public static void ShowEdgegapToolWindow()
         {
             EdgegapWindowV2 window = GetWindow<EdgegapWindowV2>();
@@ -123,25 +123,52 @@ namespace Edgegap.Editor
             window.minSize = window.maxSize;
         }
 
-
         #region Unity Funcs
+        [InitializeOnLoadMethod]
+        public static void AddDefineSymbols()
+        {
+// check if defined first, otherwise adding the symbol causes an infinite loop of recompilation
+#if !EDGEGAP_PLUGIN_SERVERS
+            // Get data about current target group
+            bool standaloneAndServer = false;
+            BuildTarget buildTarget = EditorUserBuildSettings.activeBuildTarget;
+            BuildTargetGroup buildTargetGroup = BuildPipeline.GetBuildTargetGroup(buildTarget);
+            if (buildTargetGroup == BuildTargetGroup.Standalone)
+            {
+                StandaloneBuildSubtarget standaloneSubTarget = EditorUserBuildSettings.standaloneBuildSubtarget;
+                if (standaloneSubTarget == StandaloneBuildSubtarget.Server)
+                    standaloneAndServer = true;
+            }
+
+            // Prepare named target, depending on above stuff
+            NamedBuildTarget namedBuildTarget;
+            if (standaloneAndServer)
+                namedBuildTarget = NamedBuildTarget.Server;
+            else
+                namedBuildTarget = NamedBuildTarget.FromBuildTargetGroup(buildTargetGroup);
+
+            // Set universal compiler macro
+            PlayerSettings.SetScriptingDefineSymbols(namedBuildTarget, $"{PlayerSettings.GetScriptingDefineSymbols(namedBuildTarget)};{EdgegapWindowMetadata.KEY_COMPILER_MACRO}");
+#endif
+        }
+
         protected void OnEnable()
         {
-#if UNITY_2021_3_OR_NEWER // MIRROR CHANGE: only load stylesheet in supported Unity versions, otherwise it shows errors in U2020
+#if UNITY_2021_3_OR_NEWER // only load stylesheet in supported Unity versions, otherwise it shows errors in U2020
             // Set root VisualElement and style: V2 still uses EdgegapWindow.[uxml|uss]
             // BEGIN MIRROR CHANGE
-            _visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>($"{StylesheetPath}/EdgegapWindow.uxml");
-            StyleSheet styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>($"{StylesheetPath}/EdgegapWindow.uss");
+            _visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>($"{StylesheetPath}{Path.DirectorySeparatorChar}EdgegapWindow.uxml");
+            StyleSheet styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>($"{StylesheetPath}{Path.DirectorySeparatorChar}EdgegapWindow.uss");
             // END MIRROR CHANGE
             rootVisualElement.styleSheets.Add(styleSheet);
 #endif
         }
 
-#pragma warning disable CS1998 // MIRROR CHANGE: disable async warning in U2020
+#pragma warning disable CS1998 // disable async warning in U2020
         public async void CreateGUI()
-#pragma warning restore CS1998 // END MIRROR CHANGE
+#pragma warning restore CS1998
         {
-            // MIRROR CHANGE: the UI requires 'GroupBox', which is not available in Unity 2019/2020.
+            // the UI requires 'GroupBox', which is not available in Unity 2019/2020.
             // showing it will break all of Unity's Editor UIs, not just this one.
             // instead, show a warning that the Edgegap plugin only works on Unity 2021+
 #if !UNITY_2021_3_OR_NEWER
@@ -163,10 +190,9 @@ namespace Edgegap.Editor
         /// <summary>The user closed the window. Save the data.</summary>
         protected void OnDisable()
         {
-#if UNITY_2021_3_OR_NEWER // MIRROR CHANGE: only load stylesheet in supported Unity versions, otherwise it shows errors in U2020
-            // MIRROR CHANGE: sometimes this is called without having been registered, throwing NRE
+#if UNITY_2021_3_OR_NEWER // only load stylesheet in supported Unity versions, otherwise it shows errors in U2020
+            // sometimes this is called without having been registered, throwing NRE
             if (_debugBtn == null) return;
-            // END MIRROR CHANGE
 
             unregisterClickEvents();
             unregisterFieldCallbacks();
@@ -189,7 +215,6 @@ namespace Edgegap.Editor
             registerClickCallbacks();
             registerFieldCallbacks();
             initToggleDynamicUi();
-            AssignImages(); // MIRROR CHANGE
         }
 
         private void closeDisableGroups()
@@ -202,20 +227,6 @@ namespace Edgegap.Editor
             _containerRegistryFoldout.SetEnabled(false);
             _deploymentsFoldout.SetEnabled(false);
         }
-
-        // MIRROR CHANGE: assign images to the UI at runtime instead of hardcoding it
-        void AssignImages()
-        {
-            // header logo
-            VisualElement logoElement = rootVisualElement.Q<VisualElement>("header-logo-img");
-            logoElement.style.backgroundImage = LogoImage;
-
-            // clipboard button
-            VisualElement copyElement = rootVisualElement.Q<VisualElement>("DeploymentConnectionCopyUrlBtn");
-            copyElement.style.backgroundImage = ClipboardImage;
-        }
-
-        // END MIRROR CHANGE
 
         /// <summary>Set fields referencing UI Builder's fields. In order of appearance from top-to-bottom.</summary>
         private void setVisualElementsToFields()
@@ -633,7 +644,6 @@ namespace Edgegap.Editor
         #endregion // Init -> /Button Clicks
         #endregion // Init
 
-
         /// <summary>Throw if !appName val</summary>
         private void assertAppNameExists() =>
             Assert.IsTrue(!string.IsNullOrEmpty(_appNameInput.value),
@@ -1019,7 +1029,7 @@ namespace Edgegap.Editor
         private void openGetApiTokenWebsite()
         {
             if (IsLogLevelDebug) Debug.Log("openGetApiTokenWebsite");
-            Application.OpenURL(EdgegapWindowMetadata.EDGEGAP_GET_A_TOKEN_URL + "&" + 
+            Application.OpenURL(EdgegapWindowMetadata.EDGEGAP_GET_A_TOKEN_URL + "&" +
                                 EdgegapWindowMetadata.DEFAULT_UTM_TAGS);
         }
 
@@ -1139,16 +1149,14 @@ namespace Edgegap.Editor
 
         /// <summary>Open contact form in desired locale</summary>
         private void openNeedMoreGameServersWebsite() =>
-            Application.OpenURL(EdgegapWindowMetadata.EDGEGAP_ADD_MORE_GAME_SERVERS_URL + "?" + 
+            Application.OpenURL(EdgegapWindowMetadata.EDGEGAP_ADD_MORE_GAME_SERVERS_URL + "?" +
                                 EdgegapWindowMetadata.DEFAULT_UTM_TAGS);
 
         private void openDocumentationWebsite()
         {
-            string documentationUrl = _apiEnvironment.GetDocumentationUrl() + "?" + 
+            string documentationUrl = _apiEnvironment.GetDocumentationUrl() + "?" +
                                       EdgegapWindowMetadata.DEFAULT_UTM_TAGS;
 
-            // BEGIN MIRROR CHANGE
-            /*
             if (!string.IsNullOrEmpty(documentationUrl))
                 Application.OpenURL(documentationUrl);
             else
@@ -1157,11 +1165,6 @@ namespace Edgegap.Editor
                 Debug.LogWarning($"Could not open documentation for api environment " +
                     $"{apiEnvName}: No documentation URL.");
             }
-            */
-
-            // link to our step by step guide
-            Application.OpenURL("https://mirror-networking.gitbook.io/docs/hosting/edgegap-hosting-plugin-guide");
-            // END MIRROR CHANGE
         }
 
         /// <summary>
@@ -1353,10 +1356,7 @@ namespace Edgegap.Editor
             Debug.Log("(!) Check your deployments here: https://app.edgegap.com/deployment-management/deployments/list");
 
             // Shake "need more servers" btn on 403
-            // MIRROR CHANGE: use old C# syntax that is supported in Unity 2019
-            // bool reachedNumDeploymentsHardcap = result is { IsResultCode403: true };
             bool reachedNumDeploymentsHardcap = result != null && result.IsResultCode403;
-            // END MIRROR CHANGE
             if (reachedNumDeploymentsHardcap)
                 shakeNeedMoreGameServersBtn();
         }
@@ -1519,7 +1519,7 @@ namespace Edgegap.Editor
             try
             {
                 // check for installation and setup docker file
-                if (!await EdgegapBuildUtils.DockerSetupAndInstallationCheck())
+                if (!await EdgegapBuildUtils.DockerSetupAndInstallationCheck(DockerFilePath))
                 {
                     onBuildPushError("Docker installation not found. " +
                         "Docker can be downloaded from:\n\nhttps://www.docker.com/");
@@ -1593,7 +1593,7 @@ namespace Edgegap.Editor
                     //     tag,
                     //     ShowBuildWorkInProgress);
 
-                    await EdgegapBuildUtils.RunCommand_DockerBuild(registry, imageName, tag, status => ShowBuildWorkInProgress("Building Docker Image", status));
+                    await EdgegapBuildUtils.RunCommand_DockerBuild(DockerFilePath, registry, imageName, tag, ProjectRootPath, status => ShowBuildWorkInProgress("Building Docker Image", status));
 
                 }
                 else
@@ -1816,4 +1816,5 @@ namespace Edgegap.Editor
         #endregion // Persistence Helpers
     }
 }
+#endif
 #endif
