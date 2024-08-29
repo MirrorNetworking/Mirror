@@ -67,31 +67,6 @@ namespace Mirror
         [Tooltip("Local by default. World may be better when changing hierarchy, or non-NetworkTransforms root position/rotation/scale values.")]
         public CoordinateSpace coordinateSpace = CoordinateSpace.Local;
 
-        [Header("Send Interval Multiplier")]
-        [Tooltip("Check/Sync every multiple of Network Manager send interval (= 1 / NM Send Rate), instead of every send interval.\n(30 NM send rate, and 3 interval, is a send every 0.1 seconds)\nA larger interval means less network sends, which has a variety of upsides. The drawbacks are delays and lower accuracy, you should find a nice balance between not sending too much, but the results looking good for your particular scenario.")]
-        [Range(1, 120)]
-        public uint sendIntervalMultiplier = 1;
-
-        [Header("Timeline Offset")]
-        [Tooltip("Add a small timeline offset to account for decoupled arrival of NetworkTime and NetworkTransform snapshots.\nfixes: https://github.com/MirrorNetworking/Mirror/issues/3427")]
-        public bool timelineOffset = false;
-
-        // Ninja's Notes on offset & mulitplier:
-        //
-        // In a no multiplier scenario:
-        // 1. Snapshots are sent every frame (frame being 1 NM send interval).
-        // 2. Time Interpolation is set to be 'behind' by 2 frames times.
-        // In theory where everything works, we probably have around 2 snapshots before we need to interpolate snapshots. From NT perspective, we should always have around 2 snapshots ready, so no stutter.
-        //
-        // In a multiplier scenario:
-        // 1. Snapshots are sent every 10 frames.
-        // 2. Time Interpolation remains 'behind by 2 frames'.
-        // When everything works, we are receiving NT snapshots every 10 frames, but start interpolating after 2.
-        // Even if I assume we had 2 snapshots to begin with to start interpolating (which we don't), by the time we reach 13th frame, we are out of snapshots, and have to wait 7 frames for next snapshot to come. This is the reason why we absolutely need the timestamp adjustment. We are starting way too early to interpolate.
-        //
-        protected double timeStampAdjustment => NetworkServer.sendInterval * (sendIntervalMultiplier - 1);
-        protected double offset => timelineOffset ? NetworkServer.sendInterval * sendIntervalMultiplier : 0;
-
         // debugging ///////////////////////////////////////////////////////////
         [Header("Debug")]
         public bool showGizmos;
@@ -115,13 +90,6 @@ namespace Mirror
         {
             // set target to self if none yet
             if (target == null) target = transform;
-
-            // time snapshot interpolation happens globally.
-            // value (transform) happens in here.
-            // both always need to be on the same send interval.
-            // force the setting to '0' in OnValidate to make it obvious that we
-            // actually use NetworkServer.sendInterval.
-            syncInterval = 0;
 
             // Unity doesn't support setting world scale.
             // OnValidate force disables syncScale in world mode.

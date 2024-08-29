@@ -8,9 +8,6 @@ namespace Mirror
     [AddComponentMenu("Network/Network Transform (Reliable)")]
     public class NetworkTransformReliable : NetworkTransformBase
     {
-        uint sendIntervalCounter = 0;
-        double lastSendIntervalTime = double.MinValue;
-
         [Header("Additional Settings")]
         [Tooltip("If we only sync on change, then we need to correct old snapshots if more time than sendInterval * multiplier has elapsed.\n\nOtherwise the first move will always start interpolating from the last move sequence's time, which will make it stutter when starting every time.")]
         public float onlySyncOnChangeCorrectionMultiplier = 2;
@@ -59,12 +56,11 @@ namespace Mirror
             // the possibility of Update() running first before the object's movement
             // script's Update(), which then causes NT to send every alternate frame
             // instead.
+            // note that even if we SetDirty every update, it only syncs every syncInterval.
             if (isServer || (IsClientWithAuthority && NetworkClient.ready))
             {
-                if (sendIntervalCounter == sendIntervalMultiplier && (!onlySyncOnChange || Changed(Construct())))
+                if (!onlySyncOnChange || Changed(Construct()))
                     SetDirty();
-
-                CheckLastSendTime();
             }
         }
 
@@ -121,17 +117,6 @@ namespace Mirror
                     TransformSnapshot computed = TransformSnapshot.Interpolate(from, to, t);
                     Apply(computed, to);
                 }
-            }
-        }
-
-        protected virtual void CheckLastSendTime()
-        {
-            // timeAsDouble not available in older Unity versions.
-            if (AccurateInterval.Elapsed(NetworkTime.localTime, NetworkServer.sendInterval, ref lastSendIntervalTime))
-            {
-                if (sendIntervalCounter == sendIntervalMultiplier)
-                    sendIntervalCounter = 0;
-                sendIntervalCounter++;
             }
         }
 
@@ -302,13 +287,13 @@ namespace Mirror
 
             // 'only sync on change' needs a correction on every new move sequence.
             if (onlySyncOnChange &&
-                NeedsCorrection(serverSnapshots, connectionToClient.remoteTimeStamp, NetworkServer.sendInterval * sendIntervalMultiplier, onlySyncOnChangeCorrectionMultiplier))
+                NeedsCorrection(serverSnapshots, connectionToClient.remoteTimeStamp, syncInterval, onlySyncOnChangeCorrectionMultiplier))
             {
                 RewriteHistory(
                     serverSnapshots,
-                    connectionToClient.remoteTimeStamp,
-                    NetworkTime.localTime,                                  // arrival remote timestamp. NOT remote timeline.
-                    NetworkServer.sendInterval * sendIntervalMultiplier,    // Unity 2019 doesn't have timeAsDouble yet
+                    connectionToClient.remoteTimeStamp, // arrival remote timestamp. NOT remote timeline.
+                    NetworkTime.localTime,              // Unity 2019 doesn't have timeAsDouble yet
+                    syncInterval,
                     GetPosition(),
                     GetRotation(),
                     GetScale());
@@ -330,13 +315,13 @@ namespace Mirror
 
             // 'only sync on change' needs a correction on every new move sequence.
             if (onlySyncOnChange &&
-                NeedsCorrection(clientSnapshots, NetworkClient.connection.remoteTimeStamp, NetworkClient.sendInterval * sendIntervalMultiplier, onlySyncOnChangeCorrectionMultiplier))
+                NeedsCorrection(clientSnapshots, NetworkClient.connection.remoteTimeStamp, syncInterval, onlySyncOnChangeCorrectionMultiplier))
             {
                 RewriteHistory(
                     clientSnapshots,
                     NetworkClient.connection.remoteTimeStamp,               // arrival remote timestamp. NOT remote timeline.
                     NetworkTime.localTime,                                  // Unity 2019 doesn't have timeAsDouble yet
-                    NetworkClient.sendInterval * sendIntervalMultiplier,
+                    syncInterval,
                     GetPosition(),
                     GetRotation(),
                     GetScale());

@@ -7,7 +7,6 @@ namespace Mirror
     [AddComponentMenu("Network/Network Transform (Unreliable)")]
     public class NetworkTransformUnreliable : NetworkTransformBase
     {
-        uint sendIntervalCounter = 0;
         double lastSendIntervalTime = double.MinValue;
 
         [Header("Additional Settings")]
@@ -56,27 +55,9 @@ namespace Mirror
             else if (isClient && IsClientWithAuthority) UpdateClientBroadcast();
         }
 
-        protected virtual void CheckLastSendTime()
-        {
-            // We check interval every frame, and then send if interval is reached.
-            // So by the time sendIntervalCounter == sendIntervalMultiplier, data is sent,
-            // thus we reset the counter here.
-            // This fixes previous issue of, if sendIntervalMultiplier = 1, we send every frame,
-            // because intervalCounter is always = 1 in the previous version.
-
-            // Changing == to >= https://github.com/MirrorNetworking/Mirror/issues/3571
-
-            if (sendIntervalCounter >= sendIntervalMultiplier)
-                sendIntervalCounter = 0;
-
-            // timeAsDouble not available in older Unity versions.
-            if (AccurateInterval.Elapsed(NetworkTime.localTime, NetworkServer.sendInterval, ref lastSendIntervalTime))
-                sendIntervalCounter++;
-        }
-
         void UpdateServerBroadcast()
         {
-            // broadcast to all clients each 'sendInterval'
+            // broadcast to all clients each 'syncInterval'
             // (client with authority will drop the rpc)
             // NetworkTime.localTime for double precision until Unity has it too
             //
@@ -106,10 +87,12 @@ namespace Mirror
             // authoritative movement done by the host will have to be broadcasted
             // here by checking IsClientWithAuthority.
             // TODO send same time that NetworkServer sends time snapshot?
-            CheckLastSendTime();
 
-            if (sendIntervalCounter == sendIntervalMultiplier && // same interval as time interpolation!
-                (syncDirection == SyncDirection.ServerToClient || IsClientWithAuthority))
+            // only send every syncInterval
+            if (NetworkTime.localTime < lastSendIntervalTime + syncInterval) return;
+            lastSendIntervalTime = NetworkTime.localTime;
+
+            if (syncDirection == SyncDirection.ServerToClient || IsClientWithAuthority)
             {
                 // send snapshot without timestamp.
                 // receiver gets it from batch timestamp to save bandwidth.
@@ -191,30 +174,32 @@ namespace Mirror
             // DO NOT send nulls if not changed 'since last send' either. we
             // send unreliable and don't know which 'last send' the other end
             // received successfully.
-            CheckLastSendTime();
-            if (sendIntervalCounter == sendIntervalMultiplier) // same interval as time interpolation!
+
+
+            // only send every syncInterval
+            if (NetworkTime.localTime < lastSendIntervalTime + syncInterval) return;
+            lastSendIntervalTime = NetworkTime.localTime;
+
+            // send snapshot without timestamp.
+            // receiver gets it from batch timestamp to save bandwidth.
+            TransformSnapshot snapshot = Construct();
+
+            cachedChangedComparison = CompareChangedSnapshots(snapshot);
+
+            if ((cachedChangedComparison == Changed.None || cachedChangedComparison == Changed.CompressRot) && hasSentUnchangedPosition && onlySyncOnChange) { return; }
+
+            SyncData syncData = new SyncData(cachedChangedComparison, snapshot);
+
+            CmdClientToServerSync(syncData);
+
+            if (cachedChangedComparison == Changed.None || cachedChangedComparison == Changed.CompressRot)
             {
-                // send snapshot without timestamp.
-                // receiver gets it from batch timestamp to save bandwidth.
-                TransformSnapshot snapshot = Construct();
-
-                cachedChangedComparison = CompareChangedSnapshots(snapshot);
-
-                if ((cachedChangedComparison == Changed.None || cachedChangedComparison == Changed.CompressRot) && hasSentUnchangedPosition && onlySyncOnChange) { return; }
-
-                SyncData syncData = new SyncData(cachedChangedComparison, snapshot);
-
-                CmdClientToServerSync(syncData);
-
-                if (cachedChangedComparison == Changed.None || cachedChangedComparison == Changed.CompressRot)
-                {
-                    hasSentUnchangedPosition = true;
-                }
-                else
-                {
-                    hasSentUnchangedPosition = false;
-                    UpdateLastSentSnapshot(cachedChangedComparison, snapshot);
-                }
+                hasSentUnchangedPosition = true;
+            }
+            else
+            {
+                hasSentUnchangedPosition = false;
+                UpdateLastSentSnapshot(cachedChangedComparison, snapshot);
             }
         }
 
@@ -316,7 +301,7 @@ namespace Mirror
             }
 
             if (syncRotation)
-            { 
+            {
                 if (compressRotation)
                 {
                     bool rotationChanged = Quaternion.Angle(lastSnapshot.rotation, currentSnapshot.rotation) > rotationSensitivity;
@@ -459,7 +444,7 @@ namespace Mirror
         // This is to extract position/rotation/scale data from payload. Override
         // Construct and Deconstruct if you are implementing a different SyncData logic.
         // Note however that snapshot interpolation still requires the basic 3 data
-        // position, rotation and scale, which are computed from here.   
+        // position, rotation and scale, which are computed from here.
         protected virtual void DeconstructSyncData(System.ArraySegment<byte> receivedPayload, out byte? changedFlagData, out Vector3? position, out Quaternion? rotation, out Vector3? scale)
         {
             using (NetworkReaderPooled reader = NetworkReaderPool.Get(receivedPayload))
