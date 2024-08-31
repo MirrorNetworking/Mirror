@@ -137,8 +137,6 @@ namespace Mirror
                 // OnValidate sets NetworkServer.sendInterval immediately.
                 float multiples = syncInterval / NetworkServer.sendInterval;
 
-                Debug.Log($"NetworkServer.sendInterval={NetworkServer.sendInterval:F3} NetworkTransform.syncInterval={syncInterval:F3} multiples={multiples:F3}");
-
                 // syncInterval is always supposed to sync at a minimum of 1 x sendInterval.
                 // that's what we do for every other NetworkBehaviour since
                 // we only sync in Broadcast() which is called @ sendInterval.
