@@ -202,6 +202,11 @@ namespace Mirror
             // always >= 0
             maxConnections = Mathf.Max(maxConnections, 0);
 
+            // some components (like NetworkTransform) may need NetworkServer.sendInterval in edit mode.
+            // NetworkManager only sets this to in play mode when starting the server.
+            // use OnValidate to always set it in edit mode too (only for other components' OnValidate).
+            NetworkServer.tickRate = sendRate;
+
             if (playerPrefab != null && !playerPrefab.TryGetComponent(out NetworkIdentity _))
             {
                 Debug.LogError("NetworkManager - Player Prefab must have a NetworkIdentity.");

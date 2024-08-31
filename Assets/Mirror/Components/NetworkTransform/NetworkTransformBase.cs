@@ -67,10 +67,10 @@ namespace Mirror
         [Tooltip("Local by default. World may be better when changing hierarchy, or non-NetworkTransforms root position/rotation/scale values.")]
         public CoordinateSpace coordinateSpace = CoordinateSpace.Local;
 
-        [Header("Send Interval Multiplier")]
-        [Tooltip("Check/Sync every multiple of Network Manager send interval (= 1 / NM Send Rate), instead of every send interval.\n(30 NM send rate, and 3 interval, is a send every 0.1 seconds)\nA larger interval means less network sends, which has a variety of upsides. The drawbacks are delays and lower accuracy, you should find a nice balance between not sending too much, but the results looking good for your particular scenario.")]
-        [Range(1, 120)]
-        public uint sendIntervalMultiplier = 1;
+        // TODO make this a property later, see OnValidate. maybe make it more simple too.
+        // DEPRECATED: 2024-08-31
+        [Obsolete("NetworkTransform.sendIntervalMultiplier was previously used to only send in 'multiples' of NetworkManager's send rate. Please use the syncInterval setting instead, as with all other components.")]
+        public float sendIntervalMultiplier = 1; // FORCED TO SYNCINTERVAL IN ONVALIDATE, CANT BE SET DIRECLTY ANYMORE
 
         [Header("Timeline Offset")]
         [Tooltip("Add a small timeline offset to account for decoupled arrival of NetworkTime and NetworkTransform snapshots.\nfixes: https://github.com/MirrorNetworking/Mirror/issues/3427")]
@@ -116,12 +116,34 @@ namespace Mirror
             // set target to self if none yet
             if (target == null) target = transform;
 
-            // time snapshot interpolation happens globally.
-            // value (transform) happens in here.
-            // both always need to be on the same send interval.
-            // force the setting to '0' in OnValidate to make it obvious that we
-            // actually use NetworkServer.sendInterval.
-            syncInterval = 0;
+            // sendIntervalMultiplier is deprecated, force it based on syncInterval
+            if (syncInterval == 0)
+            {
+                // if syncInterval is 0, use NetworkManager.sendRate (x1)
+                sendIntervalMultiplier = 1;
+            }
+            else if (syncInterval > 0)
+            {
+                // if syncInterval is > 0, calculate how many multiples of NetworkManager.sendRate it is
+                //
+                // for example:
+                //   NetworkServer.sendInterval is 1/60 = 0.16
+                //   NetworkTransform.syncInterval is 0.5 (500ms).
+                //   0.5 / 0.16 = 3.125
+                //   in other words: 3.125 x sendInterval
+                //
+                // note that NetworkServer.sendInterval is usually set on start.
+                // to make this work in Edit mode, make sure that NetworkManager
+                // OnValidate sets NetworkServer.sendInterval immediately.
+                float multiples = syncInterval / NetworkServer.sendInterval;
+
+                Debug.Log($"NetworkServer.sendInterval={NetworkServer.sendInterval:F3} NetworkTransform.syncInterval={syncInterval:F3} multiples={multiples:F3}");
+
+                // syncInterval is always supposed to sync at a minimum of 1 x sendInterval.
+                // that's what we do for every other NetworkBehaviour since
+                // we only sync in Broadcast() which is called @ sendInterval.
+                sendIntervalMultiplier = multiples > 1 ? multiples : 1;
+            }
 
             // Unity doesn't support setting world scale.
             // OnValidate force disables syncScale in world mode.
