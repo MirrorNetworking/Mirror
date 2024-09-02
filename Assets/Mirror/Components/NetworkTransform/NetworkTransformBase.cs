@@ -70,7 +70,7 @@ namespace Mirror
         // TODO make this a property later, see OnValidate. maybe make it more simple too.
         // DEPRECATED: 2024-08-31
         [Obsolete("NetworkTransform.sendIntervalMultiplier was previously used to only send in 'multiples' of NetworkManager's send rate. Please use the syncInterval setting instead, as with all other components.")]
-        public uint sendIntervalMultiplier = 1; // FORCED TO SYNCINTERVAL IN ONVALIDATE, CANT BE SET DIRECLTY ANYMORE
+        [HideInInspector] public uint sendIntervalMultiplier = 1; // FORCED TO SYNCINTERVAL IN ONVALIDATE, CANT BE SET DIRECLTY ANYMORE
 
         [Header("Timeline Offset")]
         [Tooltip("Add a small timeline offset to account for decoupled arrival of NetworkTime and NetworkTransform snapshots.\nfixes: https://github.com/MirrorNetworking/Mirror/issues/3427")]
