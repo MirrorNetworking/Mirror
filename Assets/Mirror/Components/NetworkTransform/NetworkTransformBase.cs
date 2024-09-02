@@ -70,7 +70,7 @@ namespace Mirror
         // TODO make this a property later, see OnValidate. maybe make it more simple too.
         // DEPRECATED: 2024-08-31
         [Obsolete("NetworkTransform.sendIntervalMultiplier was previously used to only send in 'multiples' of NetworkManager's send rate. Please use the syncInterval setting instead, as with all other components.")]
-        public float sendIntervalMultiplier = 1; // FORCED TO SYNCINTERVAL IN ONVALIDATE, CANT BE SET DIRECLTY ANYMORE
+        public uint sendIntervalMultiplier = 1; // FORCED TO SYNCINTERVAL IN ONVALIDATE, CANT BE SET DIRECLTY ANYMORE
 
         [Header("Timeline Offset")]
         [Tooltip("Add a small timeline offset to account for decoupled arrival of NetworkTime and NetworkTransform snapshots.\nfixes: https://github.com/MirrorNetworking/Mirror/issues/3427")]
@@ -140,7 +140,7 @@ namespace Mirror
                 // syncInterval is always supposed to sync at a minimum of 1 x sendInterval.
                 // that's what we do for every other NetworkBehaviour since
                 // we only sync in Broadcast() which is called @ sendInterval.
-                sendIntervalMultiplier = multiples > 1 ? multiples : 1;
+                sendIntervalMultiplier = multiples > 1 ? (uint)Mathf.RoundToInt(multiples) : 1;
             }
 
             // Unity doesn't support setting world scale.
