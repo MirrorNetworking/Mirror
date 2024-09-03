@@ -115,7 +115,7 @@ namespace Mirror.Tests.SyncVars
             player.guild = myGuild;
 
             Assert.That(player.IsDirty(), "Setting struct should mark object as dirty");
-            player.ClearAllDirtyBits();
+            player.ClearAllDirtyBits(true, true);
             Assert.That(player.IsDirty(), Is.False, "ClearAllDirtyBits() should clear dirty flag");
 
             // clearing the guild should set dirty bit too
@@ -127,7 +127,7 @@ namespace Mirror.Tests.SyncVars
         public void TestSyncIntervalAndClearAllComponents()
         {
             CreateNetworked(out _, out _, out MockPlayer player);
-            player.lastSyncTime = NetworkTime.localTime;
+            player.lastSyncTimeReliable = NetworkTime.localTime;
             // synchronize immediately
             player.syncInterval = 1f;
 
@@ -143,7 +143,7 @@ namespace Mirror.Tests.SyncVars
             player.netIdentity.ClearAllComponentsDirtyBits();
 
             // set lastSyncTime far enough back to be ready for syncing
-            player.lastSyncTime = NetworkTime.localTime - player.syncInterval;
+            player.lastSyncTimeReliable = NetworkTime.localTime - player.syncInterval;
 
             // should be dirty now
             Assert.That(player.IsDirty(), Is.False, "Sync interval met, should still not be dirty");

@@ -2021,8 +2021,6 @@ namespace Mirror
 
                     // 'Unreliable' sync: send Unreliable components over unreliable
                     // state is 'initial' for reliable baseline, and 'not initial' for unreliable deltas.
-                    //   note that syncInterval is always ignored for unreliable in order to have tick aligned [SyncVars].
-                    //   even if we pass SyncMethod.Reliable, it serializes with initialState=true.
                     serialization = SerializeForConnection(identity, connection, SyncMethod.Unreliable, unreliableFullSendIntervalElapsed);
                     if (serialization != null)
                     {

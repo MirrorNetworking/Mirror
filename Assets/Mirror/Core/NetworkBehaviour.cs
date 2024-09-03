@@ -52,7 +52,12 @@ namespace Mirror
         [Tooltip("Time in seconds until next change is synchronized to the client. '0' means send immediately if changed. '0.5' means only send changes every 500ms.\n(This is for state synchronization like SyncVars, SyncLists, OnSerialize. Not for Cmds, Rpcs, etc.)")]
         [Range(0, 2)]
         [HideInInspector] public float syncInterval = 0;
-        internal double lastSyncTime;
+
+        // for reliable, we only need the reliable last sync time.
+        // for unreliable, we need the reliable for baselines and unreliable for deltas.
+        // this way we can have syncInterval on unreliable components as well.
+        internal double lastSyncTimeReliable;
+        internal double lastSyncTimeUnreliable;
 
         /// <summary>True if this object is on the server and has been spawned.</summary>
         // This is different from NetworkServer.active, which is true if the
@@ -230,29 +235,38 @@ namespace Mirror
         // true if syncInterval elapsed and any SyncVar or SyncObject is dirty
         // OR both bitmasks. != 0 if either was dirty.
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool IsDirty() =>
+        public bool IsDirty() => // _RELIABLE
             // check bits first. this is basically free.
             (syncVarDirtyBits | syncObjectDirtyBits) != 0UL &&
             // only check time if bits were dirty. this is more expensive.
-            NetworkTime.localTime - lastSyncTime >= syncInterval;
+            NetworkTime.localTime - lastSyncTimeReliable >= syncInterval;
 
+        // true if syncInterval elapsed and any SyncVar or SyncObject is dirty
+        // OR both bitmasks. != 0 if either was dirty.
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        bool IsDirty_BitsOnly() =>
-            (syncVarDirtyBits | syncObjectDirtyBits) != 0UL;
+        public bool IsDirtyUnreliable() =>
+            // check bits first. this is basically free.
+            (syncVarDirtyBits | syncObjectDirtyBits) != 0UL &&
+            // only check time if bits were dirty. this is more expensive.
+            // -> for initial we check last reliable sync time.
+            //    for delta we check last unreliable sync time.
+            NetworkTime.localTime - lastSyncTimeUnreliable >= syncInterval;
 
         // convenience function to check if a component is dirty for the given
         // SyncMethod.
         internal bool IsDirtyFor(SyncMethod method)
         {
-            // reliable: only if dirty bits were set and syncInterval elapsed
+            // reliable: only if dirty bits were set and syncInterval elapsed.
             if (method == SyncMethod.Reliable && syncMethod == SyncMethod.Reliable)
             {
                 return IsDirty();
             }
-            // unreliable: if dirty bits were set (ignored syncInterval for tick aligned SyncVars)
+            // unreliable: only if dirty bits were set and syncInterval elapsed.
+            // note that we chose 'syncInterval' support over 'tick aligned' SyncVars,
+            // because the bandwidth savings are worth it.
             else if (method == SyncMethod.Unreliable && syncMethod == SyncMethod.Unreliable)
             {
-                return IsDirty_BitsOnly();
+                return IsDirtyUnreliable();
             }
 
             return false;
@@ -261,9 +275,11 @@ namespace Mirror
         /// <summary>Clears all the dirty bits that were set by SetSyncVarDirtyBit() (formally SetDirtyBits)</summary>
         // automatically invoked when an update is sent for this object, but can
         // be called manually as well.
-        public void ClearAllDirtyBits()
+        public void ClearAllDirtyBits(bool clearReliableSyncTime, bool clearUnreliableSyncTime)
         {
-            lastSyncTime = NetworkTime.localTime;
+            if (clearReliableSyncTime)   lastSyncTimeReliable   = NetworkTime.localTime;
+            if (clearUnreliableSyncTime) lastSyncTimeUnreliable = NetworkTime.localTime;
+
             syncVarDirtyBits = 0L;
             syncObjectDirtyBits = 0L;
 

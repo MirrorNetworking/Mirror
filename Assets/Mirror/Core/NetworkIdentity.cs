@@ -1027,7 +1027,7 @@ namespace Mirror
                             // otherwise if a player joins, we serialize monster,
                             // and shouldn't clear dirty bits not yet synced to
                             // other players.
-                            if (!initialState) comp.ClearAllDirtyBits();
+                            if (!initialState) comp.ClearAllDirtyBits(true, false);
                         }
                         else if (method == SyncMethod.Unreliable)
                         {
@@ -1036,11 +1036,9 @@ namespace Mirror
                             // and shouldn't clear dirty bits not yet synced to
                             // other players.
                             //
-                            // for delta: only clear for full syncs.
-                            // delta syncs over unreliable may not be delivered,
-                            // so we can only clear dirty bits for guaranteed to
-                            // be delivered full syncs.
-                            if (!initialState && unreliableFullSendIntervalElapsed) comp.ClearAllDirtyBits();
+                            // for delta: clear bits depending on if this was a
+                            // reliable baseline or a unreliable delta sync.
+                            if (!initialState) comp.ClearAllDirtyBits(unreliableFullSendIntervalElapsed, !unreliableFullSendIntervalElapsed);
                         }
                     }
                 }
@@ -1107,16 +1105,14 @@ namespace Mirror
                         {
                             // for reliable: server knows initial. we only send deltas.
                             // so always clear for deltas.
-                            comp.ClearAllDirtyBits();
+                            comp.ClearAllDirtyBits(true, false);
                         }
                         else if (method == SyncMethod.Unreliable)
                         {
                             // for unreliable: server knows initial. we only send deltas.
-                            // but only clear for full syncs.
-                            // delta syncs over unreliable may not be delivered,
-                            // so we can only clear dirty bits for guaranteed to
-                            // be delivered full syncs.
-                            if (unreliableFullSendIntervalElapsed) comp.ClearAllDirtyBits();
+                            // for delta: clear bits depending on if this was a
+                            // reliable baseline or a unreliable delta sync.
+                            comp.ClearAllDirtyBits(unreliableFullSendIntervalElapsed, !unreliableFullSendIntervalElapsed);
                         }
                     }
                 }
@@ -1284,7 +1280,7 @@ namespace Mirror
         {
             foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
-                comp.ClearAllDirtyBits();
+                comp.ClearAllDirtyBits(true, true);
             }
         }
 

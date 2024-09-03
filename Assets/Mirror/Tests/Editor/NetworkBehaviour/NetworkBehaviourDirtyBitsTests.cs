@@ -88,12 +88,12 @@ namespace Mirror.Tests.NetworkBehaviours
             // changing a [SyncVar] should set it dirty
             ++comp.health;
             Assert.That(comp.IsDirty(), Is.True);
-            comp.ClearAllDirtyBits();
+            comp.ClearAllDirtyBits(true, true);
 
             // changing a SyncCollection should set it dirty
             comp.list.Add(42);
             Assert.That(comp.IsDirty(), Is.True);
-            comp.ClearAllDirtyBits();
+            comp.ClearAllDirtyBits(true, true);
 
             // it should only be dirty after syncInterval elapsed
             comp.syncInterval = float.MaxValue;
@@ -115,7 +115,7 @@ namespace Mirror.Tests.NetworkBehaviours
             Assert.That(emptyBehaviour.IsDirty(), Is.True);
 
             // clear it
-            emptyBehaviour.ClearAllDirtyBits();
+            emptyBehaviour.ClearAllDirtyBits(true, true);
             Assert.That(emptyBehaviour.IsDirty(), Is.False);
         }
 
@@ -134,7 +134,7 @@ namespace Mirror.Tests.NetworkBehaviours
             Assert.That(comp.IsDirty, Is.True);
 
             // clear bits should clear synclist bits too
-            comp.ClearAllDirtyBits();
+            comp.ClearAllDirtyBits(true, true);
             Assert.That(comp.IsDirty, Is.False);
         }
 
