@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "com.jeffjadulco.guidregenerator": "https://github.com/jeffjadulco/unity-guid-regenerator.git",
     "com.unity.2d.sprite": "1.0.0",
     "com.unity.2d.tilemap": "1.0.0",
     "com.unity.ide.rider": "3.0.27",

@@ -54,6 +54,12 @@ namespace Mirror
         public static float sendInterval => sendRate < int.MaxValue ? 1f / sendRate : 0; // for 30 Hz, that's 33ms
         static double lastSendTime;
 
+        // ocassionally send a full reliable state for unreliable components to delta compress against.
+        // This only applies to Components with SyncMethod=Unreliable.
+        public static int unreliableFullSendRate = 1;
+        public static float unreliableFullSendInterval => unreliableFullSendRate < int.MaxValue ? 1f / unreliableFullSendRate : 0; // for 1 Hz, that's 1000ms
+        static double lastUnreliableFullSendTime;
+
         /// <summary>Connection to host mode client (if any)</summary>
         public static LocalConnectionToClient localConnection { get; private set; }
 
@@ -312,6 +318,7 @@ namespace Mirror
             RegisterHandler<NetworkPingMessage>(NetworkTime.OnServerPing, false);
             RegisterHandler<NetworkPongMessage>(NetworkTime.OnServerPong, false);
             RegisterHandler<EntityStateMessage>(OnEntityStateMessage, true);
+            RegisterHandler<EntityStateMessageUnreliable>(OnEntityStateMessageUnreliable, true);
             RegisterHandler<TimeSnapshotMessage>(OnTimeSnapshotMessage, false); // unreliable may arrive before reliable authority went through
         }
 
@@ -400,7 +407,8 @@ namespace Mirror
                     {
                         // DeserializeServer checks permissions internally.
                         // failure to deserialize disconnects to prevent exploits.
-                        if (!identity.DeserializeServer(reader))
+                        // for reliable sync, server always knows initial state so updates are initialState=false.
+                        if (!identity.DeserializeServer(reader, false))
                         {
                             if (exceptionsDisconnect)
                             {
@@ -409,6 +417,64 @@ namespace Mirror
                             }
                             else
                                 Debug.LogWarning($"Server failed to deserialize client state for {identity.name} with netId={identity.netId}.");
+                        }
+                    }
+                }
+                // An attacker may attempt to modify another connection's entity
+                // This could also be a race condition of message in flight when
+                // RemoveClientAuthority is called, so not malicious.
+                // Don't disconnect, just log the warning.
+                else
+                    Debug.LogWarning($"EntityStateMessage from {connection} for {identity.name} without authority.");
+            }
+            // no warning. don't spam server logs.
+            // else Debug.LogWarning($"Did not find target for sync message for {message.netId} . Note: this can be completely normal because UDP messages may arrive out of order, so this message might have arrived after a Destroy message.");
+        }
+
+        // for client's owned ClientToServer components.
+        static void OnEntityStateMessageUnreliable(NetworkConnectionToClient connection, EntityStateMessageUnreliable message, int channelId)
+        {
+            // need to validate permissions carefully.
+            // an attacker may attempt to modify a not-owned or not-ClientToServer component.
+
+            // valid netId?
+            if (spawned.TryGetValue(message.netId, out NetworkIdentity identity) && identity != null)
+            {
+                // owned by the connection?
+                if (identity.connectionToClient == connection)
+                {
+                    // unreliable state sync messages may arrive out of order.
+                    // only ever apply state that's newer than the last received state.
+                    // note that we send one EntityStateMessage per Entity,
+                    // so there will be multiple with the same == timestamp.
+                    if (connection.remoteTimeStamp < identity.lastUnreliableStateTime)
+                    {
+                        // debug log to show that it's working.
+                        // can be tested via LatencySimulation scramble easily.
+                        Debug.Log($"Server caught out of order Unreliable state message for {identity.name}. This is fine.\nIdentity timestamp={identity.lastUnreliableStateTime:F3} batch remoteTimestamp={connection.remoteTimeStamp:F3}");
+                        return;
+                    }
+
+                    // set the new last received time for unreliable
+                    identity.lastUnreliableStateTime = connection.remoteTimeStamp;
+
+                    using (NetworkReaderPooled reader = NetworkReaderPool.Get(message.payload))
+                    {
+                        // DeserializeServer checks permissions internally.
+                        // failure to deserialize disconnects to prevent exploits.
+                        //
+                        // full state updates (initial=true) arrive over reliable.
+                        // delta state updates (initial=false) arrive over unreliable.
+                        bool initialState = channelId == Channels.Reliable;
+                        if (!identity.DeserializeServer(reader, initialState))
+                        {
+                            if (exceptionsDisconnect)
+                            {
+                                Debug.LogError($"Server failed to deserialize client unreliable state for {identity.name} with netId={identity.netId}, Disconnecting.");
+                                connection.Disconnect();
+                            }
+                            else
+                                Debug.LogWarning($"Server failed to deserialize client unreliable state for {identity.name} with netId={identity.netId}.");
                         }
                     }
                 }
@@ -1405,7 +1471,8 @@ namespace Mirror
 
             // serialize all components with initialState = true
             // (can be null if has none)
-            identity.SerializeServer(true, ownerWriter, observersWriter);
+            // SyncMethod doesn't matter for initialState, since everything is included
+            identity.SerializeServer(true, SyncMethod.Reliable, ownerWriter, observersWriter, false);
 
             // convert to ArraySegment to avoid reader allocations
             // if nothing was written, .ToArraySegment returns an empty segment.
@@ -1870,37 +1937,63 @@ namespace Mirror
 
         // broadcasting ////////////////////////////////////////////////////////
         // helper function to get the right serialization for a connection
-        static NetworkWriter SerializeForConnection(NetworkIdentity identity, NetworkConnectionToClient connection)
+        // unreliableFullSendIntervalElapsed: indicates that unreliable sync components need a reliable baseline sync this time.
+        //   for reliable components, it just means sync as usual.
+        static NetworkWriter SerializeForConnection(NetworkIdentity identity, NetworkConnectionToClient connection, SyncMethod method, bool unreliableFullSendIntervalElapsed)
         {
             // get serialization for this entity (cached)
             // IMPORTANT: int tick avoids floating point inaccuracy over days/weeks
-            NetworkIdentitySerialization serialization = identity.GetServerSerializationAtTick(Time.frameCount);
+            NetworkIdentitySerialization serialization = identity.GetServerSerializationAtTick(Time.frameCount, unreliableFullSendIntervalElapsed);
 
             // is this entity owned by this connection?
             bool owned = identity.connectionToClient == connection;
 
-            // send serialized data
-            // owner writer if owned
-            if (owned)
+            if (method == SyncMethod.Reliable)
             {
-                // was it dirty / did we actually serialize anything?
-                if (serialization.ownerWriter.Position > 0)
-                    return serialization.ownerWriter;
+                // send serialized data
+                // owner writer if owned
+                if (owned)
+                {
+                    // was it dirty / did we actually serialize anything?
+                    if (serialization.ownerWriterReliable.Position > 0)
+                        return serialization.ownerWriterReliable;
+                }
+                // observers writer if not owned
+                else
+                {
+                    // was it dirty / did we actually serialize anything?
+                    if (serialization.observersWriterReliable.Position > 0)
+                        return serialization.observersWriterReliable;
+                }
             }
-            // observers writer if not owned
-            else
+            else if (method == SyncMethod.Unreliable)
             {
-                // was it dirty / did we actually serialize anything?
-                if (serialization.observersWriter.Position > 0)
-                    return serialization.observersWriter;
+                // send serialized data
+                // owner writer if owned
+                if (owned)
+                {
+                    // was it dirty / did we actually serialize anything?
+                    if (serialization.ownerWriterFastPaced.Position > 0)
+                        return serialization.ownerWriterFastPaced;
+                }
+                // observers writer if not owned
+                else
+                {
+                    // was it dirty / did we actually serialize anything?
+                    if (serialization.observersWriterFastPaced.Position > 0)
+                        return serialization.observersWriterFastPaced;
+                }
             }
+
 
             // nothing was serialized
             return null;
         }
 
         // helper function to broadcast the world to a connection
-        static void BroadcastToConnection(NetworkConnectionToClient connection)
+        // unreliableFullSendIntervalElapsed: indicates that unreliable sync components need a reliable baseline sync this time.
+        //   for reliable components, it just means sync as usual.
+        static void BroadcastToConnection(NetworkConnectionToClient connection, bool unreliableFullSendIntervalElapsed)
         {
             // for each entity that this connection is seeing
             bool hasNull = false;
@@ -1912,9 +2005,10 @@ namespace Mirror
                 //  NetworkServer.Destroy)
                 if (identity != null)
                 {
+                    // 'Reliable' sync: send Reliable components over reliable with initial/delta
                     // get serialization for this entity viewed by this connection
                     // (if anything was serialized this time)
-                    NetworkWriter serialization = SerializeForConnection(identity, connection);
+                    NetworkWriter serialization = SerializeForConnection(identity, connection, SyncMethod.Reliable, false);
                     if (serialization != null)
                     {
                         EntityStateMessage message = new EntityStateMessage
@@ -1922,7 +2016,24 @@ namespace Mirror
                             netId = identity.netId,
                             payload = serialization.ToArraySegment()
                         };
-                        connection.Send(message);
+                        connection.Send(message, Channels.Reliable);
+                    }
+
+                    // 'Unreliable' sync: send Unreliable components over unreliable
+                    // state is 'initial' for reliable baseline, and 'not initial' for unreliable deltas.
+                    //   note that syncInterval is always ignored for unreliable in order to have tick aligned [SyncVars].
+                    //   even if we pass SyncMethod.Reliable, it serializes with initialState=true.
+                    serialization = SerializeForConnection(identity, connection, SyncMethod.Unreliable, unreliableFullSendIntervalElapsed);
+                    if (serialization != null)
+                    {
+                        EntityStateMessageUnreliable message = new EntityStateMessageUnreliable
+                        {
+                            netId = identity.netId,
+                            payload = serialization.ToArraySegment()
+                        };
+                        // Unreliable mode still sends a reliable baseline every full interval.
+                        int channel = unreliableFullSendIntervalElapsed ? Channels.Reliable : Channels.Unreliable;
+                        connection.Send(message, channel);
                     }
                 }
                 // spawned list should have no null entries because we
@@ -1962,7 +2073,10 @@ namespace Mirror
         internal static readonly List<NetworkConnectionToClient> connectionsCopy =
             new List<NetworkConnectionToClient>();
 
-        static void Broadcast()
+        // broadcast world state to all connections.
+        // unreliableFullSendIntervalElapsed: indicates that unreliable sync components need a reliable baseline sync this time.
+        //   for reliable components, it just means sync as usual.
+        static void Broadcast(bool unreliableFullSendIntervalElapsed)
         {
             // copy all connections into a helper collection so that
             // OnTransportDisconnected can be called while iterating.
@@ -1999,7 +2113,7 @@ namespace Mirror
                     connection.Send(new TimeSnapshotMessage(), Channels.Unreliable);
 
                     // broadcast world state to this connection
-                    BroadcastToConnection(connection);
+                    BroadcastToConnection(connection, unreliableFullSendIntervalElapsed);
                 }
 
                 // update connection to flush out batched messages
@@ -2053,8 +2167,9 @@ namespace Mirror
                 // snapshots _but_ not every single tick.
                 // Unity 2019 doesn't have Time.timeAsDouble yet
                 bool sendIntervalElapsed = AccurateInterval.Elapsed(NetworkTime.localTime, sendInterval, ref lastSendTime);
+                bool unreliableFullSendIntervalElapsed = AccurateInterval.Elapsed(NetworkTime.localTime, unreliableFullSendInterval, ref lastUnreliableFullSendTime);
                 if (!Application.isPlaying || sendIntervalElapsed)
-                    Broadcast();
+                    Broadcast(unreliableFullSendIntervalElapsed);
             }
 
             // process all outgoing messages after updating the world

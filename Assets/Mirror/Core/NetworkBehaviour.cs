@@ -18,12 +18,20 @@ namespace Mirror
     // client data before applying. it's really about direction, not authority.
     public enum SyncDirection { ServerToClient, ClientToServer }
 
+    // SyncMethod to choose between:
+    //   * Reliable: oldschool reliable sync every syncInterval. If nothing changes, nothing is sent.
+    //   * Unreliable: quake style unreliable state sync & delta compression, for fast paced games.
+    public enum SyncMethod { Reliable, Unreliable }
+
     /// <summary>Base class for networked components.</summary>
     // [RequireComponent(typeof(NetworkIdentity))] disabled to allow child NetworkBehaviours
     [AddComponentMenu("")]
     [HelpURL("https://mirror-networking.gitbook.io/docs/guides/networkbehaviour")]
     public abstract class NetworkBehaviour : MonoBehaviour
     {
+        [Tooltip("Choose between:\n- Reliable: only sends when changed. Recommended for most games!\n- Unreliable: immediately sends at the expense of bandwidth. Only for hardcore competitive games.\nClick the Help icon for full details.")]
+        [HideInInspector] public SyncMethod syncMethod = SyncMethod.Reliable;
+
         /// <summary>Sync direction for OnSerialize. ServerToClient by default. ClientToServer for client authority.</summary>
         [Tooltip("Server Authority calls OnSerialize on the server and syncs it to clients.\n\nClient Authority calls OnSerialize on the owning client, syncs it to server, which then broadcasts it to all other clients.\n\nUse server authority for cheat safety.")]
         [HideInInspector] public SyncDirection syncDirection = SyncDirection.ServerToClient;
@@ -227,6 +235,28 @@ namespace Mirror
             (syncVarDirtyBits | syncObjectDirtyBits) != 0UL &&
             // only check time if bits were dirty. this is more expensive.
             NetworkTime.localTime - lastSyncTime >= syncInterval;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        bool IsDirty_BitsOnly() =>
+            (syncVarDirtyBits | syncObjectDirtyBits) != 0UL;
+
+        // convenience function to check if a component is dirty for the given
+        // SyncMethod.
+        internal bool IsDirtyFor(SyncMethod method)
+        {
+            // reliable: only if dirty bits were set and syncInterval elapsed
+            if (method == SyncMethod.Reliable && syncMethod == SyncMethod.Reliable)
+            {
+                return IsDirty();
+            }
+            // unreliable: if dirty bits were set (ignored syncInterval for tick aligned SyncVars)
+            else if (method == SyncMethod.Unreliable && syncMethod == SyncMethod.Unreliable)
+            {
+                return IsDirty_BitsOnly();
+            }
+
+            return false;
+        }
 
         /// <summary>Clears all the dirty bits that were set by SetSyncVarDirtyBit() (formally SetDirtyBits)</summary>
         // automatically invoked when an update is sent for this object, but can
@@ -1077,7 +1107,7 @@ namespace Mirror
             {
                 return null;
             }
-            
+
             // ensure componentIndex is in range.
             // show explicit errors if something went wrong, instead of IndexOutOfRangeException.
             // removing components at runtime isn't allowed, yet this happened in a project so we need to check for it.
@@ -1259,7 +1289,11 @@ namespace Mirror
             // write payload
             try
             {
-                // note this may not write anything if no syncIntervals elapsed
+                // SyncMethod support:
+                //   Reliable:   Serialize(initial) once, then Serialize(delta) all the time.
+                //   Unreliable: Serialize(initial) all the time because we always need full state for unreliable messages
+                // => reusing OnSerialize(initial=true) for FastPaced allows us to keep the API clean and simple.
+                //    this way the end user never needs to worry about SyncMethod serialization.
                 OnSerialize(writer, initialState);
             }
             catch (Exception e)

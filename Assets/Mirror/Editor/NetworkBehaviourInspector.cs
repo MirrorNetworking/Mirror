@@ -86,6 +86,16 @@ namespace Mirror
             EditorGUILayout.Space();
             EditorGUILayout.LabelField("Sync Settings", EditorStyles.boldLabel);
 
+            // sync method
+            SerializedProperty syncMethod = serializedObject.FindProperty("syncMethod");
+            EditorGUILayout.PropertyField(syncMethod);
+
+            // Unreliable sync method: show a warning!
+            if (syncMethod.enumValueIndex == (int)SyncMethod.Unreliable)
+            {
+                EditorGUILayout.HelpBox("Beware!\nUnreliable is experimental and only meant for hardcore competitive games!", MessageType.Warning);
+            }
+
             // sync direction
             SerializedProperty syncDirection = serializedObject.FindProperty("syncDirection");
             EditorGUILayout.PropertyField(syncDirection);
@@ -94,8 +104,9 @@ namespace Mirror
             if (syncDirection.enumValueIndex == (int)SyncDirection.ServerToClient)
                 EditorGUILayout.PropertyField(serializedObject.FindProperty("syncMode"));
 
-            // sync interval
-            EditorGUILayout.PropertyField(serializedObject.FindProperty("syncInterval"));
+            // sync interval: only shown for reliable sync
+            if (syncMethod.enumValueIndex == (int)SyncMethod.Reliable)
+                EditorGUILayout.PropertyField(serializedObject.FindProperty("syncInterval"));
 
             // apply
             serializedObject.ApplyModifiedProperties();
