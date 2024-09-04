@@ -211,7 +211,7 @@ namespace Mirror
                 if (syncPosition) Compression.ScaleToLong(snapshot.position, positionPrecision, out lastSerializedPosition);
                 if (syncScale) Compression.ScaleToLong(snapshot.scale, scalePrecision, out lastSerializedScale);
 
-                Debug.Log($"{name} NT OnSerialize initial: {(writer.Position - startPosition)} bytes");
+                Debug.LogWarning($"{name} NT OnSerialize initial: {(writer.Position - startPosition)} bytes");
 
                 // set 'last'
                 last = snapshot;
@@ -258,7 +258,7 @@ namespace Mirror
             // reliable full state
             if (initialState)
             {
-                Debug.Log($"{name} NT OnDeserialize initial with total remaining: {reader.Remaining} bytes");
+                Debug.LogWarning($"{name} NT OnDeserialize initial with total remaining: {reader.Remaining} bytes");
 
                 if (syncPosition) position = reader.ReadVector3();
                 if (syncRotation)

@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 4492442352427800}
   - component: {fileID: 114118589361100106}
   - component: {fileID: 114250499875391520}
-  - component: {fileID: 3464953498043699706}
   - component: {fileID: 114654712548978148}
   - component: {fileID: 6900008319038825817}
   m_Layer: 0
@@ -31,6 +30,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 5803173220413450940}
   - {fileID: 2155495746218491392}
@@ -50,7 +50,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sceneId: 0
-  _assetId: 3454335836
+  _assetId: 2638947628
   serverOnly: 0
   visibility: 0
   hasSpawned: 0
@@ -69,7 +69,7 @@ MonoBehaviour:
   syncMethod: 1
   syncDirection: 1
   syncMode: 0
-  syncInterval: 0
+  syncInterval: 2
   target: {fileID: 4492442352427800}
   syncPosition: 1
   syncRotation: 1
@@ -80,45 +80,14 @@ MonoBehaviour:
   interpolateRotation: 1
   interpolateScale: 0
   coordinateSpace: 0
-  sendIntervalMultiplier: 1
   timelineOffset: 1
   showGizmos: 0
   showOverlay: 0
   overlayColor: {r: 0, g: 0, b: 0, a: 0.5}
-  bufferResetMultiplier: 3
---- !u!114 &3464953498043699706
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1916082411674582}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d993bac37a92145448c1ea027b3e9ddc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  syncMethod: 1
-  syncDirection: 1
-  syncMode: 0
-  syncInterval: 0
-  target: {fileID: 5803173220413450936}
-  syncPosition: 0
-  syncRotation: 1
-  syncScale: 0
-  onlySyncOnChange: 1
-  compressRotation: 1
-  interpolatePosition: 0
-  interpolateRotation: 1
-  interpolateScale: 0
-  coordinateSpace: 0
-  sendIntervalMultiplier: 1
-  timelineOffset: 0
-  showGizmos: 0
-  showOverlay: 0
-  overlayColor: {r: 0, g: 0, b: 0, a: 0.5}
-  bufferResetMultiplier: 3
-
+  onlySyncOnChangeCorrectionMultiplier: 2
+  rotationSensitivity: 0.01
+  positionPrecision: 0.01
+  scalePrecision: 0.01
 --- !u!114 &114654712548978148
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -196,6 +165,7 @@ Transform:
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 5, z: 0}
   m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4492442352427800}
   m_RootOrder: 1
@@ -211,10 +181,12 @@ MeshRenderer:
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -239,6 +211,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!102 &955977906578811009
 TextMesh:
   serializedVersion: 3
@@ -337,9 +310,9 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: dad07e68d3659e6439279d0d4110cf4c, type: 3}
---- !u!4 &5803173220413450940 stripped
+--- !u!4 &606281948174800110 stripped
 Transform:
-  m_CorrespondingSourceObject: {fileID: 3638700596990361445, guid: dad07e68d3659e6439279d0d4110cf4c,
+  m_CorrespondingSourceObject: {fileID: 7683056980803567927, guid: dad07e68d3659e6439279d0d4110cf4c,
     type: 3}
   m_PrefabInstance: {fileID: 7130959241934869977}
   m_PrefabAsset: {fileID: 0}
@@ -355,9 +328,9 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 7130959241934869977}
   m_PrefabAsset: {fileID: 0}
---- !u!4 &606281948174800110 stripped
+--- !u!4 &5803173220413450940 stripped
 Transform:
-  m_CorrespondingSourceObject: {fileID: 7683056980803567927, guid: dad07e68d3659e6439279d0d4110cf4c,
+  m_CorrespondingSourceObject: {fileID: 3638700596990361445, guid: dad07e68d3659e6439279d0d4110cf4c,
     type: 3}
   m_PrefabInstance: {fileID: 7130959241934869977}
   m_PrefabAsset: {fileID: 0}
