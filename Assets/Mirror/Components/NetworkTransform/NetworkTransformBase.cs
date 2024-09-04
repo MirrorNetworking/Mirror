@@ -67,10 +67,8 @@ namespace Mirror
         [Tooltip("Local by default. World may be better when changing hierarchy, or non-NetworkTransforms root position/rotation/scale values.")]
         public CoordinateSpace coordinateSpace = CoordinateSpace.Local;
 
-        // TODO sendIntervalMultiplier was replaced by syncInterval for consistency with other NetworkBehaviours.
-        // for now, we simply calculate the multiplier based on syncInterval.
-        // in a future, we can remove this completely and replace with syncInterval math everywhere.
-        // the multiplier math isn't that simple, so for now this is a good solution!
+        // convert syncInterval to sendIntervalMultiplier.
+        // in the future this can be moved into core to support tick aligned Sync,
         public uint sendIntervalMultiplier
         {
             get
