@@ -1217,7 +1217,10 @@ namespace Mirror
         // get cached serialization for this tick (or serialize if none yet).
         // IMPORTANT: int tick avoids floating point inaccuracy over days/weeks.
         // calls SerializeServer, so this function is to be called on server.
-        internal NetworkIdentitySerialization GetServerSerializationAtTick(int tick)
+        //
+        // unreliableBaselineElapsed: indicates that unreliable sync components need a reliable baseline sync this time.
+        //   for reliable components, it just means sync as usual.
+        internal NetworkIdentitySerialization GetServerSerializationAtTick(int tick, bool unreliableBaselineElapsed)
         {
             // only rebuild serialization once per tick. reuse otherwise.
             // except for tests, where Time.frameCount never increases.
