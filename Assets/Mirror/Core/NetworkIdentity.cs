@@ -924,9 +924,9 @@ namespace Mirror
             return (mask & nthBit) != 0;
         }
 
-        // serialize components into writer on the server.
+        // serialize server components, with full state for spawn message.
         // check ownerWritten/observersWritten to know if anything was written
-        internal void SerializeServer(bool initialState, NetworkWriter ownerWriter, NetworkWriter observersWriter)
+        internal void SerializeServer_Spawn(NetworkWriter ownerWriter, NetworkWriter observersWriter)
         {
             // ensure NetworkBehaviours are valid before usage
             ValidateComponents();
@@ -939,7 +939,7 @@ namespace Mirror
             // instead of writing a 1 byte index per component,
             // we limit components to 64 bits and write one ulong instead.
             // the ulong is also varint compressed for minimum bandwidth.
-            (ulong ownerMask, ulong observerMask) = ServerDirtyMasks(initialState);
+            (ulong ownerMask, ulong observerMask) = ServerDirtyMasks(true);
 
             // if nothing dirty, then don't even write the mask.
             // otherwise, every unchanged object would send a 1 byte dirty mask!
@@ -973,7 +973,7 @@ namespace Mirror
                         // serialize into helper writer
                         using (NetworkWriterPooled temp = NetworkWriterPool.Get())
                         {
-                            comp.Serialize(temp, initialState);
+                            comp.Serialize(temp, true);
                             ArraySegment<byte> segment = temp.ToArraySegment();
 
                             // copy to owner / observers as needed
@@ -981,18 +981,76 @@ namespace Mirror
                             if (observersDirty) observersWriter.WriteBytes(segment.Array, segment.Offset, segment.Count);
                         }
 
-                        // clear dirty bits for the components that we serialized.
-                        // do not clear for _all_ components, only the ones that
-                        // were dirty and had their syncInterval elapsed.
-                        //
-                        // we don't want to clear bits before the syncInterval
-                        // was elapsed, as then they wouldn't be synced.
-                        //
-                        // only clear for delta, not for full (spawn messages).
-                        // otherwise if a player joins, we serialize monster,
-                        // and shouldn't clear dirty bits not yet synced to
-                        // other players.
-                        if (!initialState) comp.ClearAllDirtyBits();
+                        // dirty bits indicate 'changed since last delta sync'.
+                        // don't clear then on full sync here, since full sync
+                        // is called whenever a new player spawns and needs the
+                        // full state!
+                        //comp.ClearAllDirtyBits();
+                    }
+                }
+            }
+        }
+
+        // serialize server components, with delta state for broadcast messages.
+        // check ownerWritten/observersWritten to know if anything was written
+        internal void SerializeServer_Broadcast(NetworkWriter ownerWriter, NetworkWriter observersWriter)
+        {
+            // ensure NetworkBehaviours are valid before usage
+            ValidateComponents();
+            NetworkBehaviour[] components = NetworkBehaviours;
+
+            // check which components are dirty for owner / observers.
+            // this is quite complicated with SyncMode + SyncDirection.
+            // see the function for explanation.
+            //
+            // instead of writing a 1 byte index per component,
+            // we limit components to 64 bits and write one ulong instead.
+            // the ulong is also varint compressed for minimum bandwidth.
+            (ulong ownerMask, ulong observerMask) = ServerDirtyMasks(false);
+
+            // if nothing dirty, then don't even write the mask.
+            // otherwise, every unchanged object would send a 1 byte dirty mask!
+            if (ownerMask != 0) Compression.CompressVarUInt(ownerWriter, ownerMask);
+            if (observerMask != 0) Compression.CompressVarUInt(observersWriter, observerMask);
+
+            // serialize all components
+            // perf: only iterate if either dirty mask has dirty bits.
+            if ((ownerMask | observerMask) != 0)
+            {
+                for (int i = 0; i < components.Length; ++i)
+                {
+                    NetworkBehaviour comp = components[i];
+
+                    // is the component dirty for anyone (owner or observers)?
+                    // may be serialized to owner, observer, both, or neither.
+                    //
+                    // OnSerialize should only be called once.
+                    // this is faster, and it cleaner because it may set
+                    // internal state, counters, logs, etc.
+                    //
+                    // previously we always serialized to owner and then copied
+                    // the serialization to observers. however, since
+                    // SyncDirection it's not guaranteed to be in owner anymore.
+                    // so we need to serialize to temporary writer first.
+                    // and then copy as needed.
+                    bool ownerDirty = IsDirty(ownerMask, i);
+                    bool observersDirty = IsDirty(observerMask, i);
+                    if (ownerDirty || observersDirty)
+                    {
+                        // serialize into helper writer
+                        using (NetworkWriterPooled temp = NetworkWriterPool.Get())
+                        {
+                            comp.Serialize(temp, false);
+                            ArraySegment<byte> segment = temp.ToArraySegment();
+
+                            // copy to owner / observers as needed
+                            if (ownerDirty) ownerWriter.WriteBytes(segment.Array, segment.Offset, segment.Count);
+                            if (observersDirty) observersWriter.WriteBytes(segment.Array, segment.Offset, segment.Count);
+                        }
+
+                        // dirty bits indicate 'changed since last delta sync'.
+                        // clear them after a delta sync here.
+                        comp.ClearAllDirtyBits();
                     }
                 }
             }
@@ -1143,9 +1201,8 @@ namespace Mirror
                 lastSerialization.ResetWriters();
 
                 // serialize
-                SerializeServer(false,
-                                lastSerialization.ownerWriter,
-                                lastSerialization.observersWriter);
+                SerializeServer_Broadcast(lastSerialization.ownerWriter,
+                                          lastSerialization.observersWriter);
 
                 // set tick
                 lastSerialization.tick = tick;
