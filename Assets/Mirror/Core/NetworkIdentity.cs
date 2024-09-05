@@ -846,7 +846,40 @@ namespace Mirror
 
         // build dirty mask for server owner & observers (= all dirty components).
         // faster to do it in one iteration instead of iterating separately.
-        (ulong, ulong) ServerDirtyMasks(bool initialState)
+        (ulong, ulong) ServerDirtyMasks_Spawn()
+        {
+            ulong ownerMask = 0;
+            ulong observerMask = 0;
+
+            NetworkBehaviour[] components = NetworkBehaviours;
+            for (int i = 0; i < components.Length; ++i)
+            {
+                NetworkBehaviour component = components[i];
+                ulong nthBit = (1u << i);
+
+                // owner needs to be considered for both SyncModes, because
+                // Observers mode always includes the Owner.
+                //
+                // for spawn message, it should always sync owner.
+                ownerMask |= nthBit;
+
+                // observers need to be considered only in Observers mode,
+                // otherwise they receive no sync data of this component ever.
+                if (component.syncMode == SyncMode.Observers)
+                {
+                    // for spawn message, it should always sync to observers.
+                    // SyncDirection is irrelevant, as both are broadcast to
+                    // observers which aren't the owner.
+                     observerMask |= nthBit;
+                }
+            }
+
+            return (ownerMask, observerMask);
+        }
+
+        // build dirty mask for server owner & observers (= all dirty components).
+        // faster to do it in one iteration instead of iterating separately.
+        (ulong, ulong) ServerDirtyMasks_Broadcast()
         {
             ulong ownerMask = 0;
             ulong observerMask = 0;
@@ -862,22 +895,19 @@ namespace Mirror
                 // owner needs to be considered for both SyncModes, because
                 // Observers mode always includes the Owner.
                 //
-                // for initial, it should always sync owner.
-                // for delta, only for ServerToClient and only if dirty.
+                // for broadcast, only for ServerToClient and only if dirty.
                 //     ClientToServer comes from the owner client.
-                if (initialState || (component.syncDirection == SyncDirection.ServerToClient && dirty))
+                if (component.syncDirection == SyncDirection.ServerToClient && dirty)
                     ownerMask |= nthBit;
 
                 // observers need to be considered only in Observers mode,
                 // otherwise they receive no sync data of this component ever.
                 if (component.syncMode == SyncMode.Observers)
                 {
-                    // for initial, it should always sync to observers.
-                    // for delta, only if dirty.
+                    // for broadcast, only sync to observers if dirty.
                     // SyncDirection is irrelevant, as both are broadcast to
                     // observers which aren't the owner.
-                    if (initialState || dirty)
-                        observerMask |= nthBit;
+                    if (dirty) observerMask |= nthBit;
                 }
             }
 
@@ -939,7 +969,7 @@ namespace Mirror
             // instead of writing a 1 byte index per component,
             // we limit components to 64 bits and write one ulong instead.
             // the ulong is also varint compressed for minimum bandwidth.
-            (ulong ownerMask, ulong observerMask) = ServerDirtyMasks(true);
+            (ulong ownerMask, ulong observerMask) = ServerDirtyMasks_Spawn();
 
             // if nothing dirty, then don't even write the mask.
             // otherwise, every unchanged object would send a 1 byte dirty mask!
@@ -1006,7 +1036,7 @@ namespace Mirror
             // instead of writing a 1 byte index per component,
             // we limit components to 64 bits and write one ulong instead.
             // the ulong is also varint compressed for minimum bandwidth.
-            (ulong ownerMask, ulong observerMask) = ServerDirtyMasks(false);
+            (ulong ownerMask, ulong observerMask) = ServerDirtyMasks_Broadcast();
 
             // if nothing dirty, then don't even write the mask.
             // otherwise, every unchanged object would send a 1 byte dirty mask!
