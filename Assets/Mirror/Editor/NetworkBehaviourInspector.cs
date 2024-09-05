@@ -104,8 +104,10 @@ namespace Mirror
                 EditorGUILayout.HelpBox("Beware!\nUnreliable is experimental and only meant for hardcore competitive games!", MessageType.Warning);
             }
 
-            // sync interval
-            EditorGUILayout.PropertyField(serializedObject.FindProperty("syncInterval"));
+            // sync interval: only shown for reliable components.
+            // unreliable components are tick aligned, syncing every time for now.
+            if (syncMethod.enumValueIndex == (int)SyncMethod.Reliable)
+                EditorGUILayout.PropertyField(serializedObject.FindProperty("syncInterval"));
 
             // apply
             serializedObject.ApplyModifiedProperties();
