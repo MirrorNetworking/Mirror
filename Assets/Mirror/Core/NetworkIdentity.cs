@@ -921,8 +921,6 @@ namespace Mirror
 
         // serialize components into writer on the server.
         // check ownerWritten/observersWritten to know if anything was written
-        // We pass dirtyComponentsMask into this function so that we can check
-        // if any Components are dirty before creating writers
         internal void SerializeServer(bool initialState, NetworkWriter ownerWriter, NetworkWriter observersWriter)
         {
             // ensure NetworkBehaviours are valid before usage
