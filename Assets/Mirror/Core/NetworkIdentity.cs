@@ -935,6 +935,48 @@ namespace Mirror
             return (ownerMask, observerMask);
         }
 
+        // build dirty mask for server owner & observers (= all dirty components).
+        // faster to do it in one iteration instead of iterating separately.
+        (ulong, ulong) ServerDirtyMasks_Broadcast_UnreliableComponents()
+        {
+            ulong ownerMask = 0;
+            ulong observerMask = 0;
+
+            NetworkBehaviour[] components = NetworkBehaviours;
+            for (int i = 0; i < components.Length; ++i)
+            {
+                NetworkBehaviour component = components[i];
+                ulong nthBit = (1u << i);
+
+                // only consider Reliable mode components here
+                if (component.syncMethod != SyncMethod.Unreliable) continue;
+
+                // check if this component is dirty.
+                // ignoring syncInterval for now: tick aligned like Quake.
+                bool dirty = component.IsDirty_BitsOnly();
+
+                // owner needs to be considered for both SyncModes, because
+                // Observers mode always includes the Owner.
+                //
+                // for broadcast, only for ServerToClient and only if dirty.
+                //     ClientToServer comes from the owner client.
+                if (component.syncDirection == SyncDirection.ServerToClient && dirty)
+                    ownerMask |= nthBit;
+
+                // observers need to be considered only in Observers mode,
+                // otherwise they receive no sync data of this component ever.
+                if (component.syncMode == SyncMode.Observers)
+                {
+                    // for broadcast, only sync to observers if dirty.
+                    // SyncDirection is irrelevant, as both are broadcast to
+                    // observers which aren't the owner.
+                    if (dirty) observerMask |= nthBit;
+                }
+            }
+
+            return (ownerMask, observerMask);
+        }
+
         // build dirty mask for client.
         // server always knows initialState, so we don't need it here.
         ulong ClientDirtyMask()
