@@ -1149,6 +1149,75 @@ namespace Mirror
             }
         }
 
+        // serialize server components, with delta state for broadcast messages.
+        // check ownerWritten/observersWritten to know if anything was written.
+        internal void SerializeServer_Broadcast_UnreliableComponents(bool isBaseline, NetworkWriter ownerWriter, NetworkWriter observersWriter)
+        {
+            // ensure NetworkBehaviours are valid before usage
+            ValidateComponents();
+            NetworkBehaviour[] components = NetworkBehaviours;
+
+            // check which components are dirty for owner / observers.
+            // this is quite complicated with SyncMode + SyncDirection.
+            // see the function for explanation.
+            //
+            // instead of writing a 1 byte index per component,
+            // we limit components to 64 bits and write one ulong instead.
+            // the ulong is also varint compressed for minimum bandwidth.
+            //
+            // for Unreliable components, only sync if dirty (=if changed since last baseline).
+            // even for the next baseline: only if changed since last!
+            (ulong ownerMask, ulong observerMask) = ServerDirtyMasks_Broadcast_UnreliableComponents();
+
+            // if nothing dirty, then don't even write the mask.
+            // otherwise, every unchanged object would send a 1 byte dirty mask!
+            if (ownerMask != 0) Compression.CompressVarUInt(ownerWriter, ownerMask);
+            if (observerMask != 0) Compression.CompressVarUInt(observersWriter, observerMask);
+
+            // serialize all components
+            // perf: only iterate if either dirty mask has dirty bits.
+            if ((ownerMask | observerMask) != 0)
+            {
+                for (int i = 0; i < components.Length; ++i)
+                {
+                    NetworkBehaviour comp = components[i];
+
+                    // is the component dirty for anyone (owner or observers)?
+                    // may be serialized to owner, observer, both, or neither.
+                    //
+                    // OnSerialize should only be called once.
+                    // this is faster, and it cleaner because it may set
+                    // internal state, counters, logs, etc.
+                    //
+                    // previously we always serialized to owner and then copied
+                    // the serialization to observers. however, since
+                    // SyncDirection it's not guaranteed to be in owner anymore.
+                    // so we need to serialize to temporary writer first.
+                    // and then copy as needed.
+                    bool ownerDirty = IsDirty(ownerMask, i);
+                    bool observersDirty = IsDirty(observerMask, i);
+                    if (ownerDirty || observersDirty)
+                    {
+                        // serialize into helper writer
+                        using (NetworkWriterPooled temp = NetworkWriterPool.Get())
+                        {
+                            // unreliable mode: full state sync for only for baseline
+                            comp.Serialize(temp, isBaseline);
+                            ArraySegment<byte> segment = temp.ToArraySegment();
+
+                            // copy to owner / observers as needed
+                            if (ownerDirty) ownerWriter.WriteBytes(segment.Array, segment.Offset, segment.Count);
+                            if (observersDirty) observersWriter.WriteBytes(segment.Array, segment.Offset, segment.Count);
+                        }
+
+                        // for unreliable components, only clear dirty bits after the reliable baseline.
+                        // unreliable deltas aren't guaranteed to be delivered, no point in clearing bits.
+                        if (isBaseline) comp.ClearAllDirtyBits();
+                    }
+                }
+            }
+        }
+
         // serialize components into writer on the client.
         internal void SerializeClient(NetworkWriter writer)
         {
@@ -1308,12 +1377,11 @@ namespace Mirror
                 );
 
                 // serialize - unreliable components
-                // TODO
-                // SerializeServer_Broadcast_UnreliableComponents(
-                //     unreliableBaselineElapsed,
-                //     lastSerialization.ownerWriterUnreliable,
-                //     lastSerialization.observersWriterUnreliable
-                // );
+                SerializeServer_Broadcast_UnreliableComponents(
+                    unreliableBaselineElapsed,
+                    lastSerialization.ownerWriterUnreliable,
+                    lastSerialization.observersWriterUnreliable
+                );
 
                 // set tick
                 lastSerialization.tick = tick;
