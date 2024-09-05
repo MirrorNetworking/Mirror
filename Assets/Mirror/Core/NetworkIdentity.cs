@@ -946,14 +946,20 @@ namespace Mirror
         }
 
         // serialize components into writer on the server.
-        // check ownerWritten/observersWritten to know if anything was written
-        // We pass dirtyComponentsMask into this function so that we can check
-        // if any Components are dirty before creating writers
-        // -> SyncMethod: Serialize handles all the magic internally depending
-        //    on SyncMethod, so that the user API (OnSerialize) remains the same.
-        // -> unreliableFullSendIntervalElapsed: indicates that unreliable sync components need a reliable baseline sync this time.
-        //    for reliable components, it just means sync as usual.
-        internal void SerializeServer(bool initialState, SyncMethod method, NetworkWriter ownerWriter, NetworkWriter observersWriter, bool unreliableFullSendIntervalElapsed)
+        // check ownerWritten/observersWritten to know if anything was written.
+        //
+        // here's how it works:
+        //   Spawn():
+        //     SerializeServer(initial=true, method=Reliable):
+        //       serializes both RELIABLE and UNRELIABLE components with initial=true.
+        //
+        //   Broadcast():
+        //     Reliable components:
+        //       synced @ syncInterval with initial=false.
+        //     Unreliable components:
+        //       synced @ 1 Hz with initial=true for baseline.
+        //       synced @ N Hz with initial=false for deltas.
+        internal void SerializeServer(bool initialState, SyncMethod method, NetworkWriter ownerWriter, NetworkWriter observersWriter)
         {
             // ensure NetworkBehaviours are valid before usage
             ValidateComponents();
@@ -968,12 +974,9 @@ namespace Mirror
             // the ulong is also varint compressed for minimum bandwidth.
             (ulong ownerMask, ulong observerMask) =
                 // initialState: if true, flags all dirty bits.
-                //   Reliable:   initialState is true once, and then false on subsequent serializations.
-                //   Unreliable: spawn message is Reliable with initialState=true. and for subsequent serializations:
-                //               initialState is alwasy false because we only want to send reliable baseline (or unreliable deltas)
-                //               while dirty bits are set.
-                //               bits are reset after every reliable baseline send.
-                ServerDirtyMasks(method == SyncMethod.Reliable ? initialState : false, method);
+                //   Reliable:   Spawn serializes with initial=true, Broadcast with initial=false.
+                //   Unreliable: Spawn serializes with initial=true. Broadcast with 1 Hz initial=true and 60 Hz initial=false.
+                ServerDirtyMasks(initialState, method);
 
             // if nothing dirty, then don't even write the mask.
             // otherwise, every unchanged object would send a 1 byte dirty mask!
@@ -1007,7 +1010,7 @@ namespace Mirror
                         // serialize into helper writer
                         using (NetworkWriterPooled temp = NetworkWriterPool.Get())
                         {
-                            comp.Serialize(temp, method == SyncMethod.Reliable ? initialState : unreliableFullSendIntervalElapsed);
+                            comp.Serialize(temp, initialState);
                             ArraySegment<byte> segment = temp.ToArraySegment();
 
                             // copy to owner / observers as needed
@@ -1031,16 +1034,10 @@ namespace Mirror
                         }
                         else if (method == SyncMethod.Unreliable)
                         {
-                            // for unreliable: only clear for delta, not for full (spawn messages).
-                            // otherwise if a player joins, we serialize monster,
-                            // and shouldn't clear dirty bits not yet synced to
-                            // other players.
-                            //
-                            // for delta: only clear for full syncs.
-                            // delta syncs over unreliable may not be delivered,
-                            // so we can only clear dirty bits for guaranteed to
-                            // be delivered full syncs.
-                            if (!initialState && unreliableFullSendIntervalElapsed) comp.ClearAllDirtyBits();
+                            // for unreliable: only clear dirty bits on full sync.
+                            // delta sync isn't guaranteed to be delivered so no point in clearing dirty bits.
+                            // TODO what about the situation from reliable above?
+                            if (initialState) comp.ClearAllDirtyBits();
                         }
                     }
                 }
@@ -1216,19 +1213,22 @@ namespace Mirror
                 // reset
                 lastSerialization.ResetWriters();
 
-                // serialize - reliable
+                // serialize - reliable components:
+                // Spawn serializes with initial=true.
+                // Broadcast serializes with initial=false.
                 SerializeServer(false,
                                 SyncMethod.Reliable,
                                 lastSerialization.ownerWriterReliable,
-                                lastSerialization.observersWriterReliable,
-                                unreliableFullSendIntervalElapsed);
+                                lastSerialization.observersWriterReliable);
 
-                // serialize - unreliable
-                SerializeServer(false,
+                // serialize - unreliable components:
+                // Spawn serializes Reliable with initial=true.
+                // Braodcast serializes @  1 Hz with initial=true  for baseline.
+                //                      @ 60 Hz with initial=false for deltas.
+                SerializeServer(unreliableFullSendIntervalElapsed,
                                 SyncMethod.Unreliable,
                                 lastSerialization.ownerWriterFastPaced,
-                                lastSerialization.observersWriterFastPaced,
-                                unreliableFullSendIntervalElapsed);
+                                lastSerialization.observersWriterFastPaced);
 
                 // set tick
                 lastSerialization.tick = tick;
