@@ -229,6 +229,10 @@ namespace Mirror
             observersWriter = new NetworkWriter()
         };
 
+        // unreliable state sync messages may arrive out of order, or duplicated.
+        // keep latest received timestamp so we don't apply older messages.
+        internal double lastUnreliableStateTime;
+
         // Keep track of all sceneIds to detect scene duplicates
         static readonly Dictionary<ulong, NetworkIdentity> sceneIds =
             new Dictionary<ulong, NetworkIdentity>();
