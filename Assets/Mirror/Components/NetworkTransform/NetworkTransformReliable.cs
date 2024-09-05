@@ -42,6 +42,16 @@ namespace Mirror
         // Used to store last sent snapshots
         protected TransformSnapshot last;
 
+        // validation //////////////////////////////////////////////////////////
+        // Configure is called from OnValidate and Awake
+        protected override void Configure()
+        {
+            base.Configure();
+
+            // force syncMethod to reliable
+            syncMethod = SyncMethod.Reliable;
+        }
+
         // update //////////////////////////////////////////////////////////////
         void Update()
         {
