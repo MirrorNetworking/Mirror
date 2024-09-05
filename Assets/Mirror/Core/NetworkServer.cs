@@ -1896,20 +1896,41 @@ namespace Mirror
             // is this entity owned by this connection?
             bool owned = identity.connectionToClient == connection;
 
-            // send serialized data
-            // owner writer if owned
-            if (owned)
+            if (method == SyncMethod.Reliable)
             {
-                // was it dirty / did we actually serialize anything?
-                if (serialization.ownerWriter.Position > 0)
-                    return serialization.ownerWriter;
+                // send serialized data
+                // owner writer if owned
+                if (owned)
+                {
+                    // was it dirty / did we actually serialize anything?
+                    if (serialization.ownerWriterReliable.Position > 0)
+                        return serialization.ownerWriterReliable;
+                }
+                // observers writer if not owned
+                else
+                {
+                    // was it dirty / did we actually serialize anything?
+                    if (serialization.observersWriterReliable.Position > 0)
+                        return serialization.observersWriterReliable;
+                }
             }
-            // observers writer if not owned
-            else
+            else if (method == SyncMethod.Unreliable)
             {
-                // was it dirty / did we actually serialize anything?
-                if (serialization.observersWriter.Position > 0)
-                    return serialization.observersWriter;
+                // send serialized data
+                // owner writer if owned
+                if (owned)
+                {
+                    // was it dirty / did we actually serialize anything?
+                    if (serialization.ownerWriterUnreliable.Position > 0)
+                        return serialization.ownerWriterUnreliable;
+                }
+                // observers writer if not owned
+                else
+                {
+                    // was it dirty / did we actually serialize anything?
+                    if (serialization.observersWriterUnreliable.Position > 0)
+                        return serialization.observersWriterUnreliable;
+                }
             }
 
             // nothing was serialized

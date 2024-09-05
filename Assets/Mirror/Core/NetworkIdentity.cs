@@ -27,13 +27,23 @@ namespace Mirror
     {
         // IMPORTANT: int tick avoids floating point inaccuracy over days/weeks
         public int tick;
-        public NetworkWriter ownerWriter;
-        public NetworkWriter observersWriter;
+
+        // reliable sync
+        public NetworkWriter ownerWriterReliable;
+        public NetworkWriter observersWriterReliable;
+
+        // unreliable sync
+        public bool unreliableIsBaseline;
+        public NetworkWriter ownerWriterUnreliable;
+        public NetworkWriter observersWriterUnreliable;
 
         public void ResetWriters()
         {
-            ownerWriter.Position = 0;
-            observersWriter.Position = 0;
+            ownerWriterReliable.Position = 0;
+            observersWriterReliable.Position = 0;
+            unreliableIsBaseline = false;
+            ownerWriterUnreliable.Position = 0;
+            observersWriterUnreliable.Position = 0;
         }
     }
 
@@ -225,8 +235,11 @@ namespace Mirror
         // => way easier to store them per object
         NetworkIdentitySerialization lastSerialization = new NetworkIdentitySerialization
         {
-            ownerWriter = new NetworkWriter(),
-            observersWriter = new NetworkWriter()
+            ownerWriterReliable = new NetworkWriter(),
+            observersWriterReliable = new NetworkWriter(),
+            unreliableIsBaseline = false,
+            ownerWriterUnreliable = new NetworkWriter(),
+            observersWriterUnreliable = new NetworkWriter(),
         };
 
         // unreliable state sync messages may arrive out of order, or duplicated.
@@ -883,7 +896,7 @@ namespace Mirror
 
         // build dirty mask for server owner & observers (= all dirty components).
         // faster to do it in one iteration instead of iterating separately.
-        (ulong, ulong) ServerDirtyMasks_Broadcast()
+        (ulong, ulong) ServerDirtyMasks_Broadcast_ReliableComponents()
         {
             ulong ownerMask = 0;
             ulong observerMask = 0;
@@ -894,6 +907,10 @@ namespace Mirror
                 NetworkBehaviour component = components[i];
                 ulong nthBit = (1u << i);
 
+                // only consider Reliable mode components here
+                if (component.syncMethod != SyncMethod.Reliable) continue;
+
+                // check if this component is dirty
                 bool dirty = component.IsDirty();
 
                 // owner needs to be considered for both SyncModes, because
@@ -1027,7 +1044,7 @@ namespace Mirror
 
         // serialize server components, with delta state for broadcast messages.
         // check ownerWritten/observersWritten to know if anything was written
-        internal void SerializeServer_Broadcast(NetworkWriter ownerWriter, NetworkWriter observersWriter)
+        internal void SerializeServer_Broadcast_ReliableComponents(NetworkWriter ownerWriter, NetworkWriter observersWriter)
         {
             // ensure NetworkBehaviours are valid before usage
             ValidateComponents();
@@ -1040,7 +1057,7 @@ namespace Mirror
             // instead of writing a 1 byte index per component,
             // we limit components to 64 bits and write one ulong instead.
             // the ulong is also varint compressed for minimum bandwidth.
-            (ulong ownerMask, ulong observerMask) = ServerDirtyMasks_Broadcast();
+            (ulong ownerMask, ulong observerMask) = ServerDirtyMasks_Broadcast_ReliableComponents();
 
             // if nothing dirty, then don't even write the mask.
             // otherwise, every unchanged object would send a 1 byte dirty mask!
@@ -1228,7 +1245,9 @@ namespace Mirror
             // (otherwise [SyncVar] changes would never be serialized in tests)
             //
             // NOTE: != instead of < because int.max+1 overflows at some point.
-            if (lastSerialization.tick != tick
+            if (lastSerialization.tick != tick ||
+                // if last one was for unreliable delta and we request unreliable full, then we need to resync.
+                lastSerialization.unreliableIsBaseline != unreliableBaselineElapsed
 #if UNITY_EDITOR
                 || !Application.isPlaying
 #endif
@@ -1237,12 +1256,26 @@ namespace Mirror
                 // reset
                 lastSerialization.ResetWriters();
 
-                // serialize
-                SerializeServer_Broadcast(lastSerialization.ownerWriter,
-                                          lastSerialization.observersWriter);
+                // TODO consider building serializations in one iteration later!
+                // for now, it's easier to have one iteration per method.
+
+                // serialize - reliable components
+                SerializeServer_Broadcast_ReliableComponents(
+                    lastSerialization.ownerWriterReliable,
+                    lastSerialization.observersWriterReliable
+                );
+
+                // serialize - unreliable components
+                // TODO
+                // SerializeServer_Broadcast_UnreliableComponents(
+                //     unreliableBaselineElapsed,
+                //     lastSerialization.ownerWriterUnreliable,
+                //     lastSerialization.observersWriterUnreliable
+                // );
 
                 // set tick
                 lastSerialization.tick = tick;
+                lastSerialization.unreliableIsBaseline = unreliableBaselineElapsed;
                 //Debug.Log($"{name} (netId={netId}) serialized for tick={tickTimeStamp}");
             }
 
