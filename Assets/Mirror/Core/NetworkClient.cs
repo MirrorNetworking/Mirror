@@ -1563,7 +1563,7 @@ namespace Mirror
                 bool unreliableBaselineElapsed = AccurateInterval.Elapsed(NetworkTime.localTime, unreliableBaselineInterval, ref lastUnreliableBaselineTime);
                 if (!Application.isPlaying || sendIntervalElapsed)
                 {
-                    Broadcast();
+                    Broadcast(unreliableBaselineElapsed);
                 }
 
                 UpdateConnectionQuality();
@@ -1627,7 +1627,9 @@ namespace Mirror
         // broadcast ///////////////////////////////////////////////////////////
         // make sure Broadcast() is only called every sendInterval.
         // calling it every update() would require too much bandwidth.
-        static void Broadcast()
+        //
+        // unreliableFullSendIntervalElapsed: indicates that unreliable sync components need a reliable baseline sync this time.
+        static void Broadcast(bool unreliableBaselineElapsed)
         {
             // joined the world yet?
             if (!connection.isReady) return;
@@ -1639,12 +1641,14 @@ namespace Mirror
             Send(new TimeSnapshotMessage(), Channels.Unreliable);
 
             // broadcast client state to server
-            BroadcastToServer();
+            BroadcastToServer(unreliableBaselineElapsed);
         }
 
         // NetworkServer has BroadcastToConnection.
         // NetworkClient has BroadcastToServer.
-        static void BroadcastToServer()
+        //
+        // unreliableFullSendIntervalElapsed: indicates that unreliable sync components need a reliable baseline sync this time.
+        static void BroadcastToServer(bool unreliableFullSendIntervalElapsed)
         {
             // for each entity that the client owns
             foreach (NetworkIdentity identity in connection.owned)

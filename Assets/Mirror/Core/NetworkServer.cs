@@ -1883,7 +1883,7 @@ namespace Mirror
 
         // broadcasting ////////////////////////////////////////////////////////
         // helper function to get the right serialization for a connection
-        static NetworkWriter SerializeForConnection(NetworkIdentity identity, NetworkConnectionToClient connection)
+        static NetworkWriter SerializeForConnection(NetworkIdentity identity, NetworkConnectionToClient connection, bool unreliableBaselineElapsed)
         {
             // get serialization for this entity (cached)
             // IMPORTANT: int tick avoids floating point inaccuracy over days/weeks
@@ -1913,7 +1913,7 @@ namespace Mirror
         }
 
         // helper function to broadcast the world to a connection
-        static void BroadcastToConnection(NetworkConnectionToClient connection)
+        static void BroadcastToConnection(NetworkConnectionToClient connection, bool unreliableBaselineElapsed)
         {
             // for each entity that this connection is seeing
             bool hasNull = false;
@@ -1927,7 +1927,7 @@ namespace Mirror
                 {
                     // get serialization for this entity viewed by this connection
                     // (if anything was serialized this time)
-                    NetworkWriter serialization = SerializeForConnection(identity, connection);
+                    NetworkWriter serialization = SerializeForConnection(identity, connection, unreliableBaselineElapsed);
                     if (serialization != null)
                     {
                         EntityStateMessage message = new EntityStateMessage
@@ -1975,7 +1975,8 @@ namespace Mirror
         internal static readonly List<NetworkConnectionToClient> connectionsCopy =
             new List<NetworkConnectionToClient>();
 
-        static void Broadcast()
+        // unreliableFullSendIntervalElapsed: indicates that unreliable sync components need a reliable baseline sync this time.
+        static void Broadcast(bool unreliableBaselineElapsed)
         {
             // copy all connections into a helper collection so that
             // OnTransportDisconnected can be called while iterating.
@@ -2012,7 +2013,7 @@ namespace Mirror
                     connection.Send(new TimeSnapshotMessage(), Channels.Unreliable);
 
                     // broadcast world state to this connection
-                    BroadcastToConnection(connection);
+                    BroadcastToConnection(connection, unreliableBaselineElapsed);
                 }
 
                 // update connection to flush out batched messages
@@ -2068,7 +2069,7 @@ namespace Mirror
                 bool sendIntervalElapsed = AccurateInterval.Elapsed(NetworkTime.localTime, sendInterval, ref lastSendTime);
                 bool unreliableBaselineElapsed = AccurateInterval.Elapsed(NetworkTime.localTime, unreliableBaselineInterval, ref lastUnreliableBaselineTime);
                 if (!Application.isPlaying || sendIntervalElapsed)
-                    Broadcast();
+                    Broadcast(unreliableBaselineElapsed);
             }
 
             // process all outgoing messages after updating the world
