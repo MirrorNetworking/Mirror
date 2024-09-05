@@ -1444,7 +1444,34 @@ namespace Mirror
 
         static void OnEntityStateMessageUnreliable(EntityStateMessageUnreliable message, int channelId)
         {
-            throw new NotImplementedException();
+            // Debug.Log($"NetworkClient.OnUpdateVarsMessage {msg.netId}");
+            if (spawned.TryGetValue(message.netId, out NetworkIdentity identity) && identity != null)
+            {
+                // unreliable state sync messages may arrive out of order.
+                // only ever apply state that's newer than the last received state.
+                // note that we send one EntityStateMessage per Entity,
+                // so there will be multiple with the same == timestamp.
+                if (connection.remoteTimeStamp < identity.lastUnreliableStateTime)
+                {
+                    // debug log to show that it's working.
+                    // can be tested via LatencySimulation scramble easily.
+                    Debug.Log($"Client caught out of order Unreliable state message for {identity.name}. This is fine.\nIdentity timestamp={identity.lastUnreliableStateTime:F3} batch remoteTimestamp={connection.remoteTimeStamp:F3}");
+                    return;
+                }
+
+                // set the new last received time for unreliable
+                identity.lastUnreliableStateTime = connection.remoteTimeStamp;
+
+                // iniital is always 'true' because unreliable state sync alwasy serializes full
+                using (NetworkReaderPooled reader = NetworkReaderPool.Get(message.payload))
+                {
+                    // full state updates (initial=true) arrive over reliable.
+                    // delta state updates (initial=false) arrive over unreliable.
+                    bool initialState = channelId == Channels.Reliable;
+                    identity.DeserializeClient(reader, initialState);
+                }
+            }
+            else Debug.LogWarning($"Did not find target for sync message for {message.netId}. Were all prefabs added to the NetworkManager's spawnable list?\nNote: this can be completely normal because UDP messages may arrive out of order, so this message might have arrived after a Destroy message.");
         }
 
         static void OnRPCMessage(RpcMessage message)
