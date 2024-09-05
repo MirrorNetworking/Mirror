@@ -318,6 +318,7 @@ namespace Mirror
             RegisterHandler<NetworkPingMessage>(NetworkTime.OnServerPing, false);
             RegisterHandler<NetworkPongMessage>(NetworkTime.OnServerPong, false);
             RegisterHandler<EntityStateMessage>(OnEntityStateMessage, true);
+            RegisterHandler<EntityStateMessageUnreliable>(OnEntityStateMessageUnreliable, true);
             RegisterHandler<TimeSnapshotMessage>(OnTimeSnapshotMessage, false); // unreliable may arrive before reliable authority went through
         }
 
@@ -427,6 +428,12 @@ namespace Mirror
             }
             // no warning. don't spam server logs.
             // else Debug.LogWarning($"Did not find target for sync message for {message.netId} . Note: this can be completely normal because UDP messages may arrive out of order, so this message might have arrived after a Destroy message.");
+        }
+
+        // for client's owned ClientToServer components.
+        static void OnEntityStateMessageUnreliable(NetworkConnectionToClient connection, EntityStateMessageUnreliable message, int channelId)
+        {
+            throw new NotImplementedException();
         }
 
         // client sends TimeSnapshotMessage every sendInterval.

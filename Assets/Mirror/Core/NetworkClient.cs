@@ -511,6 +511,7 @@ namespace Mirror
                 RegisterHandler<ObjectSpawnFinishedMessage>(_ => { });
                 // host mode doesn't need state updates
                 RegisterHandler<EntityStateMessage>(_ => { });
+                RegisterHandler<EntityStateMessageUnreliable>(_ => { });
             }
             else
             {
@@ -522,6 +523,7 @@ namespace Mirror
                 RegisterHandler<ObjectSpawnStartedMessage>(OnObjectSpawnStarted);
                 RegisterHandler<ObjectSpawnFinishedMessage>(OnObjectSpawnFinished);
                 RegisterHandler<EntityStateMessage>(OnEntityStateMessage);
+                RegisterHandler<EntityStateMessageUnreliable>(OnEntityStateMessageUnreliable);
             }
 
             // These handlers are the same for host and remote clients
@@ -1438,6 +1440,11 @@ namespace Mirror
                     identity.DeserializeClient(reader, false);
             }
             else Debug.LogWarning($"Did not find target for sync message for {message.netId}. Were all prefabs added to the NetworkManager's spawnable list?\nNote: this can be completely normal because UDP messages may arrive out of order, so this message might have arrived after a Destroy message.");
+        }
+
+        static void OnEntityStateMessageUnreliable(EntityStateMessageUnreliable message, int channelId)
+        {
+            throw new NotImplementedException();
         }
 
         static void OnRPCMessage(RpcMessage message)
