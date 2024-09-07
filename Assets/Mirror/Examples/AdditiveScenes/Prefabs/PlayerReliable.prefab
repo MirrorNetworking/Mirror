@@ -241,7 +241,6 @@ MonoBehaviour:
   interpolateRotation: 1
   interpolateScale: 0
   coordinateSpace: 0
-  sendIntervalMultiplier: 1
   timelineOffset: 0
   showGizmos: 0
   showOverlay: 0
@@ -301,11 +300,11 @@ MonoBehaviour:
   maxMoveSpeed: 8
   inputSensitivity: 2
   inputGravity: 2
+  maxTurnSpeed: 100
+  turnAcceleration: 3
   initialJumpSpeed: 2.5
   maxJumpSpeed: 3.5
   jumpAcceleration: 4
-  maxTurnSpeed: 100
-  turnAcceleration: 3
   groundState: 2
   horizontal: 0
   vertical: 0
