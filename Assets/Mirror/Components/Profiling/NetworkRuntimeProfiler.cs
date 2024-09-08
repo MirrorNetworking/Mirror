@@ -157,6 +157,7 @@ namespace Mirror
 
         private void Start()
         {
+            // Ordering, Awake happens before NetworkDiagnostics reset
             NetworkDiagnostics.InMessageEvent += HandleMessageIn;
             NetworkDiagnostics.OutMessageEvent += HandleMessageOut;
         }

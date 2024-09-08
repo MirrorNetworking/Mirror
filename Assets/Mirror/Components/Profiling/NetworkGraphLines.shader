@@ -107,7 +107,6 @@ Shader "Mirror/NetworkGraphLines"
                 return OUT;
             }
 
-
             // Helper function to calculate the shortest distance from a point (p) to a line segment (from a to b)
             float distanceToLineSegment(float2 p, float2 a, float2 b)
             {
@@ -122,8 +121,12 @@ Shader "Mirror/NetworkGraphLines"
             fixed4 frag(v2f IN) : SV_Target
             {
                 uint wCur = (uint)(IN.texcoord.x * _Width);
-                uint wMin = wCur == 0 ? 0 : wCur - 1 ;
+                uint wMin = wCur == 0 ? 0 : wCur - 1;
                 uint wMax = wCur == _Width - 1 ? wCur : wCur + 1;
+                float2 screenSize = _ScreenParams.xy;
+                // this scaling only works if the object is flat and not rotated - but thats fine
+                float2 pixelScale = float2(1/ddx(IN.texcoord.x), 1/ddy(IN.texcoord.y));
+                float2 screenSpaceUV = IN.texcoord * pixelScale;
                 half4 color = half4(0, 0, 0, 0);
                 // Loop through the graph's points
                 bool colored = false;
@@ -139,18 +142,14 @@ Shader "Mirror/NetworkGraphLines"
 
                     for (uint c = 0; c < _CategoryCount; c++)
                     {
-                        // Get the current and next category values to form a line segment
                         float categoryValueCurrent = _GraphData[w * _CategoryCount + c] / _MaxValue;
                         float categoryValueNext = _GraphData[nextW * _CategoryCount + c] / _MaxValue;
 
-                        // Define the start and end points of the line segment in texture coordinates
                         float2 pointCurrent = float2(texPosCurrentX, categoryValueCurrent);
                         float2 pointNext = float2(texPosPrevX, categoryValueNext);
 
-                        // Compute the shortest distance from the current pixel to the line segment
-                        float distance = distanceToLineSegment(IN.texcoord, pointCurrent, pointNext);
+                        float distance = distanceToLineSegment(screenSpaceUV, pointCurrent * pixelScale, pointNext * pixelScale);
 
-                        // If the pixel is close enough to the line, set the color
                         if (distance < _LineWidth)
                         {
                             color = _CategoryColors[c];
