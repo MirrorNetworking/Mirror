@@ -63,7 +63,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1916082411674582}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a553cb17010b2403e8523b558bffbc14, type: 3}
+  m_Script: {fileID: 11500000, guid: d993bac37a92145448c1ea027b3e9ddc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   syncMethod: 1
@@ -84,10 +84,10 @@ MonoBehaviour:
   showGizmos: 0
   showOverlay: 0
   overlayColor: {r: 0, g: 0, b: 0, a: 0.5}
-  bufferResetMultiplier: 3
-  positionSensitivity: 0.01
+  onlySyncOnChangeCorrectionMultiplier: 2
   rotationSensitivity: 0.01
-  scaleSensitivity: 0.01
+  positionPrecision: 0.01
+  scalePrecision: 0.01
 --- !u!114 &114654712548978148
 MonoBehaviour:
   m_ObjectHideFlags: 0
