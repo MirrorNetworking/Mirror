@@ -2008,7 +2008,20 @@ namespace Mirror
                     // 'Reliable' sync: send Reliable components over reliable with initial/delta
                     // get serialization for this entity viewed by this connection
                     // (if anything was serialized this time)
-                    NetworkWriter serialization = SerializeForConnection(identity, connection, SyncMethod.Reliable, false);
+                    NetworkWriter serialization = SerializeForConnection(identity, connection, SyncMethod.Reliable,
+                        // IMPORTANT: even for Reliable components we must pass unreliableBaselineElapsed!
+                        //
+                        // consider this (in one frame):
+                        //   Serialize Reliable (unreliableBaseline=false)
+                        //     GetServerSerializationAtTick (unreliableBaseline=false)
+                        //       serializes new, clears dirty bits
+                        //   Serialize Unreliable (unreliableBaseline=true)
+                        //     GetServerSerializationAtTick (unreliableBaseline=true)
+                        //       last.baseline != baseline
+                        //         serializes new, which does nothing since dirty bits were already cleared above!
+                        //
+                        // TODO make this less magic in the future. too easy to miss.
+                        unreliableBaselineElapsed);
                     if (serialization != null)
                     {
                         EntityStateMessage message = new EntityStateMessage
