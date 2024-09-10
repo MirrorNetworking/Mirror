@@ -102,14 +102,14 @@ namespace Mirror.Examples.Tanks
 
         public override void OnSerialize(NetworkWriter writer, bool initialState)
         {
-            Debug.LogWarning($"Tank {name} OnSerialize {(initialState ? "full" : "delta")} health={health}");
+            // Debug.LogWarning($"Tank {name} OnSerialize {(initialState ? "full" : "delta")} health={health}");
             writer.WriteInt(health);
         }
 
         public override void OnDeserialize(NetworkReader reader, bool initialState)
         {
             health = reader.ReadInt();
-            Debug.LogWarning($"Tank {name} OnDeserialize {(initialState ? "full" : "delta")} health={health}");
+            // Debug.LogWarning($"Tank {name} OnDeserialize {(initialState ? "full" : "delta")} health={health}");
         }
     }
 }
