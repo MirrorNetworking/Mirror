@@ -1349,8 +1349,7 @@ namespace Mirror
                     // if (isOwned && component.syncDirection == SyncDirection.ClientToServer)
                     {
                         // serialize into writer.
-                        // server always knows initialState, we never need to send it
-                        comp.Serialize(writer, false);
+                        comp.Serialize(writer, isBaseline);
 
                         // for unreliable components, only clear dirty bits after the reliable baseline.
                         // unreliable deltas aren't guaranteed to be delivered, no point in clearing bits.
