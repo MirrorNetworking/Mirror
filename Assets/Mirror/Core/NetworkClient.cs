@@ -1675,7 +1675,7 @@ namespace Mirror
         // NetworkClient has BroadcastToServer.
         //
         // unreliableFullSendIntervalElapsed: indicates that unreliable sync components need a reliable baseline sync this time.
-        static void BroadcastToServer(bool unreliableFullSendIntervalElapsed)
+        static void BroadcastToServer(bool unreliableBaselineElapsed)
         {
             // for each entity that the client owns
             foreach (NetworkIdentity identity in connection.owned)
@@ -1686,11 +1686,12 @@ namespace Mirror
                 //  NetworkServer.Destroy)
                 if (identity != null)
                 {
+                    // 'Reliable' sync: send Reliable components over reliable.
                     using (NetworkWriterPooled writer = NetworkWriterPool.Get())
                     {
                         // get serialization for this entity viewed by this connection
                         // (if anything was serialized this time)
-                        identity.SerializeClient(writer);
+                        identity.SerializeClient(writer, SyncMethod.Reliable, false);
                         if (writer.Position > 0)
                         {
                             // send state update message
@@ -1700,6 +1701,29 @@ namespace Mirror
                                 payload = writer.ToArraySegment()
                             };
                             Send(message);
+                        }
+                    }
+
+                    // 'Unreliable' sync: send Unreliable components over unreliable
+                    // state is 'initial' for reliable baseline, and 'not initial' for unreliable deltas.
+                    //   note that syncInterval is always ignored for unreliable in order to have tick aligned [SyncVars].
+                    //   even if we pass SyncMethod.Reliable, it serializes with initialState=true.
+                    using (NetworkWriterPooled writer = NetworkWriterPool.Get())
+                    {
+                        // get serialization for this entity viewed by this connection
+                        // (if anything was serialized this time)
+                        identity.SerializeClient(writer, SyncMethod.Unreliable, unreliableBaselineElapsed);
+                        if (writer.Position > 0)
+                        {
+                            // send state update message
+                            EntityStateMessageUnreliable message = new EntityStateMessageUnreliable
+                            {
+                                netId = identity.netId,
+                                payload = writer.ToArraySegment()
+                            };
+                            // Unreliable mode still sends a reliable baseline every full interval.
+                            int channel = unreliableBaselineElapsed ? Channels.Reliable : Channels.Unreliable;
+                            Send(message, channel);
                         }
                     }
                 }

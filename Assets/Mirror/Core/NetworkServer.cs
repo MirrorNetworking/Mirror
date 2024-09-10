@@ -407,7 +407,10 @@ namespace Mirror
                     {
                         // DeserializeServer checks permissions internally.
                         // failure to deserialize disconnects to prevent exploits.
-                        if (!identity.DeserializeServer(reader))
+                        // -> initialState=false because for Reliable messages,
+                        //    initial always comes from server and broadcast
+                        //    updates are always deltas.
+                        if (!identity.DeserializeServer(reader, false))
                         {
                             if (exceptionsDisconnect)
                             {
@@ -433,7 +436,59 @@ namespace Mirror
         // for client's owned ClientToServer components.
         static void OnEntityStateMessageUnreliable(NetworkConnectionToClient connection, EntityStateMessageUnreliable message, int channelId)
         {
-            throw new NotImplementedException();
+            // need to validate permissions carefully.
+            // an attacker may attempt to modify a not-owned or not-ClientToServer component.
+
+            // valid netId?
+            if (spawned.TryGetValue(message.netId, out NetworkIdentity identity) && identity != null)
+            {
+                // owned by the connection?
+                if (identity.connectionToClient == connection)
+                {
+                    // unreliable state sync messages may arrive out of order.
+                    // only ever apply state that's newer than the last received state.
+                    // note that we send one EntityStateMessage per Entity,
+                    // so there will be multiple with the same == timestamp.
+                    if (connection.remoteTimeStamp < identity.lastUnreliableStateTime)
+                    {
+                        // debug log to show that it's working.
+                        // can be tested via LatencySimulation scramble easily.
+                        Debug.Log($"Server caught out of order Unreliable state message for {identity.name}. This is fine.\nIdentity timestamp={identity.lastUnreliableStateTime:F3} batch remoteTimestamp={connection.remoteTimeStamp:F3}");
+                        return;
+                    }
+
+                    // set the new last received time for unreliable
+                    identity.lastUnreliableStateTime = connection.remoteTimeStamp;
+
+                    using (NetworkReaderPooled reader = NetworkReaderPool.Get(message.payload))
+                    {
+                        // DeserializeServer checks permissions internally.
+                        // failure to deserialize disconnects to prevent exploits.
+                        //
+                        // full state updates (initial=true) arrive over reliable.
+                        // delta state updates (initial=false) arrive over unreliable.
+                        bool initialState = channelId == Channels.Reliable;
+                        if (!identity.DeserializeServer(reader, initialState))
+                        {
+                            if (exceptionsDisconnect)
+                            {
+                                Debug.LogError($"Server failed to deserialize client unreliable state for {identity.name} with netId={identity.netId}, Disconnecting.");
+                                connection.Disconnect();
+                            }
+                            else
+                                Debug.LogWarning($"Server failed to deserialize client unreliable state for {identity.name} with netId={identity.netId}.");
+                        }
+                    }
+                }
+                // An attacker may attempt to modify another connection's entity
+                // This could also be a race condition of message in flight when
+                // RemoveClientAuthority is called, so not malicious.
+                // Don't disconnect, just log the warning.
+                else
+                    Debug.LogWarning($"EntityStateMessage from {connection} for {identity.name} without authority.");
+            }
+            // no warning. don't spam server logs.
+            // else Debug.LogWarning($"Did not find target for sync message for {message.netId} . Note: this can be completely normal because UDP messages may arrive out of order, so this message might have arrived after a Destroy message.");
         }
 
         // client sends TimeSnapshotMessage every sendInterval.
@@ -1953,7 +2008,7 @@ namespace Mirror
                     // 'Reliable' sync: send Reliable components over reliable with initial/delta
                     // get serialization for this entity viewed by this connection
                     // (if anything was serialized this time)
-                    NetworkWriter serialization = SerializeForConnection(identity, connection, SyncMethod.Reliable, unreliableBaselineElapsed);
+                    NetworkWriter serialization = SerializeForConnection(identity, connection, SyncMethod.Reliable, false);
                     if (serialization != null)
                     {
                         EntityStateMessage message = new EntityStateMessage

@@ -243,7 +243,7 @@ namespace Mirror.Tests.NetworkIdentities
             // clientComp.value = "42";
 
             // serialize client object
-            clientIdentity.SerializeClient(ownerWriter);
+            clientIdentity.SerializeClient(ownerWriter, SyncMethod.Reliable, false);
             Assert.That(ownerWriter.Position, Is.EqualTo(0));
         }
 
@@ -267,7 +267,7 @@ namespace Mirror.Tests.NetworkIdentities
             comp2.value = "67890";
 
             // serialize all
-            identity.SerializeClient(ownerWriter);
+            identity.SerializeClient(ownerWriter, SyncMethod.Reliable, false);
 
             // shouldn't sync anything. because even though it's ClientToServer,
             // we don't own this one so we shouldn't serialize & sync it.
