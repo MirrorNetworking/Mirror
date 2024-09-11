@@ -682,6 +682,11 @@ namespace Mirror
                 // fixes: https://github.com/MirrorNetworking/Mirror/issues/3324
                 NetworkClient.spawned.Remove(netId);
             }
+
+            // workaround for cyclid NI<->NB reference causing memory leaks
+            // after Destroy. [Credits: BigBoxVR/R.S.]
+            // TODO report this to Unity!
+            this.NetworkBehaviours = null;
         }
 
         internal void OnStartServer()
