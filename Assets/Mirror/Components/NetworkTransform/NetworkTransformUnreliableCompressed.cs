@@ -306,7 +306,6 @@ namespace Mirror
                     scale = Compression.ScaleToFloat(quantized, scalePrecision);
                 }
 
-
                 // handle depending on server / client / host.
                 // server has priority for host mode.
                 //
