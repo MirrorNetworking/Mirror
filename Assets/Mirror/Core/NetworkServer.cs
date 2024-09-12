@@ -501,7 +501,7 @@ namespace Mirror
                 else
                     Debug.LogWarning($"EntityStateMessage from {connection} for {identity.name} without authority.");
             }
-            // no warning. don't spam server logs.
+            // no warning. unreliable messages often arrive before/after the reliable spawn/despawn messages.
             // else Debug.LogWarning($"Did not find target for sync message for {message.netId} . Note: this can be completely normal because UDP messages may arrive out of order, so this message might have arrived after a Destroy message.");
         }
 
