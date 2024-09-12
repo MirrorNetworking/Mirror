@@ -46,6 +46,12 @@ namespace Mirror
         [Tooltip("Ocassionally send a full reliable state for unreliable components to delta compress against. This only applies to Components with SyncMethod=Unreliable.")]
         public int unreliableBaselineRate = 1;
 
+        // quake sends unreliable messages twice to make up for message drops.
+        // this double bandwidth, but allows for smaller buffer time / faster sync.
+        // best to turn this off unless the game is extremely fast paced.
+        [Tooltip("Send unreliable messages twice to make up for message drops. This doubles bandwidth, but allows for smaller buffer time / faster sync.\nBest to turn this off unless your game is extremely fast paced.")]
+        public bool unreliableRedundancy = false;
+
         // Deprecated 2023-11-25
         // Using SerializeField and HideInInspector to self-correct for being
         // replaced by headlessStartMode. This can be removed in the future.
@@ -318,6 +324,7 @@ namespace Mirror
         {
             NetworkServer.tickRate = sendRate;
             NetworkServer.unreliableBaselineRate = unreliableBaselineRate;
+            NetworkServer.unreliableRedundancy = unreliableRedundancy;
             NetworkClient.snapshotSettings = snapshotSettings;
             NetworkClient.connectionQualityInterval = evaluationInterval;
             NetworkClient.connectionQualityMethod = evaluationMethod;

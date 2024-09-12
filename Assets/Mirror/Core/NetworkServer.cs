@@ -60,6 +60,11 @@ namespace Mirror
         public static float unreliableBaselineInterval => unreliableBaselineRate < int.MaxValue ? 1f / unreliableBaselineRate : 0; // for 1 Hz, that's 1000ms
         static double lastUnreliableBaselineTime;
 
+        // quake sends unreliable messages twice to make up for message drops.
+        // this double bandwidth, but allows for smaller buffer time / faster sync.
+        // best to turn this off unless the game is extremely fast paced.
+        public static bool unreliableRedundancy = false;
+
         /// <summary>Connection to host mode client (if any)</summary>
         public static LocalConnectionToClient localConnection { get; private set; }
 
@@ -454,6 +459,15 @@ namespace Mirror
                         // debug log to show that it's working.
                         // can be tested via LatencySimulation scramble easily.
                         Debug.Log($"Server caught out of order Unreliable state message for {identity.name}. This is fine.\nIdentity timestamp={identity.lastUnreliableStateTime:F3} batch remoteTimestamp={connection.remoteTimeStamp:F3}");
+                        return;
+                    }
+                    // UDP messages may accidentally arrive twice.
+                    // or even intentionally, if unreliableRedundancy is turned on.
+                    else if (connection.remoteTimeStamp == identity.lastUnreliableStateTime)
+                    {
+                        // only log this if unreliableRedundancy is disabled.
+                        // otherwise it's expected and will happen a lot.
+                        if (!unreliableRedundancy) Debug.Log($"Client caught duplicate Unreliable state message for {identity.name}. This is fine.\nIdentity timestamp={identity.lastUnreliableStateTime:F3} batch remoteTimestamp={connection.remoteTimeStamp:F3}");
                         return;
                     }
 
@@ -2069,6 +2083,11 @@ namespace Mirror
                             payload = deltaSerialization.ToArraySegment()
                         };
                         connection.Send(message, Channels.Unreliable);
+
+                        // quake sends unreliable messages twice to make up for message drops.
+                        // this double bandwidth, but allows for smaller buffer time / faster sync.
+                        // best to turn this off unless the game is extremely fast paced.
+                        if (unreliableRedundancy) connection.Send(message, Channels.Unreliable);
                     }
 
                     // if it's for a baseline sync, then send a reliable baseline message too.
