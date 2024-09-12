@@ -450,29 +450,33 @@ namespace Mirror
                 // owned by the connection?
                 if (identity.connectionToClient == connection)
                 {
-                    // unreliable state sync messages may arrive out of order.
-                    // only ever apply state that's newer than the last received state.
-                    // note that we send one EntityStateMessage per Entity,
-                    // so there will be multiple with the same == timestamp.
-                    if (connection.remoteTimeStamp < identity.lastUnreliableStateTime)
+                    // unreliable delta?
+                    if (channelId == Channels.Unreliable)
                     {
-                        // debug log to show that it's working.
-                        // can be tested via LatencySimulation scramble easily.
-                        Debug.Log($"Server caught out of order Unreliable state message for {identity.name}. This is fine.\nIdentity timestamp={identity.lastUnreliableStateTime:F3} batch remoteTimestamp={connection.remoteTimeStamp:F3}");
-                        return;
-                    }
-                    // UDP messages may accidentally arrive twice.
-                    // or even intentionally, if unreliableRedundancy is turned on.
-                    else if (connection.remoteTimeStamp == identity.lastUnreliableStateTime)
-                    {
-                        // only log this if unreliableRedundancy is disabled.
-                        // otherwise it's expected and will happen a lot.
-                        if (!unreliableRedundancy) Debug.Log($"Server caught duplicate Unreliable state message for {identity.name}. This is fine.\nIdentity timestamp={identity.lastUnreliableStateTime:F3} batch remoteTimestamp={connection.remoteTimeStamp:F3}");
-                        return;
-                    }
+                        // unreliable state sync messages may arrive out of order.
+                        // only ever apply state that's newer than the last received state.
+                        // note that we send one EntityStateMessage per Entity,
+                        // so there will be multiple with the same == timestamp.
+                        if (connection.remoteTimeStamp < identity.lastUnreliableStateTime)
+                        {
+                            // debug log to show that it's working.
+                            // can be tested via LatencySimulation scramble easily.
+                            Debug.Log($"Server caught out of order Unreliable state message for {identity.name}. This is fine.\nIdentity timestamp={identity.lastUnreliableStateTime:F3} batch remoteTimestamp={connection.remoteTimeStamp:F3}");
+                            return;
+                        }
+                        // UDP messages may accidentally arrive twice.
+                        // or even intentionally, if unreliableRedundancy is turned on.
+                        else if (connection.remoteTimeStamp == identity.lastUnreliableStateTime)
+                        {
+                            // only log this if unreliableRedundancy is disabled.
+                            // otherwise it's expected and will happen a lot.
+                            if (!unreliableRedundancy) Debug.Log($"Server caught duplicate Unreliable state message for {identity.name}. This is fine.\nIdentity timestamp={identity.lastUnreliableStateTime:F3} batch remoteTimestamp={connection.remoteTimeStamp:F3}");
+                            return;
+                        }
 
-                    // set the new last received time for unreliable
-                    identity.lastUnreliableStateTime = connection.remoteTimeStamp;
+                        // set the new last received time for unreliable
+                        identity.lastUnreliableStateTime = connection.remoteTimeStamp;
+                    }
 
                     using (NetworkReaderPooled reader = NetworkReaderPool.Get(message.payload))
                     {
