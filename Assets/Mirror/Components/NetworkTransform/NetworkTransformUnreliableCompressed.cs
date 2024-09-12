@@ -131,6 +131,10 @@ namespace Mirror
                     // interpolate & apply
                     TransformSnapshot computed = TransformSnapshot.Interpolate(from, to, t);
                     Apply(computed, to);
+
+                    // DEBUG
+                    Debug.DrawLine(from.position, to.position, Color.white, 10f);
+                    Debug.DrawLine(computed.position, computed.position + Vector3.up, Color.white, 10f);
                 }
             }
         }
