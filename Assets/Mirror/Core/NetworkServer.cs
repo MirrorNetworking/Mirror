@@ -467,7 +467,7 @@ namespace Mirror
                     {
                         // only log this if unreliableRedundancy is disabled.
                         // otherwise it's expected and will happen a lot.
-                        if (!unreliableRedundancy) Debug.Log($"Client caught duplicate Unreliable state message for {identity.name}. This is fine.\nIdentity timestamp={identity.lastUnreliableStateTime:F3} batch remoteTimestamp={connection.remoteTimeStamp:F3}");
+                        if (!unreliableRedundancy) Debug.Log($"Server caught duplicate Unreliable state message for {identity.name}. This is fine.\nIdentity timestamp={identity.lastUnreliableStateTime:F3} batch remoteTimestamp={connection.remoteTimeStamp:F3}");
                         return;
                     }
 
