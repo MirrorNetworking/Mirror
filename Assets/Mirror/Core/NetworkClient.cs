@@ -1447,20 +1447,27 @@ namespace Mirror
             // Debug.Log($"NetworkClient.OnUpdateVarsMessage {msg.netId}");
             if (spawned.TryGetValue(message.netId, out NetworkIdentity identity) && identity != null)
             {
-                // unreliable state sync messages may arrive out of order.
-                // only ever apply state that's newer than the last received state.
-                // note that we send one EntityStateMessage per Entity,
-                // so there will be multiple with the same == timestamp.
-                if (connection.remoteTimeStamp < identity.lastUnreliableStateTime)
+                // unreliable delta?
+                if (channelId == Channels.Unreliable)
                 {
-                    // debug log to show that it's working.
-                    // can be tested via LatencySimulation scramble easily.
-                    Debug.Log($"Client caught out of order Unreliable state message for {identity.name}. This is fine.\nIdentity timestamp={identity.lastUnreliableStateTime:F3} batch remoteTimestamp={connection.remoteTimeStamp:F3}");
-                    return;
-                }
+                    // unreliable state sync messages may arrive out of order.
+                    // only ever apply state that's newer than the last received state.
+                    // note that we send one EntityStateMessage per Entity,
+                    // so there will be multiple with the same == timestamp.
+                    //
+                    // note that a reliable baseline may arrive before/after a delta.
+                    // that is fine.
+                    if (connection.remoteTimeStamp < identity.lastUnreliableStateTime)
+                    {
+                        // debug log to show that it's working.
+                        // can be tested via LatencySimulation scramble easily.
+                        Debug.Log($"Client caught out of order Unreliable state message for {identity.name}. This is fine.\nIdentity timestamp={identity.lastUnreliableStateTime:F3} batch remoteTimestamp={connection.remoteTimeStamp:F3}");
+                        return;
+                    }
 
-                // set the new last received time for unreliable
-                identity.lastUnreliableStateTime = connection.remoteTimeStamp;
+                    // set the new last received time for unreliable
+                    identity.lastUnreliableStateTime = connection.remoteTimeStamp;
+                }
 
                 // iniital is always 'true' because unreliable state sync alwasy serializes full
                 using (NetworkReaderPooled reader = NetworkReaderPool.Get(message.payload))

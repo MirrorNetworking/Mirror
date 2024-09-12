@@ -1975,7 +1975,7 @@ namespace Mirror
         }
 
         // helper function to get the right serialization for a connection
-        static NetworkWriter SerializeForConnection_UnreliableComponents(
+        static (NetworkWriter, NetworkWriter) SerializeForConnection_UnreliableComponents(
             NetworkIdentity identity,
             NetworkConnectionToClient connection,
             bool unreliableBaselineElapsed)
@@ -1987,24 +1987,33 @@ namespace Mirror
             // is this entity owned by this connection?
             bool owned = identity.connectionToClient == connection;
 
+            NetworkWriter baselineWriter = null;
+            NetworkWriter deltaWriter = null;
+
             // send serialized data
             // owner writer if owned
             if (owned)
             {
                 // was it dirty / did we actually serialize anything?
-                if (serialization.ownerWriterUnreliable.Position > 0)
-                    return serialization.ownerWriterUnreliable;
+                if (serialization.ownerWriterUnreliableBaseline.Position > 0)
+                    baselineWriter = serialization.ownerWriterUnreliableBaseline;
+
+                if (serialization.ownerWriterUnreliableDelta.Position > 0)
+                    deltaWriter = serialization.ownerWriterUnreliableDelta;
             }
             // observers writer if not owned
             else
             {
                 // was it dirty / did we actually serialize anything?
-                if (serialization.observersWriterUnreliable.Position > 0)
-                    return serialization.observersWriterUnreliable;
+                if (serialization.observersWriterUnreliableBaseline.Position > 0)
+                    baselineWriter = serialization.observersWriterUnreliableBaseline;
+
+                if (serialization.observersWriterUnreliableDelta.Position > 0)
+                    deltaWriter = serialization.observersWriterUnreliableDelta;
             }
 
             // nothing was serialized
-            return null;
+            return (baselineWriter, deltaWriter);
         }
 
         // helper function to broadcast the world to a connection
@@ -2051,17 +2060,30 @@ namespace Mirror
                     // state is 'initial' for reliable baseline, and 'not initial' for unreliable deltas.
                     //   note that syncInterval is always ignored for unreliable in order to have tick aligned [SyncVars].
                     //   even if we pass SyncMethod.Reliable, it serializes with initialState=true.
-                    serialization = SerializeForConnection_UnreliableComponents(identity, connection, unreliableBaselineElapsed);
-                    if (serialization != null)
+                    (NetworkWriter baselineSerialization, NetworkWriter deltaSerialization) = SerializeForConnection_UnreliableComponents(identity, connection, unreliableBaselineElapsed);
+                    if (deltaSerialization != null)
                     {
                         EntityStateMessageUnreliable message = new EntityStateMessageUnreliable
                         {
                             netId = identity.netId,
-                            payload = serialization.ToArraySegment()
+                            payload = deltaSerialization.ToArraySegment()
                         };
-                        // Unreliable mode still sends a reliable baseline every full interval.
-                        int channel = unreliableBaselineElapsed ? Channels.Reliable : Channels.Unreliable;
-                        connection.Send(message, channel);
+                        connection.Send(message, Channels.Unreliable);
+                    }
+
+                    // if it's for a baseline sync, then send a reliable baseline message too.
+                    // this will likely arrive slightly after the unreliable delta above.
+                    if (unreliableBaselineElapsed)
+                    {
+                        if (baselineSerialization != null)
+                        {
+                            EntityStateMessageUnreliable message = new EntityStateMessageUnreliable
+                            {
+                                netId = identity.netId,
+                                payload = baselineSerialization.ToArraySegment()
+                            };
+                            connection.Send(message, Channels.Reliable);
+                        }
                     }
                 }
                 // spawned list should have no null entries because we

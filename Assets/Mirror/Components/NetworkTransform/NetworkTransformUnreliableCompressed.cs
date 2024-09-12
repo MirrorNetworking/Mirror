@@ -300,12 +300,19 @@ namespace Mirror
                     Vector3Long quantized = DeltaCompression.Decompress(reader, lastDeserializedScale);
                     scale = Compression.ScaleToFloat(quantized, scalePrecision);
                 }
-            }
 
-            // handle depending on server / client / host.
-            // server has priority for host mode.
-            if (isServer) OnClientToServerSync(position, rotation, scale);
-            else if (isClient) OnServerToClientSync(position, rotation, scale);
+
+                // handle depending on server / client / host.
+                // server has priority for host mode.
+                //
+                // only do this for the unreliable delta states!
+                // processing the reliable baselines shows noticeable jitter
+                // around baseline syncs (e.g. tanks demo @ 4 Hz sendRate).
+                // unreliable deltas are always within the same time delta,
+                // so this gives perfectly smooth results.
+                if (isServer) OnClientToServerSync(position, rotation, scale);
+                else if (isClient) OnServerToClientSync(position, rotation, scale);
+            }
         }
 
         // sync ////////////////////////////////////////////////////////////////

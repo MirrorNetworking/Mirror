@@ -33,17 +33,20 @@ namespace Mirror
         public NetworkWriter observersWriterReliable;
 
         // unreliable sync
-        public bool unreliableIsBaseline;
-        public NetworkWriter ownerWriterUnreliable;
-        public NetworkWriter observersWriterUnreliable;
+        public NetworkWriter ownerWriterUnreliableBaseline;
+        public NetworkWriter observersWriterUnreliableBaseline;
+
+        public NetworkWriter ownerWriterUnreliableDelta;
+        public NetworkWriter observersWriterUnreliableDelta;
 
         public void ResetWriters()
         {
             ownerWriterReliable.Position = 0;
             observersWriterReliable.Position = 0;
-            unreliableIsBaseline = false;
-            ownerWriterUnreliable.Position = 0;
-            observersWriterUnreliable.Position = 0;
+            ownerWriterUnreliableBaseline.Position = 0;
+            observersWriterUnreliableBaseline.Position = 0;
+            ownerWriterUnreliableDelta.Position = 0;
+            observersWriterUnreliableDelta.Position = 0;
         }
     }
 
@@ -237,9 +240,10 @@ namespace Mirror
         {
             ownerWriterReliable = new NetworkWriter(),
             observersWriterReliable = new NetworkWriter(),
-            unreliableIsBaseline = false,
-            ownerWriterUnreliable = new NetworkWriter(),
-            observersWriterUnreliable = new NetworkWriter(),
+            ownerWriterUnreliableBaseline = new NetworkWriter(),
+            observersWriterUnreliableBaseline = new NetworkWriter(),
+            ownerWriterUnreliableDelta = new NetworkWriter(),
+            observersWriterUnreliableDelta = new NetworkWriter(),
         };
 
         // unreliable state sync messages may arrive out of order, or duplicated.
@@ -1457,9 +1461,7 @@ namespace Mirror
             // (otherwise [SyncVar] changes would never be serialized in tests)
             //
             // NOTE: != instead of < because int.max+1 overflows at some point.
-            if (lastSerialization.tick != tick ||
-                // if last one was for unreliable delta and we request unreliable full, then we need to resync.
-                lastSerialization.unreliableIsBaseline != unreliableBaselineElapsed
+            if (lastSerialization.tick != tick
 #if UNITY_EDITOR
                 || !Application.isPlaying
 #endif
@@ -1478,15 +1480,30 @@ namespace Mirror
                 );
 
                 // serialize - unreliable components
+
+                // we always need the unreliable delta no matter what.
+                // this ensures we can smoothly sync even during reliable baseline ticks.
+                // (do this before baseline, since baseline clears dirty bits)
                 SerializeServer_Broadcast_UnreliableComponents(
-                    unreliableBaselineElapsed,
-                    lastSerialization.ownerWriterUnreliable,
-                    lastSerialization.observersWriterUnreliable
+                    false,
+                    lastSerialization.ownerWriterUnreliableDelta,
+                    lastSerialization.observersWriterUnreliableDelta
                 );
+
+                // if this tick needs a reliable baseline, then serialize this too.
+                // (do this after delta, since baseline clears drity bits)
+                if (unreliableBaselineElapsed)
+                {
+                    // serialize - unreliable components - baseline
+                    SerializeServer_Broadcast_UnreliableComponents(
+                        true,
+                        lastSerialization.ownerWriterUnreliableBaseline,
+                        lastSerialization.observersWriterUnreliableBaseline
+                    );
+                }
 
                 // set tick
                 lastSerialization.tick = tick;
-                lastSerialization.unreliableIsBaseline = unreliableBaselineElapsed;
                 //Debug.Log($"{name} (netId={netId}) serialized for tick={tickTimeStamp}");
             }
 
