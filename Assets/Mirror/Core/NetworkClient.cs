@@ -1748,11 +1748,40 @@ namespace Mirror
                     {
                         // get serialization for this entity viewed by this connection
                         // (if anything was serialized this time)
-                        identity.SerializeClient_UnreliableComponents(unreliableBaselineElapsed, writer);
+                        identity.SerializeClient_UnreliableComponents(false, writer);
+
+                        // we always need the unreliable delta no matter what.
+                        // this ensures we can smoothly sync even during reliable baseline ticks.
+                        // (do this before baseline, since baseline clears dirty bits)
                         if (writer.Position > 0)
                         {
-                            // Unreliable mode still sends a reliable baseline every full interval.
-                            if (unreliableBaselineElapsed)
+                            EntityStateMessageUnreliable message = new EntityStateMessageUnreliable
+                            {
+                                baselineTick = identity.lastUnreliableBaselineSent,
+                                netId = identity.netId,
+                                payload = writer.ToArraySegment()
+                            };
+
+                            Send(message, Channels.Unreliable);
+
+                            // quake sends unreliable messages twice to make up for message drops.
+                            // this double bandwidth, but allows for smaller buffer time / faster sync.
+                            // best to turn this off unless the game is extremely fast paced.
+                            if (unreliableRedundancy) Send(message, Channels.Unreliable);
+                        }
+                    }
+
+                    // if it's for a baseline sync, then send a reliable baseline message too.
+                    // this will likely arrive slightly after the unreliable delta above.
+                    if (unreliableBaselineElapsed)
+                    {
+                        using (NetworkWriterPooled writer = NetworkWriterPool.Get())
+                        {
+                            // get serialization for this entity viewed by this connection
+                            // (if anything was serialized this time)
+                            identity.SerializeClient_UnreliableComponents(true, writer);
+
+                            if (writer.Position > 0)
                             {
                                 // remember last sent baseline tick for this entity.
                                 // (byte) to minimize bandwidth. we don't need the full tick,
@@ -1767,22 +1796,6 @@ namespace Mirror
                                     payload = writer.ToArraySegment()
                                 };
                                 Send(message, Channels.Reliable);
-                            }
-                            else
-                            {
-                                EntityStateMessageUnreliable message = new EntityStateMessageUnreliable
-                                {
-                                    baselineTick = identity.lastUnreliableBaselineSent,
-                                    netId = identity.netId,
-                                    payload = writer.ToArraySegment()
-                                };
-
-                                Send(message, Channels.Unreliable);
-
-                                // quake sends unreliable messages twice to make up for message drops.
-                                // this double bandwidth, but allows for smaller buffer time / faster sync.
-                                // best to turn this off unless the game is extremely fast paced.
-                                if (unreliableRedundancy) Send(message, Channels.Unreliable);
                             }
                         }
                     }
