@@ -1479,8 +1479,22 @@ namespace Mirror
                         return;
                     }
 
+                    // make sure this delta is for the correct baseline.
+                    // we don't want to apply an old delta on top of a new baseline.
+                    if (message.baselineTick != identity.lastUnreliableBaselineReceived)
+                    {
+                        Debug.Log($"Client caught Unreliable state message for old baseline for {identity} with baselineTick={identity.lastUnreliableBaselineReceived} messageBaseline={message.baselineTick}. This is fine.");
+                        return;
+                    }
+
                     // set the new last received time for unreliable
                     identity.lastUnreliableStateTime = connection.remoteTimeStamp;
+                }
+                // reliable baseline?
+                else if (channelId == Channels.Reliable)
+                {
+                    // set the last received reliable baseline tick number.
+                    identity.lastUnreliableBaselineReceived = message.baselineTick;
                 }
 
                 // iniital is always 'true' because unreliable state sync alwasy serializes full
@@ -1737,20 +1751,32 @@ namespace Mirror
                         identity.SerializeClient(writer, SyncMethod.Unreliable, unreliableBaselineElapsed);
                         if (writer.Position > 0)
                         {
-                            // send state update message
-                            EntityStateMessageUnreliable message = new EntityStateMessageUnreliable
-                            {
-                                netId = identity.netId,
-                                payload = writer.ToArraySegment()
-                            };
-
                             // Unreliable mode still sends a reliable baseline every full interval.
                             if (unreliableBaselineElapsed)
                             {
+                                // remember last sent baseline tick for this entity.
+                                // (byte) to minimize bandwidth. we don't need the full tick,
+                                // just something small to compare against.
+                                identity.lastUnreliableBaselineSent = (byte)Time.frameCount;
+
+                                // send state update message
+                                EntityStateMessageUnreliable message = new EntityStateMessageUnreliable
+                                {
+                                    baselineTick = identity.lastUnreliableBaselineSent,
+                                    netId = identity.netId,
+                                    payload = writer.ToArraySegment()
+                                };
                                 Send(message, Channels.Reliable);
                             }
                             else
                             {
+                                EntityStateMessageUnreliable message = new EntityStateMessageUnreliable
+                                {
+                                    baselineTick = identity.lastUnreliableBaselineSent,
+                                    netId = identity.netId,
+                                    payload = writer.ToArraySegment()
+                                };
+
                                 Send(message, Channels.Unreliable);
 
                                 // quake sends unreliable messages twice to make up for message drops.

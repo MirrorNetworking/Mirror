@@ -106,6 +106,12 @@ namespace Mirror
     // state update for unreliable sync
     public struct EntityStateMessageUnreliable : NetworkMessage
     {
+        // baseline messages send their tick number as byte.
+        // delta messages are checked against that tick to avoid applying a
+        // delta on top of the wrong baseline.
+        // (byte is enough, we just need something small to compare against)
+        public byte baselineTick;
+
         public uint netId;
         // the serialized component data
         // -> ArraySegment to avoid unnecessary allocations

@@ -474,8 +474,22 @@ namespace Mirror
                             return;
                         }
 
+                        // make sure this delta is for the correct baseline.
+                        // we don't want to apply an old delta on top of a new baseline.
+                        if (message.baselineTick != identity.lastUnreliableBaselineReceived)
+                        {
+                            Debug.Log($"Server caught Unreliable state message for old baseline for {identity} with baselineTick={identity.lastUnreliableBaselineReceived} messageBaseline={message.baselineTick}. This is fine.");
+                            return;
+                        }
+
                         // set the new last received time for unreliable
                         identity.lastUnreliableStateTime = connection.remoteTimeStamp;
+                    }
+                    // reliable baseline?
+                    else if (channelId == Channels.Reliable)
+                    {
+                        // set the last received reliable baseline tick number.
+                        identity.lastUnreliableBaselineReceived = message.baselineTick;
                     }
 
                     using (NetworkReaderPooled reader = NetworkReaderPool.Get(message.payload))
@@ -2083,6 +2097,7 @@ namespace Mirror
                     {
                         EntityStateMessageUnreliable message = new EntityStateMessageUnreliable
                         {
+                            baselineTick = identity.lastUnreliableBaselineSent,
                             netId = identity.netId,
                             payload = deltaSerialization.ToArraySegment()
                         };
@@ -2100,8 +2115,14 @@ namespace Mirror
                     {
                         if (baselineSerialization != null)
                         {
+                            // remember last sent baseline tick for this entity.
+                            // (byte) to minimize bandwidth. we don't need the full tick,
+                            // just something small to compare against.
+                            identity.lastUnreliableBaselineSent = (byte)Time.frameCount;
+
                             EntityStateMessageUnreliable message = new EntityStateMessageUnreliable
                             {
+                                baselineTick = identity.lastUnreliableBaselineSent,
                                 netId = identity.netId,
                                 payload = baselineSerialization.ToArraySegment()
                             };

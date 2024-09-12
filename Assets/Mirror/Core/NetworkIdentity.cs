@@ -250,6 +250,11 @@ namespace Mirror
         // keep latest received timestamp so we don't apply older messages.
         internal double lastUnreliableStateTime;
 
+        // the last baseline we received for this object.
+        // deltas are based on the baseline, need to make sure we don't apply on an old one.
+        internal byte lastUnreliableBaselineSent;
+        internal byte lastUnreliableBaselineReceived;
+
         // Keep track of all sceneIds to detect scene duplicates
         static readonly Dictionary<ulong, NetworkIdentity> sceneIds =
             new Dictionary<ulong, NetworkIdentity>();
