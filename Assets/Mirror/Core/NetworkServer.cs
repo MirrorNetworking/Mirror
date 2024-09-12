@@ -2095,6 +2095,8 @@ namespace Mirror
                     //   even if we pass SyncMethod.Reliable, it serializes with initialState=true.
                     (NetworkWriter baselineSerialization, NetworkWriter deltaSerialization) = SerializeForConnection_UnreliableComponents(identity, connection, unreliableBaselineElapsed);
 
+                    // send unreliable delta first. ideally we want this to arrive before the new baseline.
+                    // reliable baseline also clears dirty bits, so unreliable must be sent first.
                     if (deltaSerialization != null)
                     {
                         EntityStateMessageUnreliable message = new EntityStateMessageUnreliable
