@@ -1938,10 +1938,13 @@ namespace Mirror
 
         // broadcasting ////////////////////////////////////////////////////////
         // helper function to get the right serialization for a connection
-        static NetworkWriter SerializeForConnection(
+        // -> unreliableBaselineElapsed: even though we only care about RELIABLE
+        //    components here, GetServerSerializationAtTick still caches all
+        //    the serializations for this frame. and when caching we already
+        //    need to know if the unreliable baseline will be needed or not.
+        static NetworkWriter SerializeForConnection_ReliableComponents(
             NetworkIdentity identity,
             NetworkConnectionToClient connection,
-            SyncMethod method,
             bool unreliableBaselineElapsed)
         {
             // get serialization for this entity (cached)
@@ -1951,41 +1954,53 @@ namespace Mirror
             // is this entity owned by this connection?
             bool owned = identity.connectionToClient == connection;
 
-            if (method == SyncMethod.Reliable)
+            // send serialized data
+            // owner writer if owned
+            if (owned)
             {
-                // send serialized data
-                // owner writer if owned
-                if (owned)
-                {
-                    // was it dirty / did we actually serialize anything?
-                    if (serialization.ownerWriterReliable.Position > 0)
-                        return serialization.ownerWriterReliable;
-                }
-                // observers writer if not owned
-                else
-                {
-                    // was it dirty / did we actually serialize anything?
-                    if (serialization.observersWriterReliable.Position > 0)
-                        return serialization.observersWriterReliable;
-                }
+                // was it dirty / did we actually serialize anything?
+                if (serialization.ownerWriterReliable.Position > 0)
+                    return serialization.ownerWriterReliable;
             }
-            else if (method == SyncMethod.Unreliable)
+            // observers writer if not owned
+            else
             {
-                // send serialized data
-                // owner writer if owned
-                if (owned)
-                {
-                    // was it dirty / did we actually serialize anything?
-                    if (serialization.ownerWriterUnreliable.Position > 0)
-                        return serialization.ownerWriterUnreliable;
-                }
-                // observers writer if not owned
-                else
-                {
-                    // was it dirty / did we actually serialize anything?
-                    if (serialization.observersWriterUnreliable.Position > 0)
-                        return serialization.observersWriterUnreliable;
-                }
+                // was it dirty / did we actually serialize anything?
+                if (serialization.observersWriterReliable.Position > 0)
+                    return serialization.observersWriterReliable;
+            }
+
+            // nothing was serialized
+            return null;
+        }
+
+        // helper function to get the right serialization for a connection
+        static NetworkWriter SerializeForConnection_UnreliableComponents(
+            NetworkIdentity identity,
+            NetworkConnectionToClient connection,
+            bool unreliableBaselineElapsed)
+        {
+            // get serialization for this entity (cached)
+            // IMPORTANT: int tick avoids floating point inaccuracy over days/weeks
+            NetworkIdentitySerialization serialization = identity.GetServerSerializationAtTick(Time.frameCount, unreliableBaselineElapsed);
+
+            // is this entity owned by this connection?
+            bool owned = identity.connectionToClient == connection;
+
+            // send serialized data
+            // owner writer if owned
+            if (owned)
+            {
+                // was it dirty / did we actually serialize anything?
+                if (serialization.ownerWriterUnreliable.Position > 0)
+                    return serialization.ownerWriterUnreliable;
+            }
+            // observers writer if not owned
+            else
+            {
+                // was it dirty / did we actually serialize anything?
+                if (serialization.observersWriterUnreliable.Position > 0)
+                    return serialization.observersWriterUnreliable;
             }
 
             // nothing was serialized
@@ -2008,7 +2023,7 @@ namespace Mirror
                     // 'Reliable' sync: send Reliable components over reliable with initial/delta
                     // get serialization for this entity viewed by this connection
                     // (if anything was serialized this time)
-                    NetworkWriter serialization = SerializeForConnection(identity, connection, SyncMethod.Reliable,
+                    NetworkWriter serialization = SerializeForConnection_ReliableComponents(identity, connection,
                         // IMPORTANT: even for Reliable components we must pass unreliableBaselineElapsed!
                         //
                         // consider this (in one frame):
@@ -2036,7 +2051,7 @@ namespace Mirror
                     // state is 'initial' for reliable baseline, and 'not initial' for unreliable deltas.
                     //   note that syncInterval is always ignored for unreliable in order to have tick aligned [SyncVars].
                     //   even if we pass SyncMethod.Reliable, it serializes with initialState=true.
-                    serialization = SerializeForConnection(identity, connection, SyncMethod.Unreliable, unreliableBaselineElapsed);
+                    serialization = SerializeForConnection_UnreliableComponents(identity, connection, unreliableBaselineElapsed);
                     if (serialization != null)
                     {
                         EntityStateMessageUnreliable message = new EntityStateMessageUnreliable
