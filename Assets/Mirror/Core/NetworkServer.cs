@@ -323,7 +323,8 @@ namespace Mirror
             RegisterHandler<NetworkPingMessage>(NetworkTime.OnServerPing, false);
             RegisterHandler<NetworkPongMessage>(NetworkTime.OnServerPong, false);
             RegisterHandler<EntityStateMessage>(OnEntityStateMessage, true);
-            RegisterHandler<EntityStateMessageUnreliable>(OnEntityStateMessageUnreliable, true);
+            RegisterHandler<EntityStateMessageUnreliableBaseline>(OnEntityStateMessageUnreliableBaseline, true);
+            RegisterHandler<EntityStateMessageUnreliableDelta>(OnEntityStateMessageUnreliableDelta, true);
             RegisterHandler<TimeSnapshotMessage>(OnTimeSnapshotMessage, false); // unreliable may arrive before reliable authority went through
         }
 
@@ -439,8 +440,15 @@ namespace Mirror
         }
 
         // for client's owned ClientToServer components.
-        static void OnEntityStateMessageUnreliable(NetworkConnectionToClient connection, EntityStateMessageUnreliable message, int channelId)
+        static void OnEntityStateMessageUnreliableBaseline(NetworkConnectionToClient connection, EntityStateMessageUnreliableBaseline message, int channelId)
         {
+            // safety check: baseline should always arrive over Reliable channel.
+            if (channelId != Channels.Reliable)
+            {
+                Debug.LogError($"Server OnEntityStateMessageUnreliableBaseline arrived on channel {channelId} instead of Reliable. This should never happen!");
+                return;
+            }
+
             // need to validate permissions carefully.
             // an attacker may attempt to modify a not-owned or not-ClientToServer component.
 
@@ -450,47 +458,8 @@ namespace Mirror
                 // owned by the connection?
                 if (identity.connectionToClient == connection)
                 {
-                    // unreliable delta?
-                    if (channelId == Channels.Unreliable)
-                    {
-                        // unreliable state sync messages may arrive out of order.
-                        // only ever apply state that's newer than the last received state.
-                        // note that we send one EntityStateMessage per Entity,
-                        // so there will be multiple with the same == timestamp.
-                        if (connection.remoteTimeStamp < identity.lastUnreliableStateTime)
-                        {
-                            // debug log to show that it's working.
-                            // can be tested via LatencySimulation scramble easily.
-                            Debug.Log($"Server caught out of order Unreliable state message for {identity.name}. This is fine.\nIdentity timestamp={identity.lastUnreliableStateTime:F3} batch remoteTimestamp={connection.remoteTimeStamp:F3}");
-                            return;
-                        }
-                        // UDP messages may accidentally arrive twice.
-                        // or even intentionally, if unreliableRedundancy is turned on.
-                        else if (connection.remoteTimeStamp == identity.lastUnreliableStateTime)
-                        {
-                            // only log this if unreliableRedundancy is disabled.
-                            // otherwise it's expected and will happen a lot.
-                            if (!unreliableRedundancy) Debug.Log($"Server caught duplicate Unreliable state message for {identity.name}. This is fine.\nIdentity timestamp={identity.lastUnreliableStateTime:F3} batch remoteTimestamp={connection.remoteTimeStamp:F3}");
-                            return;
-                        }
-
-                        // make sure this delta is for the correct baseline.
-                        // we don't want to apply an old delta on top of a new baseline.
-                        if (message.baselineTick != identity.lastUnreliableBaselineReceived)
-                        {
-                            Debug.Log($"Server caught Unreliable state message for old baseline for {identity} with baselineTick={identity.lastUnreliableBaselineReceived} messageBaseline={message.baselineTick}. This is fine.");
-                            return;
-                        }
-
-                        // set the new last received time for unreliable
-                        identity.lastUnreliableStateTime = connection.remoteTimeStamp;
-                    }
-                    // reliable baseline?
-                    else if (channelId == Channels.Reliable)
-                    {
-                        // set the last received reliable baseline tick number.
-                        identity.lastUnreliableBaselineReceived = message.baselineTick;
-                    }
+                    // set the last received reliable baseline tick number.
+                    identity.lastUnreliableBaselineReceived = message.baselineTick;
 
                     using (NetworkReaderPooled reader = NetworkReaderPool.Get(message.payload))
                     {
@@ -498,9 +467,87 @@ namespace Mirror
                         // failure to deserialize disconnects to prevent exploits.
                         //
                         // full state updates (initial=true) arrive over reliable.
+                        if (!identity.DeserializeServer(reader, true))
+                        {
+                            if (exceptionsDisconnect)
+                            {
+                                Debug.LogError($"Server failed to deserialize client unreliable state for {identity.name} with netId={identity.netId}, Disconnecting.");
+                                connection.Disconnect();
+                            }
+                            else
+                                Debug.LogWarning($"Server failed to deserialize client unreliable state for {identity.name} with netId={identity.netId}.");
+                        }
+                    }
+                }
+                // An attacker may attempt to modify another connection's entity
+                // This could also be a race condition of message in flight when
+                // RemoveClientAuthority is called, so not malicious.
+                // Don't disconnect, just log the warning.
+                else
+                    Debug.LogWarning($"EntityStateMessage from {connection} for {identity.name} without authority.");
+            }
+            // no warning. unreliable messages often arrive before/after the reliable spawn/despawn messages.
+            // else Debug.LogWarning($"Did not find target for sync message for {message.netId} . Note: this can be completely normal because UDP messages may arrive out of order, so this message might have arrived after a Destroy message.");
+        }
+
+        // for client's owned ClientToServer components.
+        static void OnEntityStateMessageUnreliableDelta(NetworkConnectionToClient connection, EntityStateMessageUnreliableDelta message, int channelId)
+        {
+            // safety check: baseline should always arrive over Reliable channel.
+            if (channelId != Channels.Unreliable)
+            {
+                Debug.LogError($"Server OnEntityStateMessageUnreliableDelta arrived on channel {channelId} instead of Unreliable. This should never happen!");
+                return;
+            }
+
+            // need to validate permissions carefully.
+            // an attacker may attempt to modify a not-owned or not-ClientToServer component.
+
+            // valid netId?
+            if (spawned.TryGetValue(message.netId, out NetworkIdentity identity) && identity != null)
+            {
+                // owned by the connection?
+                if (identity.connectionToClient == connection)
+                {
+                    // unreliable state sync messages may arrive out of order.
+                    // only ever apply state that's newer than the last received state.
+                    // note that we send one EntityStateMessage per Entity,
+                    // so there will be multiple with the same == timestamp.
+                    if (connection.remoteTimeStamp < identity.lastUnreliableStateTime)
+                    {
+                        // debug log to show that it's working.
+                        // can be tested via LatencySimulation scramble easily.
+                        Debug.Log($"Server caught out of order Unreliable state message for {identity.name}. This is fine.\nIdentity timestamp={identity.lastUnreliableStateTime:F3} batch remoteTimestamp={connection.remoteTimeStamp:F3}");
+                        return;
+                    }
+                    // UDP messages may accidentally arrive twice.
+                    // or even intentionally, if unreliableRedundancy is turned on.
+                    else if (connection.remoteTimeStamp == identity.lastUnreliableStateTime)
+                    {
+                        // only log this if unreliableRedundancy is disabled.
+                        // otherwise it's expected and will happen a lot.
+                        if (!unreliableRedundancy) Debug.Log($"Server caught duplicate Unreliable state message for {identity.name}. This is fine.\nIdentity timestamp={identity.lastUnreliableStateTime:F3} batch remoteTimestamp={connection.remoteTimeStamp:F3}");
+                        return;
+                    }
+
+                    // make sure this delta is for the correct baseline.
+                    // we don't want to apply an old delta on top of a new baseline.
+                    if (message.baselineTick != identity.lastUnreliableBaselineReceived)
+                    {
+                        Debug.Log($"Server caught Unreliable state message for old baseline for {identity} with baselineTick={identity.lastUnreliableBaselineReceived} messageBaseline={message.baselineTick}. This is fine.");
+                        return;
+                    }
+
+                    // set the new last received time for unreliable
+                    identity.lastUnreliableStateTime = connection.remoteTimeStamp;
+
+                    using (NetworkReaderPooled reader = NetworkReaderPool.Get(message.payload))
+                    {
+                        // DeserializeServer checks permissions internally.
+                        // failure to deserialize disconnects to prevent exploits.
+                        //
                         // delta state updates (initial=false) arrive over unreliable.
-                        bool initialState = channelId == Channels.Reliable;
-                        if (!identity.DeserializeServer(reader, initialState))
+                        if (!identity.DeserializeServer(reader, false))
                         {
                             if (exceptionsDisconnect)
                             {
@@ -2099,7 +2146,7 @@ namespace Mirror
                     // reliable baseline also clears dirty bits, so unreliable must be sent first.
                     if (deltaSerialization != null)
                     {
-                        EntityStateMessageUnreliable message = new EntityStateMessageUnreliable
+                        EntityStateMessageUnreliableDelta message = new EntityStateMessageUnreliableDelta
                         {
                             baselineTick = identity.lastUnreliableBaselineSent,
                             netId = identity.netId,
@@ -2124,7 +2171,7 @@ namespace Mirror
                             // just something small to compare against.
                             identity.lastUnreliableBaselineSent = (byte)Time.frameCount;
 
-                            EntityStateMessageUnreliable message = new EntityStateMessageUnreliable
+                            EntityStateMessageUnreliableBaseline message = new EntityStateMessageUnreliableBaseline
                             {
                                 baselineTick = identity.lastUnreliableBaselineSent,
                                 netId = identity.netId,
