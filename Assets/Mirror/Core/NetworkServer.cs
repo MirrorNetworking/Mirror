@@ -2078,6 +2078,7 @@ namespace Mirror
                         //
                         // TODO make this less magic in the future. too easy to miss.
                         unreliableBaselineElapsed);
+
                     if (serialization != null)
                     {
                         EntityStateMessage message = new EntityStateMessage
@@ -2093,6 +2094,7 @@ namespace Mirror
                     //   note that syncInterval is always ignored for unreliable in order to have tick aligned [SyncVars].
                     //   even if we pass SyncMethod.Reliable, it serializes with initialState=true.
                     (NetworkWriter baselineSerialization, NetworkWriter deltaSerialization) = SerializeForConnection_UnreliableComponents(identity, connection, unreliableBaselineElapsed);
+
                     if (deltaSerialization != null)
                     {
                         EntityStateMessageUnreliable message = new EntityStateMessageUnreliable
