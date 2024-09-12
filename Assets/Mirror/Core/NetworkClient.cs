@@ -1727,7 +1727,7 @@ namespace Mirror
                     {
                         // get serialization for this entity viewed by this connection
                         // (if anything was serialized this time)
-                        identity.SerializeClient(writer, SyncMethod.Reliable, false);
+                        identity.SerializeClient_ReliableComponents(writer);
                         if (writer.Position > 0)
                         {
                             // send state update message
@@ -1748,7 +1748,7 @@ namespace Mirror
                     {
                         // get serialization for this entity viewed by this connection
                         // (if anything was serialized this time)
-                        identity.SerializeClient(writer, SyncMethod.Unreliable, unreliableBaselineElapsed);
+                        identity.SerializeClient_UnreliableComponents(unreliableBaselineElapsed, writer);
                         if (writer.Position > 0)
                         {
                             // Unreliable mode still sends a reliable baseline every full interval.

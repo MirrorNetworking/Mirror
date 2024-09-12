@@ -1267,6 +1267,8 @@ namespace Mirror
 
         internal void SerializeClient_ReliableComponents(NetworkWriter writer)
         {
+            // ensure NetworkBehaviours are valid before usage
+            ValidateComponents();
             NetworkBehaviour[] components = NetworkBehaviours;
 
             // check which components are dirty.
@@ -1321,6 +1323,8 @@ namespace Mirror
 
         internal void SerializeClient_UnreliableComponents(bool isBaseline, NetworkWriter writer)
         {
+            // ensure NetworkBehaviours are valid before usage
+            ValidateComponents();
             NetworkBehaviour[] components = NetworkBehaviours;
 
             // check which components are dirty.
@@ -1365,22 +1369,6 @@ namespace Mirror
                         if (isBaseline) comp.ClearAllDirtyBits();
                     }
                 }
-            }
-        }
-
-        // serialize components into writer on the client.
-        internal void SerializeClient(NetworkWriter writer, SyncMethod method, bool unreliableBaselineElapsed)
-        {
-            // ensure NetworkBehaviours are valid before usage
-            ValidateComponents();
-
-            if (method == SyncMethod.Reliable)
-            {
-                SerializeClient_ReliableComponents(writer);
-            }
-            else if (method == SyncMethod.Unreliable)
-            {
-                SerializeClient_UnreliableComponents(unreliableBaselineElapsed, writer);
             }
         }
 
