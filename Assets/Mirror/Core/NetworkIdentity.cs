@@ -1265,7 +1265,9 @@ namespace Mirror
             }
         }
 
-        internal void SerializeClient_ReliableComponents(NetworkWriter writer)
+        // serialize Reliable and Unreliable components in one iteration.
+        // having two separate functions doing two iterations would be too costly.
+        internal void SerializeClient(NetworkWriter writerReliable, NetworkWriter writerUnreliableBaseline, NetworkWriter writerUnreliableDelta, bool unreliableBaseline)
         {
             // ensure NetworkBehaviours are valid before usage
             ValidateComponents();
@@ -1278,7 +1280,8 @@ namespace Mirror
             // instead of writing a 1 byte index per component,
             // we limit components to 64 bits and write one ulong instead.
             // the ulong is also varint compressed for minimum bandwidth.
-            ulong dirtyMask = ClientDirtyMask_ReliableComponents();
+            ulong dirtyMaskReliable   = ClientDirtyMask_ReliableComponents();
+            ulong dirtyMaskUnreliable = ClientDirtyMask_UnreliableComponents();
 
             // varint compresses the mask to 1 byte in most cases.
             // instead of writing an 8 byte ulong.
@@ -1289,25 +1292,28 @@ namespace Mirror
 
             // if nothing dirty, then don't even write the mask.
             // otherwise, every unchanged object would send a 1 byte dirty mask!
-            if (dirtyMask != 0) Compression.CompressVarUInt(writer, dirtyMask);
+            if (dirtyMaskReliable   != 0) Compression.CompressVarUInt(writerReliable,           dirtyMaskReliable);
+            if (dirtyMaskUnreliable != 0) Compression.CompressVarUInt(writerUnreliableDelta,    dirtyMaskUnreliable);
+            if (dirtyMaskUnreliable != 0) Compression.CompressVarUInt(writerUnreliableBaseline, dirtyMaskUnreliable);
 
             // serialize all components
             // perf: only iterate if dirty mask has dirty bits.
-            if (dirtyMask != 0)
+            if (dirtyMaskReliable != 0 || dirtyMaskUnreliable != 0)
             {
                 // serialize all components
                 for (int i = 0; i < components.Length; ++i)
                 {
                     NetworkBehaviour comp = components[i];
 
+                    // RELIABLE SERIALIZATION //////////////////////////////////
                     // is this component dirty?
                     // reuse the mask instead of calling comp.IsDirty() again here.
-                    if (IsDirty(dirtyMask, i))
+                    if (IsDirty(dirtyMaskReliable, i))
                     // if (isOwned && component.syncDirection == SyncDirection.ClientToServer)
                     {
                         // serialize into writer.
                         // server always knows initialState, we never need to send it
-                        comp.Serialize(writer, false);
+                        comp.Serialize(writerReliable, false);
 
                         // clear dirty bits for the components that we serialized.
                         // do not clear for _all_ components, only the ones that
@@ -1317,57 +1323,26 @@ namespace Mirror
                         // was elapsed, as then they wouldn't be synced.
                         comp.ClearAllDirtyBits();
                     }
-                }
-            }
-        }
-
-        internal void SerializeClient_UnreliableComponents(bool isBaseline, NetworkWriter writer)
-        {
-            // ensure NetworkBehaviours are valid before usage
-            ValidateComponents();
-            NetworkBehaviour[] components = NetworkBehaviours;
-
-            // check which components are dirty.
-            // this is quite complicated with SyncMode + SyncDirection.
-            // see the function for explanation.
-            //
-            // instead of writing a 1 byte index per component,
-            // we limit components to 64 bits and write one ulong instead.
-            // the ulong is also varint compressed for minimum bandwidth.
-            ulong dirtyMask = ClientDirtyMask_UnreliableComponents();
-
-            // varint compresses the mask to 1 byte in most cases.
-            // instead of writing an 8 byte ulong.
-            //   7 components fit into 1 byte.  (previously  7 bytes)
-            //  11 components fit into 2 bytes. (previously 11 bytes)
-            //  16 components fit into 3 bytes. (previously 16 bytes)
-            // TODO imer: server knows amount of comps, write N bytes instead
-
-            // if nothing dirty, then don't even write the mask.
-            // otherwise, every unchanged object would send a 1 byte dirty mask!
-            if (dirtyMask != 0) Compression.CompressVarUInt(writer, dirtyMask);
-
-            // serialize all components
-            // perf: only iterate if dirty mask has dirty bits.
-            if (dirtyMask != 0)
-            {
-                // serialize all components
-                for (int i = 0; i < components.Length; ++i)
-                {
-                    NetworkBehaviour comp = components[i];
-
+                    // UNRELIABLE COMPONENTS ///////////////////////////////////
                     // is this component dirty?
                     // reuse the mask instead of calling comp.IsDirty() again here.
-                    if (IsDirty(dirtyMask, i))
+                    else if (IsDirty(dirtyMaskUnreliable, i))
                     // if (isOwned && component.syncDirection == SyncDirection.ClientToServer)
                     {
-                        // serialize into writer.
-                        comp.Serialize(writer, isBaseline);
+                        // we always send the unreliable delta no matter what
+                        comp.Serialize(writerUnreliableDelta, false);
 
-                        // for unreliable components, only clear dirty bits after the reliable baseline.
-                        // unreliable deltas aren't guaranteed to be delivered, no point in clearing bits.
-                        if (isBaseline) comp.ClearAllDirtyBits();
+                        // sometimes we need the unreliable baseline
+                        if (unreliableBaseline)
+                        {
+                            comp.Serialize(writerUnreliableBaseline, true);
+
+                            // for unreliable components, only clear dirty bits after the reliable baseline.
+                            // unreliable deltas aren't guaranteed to be delivered, no point in clearing bits.
+                            comp.ClearAllDirtyBits();
+                        }
                     }
+                    ////////////////////////////////////////////////////////////
                 }
             }
         }

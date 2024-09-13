@@ -1746,65 +1746,47 @@ namespace Mirror
                 if (identity != null)
                 {
                     // 'Reliable' sync: send Reliable components over reliable.
-                    using (NetworkWriterPooled writer = NetworkWriterPool.Get())
+                    using (NetworkWriterPooled writerReliable           = NetworkWriterPool.Get(),
+                                               writerUnreliableDelta    = NetworkWriterPool.Get(),
+                                               writerUnreliableBaseline = NetworkWriterPool.Get())
                     {
-                        // get serialization for this entity viewed by this connection
-                        // (if anything was serialized this time)
-                        identity.SerializeClient_ReliableComponents(writer);
-                        if (writer.Position > 0)
+                        // serialize reliable and unreliable components in only one iteration.
+                        // serializing reliable and unreliable separately in two iterations would be too costly.
+                        identity.SerializeClient(writerReliable, writerUnreliableBaseline, writerUnreliableDelta, unreliableBaselineElapsed);
+
+                        // any reliable components serialization?
+                        if (writerReliable.Position > 0)
                         {
                             // send state update message
                             EntityStateMessage message = new EntityStateMessage
                             {
                                 netId = identity.netId,
-                                payload = writer.ToArraySegment()
+                                payload = writerReliable.ToArraySegment()
                             };
                             Send(message);
                         }
-                    }
 
-                    // 'Unreliable' sync: send Unreliable components over unreliable
-                    // state is 'initial' for reliable baseline, and 'not initial' for unreliable deltas.
-                    //   note that syncInterval is always ignored for unreliable in order to have tick aligned [SyncVars].
-                    //   even if we pass SyncMethod.Reliable, it serializes with initialState=true.
-                    using (NetworkWriterPooled writer = NetworkWriterPool.Get())
-                    {
-                        // get serialization for this entity viewed by this connection
-                        // (if anything was serialized this time)
-                        identity.SerializeClient_UnreliableComponents(false, writer);
-
-                        // we always need the unreliable delta no matter what.
-                        // this ensures we can smoothly sync even during reliable baseline ticks.
-                        // (do this before baseline, since baseline clears dirty bits)
-                        if (writer.Position > 0)
+                        // any unreliable components serialization?
+                        // we always send unreliable deltas to ensure interpolation always has a data point that arrives immediately.
+                        if (writerUnreliableDelta.Position > 0)
                         {
                             EntityStateMessageUnreliableDelta message = new EntityStateMessageUnreliableDelta
                             {
+                                // baselineTick: the last unreliable baseline to compare against
                                 baselineTick = identity.lastUnreliableBaselineSent,
                                 netId = identity.netId,
-                                payload = writer.ToArraySegment()
+                                payload = writerUnreliableDelta.ToArraySegment()
                             };
-
                             Send(message, Channels.Unreliable);
-
-                            // quake sends unreliable messages twice to make up for message drops.
-                            // this double bandwidth, but allows for smaller buffer time / faster sync.
-                            // best to turn this off unless the game is extremely fast paced.
-                            if (unreliableRedundancy) Send(message, Channels.Unreliable);
                         }
-                    }
 
-                    // if it's for a baseline sync, then send a reliable baseline message too.
-                    // this will likely arrive slightly after the unreliable delta above.
-                    if (unreliableBaselineElapsed)
-                    {
-                        using (NetworkWriterPooled writer = NetworkWriterPool.Get())
+                        // time for unreliable baseline sync?
+                        // we always send this after the unreliable delta,
+                        // so there's a higher chance that it arrives after the delta.
+                        // in other words: so that the delta can still be used against previous baseline.
+                        if (unreliableBaselineElapsed)
                         {
-                            // get serialization for this entity viewed by this connection
-                            // (if anything was serialized this time)
-                            identity.SerializeClient_UnreliableComponents(true, writer);
-
-                            if (writer.Position > 0)
+                            if (writerUnreliableBaseline.Position > 0)
                             {
                                 // remember last sent baseline tick for this entity.
                                 // (byte) to minimize bandwidth. we don't need the full tick,
@@ -1816,7 +1798,7 @@ namespace Mirror
                                 {
                                     baselineTick = identity.lastUnreliableBaselineSent,
                                     netId = identity.netId,
-                                    payload = writer.ToArraySegment()
+                                    payload = writerUnreliableBaseline.ToArraySegment()
                                 };
                                 Send(message, Channels.Reliable);
                             }
