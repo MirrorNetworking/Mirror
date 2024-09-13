@@ -1133,7 +1133,14 @@ namespace Mirror
 
         // serialize server components, with delta state for broadcast messages.
         // check ownerWritten/observersWritten to know if anything was written
-        internal void SerializeServer_Broadcast_ReliableComponents(NetworkWriter ownerWriter, NetworkWriter observersWriter)
+        //
+        // serialize Reliable and Unreliable components in one iteration.
+        // having two separate functions doing two iterations would be too costly.
+        internal void SerializeServer_Broadcast(
+            NetworkWriter ownerWriterReliable, NetworkWriter observersWriterReliable,
+            NetworkWriter ownerWriterUnreliableBaseline, NetworkWriter observersWriterUnreliableBaseline,
+            NetworkWriter ownerWriterUnreliableDelta, NetworkWriter observersWriterUnreliableDelta,
+            bool unreliableBaseline)
         {
             // ensure NetworkBehaviours are valid before usage
             ValidateComponents();
@@ -1146,16 +1153,23 @@ namespace Mirror
             // instead of writing a 1 byte index per component,
             // we limit components to 64 bits and write one ulong instead.
             // the ulong is also varint compressed for minimum bandwidth.
-            (ulong ownerMask, ulong observerMask) = ServerDirtyMasks_Broadcast_ReliableComponents();
+            (ulong ownerMaskReliable,   ulong observerMaskReliable)   = ServerDirtyMasks_Broadcast_ReliableComponents();
+            (ulong ownerMaskUnreliable, ulong observerMaskUnreliable) = ServerDirtyMasks_Broadcast_UnreliableComponents();
 
             // if nothing dirty, then don't even write the mask.
             // otherwise, every unchanged object would send a 1 byte dirty mask!
-            if (ownerMask != 0) Compression.CompressVarUInt(ownerWriter, ownerMask);
-            if (observerMask != 0) Compression.CompressVarUInt(observersWriter, observerMask);
+            if (ownerMaskReliable != 0)      Compression.CompressVarUInt(ownerWriterReliable, ownerMaskReliable);
+            if (observerMaskReliable != 0)   Compression.CompressVarUInt(observersWriterReliable, observerMaskReliable);
+
+            if (ownerMaskUnreliable != 0)    Compression.CompressVarUInt(ownerWriterUnreliableDelta, ownerMaskUnreliable);
+            if (observerMaskUnreliable != 0) Compression.CompressVarUInt(observersWriterUnreliableDelta, observerMaskUnreliable);
+
+            if (ownerMaskUnreliable != 0)    Compression.CompressVarUInt(ownerWriterUnreliableBaseline, ownerMaskUnreliable);
+            if (observerMaskUnreliable != 0) Compression.CompressVarUInt(observersWriterUnreliableBaseline, observerMaskUnreliable);
 
             // serialize all components
             // perf: only iterate if either dirty mask has dirty bits.
-            if ((ownerMask | observerMask) != 0)
+            if ((ownerMaskReliable | observerMaskReliable | ownerMaskUnreliable | observerMaskUnreliable) != 0)
             {
                 for (int i = 0; i < components.Length; ++i)
                 {
@@ -1173,9 +1187,13 @@ namespace Mirror
                     // SyncDirection it's not guaranteed to be in owner anymore.
                     // so we need to serialize to temporary writer first.
                     // and then copy as needed.
-                    bool ownerDirty = IsDirty(ownerMask, i);
-                    bool observersDirty = IsDirty(observerMask, i);
-                    if (ownerDirty || observersDirty)
+                    bool ownerDirtyReliable       = IsDirty(ownerMaskReliable, i);
+                    bool observersDirtyReliable   = IsDirty(observerMaskReliable, i);
+                    bool ownerDirtyUnreliable     = IsDirty(ownerMaskUnreliable, i);
+                    bool observersDirtyUnreliable = IsDirty(observerMaskUnreliable, i);
+
+                    // RELIABLE COMPONENTS /////////////////////////////////////
+                    if (ownerDirtyReliable || observersDirtyReliable)
                     {
                         // serialize into helper writer
                         using (NetworkWriterPooled temp = NetworkWriterPool.Get())
@@ -1184,82 +1202,45 @@ namespace Mirror
                             ArraySegment<byte> segment = temp.ToArraySegment();
 
                             // copy to owner / observers as needed
-                            if (ownerDirty) ownerWriter.WriteBytes(segment.Array, segment.Offset, segment.Count);
-                            if (observersDirty) observersWriter.WriteBytes(segment.Array, segment.Offset, segment.Count);
+                            if (ownerDirtyReliable)     ownerWriterReliable.WriteBytes(segment.Array, segment.Offset, segment.Count);
+                            if (observersDirtyReliable) observersWriterReliable.WriteBytes(segment.Array, segment.Offset, segment.Count);
                         }
 
                         // dirty bits indicate 'changed since last delta sync'.
                         // clear them after a delta sync here.
                         comp.ClearAllDirtyBits();
                     }
-                }
-            }
-        }
-
-        // serialize server components, with delta state for broadcast messages.
-        // check ownerWritten/observersWritten to know if anything was written.
-        internal void SerializeServer_Broadcast_UnreliableComponents(bool isBaseline, NetworkWriter ownerWriter, NetworkWriter observersWriter)
-        {
-            // ensure NetworkBehaviours are valid before usage
-            ValidateComponents();
-            NetworkBehaviour[] components = NetworkBehaviours;
-
-            // check which components are dirty for owner / observers.
-            // this is quite complicated with SyncMode + SyncDirection.
-            // see the function for explanation.
-            //
-            // instead of writing a 1 byte index per component,
-            // we limit components to 64 bits and write one ulong instead.
-            // the ulong is also varint compressed for minimum bandwidth.
-            //
-            // for Unreliable components, only sync if dirty (=if changed since last baseline).
-            // even for the next baseline: only if changed since last!
-            (ulong ownerMask, ulong observerMask) = ServerDirtyMasks_Broadcast_UnreliableComponents();
-
-            // if nothing dirty, then don't even write the mask.
-            // otherwise, every unchanged object would send a 1 byte dirty mask!
-            if (ownerMask != 0) Compression.CompressVarUInt(ownerWriter, ownerMask);
-            if (observerMask != 0) Compression.CompressVarUInt(observersWriter, observerMask);
-
-            // serialize all components
-            // perf: only iterate if either dirty mask has dirty bits.
-            if ((ownerMask | observerMask) != 0)
-            {
-                for (int i = 0; i < components.Length; ++i)
-                {
-                    NetworkBehaviour comp = components[i];
-
-                    // is the component dirty for anyone (owner or observers)?
-                    // may be serialized to owner, observer, both, or neither.
-                    //
-                    // OnSerialize should only be called once.
-                    // this is faster, and it cleaner because it may set
-                    // internal state, counters, logs, etc.
-                    //
-                    // previously we always serialized to owner and then copied
-                    // the serialization to observers. however, since
-                    // SyncDirection it's not guaranteed to be in owner anymore.
-                    // so we need to serialize to temporary writer first.
-                    // and then copy as needed.
-                    bool ownerDirty = IsDirty(ownerMask, i);
-                    bool observersDirty = IsDirty(observerMask, i);
-                    if (ownerDirty || observersDirty)
+                    // UNRELIABLE COMPONENTS ///////////////////////////////////
+                    else if (ownerDirtyUnreliable || observersDirtyUnreliable)
                     {
-                        // serialize into helper writer
+                        // we always send the unreliable delta no matter what
                         using (NetworkWriterPooled temp = NetworkWriterPool.Get())
                         {
-                            // unreliable mode: full state sync for only for baseline
-                            comp.Serialize(temp, isBaseline);
+                            comp.Serialize(temp, false);
                             ArraySegment<byte> segment = temp.ToArraySegment();
 
                             // copy to owner / observers as needed
-                            if (ownerDirty) ownerWriter.WriteBytes(segment.Array, segment.Offset, segment.Count);
-                            if (observersDirty) observersWriter.WriteBytes(segment.Array, segment.Offset, segment.Count);
+                            if (ownerDirtyUnreliable)     ownerWriterUnreliableDelta.WriteBytes(segment.Array, segment.Offset, segment.Count);
+                            if (observersDirtyUnreliable) observersWriterUnreliableDelta.WriteBytes(segment.Array, segment.Offset, segment.Count);
                         }
 
-                        // for unreliable components, only clear dirty bits after the reliable baseline.
-                        // unreliable deltas aren't guaranteed to be delivered, no point in clearing bits.
-                        if (isBaseline) comp.ClearAllDirtyBits();
+                        // sometimes we need the unreliable baseline
+                        if (unreliableBaseline)
+                        {
+                            using (NetworkWriterPooled temp = NetworkWriterPool.Get())
+                            {
+                                comp.Serialize(temp, true);
+                                ArraySegment<byte> segment = temp.ToArraySegment();
+
+                                // copy to owner / observers as needed
+                                if (ownerDirtyUnreliable)     ownerWriterUnreliableBaseline.WriteBytes(segment.Array, segment.Offset, segment.Count);
+                                if (observersDirtyUnreliable) observersWriterUnreliableBaseline.WriteBytes(segment.Array, segment.Offset, segment.Count);
+                            }
+
+                            // for unreliable components, only clear dirty bits after the reliable baseline.
+                            // unreliable deltas aren't guaranteed to be delivered, no point in clearing bits.
+                            comp.ClearAllDirtyBits();
+                        }
                     }
                 }
             }
@@ -1438,37 +1419,17 @@ namespace Mirror
                 // reset
                 lastSerialization.ResetWriters();
 
-                // TODO consider building serializations in one iteration later!
-                // for now, it's easier to have one iteration per method.
-
-                // serialize - reliable components
-                SerializeServer_Broadcast_ReliableComponents(
+                // serialize both Reliable and Unreliable components in one iteration.
+                // doing each in their own iteration would be too costly.
+                SerializeServer_Broadcast(
                     lastSerialization.ownerWriterReliable,
-                    lastSerialization.observersWriterReliable
-                );
-
-                // serialize - unreliable components
-
-                // we always need the unreliable delta no matter what.
-                // this ensures we can smoothly sync even during reliable baseline ticks.
-                // (do this before baseline, since baseline clears dirty bits)
-                SerializeServer_Broadcast_UnreliableComponents(
-                    false,
+                    lastSerialization.observersWriterReliable,
+                    lastSerialization.ownerWriterUnreliableBaseline,
+                    lastSerialization.observersWriterUnreliableBaseline,
                     lastSerialization.ownerWriterUnreliableDelta,
-                    lastSerialization.observersWriterUnreliableDelta
+                    lastSerialization.observersWriterUnreliableDelta,
+                    unreliableBaselineElapsed
                 );
-
-                // if this tick needs a reliable baseline, then serialize this too.
-                // (do this after delta, since baseline clears drity bits)
-                if (unreliableBaselineElapsed)
-                {
-                    // serialize - unreliable components - baseline
-                    SerializeServer_Broadcast_UnreliableComponents(
-                        true,
-                        lastSerialization.ownerWriterUnreliableBaseline,
-                        lastSerialization.observersWriterUnreliableBaseline
-                    );
-                }
 
                 // set tick
                 lastSerialization.tick = tick;
