@@ -986,11 +986,14 @@ namespace Mirror
             return (ownerMask, observerMask);
         }
 
-        // build dirty mask for client Reliable components.
+        // build dirty mask for client components.
         // server always knows initialState, so we don't need it here.
-        ulong ClientDirtyMask_ReliableComponents()
+        // -> build Reliable and Unreliable masks in one iteration.
+        //    running two loops would be too costly.
+        void ClientDirtyMasks(out ulong dirtyMaskReliable, out ulong dirtyMaskUnreliable)
         {
-            ulong mask = 0;
+            dirtyMaskReliable   = 0;
+            dirtyMaskUnreliable = 0;
 
             NetworkBehaviour[] components = NetworkBehaviours;
             for (int i = 0; i < components.Length; ++i)
@@ -1006,53 +1009,28 @@ namespace Mirror
                 NetworkBehaviour component = components[i];
                 ulong nthBit = (1u << i);
 
-                // only consider Reliable mode components here
-                if (component.syncMethod != SyncMethod.Reliable) continue;
-
-                if (isOwned && component.syncDirection == SyncDirection.ClientToServer)
+                // RELIABLE COMPONENTS /////////////////////////////////////////
+                if (component.syncMethod == SyncMethod.Reliable)
                 {
-                    // set the n-th bit if dirty
-                    // shifting from small to large numbers is varint-efficient.
-                    if (component.IsDirty()) mask |= nthBit;
+                    if (isOwned && component.syncDirection == SyncDirection.ClientToServer)
+                    {
+                        // set the n-th bit if dirty
+                        // shifting from small to large numbers is varint-efficient.
+                        if (component.IsDirty()) dirtyMaskReliable |= nthBit;
+                    }
+                }
+                // UNRELIABLE COMPONENTS ///////////////////////////////////////
+                else if (component.syncMethod == SyncMethod.Unreliable)
+                {
+                    if (isOwned && component.syncDirection == SyncDirection.ClientToServer)
+                    {
+                        // set the n-th bit if dirty
+                        // shifting from small to large numbers is varint-efficient.
+                        // ignoring syncInterval for now: tick aligned like Quake.
+                        if (component.IsDirty_BitsOnly()) dirtyMaskUnreliable |= nthBit;
+                    }
                 }
             }
-
-            return mask;
-        }
-
-        // build dirty mask for client Unreliable components.
-        // server always knows initialState, so we don't need it here.
-        ulong ClientDirtyMask_UnreliableComponents()
-        {
-            ulong mask = 0;
-
-            NetworkBehaviour[] components = NetworkBehaviours;
-            for (int i = 0; i < components.Length; ++i)
-            {
-                // on the client, we need to consider different sync scenarios:
-                //
-                //   ServerToClient SyncDirection:
-                //     do nothing.
-                //   ClientToServer SyncDirection:
-                //     serialize only if owned.
-
-                // on client, only consider owned components with SyncDirection to server
-                NetworkBehaviour component = components[i];
-                ulong nthBit = (1u << i);
-
-                // only consider Unreliable mode components here
-                if (component.syncMethod != SyncMethod.Unreliable) continue;
-
-                if (isOwned && component.syncDirection == SyncDirection.ClientToServer)
-                {
-                    // set the n-th bit if dirty
-                    // shifting from small to large numbers is varint-efficient.
-                    // ignoring syncInterval for now: tick aligned like Quake.
-                    if (component.IsDirty_BitsOnly()) mask |= nthBit;
-                }
-            }
-
-            return mask;
         }
 
         // check if n-th component is dirty.
@@ -1261,8 +1239,7 @@ namespace Mirror
             // instead of writing a 1 byte index per component,
             // we limit components to 64 bits and write one ulong instead.
             // the ulong is also varint compressed for minimum bandwidth.
-            ulong dirtyMaskReliable   = ClientDirtyMask_ReliableComponents();
-            ulong dirtyMaskUnreliable = ClientDirtyMask_UnreliableComponents();
+            ClientDirtyMasks(out ulong dirtyMaskReliable, out ulong dirtyMaskUnreliable);
 
             // varint compresses the mask to 1 byte in most cases.
             // instead of writing an 8 byte ulong.
