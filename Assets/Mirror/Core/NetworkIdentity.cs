@@ -905,52 +905,17 @@ namespace Mirror
 
         // build dirty mask for server owner & observers (= all dirty components).
         // faster to do it in one iteration instead of iterating separately.
-        (ulong, ulong) ServerDirtyMasks_Broadcast_ReliableComponents()
-        {
-            ulong ownerMask = 0;
-            ulong observerMask = 0;
-
-            NetworkBehaviour[] components = NetworkBehaviours;
-            for (int i = 0; i < components.Length; ++i)
-            {
-                NetworkBehaviour component = components[i];
-                ulong nthBit = (1u << i);
-
-                // only consider Reliable mode components here
-                if (component.syncMethod != SyncMethod.Reliable) continue;
-
-                // check if this component is dirty
-                bool dirty = component.IsDirty();
-
-                // owner needs to be considered for both SyncModes, because
-                // Observers mode always includes the Owner.
-                //
-                // for broadcast, only for ServerToClient and only if dirty.
-                //     ClientToServer comes from the owner client.
-                if (component.syncDirection == SyncDirection.ServerToClient && dirty)
-                    ownerMask |= nthBit;
-
-                // observers need to be considered only in Observers mode,
-                // otherwise they receive no sync data of this component ever.
-                if (component.syncMode == SyncMode.Observers)
-                {
-                    // for broadcast, only sync to observers if dirty.
-                    // SyncDirection is irrelevant, as both are broadcast to
-                    // observers which aren't the owner.
-                    if (dirty) observerMask |= nthBit;
-                }
-            }
-
-            return (ownerMask, observerMask);
-        }
-
-        // build dirty mask for server owner & observers (= all dirty components).
-        // faster to do it in one iteration instead of iterating separately.
-        (ulong, ulong) ServerDirtyMasks_Broadcast_UnreliableComponents()
+        // -> build Reliable and Unreliable masks in one iteration.
+        //    running two loops would be too costly.
+        void ServerDirtyMasks_Broadcast(
+            out ulong ownerMaskReliable, out ulong observerMaskReliable,
+            out ulong ownerMaskUnreliable, out ulong observerMaskUnreliable)
         {
             // clear
-            ulong ownerMask    = 0;
-            ulong observerMask = 0;
+            ownerMaskReliable      = 0;
+            observerMaskReliable   = 0;
+            ownerMaskUnreliable    = 0;
+            observerMaskUnreliable = 0;
 
             NetworkBehaviour[] components = NetworkBehaviours;
             for (int i = 0; i < components.Length; ++i)
@@ -958,33 +923,56 @@ namespace Mirror
                 NetworkBehaviour component = components[i];
                 ulong nthBit = (1u << i);
 
-                // only consider Reliable mode components here
-                if (component.syncMethod != SyncMethod.Unreliable) continue;
-
-                // check if this component is dirty.
-                // ignoring syncInterval for now: tick aligned like Quake.
-                bool dirty = component.IsDirty_BitsOnly();
-
-                // owner needs to be considered for both SyncModes, because
-                // Observers mode always includes the Owner.
-                //
-                // for broadcast, only for ServerToClient and only if dirty.
-                //     ClientToServer comes from the owner client.
-                if (component.syncDirection == SyncDirection.ServerToClient && dirty)
-                    ownerMask |= nthBit;
-
-                // observers need to be considered only in Observers mode,
-                // otherwise they receive no sync data of this component ever.
-                if (component.syncMode == SyncMode.Observers)
+                // RELIABLE COMPONENTS /////////////////////////////////////////
+                if (component.syncMethod == SyncMethod.Reliable)
                 {
-                    // for broadcast, only sync to observers if dirty.
-                    // SyncDirection is irrelevant, as both are broadcast to
-                    // observers which aren't the owner.
-                    if (dirty) observerMask |= nthBit;
+                    // check if this component is dirty
+                    bool dirty = component.IsDirty();
+
+                    // owner needs to be considered for both SyncModes, because
+                    // Observers mode always includes the Owner.
+                    //
+                    // for broadcast, only for ServerToClient and only if dirty.
+                    //     ClientToServer comes from the owner client.
+                    if (component.syncDirection == SyncDirection.ServerToClient && dirty)
+                        ownerMaskReliable |= nthBit;
+
+                    // observers need to be considered only in Observers mode,
+                    // otherwise they receive no sync data of this component ever.
+                    if (component.syncMode == SyncMode.Observers)
+                    {
+                        // for broadcast, only sync to observers if dirty.
+                        // SyncDirection is irrelevant, as both are broadcast to
+                        // observers which aren't the owner.
+                        if (dirty) observerMaskReliable |= nthBit;
+                    }
+                }
+                // UNRELIABLE COMPONENTS ///////////////////////////////////////
+                else if (component.syncMethod == SyncMethod.Unreliable)
+                {
+                    // check if this component is dirty.
+                    // ignoring syncInterval for now: tick aligned like Quake.
+                    bool dirty = component.IsDirty_BitsOnly();
+
+                    // owner needs to be considered for both SyncModes, because
+                    // Observers mode always includes the Owner.
+                    //
+                    // for broadcast, only for ServerToClient and only if dirty.
+                    //     ClientToServer comes from the owner client.
+                    if (component.syncDirection == SyncDirection.ServerToClient && dirty)
+                        ownerMaskUnreliable |= nthBit;
+
+                    // observers need to be considered only in Observers mode,
+                    // otherwise they receive no sync data of this component ever.
+                    if (component.syncMode == SyncMode.Observers)
+                    {
+                        // for broadcast, only sync to observers if dirty.
+                        // SyncDirection is irrelevant, as both are broadcast to
+                        // observers which aren't the owner.
+                        if (dirty) observerMaskUnreliable |= nthBit;
+                    }
                 }
             }
-
-            return (ownerMask, observerMask);
         }
 
         // build dirty mask for client components.
@@ -1129,8 +1117,10 @@ namespace Mirror
             // instead of writing a 1 byte index per component,
             // we limit components to 64 bits and write one ulong instead.
             // the ulong is also varint compressed for minimum bandwidth.
-            (ulong ownerMaskReliable,   ulong observerMaskReliable)   = ServerDirtyMasks_Broadcast_ReliableComponents();
-            (ulong ownerMaskUnreliable, ulong observerMaskUnreliable) = ServerDirtyMasks_Broadcast_UnreliableComponents();
+            ServerDirtyMasks_Broadcast(
+                out ulong ownerMaskReliable, out ulong observerMaskReliable,
+                out ulong ownerMaskUnreliable, out ulong observerMaskUnreliable
+            );
 
             // if nothing dirty, then don't even write the mask.
             // otherwise, every unchanged object would send a 1 byte dirty mask!
