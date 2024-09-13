@@ -948,7 +948,8 @@ namespace Mirror
         // faster to do it in one iteration instead of iterating separately.
         (ulong, ulong) ServerDirtyMasks_Broadcast_UnreliableComponents()
         {
-            ulong ownerMask = 0;
+            // clear
+            ulong ownerMask    = 0;
             ulong observerMask = 0;
 
             NetworkBehaviour[] components = NetworkBehaviours;
@@ -1009,20 +1010,17 @@ namespace Mirror
                 NetworkBehaviour component = components[i];
                 ulong nthBit = (1u << i);
 
-                // RELIABLE COMPONENTS /////////////////////////////////////////
-                if (component.syncMethod == SyncMethod.Reliable)
+                if (isOwned && component.syncDirection == SyncDirection.ClientToServer)
                 {
-                    if (isOwned && component.syncDirection == SyncDirection.ClientToServer)
+                    // RELIABLE COMPONENTS /////////////////////////////////////////
+                    if (component.syncMethod == SyncMethod.Reliable)
                     {
                         // set the n-th bit if dirty
                         // shifting from small to large numbers is varint-efficient.
                         if (component.IsDirty()) dirtyMaskReliable |= nthBit;
                     }
-                }
-                // UNRELIABLE COMPONENTS ///////////////////////////////////////
-                else if (component.syncMethod == SyncMethod.Unreliable)
-                {
-                    if (isOwned && component.syncDirection == SyncDirection.ClientToServer)
+                    // UNRELIABLE COMPONENTS ///////////////////////////////////////
+                    else if (component.syncMethod == SyncMethod.Unreliable)
                     {
                         // set the n-th bit if dirty
                         // shifting from small to large numbers is varint-efficient.
