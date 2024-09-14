@@ -1269,25 +1269,26 @@ namespace Mirror
                         // was elapsed, as then they wouldn't be synced.
                         comp.ClearAllDirtyBits();
                     }
-                    // UNRELIABLE COMPONENTS ///////////////////////////////////
-                    // is this component dirty?
-                    // reuse the mask instead of calling comp.IsDirty() again here.
-                    else if (IsDirty(dirtyMaskUnreliable, i))
+                    // UNRELIABLE DELTA ////////////////////////////////////////
+                    // we always send the unreliable delta no matter what
+                    if (IsDirty(dirtyMaskUnreliable, i))
                     // if (isOwned && component.syncDirection == SyncDirection.ClientToServer)
                     {
-                        // we always send the unreliable delta no matter what
                         comp.Serialize(writerUnreliableDelta, false);
-
-                        // sometimes we need the unreliable baseline
-                        if (unreliableBaseline)
-                        {
-                            comp.Serialize(writerUnreliableBaseline, true);
-
-                            // for unreliable components, only clear dirty bits after the reliable baseline.
-                            // unreliable deltas aren't guaranteed to be delivered, no point in clearing bits.
-                            comp.ClearAllDirtyBits();
-                        }
                     }
+                    // UNRELIABLE BASELINE /////////////////////////////////////
+                    // sometimes we need the unreliable baseline
+                    // (we always sync deltas, so no 'else if' here)
+                    if (unreliableBaseline && IsDirty(dirtyMaskUnreliable, i))
+                    // if (isOwned && component.syncDirection == SyncDirection.ClientToServer)
+                    {
+                        comp.Serialize(writerUnreliableBaseline, true);
+
+                        // for unreliable components, only clear dirty bits after the reliable baseline.
+                        // unreliable deltas aren't guaranteed to be delivered, no point in clearing bits.
+                        comp.ClearAllDirtyBits();
+                    }
+
                     ////////////////////////////////////////////////////////////
                 }
             }
