@@ -244,9 +244,9 @@ namespace Mirror
         /// <summary>Clears all the dirty bits that were set by SetSyncVarDirtyBit() (formally SetDirtyBits)</summary>
         // automatically invoked when an update is sent for this object, but can
         // be called manually as well.
-        public void ClearAllDirtyBits()
+        public void ClearAllDirtyBits(bool clearSyncTime = true)
         {
-            lastSyncTime = NetworkTime.localTime;
+            if (clearSyncTime) lastSyncTime = NetworkTime.localTime;
             syncVarDirtyBits = 0L;
             syncObjectDirtyBits = 0L;
 

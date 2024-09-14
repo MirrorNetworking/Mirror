@@ -979,10 +979,11 @@ namespace Mirror
         // server always knows initialState, so we don't need it here.
         // -> build Reliable and Unreliable masks in one iteration.
         //    running two loops would be too costly.
-        void ClientDirtyMasks(out ulong dirtyMaskReliable, out ulong dirtyMaskUnreliable)
+        void ClientDirtyMasks(out ulong dirtyMaskReliable, out ulong dirtyMaskUnreliableBaseline, out ulong dirtyMaskUnreliableDelta)
         {
-            dirtyMaskReliable   = 0;
-            dirtyMaskUnreliable = 0;
+            dirtyMaskReliable           = 0;
+            dirtyMaskUnreliableBaseline = 0;
+            dirtyMaskUnreliableDelta    = 0;
 
             NetworkBehaviour[] components = NetworkBehaviours;
             for (int i = 0; i < components.Length; ++i)
@@ -1012,8 +1013,14 @@ namespace Mirror
                     {
                         // set the n-th bit if dirty
                         // shifting from small to large numbers is varint-efficient.
-                        // ignoring syncInterval for now: tick aligned like Quake.
-                        if (component.IsDirty_BitsOnly()) dirtyMaskUnreliable |= nthBit;
+
+                        // baseline sync runs @ 1 Hz (netmanager configurable).
+                        // only consider dirty bits, ignore syncinterval.
+                        if (component.IsDirty_BitsOnly()) dirtyMaskUnreliableBaseline |= nthBit;
+
+                        // delta sync runs @ syncInterval.
+                        // this allows for significant bandwidth savings.
+                        if (component.IsDirty()) dirtyMaskUnreliableDelta |= nthBit;
                     }
                 }
             }
@@ -1227,7 +1234,7 @@ namespace Mirror
             // instead of writing a 1 byte index per component,
             // we limit components to 64 bits and write one ulong instead.
             // the ulong is also varint compressed for minimum bandwidth.
-            ClientDirtyMasks(out ulong dirtyMaskReliable, out ulong dirtyMaskUnreliable);
+            ClientDirtyMasks(out ulong dirtyMaskReliable, out ulong dirtyMaskUnreliableBaseline, out ulong dirtyMaskUnreliableDelta);
 
             // varint compresses the mask to 1 byte in most cases.
             // instead of writing an 8 byte ulong.
@@ -1238,13 +1245,13 @@ namespace Mirror
 
             // if nothing dirty, then don't even write the mask.
             // otherwise, every unchanged object would send a 1 byte dirty mask!
-            if (dirtyMaskReliable   != 0) Compression.CompressVarUInt(writerReliable,           dirtyMaskReliable);
-            if (dirtyMaskUnreliable != 0) Compression.CompressVarUInt(writerUnreliableDelta,    dirtyMaskUnreliable);
-            if (dirtyMaskUnreliable != 0) Compression.CompressVarUInt(writerUnreliableBaseline, dirtyMaskUnreliable);
+            if (dirtyMaskReliable   != 0)         Compression.CompressVarUInt(writerReliable,           dirtyMaskReliable);
+            if (dirtyMaskUnreliableDelta != 0)    Compression.CompressVarUInt(writerUnreliableDelta,    dirtyMaskUnreliableDelta);
+            if (dirtyMaskUnreliableBaseline != 0) Compression.CompressVarUInt(writerUnreliableBaseline, dirtyMaskUnreliableBaseline);
 
             // serialize all components
             // perf: only iterate if dirty mask has dirty bits.
-            if (dirtyMaskReliable != 0 || dirtyMaskUnreliable != 0)
+            if (dirtyMaskReliable != 0 || dirtyMaskUnreliableDelta != 0 || dirtyMaskUnreliableBaseline != 0)
             {
                 // serialize all components
                 for (int i = 0; i < components.Length; ++i)
@@ -1271,22 +1278,26 @@ namespace Mirror
                     }
                     // UNRELIABLE DELTA ////////////////////////////////////////
                     // we always send the unreliable delta no matter what
-                    if (IsDirty(dirtyMaskUnreliable, i))
+                    if (IsDirty(dirtyMaskUnreliableDelta, i))
                     // if (isOwned && component.syncDirection == SyncDirection.ClientToServer)
                     {
                         comp.Serialize(writerUnreliableDelta, false);
+
+                        // clear sync time to only send delta again after syncInterval.
+                        comp.lastSyncTime = NetworkTime.localTime;
                     }
                     // UNRELIABLE BASELINE /////////////////////////////////////
                     // sometimes we need the unreliable baseline
                     // (we always sync deltas, so no 'else if' here)
-                    if (unreliableBaseline && IsDirty(dirtyMaskUnreliable, i))
+                    if (unreliableBaseline && IsDirty(dirtyMaskUnreliableBaseline, i))
                     // if (isOwned && component.syncDirection == SyncDirection.ClientToServer)
                     {
                         comp.Serialize(writerUnreliableBaseline, true);
 
                         // for unreliable components, only clear dirty bits after the reliable baseline.
                         // unreliable deltas aren't guaranteed to be delivered, no point in clearing bits.
-                        comp.ClearAllDirtyBits();
+                        // -> don't clear sync time: that's for delta syncs.
+                        comp.ClearAllDirtyBits(false);
                     }
 
                     ////////////////////////////////////////////////////////////

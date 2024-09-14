@@ -104,10 +104,8 @@ namespace Mirror
                 EditorGUILayout.HelpBox("Beware!\nUnreliable is experimental, do not use this yet!", MessageType.Warning);
             }
 
-            // sync interval: only shown for reliable components.
-            // unreliable components are tick aligned, syncing every time for now.
-            if (syncMethod.enumValueIndex == (int)SyncMethod.Reliable)
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("syncInterval"));
+            // sync interval
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("syncInterval"));
 
             // apply
             serializedObject.ApplyModifiedProperties();
