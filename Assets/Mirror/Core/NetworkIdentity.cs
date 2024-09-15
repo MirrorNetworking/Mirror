@@ -909,13 +909,16 @@ namespace Mirror
         //    running two loops would be too costly.
         void ServerDirtyMasks_Broadcast(
             out ulong ownerMaskReliable, out ulong observerMaskReliable,
-            out ulong ownerMaskUnreliable, out ulong observerMaskUnreliable)
+            out ulong ownerMaskUnreliableBaseline, out ulong observerMaskUnreliableBaseline,
+            out ulong ownerMaskUnreliableDelta, out ulong observerMaskUnreliableDelta)
         {
             // clear
-            ownerMaskReliable      = 0;
-            observerMaskReliable   = 0;
-            ownerMaskUnreliable    = 0;
-            observerMaskUnreliable = 0;
+            ownerMaskReliable              = 0;
+            observerMaskReliable           = 0;
+            ownerMaskUnreliableBaseline    = 0;
+            observerMaskUnreliableBaseline = 0;
+            ownerMaskUnreliableDelta       = 0;
+            observerMaskUnreliableDelta    = 0;
 
             NetworkBehaviour[] components = NetworkBehaviours;
             for (int i = 0; i < components.Length; ++i)
@@ -950,27 +953,57 @@ namespace Mirror
                 // UNRELIABLE COMPONENTS ///////////////////////////////////////
                 else if (component.syncMethod == SyncMethod.Unreliable)
                 {
-                    // check if this component is dirty.
-                    // ignoring syncInterval for now: tick aligned like Quake.
-                    bool dirty = component.IsDirty_BitsOnly();
-
-                    // owner needs to be considered for both SyncModes, because
-                    // Observers mode always includes the Owner.
-                    //
-                    // for broadcast, only for ServerToClient and only if dirty.
-                    //     ClientToServer comes from the owner client.
-                    if (component.syncDirection == SyncDirection.ServerToClient && dirty)
-                        ownerMaskUnreliable |= nthBit;
-
-                    // observers need to be considered only in Observers mode,
-                    // otherwise they receive no sync data of this component ever.
-                    if (component.syncMode == SyncMode.Observers)
+                    // UNRELIABLE DELTAS ///////////////////////////////////////
                     {
-                        // for broadcast, only sync to observers if dirty.
-                        // SyncDirection is irrelevant, as both are broadcast to
-                        // observers which aren't the owner.
-                        if (dirty) observerMaskUnreliable |= nthBit;
+                        // check if this component is dirty.
+                        // delta sync runs @ syncInterval.
+                        // this allows for significant bandwidth savings.
+                        bool dirty = component.IsDirty();
+
+                        // owner needs to be considered for both SyncModes, because
+                        // Observers mode always includes the Owner.
+                        //
+                        // for broadcast, only for ServerToClient and only if dirty.
+                        //     ClientToServer comes from the owner client.
+                        if (component.syncDirection == SyncDirection.ServerToClient && dirty)
+                            ownerMaskUnreliableDelta |= nthBit;
+
+                        // observers need to be considered only in Observers mode,
+                        // otherwise they receive no sync data of this component ever.
+                        if (component.syncMode == SyncMode.Observers)
+                        {
+                            // for broadcast, only sync to observers if dirty.
+                            // SyncDirection is irrelevant, as both are broadcast to
+                            // observers which aren't the owner.
+                            if (dirty) observerMaskUnreliableDelta |= nthBit;
+                        }
                     }
+                    // UNRELIABLE BASELINE /////////////////////////////////////
+                    {
+                        // check if this component is dirty.
+                        // baseline sync runs @ 1 Hz (netmanager configurable).
+                        // only consider dirty bits, ignore syncinterval.
+                        bool dirty = component.IsDirty_BitsOnly();
+
+                        // owner needs to be considered for both SyncModes, because
+                        // Observers mode always includes the Owner.
+                        //
+                        // for broadcast, only for ServerToClient and only if dirty.
+                        //     ClientToServer comes from the owner client.
+                        if (component.syncDirection == SyncDirection.ServerToClient && dirty)
+                            ownerMaskUnreliableBaseline |= nthBit;
+
+                        // observers need to be considered only in Observers mode,
+                        // otherwise they receive no sync data of this component ever.
+                        if (component.syncMode == SyncMode.Observers)
+                        {
+                            // for broadcast, only sync to observers if dirty.
+                            // SyncDirection is irrelevant, as both are broadcast to
+                            // observers which aren't the owner.
+                            if (dirty) observerMaskUnreliableBaseline |= nthBit;
+                        }
+                    }
+                    ////////////////////////////////////////////////////////////
                 }
             }
         }
@@ -1126,7 +1159,8 @@ namespace Mirror
             // the ulong is also varint compressed for minimum bandwidth.
             ServerDirtyMasks_Broadcast(
                 out ulong ownerMaskReliable, out ulong observerMaskReliable,
-                out ulong ownerMaskUnreliable, out ulong observerMaskUnreliable
+                out ulong ownerMaskUnreliableBaseline, out ulong observerMaskUnreliableBaseline,
+                out ulong ownerMaskUnreliableDelta, out ulong observerMaskUnreliableDelta
             );
 
             // if nothing dirty, then don't even write the mask.
@@ -1134,15 +1168,18 @@ namespace Mirror
             if (ownerMaskReliable != 0)      Compression.CompressVarUInt(ownerWriterReliable, ownerMaskReliable);
             if (observerMaskReliable != 0)   Compression.CompressVarUInt(observersWriterReliable, observerMaskReliable);
 
-            if (ownerMaskUnreliable != 0)    Compression.CompressVarUInt(ownerWriterUnreliableDelta, ownerMaskUnreliable);
-            if (observerMaskUnreliable != 0) Compression.CompressVarUInt(observersWriterUnreliableDelta, observerMaskUnreliable);
+            if (ownerMaskUnreliableDelta != 0)    Compression.CompressVarUInt(ownerWriterUnreliableDelta, ownerMaskUnreliableDelta);
+            if (observerMaskUnreliableDelta != 0) Compression.CompressVarUInt(observersWriterUnreliableDelta, observerMaskUnreliableDelta);
 
-            if (ownerMaskUnreliable != 0)    Compression.CompressVarUInt(ownerWriterUnreliableBaseline, ownerMaskUnreliable);
-            if (observerMaskUnreliable != 0) Compression.CompressVarUInt(observersWriterUnreliableBaseline, observerMaskUnreliable);
+            if (ownerMaskUnreliableBaseline != 0)    Compression.CompressVarUInt(ownerWriterUnreliableBaseline, ownerMaskUnreliableBaseline);
+            if (observerMaskUnreliableBaseline != 0) Compression.CompressVarUInt(observersWriterUnreliableBaseline, observerMaskUnreliableBaseline);
 
             // serialize all components
             // perf: only iterate if either dirty mask has dirty bits.
-            if ((ownerMaskReliable | observerMaskReliable | ownerMaskUnreliable | observerMaskUnreliable) != 0)
+            if ((ownerMaskReliable | observerMaskReliable |
+                 ownerMaskUnreliableBaseline | observerMaskUnreliableBaseline |
+                 ownerMaskUnreliableDelta | observerMaskUnreliableDelta)
+                 != 0)
             {
                 for (int i = 0; i < components.Length; ++i)
                 {
@@ -1160,10 +1197,12 @@ namespace Mirror
                     // SyncDirection it's not guaranteed to be in owner anymore.
                     // so we need to serialize to temporary writer first.
                     // and then copy as needed.
-                    bool ownerDirtyReliable       = IsDirty(ownerMaskReliable, i);
-                    bool observersDirtyReliable   = IsDirty(observerMaskReliable, i);
-                    bool ownerDirtyUnreliable     = IsDirty(ownerMaskUnreliable, i);
-                    bool observersDirtyUnreliable = IsDirty(observerMaskUnreliable, i);
+                    bool ownerDirtyReliable               = IsDirty(ownerMaskReliable, i);
+                    bool observersDirtyReliable           = IsDirty(observerMaskReliable, i);
+                    bool ownerDirtyUnreliableBaseline     = IsDirty(ownerMaskUnreliableBaseline, i);
+                    bool observersDirtyUnreliableBaseline = IsDirty(observerMaskUnreliableBaseline, i);
+                    bool ownerDirtyUnreliableDelta        = IsDirty(ownerMaskUnreliableDelta, i);
+                    bool observersDirtyUnreliableDelta    = IsDirty(observerMaskUnreliableDelta, i);
 
                     // RELIABLE COMPONENTS /////////////////////////////////////
                     if (ownerDirtyReliable || observersDirtyReliable)
@@ -1183,37 +1222,41 @@ namespace Mirror
                         // clear them after a delta sync here.
                         comp.ClearAllDirtyBits();
                     }
-                    // UNRELIABLE COMPONENTS ///////////////////////////////////
-                    else if (ownerDirtyUnreliable || observersDirtyUnreliable)
+                    // UNRELIABLE DELTA ////////////////////////////////////////
+                    // we always send the unreliable delta no matter what
+                    if (ownerDirtyUnreliableDelta || observersDirtyUnreliableDelta)
                     {
-                        // we always send the unreliable delta no matter what
                         using (NetworkWriterPooled temp = NetworkWriterPool.Get())
                         {
                             comp.Serialize(temp, false);
                             ArraySegment<byte> segment = temp.ToArraySegment();
 
                             // copy to owner / observers as needed
-                            if (ownerDirtyUnreliable)     ownerWriterUnreliableDelta.WriteBytes(segment.Array, segment.Offset, segment.Count);
-                            if (observersDirtyUnreliable) observersWriterUnreliableDelta.WriteBytes(segment.Array, segment.Offset, segment.Count);
-                        }
+                            if (ownerDirtyUnreliableDelta)     ownerWriterUnreliableDelta.WriteBytes(segment.Array, segment.Offset, segment.Count);
+                            if (observersDirtyUnreliableDelta) observersWriterUnreliableDelta.WriteBytes(segment.Array, segment.Offset, segment.Count);
 
-                        // sometimes we need the unreliable baseline
-                        if (unreliableBaseline)
+                            // clear sync time to only send delta again after syncInterval.
+                            comp.lastSyncTime = NetworkTime.localTime;
+                        }
+                    }
+                    // UNRELIABLE BASELINE /////////////////////////////////////
+                    // sometimes we need the unreliable baseline
+                    // (we always sync deltas, so no 'else if' here)
+                    if (unreliableBaseline && (ownerDirtyUnreliableBaseline || observersDirtyUnreliableBaseline))
+                    {
+                        using (NetworkWriterPooled temp = NetworkWriterPool.Get())
                         {
-                            using (NetworkWriterPooled temp = NetworkWriterPool.Get())
-                            {
-                                comp.Serialize(temp, true);
-                                ArraySegment<byte> segment = temp.ToArraySegment();
+                            comp.Serialize(temp, true);
+                            ArraySegment<byte> segment = temp.ToArraySegment();
 
-                                // copy to owner / observers as needed
-                                if (ownerDirtyUnreliable)     ownerWriterUnreliableBaseline.WriteBytes(segment.Array, segment.Offset, segment.Count);
-                                if (observersDirtyUnreliable) observersWriterUnreliableBaseline.WriteBytes(segment.Array, segment.Offset, segment.Count);
-                            }
-
-                            // for unreliable components, only clear dirty bits after the reliable baseline.
-                            // unreliable deltas aren't guaranteed to be delivered, no point in clearing bits.
-                            comp.ClearAllDirtyBits();
+                            // copy to owner / observers as needed
+                            if (ownerDirtyUnreliableBaseline)     ownerWriterUnreliableBaseline.WriteBytes(segment.Array, segment.Offset, segment.Count);
+                            if (observersDirtyUnreliableBaseline) observersWriterUnreliableBaseline.WriteBytes(segment.Array, segment.Offset, segment.Count);
                         }
+
+                        // for unreliable components, only clear dirty bits after the reliable baseline.
+                        // -> don't clear sync time: that's for delta syncs.
+                        comp.ClearAllDirtyBits(false);
                     }
                 }
             }
