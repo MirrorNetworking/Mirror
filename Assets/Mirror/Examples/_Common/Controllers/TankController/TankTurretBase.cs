@@ -89,6 +89,11 @@ namespace Mirror.Examples.Common.Controllers.Tank
         [Space(5)]
         public ControlOptions controlOptions = ControlOptions.AutoLevel | ControlOptions.ShowUI;
 
+        [Header("Shooting")]
+        [Tooltip("Cooldown time in seconds")]
+        [Range(0, 10)]
+        public byte cooldownTime = 1;
+
         [Header("Turret")]
         [Range(0, 300f)]
         [Tooltip("Max Rotation in degrees per second")]
@@ -122,6 +127,8 @@ namespace Mirror.Examples.Common.Controllers.Tank
         float pitchAngle;
         [ReadOnly, SerializeField, Range(-180f, 180f)]
         float pitchSpeed;
+        [ReadOnly, SerializeField]
+        double lastShotTime;
 
         [ReadOnly, SerializeField]
         GameObject turretUI;
@@ -322,16 +329,20 @@ namespace Mirror.Examples.Common.Controllers.Tank
 
         void HandleShooting()
         {
-            if (otherKeys.Shoot != KeyCode.None && Input.GetKeyUp(otherKeys.Shoot))
+            if (CanShoot && otherKeys.Shoot != KeyCode.None && Input.GetKeyUp(otherKeys.Shoot))
             {
                 CmdShoot();
                 if (!isServer) DoShoot();
             }
         }
 
+        bool CanShoot => NetworkTime.time >= lastShotTime + cooldownTime;
+
         [Command]
         void CmdShoot()
         {
+            if (!CanShoot) return;
+
             //Debug.Log("CmdShoot");
             RpcShoot();
             DoShoot();
@@ -360,6 +371,9 @@ namespace Mirror.Examples.Common.Controllers.Tank
                 // Dedicated Server logic - no host client
                 GameObject go = Instantiate(projectilePrefab, projectileMount.position, projectileMount.rotation);
                 Physics.IgnoreCollision(go.GetComponent<Collider>(), projectileMount.transform.parent.parent.GetComponent<Collider>());
+
+                // Update the last shot time
+                lastShotTime = NetworkTime.time;
             }
             else if (isServer)
             {
@@ -367,6 +381,9 @@ namespace Mirror.Examples.Common.Controllers.Tank
                 //animator.SetTrigger("Shoot");
                 GameObject go = Instantiate(projectilePrefab, projectileMount.position, projectileMount.rotation);
                 Physics.IgnoreCollision(go.GetComponent<Collider>(), projectileMount.transform.parent.parent.GetComponent<Collider>());
+
+                // Update the last shot time
+                lastShotTime = NetworkTime.time;
             }
 
             if (isClientOnly)
@@ -375,6 +392,9 @@ namespace Mirror.Examples.Common.Controllers.Tank
                 //animator.SetTrigger("Shoot");
                 GameObject go = Instantiate(projectilePrefab, projectileMount.position, projectileMount.rotation);
                 Physics.IgnoreCollision(go.GetComponent<Collider>(), projectileMount.transform.parent.parent.GetComponent<Collider>());
+
+                // Update the last shot time
+                lastShotTime = NetworkTime.time;
             }
         }
 
