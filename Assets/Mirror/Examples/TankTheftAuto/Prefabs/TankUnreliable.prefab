@@ -267,6 +267,7 @@ MonoBehaviour:
     AutoLevel: 108
     ToggleUI: 117
   controlOptions: 6
+  cooldownTime: 1
   maxTurretSpeed: 250
   turretAcceleration: 10
   maxPitchSpeed: 30
@@ -278,6 +279,7 @@ MonoBehaviour:
   turretSpeed: 0
   pitchAngle: 0
   pitchSpeed: 0
+  lastShotTime: 0
   turretUI: {fileID: 0}
   turretNTR: {fileID: 3555053558530271693}
   barrelNTR: {fileID: -1846505870324383132}
