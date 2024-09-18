@@ -162,6 +162,13 @@ namespace Mirror.Examples.Common.Controllers.Tank
             this.enabled = false;
         }
 
+        void OnDisable()
+        {
+            horizontal = 0f;
+            vertical = 0f;
+            turnSpeed = 0f;
+        }
+
         public override void OnStartAuthority()
         {
             // capsuleCollider and characterController are mutually exclusive
