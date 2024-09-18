@@ -185,6 +185,13 @@ namespace Mirror.Examples.Common.Controllers.Player
             this.enabled = false;
         }
 
+        void OnDisable()
+        {
+            horizontal = 0f;
+            vertical = 0f;
+            turnSpeed = 0f;
+        }
+
         public override void OnStartAuthority()
         {
             // Calculate DPI-aware sensitivity
