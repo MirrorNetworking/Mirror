@@ -246,13 +246,17 @@ namespace Mirror.Examples.Common.Controllers.Tank
         {
             float targetTurnSpeed = 0f;
 
-            // Q and E cancel each other out, reducing targetTurnSpeed to zero.
+            // TurnLeft and TurnRight cancel each other out, reducing targetTurnSpeed to zero.
             if (moveKeys.TurnLeft != KeyCode.None && Input.GetKey(moveKeys.TurnLeft))
                 targetTurnSpeed -= maxTurnSpeed;
             if (moveKeys.TurnRight != KeyCode.None && Input.GetKey(moveKeys.TurnRight))
                 targetTurnSpeed += maxTurnSpeed;
 
-            turnSpeed = Mathf.MoveTowards(turnSpeed, targetTurnSpeed, turnAcceleration * maxTurnSpeed * deltaTime);
+            // If there's turn input or AutoRun is not enabled, adjust turn speed towards target
+            // If no turn input and AutoRun is enabled, maintain the previous turn speed
+            if (targetTurnSpeed != 0f || !controlOptions.HasFlag(ControlOptions.AutoRun))
+                turnSpeed = Mathf.MoveTowards(turnSpeed, targetTurnSpeed, turnAcceleration * maxTurnSpeed * deltaTime);
+
             transform.Rotate(0f, turnSpeed * deltaTime, 0f);
         }
 
