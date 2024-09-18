@@ -262,7 +262,7 @@ namespace Mirror.Examples.Common.Controllers.Tank
         {
             float targetTurnSpeed = 0f;
 
-            // Q and E cancel each other out, reducing targetTurnSpeed to zero.
+            // TurnLeft and TurnRight cancel each other out, reducing targetTurnSpeed to zero.
             if (moveKeys.TurnLeft != KeyCode.None && Input.GetKey(moveKeys.TurnLeft))
                 targetTurnSpeed -= maxTurretSpeed;
             if (moveKeys.TurnRight != KeyCode.None && Input.GetKey(moveKeys.TurnRight))
