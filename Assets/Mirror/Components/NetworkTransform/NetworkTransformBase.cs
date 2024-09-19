@@ -345,6 +345,14 @@ namespace Mirror
             OnTeleport(destination, rotation);
         }
 
+        // teleport on server, broadcast to clients.
+        [Server]
+        public void ServerTeleport(Vector3 destination, Quaternion rotation)
+        {
+            OnTeleport(destination, rotation);
+            RpcTeleport(destination, rotation);
+        }
+
         [ClientRpc]
         void RpcResetState()
         {
