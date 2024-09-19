@@ -207,10 +207,10 @@ namespace Mirror
                 if (syncPosition) writer.WriteVector3(snapshot.position);
                 if (syncRotation)
                 {
-                    // (optional) smallest three compression for now. no delta.
-                    if (compressRotation)
-                        writer.WriteUInt(Compression.CompressQuaternion(snapshot.rotation));
-                    else
+                    // if smallest-three quaternion compression is enabled,
+                    // then we don't need baseline rotation since delta always
+                    // sends an absolute value.
+                    if (!compressRotation)
                         writer.WriteQuaternion(snapshot.rotation);
                 }
                 if (syncScale) writer.WriteVector3(snapshot.scale);
@@ -271,10 +271,10 @@ namespace Mirror
                 }
                 if (syncRotation)
                 {
-                    // (optional) smallest three compression for now. no delta.
-                    if (compressRotation)
-                        rotation = Compression.DecompressQuaternion(reader.ReadUInt());
-                    else
+                    // if smallest-three quaternion compression is enabled,
+                    // then we don't need baseline rotation since delta always
+                    // sends an absolute value.
+                    if (!compressRotation)
                         rotation = reader.ReadQuaternion();
                 }
                 if (syncScale) scale = reader.ReadVector3();
