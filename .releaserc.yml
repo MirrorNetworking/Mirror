@@ -73,5 +73,5 @@ plugins:
       - path: "Mirror.unitypackage"
         label: "Mirror Unity Package"
         name: "Mirror-${nextRelease.version}.unitypackage"
-    - successCommentCondition: "false"
-    - failCommentCondition: "false"
+      successCommentCondition: "false"
+      failCommentCondition: "false"
