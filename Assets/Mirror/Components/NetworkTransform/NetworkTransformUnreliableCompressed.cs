@@ -30,6 +30,9 @@ namespace Mirror
         [Range(0.00_01f, 1f)]                   // disallow 0 division. 1mm to 1m precision is enough range.
         public float scalePrecision = 0.01f; // 1 cm
 
+        [Header("Debug")]
+        public bool debugDraw = false;
+
         // delta compression needs to remember 'last' to compress against.
         // this is from reliable full state serializations, not from last
         // unreliable delta since that isn't guaranteed to be delivered.
@@ -132,9 +135,11 @@ namespace Mirror
                     TransformSnapshot computed = TransformSnapshot.Interpolate(from, to, t);
                     Apply(computed, to);
 
-                    // DEBUG
-                    Debug.DrawLine(from.position, to.position, Color.white, 10f);
-                    Debug.DrawLine(computed.position, computed.position + Vector3.up, Color.white, 10f);
+                    if (debugDraw)
+                    {
+                        Debug.DrawLine(from.position, to.position, Color.white, 10f);
+                        Debug.DrawLine(computed.position, computed.position + Vector3.up, Color.white, 10f);
+                    }
                 }
             }
         }
@@ -215,8 +220,6 @@ namespace Mirror
                 if (syncPosition) Compression.ScaleToLong(snapshot.position, positionPrecision, out lastSerializedPosition);
                 if (syncScale) Compression.ScaleToLong(snapshot.scale, scalePrecision, out lastSerializedScale);
 
-                Debug.Log($"{name} NT OnSerialize initial: {(writer.Position - startPosition)} bytes");
-
                 // set 'last'
                 last = snapshot;
             }
@@ -245,8 +248,6 @@ namespace Mirror
                     Compression.ScaleToLong(snapshot.scale, scalePrecision, out Vector3Long quantized);
                     DeltaCompression.Compress(writer, lastSerializedScale, quantized);
                 }
-
-                Debug.Log($"{name} NT OnSerialize delta: {(writer.Position - startPosition)} bytes");
             }
         }
 
@@ -262,12 +263,11 @@ namespace Mirror
             // reliable full state
             if (initialState)
             {
-                Debug.Log($"{name} NT OnDeserialize initial with total remaining: {reader.Remaining} bytes");
-
                 if (syncPosition)
                 {
                     position = reader.ReadVector3();
-                    Debug.DrawLine(position.Value, position.Value + Vector3.up , Color.green, 10.0f);
+
+                    if (debugDraw) Debug.DrawLine(position.Value, position.Value + Vector3.up , Color.green, 10.0f);
                 }
                 if (syncRotation)
                 {
@@ -287,14 +287,13 @@ namespace Mirror
             // unreliable delta: decompress against last full reliable state
             else
             {
-                Debug.Log($"{name} NT OnDeserialize delta with total remaining: {reader.Remaining} bytes");
-
                 // varint -> delta -> quantize
                 if (syncPosition)
                 {
                     Vector3Long quantized = DeltaCompression.Decompress(reader, lastDeserializedPosition);
                     position = Compression.ScaleToFloat(quantized, positionPrecision);
-                    Debug.DrawLine(position.Value, position.Value + Vector3.up , Color.yellow, 10.0f);
+
+                    if (debugDraw) Debug.DrawLine(position.Value, position.Value + Vector3.up , Color.yellow, 10.0f);
                 }
                 if (syncRotation)
                 {
