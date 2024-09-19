@@ -23,10 +23,6 @@ namespace Mirror
         /// <summary>This is called BEFORE the data is cleared</summary>
         public Action OnClear;
 
-        // Deprecated 2024-03-22
-        [Obsolete("Use individual Actions, which pass OLD value where appropriate, instead.")]
-        public Action<Operation, T> Callback;
-
         protected readonly ISet<T> objects;
 
         public int Count => objects.Count;
@@ -116,23 +112,14 @@ namespace Mirror
                 case Operation.OP_ADD:
                     OnAdd?.Invoke(newItem);
                     OnChange?.Invoke(op, newItem);
-#pragma warning disable CS0618 // Type or member is obsolete
-                    Callback?.Invoke(op, newItem);
-#pragma warning restore CS0618 // Type or member is obsolete
                     break;
                 case Operation.OP_REMOVE:
                     OnRemove?.Invoke(oldItem);
                     OnChange?.Invoke(op, oldItem);
-#pragma warning disable CS0618 // Type or member is obsolete
-                    Callback?.Invoke(op, oldItem);
-#pragma warning restore CS0618 // Type or member is obsolete
                     break;
                 case Operation.OP_CLEAR:
                     OnClear?.Invoke();
                     OnChange?.Invoke(op, default);
-#pragma warning disable CS0618 // Type or member is obsolete
-                    Callback?.Invoke(op, default);
-#pragma warning restore CS0618 // Type or member is obsolete
                     break;
             }
         }

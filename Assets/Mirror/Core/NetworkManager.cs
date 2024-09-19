@@ -42,22 +42,6 @@ namespace Mirror
         [FormerlySerializedAs("serverTickRate")]
         public int sendRate = 60;
 
-        // Deprecated 2023-11-25
-        // Using SerializeField and HideInInspector to self-correct for being
-        // replaced by headlessStartMode. This can be removed in the future.
-        // See OnValidate() for how we handle this.
-        [Obsolete("Deprecated - Use headlessStartMode instead.")]
-        [FormerlySerializedAs("autoStartServerBuild"), SerializeField, HideInInspector]
-        public bool autoStartServerBuild = true;
-
-        // Deprecated 2023-11-25
-        // Using SerializeField and HideInInspector to self-correct for being
-        // replaced by headlessStartMode. This can be removed in the future.
-        // See OnValidate() for how we handle this.
-        [Obsolete("Deprecated - Use headlessStartMode instead.")]
-        [FormerlySerializedAs("autoConnectClientBuild"), SerializeField, HideInInspector]
-        public bool autoConnectClientBuild;
-
         // client send rate follows server send rate to avoid errors for now
         /// <summary>Client Update frequency, per second. Use around 60Hz for fast paced games like Counter-Strike to minimize latency. Use around 30Hz for games like WoW to minimize computations. Use around 1-10Hz for slow paced games like EVE.</summary>
         // [Tooltip("Client broadcasts 'sendRate' times per second. Use around 60Hz for fast paced games like Counter-Strike to minimize latency. Use around 30Hz for games like WoW to minimize computations. Use around 1-10Hz for slow paced games like EVE.")]
@@ -181,24 +165,6 @@ namespace Mirror
         // virtual so that inheriting classes' OnValidate() can call base.OnValidate() too
         public virtual void OnValidate()
         {
-#pragma warning disable 618
-            // autoStartServerBuild and autoConnectClientBuild are now obsolete, but to avoid
-            // a breaking change we'll set headlessStartMode to what the user had set before.
-            //
-            // headlessStartMode defaults to DoNothing, so if the user had neither of these
-            // set, then it will remain as DoNothing, and if they set headlessStartMode to
-            // any selection in the inspector it won't get changed back.
-            if (autoStartServerBuild)
-                headlessStartMode = HeadlessStartOptions.AutoStartServer;
-            else if (autoConnectClientBuild)
-                headlessStartMode = HeadlessStartOptions.AutoStartClient;
-
-            // Setting both to false here prevents this code from fighting with user
-            // selection in the inspector, and they're both SerialisedField's.
-            autoStartServerBuild = false;
-            autoConnectClientBuild = false;
-#pragma warning restore 618
-
             // always >= 0
             maxConnections = Mathf.Max(maxConnections, 0);
 
@@ -399,11 +365,6 @@ namespace Mirror
         void SetupClient()
         {
             InitializeSingleton();
-
-#pragma warning disable 618
-            // Remove when OnConnectionQualityChanged is removed.
-            NetworkClient.onConnectionQualityChanged += OnConnectionQualityChanged;
-#pragma warning restore 618
 
             // apply settings before initializing anything
             NetworkClient.exceptionsDisconnect = exceptionsDisconnect;
@@ -671,11 +632,6 @@ namespace Mirror
             //     NetworkClient.OnTransportDisconnect
             //   NetworkManager.OnClientDisconnect
             NetworkClient.Disconnect();
-
-#pragma warning disable 618
-            // Remove when OnConnectionQualityChanged is removed.
-            NetworkClient.onConnectionQualityChanged -= OnConnectionQualityChanged;
-#pragma warning restore 618
 
             // UNET invoked OnDisconnected cleanup immediately.
             // let's keep it for now, in case any projects depend on it.
@@ -1434,24 +1390,6 @@ namespace Mirror
 
         /// <summary>Called on clients when disconnected from a server.</summary>
         public virtual void OnClientDisconnect() { }
-
-        // Deprecated 2023-12-05
-        /// <summary>Deprecated: NetworkClient handles this now.</summary>
-        [Obsolete("NetworkClient handles this now.")]
-        public virtual void CalculateConnectionQuality()
-        {
-            // Moved to NetworkClient
-        }
-
-        // Deprecated 2023-12-05
-        /// <summary>Deprecated: NetworkClient handles this now.</summary>
-        [Obsolete("This will be removed. Subscribe to NetworkClient.onConnectionQualityChanged in your own code")]
-        public virtual void OnConnectionQualityChanged(ConnectionQuality previous, ConnectionQuality current)
-        {
-            // logging the change is very useful to track down user's lag reports.
-            // we want to include as much detail as possible for debugging.
-            //Debug.Log($"[Mirror] Connection Quality changed from {previous} to {current}:\n  rtt={(NetworkTime.rtt * 1000):F1}ms\n  rttVar={(NetworkTime.rttVariance * 1000):F1}ms\n  bufferTime={(NetworkClient.bufferTime * 1000):F1}ms");
-        }
 
         /// <summary>Called on client when transport raises an exception.</summary>
         public virtual void OnClientError(TransportError error, string reason) { }
