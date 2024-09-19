@@ -264,7 +264,7 @@ namespace Mirror
         // make sure to only call this is we have > 0 snapshots.
         public static void Sample<T>(
             SortedList<double, T> buffer, // snapshot buffer
-            double localTimeline,         // local interpolation time based on server time
+            double localTimeline,         // local interpolation time based on server time. this is basically remoteTime-bufferTime.
             out int from,                 // the snapshot <= time
             out int to,                   // the snapshot >= time
             out double t)                 // interpolation factor
@@ -336,7 +336,7 @@ namespace Mirror
         //   besides, passing "Func Interpolate" would allocate anyway.
         public static void StepInterpolation<T>(
             SortedList<double, T> buffer, // snapshot buffer
-            double localTimeline,         // local interpolation time based on server time
+            double localTimeline,         // local interpolation time based on server time. this is basically remoteTime-bufferTime.
             out T fromSnapshot,           // we interpolate 'from' this snapshot
             out T toSnapshot,             // 'to' this snapshot
             out double t)                 // at ratio 't' [0,1]
