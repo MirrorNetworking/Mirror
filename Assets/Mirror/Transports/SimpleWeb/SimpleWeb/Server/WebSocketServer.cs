@@ -37,7 +37,7 @@ namespace Mirror.SimpleWeb
             listener = TcpListener.Create(port);
             listener.Start();
 
-            Log.Verbose($"[SWT-WebSocketServer]: Server Started on {0}", port);
+            Log.Verbose("[SWT-WebSocketServer]: Server Started on {0}", port);
 
             acceptThread = new Thread(acceptLoop);
             acceptThread.IsBackground = true;
@@ -53,7 +53,7 @@ namespace Mirror.SimpleWeb
             listener?.Stop();
             acceptThread = null;
 
-            Log.Verbose($"[SWT-WebSocketServer]: Server stopped...closing all connections.");
+            Log.Verbose("[SWT-WebSocketServer]: Server stopped...closing all connections.");
 
             // make copy so that foreach doesn't break if values are removed
             Connection[] connectionsCopy = connections.Values.ToArray();
@@ -78,7 +78,7 @@ namespace Mirror.SimpleWeb
                         //      this might not be a problem as HandshakeAndReceiveLoop checks for stop
                         //      and returns/disposes before sending message to queue
                         Connection conn = new Connection(client, AfterConnectionDisposed);
-                        Log.Verbose($"[SWT-WebSocketServer]: A client connected from {0}", conn);
+                        Log.Verbose("[SWT-WebSocketServer]: A client connected from {0}", conn);
 
                         // handshake needs its own thread as it needs to wait for message from client
                         Thread receiveThread = new Thread(() => HandshakeAndReceiveLoop(conn));
@@ -108,7 +108,7 @@ namespace Mirror.SimpleWeb
                 bool success = sslHelper.TryCreateStream(conn);
                 if (!success)
                 {
-                    Log.Warn($"[SWT-WebSocketServer]: Failed to create SSL Stream {0}", conn);
+                    Log.Warn("[SWT-WebSocketServer]: Failed to create SSL Stream {0}", conn);
                     conn.Dispose();
                     return;
                 }
@@ -116,10 +116,10 @@ namespace Mirror.SimpleWeb
                 success = handShake.TryHandshake(conn);
 
                 if (success)
-                    Log.Verbose($"[SWT-WebSocketServer]: Sent Handshake {0}, false", conn);
+                    Log.Verbose("[SWT-WebSocketServer]: Sent Handshake {0}, false", conn);
                 else
                 {
-                    Log.Warn($"[SWT-WebSocketServer]: Handshake Failed {0}", conn);
+                    Log.Warn("[SWT-WebSocketServer]: Handshake Failed {0}", conn);
                     conn.Dispose();
                     return;
                 }
@@ -162,15 +162,15 @@ namespace Mirror.SimpleWeb
             }
             catch (ThreadInterruptedException e)
             {
-                Log.Error($"[SWT-WebSocketServer]: Handshake ThreadInterruptedException {0}", e.Message);
+                Log.Error("[SWT-WebSocketServer]: Handshake ThreadInterruptedException {0}", e.Message);
             }
             catch (ThreadAbortException e)
             {
-                Log.Error($"[SWT-WebSocketServer]: Handshake ThreadAbortException {0}", e.Message);
+                Log.Error("[SWT-WebSocketServer]: Handshake ThreadAbortException {0}", e.Message);
             }
             catch (Exception e)
             {
-                Log.Error($"[SWT-WebSocketServer]: Handshake Exception {0}", e.Message);
+                Log.Error("[SWT-WebSocketServer]: Handshake Exception {0}", e.Message);
             }
             finally
             {
@@ -196,7 +196,7 @@ namespace Mirror.SimpleWeb
                 conn.sendPending.Set();
             }
             else
-                Log.Warn($"[SWT-WebSocketServer]: Cannot send message to {0} because connection was not found in dictionary. Maybe it disconnected.", id);
+                Log.Warn("[SWT-WebSocketServer]: Cannot send message to {0} because connection was not found in dictionary. Maybe it disconnected.", id);
         }
 
         public bool CloseConnection(int id)
@@ -209,7 +209,7 @@ namespace Mirror.SimpleWeb
             }
             else
             {
-                Log.Warn($"[SWT-WebSocketServer]: Failed to kick {0} because id not found.", id);
+                Log.Warn("[SWT-WebSocketServer]: Failed to kick {0} because id not found.", id);
                 return false;
             }
         }
@@ -218,7 +218,7 @@ namespace Mirror.SimpleWeb
         {
             if (!connections.TryGetValue(id, out Connection conn))
             {
-                Log.Warn($"[SWT-WebSocketServer]: Cannot get address of connection {0} because connection was not found in dictionary.", id);
+                Log.Warn("[SWT-WebSocketServer]: Cannot get address of connection {0} because connection was not found in dictionary.", id);
                 return null;
             }
 
@@ -229,7 +229,7 @@ namespace Mirror.SimpleWeb
         {
             if (!connections.TryGetValue(id, out Connection conn))
             {
-                Log.Warn($"[SWT-WebSocketServer]: Cannot get request of connection {0} because connection was not found in dictionary.", id);
+                Log.Warn("[SWT-WebSocketServer]: Cannot get request of connection {0} because connection was not found in dictionary.", id);
                 return null;
             }
 

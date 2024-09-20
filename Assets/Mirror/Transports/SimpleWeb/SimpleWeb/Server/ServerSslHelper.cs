@@ -49,7 +49,7 @@ namespace Mirror.SimpleWeb
                 }
                 catch (Exception e)
                 {
-                    Log.Error($"[SWT-ServerSslHelper]: Create SSLStream Failed: {0}", e.Message);
+                    Log.Error("[SWT-ServerSslHelper]: Create SSLStream Failed: {0}", e.Message);
                     return false;
                 }
             }

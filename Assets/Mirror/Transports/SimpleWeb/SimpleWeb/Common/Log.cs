@@ -221,18 +221,6 @@ namespace Mirror.SimpleWeb
             Warn($"{msg} {arg1}");
         }
 
-        //public static void Warn<T1, T2>(string msg, T1 arg1, T2 arg2)
-        //{
-        //    if (minLogLevel > Levels.Warn) return;
-        //    Warn($"{msg} {arg1} {arg2}");
-        //}
-
-        //public static void Warn<T1, T2, T3>(string msg, T1 arg1, T2 arg2, T3 arg3)
-        //{
-        //    if (minLogLevel > Levels.Warn) return;
-        //    Warn($"{msg} {arg1} {arg2} {arg3}");
-        //}
-
         /// <summary>
         /// Logs info to console if minLogLevel is set to Error or lower
         /// </summary>
