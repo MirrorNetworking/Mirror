@@ -77,6 +77,7 @@ namespace Mirror.Tests.SyncCollections
             Assert.That(serverSyncSetDirtyCalled, Is.EqualTo(1));
             SerializeDeltaTo(serverSyncSet, clientSyncSet);
             Assert.That(clientSyncSet, Is.EquivalentTo(new[] { "Hello", "World", "!", "yay" }));
+            Assert.That(clientSyncSetDirtyCalled, Is.EqualTo(1));
         }
 
         [Test]
@@ -86,6 +87,7 @@ namespace Mirror.Tests.SyncCollections
             Assert.That(serverSyncSetDirtyCalled, Is.EqualTo(1));
             SerializeDeltaTo(serverSyncSet, clientSyncSet);
             Assert.That(clientSyncSet, Is.EquivalentTo(new[] { "Hello", "!" }));
+            Assert.That(clientSyncSetDirtyCalled, Is.EqualTo(1));
         }
 
         [Test]
@@ -158,11 +160,11 @@ namespace Mirror.Tests.SyncCollections
             };
 
             bool changeActionCalled = false;
-            clientSyncSet.OnChange = (op, item) =>
+            clientSyncSet.OnChange = (op, newItem) =>
             {
                 changeActionCalled = true;
                 Assert.That(op, Is.EqualTo(SyncHashSet<string>.Operation.OP_ADD));
-                Assert.That(item, Is.EqualTo("yay"));
+                Assert.That(newItem, Is.EqualTo("yay"));
             };
 
             serverSyncSet.Add("yay");
@@ -194,11 +196,11 @@ namespace Mirror.Tests.SyncCollections
             };
 
             bool changeActionCalled = false;
-            clientSyncSet.OnChange = (op, item) =>
+            clientSyncSet.OnChange = (op, oldItem) =>
             {
                 changeActionCalled = true;
                 Assert.That(op, Is.EqualTo(SyncHashSet<string>.Operation.OP_REMOVE));
-                Assert.That(item, Is.EqualTo("World"));
+                Assert.That(oldItem, Is.EqualTo("World"));
             };
 
             serverSyncSet.Remove("World");

@@ -101,7 +101,7 @@ namespace Mirror
 
         [Header("Timeline Offset")]
         [Tooltip("Add a small timeline offset to account for decoupled arrival of NetworkTime and NetworkTransform snapshots.\nfixes: https://github.com/MirrorNetworking/Mirror/issues/3427")]
-        public bool timelineOffset = false;
+        public bool timelineOffset = true;
 
         // Ninja's Notes on offset & mulitplier:
         //

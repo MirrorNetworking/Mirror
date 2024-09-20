@@ -68,7 +68,11 @@ namespace Mirror.Examples.CouchCoop
             {
                 if (Input.GetKey(KeyCode.Space) || Input.GetKeyDown(jumpKey))
                 {
+#if UNITY_6000_0_OR_NEWER
+                    rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpSpeed);
+#else
                     rb.velocity = new Vector2(rb.velocity.x, jumpSpeed);
+#endif
                 }
             }
 
@@ -82,8 +86,11 @@ namespace Mirror.Examples.CouchCoop
             {
                 movementVelocity = movementSpeed;
             }
-
+#if UNITY_6000_0_OR_NEWER
+            rb.linearVelocity = new Vector2(movementVelocity, rb.linearVelocity.y);
+#else
             rb.velocity = new Vector2(movementVelocity, rb.velocity.y);
+#endif
         }
 
         [ClientCallback]

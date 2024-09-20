@@ -48,12 +48,12 @@ namespace Mirror.SimpleWeb
         /// </summary>
         public void Dispose()
         {
-            Log.Verbose($"[SWT-Connection]: Dispose {ToString()}");
+            Log.Verbose("[SWT-Connection]: Dispose {0}", ToString());
 
             // check hasDisposed first to stop ThreadInterruptedException on lock
             if (hasDisposed) return;
 
-            Log.Verbose($"[SWT-Connection]: Connection Close: {ToString()}");
+            Log.Verbose("[SWT-Connection]: Connection Close: {0}", ToString());
 
             lock (disposedLock)
             {
