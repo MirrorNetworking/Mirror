@@ -130,10 +130,11 @@ namespace Mirror
 
                     if (debugDraw)
                     {
-                        // Debug.DrawLine(from.position, to.position, Color.white, 10f);
-                        // Debug.DrawLine(computed.position, computed.position + Vector3.up, Color.white, 10f);
+                        Debug.DrawLine(from.position, to.position, Color.white, 10f);
+                        Debug.DrawLine(computed.position, computed.position + Vector3.up, Color.white, 10f);
                     }
                 }
+                else Debug.LogWarning($"{name} HAS NO SNAPSHOTS @ {Time.frameCount}");
             }
         }
 
