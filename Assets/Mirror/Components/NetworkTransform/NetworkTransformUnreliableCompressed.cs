@@ -69,8 +69,7 @@ namespace Mirror
             // instead.
             if (isServer || (IsClientWithAuthority && NetworkClient.ready))
             {
-                if (!onlySyncOnChange || Changed(Construct()))
-                    SetDirty();
+                SetDirty();
             }
         }
 
