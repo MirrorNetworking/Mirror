@@ -464,12 +464,13 @@ namespace Mirror.Tests.SyncCollections
             };
 
             bool changeActionCalled = false;
-            clientSyncList.OnChange = (op, index, oldItem) =>
+            clientSyncList.OnChange = (op, index, newItem) =>
             {
                 changeActionCalled = true;
                 Assert.That(op, Is.EqualTo(SyncList<string>.Operation.OP_ADD));
                 Assert.That(index, Is.EqualTo(3));
-                Assert.That(oldItem, Is.EqualTo("yay"));
+                Assert.That(newItem, Is.EqualTo("yay"));
+                Assert.That(clientSyncList[index], Is.EqualTo("yay"));
             };
 
             serverSyncList.Add("yay");
@@ -581,15 +582,18 @@ namespace Mirror.Tests.SyncCollections
         {
             // Sync Delta to clear dirty
             Assert.That(serverSyncListDirtyCalled, Is.EqualTo(0));
+            Assert.That(clientSyncListDirtyCalled, Is.EqualTo(0));
             SerializeDeltaTo(serverSyncList, clientSyncList);
 
             // nothing to send
             Assert.That(serverSyncListDirtyCalled, Is.EqualTo(0));
+            Assert.That(clientSyncListDirtyCalled, Is.EqualTo(0));
 
             // something has changed
             serverSyncList.Add("1");
             Assert.That(serverSyncListDirtyCalled, Is.EqualTo(1));
             SerializeDeltaTo(serverSyncList, clientSyncList);
+            Assert.That(clientSyncListDirtyCalled, Is.EqualTo(1));
         }
 
         [Test]
