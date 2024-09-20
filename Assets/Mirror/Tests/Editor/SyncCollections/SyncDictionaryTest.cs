@@ -463,11 +463,13 @@ namespace Mirror.Tests.SyncCollections
 
             // nothing to send
             Assert.That(serverSyncDictionaryDirtyCalled, Is.EqualTo(0));
+            Assert.That(clientSyncDictionaryDirtyCalled, Is.EqualTo(0));
 
             // something has changed
             serverSyncDictionary.Add(15, "yay");
             Assert.That(serverSyncDictionaryDirtyCalled, Is.EqualTo(1));
             SerializeDeltaTo(serverSyncDictionary, clientSyncDictionary);
+            Assert.That(clientSyncDictionaryDirtyCalled, Is.EqualTo(1));
         }
 
         [Test]
