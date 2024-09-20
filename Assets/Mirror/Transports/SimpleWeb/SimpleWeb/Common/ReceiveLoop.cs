@@ -72,12 +72,9 @@ namespace Mirror.SimpleWeb
                 }
             }
             catch (ThreadInterruptedException e) { Log.InfoException(e); }
-            catch (ThreadAbortException e) { Log.InfoException(e); }
+            catch (ThreadAbortException e) { Log.Error("[SWT-ReceiveLoop]: Thread Abort Exception"); }
             catch (ObjectDisposedException e) { Log.InfoException(e); }
-            catch (ReadHelperException e)
-            {
-                Log.InfoException(e);
-            }
+            catch (ReadHelperException e) { Log.InfoException(e); }
             catch (SocketException e)
             {
                 // this could happen if wss client closes stream

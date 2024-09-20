@@ -97,7 +97,7 @@ namespace Mirror.SimpleWeb
                 }
             }
             catch (ThreadInterruptedException e) { Log.InfoException(e); }
-            catch (ThreadAbortException e) { Log.InfoException(e); }
+            catch (ThreadAbortException e) { Log.Error("[SWT-WebSocketServer]: Thread Abort Exception"); }
             catch (Exception e) { Log.Exception(e); }
         }
 
@@ -160,18 +160,9 @@ namespace Mirror.SimpleWeb
 
                 ReceiveLoop.Loop(receiveConfig);
             }
-            catch (ThreadInterruptedException e)
-            {
-                Log.Error("[SWT-WebSocketServer]: Handshake ThreadInterruptedException {0}", e.Message);
-            }
-            catch (ThreadAbortException e)
-            {
-                Log.Error("[SWT-WebSocketServer]: Handshake ThreadAbortException {0}", e.Message);
-            }
-            catch (Exception e)
-            {
-                Log.Error("[SWT-WebSocketServer]: Handshake Exception {0}", e.Message);
-            }
+            catch (ThreadInterruptedException e) { Log.InfoException(e); }
+            catch (ThreadAbortException e) { Log.Error("[SWT-WebSocketServer]: Thread Abort Exception"); }
+            catch (Exception e) { Log.Exception(e); }
             finally
             {
                 // close here in case connect fails

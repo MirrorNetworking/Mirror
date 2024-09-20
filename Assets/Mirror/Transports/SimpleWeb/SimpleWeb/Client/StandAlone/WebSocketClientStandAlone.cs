@@ -101,7 +101,7 @@ namespace Mirror.SimpleWeb
                 ReceiveLoop.Loop(config);
             }
             catch (ThreadInterruptedException e) { Log.InfoException(e); }
-            catch (ThreadAbortException e) { Log.InfoException(e); }
+            catch (ThreadAbortException e) { Log.Error("[SWT-WebSocketClientStandAlone]: Thread Abort Exception"); }
             catch (Exception e) { Log.Exception(e); }
             finally
             {
