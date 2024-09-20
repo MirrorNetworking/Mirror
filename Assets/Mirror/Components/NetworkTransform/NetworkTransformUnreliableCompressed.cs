@@ -62,15 +62,7 @@ namespace Mirror
 
         void LateUpdate()
         {
-            // set dirty to trigger OnSerialize. either always, or only if changed.
-            // It has to be checked in LateUpdate() for onlySyncOnChange to avoid
-            // the possibility of Update() running first before the object's movement
-            // script's Update(), which then causes NT to send every alternate frame
-            // instead.
-            if (isServer || (IsClientWithAuthority && NetworkClient.ready))
-            {
-                SetDirty();
-            }
+            SetDirty();
         }
 
         protected virtual void UpdateServer()
