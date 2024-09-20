@@ -35,12 +35,6 @@ namespace Mirror
         [Header("Debug")]
         public bool debugDraw = false;
 
-        // delta compression needs to remember 'last' to compress against.
-        // this is from reliable full state serializations, not from last
-        // unreliable delta since that isn't guaranteed to be delivered.
-        protected Vector3Long lastSerializedPosition = Vector3Long.zero;
-        protected Vector3Long lastDeserializedPosition = Vector3Long.zero;
-
         protected Vector4Long lastSerializedRotation = Vector4Long.zero;
         protected Vector4Long lastDeserializedRotation = Vector4Long.zero;
 
@@ -220,7 +214,6 @@ namespace Mirror
 
                 // save serialized as 'last' for next delta compression.
                 // only for reliable full sync, since unreliable isn't guaranteed to arrive.
-                if (syncPosition) Compression.ScaleToLong(snapshot.position, positionPrecision, out lastSerializedPosition);
                 if (syncRotation && !compressRotation) Compression.ScaleToLong(snapshot.rotation, rotationPrecision, out lastSerializedRotation);
 
                 // set 'last'
@@ -231,12 +224,7 @@ namespace Mirror
             {
                 int startPosition = writer.Position;
 
-                if (syncPosition)
-                {
-                    // quantize -> delta -> varint
-                    Compression.ScaleToLong(snapshot.position, positionPrecision, out Vector3Long quantized);
-                    DeltaCompression.Compress(writer, lastSerializedPosition, quantized);
-                }
+                if (syncPosition) writer.WriteVector3(snapshot.position);
                 if (syncRotation)
                 {
                     // (optional) smallest three compression for now. no delta.
@@ -288,17 +276,14 @@ namespace Mirror
 
                 // save deserialized as 'last' for next delta compression.
                 // only for reliable full sync, since unreliable isn't guaranteed to arrive.
-                if (syncPosition) Compression.ScaleToLong(position.Value, positionPrecision, out lastDeserializedPosition);
                 if (syncRotation && !compressRotation) Compression.ScaleToLong(rotation.Value, rotationPrecision, out lastDeserializedRotation);
             }
             // unreliable delta: decompress against last full reliable state
             else
             {
-                // varint -> delta -> quantize
                 if (syncPosition)
                 {
-                    Vector3Long quantized = DeltaCompression.Decompress(reader, lastDeserializedPosition);
-                    position = Compression.ScaleToFloat(quantized, positionPrecision);
+                    position = reader.ReadVector3();
 
                     if (debugDraw) Debug.DrawLine(position.Value, position.Value + Vector3.up , Color.yellow, 10.0f);
                 }
@@ -445,10 +430,6 @@ namespace Mirror
         public override void ResetState()
         {
             base.ResetState();
-
-            // reset delta
-            lastSerializedPosition = Vector3Long.zero;
-            lastDeserializedPosition = Vector3Long.zero;
 
             lastSerializedRotation = Vector4Long.zero;
             lastDeserializedRotation = Vector4Long.zero;
