@@ -50,6 +50,8 @@ jobs:
           UNITYPACK_ASSET2: "LICENSE Assets/Mirror/LICENSE"
           # name and version separated by space
           # add more dependencies as separate env vars using the naming pattern
-          UNITYPACK_DEPENDENCY1: "com.unity.nuget.newtonsoft-json 3.0.0"
+          UNITYPACK_DEPENDENCY1: "com.unity.ugui 2.0.0"
+          UNITYPACK_DEPENDENCY2: "com.unity.nuget.newtonsoft-json 3.0.0"
+          # UNITYPACK_DEPENDENCY3: "com.unity.dedicated-server 1.0.0"
           # package names separated by space (only one for now)
           UNITYPACK_TESTABLES: "com.unity.test-framework.performance"
