@@ -28,6 +28,8 @@ namespace Mirror
         [Range(0.00_01f, 1f)]                   // disallow 0 division. 1mm to 1m precision is enough range.
         public float positionPrecision = 0.01f; // 1 cm
         [Range(0.00_01f, 1f)]                   // disallow 0 division. 1mm to 1m precision is enough range.
+        public float rotationPrecision = 0.001f; // this is for the quaternion's components, needs to be small
+        [Range(0.00_01f, 1f)]                   // disallow 0 division. 1mm to 1m precision is enough range.
         public float scalePrecision = 0.01f; // 1 cm
 
         [Header("Debug")]
@@ -38,6 +40,9 @@ namespace Mirror
         // unreliable delta since that isn't guaranteed to be delivered.
         protected Vector3Long lastSerializedPosition = Vector3Long.zero;
         protected Vector3Long lastDeserializedPosition = Vector3Long.zero;
+
+        protected Vector4Long lastSerializedRotation = Vector4Long.zero;
+        protected Vector4Long lastDeserializedRotation = Vector4Long.zero;
 
         protected Vector3Long lastSerializedScale = Vector3Long.zero;
         protected Vector3Long lastDeserializedScale = Vector3Long.zero;
@@ -211,13 +216,16 @@ namespace Mirror
                     // then we don't need baseline rotation since delta always
                     // sends an absolute value.
                     if (!compressRotation)
+                    {
                         writer.WriteQuaternion(snapshot.rotation);
+                    }
                 }
                 if (syncScale) writer.WriteVector3(snapshot.scale);
 
                 // save serialized as 'last' for next delta compression.
                 // only for reliable full sync, since unreliable isn't guaranteed to arrive.
                 if (syncPosition) Compression.ScaleToLong(snapshot.position, positionPrecision, out lastSerializedPosition);
+                if (syncRotation && !compressRotation) Compression.ScaleToLong(snapshot.rotation, rotationPrecision, out lastSerializedRotation);
                 if (syncScale) Compression.ScaleToLong(snapshot.scale, scalePrecision, out lastSerializedScale);
 
                 // set 'last'
@@ -238,9 +246,17 @@ namespace Mirror
                 {
                     // (optional) smallest three compression for now. no delta.
                     if (compressRotation)
+                    {
                         writer.WriteUInt(Compression.CompressQuaternion(snapshot.rotation));
+                    }
                     else
-                        writer.WriteQuaternion(snapshot.rotation);
+                    {
+                        // quantize -> delta -> varint
+                        // this works for quaternions too, where xyzw are [-1,1]
+                        // and gradually change as rotation changes.
+                        Compression.ScaleToLong(snapshot.rotation, rotationPrecision, out Vector4Long quantized);
+                        DeltaCompression.Compress(writer, lastSerializedRotation, quantized);
+                    }
                 }
                 if (syncScale)
                 {
@@ -275,13 +291,16 @@ namespace Mirror
                     // then we don't need baseline rotation since delta always
                     // sends an absolute value.
                     if (!compressRotation)
+                    {
                         rotation = reader.ReadQuaternion();
+                    }
                 }
                 if (syncScale) scale = reader.ReadVector3();
 
                 // save deserialized as 'last' for next delta compression.
                 // only for reliable full sync, since unreliable isn't guaranteed to arrive.
                 if (syncPosition) Compression.ScaleToLong(position.Value, positionPrecision, out lastDeserializedPosition);
+                if (syncRotation && !compressRotation) Compression.ScaleToLong(rotation.Value, rotationPrecision, out lastDeserializedRotation);
                 if (syncScale) Compression.ScaleToLong(scale.Value, scalePrecision, out lastDeserializedScale);
             }
             // unreliable delta: decompress against last full reliable state
@@ -299,9 +318,17 @@ namespace Mirror
                 {
                     // (optional) smallest three compression for now. no delta.
                     if (compressRotation)
+                    {
                         rotation = Compression.DecompressQuaternion(reader.ReadUInt());
+                    }
                     else
-                        rotation = reader.ReadQuaternion();
+                    {
+                        // varint -> delta -> quantize
+                        // this works for quaternions too, where xyzw are [-1,1]
+                        // and gradually change as rotation changes.
+                        Vector4Long quantized = DeltaCompression.Decompress(reader, lastDeserializedRotation);
+                        rotation = Compression.ScaleToFloat(quantized, rotationPrecision);
+                    }
                 }
                 if (syncScale)
                 {
@@ -439,6 +466,9 @@ namespace Mirror
             // reset delta
             lastSerializedPosition = Vector3Long.zero;
             lastDeserializedPosition = Vector3Long.zero;
+
+            lastSerializedRotation = Vector4Long.zero;
+            lastDeserializedRotation = Vector4Long.zero;
 
             lastSerializedScale = Vector3Long.zero;
             lastDeserializedScale = Vector3Long.zero;
