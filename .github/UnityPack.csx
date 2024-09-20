@@ -1,7 +1,7 @@
 /*
     MIT License: The code in this script is mostly from https://github.com/MirageNet/unity-packer
         which is the source for the nuget unity-packer from https://www.nuget.org/packages/unity-packer
-    Specifically the Pack method of the Packer class, related methods, plus the Utils.GreateGUID and
+    Specifically the Pack method of the Packer class, related methods, plus the Utils.CreateGUID and
     Archive.AddFilesRecursive methods, adjusted for use in a .csx script called from a GitHub Action.
 
     Environment Variables are used instead of command line arguments to pass the output file name, assets, and dependencies.
