@@ -97,7 +97,7 @@ namespace Mirror.SimpleWeb
                 }
             }
             catch (ThreadInterruptedException e) { Log.InfoException(e); }
-            catch (ThreadAbortException e) { Log.Error("[SWT-WebSocketServer]: Thread Abort Exception"); }
+            catch (ThreadAbortException) { Log.Error("[SWT-WebSocketServer]: Thread Abort Exception"); }
             catch (Exception e) { Log.Exception(e); }
         }
 
@@ -161,7 +161,7 @@ namespace Mirror.SimpleWeb
                 ReceiveLoop.Loop(receiveConfig);
             }
             catch (ThreadInterruptedException e) { Log.InfoException(e); }
-            catch (ThreadAbortException e) { Log.Error("[SWT-WebSocketServer]: Thread Abort Exception"); }
+            catch (ThreadAbortException) { Log.Error("[SWT-WebSocketServer]: Thread Abort Exception"); }
             catch (Exception e) { Log.Exception(e); }
             finally
             {
