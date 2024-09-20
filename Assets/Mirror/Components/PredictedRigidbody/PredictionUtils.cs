@@ -21,8 +21,13 @@ namespace Mirror
 
             // copy all properties
             rigidbodyCopy.mass = original.mass;
+#if UNITY_6000_0_OR_NEWER
+            rigidbodyCopy.linearDamping = original.linearDamping;
+            rigidbodyCopy.angularDamping = original.angularDamping;
+#else
             rigidbodyCopy.drag = original.drag;
             rigidbodyCopy.angularDrag = original.angularDrag;
+#endif
             rigidbodyCopy.useGravity = original.useGravity;
             rigidbodyCopy.isKinematic = original.isKinematic;
             rigidbodyCopy.interpolation = original.interpolation;
@@ -40,7 +45,11 @@ namespace Mirror
             // projects may keep Rigidbodies as kinematic sometimes. in that case, setting velocity would log an error
             if (!original.isKinematic)
             {
+#if UNITY_6000_0_OR_NEWER
+                rigidbodyCopy.linearVelocity = original.linearVelocity;
+#else
                 rigidbodyCopy.velocity = original.velocity;
+#endif
                 rigidbodyCopy.angularVelocity = original.angularVelocity;
             }
 
