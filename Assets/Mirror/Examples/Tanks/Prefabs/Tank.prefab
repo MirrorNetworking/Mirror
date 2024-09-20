@@ -87,7 +87,9 @@ MonoBehaviour:
   onlySyncOnChangeCorrectionMultiplier: 2
   rotationSensitivity: 0.01
   positionPrecision: 0.01
+  rotationPrecision: 0.0001
   scalePrecision: 0.01
+  debugDraw: 1
 --- !u!114 &114654712548978148
 MonoBehaviour:
   m_ObjectHideFlags: 0
