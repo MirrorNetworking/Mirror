@@ -9,10 +9,6 @@ namespace Mirror
     [AddComponentMenu("Network/Network Transform (Unreliable Compressed)")]
     public class NetworkTransformUnreliableCompressed : NetworkTransformBase
     {
-        [Header("Additional Settings")]
-        [Tooltip("If we only sync on change, then we need to correct old snapshots if more time than sendInterval * multiplier has elapsed.\n\nOtherwise the first move will always start interpolating from the last move sequence's time, which will make it stutter when starting every time.")]
-        public float onlySyncOnChangeCorrectionMultiplier = 2;
-
         [Header("Rotation")]
         [Tooltip("Sensitivity of changes needed before an updated state is sent over the network")]
         public float rotationSensitivity = 0.01f;
@@ -328,20 +324,6 @@ namespace Mirror
             // protect against ever growing buffer size attacks
             if (serverSnapshots.Count >= connectionToClient.snapshotBufferSizeLimit) return;
 
-            // 'only sync on change' needs a correction on every new move sequence.
-            if (onlySyncOnChange &&
-                NeedsCorrection(serverSnapshots, connectionToClient.remoteTimeStamp, NetworkServer.sendInterval * sendIntervalMultiplier, onlySyncOnChangeCorrectionMultiplier))
-            {
-                RewriteHistory(
-                    serverSnapshots,
-                    connectionToClient.remoteTimeStamp,
-                    NetworkTime.localTime,                                  // arrival remote timestamp. NOT remote timeline.
-                    NetworkServer.sendInterval * sendIntervalMultiplier,    // Unity 2019 doesn't have timeAsDouble yet
-                    GetPosition(),
-                    GetRotation(),
-                    GetScale());
-            }
-
             // add a small timeline offset to account for decoupled arrival of
             // NetworkTime and NetworkTransform snapshots.
             // needs to be sendInterval. half sendInterval doesn't solve it.
@@ -356,72 +338,12 @@ namespace Mirror
             // don't apply for local player with authority
             if (IsClientWithAuthority) return;
 
-            // 'only sync on change' needs a correction on every new move sequence.
-            if (onlySyncOnChange &&
-                NeedsCorrection(clientSnapshots, NetworkClient.connection.remoteTimeStamp, NetworkClient.sendInterval * sendIntervalMultiplier, onlySyncOnChangeCorrectionMultiplier))
-            {
-                RewriteHistory(
-                    clientSnapshots,
-                    NetworkClient.connection.remoteTimeStamp,               // arrival remote timestamp. NOT remote timeline.
-                    NetworkTime.localTime,                                  // Unity 2019 doesn't have timeAsDouble yet
-                    NetworkClient.sendInterval * sendIntervalMultiplier,
-                    GetPosition(),
-                    GetRotation(),
-                    GetScale());
-            }
-
             // add a small timeline offset to account for decoupled arrival of
             // NetworkTime and NetworkTransform snapshots.
             // needs to be sendInterval. half sendInterval doesn't solve it.
             // https://github.com/MirrorNetworking/Mirror/issues/3427
             // remove this after LocalWorldState.
             AddSnapshot(clientSnapshots, NetworkClient.connection.remoteTimeStamp + timeStampAdjustment + offset, position, rotation, scale);
-        }
-
-        // only sync on change /////////////////////////////////////////////////
-        // snap interp. needs a continous flow of packets.
-        // 'only sync on change' interrupts it while not changed.
-        // once it restarts, snap interp. will interp from the last old position.
-        // this will cause very noticeable stutter for the first move each time.
-        // the fix is quite simple.
-
-        // 1. detect if the remaining snapshot is too old from a past move.
-        static bool NeedsCorrection(
-            SortedList<double, TransformSnapshot> snapshots,
-            double remoteTimestamp,
-            double bufferTime,
-            double toleranceMultiplier) =>
-                snapshots.Count == 1 &&
-                remoteTimestamp - snapshots.Keys[0] >= bufferTime * toleranceMultiplier;
-
-        // 2. insert a fake snapshot at current position,
-        //    exactly one 'sendInterval' behind the newly received one.
-        static void RewriteHistory(
-            SortedList<double, TransformSnapshot> snapshots,
-            // timestamp of packet arrival, not interpolated remote time!
-            double remoteTimeStamp,
-            double localTime,
-            double sendInterval,
-            Vector3 position,
-            Quaternion rotation,
-            Vector3 scale)
-        {
-            // clear the previous snapshot
-            snapshots.Clear();
-
-            // insert a fake one at where we used to be,
-            // 'sendInterval' behind the new one.
-            SnapshotInterpolation.InsertIfNotExists(
-                snapshots,
-                NetworkClient.snapshotSettings.bufferLimit,
-                new TransformSnapshot(
-                    remoteTimeStamp - sendInterval, // arrival remote timestamp. NOT remote time.
-                    localTime - sendInterval,       // Unity 2019 doesn't have timeAsDouble yet
-                    position,
-                    rotation,
-                    scale
-                )
-            );
         }
 
         // reset state for next session.
