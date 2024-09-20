@@ -423,9 +423,12 @@ namespace Mirror
             //   predictedRigidbody.velocity.magnitude >= motionSmoothingVelocityThreshold ||
             //   predictedRigidbody.angularVelocity.magnitude >= motionSmoothingAngularVelocityThreshold;
             // faster implementation with cached ²
+#if UNITY_6000_0_OR_NEWER
+            predictedRigidbody.linearVelocity.sqrMagnitude >= motionSmoothingVelocityThresholdSqr ||
+#else
             predictedRigidbody.velocity.sqrMagnitude >= motionSmoothingVelocityThresholdSqr ||
+#endif
             predictedRigidbody.angularVelocity.sqrMagnitude >= motionSmoothingAngularVelocityThresholdSqr;
-
         // TODO maybe merge the IsMoving() checks & callbacks with UpdateState().
         void UpdateGhosting()
         {
@@ -583,7 +586,11 @@ namespace Mirror
             // grab current position/rotation/velocity only once.
             // this is performance critical, avoid calling .transform multiple times.
             tf.GetPositionAndRotation(out Vector3 currentPosition, out Quaternion currentRotation); // faster than accessing .position + .rotation manually
+#if UNITY_6000_0_OR_NEWER
+            Vector3 currentVelocity = predictedRigidbody.linearVelocity;
+#else
             Vector3 currentVelocity = predictedRigidbody.velocity;
+#endif
             Vector3 currentAngularVelocity = predictedRigidbody.angularVelocity;
 
             // calculate delta to previous state (if any)
@@ -638,8 +645,13 @@ namespace Mirror
             // hard snap to the position below a threshold velocity.
             // this is fine because the visual object still smoothly interpolates to it.
             // => consider both velocity and angular velocity (in case of Rigidbodies only rotating with joints etc.)
-            if (predictedRigidbody.velocity.magnitude <= snapThreshold &&
+#if UNITY_6000_0_OR_NEWER
+            if (predictedRigidbody.linearVelocity.magnitude <= snapThreshold &&
                 predictedRigidbody.angularVelocity.magnitude <= snapThreshold)
+#else
+                if (predictedRigidbody.velocity.magnitude <= snapThreshold &&
+                predictedRigidbody.angularVelocity.magnitude <= snapThreshold)
+#endif
             {
                 // Debug.Log($"Prediction: snapped {name} into place because velocity {predictedRigidbody.velocity.magnitude:F3} <= {snapThreshold:F3}");
 
@@ -652,7 +664,11 @@ namespace Mirror
                 // projects may keep Rigidbodies as kinematic sometimes. in that case, setting velocity would log an error
                 if (!predictedRigidbody.isKinematic)
                 {
+#if UNITY_6000_0_OR_NEWER
+                    predictedRigidbody.linearVelocity = velocity;
+#else
                     predictedRigidbody.velocity = velocity;
+#endif
                     predictedRigidbody.angularVelocity = angularVelocity;
                 }
 
@@ -704,7 +720,11 @@ namespace Mirror
             // (projects may keep Rigidbodies as kinematic sometimes. in that case, setting velocity would log an error)
             if (!predictedRigidbody.isKinematic)
             {
+#if UNITY_6000_0_OR_NEWER
+                predictedRigidbody.linearVelocity = velocity;
+#else
                 predictedRigidbody.velocity = velocity;
+#endif
                 predictedRigidbody.angularVelocity = angularVelocity;
             }
         }
@@ -896,7 +916,11 @@ namespace Mirror
                 Time.deltaTime,
                 position,
                 rotation,
+#if UNITY_6000_0_OR_NEWER
+                predictedRigidbody.linearVelocity,
+#else
                 predictedRigidbody.velocity,
+#endif
                 predictedRigidbody.angularVelocity);//,
                 // DO NOT SYNC SLEEPING! this cuts benchmark performance in half(!!!)
                 // predictedRigidbody.IsSleeping());
