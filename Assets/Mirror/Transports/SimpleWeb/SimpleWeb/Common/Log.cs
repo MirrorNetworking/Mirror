@@ -138,13 +138,13 @@ namespace Mirror.SimpleWeb
         public static void Verbose<T>(string msg, T arg1)
         {
             if (minLogLevel > Levels.Verbose) return;
-            Verbose($"{msg} {arg1}");
+            Verbose(String.Format(msg, arg1));
         }
 
         public static void Verbose<T1, T2>(string msg, T1 arg1, T2 arg2)
         {
             if (minLogLevel > Levels.Verbose) return;
-            Verbose($"{msg} {arg1} {arg2}");
+            Verbose(String.Format(msg, arg1, arg2));
         }
 
         /// <summary>
@@ -168,13 +168,13 @@ namespace Mirror.SimpleWeb
         public static void Info<T>(string msg, T arg1, ConsoleColor consoleColor = ConsoleColor.Cyan)
         {
             if (minLogLevel > Levels.Info) return;
-            Info($"{msg} {arg1}", consoleColor);
+            Info(String.Format(msg, arg1), consoleColor);
         }
 
         public static void Info<T1, T2>(string msg, T1 arg1, T2 arg2, ConsoleColor consoleColor = ConsoleColor.Cyan)
         {
             if (minLogLevel > Levels.Info) return;
-            Info($"{msg} {arg1} {arg2}", consoleColor);
+            Info(String.Format(msg, arg1, arg2), consoleColor);
         }
 
         /// <summary>
@@ -218,7 +218,7 @@ namespace Mirror.SimpleWeb
         public static void Warn<T>(string msg, T arg1)
         {
             if (minLogLevel > Levels.Warn) return;
-            Warn($"{msg} {arg1}");
+            Warn(String.Format(msg, arg1));
         }
 
         /// <summary>
@@ -243,19 +243,19 @@ namespace Mirror.SimpleWeb
         public static void Error<T>(string msg, T arg1)
         {
             if (minLogLevel > Levels.Error) return;
-            Error($"{msg} {arg1}");
+            Error(String.Format(msg, arg1));
         }
 
         public static void Error<T1, T2>(string msg, T1 arg1, T2 arg2)
         {
             if (minLogLevel > Levels.Error) return;
-            Error($"{msg} {arg1} {arg2}");
+            Error(String.Format(msg, arg1, arg2));
         }
 
         public static void Error<T1, T2, T3>(string msg, T1 arg1, T2 arg2, T3 arg3)
         {
             if (minLogLevel > Levels.Error) return;
-            Error($"{msg} {arg1} {arg2} {arg3}");
+            Error(String.Format(msg, arg1, arg2, arg3));
         }
 
         /// <summary>
