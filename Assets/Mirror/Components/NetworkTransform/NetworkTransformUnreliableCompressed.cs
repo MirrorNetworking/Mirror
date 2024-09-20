@@ -321,9 +321,6 @@ namespace Mirror
             // only apply if in client authority mode
             if (syncDirection != SyncDirection.ClientToServer) return;
 
-            // protect against ever growing buffer size attacks
-            if (serverSnapshots.Count >= connectionToClient.snapshotBufferSizeLimit) return;
-
             // add a small timeline offset to account for decoupled arrival of
             // NetworkTime and NetworkTransform snapshots.
             // needs to be sendInterval. half sendInterval doesn't solve it.
