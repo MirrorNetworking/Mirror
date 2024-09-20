@@ -102,6 +102,16 @@ namespace Mirror
             // client authority, and local player (= allowed to move myself)?
             if (!IsClientWithAuthority)
             {
+                float timeSpacing = 10.0f;
+
+                // DEBUG TIME: every update we draw a line to show where Time.time is.
+                Vector3 timeVector = new Vector3(Time.time * timeSpacing, 0, 0);
+                Debug.DrawLine(timeVector, timeVector + Vector3.up, Color.red, 10000f);
+
+                // DEBUG TIME: every update we draw a line to show where NetworkTime.time is.
+                Vector3 networkTimeVector = new Vector3((float)NetworkTime.time * timeSpacing, 0, 4);
+                Debug.DrawLine(networkTimeVector, networkTimeVector + Vector3.up, Color.magenta, 10000f);
+
                 // only while we have snapshots
                 if (clientSnapshots.Count > 0)
                 {
@@ -120,8 +130,8 @@ namespace Mirror
 
                     if (debugDraw)
                     {
-                        Debug.DrawLine(from.position, to.position, Color.white, 10f);
-                        Debug.DrawLine(computed.position, computed.position + Vector3.up, Color.white, 10f);
+                        // Debug.DrawLine(from.position, to.position, Color.white, 10f);
+                        // Debug.DrawLine(computed.position, computed.position + Vector3.up, Color.white, 10f);
                     }
                 }
             }
