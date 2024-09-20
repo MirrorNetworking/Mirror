@@ -36,7 +36,7 @@ namespace Mirror
         // ocassionally send a full reliable state for unreliable components to delta compress against.
         // this only applies to Components with SyncMethod=Unreliable.
         public static int unreliableBaselineRate => NetworkServer.unreliableBaselineRate;
-        public static float unreliableBaselineInterval => unreliableBaselineRate < int.MaxValue ? 1f / unreliableBaselineRate : 0; // for 1 Hz, that's 1000ms
+        public static float unreliableBaselineInterval => NetworkServer.unreliableBaselineInterval;
         static double lastUnreliableBaselineTime;
 
         // quake sends unreliable messages twice to make up for message drops.
