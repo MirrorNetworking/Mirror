@@ -207,15 +207,6 @@ namespace Mirror
         [FormerlySerializedAs("visible")]
         public Visibility visibility = Visibility.Default;
 
-        // Deprecated 2024-01-21
-        [HideInInspector]
-        [Obsolete("Deprecated - Use .visibility instead. This will be removed soon.")]
-        public Visibility visible
-        {
-            get => visibility;
-            set => visibility = value;
-        }
-
         // broadcasting serializes all entities around a player for each player.
         // we don't want to serialize one entity twice in the same tick.
         // so we cache the last serialization and remember the timestamp so we

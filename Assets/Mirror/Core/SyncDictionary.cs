@@ -26,10 +26,6 @@ namespace Mirror
         /// <summary>This is called before the data is cleared</summary>
         public Action OnClear;
 
-        // Deprecated 2024-03-22
-        [Obsolete("Use individual Actions, which pass OLD values where appropriate, instead.")]
-        public Action<Operation, TKey, TValue> Callback;
-
         protected readonly IDictionary<TKey, TValue> objects;
 
         public SyncIDictionary(IDictionary<TKey, TValue> objects)
@@ -343,10 +339,6 @@ namespace Mirror
                     OnChange?.Invoke(op, default, default);
                     break;
             }
-
-#pragma warning disable CS0618 // Type or member is obsolete
-            Callback?.Invoke(op, key, item);
-#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() => objects.GetEnumerator();
