@@ -38,8 +38,21 @@ namespace Mirror
             this.quatRotation = Quaternion.Euler(vecRotation);
             this.scale = _scale;            
         }
-    } 
-    
+    }
+
+    public enum ReferenceSpace
+    {
+        Local,
+        World
+    }
+
+    public enum RotationSettings
+    {
+        FullQuaternion,
+        Compressed,
+        EulerAngles
+    }    
+
     [Flags]
     public enum Changed : byte
     {
