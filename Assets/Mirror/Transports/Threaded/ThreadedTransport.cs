@@ -5,10 +5,12 @@
 // note that ThreadLog.cs is required for Debug.Log from threads to work in builds.
 using System;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Net;
 using System.Threading;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 namespace Mirror
 {
@@ -42,6 +44,9 @@ namespace Mirror
         DoClientConnect,
         DoClientSend,
         DoClientDisconnect,
+
+        Sleep,
+        Wake,
 
         DoShutdown
     }
@@ -142,6 +147,10 @@ namespace Mirror
         // very large limit to prevent deadlocks.
         const int MaxProcessingPerTick = 10_000_000;
 
+        [Tooltip("Automatically stop the thread if the device was put to sleep for more than 'sleepTimeout' seconds.\nFor example: on mobile, after putting the phone into the pocket. On Quest, after putting down the headset.")]
+        public bool sleepDisconnects = false;
+        public float sleepTimeout = 30;
+
         // communication between main & worker thread //////////////////////////
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         void EnqueueClientMain(
@@ -188,6 +197,9 @@ namespace Mirror
         }
 
         // worker thread ///////////////////////////////////////////////////////
+        // sleep timeout to automatically end if the device was put to sleep.
+        Stopwatch sleepTimer = null; // NOT THREAD SAFE: ONLY USE THIS IN WORKER THREAD!
+        bool sleeping = false;       // NOT THREAD SAFE: ONLY USE THIS IN WORKER THREAD!
         void ProcessThreadQueue()
         {
             // TODO deadlock protection. worker thread may be to slow to process all.
@@ -252,6 +264,30 @@ namespace Mirror
                         break;
                     }
 
+                    // SLEEP ////////////////////////////////////////////////
+                    case ThreadEventType.Sleep:
+                    {
+                        // start the sleep timer if not started yet
+                        if (sleepTimer == null)
+                        {
+                            Debug.Log($"ThreadedTransport: sleep detected, sleeping in {sleepTimeout:F0}s!");
+                            sleepTimer = Stopwatch.StartNew();
+                        }
+                        break;
+                    }
+                    case ThreadEventType.Wake:
+                    {
+                        // stop the sleep timer (if any)
+                        if (sleepTimer != null)
+                        {
+                            Debug.Log($"ThreadedTransport: Woke up, interrupting sleep timer!");
+                            sleepTimer = null;
+                        }
+                        // no more sleeping in the thread
+                        sleeping = false;
+                        break;
+                    }
+
                     // SHUTDOWN ////////////////////////////////////////////////
                     case ThreadEventType.DoShutdown:
                     {
@@ -267,6 +303,17 @@ namespace Mirror
         // without needing to throw InterruptExceptions or similar.
         bool ThreadTick()
         {
+            // was the device put to sleep?
+            if (sleepTimer != null &&
+                sleepTimer.Elapsed.TotalSeconds >= sleepTimeout)
+            {
+                Debug.Log("ThreadedTransport: entering sleep mode and stopping/disconnecting.");
+                sleeping = true;
+                ThreadedServerStop();
+                ThreadedClientDisconnect();
+                sleepTimer = null;
+            }
+
             // early update the implementation first
             ThreadedClientEarlyUpdate();
             ThreadedServerEarlyUpdate();
@@ -279,9 +326,9 @@ namespace Mirror
             ThreadedServerLateUpdate();
 
             // save some cpu power.
-            // TODO update interval and sleep extra time would be ideal
-            Thread.Sleep(1);
-            return true;
+            // while sleeping, consume barely any energy.
+            // while awake, sleep for 1ms to not go full throttle on the CPU.
+            Thread.Sleep(sleeping ? 1000 : 1);
         }
 
         // threaded callbacks to call from transport thread.
@@ -395,6 +442,10 @@ namespace Mirror
                     // CLIENT EVENTS ///////////////////////////////////////////
                     case ClientMainEventType.OnClientConnected:
                     {
+                        // safety: always reset sleep mode when newly connected.
+                        // that's as much of a wakeup call as it gets.
+                        sleeping = false;
+
                         // call original transport event
                         OnClientConnected?.Invoke();
                         break;
@@ -629,6 +680,30 @@ namespace Mirror
             // manual state flag because implementations can't access their
             // threaded .server/.client state from main thread.
             serverActive = false;
+        }
+
+        // pause ///////////////////////////////////////////////////////////////
+        // when a device goes to sleep, we should pause the thread after a while.
+        // otherwise the thread drains battery and keeps the connection alive.
+        void OnApplicationPause(bool pauseStatus)
+        {
+            Debug.Log($"{GetType()}: OnApplicationPause={pauseStatus}");
+
+            // is sleep timeout feature enabled?
+            if (!sleepDisconnects) return;
+
+            // pause thread if application pauses
+            if (pauseStatus)
+            {
+                // enqueue to process in worker thread
+                EnqueueThread(ThreadEventType.Sleep, null, null, null);
+            }
+            // resume thread if application resumes
+            else
+            {
+                // enqueue to process in worker thread
+                EnqueueThread(ThreadEventType.Wake, null, null, null);
+            }
         }
 
         // shutdown ////////////////////////////////////////////////////////////
