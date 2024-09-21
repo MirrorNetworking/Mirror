@@ -565,23 +565,6 @@ namespace Mirror
             handlers[msgType] = NetworkMessages.WrapHandler((Action<NetworkConnection, T, int>)HandlerWrapped, requireAuthentication, exceptionsDisconnect);
         }
 
-        // Deprecated 2024-01-21
-        [Obsolete("Use ReplaceHandler without the NetworkConnection parameter instead. This version is obsolete and will be removed soon.")]
-        public static void ReplaceHandler<T>(Action<NetworkConnection, T> handler, bool requireAuthentication = true)
-            where T : struct, NetworkMessage
-        {
-            // we use the same WrapHandler function for server and client.
-            // so let's wrap it to ignore the NetworkConnection parameter.
-            // it's not needed on client. it's always NetworkClient.connection.
-            ushort msgType = NetworkMessageId<T>.Id;
-
-            // register Id <> Type in lookup for debugging.
-            NetworkMessages.Lookup[msgType] = typeof(T);
-
-            void HandlerWrapped(NetworkConnection _, T value) => handler(_, value);
-            handlers[msgType] = NetworkMessages.WrapHandler((Action<NetworkConnection, T>)HandlerWrapped, requireAuthentication, exceptionsDisconnect);
-        }
-
         /// <summary>Replace a handler for a particular message type. Should require authentication by default.</summary>
         // RegisterHandler throws a warning (as it should) if a handler is assigned twice
         // Use of ReplaceHandler makes it clear the user intended to replace the handler

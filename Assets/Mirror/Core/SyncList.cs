@@ -38,10 +38,6 @@ namespace Mirror
         /// <summary>This is called before the list is cleared so the list can be iterated</summary>
         public Action OnClear;
 
-        // Deprecated 2024-03-23
-        [Obsolete("Use individual Actions, which pass OLD values where appropriate, instead.")]
-        public Action<Operation, int, T, T> Callback;
-
         readonly IList<T> objects;
         readonly IEqualityComparer<T> comparer;
 
@@ -133,10 +129,6 @@ namespace Mirror
                     OnChange?.Invoke(op, itemIndex, default);
                     break;
             }
-
-#pragma warning disable CS0618 // Type or member is obsolete
-            Callback?.Invoke(op, itemIndex, oldItem, newItem);
-#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         public override void OnSerializeAll(NetworkWriter writer)
