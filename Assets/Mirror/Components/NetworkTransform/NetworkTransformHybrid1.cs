@@ -7,7 +7,7 @@ using UnityEditor;
 namespace Mirror
 {
     [AddComponentMenu("Network/Hybrid NetworkTransform")]
-    public class HybridNetworkTransform : NetworkBehaviour
+    public class NetworkTransformHybrid1 : NetworkBehaviour
     {
         // target transform to sync. can be on a child.
         // TODO this field is kind of unnecessary since we now support child NetworkBehaviours
