@@ -77,8 +77,8 @@ namespace Mirror
 
         class MessageStats
         {
-            public readonly Dictionary<Type, Stat> MessageByType = new();
-            public readonly Dictionary<ushort, Stat> RpcByHash = new();
+            public readonly Dictionary<Type, Stat> MessageByType = new Dictionary<Type, Stat>();
+            public readonly Dictionary<ushort, Stat> RpcByHash = new Dictionary<ushort, Stat>();
 
             public void Record(NetworkDiagnostics.MessageInfo info)
             {
@@ -146,7 +146,7 @@ namespace Mirror
 
         [Tooltip("How many seconds to accumulate 'recent' stats for, this is also the output interval")]
         public float RecentDuration = 5;
-        public Sorter Sort = new();
+        public Sorter Sort = new Sorter();
 
         public enum OutputType
         {
@@ -159,9 +159,9 @@ namespace Mirror
         [Tooltip("If Output is set to 'File', where to the path of that file")]
         public string OutputFilePath = "network-stats.log";
 
-        readonly MessageStats inStats = new();
-        readonly MessageStats outStats = new();
-        readonly StringBuilder printBuilder = new();
+        readonly MessageStats inStats = new MessageStats();
+        readonly MessageStats outStats = new MessageStats();
+        readonly StringBuilder printBuilder = new StringBuilder();
         float elapsedSinceReset;
 
         void Start()

@@ -155,6 +155,7 @@ csharp_preserve_single_line_blocks = true
 resharper_blank_lines_around_invocable = 1
 resharper_blank_lines_around_type = 1
 resharper_default_private_modifier = implicit
+resharper_object_creation_when_type_evident = explicitly_typed
 resharper_place_simple_initializer_on_single_line = true
 resharper_remove_blank_lines_near_braces_in_code = true
 resharper_remove_blank_lines_near_braces_in_declarations = true
