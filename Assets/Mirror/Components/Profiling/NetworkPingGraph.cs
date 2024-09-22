@@ -18,24 +18,16 @@ namespace Mirror
                 default:
                     throw new ArgumentOutOfRangeException($"{category} is not valid.");
             }
-
         }
 
-        protected override string FormatValue(float value)
-        {
-            return $"{value:N0}ms";
-        }
+        protected override string FormatValue(float value) => $"{value:N0}ms";
 
         protected override void OnValidate()
         {
             base.OnValidate();
             if (CategoryColors.Length != 2)
             {
-                CategoryColors = new[]
-                {
-                    Color.cyan,
-                    Color.yellow,
-                };
+                CategoryColors = new[] { Color.cyan, Color.yellow };
             }
             IsStacked = false;
         }

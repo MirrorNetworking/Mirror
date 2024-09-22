@@ -21,8 +21,8 @@ namespace Mirror
                 default:
                     throw new ArgumentOutOfRangeException($"{category} is not valid.");
             }
-
         }
+
         protected override void OnValidate()
         {
             base.OnValidate();
@@ -30,9 +30,9 @@ namespace Mirror
             {
                 CategoryColors = new[]
                 {
-                    Color.cyan,  // avg
-                    Color.red,   // min
-                    Color.green, // max
+                    Color.cyan, // avg
+                    Color.red,  // min
+                    Color.green // max
                 };
             }
             IsStacked = false;

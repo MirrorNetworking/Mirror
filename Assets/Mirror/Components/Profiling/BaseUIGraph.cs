@@ -3,15 +3,15 @@ using UnityEngine;
 using UnityEngine.UI;
 namespace Mirror
 {
-
     public enum GraphAggregationMode
     {
         Sum,
         Average,
         PerSecond,
         Min,
-        Max,
+        Max
     }
+
     public abstract class BaseUIGraph : MonoBehaviour
     {
         private static readonly int MaxValue = Shader.PropertyToID("_MaxValue");
@@ -26,10 +26,7 @@ namespace Mirror
         [Range(1, 64)]
         public int Points = 64;
         public float SecondsPerPoint = 1;
-        public Color[] CategoryColors = new[]
-        {
-            Color.cyan
-        };
+        public Color[] CategoryColors = new[] { Color.cyan };
         public bool IsStacked;
 
         public Text[] LegendTexts;
@@ -44,7 +41,7 @@ namespace Mirror
         private float _pointTime;
         private Material _material;
 
-        private int DataLastIndex => ((_dataStart - 1) + Points) % Points;
+        private int DataLastIndex => (_dataStart - 1 + Points) % Points;
 
         private void Awake()
         {
@@ -68,7 +65,7 @@ namespace Mirror
         {
             for (int i = 0; i < CategoryColors.Length; i++)
             {
-                CollectData(i, out var value, out var mode);
+                CollectData(i, out float value, out GraphAggregationMode mode);
                 // we probably don't need negative values, so lets skip supporting it
                 if (value < 0)
                 {
@@ -79,7 +76,6 @@ namespace Mirror
                 {
                     _currentModes[i] = mode;
                     ResetCurrent(i);
-
                 }
                 switch (mode)
                 {
@@ -135,6 +131,7 @@ namespace Mirror
                 _pointTime = 0;
             }
         }
+
         private void ResetCurrent(int i)
         {
             switch (_currentModes[i])
@@ -149,10 +146,7 @@ namespace Mirror
             _currentCounts[i] = 0;
         }
 
-        protected virtual string FormatValue(float value)
-        {
-            return $"{value:N1}";
-        }
+        protected virtual string FormatValue(float value) => $"{value:N1}";
 
         protected abstract void CollectData(int category, out float value, out GraphAggregationMode mode);
 
@@ -219,9 +213,6 @@ namespace Mirror
             }
         }
 
-        protected virtual float AdjustMaxValue(float max)
-        {
-            return Mathf.Ceil(max);
-        }
+        protected virtual float AdjustMaxValue(float max) => Mathf.Ceil(max);
     }
 }

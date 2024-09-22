@@ -5,6 +5,7 @@ namespace Mirror
     {
         public KeyCode Key = KeyCode.F10;
         public GameObject ToToggle;
+
         private void Update()
         {
             if (Input.GetKeyDown(Key))

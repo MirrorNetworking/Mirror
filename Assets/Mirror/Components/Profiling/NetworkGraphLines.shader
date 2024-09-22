@@ -125,7 +125,7 @@ Shader "Mirror/NetworkGraphLines"
                 uint wMax = wCur == _Width - 1 ? wCur : wCur + 1;
                 float2 screenSize = _ScreenParams.xy;
                 // this scaling only works if the object is flat and not rotated - but thats fine
-                float2 pixelScale = float2(1/ddx(IN.texcoord.x), 1/ddy(IN.texcoord.y));
+                float2 pixelScale = float2(1 / ddx(IN.texcoord.x), 1 / ddy(IN.texcoord.y));
                 float2 screenSpaceUV = IN.texcoord * pixelScale;
                 half4 color = half4(0, 0, 0, 0);
                 // Loop through the graph's points
@@ -148,7 +148,8 @@ Shader "Mirror/NetworkGraphLines"
                         float2 pointCurrent = float2(texPosCurrentX, categoryValueCurrent);
                         float2 pointNext = float2(texPosPrevX, categoryValueNext);
 
-                        float distance = distanceToLineSegment(screenSpaceUV, pointCurrent * pixelScale, pointNext * pixelScale);
+                        float distance = distanceToLineSegment(screenSpaceUV, pointCurrent * pixelScale,
+                                                               pointNext * pixelScale);
 
                         if (distance < _LineWidth)
                         {

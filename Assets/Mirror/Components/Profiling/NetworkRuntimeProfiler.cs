@@ -14,10 +14,17 @@ namespace Mirror
         public class Sorter : IComparer<Stat>
         {
             public SortBy Order;
+
             public int Compare(Stat a, Stat b)
             {
-                if (a == null) return 1;
-                if (b == null) return -1;
+                if (a == null)
+                {
+                    return 1;
+                }
+                if (b == null)
+                {
+                    return -1;
+                }
                 // Compare B to A for desc order
                 switch (Order)
                 {
@@ -40,7 +47,7 @@ namespace Mirror
             RecentBytes,
             RecentCount,
             TotalBytes,
-            TotalCount,
+            TotalCount
         }
 
         public class Stat
@@ -60,11 +67,11 @@ namespace Mirror
 
             public void Add(int count, int bytes)
             {
-                this.TotalBytes += bytes;
-                this.TotalCount += count;
+                TotalBytes += bytes;
+                TotalCount += count;
 
-                this.RecentBytes += bytes;
-                this.RecentCount += count;
+                RecentBytes += bytes;
+                RecentCount += count;
             }
         }
 
@@ -72,9 +79,9 @@ namespace Mirror
         {
             public Dictionary<Type, Stat> MessageByType = new Dictionary<Type, Stat>();
             public Dictionary<ushort, Stat> RpcByHash = new Dictionary<ushort, Stat>();
+
             public void Record(NetworkDiagnostics.MessageInfo info)
             {
-
                 Type type = info.message.GetType();
                 if (!MessageByType.TryGetValue(type, out Stat stat))
                 {
@@ -140,12 +147,14 @@ namespace Mirror
         [Tooltip("How many seconds to accumulate 'recent' stats for, this is also the output interval")]
         public float RecentDuration = 5;
         public Sorter Sort = new Sorter();
+
         public enum OutputType
         {
             UnityLog,
             StdOut,
             File
         }
+
         public OutputType Output;
         [Tooltip("If Output is set to 'File', where to the path of that file")]
         public string OutputFilePath = "network-stats.log";
@@ -161,19 +170,17 @@ namespace Mirror
             NetworkDiagnostics.InMessageEvent += HandleMessageIn;
             NetworkDiagnostics.OutMessageEvent += HandleMessageOut;
         }
+
         private void OnDestroy()
         {
             NetworkDiagnostics.InMessageEvent -= HandleMessageIn;
             NetworkDiagnostics.OutMessageEvent -= HandleMessageOut;
         }
-        private void HandleMessageOut(NetworkDiagnostics.MessageInfo info)
-        {
-            _out.Record(info);
-        }
-        private void HandleMessageIn(NetworkDiagnostics.MessageInfo info)
-        {
-            _in.Record(info);
-        }
+
+        private void HandleMessageOut(NetworkDiagnostics.MessageInfo info) => _out.Record(info);
+
+        private void HandleMessageIn(NetworkDiagnostics.MessageInfo info) => _in.Record(info);
+
         private void LateUpdate()
         {
             _elapsedSinceReset += Time.deltaTime;
@@ -185,6 +192,7 @@ namespace Mirror
                 _out.ResetRecent();
             }
         }
+
         private void Print()
         {
             _print.Clear();
@@ -273,7 +281,6 @@ namespace Mirror
 
             switch (Output)
             {
-
                 case OutputType.UnityLog:
                     Debug.Log(_print.ToString());
                     break;
@@ -296,13 +303,21 @@ namespace Mirror
             const double TiB = GiB * 1024;
 
             if (bytes < KiB)
+            {
                 return $"{bytes:N0} B";
+            }
             if (bytes < MiB)
+            {
                 return $"{bytes / KiB:N2} KiB";
+            }
             if (bytes < GiB)
+            {
                 return $"{bytes / MiB:N2} MiB";
+            }
             if (bytes < TiB)
+            {
                 return $"{bytes / GiB:N2} GiB";
+            }
             return $"{bytes / TiB:N2} TiB";
         }
 
@@ -314,13 +329,21 @@ namespace Mirror
             const double T = G * 1000;
 
             if (count < K)
+            {
                 return $"{count:N0}";
+            }
             if (count < M)
+            {
                 return $"{count / K:N2} K";
+            }
             if (count < G)
+            {
                 return $"{count / M:N2} M";
+            }
             if (count < T)
+            {
                 return $"{count / G:N2} G";
+            }
             return $"{count / T:N2} T";
         }
     }
