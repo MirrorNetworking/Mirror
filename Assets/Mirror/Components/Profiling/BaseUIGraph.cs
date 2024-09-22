@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 namespace Mirror
 {
@@ -30,27 +31,33 @@ namespace Mirror
         public bool IsStacked;
 
         public Text[] LegendTexts;
+        [Header("Diagnostics")]
+        [ReadOnly, SerializeField]
+        Material runtimeMaterial;
 
-        float[] data;
-        float[] currentData;
-        GraphAggregationMode[] currentModes;
-        // for avg aggregation mode
-        int[] currentCounts;
-        int dataStart;
-        bool dirty;
-        float pointTime;
-        Material material;
+        float[] graphData;
+        // graphData is a circular buffer, this is the offset to get the 0-index
+        int graphDataStartIndex;
+        // Is graphData dirty and needs to be set to the material
+        bool isGraphDataDirty;
+        // currently aggregating data to be added to the graph soon
+        float[] aggregatingData;
+        GraphAggregationMode[] aggregatingModes;
+        // Counts for avg aggregation mode
+        int[] aggregatingDataCounts;
+        // How much time has elapsed since the last aggregation finished
+        float aggregatingTime;
 
-        int DataLastIndex => (dataStart - 1 + Points) % Points;
+        int DataLastIndex => (graphDataStartIndex - 1 + Points) % Points;
 
         void Awake()
         {
-            Renderer.material = material = Instantiate(Material);
-            data = new float[Points * CategoryColors.Length];
-            currentData = new float[CategoryColors.Length];
-            currentCounts = new int[CategoryColors.Length];
-            currentModes = new GraphAggregationMode[CategoryColors.Length];
-            dirty = true;
+            Renderer.material = runtimeMaterial = Instantiate(Material);
+            graphData = new float[Points * CategoryColors.Length];
+            aggregatingData = new float[CategoryColors.Length];
+            aggregatingDataCounts = new int[CategoryColors.Length];
+            aggregatingModes = new GraphAggregationMode[CategoryColors.Length];
+            isGraphDataDirty = true;
         }
 
         protected virtual void OnValidate()
@@ -71,9 +78,9 @@ namespace Mirror
                     value = 0;
                 }
 
-                if (mode != currentModes[i])
+                if (mode != aggregatingModes[i])
                 {
-                    currentModes[i] = mode;
+                    aggregatingModes[i] = mode;
                     ResetCurrent(i);
                 }
 
@@ -82,31 +89,31 @@ namespace Mirror
                     case GraphAggregationMode.Average:
                     case GraphAggregationMode.Sum:
                     case GraphAggregationMode.PerSecond:
-                        currentData[i] += value;
-                        currentCounts[i]++;
+                        aggregatingData[i] += value;
+                        aggregatingDataCounts[i]++;
                         break;
                     case GraphAggregationMode.Min:
-                        if (currentData[i] > value)
-                            currentData[i] = value;
+                        if (aggregatingData[i] > value)
+                            aggregatingData[i] = value;
                         break;
                     case GraphAggregationMode.Max:
-                        if (value > currentData[i])
-                            currentData[i] = value;
+                        if (value > aggregatingData[i])
+                            aggregatingData[i] = value;
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
             }
 
-            pointTime += Time.deltaTime;
-            if (pointTime > SecondsPerPoint)
+            aggregatingTime += Time.deltaTime;
+            if (aggregatingTime > SecondsPerPoint)
             {
-                dataStart = (dataStart + 1) % Points;
+                graphDataStartIndex = (graphDataStartIndex + 1) % Points;
                 ClearDataAt(DataLastIndex);
                 for (int i = 0; i < CategoryColors.Length; i++)
                 {
-                    float value = currentData[i];
-                    switch (currentModes[i])
+                    float value = aggregatingData[i];
+                    switch (aggregatingModes[i])
                     {
                         case GraphAggregationMode.Sum:
                         case GraphAggregationMode.Min:
@@ -114,10 +121,10 @@ namespace Mirror
                             // do nothing!
                             break;
                         case GraphAggregationMode.Average:
-                            value /= currentCounts[i];
+                            value /= aggregatingDataCounts[i];
                             break;
                         case GraphAggregationMode.PerSecond:
-                            value /= pointTime;
+                            value /= aggregatingTime;
                             break;
                         default:
                             throw new ArgumentOutOfRangeException();
@@ -127,23 +134,23 @@ namespace Mirror
                     ResetCurrent(i);
                 }
 
-                pointTime = 0;
+                aggregatingTime = 0;
             }
         }
 
         void ResetCurrent(int i)
         {
-            switch (currentModes[i])
+            switch (aggregatingModes[i])
             {
                 case GraphAggregationMode.Min:
-                    currentData[i] = float.MaxValue;
+                    aggregatingData[i] = float.MaxValue;
                     break;
                 default:
-                    currentData[i] = 0;
+                    aggregatingData[i] = 0;
                     break;
             }
 
-            currentCounts[i] = 0;
+            aggregatingDataCounts[i] = 0;
         }
 
         protected virtual string FormatValue(float value) => $"{value:N1}";
@@ -152,39 +159,39 @@ namespace Mirror
 
         void SetCurrentGraphData(int c, float value)
         {
-            data[DataLastIndex * CategoryColors.Length + c] = value;
-            dirty = true;
+            graphData[DataLastIndex * CategoryColors.Length + c] = value;
+            isGraphDataDirty = true;
         }
 
         void ClearDataAt(int i)
         {
             for (int c = 0; c < CategoryColors.Length; c++)
-                data[i * CategoryColors.Length + c] = 0;
+                graphData[i * CategoryColors.Length + c] = 0;
 
-            dirty = true;
+            isGraphDataDirty = true;
         }
 
         public void LateUpdate()
         {
-            if (dirty)
+            if (isGraphDataDirty)
             {
-                material.SetInt(Width, Points);
-                material.SetInt(DataStart, dataStart);
+                runtimeMaterial.SetInt(Width, Points);
+                runtimeMaterial.SetInt(DataStart, graphDataStartIndex);
                 float max = 1;
                 if (IsStacked)
                     for (int x = 0; x < Points; x++)
                     {
                         float total = 0;
                         for (int c = 0; c < CategoryColors.Length; c++)
-                            total += data[x * CategoryColors.Length + c];
+                            total += graphData[x * CategoryColors.Length + c];
 
                         if (total > max)
                             max = total;
                     }
                 else
-                    for (int i = 0; i < data.Length; i++)
+                    for (int i = 0; i < graphData.Length; i++)
                     {
-                        float v = data[i];
+                        float v = graphData[i];
                         if (v > max)
                             max = v;
                     }
@@ -197,11 +204,11 @@ namespace Mirror
                     legendText.text = FormatValue(max * pct);
                 }
 
-                material.SetFloat(MaxValue, max);
-                material.SetFloatArray(GraphData, data);
-                material.SetInt(CategoryCount, CategoryColors.Length);
-                material.SetColorArray(Colors, CategoryColors);
-                dirty = false;
+                runtimeMaterial.SetFloat(MaxValue, max);
+                runtimeMaterial.SetFloatArray(GraphData, graphData);
+                runtimeMaterial.SetInt(CategoryCount, CategoryColors.Length);
+                runtimeMaterial.SetColorArray(Colors, CategoryColors);
+                isGraphDataDirty = false;
             }
         }
 
