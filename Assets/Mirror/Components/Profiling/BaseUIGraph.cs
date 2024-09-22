@@ -88,12 +88,10 @@ namespace Mirror
                     case GraphAggregationMode.Min:
                         if (currentData[i] > value)
                             currentData[i] = value;
-
                         break;
                     case GraphAggregationMode.Max:
                         if (value > currentData[i])
                             currentData[i] = value;
-
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
