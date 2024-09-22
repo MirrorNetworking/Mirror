@@ -56,9 +56,7 @@ namespace Mirror
         protected virtual void OnValidate()
         {
             if (Renderer == null)
-            {
                 Renderer = GetComponent<Graphic>();
-            }
         }
 
         protected virtual void Update()
@@ -72,11 +70,13 @@ namespace Mirror
                     Debug.LogWarning("Graphing negative values is not supported.");
                     value = 0;
                 }
+
                 if (mode != currentModes[i])
                 {
                     currentModes[i] = mode;
                     ResetCurrent(i);
                 }
+
                 switch (mode)
                 {
                     case GraphAggregationMode.Average:
@@ -87,20 +87,19 @@ namespace Mirror
                         break;
                     case GraphAggregationMode.Min:
                         if (currentData[i] > value)
-                        {
                             currentData[i] = value;
-                        }
+
                         break;
                     case GraphAggregationMode.Max:
                         if (value > currentData[i])
-                        {
                             currentData[i] = value;
-                        }
+
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
             }
+
             pointTime += Time.deltaTime;
             if (pointTime > SecondsPerPoint)
             {
@@ -125,9 +124,11 @@ namespace Mirror
                         default:
                             throw new ArgumentOutOfRangeException();
                     }
+
                     SetCurrentGraphData(i, value);
                     ResetCurrent(i);
                 }
+
                 pointTime = 0;
             }
         }
@@ -143,6 +144,7 @@ namespace Mirror
                     currentData[i] = 0;
                     break;
             }
+
             currentCounts[i] = 0;
         }
 
@@ -162,6 +164,7 @@ namespace Mirror
             {
                 data[i * CategoryColors.Length + c] = 0;
             }
+
             dirty = true;
         }
 
@@ -173,7 +176,6 @@ namespace Mirror
                 material.SetInt(DataStart, dataStart);
                 float max = 1;
                 if (IsStacked)
-                {
                     for (int x = 0; x < Points; x++)
                     {
                         float total = 0;
@@ -181,23 +183,18 @@ namespace Mirror
                         {
                             total += data[x * CategoryColors.Length + c];
                         }
+
                         if (total > max)
-                        {
                             max = total;
-                        }
                     }
-                }
                 else
-                {
                     for (int i = 0; i < data.Length; i++)
                     {
                         float v = data[i];
                         if (v > max)
-                        {
                             max = v;
-                        }
                     }
-                }
+
                 max = AdjustMaxValue(max);
                 for (int i = 0; i < LegendTexts.Length; i++)
                 {
@@ -205,6 +202,7 @@ namespace Mirror
                     float pct = (float)i / (LegendTexts.Length - 1);
                     legendText.text = FormatValue(max * pct);
                 }
+
                 material.SetFloat(MaxValue, max);
                 material.SetFloatArray(GraphData, data);
                 material.SetInt(CategoryCount, CategoryColors.Length);

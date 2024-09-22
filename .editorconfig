@@ -152,8 +152,12 @@ csharp_preserve_single_line_statements = true
 csharp_preserve_single_line_blocks = true
 
 # ReSharper properties
+resharper_blank_lines_after_multiline_statements = 1
 resharper_blank_lines_around_invocable = 1
 resharper_blank_lines_around_type = 1
+resharper_braces_for_foreach = not_required
+resharper_braces_for_ifelse = not_required
+resharper_braces_redundant = true
 resharper_default_private_modifier = implicit
 resharper_object_creation_when_type_evident = explicitly_typed
 resharper_place_simple_initializer_on_single_line = true

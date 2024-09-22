@@ -26,9 +26,8 @@ namespace Mirror
         {
             base.OnValidate();
             if (CategoryColors.Length != 2)
-            {
                 CategoryColors = new[] { Color.cyan, Color.yellow };
-            }
+
             IsStacked = false;
         }
     }

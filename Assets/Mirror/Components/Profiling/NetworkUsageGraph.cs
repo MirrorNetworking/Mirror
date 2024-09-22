@@ -60,14 +60,12 @@ namespace Mirror
                 string unit = Units[i];
                 selectedUnit = unit;
                 if (i > 0)
-                {
                     value /= UnitScale;
-                }
+
                 if (value < UnitScale)
-                {
                     break;
-                }
             }
+
             return $"{value:N0} {selectedUnit}";
         }
 
@@ -75,13 +73,12 @@ namespace Mirror
         {
             base.OnValidate();
             if (CategoryColors.Length != 2)
-            {
                 CategoryColors = new[]
                 {
                     Color.red,  // min
                     Color.green // max
                 };
-            }
+
             IsStacked = false;
         }
     }

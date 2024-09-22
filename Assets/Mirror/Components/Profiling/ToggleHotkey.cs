@@ -9,9 +9,7 @@ namespace Mirror
         void Update()
         {
             if (Input.GetKeyDown(Key))
-            {
                 ToToggle.SetActive(!ToToggle.activeSelf);
-            }
         }
     }
 }

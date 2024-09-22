@@ -27,14 +27,13 @@ namespace Mirror
         {
             base.OnValidate();
             if (CategoryColors.Length != 3)
-            {
                 CategoryColors = new[]
                 {
                     Color.cyan, // avg
                     Color.red,  // min
                     Color.green // max
                 };
-            }
+
             IsStacked = false;
         }
     }
