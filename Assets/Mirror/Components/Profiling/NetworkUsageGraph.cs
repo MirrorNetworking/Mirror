@@ -4,32 +4,32 @@ namespace Mirror
 {
     public class NetworkUsageGraph : BaseUIGraph
     {
-        private int dataIn;
-        private int dataOut;
+        int dataIn;
+        int dataOut;
 
-        private void Start()
+        void Start()
         {
             // Ordering, Awake happens before NetworkDiagnostics reset
             NetworkDiagnostics.InMessageEvent += OnReceive;
             NetworkDiagnostics.OutMessageEvent += OnSend;
         }
 
-        private void OnEnable()
+        void OnEnable()
         {
             // If we've been inactive, clear counter
             dataIn = 0;
             dataOut = 0;
         }
 
-        private void OnDestroy()
+        void OnDestroy()
         {
             NetworkDiagnostics.InMessageEvent -= OnReceive;
             NetworkDiagnostics.OutMessageEvent -= OnSend;
         }
 
-        private void OnSend(NetworkDiagnostics.MessageInfo obj) => dataOut += obj.bytes;
+        void OnSend(NetworkDiagnostics.MessageInfo obj) => dataOut += obj.bytes;
 
-        private void OnReceive(NetworkDiagnostics.MessageInfo obj) => dataIn += obj.bytes;
+        void OnReceive(NetworkDiagnostics.MessageInfo obj) => dataIn += obj.bytes;
 
         protected override void CollectData(int category, out float value, out GraphAggregationMode mode)
         {
@@ -49,8 +49,8 @@ namespace Mirror
             }
         }
 
-        private static readonly string[] Units = new[] { "B/s", "KiB/s", "MiB/s" };
-        private const float UnitScale = 1024;
+        static readonly string[] Units = new[] { "B/s", "KiB/s", "MiB/s" };
+        const float UnitScale = 1024;
 
         protected override string FormatValue(float value)
         {

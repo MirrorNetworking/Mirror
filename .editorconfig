@@ -70,15 +70,15 @@ dotnet_naming_rule.method_should_be_pascal_case.symbols = method
 dotnet_naming_rule.method_should_be_pascal_case.style = pascal_case_style
 dotnet_naming_symbols.method.applicable_kinds = method
 dotnet_naming_symbols.method.applicable_accessibilities = *
-dotnet_naming_symbols.method.required_modifiers =
+dotnet_naming_symbols.method.required_modifiers = 
 
 # Private instance fields are camelCase
 dotnet_naming_symbols.private_fields.applicable_kinds = field
 dotnet_naming_symbols.private_fields.applicable_accessibilities = private
-dotnet_naming_symbols.private_fields.required_modifiers =
+dotnet_naming_symbols.private_fields.required_modifiers = 
 dotnet_naming_style.lower_case.capitalization = camel_case
-dotnet_naming_style.lower_case.required_prefix =
-dotnet_naming_style.lower_case.required_suffix =
+dotnet_naming_style.lower_case.required_prefix = 
+dotnet_naming_style.lower_case.required_suffix = 
 dotnet_naming_rule.private_fields_underscore_lower_case.symbols = private_fields
 dotnet_naming_rule.private_fields_underscore_lower_case.style = lower_case
 dotnet_naming_rule.private_fields_underscore_lower_case.severity = warning
@@ -154,6 +154,7 @@ csharp_preserve_single_line_blocks = true
 # ReSharper properties
 resharper_blank_lines_around_invocable = 1
 resharper_blank_lines_around_type = 1
+resharper_default_private_modifier = implicit
 resharper_place_simple_initializer_on_single_line = true
 resharper_remove_blank_lines_near_braces_in_code = true
 resharper_remove_blank_lines_near_braces_in_declarations = true

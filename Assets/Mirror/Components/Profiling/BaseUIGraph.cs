@@ -14,12 +14,12 @@ namespace Mirror
 
     public abstract class BaseUIGraph : MonoBehaviour
     {
-        private static readonly int MaxValue = Shader.PropertyToID("_MaxValue");
-        private static readonly int GraphData = Shader.PropertyToID("_GraphData");
-        private static readonly int CategoryCount = Shader.PropertyToID("_CategoryCount");
-        private static readonly int Colors = Shader.PropertyToID("_CategoryColors");
-        private static readonly int Width = Shader.PropertyToID("_Width");
-        private static readonly int DataStart = Shader.PropertyToID("_DataStart");
+        static readonly int MaxValue = Shader.PropertyToID("_MaxValue");
+        static readonly int GraphData = Shader.PropertyToID("_GraphData");
+        static readonly int CategoryCount = Shader.PropertyToID("_CategoryCount");
+        static readonly int Colors = Shader.PropertyToID("_CategoryColors");
+        static readonly int Width = Shader.PropertyToID("_Width");
+        static readonly int DataStart = Shader.PropertyToID("_DataStart");
 
         public Material Material;
         public Graphic Renderer;
@@ -31,19 +31,19 @@ namespace Mirror
 
         public Text[] LegendTexts;
 
-        private float[] data;
-        private float[] currentData;
-        private GraphAggregationMode[] currentModes;
+        float[] data;
+        float[] currentData;
+        GraphAggregationMode[] currentModes;
         // for avg aggregation mode
-        private int[] currentCounts;
-        private int dataStart;
-        private bool dirty;
-        private float pointTime;
-        private Material material;
+        int[] currentCounts;
+        int dataStart;
+        bool dirty;
+        float pointTime;
+        Material material;
 
-        private int DataLastIndex => (dataStart - 1 + Points) % Points;
+        int DataLastIndex => (dataStart - 1 + Points) % Points;
 
-        private void Awake()
+        void Awake()
         {
             Renderer.material = material = Instantiate(Material);
             data = new float[Points * CategoryColors.Length];
@@ -132,7 +132,7 @@ namespace Mirror
             }
         }
 
-        private void ResetCurrent(int i)
+        void ResetCurrent(int i)
         {
             switch (currentModes[i])
             {
@@ -150,13 +150,13 @@ namespace Mirror
 
         protected abstract void CollectData(int category, out float value, out GraphAggregationMode mode);
 
-        private void SetCurrentGraphData(int c, float value)
+        void SetCurrentGraphData(int c, float value)
         {
             data[DataLastIndex * CategoryColors.Length + c] = value;
             dirty = true;
         }
 
-        private void ClearDataAt(int i)
+        void ClearDataAt(int i)
         {
             for (int c = 0; c < CategoryColors.Length; c++)
             {

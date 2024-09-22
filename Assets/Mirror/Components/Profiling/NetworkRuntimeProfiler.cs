@@ -75,10 +75,10 @@ namespace Mirror
             }
         }
 
-        private class MessageStats
+        class MessageStats
         {
-            public readonly Dictionary<Type, Stat> MessageByType = new Dictionary<Type, Stat>();
-            public readonly Dictionary<ushort, Stat> RpcByHash = new Dictionary<ushort, Stat>();
+            public readonly Dictionary<Type, Stat> MessageByType = new();
+            public readonly Dictionary<ushort, Stat> RpcByHash = new();
 
             public void Record(NetworkDiagnostics.MessageInfo info)
             {
@@ -107,7 +107,7 @@ namespace Mirror
                 }
             }
 
-            private void RecordRpc(ushort hash, NetworkDiagnostics.MessageInfo info)
+            void RecordRpc(ushort hash, NetworkDiagnostics.MessageInfo info)
             {
                 if (!RpcByHash.TryGetValue(hash, out Stat stat))
                 {
@@ -146,7 +146,7 @@ namespace Mirror
 
         [Tooltip("How many seconds to accumulate 'recent' stats for, this is also the output interval")]
         public float RecentDuration = 5;
-        public Sorter Sort = new Sorter();
+        public Sorter Sort = new();
 
         public enum OutputType
         {
@@ -159,29 +159,29 @@ namespace Mirror
         [Tooltip("If Output is set to 'File', where to the path of that file")]
         public string OutputFilePath = "network-stats.log";
 
-        private readonly MessageStats inStats = new MessageStats();
-        private readonly MessageStats outStats = new MessageStats();
-        private readonly StringBuilder printBuilder = new StringBuilder();
-        private float elapsedSinceReset;
+        readonly MessageStats inStats = new();
+        readonly MessageStats outStats = new();
+        readonly StringBuilder printBuilder = new();
+        float elapsedSinceReset;
 
-        private void Start()
+        void Start()
         {
             // Ordering, Awake happens before NetworkDiagnostics reset
             NetworkDiagnostics.InMessageEvent += HandleMessageIn;
             NetworkDiagnostics.OutMessageEvent += HandleMessageOut;
         }
 
-        private void OnDestroy()
+        void OnDestroy()
         {
             NetworkDiagnostics.InMessageEvent -= HandleMessageIn;
             NetworkDiagnostics.OutMessageEvent -= HandleMessageOut;
         }
 
-        private void HandleMessageOut(NetworkDiagnostics.MessageInfo info) => outStats.Record(info);
+        void HandleMessageOut(NetworkDiagnostics.MessageInfo info) => outStats.Record(info);
 
-        private void HandleMessageIn(NetworkDiagnostics.MessageInfo info) => inStats.Record(info);
+        void HandleMessageIn(NetworkDiagnostics.MessageInfo info) => inStats.Record(info);
 
-        private void LateUpdate()
+        void LateUpdate()
         {
             elapsedSinceReset += Time.deltaTime;
             if (elapsedSinceReset > RecentDuration)
@@ -193,7 +193,7 @@ namespace Mirror
             }
         }
 
-        private void Print()
+        void Print()
         {
             printBuilder.Clear();
             printBuilder.AppendLine($"Stats for {DateTime.Now} ({RecentDuration:N1}s interval)");
@@ -295,7 +295,7 @@ namespace Mirror
             }
         }
 
-        private static string FormatBytes(long bytes)
+        static string FormatBytes(long bytes)
         {
             const double KiB = 1024;
             const double MiB = KiB * 1024;
@@ -321,7 +321,7 @@ namespace Mirror
             return $"{bytes / TiB:N2} TiB";
         }
 
-        private string FormatCount(long count)
+        string FormatCount(long count)
         {
             const double K = 1000;
             const double M = K * 1000;
