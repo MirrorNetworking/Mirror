@@ -61,15 +61,36 @@ dotnet_naming_style.pascal_case_style.capitalization = pascal_case
 dotnet_naming_rule.constant_fields_should_be_pascal_case.severity = suggestion
 dotnet_naming_rule.constant_fields_should_be_pascal_case.symbols = constant_fields
 dotnet_naming_rule.constant_fields_should_be_pascal_case.style = pascal_case_style
-dotnet_naming_symbols.constant_fields.applicable_kinds = field
+dotnet_naming_symbols.constant_fields.applicable_kinds = *
 dotnet_naming_symbols.constant_fields.applicable_accessibilities = *
 dotnet_naming_symbols.constant_fields.required_modifiers = const
+# Methods are PascalCase
 dotnet_naming_rule.method_should_be_pascal_case.severity = suggestion
 dotnet_naming_rule.method_should_be_pascal_case.symbols = method
 dotnet_naming_rule.method_should_be_pascal_case.style = pascal_case_style
 dotnet_naming_symbols.method.applicable_kinds = method
 dotnet_naming_symbols.method.applicable_accessibilities = *
 dotnet_naming_symbols.method.required_modifiers =
+
+# Private instance fields are camelCase
+dotnet_naming_symbols.private_fields.applicable_kinds = field
+dotnet_naming_symbols.private_fields.applicable_accessibilities = private
+dotnet_naming_symbols.private_fields.required_modifiers =
+dotnet_naming_style.lower_case.capitalization = camel_case
+dotnet_naming_style.lower_case.required_prefix =
+dotnet_naming_style.lower_case.required_suffix =
+dotnet_naming_rule.private_fields_underscore_lower_case.symbols = private_fields
+dotnet_naming_rule.private_fields_underscore_lower_case.style = lower_case
+dotnet_naming_rule.private_fields_underscore_lower_case.severity = warning
+
+# Static fields are PascalCase
+dotnet_naming_rule.static_fields_should_be_camel_case.severity = suggestion
+dotnet_naming_rule.static_fields_should_be_camel_case.symbols = static_fields
+dotnet_naming_rule.static_fields_should_be_camel_case.style = pascal_case_style
+
+dotnet_naming_symbols.static_fields.applicable_kinds = field
+dotnet_naming_symbols.static_fields.required_modifiers = static
+
 ###############################
 # C# Coding Conventions       #
 ###############################

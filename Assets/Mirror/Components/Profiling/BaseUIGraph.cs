@@ -31,26 +31,26 @@ namespace Mirror
 
         public Text[] LegendTexts;
 
-        private float[] _data;
-        private float[] _currentData;
-        private GraphAggregationMode[] _currentModes;
+        private float[] data;
+        private float[] currentData;
+        private GraphAggregationMode[] currentModes;
         // for avg aggregation mode
-        private int[] _currentCounts;
-        private int _dataStart;
-        private bool _dirty;
-        private float _pointTime;
-        private Material _material;
+        private int[] currentCounts;
+        private int dataStart;
+        private bool dirty;
+        private float pointTime;
+        private Material material;
 
-        private int DataLastIndex => (_dataStart - 1 + Points) % Points;
+        private int DataLastIndex => (dataStart - 1 + Points) % Points;
 
         private void Awake()
         {
-            Renderer.material = _material = Instantiate(Material);
-            _data = new float[Points * CategoryColors.Length];
-            _currentData = new float[CategoryColors.Length];
-            _currentCounts = new int[CategoryColors.Length];
-            _currentModes = new GraphAggregationMode[CategoryColors.Length];
-            _dirty = true;
+            Renderer.material = material = Instantiate(Material);
+            data = new float[Points * CategoryColors.Length];
+            currentData = new float[CategoryColors.Length];
+            currentCounts = new int[CategoryColors.Length];
+            currentModes = new GraphAggregationMode[CategoryColors.Length];
+            dirty = true;
         }
 
         protected virtual void OnValidate()
@@ -72,9 +72,9 @@ namespace Mirror
                     Debug.LogWarning("Graphing negative values is not supported.");
                     value = 0;
                 }
-                if (mode != _currentModes[i])
+                if (mode != currentModes[i])
                 {
-                    _currentModes[i] = mode;
+                    currentModes[i] = mode;
                     ResetCurrent(i);
                 }
                 switch (mode)
@@ -82,34 +82,34 @@ namespace Mirror
                     case GraphAggregationMode.Average:
                     case GraphAggregationMode.Sum:
                     case GraphAggregationMode.PerSecond:
-                        _currentData[i] += value;
-                        _currentCounts[i]++;
+                        currentData[i] += value;
+                        currentCounts[i]++;
                         break;
                     case GraphAggregationMode.Min:
-                        if (_currentData[i] > value)
+                        if (currentData[i] > value)
                         {
-                            _currentData[i] = value;
+                            currentData[i] = value;
                         }
                         break;
                     case GraphAggregationMode.Max:
-                        if (value > _currentData[i])
+                        if (value > currentData[i])
                         {
-                            _currentData[i] = value;
+                            currentData[i] = value;
                         }
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
             }
-            _pointTime += Time.deltaTime;
-            if (_pointTime > SecondsPerPoint)
+            pointTime += Time.deltaTime;
+            if (pointTime > SecondsPerPoint)
             {
-                _dataStart = (_dataStart + 1) % Points;
+                dataStart = (dataStart + 1) % Points;
                 ClearDataAt(DataLastIndex);
                 for (int i = 0; i < CategoryColors.Length; i++)
                 {
-                    float value = _currentData[i];
-                    switch (_currentModes[i])
+                    float value = currentData[i];
+                    switch (currentModes[i])
                     {
                         case GraphAggregationMode.Sum:
                         case GraphAggregationMode.Min:
@@ -117,10 +117,10 @@ namespace Mirror
                             // do nothing!
                             break;
                         case GraphAggregationMode.Average:
-                            value /= _currentCounts[i];
+                            value /= currentCounts[i];
                             break;
                         case GraphAggregationMode.PerSecond:
-                            value /= _pointTime;
+                            value /= pointTime;
                             break;
                         default:
                             throw new ArgumentOutOfRangeException();
@@ -128,22 +128,22 @@ namespace Mirror
                     SetCurrentGraphData(i, value);
                     ResetCurrent(i);
                 }
-                _pointTime = 0;
+                pointTime = 0;
             }
         }
 
         private void ResetCurrent(int i)
         {
-            switch (_currentModes[i])
+            switch (currentModes[i])
             {
                 case GraphAggregationMode.Min:
-                    _currentData[i] = float.MaxValue;
+                    currentData[i] = float.MaxValue;
                     break;
                 default:
-                    _currentData[i] = 0;
+                    currentData[i] = 0;
                     break;
             }
-            _currentCounts[i] = 0;
+            currentCounts[i] = 0;
         }
 
         protected virtual string FormatValue(float value) => $"{value:N1}";
@@ -152,25 +152,25 @@ namespace Mirror
 
         private void SetCurrentGraphData(int c, float value)
         {
-            _data[DataLastIndex * CategoryColors.Length + c] = value;
-            _dirty = true;
+            data[DataLastIndex * CategoryColors.Length + c] = value;
+            dirty = true;
         }
 
         private void ClearDataAt(int i)
         {
             for (int c = 0; c < CategoryColors.Length; c++)
             {
-                _data[i * CategoryColors.Length + c] = 0;
+                data[i * CategoryColors.Length + c] = 0;
             }
-            _dirty = true;
+            dirty = true;
         }
 
         public void LateUpdate()
         {
-            if (_dirty)
+            if (dirty)
             {
-                _material.SetInt(Width, Points);
-                _material.SetInt(DataStart, _dataStart);
+                material.SetInt(Width, Points);
+                material.SetInt(DataStart, dataStart);
                 float max = 1;
                 if (IsStacked)
                 {
@@ -179,7 +179,7 @@ namespace Mirror
                         float total = 0;
                         for (int c = 0; c < CategoryColors.Length; c++)
                         {
-                            total += _data[x * CategoryColors.Length + c];
+                            total += data[x * CategoryColors.Length + c];
                         }
                         if (total > max)
                         {
@@ -189,9 +189,9 @@ namespace Mirror
                 }
                 else
                 {
-                    for (int i = 0; i < _data.Length; i++)
+                    for (int i = 0; i < data.Length; i++)
                     {
-                        float v = _data[i];
+                        float v = data[i];
                         if (v > max)
                         {
                             max = v;
@@ -205,11 +205,11 @@ namespace Mirror
                     float pct = (float)i / (LegendTexts.Length - 1);
                     legendText.text = FormatValue(max * pct);
                 }
-                _material.SetFloat(MaxValue, max);
-                _material.SetFloatArray(GraphData, _data);
-                _material.SetInt(CategoryCount, CategoryColors.Length);
-                _material.SetColorArray(Colors, CategoryColors);
-                _dirty = false;
+                material.SetFloat(MaxValue, max);
+                material.SetFloatArray(GraphData, data);
+                material.SetInt(CategoryCount, CategoryColors.Length);
+                material.SetColorArray(Colors, CategoryColors);
+                dirty = false;
             }
         }
 

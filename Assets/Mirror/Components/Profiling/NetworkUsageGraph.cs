@@ -4,8 +4,8 @@ namespace Mirror
 {
     public class NetworkUsageGraph : BaseUIGraph
     {
-        private int _dataIn;
-        private int _dataOut;
+        private int dataIn;
+        private int dataOut;
 
         private void Start()
         {
@@ -17,8 +17,8 @@ namespace Mirror
         private void OnEnable()
         {
             // If we've been inactive, clear counter
-            _dataIn = 0;
-            _dataOut = 0;
+            dataIn = 0;
+            dataOut = 0;
         }
 
         private void OnDestroy()
@@ -27,9 +27,9 @@ namespace Mirror
             NetworkDiagnostics.OutMessageEvent -= OnSend;
         }
 
-        private void OnSend(NetworkDiagnostics.MessageInfo obj) => _dataOut += obj.bytes;
+        private void OnSend(NetworkDiagnostics.MessageInfo obj) => dataOut += obj.bytes;
 
-        private void OnReceive(NetworkDiagnostics.MessageInfo obj) => _dataIn += obj.bytes;
+        private void OnReceive(NetworkDiagnostics.MessageInfo obj) => dataIn += obj.bytes;
 
         protected override void CollectData(int category, out float value, out GraphAggregationMode mode)
         {
@@ -37,20 +37,20 @@ namespace Mirror
             switch (category)
             {
                 case 0:
-                    value = _dataIn;
-                    _dataIn = 0;
+                    value = dataIn;
+                    dataIn = 0;
                     break;
                 case 1:
-                    value = _dataOut;
-                    _dataOut = 0;
+                    value = dataOut;
+                    dataOut = 0;
                     break;
                 default:
                     throw new ArgumentOutOfRangeException($"{category} is not valid.");
             }
         }
 
-        private static string[] Units = new[] { "B/s", "KiB/s", "MiB/s" };
-        private const float UNIT_SCALE = 1024;
+        private static readonly string[] Units = new[] { "B/s", "KiB/s", "MiB/s" };
+        private const float UnitScale = 1024;
 
         protected override string FormatValue(float value)
         {
@@ -61,9 +61,9 @@ namespace Mirror
                 selectedUnit = unit;
                 if (i > 0)
                 {
-                    value /= UNIT_SCALE;
+                    value /= UnitScale;
                 }
-                if (value < UNIT_SCALE)
+                if (value < UnitScale)
                 {
                     break;
                 }
