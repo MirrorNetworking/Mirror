@@ -70,15 +70,15 @@ dotnet_naming_rule.method_should_be_pascal_case.symbols = method
 dotnet_naming_rule.method_should_be_pascal_case.style = pascal_case_style
 dotnet_naming_symbols.method.applicable_kinds = method
 dotnet_naming_symbols.method.applicable_accessibilities = *
-dotnet_naming_symbols.method.required_modifiers = 
+dotnet_naming_symbols.method.required_modifiers =
 
 # Private instance fields are camelCase
 dotnet_naming_symbols.private_fields.applicable_kinds = field
 dotnet_naming_symbols.private_fields.applicable_accessibilities = private
-dotnet_naming_symbols.private_fields.required_modifiers = 
+dotnet_naming_symbols.private_fields.required_modifiers =
 dotnet_naming_style.lower_case.capitalization = camel_case
-dotnet_naming_style.lower_case.required_prefix = 
-dotnet_naming_style.lower_case.required_suffix = 
+dotnet_naming_style.lower_case.required_prefix =
+dotnet_naming_style.lower_case.required_suffix =
 dotnet_naming_rule.private_fields_underscore_lower_case.symbols = private_fields
 dotnet_naming_rule.private_fields_underscore_lower_case.style = lower_case
 dotnet_naming_rule.private_fields_underscore_lower_case.severity = warning
@@ -113,7 +113,7 @@ csharp_style_pattern_matching_over_as_with_null_check = true:suggestion
 csharp_style_throw_expression = true:suggestion
 csharp_style_conditional_delegate_call = true:suggestion
 # Modifier preferences
-csharp_preferred_modifier_order = public,private,protected,internal,static,extern,new,virtual,abstract,sealed,override,readonly,unsafe,volatile,async:suggestion
+csharp_preferred_modifier_order = public, private, protected, internal, static, extern, new, virtual, abstract, sealed, override, readonly, unsafe, volatile, async:suggestion
 # Expression-level preferences
 csharp_prefer_braces = true:suggestion
 csharp_style_deconstructed_variable_declaration = true:suggestion
@@ -155,6 +155,12 @@ csharp_preserve_single_line_blocks = true
 resharper_blank_lines_after_multiline_statements = 1
 resharper_blank_lines_around_invocable = 1
 resharper_blank_lines_around_type = 1
+resharper_braces_for_for = not_required
+resharper_braces_for_dowhile = not_required
+resharper_braces_for_fixed = not_required
+resharper_braces_for_lock = not_required
+resharper_braces_for_using = not_required
+resharper_braces_for_while = not_required
 resharper_braces_for_foreach = not_required
 resharper_braces_for_ifelse = not_required
 resharper_braces_redundant = true
@@ -169,7 +175,7 @@ resharper_remove_blank_lines_near_braces_in_declarations = true
 ###############################
 [*.vb]
 # Modifier preferences
-visual_basic_preferred_modifier_order = Partial,Default,Private,Protected,Public,Friend,NotOverridable,Overridable,MustOverride,Overloads,Overrides,MustInherit,NotInheritable,Static,Shared,Shadows,ReadOnly,WriteOnly,Dim,Const,WithEvents,Widening,Narrowing,Custom,Async:suggestion
+visual_basic_preferred_modifier_order = Partial, Default, Private, Protected, Public, Friend, NotOverridable, Overridable, MustOverride, Overloads, Overrides, MustInherit, NotInheritable, Static, Shared, Shadows, ReadOnly, WriteOnly, Dim, Const, WithEvents, Widening, Narrowing, Custom, Async:suggestion
 
 [*.yml]
 indent_style = space

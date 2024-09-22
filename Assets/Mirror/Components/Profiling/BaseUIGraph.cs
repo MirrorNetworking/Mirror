@@ -161,9 +161,7 @@ namespace Mirror
         void ClearDataAt(int i)
         {
             for (int c = 0; c < CategoryColors.Length; c++)
-            {
                 data[i * CategoryColors.Length + c] = 0;
-            }
 
             dirty = true;
         }
@@ -180,9 +178,7 @@ namespace Mirror
                     {
                         float total = 0;
                         for (int c = 0; c < CategoryColors.Length; c++)
-                        {
                             total += data[x * CategoryColors.Length + c];
-                        }
 
                         if (total > max)
                             max = total;
