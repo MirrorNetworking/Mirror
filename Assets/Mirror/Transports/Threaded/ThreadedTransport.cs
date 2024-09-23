@@ -147,8 +147,8 @@ namespace Mirror
         // very large limit to prevent deadlocks.
         const int MaxProcessingPerTick = 10_000_000;
 
-        [Tooltip("Automatically stop the thread if the device was put to sleep for more than 'sleepTimeout' seconds.\nFor example: on mobile, after putting the phone into the pocket. On Quest, after putting down the headset.")]
-        public bool sleepDisconnects = false;
+        [Tooltip("Detect device sleep mode and automatically disconnect + hibernate the thread after 'sleepTimeout' seconds.\nFor example: on mobile / VR, we don't want to drain the battery after putting down the device.")]
+        public bool sleepDetection = false;
         public float sleepTimeout = 30;
 
         // communication between main & worker thread //////////////////////////
@@ -182,10 +182,19 @@ namespace Mirror
         {
             // start the thread.
             // if main application terminates, this thread needs to terminate too.
+            EnsureThread();
+        }
+
+        // starts the thread if not created or not active yet.
+        void EnsureThread()
+        {
+            if (thread != null && thread.IsAlive) return;
+
             thread         = new WorkerThread(ToString());
             thread.Tick    = ThreadTick;
             thread.Cleanup = ThreadedShutdown;
             thread.Start();
+            Debug.Log($"ThreadedTransport: started worker thread!");
         }
 
         protected virtual void OnDestroy()
@@ -199,7 +208,6 @@ namespace Mirror
         // worker thread ///////////////////////////////////////////////////////
         // sleep timeout to automatically end if the device was put to sleep.
         Stopwatch sleepTimer = null; // NOT THREAD SAFE: ONLY USE THIS IN WORKER THREAD!
-        bool sleeping = false;       // NOT THREAD SAFE: ONLY USE THIS IN WORKER THREAD!
         void ProcessThreadQueue()
         {
             // TODO deadlock protection. worker thread may be to slow to process all.
@@ -283,8 +291,6 @@ namespace Mirror
                             Debug.Log($"ThreadedTransport: Woke up, interrupting sleep timer!");
                             sleepTimer = null;
                         }
-                        // no more sleeping in the thread
-                        sleeping = false;
                         break;
                     }
 
@@ -308,10 +314,14 @@ namespace Mirror
                 sleepTimer.Elapsed.TotalSeconds >= sleepTimeout)
             {
                 Debug.Log("ThreadedTransport: entering sleep mode and stopping/disconnecting.");
-                sleeping = true;
                 ThreadedServerStop();
                 ThreadedClientDisconnect();
                 sleepTimer = null;
+
+                // if the device was put to sleep, end the thread gracefully.
+                // all threads must end, otherwise putting down the device would
+                // slowly drain the battery after a day or more.
+                return false;
             }
 
             // early update the implementation first
@@ -326,9 +336,8 @@ namespace Mirror
             ThreadedServerLateUpdate();
 
             // save some cpu power.
-            // while sleeping, consume barely any energy.
-            // while awake, sleep for 1ms to not go full throttle on the CPU.
-            Thread.Sleep(sleeping ? 1000 : 1);
+            Thread.Sleep(1);
+            return true;
         }
 
         // threaded callbacks to call from transport thread.
@@ -442,10 +451,6 @@ namespace Mirror
                     // CLIENT EVENTS ///////////////////////////////////////////
                     case ClientMainEventType.OnClientConnected:
                     {
-                        // safety: always reset sleep mode when newly connected.
-                        // that's as much of a wakeup call as it gets.
-                        sleeping = false;
-
                         // call original transport event
                         OnClientConnected?.Invoke();
                         break;
@@ -507,6 +512,9 @@ namespace Mirror
                 return;
             }
 
+            // start worker thread if not started yet
+            EnsureThread();
+
             // enqueue to process in worker thread
             EnqueueThread(ThreadEventType.DoClientConnect, address, null, null);
 
@@ -523,6 +531,9 @@ namespace Mirror
                 Debug.LogWarning($"Threaded transport: client already connected!");
                 return;
             }
+
+            // start worker thread if not started yet
+            EnsureThread();
 
             // enqueue to process in worker thread
             EnqueueThread(ThreadEventType.DoClientConnect, uri, null, null);
@@ -637,6 +648,9 @@ namespace Mirror
                 return;
             }
 
+            // start worker thread if not started yet
+            EnsureThread();
+
             // enqueue to process in worker thread
             EnqueueThread(ThreadEventType.DoServerStart, null, null, null);
 
@@ -682,15 +696,15 @@ namespace Mirror
             serverActive = false;
         }
 
-        // pause ///////////////////////////////////////////////////////////////
-        // when a device goes to sleep, we should pause the thread after a while.
-        // otherwise the thread drains battery and keeps the connection alive.
+        // sleep ///////////////////////////////////////////////////////////////
+        // when a device goes to sleep, we must end the worker thread after a while.
+        // otherwise putting down the device would slowly drain the battery after a day or more.
         void OnApplicationPause(bool pauseStatus)
         {
             Debug.Log($"{GetType()}: OnApplicationPause={pauseStatus}");
 
-            // is sleep timeout feature enabled?
-            if (!sleepDisconnects) return;
+            // is sleep detection feature enabled?
+            if (!sleepDetection) return;
 
             // pause thread if application pauses
             if (pauseStatus)
