@@ -149,7 +149,7 @@ namespace Mirror
 
         [Tooltip("Detect device sleep mode and automatically disconnect + hibernate the thread after 'sleepTimeout' seconds.\nFor example: on mobile / VR, we don't want to drain the battery after putting down the device.")]
         public bool sleepDetection = true;
-        public float sleepTimeout = 30;
+        public float sleepTimeoutInSeconds = 30;
 
         // communication between main & worker thread //////////////////////////
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -278,7 +278,7 @@ namespace Mirror
                         // start the sleep timer if not started yet
                         if (sleepTimer == null)
                         {
-                            Debug.Log($"ThreadedTransport: sleep detected, sleeping in {sleepTimeout:F0}s!");
+                            Debug.Log($"ThreadedTransport: sleep detected, sleeping in {sleepTimeoutInSeconds:F0}s!");
                             sleepTimer = Stopwatch.StartNew();
                         }
                         break;
@@ -311,7 +311,7 @@ namespace Mirror
         {
             // was the device put to sleep?
             if (sleepTimer != null &&
-                sleepTimer.Elapsed.TotalSeconds >= sleepTimeout)
+                sleepTimer.Elapsed.TotalSeconds >= sleepTimeoutInSeconds)
             {
                 Debug.Log("ThreadedTransport: entering sleep mode and stopping/disconnecting.");
                 ThreadedServerStop();
