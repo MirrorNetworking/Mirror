@@ -14,10 +14,15 @@ namespace Mirror
         public class Sorter : IComparer<Stat>
         {
             public SortBy Order;
+
             public int Compare(Stat a, Stat b)
             {
-                if (a == null) return 1;
-                if (b == null) return -1;
+                if (a == null)
+                    return 1;
+
+                if (b == null)
+                    return -1;
+
                 // Compare B to A for desc order
                 switch (Order)
                 {
@@ -40,7 +45,7 @@ namespace Mirror
             RecentBytes,
             RecentCount,
             TotalBytes,
-            TotalCount,
+            TotalCount
         }
 
         public class Stat
@@ -60,21 +65,21 @@ namespace Mirror
 
             public void Add(int count, int bytes)
             {
-                this.TotalBytes += bytes;
-                this.TotalCount += count;
+                TotalBytes += bytes;
+                TotalCount += count;
 
-                this.RecentBytes += bytes;
-                this.RecentCount += count;
+                RecentBytes += bytes;
+                RecentCount += count;
             }
         }
 
-        public class MessageStats
+        class MessageStats
         {
-            public Dictionary<Type, Stat> MessageByType = new Dictionary<Type, Stat>();
-            public Dictionary<ushort, Stat> RpcByHash = new Dictionary<ushort, Stat>();
+            public readonly Dictionary<Type, Stat> MessageByType = new Dictionary<Type, Stat>();
+            public readonly Dictionary<ushort, Stat> RpcByHash = new Dictionary<ushort, Stat>();
+
             public void Record(NetworkDiagnostics.MessageInfo info)
             {
-
                 Type type = info.message.GetType();
                 if (!MessageByType.TryGetValue(type, out Stat stat))
                 {
@@ -86,30 +91,27 @@ namespace Mirror
                         RecentCount = 0,
                         RecentBytes = 0
                     };
+
                     MessageByType[type] = stat;
                 }
+
                 stat.Add(info.count, info.bytes * info.count);
 
                 if (info.message is CommandMessage cmd)
-                {
                     RecordRpc(cmd.functionHash, info);
-                }
                 else if (info.message is RpcMessage rpc)
-                {
                     RecordRpc(rpc.functionHash, info);
-                }
             }
 
-            private void RecordRpc(ushort hash, NetworkDiagnostics.MessageInfo info)
+            void RecordRpc(ushort hash, NetworkDiagnostics.MessageInfo info)
             {
                 if (!RpcByHash.TryGetValue(hash, out Stat stat))
                 {
                     string name = "n/a";
                     RemoteCallDelegate rpcDelegate = RemoteProcedureCalls.GetDelegate(hash);
                     if (rpcDelegate != null)
-                    {
                         name = $"{rpcDelegate.Method.DeclaringType}.{rpcDelegate.GetMethodName().Replace(RemoteProcedureCalls.InvokeRpcPrefix, "")}";
-                    }
+
                     stat = new Stat
                     {
                         Name = name,
@@ -118,108 +120,93 @@ namespace Mirror
                         RecentCount = 0,
                         RecentBytes = 0
                     };
+
                     RpcByHash[hash] = stat;
                 }
+
                 stat.Add(info.count, info.bytes * info.count);
             }
 
             public void ResetRecent()
             {
                 foreach (Stat stat in MessageByType.Values)
-                {
                     stat.ResetRecent();
-                }
 
                 foreach (Stat stat in RpcByHash.Values)
-                {
                     stat.ResetRecent();
-                }
             }
         }
 
         [Tooltip("How many seconds to accumulate 'recent' stats for, this is also the output interval")]
         public float RecentDuration = 5;
         public Sorter Sort = new Sorter();
+
         public enum OutputType
         {
             UnityLog,
             StdOut,
             File
         }
+
         public OutputType Output;
         [Tooltip("If Output is set to 'File', where to the path of that file")]
         public string OutputFilePath = "network-stats.log";
 
-        private readonly MessageStats _in = new MessageStats();
-        private readonly MessageStats _out = new MessageStats();
-        private StringBuilder _print = new StringBuilder();
-        private float _elapsedSinceReset;
+        readonly MessageStats inStats = new MessageStats();
+        readonly MessageStats outStats = new MessageStats();
+        readonly StringBuilder printBuilder = new StringBuilder();
+        float elapsedSinceReset;
 
-        private void Start()
+        void Start()
         {
+            // Ordering, Awake happens before NetworkDiagnostics reset
             NetworkDiagnostics.InMessageEvent += HandleMessageIn;
             NetworkDiagnostics.OutMessageEvent += HandleMessageOut;
         }
-        private void OnDestroy()
+
+        void OnDestroy()
         {
             NetworkDiagnostics.InMessageEvent -= HandleMessageIn;
             NetworkDiagnostics.OutMessageEvent -= HandleMessageOut;
         }
-        private void HandleMessageOut(NetworkDiagnostics.MessageInfo info)
+
+        void HandleMessageOut(NetworkDiagnostics.MessageInfo info) => outStats.Record(info);
+
+        void HandleMessageIn(NetworkDiagnostics.MessageInfo info) => inStats.Record(info);
+
+        void LateUpdate()
         {
-            _out.Record(info);
-        }
-        private void HandleMessageIn(NetworkDiagnostics.MessageInfo info)
-        {
-            _in.Record(info);
-        }
-        private void LateUpdate()
-        {
-            _elapsedSinceReset += Time.deltaTime;
-            if (_elapsedSinceReset > RecentDuration)
+            elapsedSinceReset += Time.deltaTime;
+            if (elapsedSinceReset > RecentDuration)
             {
-                _elapsedSinceReset = 0;
+                elapsedSinceReset = 0;
                 Print();
-                _in.ResetRecent();
-                _out.ResetRecent();
+                inStats.ResetRecent();
+                outStats.ResetRecent();
             }
         }
-        private void Print()
+
+        void Print()
         {
-            _print.Clear();
-            _print.AppendLine($"Stats for {DateTime.Now} ({RecentDuration:N1}s interval)");
+            printBuilder.Clear();
+            printBuilder.AppendLine($"Stats for {DateTime.Now} ({RecentDuration:N1}s interval)");
             int nameMaxLength = "OUT Message".Length;
 
-            foreach (Stat stat in _in.MessageByType.Values)
-            {
+            foreach (Stat stat in inStats.MessageByType.Values)
                 if (stat.Name.Length > nameMaxLength)
-                {
                     nameMaxLength = stat.Name.Length;
-                }
-            }
 
-            foreach (Stat stat in _out.MessageByType.Values)
-            {
+            foreach (Stat stat in outStats.MessageByType.Values)
                 if (stat.Name.Length > nameMaxLength)
-                {
                     nameMaxLength = stat.Name.Length;
-                }
-            }
-            foreach (Stat stat in _in.RpcByHash.Values)
-            {
-                if (stat.Name.Length > nameMaxLength)
-                {
-                    nameMaxLength = stat.Name.Length;
-                }
-            }
 
-            foreach (Stat stat in _out.RpcByHash.Values)
-            {
+            foreach (Stat stat in inStats.RpcByHash.Values)
                 if (stat.Name.Length > nameMaxLength)
-                {
                     nameMaxLength = stat.Name.Length;
-                }
-            }
+
+            foreach (Stat stat in outStats.RpcByHash.Values)
+                if (stat.Name.Length > nameMaxLength)
+                    nameMaxLength = stat.Name.Length;
 
             string recentBytes = "Recent Bytes";
             string recentCount = "Recent Count";
@@ -234,60 +221,54 @@ namespace Mirror
             int totalCountPad = Mathf.Max(totalCount.Length, maxCountLength);
             string header = $"| {"IN Message".PadLeft(nameMaxLength)} | {recentBytes.PadLeft(recentBytesPad)} | {recentCount.PadLeft(recentCountPad)} | {totalBytes.PadLeft(totalBytesPad)} | {totalCount.PadLeft(totalCountPad)} |";
             string sep = "".PadLeft(header.Length, '-');
-            _print.AppendLine(sep);
-            _print.AppendLine(header);
-            _print.AppendLine(sep);
+            printBuilder.AppendLine(sep);
+            printBuilder.AppendLine(header);
+            printBuilder.AppendLine(sep);
 
-            foreach (Stat stat in _in.MessageByType.Values.OrderBy(stat => stat, Sort))
-            {
-                _print.AppendLine($"| {stat.Name.PadLeft(nameMaxLength)} | {FormatBytes(stat.RecentBytes).PadLeft(recentBytesPad)} | {FormatCount(stat.RecentCount).PadLeft(recentCountPad)} | {FormatBytes(stat.TotalBytes).PadLeft(totalBytesPad)} | {FormatCount(stat.TotalCount).PadLeft(totalCountPad)} |");
-            }
+            foreach (Stat stat in inStats.MessageByType.Values.OrderBy(stat => stat, Sort))
+                printBuilder.AppendLine($"| {stat.Name.PadLeft(nameMaxLength)} | {FormatBytes(stat.RecentBytes).PadLeft(recentBytesPad)} | {FormatCount(stat.RecentCount).PadLeft(recentCountPad)} | {FormatBytes(stat.TotalBytes).PadLeft(totalBytesPad)} | {FormatCount(stat.TotalCount).PadLeft(totalCountPad)} |");
+
             header = $"| {"IN RPCs".PadLeft(nameMaxLength)} | {recentBytes.PadLeft(recentBytesPad)} | {recentCount.PadLeft(recentCountPad)} | {totalBytes.PadLeft(totalBytesPad)} | {totalCount.PadLeft(totalCountPad)} |";
-            _print.AppendLine(sep);
-            _print.AppendLine(header);
-            _print.AppendLine(sep);
-            foreach (Stat stat in _in.RpcByHash.Values.OrderBy(stat => stat, Sort))
-            {
-                _print.AppendLine($"| {stat.Name.PadLeft(nameMaxLength)} | {FormatBytes(stat.RecentBytes).PadLeft(recentBytesPad)} | {FormatCount(stat.RecentCount).PadLeft(recentCountPad)} | {FormatBytes(stat.TotalBytes).PadLeft(totalBytesPad)} | {FormatCount(stat.TotalCount).PadLeft(totalCountPad)} |");
-            }
+            printBuilder.AppendLine(sep);
+            printBuilder.AppendLine(header);
+            printBuilder.AppendLine(sep);
+            foreach (Stat stat in inStats.RpcByHash.Values.OrderBy(stat => stat, Sort))
+                printBuilder.AppendLine($"| {stat.Name.PadLeft(nameMaxLength)} | {FormatBytes(stat.RecentBytes).PadLeft(recentBytesPad)} | {FormatCount(stat.RecentCount).PadLeft(recentCountPad)} | {FormatBytes(stat.TotalBytes).PadLeft(totalBytesPad)} | {FormatCount(stat.TotalCount).PadLeft(totalCountPad)} |");
+
             header = $"| {"OUT Message".PadLeft(nameMaxLength)} | {recentBytes.PadLeft(recentBytesPad)} | {recentCount.PadLeft(recentCountPad)} | {totalBytes.PadLeft(totalBytesPad)} | {totalCount.PadLeft(totalCountPad)} |";
-            _print.AppendLine(sep);
-            _print.AppendLine(header);
-            _print.AppendLine(sep);
-            foreach (Stat stat in _out.MessageByType.Values.OrderBy(stat => stat, Sort))
-            {
-                _print.AppendLine($"| {stat.Name.PadLeft(nameMaxLength)} | {FormatBytes(stat.RecentBytes).PadLeft(recentBytesPad)} | {FormatCount(stat.RecentCount).PadLeft(recentCountPad)} | {FormatBytes(stat.TotalBytes).PadLeft(totalBytesPad)} | {FormatCount(stat.TotalCount).PadLeft(totalCountPad)} |");
-            }
+            printBuilder.AppendLine(sep);
+            printBuilder.AppendLine(header);
+            printBuilder.AppendLine(sep);
+            foreach (Stat stat in outStats.MessageByType.Values.OrderBy(stat => stat, Sort))
+                printBuilder.AppendLine($"| {stat.Name.PadLeft(nameMaxLength)} | {FormatBytes(stat.RecentBytes).PadLeft(recentBytesPad)} | {FormatCount(stat.RecentCount).PadLeft(recentCountPad)} | {FormatBytes(stat.TotalBytes).PadLeft(totalBytesPad)} | {FormatCount(stat.TotalCount).PadLeft(totalCountPad)} |");
 
             header = $"| {"OUT RPCs".PadLeft(nameMaxLength)} | {recentBytes.PadLeft(recentBytesPad)} | {recentCount.PadLeft(recentCountPad)} | {totalBytes.PadLeft(totalBytesPad)} | {totalCount.PadLeft(totalCountPad)} |";
-            _print.AppendLine(sep);
-            _print.AppendLine(header);
-            _print.AppendLine(sep);
+            printBuilder.AppendLine(sep);
+            printBuilder.AppendLine(header);
+            printBuilder.AppendLine(sep);
 
-            foreach (Stat stat in _out.RpcByHash.Values.OrderBy(stat => stat, Sort))
-            {
-                _print.AppendLine($"| {stat.Name.PadLeft(nameMaxLength)} | {FormatBytes(stat.RecentBytes).PadLeft(recentBytesPad)} | {FormatCount(stat.RecentCount).PadLeft(recentCountPad)} | {FormatBytes(stat.TotalBytes).PadLeft(totalBytesPad)} | {FormatCount(stat.TotalCount).PadLeft(totalCountPad)} |");
-            }
-            _print.AppendLine(sep);
+            foreach (Stat stat in outStats.RpcByHash.Values.OrderBy(stat => stat, Sort))
+                printBuilder.AppendLine($"| {stat.Name.PadLeft(nameMaxLength)} | {FormatBytes(stat.RecentBytes).PadLeft(recentBytesPad)} | {FormatCount(stat.RecentCount).PadLeft(recentCountPad)} | {FormatBytes(stat.TotalBytes).PadLeft(totalBytesPad)} | {FormatCount(stat.TotalCount).PadLeft(totalCountPad)} |");
+
+            printBuilder.AppendLine(sep);
 
             switch (Output)
             {
-
                 case OutputType.UnityLog:
-                    Debug.Log(_print.ToString());
+                    Debug.Log(printBuilder.ToString());
                     break;
                 case OutputType.StdOut:
-                    Console.Write(_print);
+                    Console.Write(printBuilder);
                     break;
                 case OutputType.File:
-                    File.AppendAllText(OutputFilePath, _print.ToString());
+                    File.AppendAllText(OutputFilePath, printBuilder.ToString());
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
         }
 
-        private string FormatBytes(long bytes)
+        static string FormatBytes(long bytes)
         {
             const double KiB = 1024;
             const double MiB = KiB * 1024;
@@ -296,16 +277,20 @@ namespace Mirror
 
             if (bytes < KiB)
                 return $"{bytes:N0} B";
+
             if (bytes < MiB)
                 return $"{bytes / KiB:N2} KiB";
+
             if (bytes < GiB)
                 return $"{bytes / MiB:N2} MiB";
+
             if (bytes < TiB)
                 return $"{bytes / GiB:N2} GiB";
+
             return $"{bytes / TiB:N2} TiB";
         }
 
-        private string FormatCount(long count)
+        string FormatCount(long count)
         {
             const double K = 1000;
             const double M = K * 1000;
@@ -314,12 +299,16 @@ namespace Mirror
 
             if (count < K)
                 return $"{count:N0}";
+
             if (count < M)
                 return $"{count / K:N2} K";
+
             if (count < G)
                 return $"{count / M:N2} M";
+
             if (count < T)
                 return $"{count / G:N2} G";
+
             return $"{count / T:N2} T";
         }
     }
