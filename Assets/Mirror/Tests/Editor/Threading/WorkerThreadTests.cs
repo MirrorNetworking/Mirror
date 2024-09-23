@@ -35,7 +35,7 @@ namespace Mirror.Tests
             int tickCalled = 0;
             int cleanupCalled = 0;
             void Init()    => Interlocked.Increment(ref initCalled);
-            void Tick()    => Interlocked.Increment(ref tickCalled);
+            bool Tick() { Interlocked.Increment(ref tickCalled); return true; }
             void Cleanup() => Interlocked.Increment(ref cleanupCalled);
 
             // ctor runs thread and calls callback immediately
@@ -82,7 +82,7 @@ namespace Mirror.Tests
             // exceptions in threads are silent by default.
             // guarantee we try/catch them.
             int cleanupCalled = 0;
-            void Tick()    => throw new Exception("Test Exception");
+            bool Tick()    => throw new Exception("Test Exception");
             void Cleanup() => Interlocked.Increment(ref cleanupCalled);
 
             // ctor runs thread and calls callback immediately
@@ -103,11 +103,25 @@ namespace Mirror.Tests
         {
             thread = new WorkerThread("WorkerThreadTests");
             Assert.False(thread.IsAlive);
+            thread.Tick = () => true;
             thread.Start();
 
             Thread.Sleep(10);
             Assert.True(thread.IsAlive);
             thread.StopBlocking(1);
+            Assert.False(thread.IsAlive);
+        }
+
+        [Test]
+        public void TickIndicatesEnd()
+        {
+            thread = new WorkerThread("WorkerThreadTests");
+            Assert.False(thread.IsAlive);
+            // returning false should automatically stop the thread
+            thread.Tick = () => false;
+            thread.Start();
+
+            Thread.Sleep(10);
             Assert.False(thread.IsAlive);
         }
 
@@ -117,7 +131,7 @@ namespace Mirror.Tests
         {
             thread = new WorkerThread("WorkerThreadTests");
             Assert.False(thread.IsAlive);
-            thread.Tick = () => Thread.Sleep(50);
+            thread.Tick = () => { Thread.Sleep(50); return true; };
             thread.Start();
 
             // stop should return immediately, while thread is shutting down
@@ -135,7 +149,7 @@ namespace Mirror.Tests
         {
             thread = new WorkerThread("WorkerThreadTests");
             Assert.False(thread.IsAlive);
-            thread.Tick = () => Thread.Sleep(50);
+            thread.Tick = () => { Thread.Sleep(50); return true; };
             thread.Start();
 
             // stop should wait until fully stopped
@@ -149,7 +163,7 @@ namespace Mirror.Tests
         {
             thread = new WorkerThread("WorkerThreadTests");
             Assert.That(thread.IsAlive, Is.False);
-            thread.Tick = () => Thread.Sleep(5000);
+            thread.Tick = () => { Thread.Sleep(5000); return true; };
             thread.Start();
 
             // wait for it to start

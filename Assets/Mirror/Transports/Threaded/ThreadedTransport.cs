@@ -263,7 +263,9 @@ namespace Mirror
             }
         }
 
-        void ThreadTick()
+        // Tick() returns a bool so it can easily stop the thread
+        // without needing to throw InterruptExceptions or similar.
+        bool ThreadTick()
         {
             // early update the implementation first
             ThreadedClientEarlyUpdate();
@@ -279,6 +281,7 @@ namespace Mirror
             // save some cpu power.
             // TODO update interval and sleep extra time would be ideal
             Thread.Sleep(1);
+            return true;
         }
 
         // threaded callbacks to call from transport thread.
