@@ -148,7 +148,7 @@ namespace Mirror
         const int MaxProcessingPerTick = 10_000_000;
 
         [Tooltip("Detect device sleep mode and automatically disconnect + hibernate the thread after 'sleepTimeout' seconds.\nFor example: on mobile / VR, we don't want to drain the battery after putting down the device.")]
-        public bool sleepDetection = false;
+        public bool sleepDetection = true;
         public float sleepTimeout = 30;
 
         // communication between main & worker thread //////////////////////////
