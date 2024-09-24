@@ -63,34 +63,6 @@ namespace Mirror
         protected virtual Vector3 GetScale() =>
             coordinateSpace == CoordinateSpace.Local ? target.localScale : target.lossyScale;
 
-        // set local/world position
-        protected virtual void SetPosition(Vector3 position)
-        {
-            if (coordinateSpace == CoordinateSpace.Local)
-                target.localPosition = position;
-            else
-                target.position = position;
-        }
-
-        // set local/world rotation
-        protected virtual void SetRotation(Quaternion rotation)
-        {
-            if (coordinateSpace == CoordinateSpace.Local)
-                target.localRotation = rotation;
-            else
-                target.rotation = rotation;
-        }
-
-        // set local/world position
-        protected virtual void SetScale(Vector3 scale)
-        {
-            if (coordinateSpace == CoordinateSpace.Local)
-                target.localScale = scale;
-            // Unity doesn't support setting world scale.
-            // OnValidate disables syncScale in world mode.
-            // else
-            // target.lossyScale = scale; // TODO
-        }
 
         // construct a snapshot of the current state
         // => internal for testing
@@ -149,18 +121,17 @@ namespace Mirror
         //       we always set transform.position anyway, we can't get stuck.
         protected virtual void Apply(TransformSnapshot interpolated, TransformSnapshot endGoal)
         {
-            // local position/rotation for VR support
-            //
-            // if syncPosition/Rotation/Scale is disabled then we received nulls
-            // -> current position/rotation/scale would've been added as snapshot
-            // -> we still interpolated
-            // -> but simply don't apply it. if the user doesn't want to sync
-            //    scale, then we should not touch scale etc.
-
-            // interpolate parts
-            SetPosition(interpolated.position);
-            SetRotation(interpolated.rotation);
-            SetScale(interpolated.scale);
+            if (coordinateSpace == CoordinateSpace.Local)
+            {
+                target.localPosition = interpolated.position;
+                target.localRotation = interpolated.rotation;
+            }
+            else
+            {
+                target.position = interpolated.position;
+                target.rotation = interpolated.rotation;
+                target.localScale = interpolated.scale;
+            }
         }
 
         // NT COMPRESSED ///////////////////////////////////////////////////////
