@@ -339,7 +339,7 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
-  offset: {x: 0, y: 8, z: -8}
+  offset: {x: 0, y: 8, z: -13}
   rotation: {x: 40, y: 0, z: 0}
 --- !u!114 &1260535960049292642
 MonoBehaviour:
