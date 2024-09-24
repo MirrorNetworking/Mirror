@@ -74,8 +74,8 @@ MonoBehaviour:
   syncPosition: 1
   syncRotation: 1
   syncScale: 0
-  onlySyncOnChange: 1
-  compressRotation: 1
+  onlySyncOnChange: 0
+  compressRotation: 0
   interpolatePosition: 1
   interpolateRotation: 1
   interpolateScale: 0
@@ -87,7 +87,9 @@ MonoBehaviour:
   onlySyncOnChangeCorrectionMultiplier: 2
   rotationSensitivity: 0.01
   positionPrecision: 0.01
+  rotationPrecision: 0.001
   scalePrecision: 0.01
+  debugDraw: 1
 --- !u!114 &114654712548978148
 MonoBehaviour:
   m_ObjectHideFlags: 0
