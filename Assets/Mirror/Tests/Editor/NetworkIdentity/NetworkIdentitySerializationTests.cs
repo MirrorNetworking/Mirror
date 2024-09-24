@@ -219,7 +219,7 @@ namespace Mirror.Tests.NetworkIdentities
             // serialize server object.
             // 'initial' would write everything.
             // instead, try 'not initial' with 0 dirty bits
-            serverIdentity.SerializeServer_Broadcast(ownerWriter, observersWriter);
+            serverIdentity.SerializeServer_Broadcast(ownerWriter, observersWriter, new NetworkWriter(), new NetworkWriter(), new NetworkWriter(), new NetworkWriter(), false);
             Assert.That(ownerWriter.Position, Is.EqualTo(0));
             Assert.That(observersWriter.Position, Is.EqualTo(0));
         }
@@ -243,7 +243,7 @@ namespace Mirror.Tests.NetworkIdentities
             // clientComp.value = "42";
 
             // serialize client object
-            clientIdentity.SerializeClient(ownerWriter);
+            clientIdentity.SerializeClient(ownerWriter, new NetworkWriter(), new NetworkWriter(), false);
             Assert.That(ownerWriter.Position, Is.EqualTo(0));
         }
 
@@ -267,7 +267,7 @@ namespace Mirror.Tests.NetworkIdentities
             comp2.value = "67890";
 
             // serialize all
-            identity.SerializeClient(ownerWriter);
+            identity.SerializeClient(ownerWriter, new NetworkWriter(), new NetworkWriter(), false);
 
             // shouldn't sync anything. because even though it's ClientToServer,
             // we don't own this one so we shouldn't serialize & sync it.
@@ -302,7 +302,7 @@ namespace Mirror.Tests.NetworkIdentities
             comp.SetValue(22); // modify with helper function to avoid #3525
             ownerWriter.Position = 0;
             observersWriter.Position = 0;
-            identity.SerializeServer_Broadcast(ownerWriter, observersWriter);
+            identity.SerializeServer_Broadcast(ownerWriter, observersWriter, new NetworkWriter(), new NetworkWriter(), new NetworkWriter(), new NetworkWriter(), false);
             Debug.Log("delta ownerWriter: " + ownerWriter);
             Debug.Log("delta observersWriter: " + observersWriter);
             Assert.That(ownerWriter.Position, Is.EqualTo(0));
@@ -340,7 +340,7 @@ namespace Mirror.Tests.NetworkIdentities
             comp.SetValue(22); // modify with helper function to avoid #3525
             ownerWriter.Position = 0;
             observersWriter.Position = 0;
-            identity.SerializeServer_Broadcast(ownerWriter, observersWriter);
+            identity.SerializeServer_Broadcast(ownerWriter, observersWriter, new NetworkWriter(), new NetworkWriter(), new NetworkWriter(), new NetworkWriter(), false);
             Debug.Log("delta ownerWriter: " + ownerWriter);
             Debug.Log("delta observersWriter: " + observersWriter);
             Assert.That(ownerWriter.Position, Is.EqualTo(0));

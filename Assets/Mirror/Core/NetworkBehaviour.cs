@@ -236,12 +236,17 @@ namespace Mirror
             // only check time if bits were dirty. this is more expensive.
             NetworkTime.localTime - lastSyncTime >= syncInterval;
 
+        // true if any SyncVar or SyncObject is dirty
+        // OR both bitmasks. != 0 if either was dirty.
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool IsDirty_BitsOnly() => (syncVarDirtyBits | syncObjectDirtyBits) != 0UL;
+
         /// <summary>Clears all the dirty bits that were set by SetSyncVarDirtyBit() (formally SetDirtyBits)</summary>
         // automatically invoked when an update is sent for this object, but can
         // be called manually as well.
-        public void ClearAllDirtyBits()
+        public void ClearAllDirtyBits(bool clearSyncTime = true)
         {
-            lastSyncTime = NetworkTime.localTime;
+            if (clearSyncTime) lastSyncTime = NetworkTime.localTime;
             syncVarDirtyBits = 0L;
             syncObjectDirtyBits = 0L;
 

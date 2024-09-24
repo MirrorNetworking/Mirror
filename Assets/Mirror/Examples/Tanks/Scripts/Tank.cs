@@ -20,16 +20,24 @@ namespace Mirror.Examples.Tanks
         public Transform  projectileMount;
 
         [Header("Stats")]
-        [SyncVar] public int health = 5;
+        public int health = 5;
+        int lastHealth = 5;
 
         void Update()
         {
+            // manual setdirty test
+            if (health != lastHealth)
+            {
+                SetDirty();
+                lastHealth = health;
+            }
+
             // always update health bar.
             // (SyncVar hook would only update on clients, not on server)
             healthBar.text = new string('-', health);
-            
+
             // take input from focused window only
-            if(!Application.isFocused) return; 
+            if(!Application.isFocused) return;
 
             // movement for local player
             if (isLocalPlayer)
@@ -90,6 +98,18 @@ namespace Mirror.Examples.Tanks
                 Vector3 lookRotation = new Vector3(hit.point.x, turret.transform.position.y, hit.point.z);
                 turret.transform.LookAt(lookRotation);
             }
+        }
+
+        public override void OnSerialize(NetworkWriter writer, bool initialState)
+        {
+            // Debug.LogWarning($"Tank {name} OnSerialize {(initialState ? "full" : "delta")} health={health}");
+            writer.WriteInt(health);
+        }
+
+        public override void OnDeserialize(NetworkReader reader, bool initialState)
+        {
+            health = reader.ReadInt();
+            // Debug.LogWarning($"Tank {name} OnDeserialize {(initialState ? "full" : "delta")} health={health}");
         }
     }
 }
