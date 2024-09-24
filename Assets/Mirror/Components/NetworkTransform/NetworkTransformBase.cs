@@ -121,6 +121,7 @@ namespace Mirror
 
         // debugging ///////////////////////////////////////////////////////////
         [Header("Debug")]
+        public bool debugDraw = false;
         public bool showGizmos;
         public bool showOverlay;
         public Color overlayColor = new Color(0, 0, 0, 0.5f);

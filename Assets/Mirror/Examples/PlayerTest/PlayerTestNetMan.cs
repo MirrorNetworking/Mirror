@@ -153,6 +153,16 @@ namespace Mirror.Examples.PlayerTest
         public override void OnServerAddPlayer(NetworkConnectionToClient conn)
         {
             base.OnServerAddPlayer(conn);
+            StartCoroutine(SpawnExtras(conn));
+        }
+
+        IEnumerator SpawnExtras(NetworkConnectionToClient conn)
+        {
+            yield return new WaitForSeconds(0.1f);
+            Vector3 startPos = conn.identity.transform.position;
+            NetworkServer.Spawn(Instantiate(spawnPrefabs[0], startPos + new Vector3(0, 0, -2f), Quaternion.identity), conn);
+            yield return new WaitForSeconds(0.1f);
+            NetworkServer.Spawn(Instantiate(spawnPrefabs[1], startPos + new Vector3(0, 0, 2f), Quaternion.identity), conn);
         }
 
         /// <summary>

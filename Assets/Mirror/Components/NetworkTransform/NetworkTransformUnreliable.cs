@@ -267,7 +267,12 @@ namespace Mirror
             // (Spawn message wouldn't sync NTChild positions either)
             if (initialState)
             {
-                if (syncPosition) SetPosition(reader.ReadVector3());
+                if (syncPosition) 
+                {
+                    Vector3 position = reader.ReadVector3();
+                    if (debugDraw) Debug.DrawLine(position, position + Vector3.up, Color.green, 10.0f);
+                    SetPosition(position);
+                }
                 if (syncRotation) SetRotation(reader.ReadQuaternion());
                 if (syncScale) SetScale(reader.ReadVector3());
             }

@@ -28,8 +28,8 @@ namespace Mirror
         [Range(0.00_01f, 1f)]                   // disallow 0 division. 1mm to 1m precision is enough range.
         public float scalePrecision = 0.01f; // 1 cm
 
-        [Header("Debug")]
-        public bool debugDraw = false;
+        //[Header("Debug")]
+        //public bool debugDraw = false;
 
         protected Vector4Long lastSerializedRotation = Vector4Long.zero;
         protected Vector4Long lastDeserializedRotation = Vector4Long.zero;

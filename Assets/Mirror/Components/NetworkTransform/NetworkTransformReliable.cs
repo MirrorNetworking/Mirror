@@ -254,7 +254,11 @@ namespace Mirror
             // initial
             if (initialState)
             {
-                if (syncPosition) position = reader.ReadVector3();
+                if (syncPosition)
+                {
+                    position = reader.ReadVector3();
+                    if (debugDraw) Debug.DrawLine(position.Value, position.Value + Vector3.up, Color.green, 10.0f);
+                }
                 if (syncRotation)
                 {
                     // (optional) smallest three compression for now. no delta.
@@ -273,6 +277,7 @@ namespace Mirror
                 {
                     Vector3Long quantized = DeltaCompression.Decompress(reader, lastDeserializedPosition);
                     position = Compression.ScaleToFloat(quantized, positionPrecision);
+                    if (debugDraw) Debug.DrawLine(position.Value, position.Value + Vector3.up, Color.yellow, 10.0f);
                 }
                 if (syncRotation)
                 {

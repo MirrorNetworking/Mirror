@@ -278,6 +278,7 @@ MonoBehaviour:
   interpolateScale: 1
   coordinateSpace: 0
   timelineOffset: 0
+  debugDraw: 0
   showGizmos: 0
   showOverlay: 0
   overlayColor: {r: 0, g: 0, b: 0, a: 0.5}
@@ -455,7 +456,7 @@ Transform:
   m_GameObject: {fileID: 890531170}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -20000, y: 1.02, z: 3}
+  m_LocalPosition: {x: -20000, y: 1.02, z: 12}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -499,7 +500,7 @@ Transform:
   m_GameObject: {fileID: 980545347}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -20010, y: 1.02, z: 1}
+  m_LocalPosition: {x: -20010, y: 1.02, z: 4}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -543,7 +544,7 @@ Transform:
   m_GameObject: {fileID: 1175360880}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -20020, y: 1.02, z: -1}
+  m_LocalPosition: {x: -20020, y: 1.02, z: -4}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -680,7 +681,7 @@ Transform:
   m_GameObject: {fileID: 1708370876}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -20030, y: 1.02, z: -3}
+  m_LocalPosition: {x: -20030, y: 1.02, z: -12}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -874,7 +875,9 @@ MonoBehaviour:
   playerPrefab: {fileID: 7863680369626900553, guid: ced318e1e70bb294baac46b2bfe34e0e, type: 3}
   autoCreatePlayer: 1
   playerSpawnMethod: 1
-  spawnPrefabs: []
+  spawnPrefabs:
+  - {fileID: 7863680369626900553, guid: 34c79b503a7a04847be9745d119b655d, type: 3}
+  - {fileID: 7863680369626900553, guid: 400bac1c9e1e96648a83f333d4837484, type: 3}
   exceptionsDisconnect: 1
   snapshotSettings:
     bufferTimeMultiplier: 2
