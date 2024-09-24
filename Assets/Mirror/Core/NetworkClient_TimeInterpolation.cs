@@ -109,9 +109,12 @@ namespace Mirror
         }
 
         // see comments at the top of this file
+        static bool inserted=false;
         public static void OnTimeSnapshot(TimeSnapshot snap)
         {
-            // Debug.Log($"NetworkClient: OnTimeSnapshot @ {snap.remoteTime:F3}");
+            if (inserted) return;
+
+            Debug.LogWarning($"NetworkClient: OnTimeSnapshot @ {snap.remoteTime:F3}");
 
             // insert into the buffer & initialize / adjust / catchup
             SnapshotInterpolation.InsertAndAdjust(
@@ -128,6 +131,8 @@ namespace Mirror
                 snapshotSettings.catchupNegativeThreshold,
                 snapshotSettings.catchupPositiveThreshold,
                 ref deliveryTimeEma);
+
+            inserted= true;
 
             // Debug.Log($"inserted TimeSnapshot remote={snap.remoteTime:F2} local={snap.localTime:F2} total={snapshots.Count}");
         }
