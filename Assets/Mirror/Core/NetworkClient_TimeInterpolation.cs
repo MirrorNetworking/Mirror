@@ -153,7 +153,7 @@ namespace Mirror
                 // progress local interpolation.
                 // TimeSnapshot doesn't interpolate anything.
                 // this is merely to keep removing older snapshots.
-                SnapshotInterpolation.StepInterpolation(snapshots, localTimeline, out _, out _, out double t);
+                // SnapshotInterpolation.StepInterpolation(snapshots, localTimeline, out _, out _, out double t);
                 // Debug.Log($"NetworkClient SnapshotInterpolation @ {localTimeline:F2} t={t:F2}");
             }
         }
