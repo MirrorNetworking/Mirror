@@ -20,9 +20,6 @@ namespace Mirror
         // TODO move to server's NetworkConnectionToClient?
         public readonly HashSet<NetworkIdentity> observing = new HashSet<NetworkIdentity>();
 
-        // unbatcher
-        public Unbatcher unbatcher = new Unbatcher();
-
         // server runs a time snapshot interpolation for each client's local time.
         // this is necessary for client auth movement to still be smooth on the
         // server for host mode.

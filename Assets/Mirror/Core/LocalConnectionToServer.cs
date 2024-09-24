@@ -57,21 +57,10 @@ namespace Mirror
                 NetworkWriterPooled writer = queue.Dequeue();
                 ArraySegment<byte> message = writer.ToArraySegment();
 
-                // OnTransportData assumes a proper batch with timestamp etc.
-                // let's make a proper batch and pass it to OnTransportData.
-                Batcher batcher = GetBatchForChannelId(Channels.Reliable);
-                batcher.AddMessage(message, NetworkTime.localTime);
-
-                using (NetworkWriterPooled batchWriter = NetworkWriterPool.Get())
-                {
-                    // make a batch with our local time (double precision)
-                    if (batcher.GetBatch(batchWriter))
-                    {
-                        NetworkClient.OnTransportData(batchWriter.ToArraySegment(), Channels.Reliable);
-                    }
-                }
-
-                NetworkWriterPool.Return(writer);
+                 NetworkWriter fullWriter = new NetworkWriter();
+                 fullWriter.WriteDouble(NetworkTime.localTime); // remote timestamp
+                 fullWriter.WriteBytes(message.Array, message.Offset, message.Count);
+                 NetworkClient.OnTransportData(fullWriter, Channels.Reliable);
             }
 
             // should we still process a disconnected event?

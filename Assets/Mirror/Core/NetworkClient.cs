@@ -124,8 +124,6 @@ namespace Mirror
         internal static readonly Dictionary<ulong, NetworkIdentity> spawnableObjects =
             new Dictionary<ulong, NetworkIdentity>();
 
-        internal static Unbatcher unbatcher = new Unbatcher();
-
         // interest management component (optional)
         // only needed for SetHostVisibility
         public static InterestManagementBase aoi;
@@ -190,12 +188,6 @@ namespace Mirror
 
             // Debug.Log($"Client Connect: {address}");
             Debug.Assert(Transport.active != null, "There was no active transport when calling NetworkClient.Connect, If you are calling Connect manually then make sure to set 'Transport.active' first");
-
-            // reset unbatcher in case any batches from last session remain.
-            // need to do this in Initialize() so it runs for the host as well.
-            // fixes host mode scene transition receiving data from previous scene.
-            // credits: BigBoxVR
-            unbatcher = new Unbatcher();
 
             // reset time interpolation on every new connect.
             // ensures last sessions' state is cleared before starting again.
@@ -327,22 +319,9 @@ namespace Mirror
         {
             if (connection != null)
             {
-                // server might batch multiple messages into one packet.
-                // feed it to the Unbatcher.
-                // NOTE: we don't need to associate a channelId because we
-                //       always process all messages in the batch.
-                if (!unbatcher.AddBatch(data))
-                {
-                    if (exceptionsDisconnect)
-                    {
-                        Debug.LogError($"NetworkClient: failed to add batch, disconnecting.");
-                        connection.Disconnect();
-                    }
-                    else
-                        Debug.LogWarning($"NetworkClient: failed to add batch.");
-
-                    return;
-                }
+                NetworkReader fullReader = new NetworkReader(data);
+                double remoteTimestamp = fullReader.ReadDouble();
+                ArraySegment<byte> message = fullReader.ReadBytesSegment(fullReader.Remaining);
 
                 // process all messages in the batch.
                 // only while NOT loading a scene.
@@ -354,8 +333,7 @@ namespace Mirror
                 //       would only be processed when OnTransportData is called
                 //       the next time.
                 //       => consider moving processing to NetworkEarlyUpdate.
-                while (!isLoadingScene &&
-                       unbatcher.GetNextMessage(out ArraySegment<byte> message, out double remoteTimestamp))
+                if (!isLoadingScene)
                 {
                     using (NetworkReaderPooled reader = NetworkReaderPool.Get(message))
                     {
@@ -400,27 +378,6 @@ namespace Mirror
                             return;
                         }
                     }
-                }
-
-                // if we weren't interrupted by a scene change,
-                // then all batched messages should have been processed now.
-                // if not, we need to log an error to avoid debugging hell.
-                // otherwise batches would silently grow.
-                // we need to log an error to avoid debugging hell.
-                //
-                // EXAMPLE: https://github.com/vis2k/Mirror/issues/2882
-                // -> UnpackAndInvoke silently returned because no handler for id
-                // -> Reader would never be read past the end
-                // -> Batch would never be retired because end is never reached
-                //
-                // NOTE: prefixing every message in a batch with a length would
-                //       avoid ever not reading to the end. for extra bandwidth.
-                //
-                // IMPORTANT: always keep this check to detect memory leaks.
-                //            this took half a day to debug last time.
-                if (!isLoadingScene && unbatcher.BatchesCount > 0)
-                {
-                    Debug.LogError($"Still had {unbatcher.BatchesCount} batches remaining after processing, even though processing was not interrupted by a scene change. This should never happen, as it would cause ever growing batches.\nPossible reasons:\n* A message didn't deserialize as much as it serialized\n*There was no message handler for a message id, so the reader wasn't read until the end.");
                 }
             }
             else Debug.LogError("Skipped Data message handling because connection is null.");
@@ -1961,8 +1918,6 @@ namespace Mirror
             isSpawnFinished = false;
             isLoadingScene = false;
             lastSendTime = 0;
-
-            unbatcher = new Unbatcher();
 
             // clear events. someone might have hooked into them before, but
             // we don't want to use those hooks after Shutdown anymore.
