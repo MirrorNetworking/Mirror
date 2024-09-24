@@ -91,7 +91,7 @@ namespace Mirror
             // 1 second holds 'sendRate' worth of values.
             // multiplied by emaDuration gives n-seconds.
             driftEma = new ExponentialMovingAverage(NetworkServer.sendRate * snapshotSettings.driftEmaDuration);
-            deliveryTimeEma = new ExponentialMovingAverage(NetworkServer.sendRate * snapshotSettings.deliveryTimeEmaDuration);
+            deliveryTimeEma = new ExponentialMovingAverage(NetworkServer.sendRate);
         }
 
         // server sends TimeSnapshotMessage every sendInterval.
@@ -112,18 +112,6 @@ namespace Mirror
         public static void OnTimeSnapshot(TimeSnapshot snap)
         {
             // Debug.Log($"NetworkClient: OnTimeSnapshot @ {snap.remoteTime:F3}");
-
-            // (optional) dynamic adjustment
-            if (snapshotSettings.dynamicAdjustment)
-            {
-                // set bufferTime on the fly.
-                // shows in inspector for easier debugging :)
-                bufferTimeMultiplier = SnapshotInterpolation.DynamicAdjustment(
-                    NetworkServer.sendInterval,
-                    deliveryTimeEma.StandardDeviation,
-                    snapshotSettings.dynamicAdjustmentTolerance
-                );
-            }
 
             // insert into the buffer & initialize / adjust / catchup
             SnapshotInterpolation.InsertAndAdjust(

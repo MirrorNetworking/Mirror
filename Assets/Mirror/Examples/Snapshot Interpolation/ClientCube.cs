@@ -62,7 +62,7 @@ namespace Mirror.Examples.SnapshotInterpolationDemo
             // 1 second holds 'sendRate' worth of values.
             // multiplied by emaDuration gives n-seconds.
             driftEma = new ExponentialMovingAverage(server.sendRate * snapshotSettings.driftEmaDuration);
-            deliveryTimeEma = new ExponentialMovingAverage(server.sendRate * snapshotSettings.deliveryTimeEmaDuration);
+            deliveryTimeEma = new ExponentialMovingAverage(server.sendRate);
         }
 
         // add snapshot & initialize client interpolation time if needed
@@ -71,18 +71,6 @@ namespace Mirror.Examples.SnapshotInterpolationDemo
             // set local timestamp (= when it was received on our end)
             // Unity 2019 doesn't have Time.timeAsDouble yet
             snap.localTime = NetworkTime.localTime;
-
-            // (optional) dynamic adjustment
-            if (snapshotSettings.dynamicAdjustment)
-            {
-                // set bufferTime on the fly.
-                // shows in inspector for easier debugging :)
-                snapshotSettings.bufferTimeMultiplier = SnapshotInterpolation.DynamicAdjustment(
-                    server.sendInterval,
-                    deliveryTimeEma.StandardDeviation,
-                    snapshotSettings.dynamicAdjustmentTolerance
-                );
-            }
 
             // insert into the buffer & initialize / adjust / catchup
             SnapshotInterpolation.InsertAndAdjust(
