@@ -210,6 +210,8 @@ namespace Mirror
             }
         }
 
+
+        double lastNetworkTime;
         protected virtual void UpdateClient()
         {
             // client authority, and local player (= allowed to move myself)?
@@ -233,8 +235,12 @@ namespace Mirror
 
                     if (debugDraw)
                     {
+                        // visual debugging
+                        double delta = NetworkTime.time - lastNetworkTime;
+                        lastNetworkTime = NetworkTime.time;
+
                         Debug.DrawLine(from.position, to.position, Color.white, 10f);
-                        Debug.DrawLine(computed.position, computed.position + Vector3.up, Color.white, 10f);
+                        Debug.DrawLine(computed.position, computed.position + Vector3.up * (float)(delta * 100), Color.white, 10f);
                     }
                 }
             }
