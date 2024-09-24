@@ -1991,7 +1991,6 @@ namespace Mirror
             GUILayout.Box($"timeline: {localTimeline:F2}");
             GUILayout.Box($"buffer: {snapshots.Count}");
             GUILayout.Box($"DriftEMA: {NetworkClient.driftEma.Value:F2}");
-            GUILayout.Box($"DelTimeEMA: {NetworkClient.deliveryTimeEma.Value:F2}");
             GUILayout.Box($"timescale: {localTimescale:F2}");
             GUILayout.Box($"BTM: {NetworkClient.bufferTimeMultiplier:F2}"); // current dynamically adjusted multiplier
             GUILayout.Box($"RTT: {NetworkTime.rtt * 1000:F0}ms");

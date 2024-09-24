@@ -152,8 +152,7 @@ namespace Mirror
             double slowdownSpeed,                         // in % [0,1]
             ref ExponentialMovingAverage driftEma,        // for catchup / slowdown
             float catchupNegativeThreshold,               // in % of sendInteral (careful, we may run out of snapshots)
-            float catchupPositiveThreshold,               // in % of sendInterval
-            ref ExponentialMovingAverage deliveryTimeEma) // for dynamic buffer time adjustment
+            float catchupPositiveThreshold)             // in % of sendInterval
             where T : Snapshot
         {
             // first snapshot?
@@ -176,33 +175,6 @@ namespace Mirror
             // need to handle it silently.
             if (InsertIfNotExists(buffer, bufferLimit, snapshot))
             {
-                // dynamic buffer adjustment needs delivery interval jitter
-                if (buffer.Count >= 2)
-                {
-                    // note that this is not entirely accurate for scrambled inserts.
-                    //
-                    // we always use the last two, not what we just inserted
-                    // even if we were to use the diff for what we just inserted,
-                    // a scrambled insert would still not be 100% accurate:
-                    // => assume a buffer of AC, with delivery time C-A
-                    // => we then insert B, with delivery time B-A
-                    // => but then technically the first C-A wasn't correct,
-                    //    as it would have to be C-B
-                    //
-                    // in practice, scramble is rare and won't make much difference
-                    double previousLocalTime = buffer.Values[buffer.Count - 2].localTime;
-                    double lastestLocalTime = buffer.Values[buffer.Count - 1].localTime;
-
-                    // this is the delivery time since last snapshot
-                    double localDeliveryTime = lastestLocalTime - previousLocalTime;
-
-                    // feed the local delivery time to the EMA.
-                    // this is what the original stream did too.
-                    // our final dynamic buffer adjustment is different though.
-                    // we use standard deviation instead of average.
-                    deliveryTimeEma.Add(localDeliveryTime);
-                }
-
                 // adjust timescale to catch up / slow down after each insertion
                 // because that is when we add new values to our EMA.
 

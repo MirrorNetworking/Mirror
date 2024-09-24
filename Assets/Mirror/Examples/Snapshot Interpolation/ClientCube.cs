@@ -85,8 +85,7 @@ namespace Mirror.Examples.SnapshotInterpolationDemo
                 snapshotSettings.slowdownSpeed,
                 ref driftEma,
                 snapshotSettings.catchupNegativeThreshold,
-                snapshotSettings.catchupPositiveThreshold,
-                ref deliveryTimeEma);
+                snapshotSettings.catchupPositiveThreshold);
         }
 
         void Update()

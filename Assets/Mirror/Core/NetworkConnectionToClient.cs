@@ -83,8 +83,7 @@ namespace Mirror
                 NetworkClient.snapshotSettings.slowdownSpeed,
                 ref driftEma,
                 NetworkClient.snapshotSettings.catchupNegativeThreshold,
-                NetworkClient.snapshotSettings.catchupPositiveThreshold,
-                ref deliveryTimeEma
+                NetworkClient.snapshotSettings.catchupPositiveThreshold
             );
         }
 

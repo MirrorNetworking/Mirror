@@ -181,8 +181,8 @@ namespace Mirror.Tests
             double localTimescale = 0;
 
             // insert twice
-            SnapshotInterpolation.InsertAndAdjust(buffer, bufferLimit, snap, ref localTimeline, ref localTimescale, 0, 0, 0.01, 0.01, ref driftEma, 0, 0, ref deliveryIntervalEma);
-            SnapshotInterpolation.InsertAndAdjust(buffer, bufferLimit, snap, ref localTimeline, ref localTimescale, 0, 0, 0.01, 0.01, ref driftEma, 0, 0, ref deliveryIntervalEma);
+            SnapshotInterpolation.InsertAndAdjust(buffer, bufferLimit, snap, ref localTimeline, ref localTimescale, 0, 0, 0.01, 0.01, ref driftEma, 0, 0);
+            SnapshotInterpolation.InsertAndAdjust(buffer, bufferLimit, snap, ref localTimeline, ref localTimescale, 0, 0, 0.01, 0.01, ref driftEma, 0, 0);
 
             // should only be inserted once
             Assert.That(buffer.Count, Is.EqualTo(1));
@@ -203,8 +203,8 @@ namespace Mirror.Tests
             SimpleSnapshot b = new SimpleSnapshot(3, 0, 43);
 
             // insert in reverse order
-            SnapshotInterpolation.InsertAndAdjust(buffer, bufferLimit, b, ref localTimeline, ref localTimescale, 0, 0, 0.01, 0.01, ref driftEma, 0, 0, ref deliveryIntervalEma);
-            SnapshotInterpolation.InsertAndAdjust(buffer, bufferLimit, a, ref localTimeline, ref localTimescale, 0, 0, 0.01, 0.01, ref driftEma, 0, 0, ref deliveryIntervalEma);
+            SnapshotInterpolation.InsertAndAdjust(buffer, bufferLimit, b, ref localTimeline, ref localTimescale, 0, 0, 0.01, 0.01, ref driftEma, 0, 0);
+            SnapshotInterpolation.InsertAndAdjust(buffer, bufferLimit, a, ref localTimeline, ref localTimescale, 0, 0, 0.01, 0.01, ref driftEma, 0, 0);
 
             // should be in sorted order
             Assert.That(buffer.Count, Is.EqualTo(2));
@@ -228,11 +228,11 @@ namespace Mirror.Tests
             SimpleSnapshot b = new SimpleSnapshot(3, 0, 43);
 
             // first insertion should initialize the local timeline to remote time
-            SnapshotInterpolation.InsertAndAdjust(buffer, bufferLimit, a, ref localTimeline, ref localTimescale, 0, bufferTime, 0.01, 0.01, ref driftEma, 0, 0, ref deliveryIntervalEma);
+            SnapshotInterpolation.InsertAndAdjust(buffer, bufferLimit, a, ref localTimeline, ref localTimescale, 0, bufferTime, 0.01, 0.01, ref driftEma, 0, 0);
             Assert.That(localTimeline, Is.EqualTo(2 - bufferTime)); // initial snapshot - buffer time
 
             // second insertion should not modify the timeline again
-            SnapshotInterpolation.InsertAndAdjust(buffer, bufferLimit, b, ref localTimeline, ref localTimescale, 0, bufferTime, 0.01, 0.01, ref driftEma, 0, 0, ref deliveryIntervalEma);
+            SnapshotInterpolation.InsertAndAdjust(buffer, bufferLimit, b, ref localTimeline, ref localTimescale, 0, bufferTime, 0.01, 0.01, ref driftEma, 0, 0);
             Assert.That(localTimeline, Is.EqualTo(2 - bufferTime)); // initial snapshot - buffer time
         }
 
@@ -253,13 +253,13 @@ namespace Mirror.Tests
             SimpleSnapshot c = new SimpleSnapshot(5, 0, 43);
 
             // insert in order
-            SnapshotInterpolation.InsertAndAdjust(buffer, bufferLimit, a, ref localTimeline, ref localTimescale, 0, bufferTime, 0.01, 0.01, ref driftEma, 0, 0, ref deliveryIntervalEma);
+            SnapshotInterpolation.InsertAndAdjust(buffer, bufferLimit, a, ref localTimeline, ref localTimescale, 0, bufferTime, 0.01, 0.01, ref driftEma, 0, 0);
             Assert.That(localTimeline, Is.EqualTo(2 - bufferTime)); // initial snapshot - buffer time
 
-            SnapshotInterpolation.InsertAndAdjust(buffer, bufferLimit, b, ref localTimeline, ref localTimescale, 0, bufferTime, 0.01, 0.01, ref driftEma, 0, 0, ref deliveryIntervalEma);
+            SnapshotInterpolation.InsertAndAdjust(buffer, bufferLimit, b, ref localTimeline, ref localTimescale, 0, bufferTime, 0.01, 0.01, ref driftEma, 0, 0);
             Assert.That(localTimeline, Is.EqualTo(2 - bufferTime)); // initial snapshot - buffer time
 
-            SnapshotInterpolation.InsertAndAdjust(buffer, bufferLimit, c, ref localTimeline, ref localTimescale, 0, bufferTime, 0.01, 0.01, ref driftEma, 0, 0, ref deliveryIntervalEma);
+            SnapshotInterpolation.InsertAndAdjust(buffer, bufferLimit, c, ref localTimeline, ref localTimescale, 0, bufferTime, 0.01, 0.01, ref driftEma, 0, 0);
             Assert.That(localTimeline, Is.EqualTo(2 - bufferTime)); // initial snapshot - buffer time
 
             // first insertion initializes localTime to '2'.
@@ -285,13 +285,13 @@ namespace Mirror.Tests
             SimpleSnapshot c = new SimpleSnapshot(5, 0, 43);
 
             // insert scrambled (not in order)
-            SnapshotInterpolation.InsertAndAdjust(buffer, bufferLimit, a, ref localTimeline, ref localTimescale, 0, bufferTime, 0.01, 0.01, ref driftEma, 0, 0, ref deliveryIntervalEma);
+            SnapshotInterpolation.InsertAndAdjust(buffer, bufferLimit, a, ref localTimeline, ref localTimescale, 0, bufferTime, 0.01, 0.01, ref driftEma, 0, 0);
             Assert.That(localTimeline, Is.EqualTo(2 - bufferTime)); // initial snapshot - buffer time
 
-            SnapshotInterpolation.InsertAndAdjust(buffer, bufferLimit, c, ref localTimeline, ref localTimescale, 0, bufferTime, 0.01, 0.01, ref driftEma, 0, 0, ref deliveryIntervalEma);
+            SnapshotInterpolation.InsertAndAdjust(buffer, bufferLimit, c, ref localTimeline, ref localTimescale, 0, bufferTime, 0.01, 0.01, ref driftEma, 0, 0);
             Assert.That(localTimeline, Is.EqualTo(2 - bufferTime)); // initial snapshot - buffer time
 
-            SnapshotInterpolation.InsertAndAdjust(buffer, bufferLimit, b, ref localTimeline, ref localTimescale, 0, bufferTime, 0.01, 0.01, ref driftEma, 0, 0, ref deliveryIntervalEma);
+            SnapshotInterpolation.InsertAndAdjust(buffer, bufferLimit, b, ref localTimeline, ref localTimescale, 0, bufferTime, 0.01, 0.01, ref driftEma, 0, 0);
             Assert.That(localTimeline, Is.EqualTo(2 - bufferTime)); // initial snapshot - buffer time
 
             // first insertion initializes localTime to '2'.
@@ -322,13 +322,13 @@ namespace Mirror.Tests
             SimpleSnapshot c = new SimpleSnapshot(5, 6, 43);
 
             // insert in order
-            SnapshotInterpolation.InsertAndAdjust(buffer, bufferLimit, a, ref localTimeline, ref localTimescale, 0, bufferTime, 0.01, 0.01, ref driftEma, 0, 0, ref deliveryIntervalEma);
+            SnapshotInterpolation.InsertAndAdjust(buffer, bufferLimit, a, ref localTimeline, ref localTimescale, 0, bufferTime, 0.01, 0.01, ref driftEma, 0, 0);
             Assert.That(localTimeline, Is.EqualTo(2 - bufferTime)); // initial snapshot - buffer time
 
-            SnapshotInterpolation.InsertAndAdjust(buffer, bufferLimit, b, ref localTimeline, ref localTimescale, 0, bufferTime, 0.01, 0.01, ref driftEma, 0, 0, ref deliveryIntervalEma);
+            SnapshotInterpolation.InsertAndAdjust(buffer, bufferLimit, b, ref localTimeline, ref localTimescale, 0, bufferTime, 0.01, 0.01, ref driftEma, 0, 0);
             Assert.That(localTimeline, Is.EqualTo(2 - bufferTime)); // initial snapshot - buffer time
 
-            SnapshotInterpolation.InsertAndAdjust(buffer, bufferLimit, c, ref localTimeline, ref localTimescale, 0, bufferTime, 0.01, 0.01, ref driftEma, 0, 0, ref deliveryIntervalEma);
+            SnapshotInterpolation.InsertAndAdjust(buffer, bufferLimit, c, ref localTimeline, ref localTimescale, 0, bufferTime, 0.01, 0.01, ref driftEma, 0, 0);
             Assert.That(localTimeline, Is.EqualTo(2 - bufferTime)); // initial snapshot - buffer time
 
             // first insertion doesn't compute delivery interval because we need 2 snaps.
@@ -358,13 +358,13 @@ namespace Mirror.Tests
             SimpleSnapshot c = new SimpleSnapshot(5, 6, 43);
 
             // insert in order
-            SnapshotInterpolation.InsertAndAdjust(buffer, bufferLimit, a, ref localTimeline, ref localTimescale, 0, 0, 0.01, 0.01, ref driftEma, 0, 0, ref deliveryIntervalEma);
+            SnapshotInterpolation.InsertAndAdjust(buffer, bufferLimit, a, ref localTimeline, ref localTimescale, 0, 0, 0.01, 0.01, ref driftEma, 0, 0);
             Assert.That(localTimeline, Is.EqualTo(2)); // detect wrong timeline immediately
 
-            SnapshotInterpolation.InsertAndAdjust(buffer, bufferLimit, c, ref localTimeline, ref localTimescale, 0, 0, 0.01, 0.01, ref driftEma, 0, 0, ref deliveryIntervalEma);
+            SnapshotInterpolation.InsertAndAdjust(buffer, bufferLimit, c, ref localTimeline, ref localTimescale, 0, 0, 0.01, 0.01, ref driftEma, 0, 0);
             Assert.That(localTimeline, Is.EqualTo(2)); // detect wrong timeline immediately
 
-            SnapshotInterpolation.InsertAndAdjust(buffer, bufferLimit, b, ref localTimeline, ref localTimescale, 0, 0, 0.01, 0.01, ref driftEma, 0, 0, ref deliveryIntervalEma);
+            SnapshotInterpolation.InsertAndAdjust(buffer, bufferLimit, b, ref localTimeline, ref localTimescale, 0, 0, 0.01, 0.01, ref driftEma, 0, 0);
             Assert.That(localTimeline, Is.EqualTo(2)); // detect wrong timeline immediately
 
 
@@ -393,13 +393,13 @@ namespace Mirror.Tests
             SimpleSnapshot b = new SimpleSnapshot(20, 0, 43);
             SimpleSnapshot c = new SimpleSnapshot(30, 0, 44);
 
-            SnapshotInterpolation.InsertAndAdjust(buffer, bufferLimit, a, ref localTimeline, ref localTimescale, 0, bufferTime, 0.01, 0.01, ref driftEma, 0, 0, ref deliveryIntervalEma);
+            SnapshotInterpolation.InsertAndAdjust(buffer, bufferLimit, a, ref localTimeline, ref localTimescale, 0, bufferTime, 0.01, 0.01, ref driftEma, 0, 0);
             Assert.That(localTimeline, Is.EqualTo(10-bufferTime)); // initial snapshot - buffer time
 
-            SnapshotInterpolation.InsertAndAdjust(buffer, bufferLimit, b, ref localTimeline, ref localTimescale, 0, bufferTime, 0.01, 0.01, ref driftEma, 0, 0, ref deliveryIntervalEma);
+            SnapshotInterpolation.InsertAndAdjust(buffer, bufferLimit, b, ref localTimeline, ref localTimescale, 0, bufferTime, 0.01, 0.01, ref driftEma, 0, 0);
             Assert.That(localTimeline, Is.EqualTo(10-bufferTime)); // initial snapshot - buffer time
 
-            SnapshotInterpolation.InsertAndAdjust(buffer, bufferLimit, c, ref localTimeline, ref localTimescale, 0, bufferTime, 0.01, 0.01, ref driftEma, 0, 0, ref deliveryIntervalEma);
+            SnapshotInterpolation.InsertAndAdjust(buffer, bufferLimit, c, ref localTimeline, ref localTimescale, 0, bufferTime, 0.01, 0.01, ref driftEma, 0, 0);
             Assert.That(localTimeline, Is.EqualTo(10-bufferTime)); // initial snapshot - buffer time
 
             // sample at a time before the first snapshot
@@ -437,13 +437,13 @@ namespace Mirror.Tests
             SimpleSnapshot b = new SimpleSnapshot(20, 0, 43);
             SimpleSnapshot c = new SimpleSnapshot(30, 0, 44);
 
-            SnapshotInterpolation.InsertAndAdjust(buffer, bufferLimit, a, ref localTimeline, ref localTimescale, 0, bufferTime, 0.01, 0.01, ref driftEma, 0, 0, ref deliveryIntervalEma);
+            SnapshotInterpolation.InsertAndAdjust(buffer, bufferLimit, a, ref localTimeline, ref localTimescale, 0, bufferTime, 0.01, 0.01, ref driftEma, 0, 0);
             Assert.That(localTimeline, Is.EqualTo(10-bufferTime)); // initial snapshot - buffer time
 
-            SnapshotInterpolation.InsertAndAdjust(buffer, bufferLimit, b, ref localTimeline, ref localTimescale, 0, bufferTime, 0.01, 0.01, ref driftEma, 0, 0, ref deliveryIntervalEma);
+            SnapshotInterpolation.InsertAndAdjust(buffer, bufferLimit, b, ref localTimeline, ref localTimescale, 0, bufferTime, 0.01, 0.01, ref driftEma, 0, 0);
             Assert.That(localTimeline, Is.EqualTo(10-bufferTime)); // initial snapshot - buffer time
 
-            SnapshotInterpolation.InsertAndAdjust(buffer, bufferLimit, c, ref localTimeline, ref localTimescale, 0, bufferTime, 0.01, 0.01, ref driftEma, 0, 0, ref deliveryIntervalEma);
+            SnapshotInterpolation.InsertAndAdjust(buffer, bufferLimit, c, ref localTimeline, ref localTimescale, 0, bufferTime, 0.01, 0.01, ref driftEma, 0, 0);
             Assert.That(localTimeline, Is.EqualTo(10-bufferTime)); // initial snapshot - buffer time
 
             // step half way to the next snapshot
@@ -468,13 +468,13 @@ namespace Mirror.Tests
             SimpleSnapshot c = new SimpleSnapshot(30, 0, 44);
             double bufferTime = 30; // don't move timeline until all 3 inserted
 
-            SnapshotInterpolation.InsertAndAdjust(buffer, bufferLimit, a, ref localTimeline, ref localTimescale, 0, bufferTime, 0.01, 0.01, ref driftEma, 0, 0, ref deliveryIntervalEma);
+            SnapshotInterpolation.InsertAndAdjust(buffer, bufferLimit, a, ref localTimeline, ref localTimescale, 0, bufferTime, 0.01, 0.01, ref driftEma, 0, 0);
             Assert.That(localTimeline, Is.EqualTo(10-bufferTime)); // initial snapshot - buffer time
 
-            SnapshotInterpolation.InsertAndAdjust(buffer, bufferLimit, b, ref localTimeline, ref localTimescale, 0, bufferTime, 0.01, 0.01, ref driftEma, 0, 0, ref deliveryIntervalEma);
+            SnapshotInterpolation.InsertAndAdjust(buffer, bufferLimit, b, ref localTimeline, ref localTimescale, 0, bufferTime, 0.01, 0.01, ref driftEma, 0, 0);
             Assert.That(localTimeline, Is.EqualTo(10-bufferTime)); // initial snapshot - buffer time
 
-            SnapshotInterpolation.InsertAndAdjust(buffer, bufferLimit, c, ref localTimeline, ref localTimescale, 0, bufferTime, 0.01, 0.01, ref driftEma, 0, 0, ref deliveryIntervalEma);
+            SnapshotInterpolation.InsertAndAdjust(buffer, bufferLimit, c, ref localTimeline, ref localTimescale, 0, bufferTime, 0.01, 0.01, ref driftEma, 0, 0);
             Assert.That(localTimeline, Is.EqualTo(10-bufferTime)); // initial snapshot - buffer time
 
             // step 1.5 snapshots worth, so way past the first one
