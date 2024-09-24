@@ -1409,11 +1409,11 @@ namespace Mirror
         static void OnEntityStateMessageUnreliableBaseline(EntityStateMessageUnreliableBaseline message, int channelId)
         {
             // safety check: baseline should always arrive over Reliable channel.
-            // if (channelId != Channels.Reliable)
-            // {
-            //     Debug.LogError($"Client OnEntityStateMessageUnreliableBaseline arrived on channel {channelId} instead of Reliable. This should never happen!");
-            //     return;
-            // }
+            if (channelId != Channels.Reliable)
+            {
+                Debug.LogError($"Client OnEntityStateMessageUnreliableBaseline arrived on channel {channelId} instead of Reliable. This should never happen!");
+                return;
+            }
 
             // Debug.Log($"NetworkClient.OnUpdateVarsMessage {msg.netId}");
             if (spawned.TryGetValue(message.netId, out NetworkIdentity identity) && identity != null)
@@ -1435,11 +1435,11 @@ namespace Mirror
         static void OnEntityStateMessageUnreliableDelta(EntityStateMessageUnreliableDelta message, int channelId)
         {
             // safety check: baseline should always arrive over Reliable channel.
-            // if (channelId != Channels.Unreliable)
-            // {
-            //     Debug.LogError($"Client OnEntityStateMessageUnreliableDelta arrived on channel {channelId} instead of Unreliable. This should never happen!");
-            //     return;
-            // }
+            if (channelId != Channels.Unreliable)
+            {
+                Debug.LogError($"Client OnEntityStateMessageUnreliableDelta arrived on channel {channelId} instead of Unreliable. This should never happen!");
+                return;
+            }
 
             // Debug.Log($"NetworkClient.OnUpdateVarsMessage {msg.netId}");
             if (spawned.TryGetValue(message.netId, out NetworkIdentity identity) && identity != null)
