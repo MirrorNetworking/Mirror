@@ -2157,7 +2157,7 @@ namespace Mirror
                         // quake sends unreliable messages twice to make up for message drops.
                         // this double bandwidth, but allows for smaller buffer time / faster sync.
                         // best to turn this off unless the game is extremely fast paced.
-                        if (unreliableRedundancy) connection.Send(message, Channels.Unreliable);
+                        // if (unreliableRedundancy) connection.Send(message, Channels.Unreliable);
                     }
 
                     // if it's for a baseline sync, then send a reliable baseline message too.
