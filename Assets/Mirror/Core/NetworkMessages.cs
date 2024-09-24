@@ -65,7 +65,7 @@ namespace Mirror
         {
             // calculate the max possible size that can fit in a batch
             int transportMax = Transport.active.GetMaxPacketSize(channelId);
-            return transportMax - IdSize - Batcher.MaxMessageOverhead(transportMax);
+            return transportMax - IdSize - 8; // - remoteTimestamp
         }
 
         // max message size which includes header + content.

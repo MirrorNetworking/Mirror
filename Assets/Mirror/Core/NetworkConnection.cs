@@ -41,17 +41,6 @@ namespace Mirror
         //            Works fine with NetworkIdentity pointers though.
         public readonly HashSet<NetworkIdentity> owned = new HashSet<NetworkIdentity>();
 
-        // batching from server to client & client to server.
-        // fewer transport calls give us significantly better performance/scale.
-        //
-        // for a 64KB max message transport and 64 bytes/message on average, we
-        // reduce transport calls by a factor of 1000.
-        //
-        // depending on the transport, this can give 10x performance.
-        //
-        // Dictionary<channelId, batch> because we have multiple channels.
-        protected Dictionary<int, Batcher> batches = new Dictionary<int, Batcher>();
-
         /// <summary>last batch's remote timestamp. not interpolated. useful for NetworkTransform etc.</summary>
         // for any given NetworkMessage/Rpc/Cmd/OnSerialize, this was the time
         // on the REMOTE END when it was sent.
@@ -71,24 +60,6 @@ namespace Mirror
         internal NetworkConnection(int networkConnectionId) : this()
         {
             connectionId = networkConnectionId;
-        }
-
-        // TODO if we only have Reliable/Unreliable, then we could initialize
-        // two batches and avoid this code
-        protected Batcher GetBatchForChannelId(int channelId)
-        {
-            // get existing or create new writer for the channelId
-            Batcher batch;
-            if (!batches.TryGetValue(channelId, out batch))
-            {
-                // get max batch size for this channel
-                int threshold = Transport.active.GetBatchThreshold(channelId);
-
-                // create batcher
-                batch = new Batcher(threshold);
-                batches[channelId] = batch;
-            }
-            return batch;
         }
 
         // Send stage one: NetworkMessage<T>
@@ -144,7 +115,11 @@ namespace Mirror
             //
             // NOTE: we do NOT ValidatePacketSize here yet. the final packet
             //       will be the full batch, including timestamp.
-            GetBatchForChannelId(channelId).AddMessage(segment, NetworkTime.localTime);
+
+             NetworkWriter fullWriter = new NetworkWriter();
+             fullWriter.WriteDouble(NetworkTime.localTime); // remote timestamp
+             fullWriter.WriteBytes(segment.Array, segment.Offset, segment.Count);
+             SendToTransport(fullWriter, channelId);
         }
 
         // Send stage three: hand off to transport
@@ -153,30 +128,6 @@ namespace Mirror
         // flush batched messages at the end of every Update.
         internal virtual void Update()
         {
-            // go through batches for all channels
-            // foreach ((int key, Batcher batcher) in batches) // Unity 2020 doesn't support deconstruct yet
-            foreach (KeyValuePair<int, Batcher> kvp in batches)
-            {
-                // make and send as many batches as necessary from the stored
-                // messages.
-                using (NetworkWriterPooled writer = NetworkWriterPool.Get())
-                {
-                    // make a batch with our local time (double precision)
-                    while (kvp.Value.GetBatch(writer))
-                    {
-                        // message size is validated in Send<T>, with test coverage.
-                        // we can send directly without checking again.
-                        ArraySegment<byte> segment = writer.ToArraySegment();
-
-                        // send to transport
-                        SendToTransport(segment, kvp.Key);
-                        //UnityEngine.Debug.Log($"sending batch of {writer.Position} bytes for channel={kvp.Key} connId={connectionId}");
-
-                        // reset writer for each new batch
-                        writer.Position = 0;
-                    }
-                }
-            }
         }
 
         /// <summary>Check if we received a message within the last 'timeout' seconds.</summary>
@@ -208,10 +159,6 @@ namespace Mirror
         // never be returned to the pool.
         public virtual void Cleanup()
         {
-            foreach (Batcher batcher in batches.Values)
-            {
-                batcher.Clear();
-            }
         }
 
         public override string ToString() => $"connection({connectionId})";

@@ -898,22 +898,9 @@ namespace Mirror
         {
             if (connections.TryGetValue(connectionId, out NetworkConnectionToClient connection))
             {
-                // client might batch multiple messages into one packet.
-                // feed it to the Unbatcher.
-                // NOTE: we don't need to associate a channelId because we
-                //       always process all messages in the batch.
-                if (!connection.unbatcher.AddBatch(data))
-                {
-                    if (exceptionsDisconnect)
-                    {
-                        Debug.LogError($"NetworkServer: received message from connectionId:{connectionId} was too short (messages should start with message id). Disconnecting.");
-                        connection.Disconnect();
-                    }
-                    else
-                        Debug.LogWarning($"NetworkServer: received message from connectionId:{connectionId} was too short (messages should start with message id).");
-
-                    return;
-                }
+                NetworkReader fullReader = new NetworkReader(data);
+                double remoteTimestamp = fullReader.ReadDouble();
+                ArraySegment<byte> message = fullReader.ReadBytesSegment(fullReader.Remaining);
 
                 // process all messages in the batch.
                 // only while NOT loading a scene.
@@ -925,8 +912,7 @@ namespace Mirror
                 //       would only be processed when OnTransportData is called
                 //       the next time.
                 //       => consider moving processing to NetworkEarlyUpdate.
-                while (!isLoadingScene &&
-                       connection.unbatcher.GetNextMessage(out ArraySegment<byte> message, out double remoteTimestamp))
+                if (!isLoadingScene)
                 {
                     using (NetworkReaderPooled reader = NetworkReaderPool.Get(message))
                     {
@@ -972,26 +958,6 @@ namespace Mirror
                             return;
                         }
                     }
-                }
-
-                // if we weren't interrupted by a scene change,
-                // then all batched messages should have been processed now.
-                // otherwise batches would silently grow.
-                // we need to log an error to avoid debugging hell.
-                //
-                // EXAMPLE: https://github.com/vis2k/Mirror/issues/2882
-                // -> UnpackAndInvoke silently returned because no handler for id
-                // -> Reader would never be read past the end
-                // -> Batch would never be retired because end is never reached
-                //
-                // NOTE: prefixing every message in a batch with a length would
-                //       avoid ever not reading to the end. for extra bandwidth.
-                //
-                // IMPORTANT: always keep this check to detect memory leaks.
-                //            this took half a day to debug last time.
-                if (!isLoadingScene && connection.unbatcher.BatchesCount > 0)
-                {
-                    Debug.LogError($"Still had {connection.unbatcher.BatchesCount} batches remaining after processing, even though processing was not interrupted by a scene change. This should never happen, as it would cause ever growing batches.\nPossible reasons:\n* A message didn't deserialize as much as it serialized\n*There was no message handler for a message id, so the reader wasn't read until the end.");
                 }
             }
             else Debug.LogError($"HandleData Unknown connectionId:{connectionId}");
