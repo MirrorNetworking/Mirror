@@ -79,36 +79,6 @@ namespace Mirror
             );
         }
 
-        protected void AddSnapshot(SortedList<double, TransformSnapshot> snapshots, double timeStamp, Vector3? position, Quaternion? rotation, Vector3? scale)
-        {
-            // position, rotation, scale can have no value if same as last time.
-            // saves bandwidth.
-            // but we still need to feed it to snapshot interpolation. we can't
-            // just have gaps in there if nothing has changed. for example, if
-            //   client sends snapshot at t=0
-            //   client sends nothing for 10s because not moved
-            //   client sends snapshot at t=10
-            // then the server would assume that it's one super slow move and
-            // replay it for 10 seconds.
-
-            if (!position.HasValue) position = snapshots.Count > 0 ? snapshots.Values[snapshots.Count - 1].position : GetPosition();
-            if (!rotation.HasValue) rotation = snapshots.Count > 0 ? snapshots.Values[snapshots.Count - 1].rotation : GetRotation();
-            if (!scale.HasValue) scale = snapshots.Count > 0 ? snapshots.Values[snapshots.Count - 1].scale : GetScale();
-
-            // insert transform snapshot
-            SnapshotInterpolation.InsertIfNotExists(
-                snapshots,
-                NetworkClient.snapshotSettings.bufferLimit,
-                new TransformSnapshot(
-                    timeStamp, // arrival remote timestamp. NOT remote time.
-                    NetworkTime.localTime, // Unity 2019 doesn't have timeAsDouble yet
-                    position.Value,
-                    rotation.Value,
-                    scale.Value
-                )
-            );
-        }
-
         // apply a snapshot to the Transform.
         // -> start, end, interpolated are all passed in caes they are needed
         // -> a regular game would apply the 'interpolated' snapshot
@@ -210,6 +180,36 @@ namespace Mirror
             }
         }
 
+
+        protected void AddSnapshot(SortedList<double, TransformSnapshot> snapshots, double timeStamp, Vector3? position, Quaternion? rotation, Vector3? scale)
+        {
+            // position, rotation, scale can have no value if same as last time.
+            // saves bandwidth.
+            // but we still need to feed it to snapshot interpolation. we can't
+            // just have gaps in there if nothing has changed. for example, if
+            //   client sends snapshot at t=0
+            //   client sends nothing for 10s because not moved
+            //   client sends snapshot at t=10
+            // then the server would assume that it's one super slow move and
+            // replay it for 10 seconds.
+
+            if (!position.HasValue) position = snapshots.Count > 0 ? snapshots.Values[snapshots.Count - 1].position : GetPosition();
+            if (!rotation.HasValue) rotation = snapshots.Count > 0 ? snapshots.Values[snapshots.Count - 1].rotation : GetRotation();
+            if (!scale.HasValue) scale = snapshots.Count > 0 ? snapshots.Values[snapshots.Count - 1].scale : GetScale();
+
+            // insert transform snapshot
+            SnapshotInterpolation.InsertIfNotExists(
+                snapshots,
+                NetworkClient.snapshotSettings.bufferLimit,
+                new TransformSnapshot(
+                    timeStamp, // arrival remote timestamp. NOT remote time.
+                    NetworkTime.localTime, // Unity 2019 doesn't have timeAsDouble yet
+                    position.Value,
+                    rotation.Value,
+                    scale.Value
+                )
+            );
+        }
 
         double lastNetworkTime;
         protected virtual void UpdateClient()
