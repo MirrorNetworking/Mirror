@@ -7,8 +7,215 @@ using UnityEngine;
 namespace Mirror
 {
     [AddComponentMenu("Network/Network Transform (Unreliable Compressed)")]
-    public class NetworkTransformUnreliableCompressed : NetworkTransformBase
+    public class NetworkTransformUnreliableCompressed : NetworkBehaviour
     {
+        // NT BASE /////////////////////////////////////////////////////////////
+
+        // target transform to sync. can be on a child.
+        // TODO this field is kind of unnecessary since we now support child NetworkBehaviours
+        [Header("Target")]
+        [Tooltip("The Transform component to sync. May be on on this GameObject, or on a child.")]
+        public Transform target;
+
+        // Is this a client with authority over this transform?
+        // This component could be on the player object or any object that has been assigned authority to this client.
+        protected bool IsClientWithAuthority => isClient && authority;
+
+        // snapshots with initial capacity to avoid early resizing & allocations: see NetworkRigidbodyBenchmark example.
+        public readonly SortedList<double, TransformSnapshot> clientSnapshots = new SortedList<double, TransformSnapshot>(16);
+        public readonly SortedList<double, TransformSnapshot> serverSnapshots = new SortedList<double, TransformSnapshot>(16);
+
+        // CoordinateSpace ///////////////////////////////////////////////////////////
+        [Header("Coordinate Space")]
+        [Tooltip("Local by default. World may be better when changing hierarchy, or non-NetworkTransforms root position/rotation/scale values.")]
+        public CoordinateSpace coordinateSpace = CoordinateSpace.Local;
+
+        // convert syncInterval to sendIntervalMultiplier.
+        // in the future this can be moved into core to support tick aligned Sync,
+        public uint sendIntervalMultiplier
+        {
+            get
+            {
+                if (syncInterval > 0)
+                {
+                    // if syncInterval is > 0, calculate how many multiples of NetworkManager.sendRate it is
+                    //
+                    // for example:
+                    //   NetworkServer.sendInterval is 1/60 = 0.16
+                    //   NetworkTransform.syncInterval is 0.5 (500ms).
+                    //   0.5 / 0.16 = 3.125
+                    //   in other words: 3.125 x sendInterval
+                    //
+                    // note that NetworkServer.sendInterval is usually set on start.
+                    // to make this work in Edit mode, make sure that NetworkManager
+                    // OnValidate sets NetworkServer.sendInterval immediately.
+                    float multiples = syncInterval / NetworkServer.sendInterval;
+
+                    // syncInterval is always supposed to sync at a minimum of 1 x sendInterval.
+                    // that's what we do for every other NetworkBehaviour since
+                    // we only sync in Broadcast() which is called @ sendInterval.
+                    return multiples > 1 ? (uint)Mathf.RoundToInt(multiples) : 1;
+                }
+
+                // if syncInterval is 0, use NetworkManager.sendRate (x1)
+                return 1;
+            }
+        }
+
+        [Header("Timeline Offset")]
+        [Tooltip("Add a small timeline offset to account for decoupled arrival of NetworkTime and NetworkTransform snapshots.\nfixes: https://github.com/MirrorNetworking/Mirror/issues/3427")]
+        public bool timelineOffset = false;
+
+        // Ninja's Notes on offset & mulitplier:
+        //
+        // In a no multiplier scenario:
+        // 1. Snapshots are sent every frame (frame being 1 NM send interval).
+        // 2. Time Interpolation is set to be 'behind' by 2 frames times.
+        // In theory where everything works, we probably have around 2 snapshots before we need to interpolate snapshots. From NT perspective, we should always have around 2 snapshots ready, so no stutter.
+        //
+        // In a multiplier scenario:
+        // 1. Snapshots are sent every 10 frames.
+        // 2. Time Interpolation remains 'behind by 2 frames'.
+        // When everything works, we are receiving NT snapshots every 10 frames, but start interpolating after 2.
+        // Even if I assume we had 2 snapshots to begin with to start interpolating (which we don't), by the time we reach 13th frame, we are out of snapshots, and have to wait 7 frames for next snapshot to come. This is the reason why we absolutely need the timestamp adjustment. We are starting way too early to interpolate.
+        //
+        protected double timeStampAdjustment => NetworkServer.sendInterval * (sendIntervalMultiplier - 1);
+        protected double offset => timelineOffset ? NetworkServer.sendInterval * sendIntervalMultiplier : 0;
+
+        // debugging ///////////////////////////////////////////////////////////
+        protected override void OnValidate()
+        {
+            // Skip if Editor is in Play mode
+            if (Application.isPlaying) return;
+
+            base.OnValidate();
+
+            // configure in awake
+            Configure();
+        }
+
+        // make sure to call this when inheriting too!
+        protected virtual void Awake()
+        {
+            // sometimes OnValidate() doesn't run before launching a project.
+            // need to guarantee configuration runs.
+            Configure();
+        }
+
+        // snapshot functions //////////////////////////////////////////////////
+        // get local/world position
+        protected virtual Vector3 GetPosition() =>
+            coordinateSpace == CoordinateSpace.Local ? target.localPosition : target.position;
+
+        // get local/world rotation
+        protected virtual Quaternion GetRotation() =>
+            coordinateSpace == CoordinateSpace.Local ? target.localRotation : target.rotation;
+
+        // get local/world scale
+        protected virtual Vector3 GetScale() =>
+            coordinateSpace == CoordinateSpace.Local ? target.localScale : target.lossyScale;
+
+        // set local/world position
+        protected virtual void SetPosition(Vector3 position)
+        {
+            if (coordinateSpace == CoordinateSpace.Local)
+                target.localPosition = position;
+            else
+                target.position = position;
+        }
+
+        // set local/world rotation
+        protected virtual void SetRotation(Quaternion rotation)
+        {
+            if (coordinateSpace == CoordinateSpace.Local)
+                target.localRotation = rotation;
+            else
+                target.rotation = rotation;
+        }
+
+        // set local/world position
+        protected virtual void SetScale(Vector3 scale)
+        {
+            if (coordinateSpace == CoordinateSpace.Local)
+                target.localScale = scale;
+            // Unity doesn't support setting world scale.
+            // OnValidate disables syncScale in world mode.
+            // else
+            // target.lossyScale = scale; // TODO
+        }
+
+        // construct a snapshot of the current state
+        // => internal for testing
+        protected virtual TransformSnapshot Construct()
+        {
+            // NetworkTime.localTime for double precision until Unity has it too
+            return new TransformSnapshot(
+                // our local time is what the other end uses as remote time
+                NetworkTime.localTime, // Unity 2019 doesn't have timeAsDouble yet
+                0,                     // the other end fills out local time itself
+                GetPosition(),
+                GetRotation(),
+                GetScale()
+            );
+        }
+
+        protected void AddSnapshot(SortedList<double, TransformSnapshot> snapshots, double timeStamp, Vector3? position, Quaternion? rotation, Vector3? scale)
+        {
+            // position, rotation, scale can have no value if same as last time.
+            // saves bandwidth.
+            // but we still need to feed it to snapshot interpolation. we can't
+            // just have gaps in there if nothing has changed. for example, if
+            //   client sends snapshot at t=0
+            //   client sends nothing for 10s because not moved
+            //   client sends snapshot at t=10
+            // then the server would assume that it's one super slow move and
+            // replay it for 10 seconds.
+
+            if (!position.HasValue) position = snapshots.Count > 0 ? snapshots.Values[snapshots.Count - 1].position : GetPosition();
+            if (!rotation.HasValue) rotation = snapshots.Count > 0 ? snapshots.Values[snapshots.Count - 1].rotation : GetRotation();
+            if (!scale.HasValue) scale = snapshots.Count > 0 ? snapshots.Values[snapshots.Count - 1].scale : GetScale();
+
+            // insert transform snapshot
+            SnapshotInterpolation.InsertIfNotExists(
+                snapshots,
+                NetworkClient.snapshotSettings.bufferLimit,
+                new TransformSnapshot(
+                    timeStamp, // arrival remote timestamp. NOT remote time.
+                    NetworkTime.localTime, // Unity 2019 doesn't have timeAsDouble yet
+                    position.Value,
+                    rotation.Value,
+                    scale.Value
+                )
+            );
+        }
+
+        // apply a snapshot to the Transform.
+        // -> start, end, interpolated are all passed in caes they are needed
+        // -> a regular game would apply the 'interpolated' snapshot
+        // -> a board game might want to jump to 'goal' directly
+        // (it's easier to always interpolate and then apply selectively,
+        //  instead of manually interpolating x, y, z, ... depending on flags)
+        // => internal for testing
+        //
+        // NOTE: stuck detection is unnecessary here.
+        //       we always set transform.position anyway, we can't get stuck.
+        protected virtual void Apply(TransformSnapshot interpolated, TransformSnapshot endGoal)
+        {
+            // local position/rotation for VR support
+            //
+            // if syncPosition/Rotation/Scale is disabled then we received nulls
+            // -> current position/rotation/scale would've been added as snapshot
+            // -> we still interpolated
+            // -> but simply don't apply it. if the user doesn't want to sync
+            //    scale, then we should not touch scale etc.
+
+            // interpolate parts
+            SetPosition(interpolated.position);
+            SetRotation(interpolated.rotation);
+            SetScale(interpolated.scale);
+        }
+
+        // NT COMPRESSED ///////////////////////////////////////////////////////
         [Header("Debug")]
         public bool debugDraw = false;
 
@@ -17,9 +224,10 @@ namespace Mirror
 
         // validation //////////////////////////////////////////////////////////
         // Configure is called from OnValidate and Awake
-        protected override void Configure()
+        protected void Configure()
         {
-            base.Configure();
+            // set target to self if none yet
+            if (target == null) target = transform;
 
             // force syncMethod to unreliable
             syncMethod = SyncMethod.Unreliable;
@@ -47,8 +255,7 @@ namespace Mirror
             // instead.
             if (isServer || (IsClientWithAuthority && NetworkClient.ready))
             {
-                if (!onlySyncOnChange)
-                    SetDirty();
+                SetDirty();
             }
         }
 
@@ -151,18 +358,9 @@ namespace Mirror
 
                 int startPosition = writer.Position;
 
-                if (syncPosition) writer.WriteVector3(snapshot.position);
-                if (syncRotation)
-                {
-                    // if smallest-three quaternion compression is enabled,
-                    // then we don't need baseline rotation since delta always
-                    // sends an absolute value.
-                    if (!compressRotation)
-                    {
-                        writer.WriteQuaternion(snapshot.rotation);
-                    }
-                }
-                if (syncScale) writer.WriteVector3(snapshot.scale);
+                writer.WriteVector3(snapshot.position);
+                writer.WriteQuaternion(snapshot.rotation);
+                writer.WriteVector3(snapshot.scale);
 
                 // set 'last'
                 last = snapshot;
@@ -172,17 +370,9 @@ namespace Mirror
             {
                 int startPosition = writer.Position;
 
-                if (syncPosition) writer.WriteVector3(snapshot.position);
-                if (syncRotation)
-                {
-                    // (optional) smallest three compression for now. no delta.
-                    if (compressRotation)
-                    {
-                        writer.WriteUInt(Compression.CompressQuaternion(snapshot.rotation));
-                    }
-                    else writer.WriteQuaternion(snapshot.rotation);
-                }
-                if (syncScale) writer.WriteVector3(snapshot.scale);
+                writer.WriteVector3(snapshot.position);
+                writer.WriteQuaternion(snapshot.rotation);
+                writer.WriteVector3(snapshot.scale);
             }
         }
 
@@ -198,50 +388,20 @@ namespace Mirror
             // reliable full state
             if (initialState)
             {
-                if (syncPosition)
-                {
-                    position = reader.ReadVector3();
+                position = reader.ReadVector3();
+                rotation = reader.ReadQuaternion();
+                scale = reader.ReadVector3();
 
-                    if (debugDraw) Debug.DrawLine(position.Value, position.Value + Vector3.up , Color.green, 10.0f);
-                }
-                if (syncRotation)
-                {
-                    // if smallest-three quaternion compression is enabled,
-                    // then we don't need baseline rotation since delta always
-                    // sends an absolute value.
-                    if (!compressRotation)
-                    {
-                        rotation = reader.ReadQuaternion();
-                    }
-                }
-                if (syncScale) scale = reader.ReadVector3();
+                if (debugDraw) Debug.DrawLine(position.Value, position.Value + Vector3.up , Color.green, 10.0f);
             }
             // unreliable delta: decompress against last full reliable state
             else
             {
-                // varint -> delta -> quantize
-                if (syncPosition)
-                {
-                    position = reader.ReadVector3();
+                position = reader.ReadVector3();
+                rotation = reader.ReadQuaternion();
+                scale = reader.ReadVector3();
 
-                    if (debugDraw) Debug.DrawLine(position.Value, position.Value + Vector3.up , Color.yellow, 10.0f);
-                }
-                if (syncRotation)
-                {
-                    // (optional) smallest three compression for now. no delta.
-                    if (compressRotation)
-                    {
-                        rotation = Compression.DecompressQuaternion(reader.ReadUInt());
-                    }
-                    else
-                    {
-                        rotation = reader.ReadQuaternion();
-                    }
-                }
-                if (syncScale)
-                {
-                    scale = reader.ReadVector3();
-                }
+                if (debugDraw) Debug.DrawLine(position.Value, position.Value + Vector3.up , Color.yellow, 10.0f);
 
                 // handle depending on server / client / host.
                 // server has priority for host mode.
@@ -292,10 +452,8 @@ namespace Mirror
         // reset state for next session.
         // do not ever call this during a session (i.e. after teleport).
         // calling this will break delta compression.
-        public override void ResetState()
+        public void ResetState()
         {
-            base.ResetState();
-
             // reset 'last' for delta too
             last = new TransformSnapshot(0, 0, Vector3.zero, Quaternion.identity, Vector3.zero);
         }
