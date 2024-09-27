@@ -339,6 +339,14 @@ namespace Telepathy
                 // so let's at least catch it and recover
                 return "unknown";
             }
+            catch (ObjectDisposedException)
+            {
+                return "Disposed";
+            }
+            catch (Exception)
+            {
+                return "";
+            }
         }
 
         // disconnect (kick) a client
