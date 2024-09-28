@@ -90,7 +90,7 @@ namespace Mirror
     /// <summary>
     /// Used to make a field readonly in the inspector
     /// </summary>
-    [AttributeUsage(AttributeTargets.Field)]
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
     public class ReadOnlyAttribute : PropertyAttribute {}
 
     /// <summary>
