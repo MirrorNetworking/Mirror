@@ -33,7 +33,7 @@ namespace Mirror.Tests.NetworkIdentities
         // serialize -> deserialize. multiple components to be sure.
         // one for Owner, one for Observer
         [Test]
-        public void SerializeAndDeserializeAll()
+        public void SerializeServer_Spawn_OwnerAndObserver()
         {
             // need two of both versions so we can serialize -> deserialize
             CreateNetworkedAndSpawn(
@@ -206,7 +206,7 @@ namespace Mirror.Tests.NetworkIdentities
         // 0-dirty-mask. instead, we need to ensure it writes nothing.
         // too easy to miss, with too significant bandwidth implications.
         [Test]
-        public void SerializeServer_NotInitial_NotDirty_WritesNothing()
+        public void SerializeServer_Broadcast_NotInitial_NotDirty_WritesNothing()
         {
             // create spawned so that isServer/isClient is set properly
             CreateNetworkedAndSpawn(
