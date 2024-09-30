@@ -12,7 +12,7 @@ namespace Mirror.Examples.Common.Controllers.Tank
     [DisallowMultipleComponent]
     public class TankControllerBase : NetworkBehaviour
     {
-        public enum GroundState : byte { Grounded, Jumping, Falling }
+        public enum GroundState : byte { Grounded, Falling }
 
         [Serializable]
         public struct MoveKeys
@@ -94,7 +94,6 @@ namespace Mirror.Examples.Common.Controllers.Tank
         [Serializable]
         public struct RuntimeData
         {
-            [ReadOnly, SerializeField, Range(-1f, 1f)] float _horizontal;
             [ReadOnly, SerializeField, Range(-1f, 1f)] float _vertical;
             [ReadOnly, SerializeField, Range(-300f, 300f)] float _turnSpeed;
             [ReadOnly, SerializeField, Range(-1.5f, 1.5f)] float _animVelocity;
@@ -105,12 +104,6 @@ namespace Mirror.Examples.Common.Controllers.Tank
             [ReadOnly, SerializeField] GameObject _controllerUI;
 
             #region Properties
-
-            public float horizontal
-            {
-                get => _horizontal;
-                internal set => _horizontal = value;
-            }
 
             public float vertical
             {
@@ -213,7 +206,6 @@ namespace Mirror.Examples.Common.Controllers.Tank
 
         void OnDisable()
         {
-            runtimeData.horizontal = 0f;
             runtimeData.vertical = 0f;
             runtimeData.turnSpeed = 0f;
         }
@@ -266,10 +258,7 @@ namespace Mirror.Examples.Common.Controllers.Tank
             ApplyMove(deltaTime);
 
             // Reset ground state
-            if (characterController.isGrounded)
-                runtimeData.groundState = GroundState.Grounded;
-            else if (runtimeData.groundState != GroundState.Jumping)
-                runtimeData.groundState = GroundState.Falling;
+            runtimeData.groundState = characterController.isGrounded ? GroundState.Grounded : GroundState.Falling;
 
             // Diagnostic velocity...FloorToInt for display purposes
             runtimeData.velocity = Vector3Int.FloorToInt(characterController.velocity);
@@ -311,20 +300,11 @@ namespace Mirror.Examples.Common.Controllers.Tank
         void HandleMove(float deltaTime)
         {
             // Initialize target movement variables
-            float targetMoveX = 0f;
             float targetMoveZ = 0f;
 
             // Check for WASD key presses and adjust target movement variables accordingly
             if (moveKeys.Forward != KeyCode.None && Input.GetKey(moveKeys.Forward)) targetMoveZ = 1f;
             if (moveKeys.Back != KeyCode.None && Input.GetKey(moveKeys.Back)) targetMoveZ = -1f;
-
-            if (targetMoveX == 0f)
-            {
-                if (!controlOptions.HasFlag(ControlOptions.AutoRun))
-                    runtimeData.horizontal = Mathf.MoveTowards(runtimeData.horizontal, targetMoveX, inputGravity * deltaTime);
-            }
-            else
-                runtimeData.horizontal = Mathf.MoveTowards(runtimeData.horizontal, targetMoveX, inputSensitivity * deltaTime);
 
             if (targetMoveZ == 0f)
             {
@@ -337,11 +317,8 @@ namespace Mirror.Examples.Common.Controllers.Tank
 
         void ApplyMove(float deltaTime)
         {
-            // Create initial direction vector without jumpSpeed (y-axis).
-            runtimeData.direction = new Vector3(runtimeData.horizontal, 0f, runtimeData.vertical);
-
-            // Clamp so diagonal strafing isn't a speed advantage.
-            runtimeData.direction = Vector3.ClampMagnitude(runtimeData.direction, 1f);
+            // Create initial direction vector (z-axis only)
+            runtimeData.direction = new Vector3(0f, 0f, runtimeData.vertical);
 
             // Transforms direction from local space to world space.
             runtimeData.direction = transform.TransformDirection(runtimeData.direction);
