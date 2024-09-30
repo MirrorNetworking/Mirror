@@ -119,6 +119,23 @@ namespace Mirror
         protected double timeStampAdjustment => NetworkServer.sendInterval * (sendIntervalMultiplier - 1);
         protected double offset => timelineOffset ? NetworkServer.sendInterval * sendIntervalMultiplier : 0;
 
+        [Header("Velocity")]
+        [ReadOnly, SerializeField] Vector3 _velocity;
+        [ReadOnly, SerializeField] Vector3 _angVelocity;
+
+        public Vector3 velocity
+        {
+            get => _velocity;
+            internal set => _velocity = value;
+        }
+
+        public Vector3 angVelocity
+
+        {
+            get => _angVelocity;
+            internal set => _angVelocity = value;
+        }
+
         // debugging ///////////////////////////////////////////////////////////
         [Header("Debug")]
         public bool showGizmos;
@@ -262,6 +279,14 @@ namespace Mirror
             // -> we still interpolated
             // -> but simply don't apply it. if the user doesn't want to sync
             //    scale, then we should not touch scale etc.
+
+            // Calculate the velocity and angular velocity for the object
+            // These can be used to drive animations or other behaviours
+            if (!isOwned)
+            {
+                velocity = (transform.position - interpolated.position) / Time.deltaTime;
+                angVelocity = (transform.rotation.eulerAngles - interpolated.rotation.eulerAngles) / Time.deltaTime;
+            }
 
             // interpolate parts
             if (syncPosition) SetPosition(interpolatePosition ? interpolated.position : endGoal.position);
