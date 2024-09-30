@@ -8,6 +8,8 @@ namespace Mirror.Examples.Common.Controllers.Tank
     [DisallowMultipleComponent]
     public class TankTurretBase : NetworkBehaviour
     {
+        const float BASE_DPI = 96f;
+
         [Serializable]
         public struct OptionsKeys
         {
@@ -30,8 +32,6 @@ namespace Mirror.Examples.Common.Controllers.Tank
         {
             public KeyCode Shoot;
         }
-
-        const float BASE_DPI = 96f;
 
         [Flags]
         public enum ControlOptions : byte
@@ -98,7 +98,7 @@ namespace Mirror.Examples.Common.Controllers.Tank
         [Range(0, 300f)]
         [Tooltip("Max Rotation in degrees per second")]
         public float maxTurretSpeed = 250f;
-        [Range(0, 10f)]
+        [Range(0, 30f)]
         [Tooltip("Rotation acceleration in degrees per second squared")]
         public float turretAcceleration = 10f;
 
@@ -116,33 +116,69 @@ namespace Mirror.Examples.Common.Controllers.Tank
         [Tooltip("Pitch acceleration in degrees per second squared")]
         public float pitchAcceleration = 3f;
 
-        [Header("Diagnostics")]
-        [ReadOnly, SerializeField, Range(-1f, 1f)]
-        float mouseInputX;
-        [ReadOnly, SerializeField, Range(0, 30f)]
-        float mouseSensitivity;
-        [ReadOnly, SerializeField, Range(-300f, 300f)]
-        float turretSpeed;
-        [ReadOnly, SerializeField, Range(-180f, 180f)]
-        float pitchAngle;
-        [ReadOnly, SerializeField, Range(-180f, 180f)]
-        float pitchSpeed;
-        [ReadOnly, SerializeField]
-        double lastShotTime;
-
-        [ReadOnly, SerializeField]
-        GameObject turretUI;
-
-        void OnPlayerColorChanged(Color32 _, Color32 newColor)
+        // Runtime data in a struct so it can be folded up in inspector
+        [Serializable]
+        public struct RuntimeData
         {
-            if (cachedMaterial == null)
-                cachedMaterial = playerObject.GetComponent<Renderer>().material;
+            [ReadOnly, SerializeField, Range(-300f, 300f)] float _turretSpeed;
+            [ReadOnly, SerializeField, Range(-180f, 180f)] float _pitchAngle;
+            [ReadOnly, SerializeField, Range(-180f, 180f)] float _pitchSpeed;
+            [ReadOnly, SerializeField, Range(-1f, 1f)] float _mouseInputX;
+            [ReadOnly, SerializeField, Range(0, 30f)] float _mouseSensitivity;
+            [ReadOnly, SerializeField] double _lastShotTime;
+            [ReadOnly, SerializeField] GameObject _turretUI;
 
-            cachedMaterial.color = newColor;
-            playerObject.SetActive(newColor != Color.black);
+            #region Properties
+
+            public float mouseInputX
+            {
+                get => _mouseInputX;
+                internal set => _mouseInputX = value;
+            }
+
+            public float mouseSensitivity
+            {
+                get => _mouseSensitivity;
+                internal set => _mouseSensitivity = value;
+            }
+
+            public float turretSpeed
+            {
+                get => _turretSpeed;
+                internal set => _turretSpeed = value;
+            }
+
+            public float pitchAngle
+            {
+                get => _pitchAngle;
+                internal set => _pitchAngle = value;
+            }
+
+            public float pitchSpeed
+            {
+                get => _pitchSpeed;
+                internal set => _pitchSpeed = value;
+            }
+
+            public double lastShotTime
+            {
+                get => _lastShotTime;
+                internal set => _lastShotTime = value;
+            }
+
+            public GameObject turretUI
+            {
+                get => _turretUI;
+                internal set => _turretUI = value;
+            }
+
+            #endregion
         }
 
-        #region Unity Callbacks
+        [Header("Diagnostics")]
+        public RuntimeData runtimeData;
+
+        #region Network Setup
 
         protected override void OnValidate()
         {
@@ -160,7 +196,7 @@ namespace Mirror.Examples.Common.Controllers.Tank
                 animator = GetComponentInChildren<Animator>();
 
             // Set default...this may be modified based on DPI at runtime
-            mouseSensitivity = turretAcceleration;
+            runtimeData.mouseSensitivity = turretAcceleration;
 
             // Do a recursive search for a children named "Turret" and "ProjectileMount".
             // They will be several levels deep in the hierarchy.
@@ -215,6 +251,43 @@ namespace Mirror.Examples.Common.Controllers.Tank
             this.enabled = false;
         }
 
+        public override void OnStartLocalPlayer()
+        {
+            if (turretUIPrefab != null)
+                runtimeData.turretUI = Instantiate(turretUIPrefab);
+
+            if (runtimeData.turretUI != null)
+            {
+                if (runtimeData.turretUI.TryGetComponent(out TurretUI canvasControlPanel))
+                    canvasControlPanel.Refresh(moveKeys, optionsKeys);
+
+                runtimeData.turretUI.SetActive(controlOptions.HasFlag(ControlOptions.ShowUI));
+            }
+        }
+
+        public override void OnStopLocalPlayer()
+        {
+            if (runtimeData.turretUI != null)
+                Destroy(runtimeData.turretUI);
+            runtimeData.turretUI = null;
+        }
+
+        public override void OnStartAuthority()
+        {
+            // Calculate DPI-aware sensitivity
+            float dpiScale = (Screen.dpi > 0) ? (Screen.dpi / BASE_DPI) : 1f;
+            runtimeData.mouseSensitivity = turretAcceleration * dpiScale;
+
+            SetCursor(controlOptions.HasFlag(ControlOptions.MouseLock));
+            this.enabled = true;
+        }
+
+        public override void OnStopAuthority()
+        {
+            SetCursor(false);
+            this.enabled = false;
+        }
+
         #endregion
 
         void Update()
@@ -230,6 +303,15 @@ namespace Mirror.Examples.Common.Controllers.Tank
                 HandleTurning(deltaTime);
 
             HandleShooting();
+        }
+
+        void OnPlayerColorChanged(Color32 _, Color32 newColor)
+        {
+            if (cachedMaterial == null)
+                cachedMaterial = playerObject.GetComponent<Renderer>().material;
+
+            cachedMaterial.color = newColor;
+            playerObject.SetActive(newColor != Color.black);
         }
 
         void SetCursor(bool locked)
@@ -253,8 +335,8 @@ namespace Mirror.Examples.Common.Controllers.Tank
             {
                 controlOptions ^= ControlOptions.ShowUI;
 
-                if (turretUI != null)
-                    turretUI.SetActive(controlOptions.HasFlag(ControlOptions.ShowUI));
+                if (runtimeData.turretUI != null)
+                    runtimeData.turretUI.SetActive(controlOptions.HasFlag(ControlOptions.ShowUI));
             }
         }
 
@@ -268,28 +350,28 @@ namespace Mirror.Examples.Common.Controllers.Tank
             if (moveKeys.TurnRight != KeyCode.None && Input.GetKey(moveKeys.TurnRight))
                 targetTurnSpeed += maxTurretSpeed;
 
-            turretSpeed = Mathf.MoveTowards(turretSpeed, targetTurnSpeed, turretAcceleration * maxTurretSpeed * deltaTime);
-            turret.Rotate(0f, turretSpeed * deltaTime, 0f);
+            runtimeData.turretSpeed = Mathf.MoveTowards(runtimeData.turretSpeed, targetTurnSpeed, turretAcceleration * maxTurretSpeed * deltaTime);
+            turret.Rotate(0f, runtimeData.turretSpeed * deltaTime, 0f);
         }
 
         void HandleMouseTurret(float deltaTime)
         {
             // Accumulate mouse input over time
-            mouseInputX += Input.GetAxisRaw("Mouse X") * mouseSensitivity;
+            runtimeData.mouseInputX += Input.GetAxisRaw("Mouse X") * runtimeData.mouseSensitivity;
 
             // Clamp the accumulator to simulate key press behavior
-            mouseInputX = Mathf.Clamp(mouseInputX, -1f, 1f);
+            runtimeData.mouseInputX = Mathf.Clamp(runtimeData.mouseInputX, -1f, 1f);
 
             // Calculate target turn speed
-            float targetTurnSpeed = mouseInputX * maxTurretSpeed;
+            float targetTurnSpeed = runtimeData.mouseInputX * maxTurretSpeed;
 
             // Use the same acceleration logic as HandleTurning
-            turretSpeed = Mathf.MoveTowards(turretSpeed, targetTurnSpeed, mouseSensitivity * maxTurretSpeed * deltaTime);
+            runtimeData.turretSpeed = Mathf.MoveTowards(runtimeData.turretSpeed, targetTurnSpeed, runtimeData.mouseSensitivity * maxTurretSpeed * deltaTime);
 
             // Apply rotation
-            turret.Rotate(0f, turretSpeed * deltaTime, 0f);
+            turret.Rotate(0f, runtimeData.turretSpeed * deltaTime, 0f);
 
-            mouseInputX = Mathf.MoveTowards(mouseInputX, 0f, mouseSensitivity * deltaTime);
+            runtimeData.mouseInputX = Mathf.MoveTowards(runtimeData.mouseInputX, 0f, runtimeData.mouseSensitivity * deltaTime);
         }
 
         void HandlePitch(float deltaTime)
@@ -310,19 +392,19 @@ namespace Mirror.Examples.Common.Controllers.Tank
                 inputDetected = true;
             }
 
-            pitchSpeed = Mathf.MoveTowards(pitchSpeed, targetPitchSpeed, pitchAcceleration * maxPitchSpeed * deltaTime);
+            runtimeData.pitchSpeed = Mathf.MoveTowards(runtimeData.pitchSpeed, targetPitchSpeed, pitchAcceleration * maxPitchSpeed * deltaTime);
 
             // Apply pitch rotation
-            pitchAngle += pitchSpeed * deltaTime;
-            pitchAngle = Mathf.Clamp(pitchAngle, -maxPitchUpAngle, maxPitchDownAngle);
+            runtimeData.pitchAngle += runtimeData.pitchSpeed * deltaTime;
+            runtimeData.pitchAngle = Mathf.Clamp(runtimeData.pitchAngle, -maxPitchUpAngle, maxPitchDownAngle);
 
             // Return to -90 when no input
             if (!inputDetected && controlOptions.HasFlag(ControlOptions.AutoLevel))
-                pitchAngle = Mathf.MoveTowards(pitchAngle, 0f, maxPitchSpeed * deltaTime);
+                runtimeData.pitchAngle = Mathf.MoveTowards(runtimeData.pitchAngle, 0f, maxPitchSpeed * deltaTime);
 
             // Apply rotation to barrel -- rotation is (-90, 0, 180) in the prefab
             // so that's what we have to work towards.
-            barrel.localRotation = Quaternion.Euler(-90f + pitchAngle, 0f, 180f);
+            barrel.localRotation = Quaternion.Euler(-90f + runtimeData.pitchAngle, 0f, 180f);
         }
 
         #region Shooting
@@ -336,7 +418,7 @@ namespace Mirror.Examples.Common.Controllers.Tank
             }
         }
 
-        bool CanShoot => NetworkTime.time >= lastShotTime + cooldownTime;
+        bool CanShoot => NetworkTime.time >= runtimeData.lastShotTime + cooldownTime;
 
         [Command]
         void CmdShoot()
@@ -358,13 +440,13 @@ namespace Mirror.Examples.Common.Controllers.Tank
         // This has multiple callers in different contexts...don't consolidate, even if it looks like you could.
         void DoShoot()
         {
-            //Debug.Log($"DoShoot isServerOnly:{isServerOnly} | isServer:{isServer} | isClient:{isClient}");
+            //Debug.Log($"DoShoot isServerOnly:{isServerOnly} | isServer:{isServer} | isClientOnly:{isClientOnly}");
 
+            // ProjectileMount.transform.parent.parent is the Barrel object with the Collider
             // Turret
             // - Barrel (with Collider)
             //   - BarrelEnd
             //     - ProjectileMount
-            // projectileMount.transform.parent.parent is the Barrel object with the Collider
 
             if (isServerOnly)
             {
@@ -373,7 +455,7 @@ namespace Mirror.Examples.Common.Controllers.Tank
                 Physics.IgnoreCollision(go.GetComponent<Collider>(), projectileMount.transform.parent.parent.GetComponent<Collider>());
 
                 // Update the last shot time
-                lastShotTime = NetworkTime.time;
+                runtimeData.lastShotTime = NetworkTime.time;
             }
             else if (isServer)
             {
@@ -383,7 +465,7 @@ namespace Mirror.Examples.Common.Controllers.Tank
                 Physics.IgnoreCollision(go.GetComponent<Collider>(), projectileMount.transform.parent.parent.GetComponent<Collider>());
 
                 // Update the last shot time
-                lastShotTime = NetworkTime.time;
+                runtimeData.lastShotTime = NetworkTime.time;
             }
 
             if (isClientOnly)
@@ -394,52 +476,8 @@ namespace Mirror.Examples.Common.Controllers.Tank
                 Physics.IgnoreCollision(go.GetComponent<Collider>(), projectileMount.transform.parent.parent.GetComponent<Collider>());
 
                 // Update the last shot time
-                lastShotTime = NetworkTime.time;
+                runtimeData.lastShotTime = NetworkTime.time;
             }
-        }
-
-        #endregion
-
-        #region Start & Stop Callbacks
-
-        public override void OnStartServer() { }
-
-        public override void OnStartLocalPlayer()
-        {
-            if (turretUIPrefab != null)
-                turretUI = Instantiate(turretUIPrefab);
-
-            if (turretUI != null)
-            {
-                if (turretUI.TryGetComponent(out TurretUI canvasControlPanel))
-                    canvasControlPanel.Refresh(moveKeys, optionsKeys);
-
-                turretUI.SetActive(controlOptions.HasFlag(ControlOptions.ShowUI));
-            }
-        }
-
-        public override void OnStopLocalPlayer()
-        {
-            if (turretUI != null)
-                Destroy(turretUI);
-            turretUI = null;
-        }
-
-        public override void OnStartAuthority()
-        {
-            // Calculate DPI-aware sensitivity
-            float dpiScale = (Screen.dpi > 0) ? (Screen.dpi / BASE_DPI) : 1f;
-            mouseSensitivity = turretAcceleration * dpiScale;
-            //Debug.Log($"Screen DPI: {Screen.dpi}, DPI Scale: {dpiScale}, Adjusted Turn Acceleration: {turnAccelerationDPI}");
-
-            SetCursor(controlOptions.HasFlag(ControlOptions.MouseLock));
-            this.enabled = true;
-        }
-
-        public override void OnStopAuthority()
-        {
-            SetCursor(false);
-            this.enabled = false;
         }
 
         #endregion

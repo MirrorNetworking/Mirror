@@ -8,8 +8,8 @@ namespace Mirror.Examples.Common.Controllers.Tank
     public class TankTurretReliable : TankTurretBase
     {
         [Header("Components")]
-        public NetworkTransformReliable turretNTR;
-        public NetworkTransformReliable barrelNTR;
+        public NetworkTransformReliable turretNetworkTransform;
+        public NetworkTransformReliable barrelNetworkTransform;
 
         protected override void Reset()
         {
@@ -22,41 +22,39 @@ namespace Mirror.Examples.Common.Controllers.Tank
 
             if (NTs.Length < 2)
             {
-                turretNTR = gameObject.AddComponent<NetworkTransformReliable>();
-                turretNTR.transform.SetSiblingIndex(NTs[0].transform.GetSiblingIndex() + 1);
+                turretNetworkTransform = gameObject.AddComponent<NetworkTransformReliable>();
+                turretNetworkTransform.transform.SetSiblingIndex(NTs[0].transform.GetSiblingIndex() + 1);
                 NTs = GetComponents<NetworkTransformReliable>();
             }
             else
-                turretNTR = NTs[1];
+                turretNetworkTransform = NTs[1];
 
-            // Ensure SyncDirection is Client to Server
-            turretNTR.syncDirection = SyncDirection.ClientToServer;
-            turretNTR.syncPosition = false;
+            // Ensure syncDirection is Client to Server
+            turretNetworkTransform.syncDirection = SyncDirection.ClientToServer;
 
-            // Set SyncPosition to false because we only want to sync rotation
-            //turretNTR.syncPosition = false;
+            // Set syncPosition to false because we only want to sync rotation
+            turretNetworkTransform.syncPosition = false;
 
             if (base.turret != null)
-                turretNTR.target = turret;
+                turretNetworkTransform.target = turret;
 
             if (NTs.Length < 3)
             {
-                barrelNTR = gameObject.AddComponent<NetworkTransformReliable>();
-                barrelNTR.transform.SetSiblingIndex(NTs[1].transform.GetSiblingIndex() + 1);
+                barrelNetworkTransform = gameObject.AddComponent<NetworkTransformReliable>();
+                barrelNetworkTransform.transform.SetSiblingIndex(NTs[1].transform.GetSiblingIndex() + 1);
                 NTs = GetComponents<NetworkTransformReliable>();
             }
             else
-                barrelNTR = NTs[2];
+                barrelNetworkTransform = NTs[2];
 
-            // Ensure SyncDirection is Client to Server
-            barrelNTR.syncDirection = SyncDirection.ClientToServer;
-            barrelNTR.syncPosition = false;
+            // Ensure syncDirection is Client to Server
+            barrelNetworkTransform.syncDirection = SyncDirection.ClientToServer;
 
-            // Set SyncPosition to false because we only want to sync rotation
-            //barrelNTR.syncPosition = false;
+            // Set syncPosition to false because we only want to sync rotation
+            barrelNetworkTransform.syncPosition = false;
 
             if (barrel != null)
-                barrelNTR.target = barrel;
+                barrelNetworkTransform.target = barrel;
         }
     }
 }

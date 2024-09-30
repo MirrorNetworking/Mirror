@@ -22,7 +22,7 @@ namespace Mirror.Examples.Common.Controllers.Flyer
             public KeyCode ToggleUI;
         }
 
-        public enum GroundState : byte { Jumping, Falling, Grounded }
+        public enum GroundState : byte { Grounded, Jumping, Falling }
 
         [Serializable]
         public struct MoveKeys
@@ -145,46 +145,123 @@ namespace Mirror.Examples.Common.Controllers.Flyer
         [Tooltip("Roll acceleration in degrees per second squared")]
         public float rollAcceleration = 3f;
 
+        // Runtime data in a struct so it can be folded up in inspector
+        [Serializable]
+        public struct RuntimeData
+        {
+            [ReadOnly, SerializeField, Range(-1f, 1f)] float _horizontal;
+            [ReadOnly, SerializeField, Range(-1f, 1f)] float _vertical;
+            [ReadOnly, SerializeField, Range(-300f, 300f)] float _turnSpeed;
+            [ReadOnly, SerializeField, Range(-180f, 180f)] float _pitchAngle;
+            [ReadOnly, SerializeField, Range(-180f, 180f)] float _pitchSpeed;
+            [ReadOnly, SerializeField, Range(-180f, 180f)] float _rollAngle;
+            [ReadOnly, SerializeField, Range(-180f, 180f)] float _rollSpeed;
+            [ReadOnly, SerializeField, Range(-1.5f, 1.5f)] float _animVelocity;
+            [ReadOnly, SerializeField, Range(-1.5f, 1.5f)] float _animRotation;
+            [ReadOnly, SerializeField, Range(-1f, 1f)] float _mouseInputX;
+            [ReadOnly, SerializeField, Range(0, 30f)] float _mouseSensitivity;
+            [ReadOnly, SerializeField] GroundState _groundState;
+            [ReadOnly, SerializeField] Vector3 _direction;
+            [ReadOnly, SerializeField] Vector3Int _velocity;
+            [ReadOnly, SerializeField] GameObject _controllerUI;
+
+            #region Properties
+
+            public float horizontal
+            {
+                get => _horizontal;
+                internal set => _horizontal = value;
+            }
+
+            public float vertical
+            {
+                get => _vertical;
+                internal set => _vertical = value;
+            }
+
+            public float turnSpeed
+            {
+                get => _turnSpeed;
+                internal set => _turnSpeed = value;
+            }
+
+            public float pitchAngle
+            {
+                get => _pitchAngle;
+                internal set => _pitchAngle = value;
+            }
+
+            public float pitchSpeed
+            {
+                get => _pitchSpeed;
+                internal set => _pitchSpeed = value;
+            }
+
+            public float rollAngle
+            {
+                get => _rollAngle;
+                internal set => _rollAngle = value;
+            }
+
+            public float rollSpeed
+            {
+                get => _rollSpeed;
+                internal set => _rollSpeed = value;
+            }
+
+            public float animVelocity
+            {
+                get => _animVelocity;
+                internal set => _animVelocity = value;
+            }
+
+            public float animRotation
+            {
+                get => _animRotation;
+                internal set => _animRotation = value;
+            }
+
+            public float mouseInputX
+            {
+                get => _mouseInputX;
+                internal set => _mouseInputX = value;
+            }
+
+            public float mouseSensitivity
+            {
+                get => _mouseSensitivity;
+                internal set => _mouseSensitivity = value;
+            }
+
+            public GroundState groundState
+            {
+                get => _groundState;
+                internal set => _groundState = value;
+            }
+
+            public Vector3 direction
+            {
+                get => _direction;
+                internal set => _direction = value;
+            }
+
+            public Vector3Int velocity
+            {
+                get => _velocity;
+                internal set => _velocity = value;
+            }
+
+            public GameObject controllerUI
+            {
+                get => _controllerUI;
+                internal set => _controllerUI = value;
+            }
+
+            #endregion
+        }
+
         [Header("Diagnostics")]
-        [ReadOnly, SerializeField]
-        GroundState groundState = GroundState.Grounded;
-
-        [ReadOnly, SerializeField, Range(-1f, 1f)]
-        float horizontal;
-        [ReadOnly, SerializeField, Range(-1f, 1f)]
-        float vertical;
-
-        [ReadOnly, SerializeField, Range(-1f, 1f)]
-        float mouseInputX;
-        [ReadOnly, SerializeField, Range(0, 30f)]
-        float mouseSensitivity;
-        [ReadOnly, SerializeField, Range(-300f, 300f)]
-        float turnSpeed;
-
-        [ReadOnly, SerializeField, Range(-180f, 180f)]
-        float pitchAngle;
-        [ReadOnly, SerializeField, Range(-180f, 180f)]
-        float pitchSpeed;
-
-        [ReadOnly, SerializeField, Range(-180f, 180f)]
-        float rollAngle;
-        [ReadOnly, SerializeField, Range(-180f, 180f)]
-        float rollSpeed;
-
-        [ReadOnly, SerializeField, Range(-1.5f, 1.5f)]
-        float animVelocity;
-
-        [ReadOnly, SerializeField, Range(-1.5f, 1.5f)]
-        float animRotation;
-
-        [ReadOnly, SerializeField]
-        Vector3 direction;
-
-        [ReadOnly, SerializeField]
-        Vector3Int velocity;
-
-        [ReadOnly, SerializeField]
-        GameObject controllerUI;
+        public RuntimeData runtimeData;
 
         #region Network Setup
 
@@ -235,8 +312,7 @@ namespace Mirror.Examples.Common.Controllers.Flyer
         {
             // Calculate DPI-aware sensitivity
             float dpiScale = (Screen.dpi > 0) ? (Screen.dpi / BASE_DPI) : 1f;
-            mouseSensitivity = turnAcceleration * dpiScale;
-            //Debug.Log($"Screen DPI: {Screen.dpi}, DPI Scale: {dpiScale}, Adjusted Turn Acceleration: {turnAccelerationDPI}");
+            runtimeData.mouseSensitivity = turnAcceleration * dpiScale;
 
             SetCursor(controlOptions.HasFlag(ControlOptions.MouseSteer));
 
@@ -262,22 +338,22 @@ namespace Mirror.Examples.Common.Controllers.Flyer
         public override void OnStartLocalPlayer()
         {
             if (ControllerUIPrefab != null)
-                controllerUI = Instantiate(ControllerUIPrefab);
+                runtimeData.controllerUI = Instantiate(ControllerUIPrefab);
 
-            if (controllerUI != null)
+            if (runtimeData.controllerUI != null)
             {
-                if (controllerUI.TryGetComponent(out FlyerControllerUI canvasControlPanel))
+                if (runtimeData.controllerUI.TryGetComponent(out FlyerControllerUI canvasControlPanel))
                     canvasControlPanel.Refresh(moveKeys, flightKeys, optionsKeys);
 
-                controllerUI.SetActive(controlOptions.HasFlag(ControlOptions.ShowUI));
+                runtimeData.controllerUI.SetActive(controlOptions.HasFlag(ControlOptions.ShowUI));
             }
         }
 
         public override void OnStopLocalPlayer()
         {
-            if (controllerUI != null)
-                Destroy(controllerUI);
-            controllerUI = null;
+            if (runtimeData.controllerUI != null)
+                Destroy(runtimeData.controllerUI);
+            runtimeData.controllerUI = null;
         }
 
         #endregion
@@ -306,12 +382,12 @@ namespace Mirror.Examples.Common.Controllers.Flyer
 
             // Reset ground state
             if (characterController.isGrounded)
-                groundState = GroundState.Grounded;
-            else if (groundState != GroundState.Jumping)
-                groundState = GroundState.Falling;
+                runtimeData.groundState = GroundState.Grounded;
+            else if (runtimeData.groundState != GroundState.Jumping)
+                runtimeData.groundState = GroundState.Falling;
 
             // Diagnostic velocity...FloorToInt for display purposes
-            velocity = Vector3Int.FloorToInt(characterController.velocity);
+            runtimeData.velocity = Vector3Int.FloorToInt(characterController.velocity);
         }
 
         void SetCursor(bool locked)
@@ -335,8 +411,8 @@ namespace Mirror.Examples.Common.Controllers.Flyer
             {
                 controlOptions ^= ControlOptions.ShowUI;
 
-                if (controllerUI != null)
-                    controllerUI.SetActive(controlOptions.HasFlag(ControlOptions.ShowUI));
+                if (runtimeData.controllerUI != null)
+                    runtimeData.controllerUI.SetActive(controlOptions.HasFlag(ControlOptions.ShowUI));
             }
 
             if (flightKeys.AutoLevel != KeyCode.None && Input.GetKeyUp(flightKeys.AutoLevel))
@@ -354,28 +430,28 @@ namespace Mirror.Examples.Common.Controllers.Flyer
             if (moveKeys.TurnRight != KeyCode.None && Input.GetKey(moveKeys.TurnRight))
                 targetTurnSpeed += maxTurnSpeed;
 
-            turnSpeed = Mathf.MoveTowards(turnSpeed, targetTurnSpeed, turnAcceleration * maxTurnSpeed * deltaTime);
-            transform.Rotate(0f, turnSpeed * deltaTime, 0f);
+            runtimeData.turnSpeed = Mathf.MoveTowards(runtimeData.turnSpeed, targetTurnSpeed, turnAcceleration * maxTurnSpeed * deltaTime);
+            transform.Rotate(0f, runtimeData.turnSpeed * deltaTime, 0f);
         }
 
         void HandleMouseSteer(float deltaTime)
         {
             // Accumulate mouse input over time
-            mouseInputX += Input.GetAxisRaw("Mouse X") * mouseSensitivity;
+            runtimeData.mouseInputX += Input.GetAxisRaw("Mouse X") * runtimeData.mouseSensitivity;
 
             // Clamp the accumulator to simulate key press behavior
-            mouseInputX = Mathf.Clamp(mouseInputX, -1f, 1f);
+            runtimeData.mouseInputX = Mathf.Clamp(runtimeData.mouseInputX, -1f, 1f);
 
             // Calculate target turn speed
-            float targetTurnSpeed = mouseInputX * maxTurnSpeed;
+            float targetTurnSpeed = runtimeData.mouseInputX * maxTurnSpeed;
 
             // Use the same acceleration logic as HandleTurning
-            turnSpeed = Mathf.MoveTowards(turnSpeed, targetTurnSpeed, mouseSensitivity * maxTurnSpeed * deltaTime);
+            runtimeData.turnSpeed = Mathf.MoveTowards(runtimeData.turnSpeed, targetTurnSpeed, runtimeData.mouseSensitivity * maxTurnSpeed * deltaTime);
 
             // Apply rotation
-            transform.Rotate(0f, turnSpeed * deltaTime, 0f);
+            transform.Rotate(0f, runtimeData.turnSpeed * deltaTime, 0f);
 
-            mouseInputX = Mathf.MoveTowards(mouseInputX, 0f, mouseSensitivity * deltaTime);
+            runtimeData.mouseInputX = Mathf.MoveTowards(runtimeData.mouseInputX, 0f, runtimeData.mouseSensitivity * deltaTime);
         }
 
         void HandlePitch(float deltaTime)
@@ -396,15 +472,15 @@ namespace Mirror.Examples.Common.Controllers.Flyer
                 inputDetected = true;
             }
 
-            pitchSpeed = Mathf.MoveTowards(pitchSpeed, targetPitchSpeed, pitchAcceleration * maxPitchSpeed * deltaTime);
+            runtimeData.pitchSpeed = Mathf.MoveTowards(runtimeData.pitchSpeed, targetPitchSpeed, pitchAcceleration * maxPitchSpeed * deltaTime);
 
             // Apply pitch rotation
-            pitchAngle += pitchSpeed * deltaTime;
-            pitchAngle = Mathf.Clamp(pitchAngle, -maxPitchUpAngle, maxPitchDownAngle);
+            runtimeData.pitchAngle += runtimeData.pitchSpeed * deltaTime;
+            runtimeData.pitchAngle = Mathf.Clamp(runtimeData.pitchAngle, -maxPitchUpAngle, maxPitchDownAngle);
 
             // Return to zero when no input
             if (!inputDetected && controlOptions.HasFlag(ControlOptions.AutoLevel))
-                pitchAngle = Mathf.MoveTowards(pitchAngle, 0f, maxPitchSpeed * deltaTime);
+                runtimeData.pitchAngle = Mathf.MoveTowards(runtimeData.pitchAngle, 0f, maxPitchSpeed * deltaTime);
 
             ApplyRotation();
         }
@@ -427,15 +503,15 @@ namespace Mirror.Examples.Common.Controllers.Flyer
                 inputDetected = true;
             }
 
-            rollSpeed = Mathf.MoveTowards(rollSpeed, targetRollSpeed, rollAcceleration * maxRollSpeed * deltaTime);
+            runtimeData.rollSpeed = Mathf.MoveTowards(runtimeData.rollSpeed, targetRollSpeed, rollAcceleration * maxRollSpeed * deltaTime);
 
             // Apply roll rotation
-            rollAngle += rollSpeed * deltaTime;
-            rollAngle = Mathf.Clamp(rollAngle, -maxRollAngle, maxRollAngle);
+            runtimeData.rollAngle += runtimeData.rollSpeed * deltaTime;
+            runtimeData.rollAngle = Mathf.Clamp(runtimeData.rollAngle, -maxRollAngle, maxRollAngle);
 
             // Return to zero when no input
             if (!inputDetected && controlOptions.HasFlag(ControlOptions.AutoLevel))
-                rollAngle = Mathf.MoveTowards(rollAngle, 0f, maxRollSpeed * deltaTime);
+                runtimeData.rollAngle = Mathf.MoveTowards(runtimeData.rollAngle, 0f, maxRollSpeed * deltaTime);
 
             ApplyRotation();
         }
@@ -446,7 +522,7 @@ namespace Mirror.Examples.Common.Controllers.Flyer
             float currentYaw = transform.localRotation.eulerAngles.y;
 
             // Apply all rotations
-            transform.localRotation = Quaternion.Euler(pitchAngle, currentYaw, rollAngle);
+            transform.localRotation = Quaternion.Euler(runtimeData.pitchAngle, currentYaw, runtimeData.rollAngle);
         }
 
         void HandleMove(float deltaTime)
@@ -464,39 +540,36 @@ namespace Mirror.Examples.Common.Controllers.Flyer
             if (targetMoveX == 0f)
             {
                 if (!controlOptions.HasFlag(ControlOptions.AutoRun))
-                    horizontal = Mathf.MoveTowards(horizontal, targetMoveX, inputGravity * deltaTime);
+                    runtimeData.horizontal = Mathf.MoveTowards(runtimeData.horizontal, targetMoveX, inputGravity * deltaTime);
             }
             else
-                horizontal = Mathf.MoveTowards(horizontal, targetMoveX, inputSensitivity * deltaTime);
+                runtimeData.horizontal = Mathf.MoveTowards(runtimeData.horizontal, targetMoveX, inputSensitivity * deltaTime);
 
             if (targetMoveZ == 0f)
             {
                 if (!controlOptions.HasFlag(ControlOptions.AutoRun))
-                    vertical = Mathf.MoveTowards(vertical, targetMoveZ, inputGravity * deltaTime);
+                    runtimeData.vertical = Mathf.MoveTowards(runtimeData.vertical, targetMoveZ, inputGravity * deltaTime);
             }
             else
-                vertical = Mathf.MoveTowards(vertical, targetMoveZ, inputSensitivity * deltaTime);
+                runtimeData.vertical = Mathf.MoveTowards(runtimeData.vertical, targetMoveZ, inputSensitivity * deltaTime);
         }
 
         void ApplyMove(float deltaTime)
         {
             // Create initial direction vector without jumpSpeed (y-axis).
-            direction = new Vector3(horizontal, 0f, vertical);
+            runtimeData.direction = new Vector3(runtimeData.horizontal, 0f, runtimeData.vertical);
 
             // Clamp so diagonal strafing isn't a speed advantage.
-            direction = Vector3.ClampMagnitude(direction, 1f);
+            runtimeData.direction = Vector3.ClampMagnitude(runtimeData.direction, 1f);
 
             // Transforms direction from local space to world space.
-            direction = transform.TransformDirection(direction);
+            runtimeData.direction = transform.TransformDirection(runtimeData.direction);
 
             // Multiply for desired ground speed.
-            direction *= maxMoveSpeed;
-
-            //// Add jumpSpeed to direction as last step.
-            //direction.y = jumpSpeed;
+            runtimeData.direction *= maxMoveSpeed;
 
             // Finally move the character.
-            characterController.Move(direction * deltaTime);
+            characterController.Move(runtimeData.direction * deltaTime);
         }
     }
 }

@@ -12,7 +12,7 @@ namespace Mirror.Examples.Common.Controllers.Tank
     [DisallowMultipleComponent]
     public class TankControllerBase : NetworkBehaviour
     {
-        public enum GroundState : byte { Jumping, Falling, Grounded }
+        public enum GroundState : byte { Grounded, Jumping, Falling }
 
         [Serializable]
         public struct MoveKeys
@@ -90,32 +90,81 @@ namespace Mirror.Examples.Common.Controllers.Tank
         [Tooltip("Rotation acceleration in degrees per second squared")]
         public float turnAcceleration = 3f;
 
+        // Runtime data in a struct so it can be folded up in inspector
+        [Serializable]
+        public struct RuntimeData
+        {
+            [ReadOnly, SerializeField, Range(-1f, 1f)] float _horizontal;
+            [ReadOnly, SerializeField, Range(-1f, 1f)] float _vertical;
+            [ReadOnly, SerializeField, Range(-300f, 300f)] float _turnSpeed;
+            [ReadOnly, SerializeField, Range(-1.5f, 1.5f)] float _animVelocity;
+            [ReadOnly, SerializeField, Range(-1.5f, 1.5f)] float _animRotation;
+            [ReadOnly, SerializeField] GroundState _groundState;
+            [ReadOnly, SerializeField] Vector3 _direction;
+            [ReadOnly, SerializeField] Vector3Int _velocity;
+            [ReadOnly, SerializeField] GameObject _controllerUI;
+
+            #region Properties
+
+            public float horizontal
+            {
+                get => _horizontal;
+                internal set => _horizontal = value;
+            }
+
+            public float vertical
+            {
+                get => _vertical;
+                internal set => _vertical = value;
+            }
+
+            public float turnSpeed
+            {
+                get => _turnSpeed;
+                internal set => _turnSpeed = value;
+            }
+
+            public float animVelocity
+            {
+                get => _animVelocity;
+                internal set => _animVelocity = value;
+            }
+
+            public float animRotation
+            {
+                get => _animRotation;
+                internal set => _animRotation = value;
+            }
+
+            public GameObject controllerUI
+            {
+                get => _controllerUI;
+                internal set => _controllerUI = value;
+            }
+
+            public Vector3 direction
+            {
+                get => _direction;
+                internal set => _direction = value;
+            }
+
+            public Vector3Int velocity
+            {
+                get => _velocity;
+                internal set => _velocity = value;
+            }
+
+            public GroundState groundState
+            {
+                get => _groundState;
+                internal set => _groundState = value;
+            }
+
+            #endregion
+        }
+
         [Header("Diagnostics")]
-        [ReadOnly, SerializeField]
-        GroundState groundState = GroundState.Grounded;
-
-        [ReadOnly, SerializeField, Range(-1f, 1f)]
-        float horizontal;
-        [ReadOnly, SerializeField, Range(-1f, 1f)]
-        float vertical;
-
-        [ReadOnly, SerializeField, Range(-300f, 300f)]
-        float turnSpeed;
-
-        [ReadOnly, SerializeField, Range(-1.5f, 1.5f)]
-        float animVelocity;
-
-        [ReadOnly, SerializeField, Range(-1.5f, 1.5f)]
-        float animRotation;
-
-        [ReadOnly, SerializeField]
-        Vector3 direction;
-
-        [ReadOnly, SerializeField]
-        Vector3Int velocity;
-
-        [ReadOnly, SerializeField]
-        GameObject controllerUI;
+        public RuntimeData runtimeData;
 
         #region Network Setup
 
@@ -164,15 +213,13 @@ namespace Mirror.Examples.Common.Controllers.Tank
 
         void OnDisable()
         {
-            horizontal = 0f;
-            vertical = 0f;
-            turnSpeed = 0f;
+            runtimeData.horizontal = 0f;
+            runtimeData.vertical = 0f;
+            runtimeData.turnSpeed = 0f;
         }
 
         public override void OnStartAuthority()
         {
-            // capsuleCollider and characterController are mutually exclusive
-            // Having both enabled would double fire triggers and other collisions
             characterController.enabled = true;
             this.enabled = true;
         }
@@ -180,31 +227,28 @@ namespace Mirror.Examples.Common.Controllers.Tank
         public override void OnStopAuthority()
         {
             this.enabled = false;
-
-            // capsuleCollider and characterController are mutually exclusive
-            // Having both enabled would double fire triggers and other collisions
             characterController.enabled = false;
         }
 
         public override void OnStartLocalPlayer()
         {
             if (ControllerUIPrefab != null)
-                controllerUI = Instantiate(ControllerUIPrefab);
+                runtimeData.controllerUI = Instantiate(ControllerUIPrefab);
 
-            if (controllerUI != null)
+            if (runtimeData.controllerUI != null)
             {
-                if (controllerUI.TryGetComponent(out TankControllerUI canvasControlPanel))
+                if (runtimeData.controllerUI.TryGetComponent(out TankControllerUI canvasControlPanel))
                     canvasControlPanel.Refresh(moveKeys, optionsKeys);
 
-                controllerUI.SetActive(controlOptions.HasFlag(ControlOptions.ShowUI));
+                runtimeData.controllerUI.SetActive(controlOptions.HasFlag(ControlOptions.ShowUI));
             }
         }
 
         public override void OnStopLocalPlayer()
         {
-            if (controllerUI != null)
-                Destroy(controllerUI);
-            controllerUI = null;
+            if (runtimeData.controllerUI != null)
+                Destroy(runtimeData.controllerUI);
+            runtimeData.controllerUI = null;
         }
 
         #endregion
@@ -223,12 +267,12 @@ namespace Mirror.Examples.Common.Controllers.Tank
 
             // Reset ground state
             if (characterController.isGrounded)
-                groundState = GroundState.Grounded;
-            else if (groundState != GroundState.Jumping)
-                groundState = GroundState.Falling;
+                runtimeData.groundState = GroundState.Grounded;
+            else if (runtimeData.groundState != GroundState.Jumping)
+                runtimeData.groundState = GroundState.Falling;
 
             // Diagnostic velocity...FloorToInt for display purposes
-            velocity = Vector3Int.FloorToInt(characterController.velocity);
+            runtimeData.velocity = Vector3Int.FloorToInt(characterController.velocity);
         }
 
         void HandleOptions()
@@ -240,8 +284,8 @@ namespace Mirror.Examples.Common.Controllers.Tank
             {
                 controlOptions ^= ControlOptions.ShowUI;
 
-                if (controllerUI != null)
-                    controllerUI.SetActive(controlOptions.HasFlag(ControlOptions.ShowUI));
+                if (runtimeData.controllerUI != null)
+                    runtimeData.controllerUI.SetActive(controlOptions.HasFlag(ControlOptions.ShowUI));
             }
         }
 
@@ -259,9 +303,9 @@ namespace Mirror.Examples.Common.Controllers.Tank
             // If there's turn input or AutoRun is not enabled, adjust turn speed towards target
             // If no turn input and AutoRun is enabled, maintain the previous turn speed
             if (targetTurnSpeed != 0f || !controlOptions.HasFlag(ControlOptions.AutoRun))
-                turnSpeed = Mathf.MoveTowards(turnSpeed, targetTurnSpeed, turnAcceleration * maxTurnSpeed * deltaTime);
+                runtimeData.turnSpeed = Mathf.MoveTowards(runtimeData.turnSpeed, targetTurnSpeed, turnAcceleration * maxTurnSpeed * deltaTime);
 
-            transform.Rotate(0f, turnSpeed * deltaTime, 0f);
+            transform.Rotate(0f, runtimeData.turnSpeed * deltaTime, 0f);
         }
 
         void HandleMove(float deltaTime)
@@ -277,39 +321,39 @@ namespace Mirror.Examples.Common.Controllers.Tank
             if (targetMoveX == 0f)
             {
                 if (!controlOptions.HasFlag(ControlOptions.AutoRun))
-                    horizontal = Mathf.MoveTowards(horizontal, targetMoveX, inputGravity * deltaTime);
+                    runtimeData.horizontal = Mathf.MoveTowards(runtimeData.horizontal, targetMoveX, inputGravity * deltaTime);
             }
             else
-                horizontal = Mathf.MoveTowards(horizontal, targetMoveX, inputSensitivity * deltaTime);
+                runtimeData.horizontal = Mathf.MoveTowards(runtimeData.horizontal, targetMoveX, inputSensitivity * deltaTime);
 
             if (targetMoveZ == 0f)
             {
                 if (!controlOptions.HasFlag(ControlOptions.AutoRun))
-                    vertical = Mathf.MoveTowards(vertical, targetMoveZ, inputGravity * deltaTime);
+                    runtimeData.vertical = Mathf.MoveTowards(runtimeData.vertical, targetMoveZ, inputGravity * deltaTime);
             }
             else
-                vertical = Mathf.MoveTowards(vertical, targetMoveZ, inputSensitivity * deltaTime);
+                runtimeData.vertical = Mathf.MoveTowards(runtimeData.vertical, targetMoveZ, inputSensitivity * deltaTime);
         }
 
         void ApplyMove(float deltaTime)
         {
             // Create initial direction vector without jumpSpeed (y-axis).
-            direction = new Vector3(horizontal, 0f, vertical);
+            runtimeData.direction = new Vector3(runtimeData.horizontal, 0f, runtimeData.vertical);
 
             // Clamp so diagonal strafing isn't a speed advantage.
-            direction = Vector3.ClampMagnitude(direction, 1f);
+            runtimeData.direction = Vector3.ClampMagnitude(runtimeData.direction, 1f);
 
             // Transforms direction from local space to world space.
-            direction = transform.TransformDirection(direction);
+            runtimeData.direction = transform.TransformDirection(runtimeData.direction);
 
             // Multiply for desired ground speed.
-            direction *= maxMoveSpeed;
+            runtimeData.direction *= maxMoveSpeed;
 
             // Add gravity in case we drove off a cliff.
-            direction += Physics.gravity;
+            runtimeData.direction += Physics.gravity;
 
             // Finally move the character.
-            characterController.Move(direction * deltaTime);
+            characterController.Move(runtimeData.direction * deltaTime);
         }
     }
 }
