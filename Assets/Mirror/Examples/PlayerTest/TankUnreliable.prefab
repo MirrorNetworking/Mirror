@@ -196,15 +196,16 @@ MonoBehaviour:
   inputGravity: 2
   maxTurnSpeed: 100
   turnAcceleration: 3
-  groundState: 2
-  horizontal: 0
-  vertical: 0
-  turnSpeed: 0
-  animVelocity: 0
-  animRotation: 0
-  direction: {x: 0, y: 0, z: 0}
-  velocity: {x: 0, y: 0, z: 0}
-  controllerUI: {fileID: 0}
+  runtimeData:
+    _horizontal: 0
+    _vertical: 0
+    _turnSpeed: 0
+    _animVelocity: 0
+    _animRotation: 0
+    _groundState: 0
+    _direction: {x: 0, y: 0, z: 0}
+    _velocity: {x: 0, y: 0, z: 0}
+    _controllerUI: {fileID: 0}
 --- !u!114 &3523936333989725058
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -251,15 +252,16 @@ MonoBehaviour:
   maxPitchUpAngle: 25
   maxPitchDownAngle: 0
   pitchAcceleration: 3
-  mouseInputX: 0
-  mouseSensitivity: 10
-  turretSpeed: 0
-  pitchAngle: 0
-  pitchSpeed: 0
-  lastShotTime: 0
-  turretUI: {fileID: 0}
-  turretNTR: {fileID: 8518206564796711397}
-  barrelNTR: {fileID: 470423508858832317}
+  runtimeData:
+    _turretSpeed: 0
+    _pitchAngle: 0
+    _pitchSpeed: 0
+    _mouseInputX: 0
+    _mouseSensitivity: 10
+    _lastShotTime: 0
+    _turretUI: {fileID: 0}
+  turretNetworkTransform: {fileID: 8518206564796711397}
+  barrelNetworkTransform: {fileID: 470423508858832317}
 --- !u!114 &8518206564796711397
 MonoBehaviour:
   m_ObjectHideFlags: 0
