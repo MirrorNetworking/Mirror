@@ -464,5 +464,57 @@ namespace Mirror.Tests.NetworkIdentities
             Assert.That(ownerWriterUnreliableDelta.Position, Is.GreaterThan(0));
             Assert.That(observersWriterUnreliableDelta.Position, Is.GreaterThan(0));
         }
+
+        [Test]
+        public void SerializeServer_ObserversMode_ServerToClient_ReliableOnly()
+        {
+            CreateNetworked(out GameObject _, out NetworkIdentity identity,
+                out SyncVarTest1NetworkBehaviour comp1,
+                out SyncVarTest2NetworkBehaviour comp2);
+
+            // one Reliable, one Unreliable component
+            comp1.syncMethod = SyncMethod.Reliable;
+            comp2.syncMethod = SyncMethod.Unreliable;
+
+            // pretend to be owned
+            identity.isOwned = true;
+            comp1.syncMode = comp2.syncMode = SyncMode.Observers;
+            comp1.syncInterval = comp2.syncInterval = 0;
+
+            // set to CLIENT with some unique values
+            // and set connection to server to pretend we are the owner.
+            comp1.syncDirection = comp2.syncDirection = SyncDirection.ServerToClient;
+            comp1.SetValue(11); // modify with helper function to avoid #3525
+            // comp2.SetValue("22"); // Unreliable component doesn't change this time
+
+            // initial: should still write for owner AND observers
+            identity.SerializeServer_Spawn(ownerWriterReliable, observersWriterReliable);
+            Debug.Log("initial ownerWriter: " + ownerWriterReliable);
+            Debug.Log("initial observerWriter: " + observersWriterReliable);
+            Assert.That(ownerWriterReliable.Position, Is.GreaterThan(0));
+            Assert.That(observersWriterReliable.Position, Is.GreaterThan(0));
+
+            // delta: should write something for all
+            comp1.SetValue(33); // modify with helper function to avoid #3525
+            // comp2.SetValue("44"); // Unreliable component doesn't change this time
+            ownerWriterReliable.Position = 0;
+            observersWriterReliable.Position = 0;
+            identity.SerializeServer_Broadcast(
+                ownerWriterReliable, observersWriterReliable,
+                ownerWriterUnreliableBaseline, observersWriterUnreliableBaseline,
+                ownerWriterUnreliableDelta, observersWriterUnreliableDelta,
+                false);
+            Debug.Log("delta ownerWriter: " + ownerWriterReliable);
+            Debug.Log("delta observersWriter: " + observersWriterReliable);
+
+            Assert.That(ownerWriterReliable.Position, Is.GreaterThan(0));
+            Assert.That(observersWriterReliable.Position, Is.GreaterThan(0));
+
+            Assert.That(ownerWriterUnreliableBaseline.Position, Is.EqualTo(0));
+            Assert.That(observersWriterUnreliableBaseline.Position, Is.EqualTo(0));
+
+            Assert.That(ownerWriterUnreliableDelta.Position, Is.EqualTo(0));
+            Assert.That(observersWriterUnreliableDelta.Position, Is.EqualTo(0));
+        }
     }
 }
