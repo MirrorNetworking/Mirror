@@ -311,17 +311,23 @@ namespace Mirror.Tests.NetworkIdentities
         public void SerializeServer_OwnerMode_ClientToServer()
         {
             CreateNetworked(out GameObject _, out NetworkIdentity identity,
-                out SyncVarTest1NetworkBehaviour comp);
+                out SyncVarTest1NetworkBehaviour comp1,
+                out SyncVarTest2NetworkBehaviour comp2);
+
+            // one Reliable, one Unreliable component
+            comp1.syncMethod = SyncMethod.Reliable;
+            comp2.syncMethod = SyncMethod.Unreliable;
 
             // pretend to be owned
             identity.isOwned = true;
-            comp.syncMode = SyncMode.Owner;
-            comp.syncInterval = 0;
+            comp1.syncMode = comp2.syncMode = SyncMode.Owner;
+            comp1.syncInterval = comp2.syncInterval = 0;
 
             // set to CLIENT with some unique values
             // and set connection to server to pretend we are the owner.
-            comp.syncDirection = SyncDirection.ClientToServer;
-            comp.SetValue(11); // modify with helper function to avoid #3525
+            comp1.syncDirection = comp2.syncDirection = SyncDirection.ClientToServer;
+            comp1.SetValue(11); // modify with helper function to avoid #3525
+            comp2.SetValue("22"); // modify with helper function to avoid #3525
 
             // initial: should still write for owner
             identity.SerializeServer_Spawn(ownerWriterReliable, observersWriterReliable);
@@ -331,7 +337,8 @@ namespace Mirror.Tests.NetworkIdentities
             Assert.That(observersWriterReliable.Position, Is.EqualTo(0));
 
             // delta: ClientToServer comes from the client
-            comp.SetValue(22); // modify with helper function to avoid #3525
+            comp1.SetValue(33); // modify with helper function to avoid #3525
+            comp2.SetValue("44"); // modify with helper function to avoid #3525
             ownerWriterReliable.Position = 0;
             observersWriterReliable.Position = 0;
             identity.SerializeServer_Broadcast(
@@ -341,8 +348,15 @@ namespace Mirror.Tests.NetworkIdentities
                 false);
             Debug.Log("delta ownerWriter: " + ownerWriterReliable);
             Debug.Log("delta observersWriter: " + observersWriterReliable);
+
             Assert.That(ownerWriterReliable.Position, Is.EqualTo(0));
             Assert.That(observersWriterReliable.Position, Is.EqualTo(0));
+
+            Assert.That(ownerWriterUnreliableBaseline.Position, Is.EqualTo(0));
+            Assert.That(observersWriterUnreliableBaseline.Position, Is.EqualTo(0));
+
+            Assert.That(ownerWriterUnreliableDelta.Position, Is.EqualTo(0));
+            Assert.That(observersWriterUnreliableDelta.Position, Is.EqualTo(0));
         }
 
         // TODO this started failing after we moved SyncVarTest1NetworkBehaviour
