@@ -55,8 +55,8 @@ plugins:
   
   # Remove EdgeGap Hosting folder so it's excluded from Unity package
   # -f: force, -r: recursive
-  - - '@semantic-release/exec'
-    - prepareCmd: "rm -f -r Assets/Mirror/Hosting && rm -f Assets/Mirror/Hosting.meta"
+  # - - '@semantic-release/exec'
+  #   - prepareCmd: "rm -f -r Assets/Mirror/Hosting && rm -f Assets/Mirror/Hosting.meta"
   
   # Move ScriptTemplates to Mirror folder so they're included in Unity package
   # There's an editor script that moves them back to Assets when imported to Unity
