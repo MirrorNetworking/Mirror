@@ -73,7 +73,9 @@ function Connect(addressPtr, openCallbackPtr, closeCallBackPtr, messageCallbackP
 
             Runtime.dynCall('viii', messageCallbackPtr, [index, bufferPtr, arrayLength]);
             _free(bufferPtr);
-        } else {
+        }
+        else
+        {
             console.error("message type not supported")
         }
     };
