@@ -4,7 +4,7 @@ namespace Mirror
 {
     // [RequireComponent(typeof(Rigidbody))] <- OnValidate ensures this is on .target
     [AddComponentMenu("Network/Network Rigidbody (Unreliable Compressed)")]
-    public class NetworkRigidbodyUnreliableCompressed : NetworkTransformUnreliableCompressed
+    public class NetworkRigidbodyHybrid : NetworkTransformHybrid
     {
         bool clientAuthority => syncDirection == SyncDirection.ClientToServer;
 
