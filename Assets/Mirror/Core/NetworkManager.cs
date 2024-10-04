@@ -376,9 +376,9 @@ namespace Mirror
             if (authenticator != null)
             {
                 authenticator.OnStartClient();
+                NetworkClient.RegisterHandler<ConnectionMessage>(OnConnectionMessage);
                 authenticator.OnClientAuthenticated.AddListener(OnClientAuthenticated);
             }
-
         }
 
         /// <summary>Starts the client, connects it to the server with networkAddress.</summary>
@@ -1255,6 +1255,7 @@ namespace Mirror
             if (authenticator != null)
             {
                 authenticator.OnClientAuthenticated.RemoveListener(OnClientAuthenticated);
+                NetworkClient.UnregisterHandler<ConnectionMessage>();
                 authenticator.OnStopClient();
             }
 
@@ -1318,13 +1319,41 @@ namespace Mirror
                 ClientChangeScene(msg.sceneName, msg.sceneOperation, msg.customHandling);
         }
 
+        public static event Action<NetworkManager, int> OnNewClientConnectedToServer;
+        public static event Action<NetworkManager, int> OnClientDisconnectedFromServer;
+
+        private struct ConnectionMessage : NetworkMessage
+        {
+            public int id;
+            public bool connected;
+        }
+
+        private void OnConnectionMessage(ConnectionMessage message)
+        {
+            if (message.connected)
+            {
+                OnNewClientConnectedToServer?.Invoke(this, message.id);
+            }
+            else
+            {
+                OnClientDisconnectedFromServer?.Invoke(this, message.id);
+            }
+        }
+
         /// <summary>Called on the server when a new client connects.</summary>
-        public virtual void OnServerConnect(NetworkConnectionToClient conn) { }
+        public virtual void OnServerConnect(NetworkConnectionToClient conn) 
+        {
+            OnNewClientConnectedToServer?.Invoke(this, conn.connectionId);
+            NetworkServer.SendToAll(new ConnectionMessage() { id = conn.connectionId, connected = true });
+        }
 
         /// <summary>Called on the server when a client disconnects.</summary>
         // Called by NetworkServer.OnTransportDisconnect!
         public virtual void OnServerDisconnect(NetworkConnectionToClient conn)
         {
+            OnClientDisconnectedFromServer?.Invoke(this, conn.connectionId);
+            NetworkServer.SendToAll(new ConnectionMessage() { id = conn.connectionId, connected = false });
+
             // by default, this function destroys the connection's player.
             // can be overwritten for cases like delayed logouts in MMOs to
             // avoid players escaping from PvP situations by logging out.
@@ -1444,13 +1473,13 @@ namespace Mirror
         /// <summary>This is called when a host is stopped.</summary>
         public virtual void OnStopHost() { }
 
-#if DEBUG
+        #if DEBUG
         // keep OnGUI even in builds. useful to debug snap interp.
         void OnGUI()
         {
             if (!timeInterpolationGui) return;
             NetworkClient.OnGUI();
         }
-#endif
+        #endif
     }
 }
