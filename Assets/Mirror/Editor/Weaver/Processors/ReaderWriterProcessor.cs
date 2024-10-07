@@ -31,13 +31,13 @@ namespace Mirror.Weaver
             return ProcessAssemblyClasses(CurrentAssembly, CurrentAssembly, writers, readers, ref WeavingFailed);
         }
 
+        // look for assembly instead of relying on CurrentAssembly.MainModule.
+        // fixes: https://github.com/MirrorNetworking/Mirror/issues/3816
         static List<AssemblyDefinition> FindProcessTargetAssemblies(AssemblyDefinition assembly, IAssemblyResolver resolver)
         {
             HashSet<string> processedAssemblies = new HashSet<string>();
             List<AssemblyDefinition> assemblies = new List<AssemblyDefinition>();
-
             ProcessAssembly(assembly);
-
             return assemblies;
 
             void ProcessAssembly(AssemblyDefinition current)
