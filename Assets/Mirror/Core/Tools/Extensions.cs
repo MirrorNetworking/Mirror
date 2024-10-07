@@ -54,7 +54,7 @@ namespace Mirror
 
         // previously in DotnetCompatibility.cs
         // leftover from the UNET days. supposedly for windows store?
-        internal static string GetMethodName(this Delegate func)
+        public static string GetMethodName(this Delegate func)
         {
 #if NETFX_CORE
             return func.GetMethodInfo().Name;
