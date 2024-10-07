@@ -52,7 +52,7 @@ namespace Mirror
             new Dictionary<uint, NetworkIdentity>();
 
         /// <summary>Client's NetworkConnection to server.</summary>
-        public static NetworkConnection connection { get; internal set; }
+        public static NetworkConnectionToServer connection { get; internal set; }
 
         /// <summary>True if client is ready (= joined world).</summary>
         // TODO redundant state. point it to .connection.isReady instead (& test)
