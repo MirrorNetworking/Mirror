@@ -20,13 +20,8 @@ namespace Mirror
         public float rotationSensitivity = 0.01f;
         public float scaleSensitivity = 0.01f;
 
-        protected bool positionChanged;
-        protected bool rotationChanged;
-        protected bool scaleChanged;
-
         // Used to store last sent snapshots
         protected TransformSnapshot lastSnapshot;
-        protected bool cachedSnapshotComparison;
         protected Changed cachedChangedComparison;
         protected bool hasSentUnchangedPosition;
 
@@ -263,16 +258,6 @@ namespace Mirror
             }
         }
 
-        // Returns true if position, rotation AND scale are unchanged, within given sensitivity range.
-        protected virtual bool CompareSnapshots(TransformSnapshot currentSnapshot)
-        {
-            positionChanged = Vector3.SqrMagnitude(lastSnapshot.position - currentSnapshot.position) > positionSensitivity * positionSensitivity;
-            rotationChanged = Quaternion.Angle(lastSnapshot.rotation, currentSnapshot.rotation) > rotationSensitivity;
-            scaleChanged = Vector3.SqrMagnitude(lastSnapshot.scale - currentSnapshot.scale) > scaleSensitivity * scaleSensitivity;
-
-            return (!positionChanged && !rotationChanged && !scaleChanged);
-        }
-
         protected virtual void UpdateLastSentSnapshot(Changed change, TransformSnapshot currentSnapshot)
         {
             if (change == Changed.None || change == Changed.CompressRot) return;
@@ -316,7 +301,7 @@ namespace Mirror
             }
 
             if (syncRotation)
-            { 
+            {
                 if (compressRotation)
                 {
                     bool rotationChanged = Quaternion.Angle(lastSnapshot.rotation, currentSnapshot.rotation) > rotationSensitivity;
@@ -453,22 +438,6 @@ namespace Mirror
                 }
 
                 syncData.scale = (syncData.changedDataByte & Changed.Scale) > 0 ? syncData.scale : (snapshots.Count > 0 ? snapshots.Values[snapshots.Count - 1].scale : GetScale());
-            }
-        }
-
-        // This is to extract position/rotation/scale data from payload. Override
-        // Construct and Deconstruct if you are implementing a different SyncData logic.
-        // Note however that snapshot interpolation still requires the basic 3 data
-        // position, rotation and scale, which are computed from here.   
-        protected virtual void DeconstructSyncData(System.ArraySegment<byte> receivedPayload, out byte? changedFlagData, out Vector3? position, out Quaternion? rotation, out Vector3? scale)
-        {
-            using (NetworkReaderPooled reader = NetworkReaderPool.Get(receivedPayload))
-            {
-                SyncData syncData = reader.Read<SyncData>();
-                changedFlagData = (byte)syncData.changedDataByte;
-                position = syncData.position;
-                rotation = syncData.quatRotation;
-                scale = syncData.scale;
             }
         }
     }
