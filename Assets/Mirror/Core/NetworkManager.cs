@@ -632,11 +632,6 @@ namespace Mirror
             //     NetworkClient.OnTransportDisconnect
             //   NetworkManager.OnClientDisconnect
             NetworkClient.Disconnect();
-
-            // UNET invoked OnDisconnected cleanup immediately.
-            // let's keep it for now, in case any projects depend on it.
-            // TODO simply remove this in the future.
-            OnClientDisconnectInternal();
         }
 
         // called when quitting the application by closing the window / pressing
