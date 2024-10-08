@@ -51,8 +51,12 @@ namespace Mirror.Tests.NetworkManagers
         [Test]
         public void StopClientTest()
         {
+            manager.StartServer();
+            UpdateTransport();
             manager.StartClient();
+            UpdateTransport();
             manager.StopClient();
+            UpdateTransport();
 
             Assert.That(manager.mode == NetworkManagerMode.Offline);
         }
