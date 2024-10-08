@@ -50,6 +50,15 @@ namespace Mirror
             {
                 ScanForNetworkIdentities();
             }
+
+            // clicking the Populate button in a large project can add hundreds of entries.
+            // have a clear button in case that wasn't intended.
+            GUI.enabled = networkManager.spawnPrefabs.Count > 0;
+            if (GUILayout.Button("Clear Spawnable Prefabs"))
+            {
+                ClearNetworkIdentities();
+            }
+            GUI.enabled = true;
         }
 
         void ScanForNetworkIdentities()
@@ -115,6 +124,19 @@ namespace Mirror
                 // Loading assets might use a lot of memory, so try to unload them after
                 Resources.UnloadUnusedAssets();
             }
+        }
+
+        void ClearNetworkIdentities()
+        {
+            // RecordObject is needed for "*" to show up in Scene.
+            // however, this only saves List.Count without the entries.
+            Undo.RecordObject(networkManager, "NetworkManager: cleared prefabs");
+
+            // add the entries
+            networkManager.spawnPrefabs.Clear();
+
+            // SetDirty is required to save the individual entries properly.
+            EditorUtility.SetDirty(target);
         }
 
         static void DrawHeader(Rect headerRect)
