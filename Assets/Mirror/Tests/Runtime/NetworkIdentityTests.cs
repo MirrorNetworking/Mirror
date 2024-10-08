@@ -66,10 +66,10 @@ namespace Mirror.Tests.Runtime
             // 14 * 24 hours per day * 60 minutes per hour * 60 seconds per minute = 14 days
             // NOTE: change this to 'float' to see the tests fail
             int tick = 14 * 24 * 60 * 60;
-            NetworkIdentitySerialization serialization = identity.GetServerSerializationAtTick(tick);
+            NetworkIdentitySerialization serialization = identity.GetServerSerializationAtTick(tick, false);
             // advance tick
             ++tick;
-            NetworkIdentitySerialization serializationNew = identity.GetServerSerializationAtTick(tick);
+            NetworkIdentitySerialization serializationNew = identity.GetServerSerializationAtTick(tick, false);
 
             // if the serialization has been changed the tickTimeStamp should have moved
             Assert.That(serialization.tick == serializationNew.tick, Is.False);
