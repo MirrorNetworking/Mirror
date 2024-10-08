@@ -137,7 +137,6 @@ namespace Mirror
 
             // SetDirty is required to save the individual entries properly.
             EditorUtility.SetDirty(target);
-
         }
 
         static void DrawHeader(Rect headerRect)
