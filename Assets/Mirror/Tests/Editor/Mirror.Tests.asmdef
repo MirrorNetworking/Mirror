@@ -1,6 +1,5 @@
 {
     "name": "Mirror.Tests",
-    "rootNamespace": "",
     "references": [
         "GUID:30817c1a0e6d646d99c048fc403f5979",
         "GUID:1c7c33eb5480dd24c9e29a8250c1a775",
@@ -25,7 +24,7 @@
         "System.Threading.Tasks.Extensions.dll",
         "Mono.CecilX.dll",
         "nunit.framework.dll",
-        "BouncyCastle.Cryptography.dll"
+        "Mirror.BouncyCastle.Cryptography.dll"
     ],
     "autoReferenced": false,
     "defineConstraints": [
