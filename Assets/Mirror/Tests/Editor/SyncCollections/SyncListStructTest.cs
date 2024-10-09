@@ -48,12 +48,12 @@ namespace Mirror.Tests.SyncCollections
             serverList[0] = player;
 
             bool callbackCalled = false;
-            clientList.OnChange = (SyncList<TestPlayer>.Operation op, int itemIndex, TestPlayer oldItem) =>
+            clientList.OnChange = (SyncList<TestPlayer>.Operation op, int itemIndex, TestPlayer oldItem, TestPlayer newItem) =>
             {
                 Assert.That(op == SyncList<TestPlayer>.Operation.OP_SET, Is.True);
                 Assert.That(itemIndex, Is.EqualTo(0));
                 Assert.That(oldItem.item.price, Is.EqualTo(10));
-                Assert.That(clientList[itemIndex].item.price, Is.EqualTo(15));
+                Assert.That(newItem.item.price, Is.EqualTo(15));
                 callbackCalled = true;
             };
 
