@@ -23,6 +23,7 @@ using UnityEngine;
 namespace Mirror
 {
     public enum CoordinateSpace { Local, World }
+    public enum UpdateMethod { Update, LateUpdate, FixedUpdate }
 
     public abstract class NetworkTransformBase : NetworkBehaviour
     {
@@ -118,6 +119,11 @@ namespace Mirror
         //
         protected double timeStampAdjustment => NetworkServer.sendInterval * (sendIntervalMultiplier - 1);
         protected double offset => timelineOffset ? NetworkServer.sendInterval * sendIntervalMultiplier : 0;
+
+        // Update Method ///////////////////////////////////////////////////////////
+        [Header("Update Method")]
+        [Tooltip("Update by default. Try a different method when having problems with Physics or Animations.")]
+        public UpdateMethod updateMethod = UpdateMethod.Update;
 
         // debugging ///////////////////////////////////////////////////////////
         [Header("Debug")]
