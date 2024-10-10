@@ -112,7 +112,8 @@ namespace Edgegap.Editor
             Path.GetDirectoryName(AssetDatabase.GetAssetPath(MonoScript.FromScriptableObject(this)));
         // END MIRROR CHANGE
         internal string ProjectRootPath => Directory.GetCurrentDirectory();
-        internal string DockerFilePath => $"{Directory.GetParent(Directory.GetFiles(ProjectRootPath, GetType().Name + ".cs", SearchOption.AllDirectories)[0]).FullName}{Path.DirectorySeparatorChar}Dockerfile";
+        internal string ThisScriptPath => Directory.GetFiles(ProjectRootPath, GetType().Name + ".cs", SearchOption.AllDirectories)[0];
+        internal string DockerFilePath => $"{Directory.GetParent(ThisScriptPath).FullName}{Path.DirectorySeparatorChar}Dockerfile";
 
         [MenuItem("Tools/Edgegap Hosting")] // MIRROR CHANGE: more obvious title
         public static void ShowEdgegapToolWindow()
@@ -545,7 +546,11 @@ namespace Edgegap.Editor
                 _containerCustomRegistryWrapper.SetEnabled(true);
         }
 
-        private void onApiTokenVerifyBtnClick() => _ = verifyApiTokenGetRegistryCredsAsync();
+        private void onApiTokenVerifyBtnClick()
+        {
+            _ = verifyApiTokenGetRegistryCredsAsync();
+            _ = checkForUpdates();
+        }
         private void onApiTokenGetBtnClick() => openGetApiTokenWebsite();
 
         /// <summary>Process UI + validation before/after API logic</summary>
@@ -912,6 +917,24 @@ namespace Edgegap.Editor
             {
                 Debug.LogError($"Error: {e.Message}");
                 return null;
+            }
+        }
+
+        /// <summary>
+        /// Fetch latest github release and compare with local package.json version
+        /// </summary>
+        private async Task checkForUpdates()
+        {
+            // get local package.json version
+            DirectoryInfo thisScriptDir = new DirectoryInfo(ThisScriptPath);
+            PackageJSON local = PackageJSON.PackageJSONFromJSON($"{thisScriptDir.Parent.Parent.ToString()}{Path.DirectorySeparatorChar}package.json");
+
+            // get latest release from github repository
+            string releaseJSON = await GithubRelease.GithubReleaseFromAPI();
+            GithubRelease latest = GithubRelease.GithubReleaseFromJSON(releaseJSON);
+
+            if (local.version != latest.name) {
+                Debug.LogWarning($"Please update your Edgegap Quickstart plugin - local version `{local.version}` < latest version `{latest.name}`. See https://github.com/edgegap/edgegap-unity-plugin.");
             }
         }
 

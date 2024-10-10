@@ -42,14 +42,24 @@ This plugin does not need to be included in your builds, as it's only a developm
 ## Other sources
 
 The only other official distribution channels for this plugin are:
-- [Mirror Networking samples](https://mirror-networking.gitbook.io/docs/hosting/edgegap-hosting-plugin-guide)
-- [Fish Networking samples](https://fish-networking.gitbook.io/docs/manual/server-hosting/edgegap-official-partner)
-
-**WARNING!** The [Edgegap plugin published on Unity Asset Store](https://assetstore.unity.com/packages/tools/network/edgegap-game-server-hosting-212563) is outdated and not supported anymore. If you've previously installed our plugin by another method than described above, please remove any Edgegap files or dependencies related before updating your plugin using the git URL.
+- [Unity Asset Store package](https://assetstore.unity.com/packages/tools/network/edgegap-game-server-hosting-212563)
+- [Mirror Networking source](https://github.com/MirrorNetworking/Mirror)
+- [Mirror Networking free package](https://assetstore.unity.com/packages/tools/network/mirror-129321)
+- [Mirror Networking LTS package](https://assetstore.unity.com/packages/tools/network/mirror-lts-102631)
+- [Fish Networking source](https://github.com/FirstGearGames/FishNet)
+- [Fish Networking free package](https://assetstore.unity.com/packages/tools/network/fishnet-networking-evolved-207815)
+- [Fish Networking Pro package](https://assetstore.unity.com/packages/tools/network/fishnet-pro-networking-evolved-287711)
 
 ## Next Steps
 
 Once you have it, check for **Tools** -> **Edgegap Hosting** in Unity's top menu.
+
+### Usage requirements
+
+To take full advantage of our Unity plugin's build features, you will need to:
+- [Create an Edgegap Free Tier account](https://app.edgegap.com/auth/register),
+- [Install Docker Desktop](https://www.docker.com/products/docker-desktop/) (or Docker CLI),
+- Install Unity Linux Build Support modules for Unity.
 
 From here, we recommend following our [Unity Plugin Guide](https://docs.edgegap.com/docs/tools-and-integrations/unity-plugin-guide) to get your first dedicated server deployed.
 

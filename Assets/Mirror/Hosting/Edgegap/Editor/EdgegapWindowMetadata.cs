@@ -63,7 +63,7 @@ namespace Edgegap.Editor
         public const string EDGEGAP_GET_A_TOKEN_URL = "https://app.edgegap.com/?oneClick=true";
         public const string EDGEGAP_ADD_MORE_GAME_SERVERS_URL = "https://edgegap.com/resources/contact";
         public const string EDGEGAP_DOC_BTN_HOW_TO_LOGIN_VIA_CLI_URL = "https://docs.edgegap.com/docs/container/edgegap-container-registry/#getting-your-credentials";
-        private const string DEFAULT_UTM_SOURCE_TAG = "partner_mirror_assetstore_unity";
+        private const string DEFAULT_UTM_SOURCE_TAG = "partner_mirror_source_unity";
         private const string DEFAULT_UTM_MEDIUM_TAG = "servers_quickstart_plugin";
         private const string DEFAULT_UTM_CONTENT_TAG = "plugin_button";
         public const string DEFAULT_UTM_TAGS = "utm_source=" + DEFAULT_UTM_SOURCE_TAG +
