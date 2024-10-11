@@ -7,11 +7,34 @@ using UnityEngine.Serialization;
 namespace Mirror.Transports.Encryption
 {
     [HelpURL("https://mirror-networking.gitbook.io/docs/manual/transports/encryption-transport")]
-    public class EncryptionTransport : Transport
+    public class EncryptionTransport : Transport, PortTransport
     {
         public override bool IsEncrypted => true;
         public override string EncryptionCipher => "AES256-GCM";
         public Transport inner;
+
+        public ushort Port
+        {
+            get
+            {
+                if (inner is PortTransport portTransport)
+                {
+                    return portTransport.Port;
+                }
+
+                Debug.LogError($"EncryptionTransport can't get Port because {inner} is not a PortTransport");
+                return 0;
+            }
+            set
+            {
+                if (inner is PortTransport portTransport)
+                {
+                    portTransport.Port = value;
+                    return;
+                }
+                Debug.LogError($"EncryptionTransport can't set Port because {inner} is not a PortTransport");
+            }
+        }
 
         public enum ValidationMode
         {
