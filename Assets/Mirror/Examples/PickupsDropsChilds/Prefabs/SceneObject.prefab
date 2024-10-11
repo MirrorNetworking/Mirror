@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 3436383402443096375}
   - component: {fileID: 6259401778744657634}
   m_Layer: 0
-  m_Name: SceneObjectPrefab
+  m_Name: SceneObject
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -121,4 +121,6 @@ MonoBehaviour:
     type: 3}
   boxPrefab: {fileID: 7003386763226572670, guid: a4076fff9676bc243ae6d7d6c08341f3,
     type: 3}
+  force: 1
+  direction: {x: 0, y: 0, z: 0}
   equippedItem: 0

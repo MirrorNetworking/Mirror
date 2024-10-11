@@ -13,45 +13,18 @@ namespace Mirror.Examples.PickupsDropsChilds
 
     public class PickupsDropsChilds : NetworkBehaviour
     {
-        public GameObject sceneObjectPrefab;
-
+        [Header("Player Components")]
         public GameObject rightHand;
 
+        [Header("Prefabs")]
         public GameObject ballPrefab;
         public GameObject batPrefab;
         public GameObject boxPrefab;
+        public GameObject sceneObjectPrefab;
 
-        [SyncVar(hook = nameof(OnChangeEquipment))]
+        [Header("Diagnostics")]
+        [ReadOnly, SyncVar(hook = nameof(OnChangeEquipment))]
         public EquippedItem equippedItem;
-
-        void OnChangeEquipment(EquippedItem oldEquippedItem, EquippedItem newEquippedItem)
-        {
-            StartCoroutine(ChangeEquipment(newEquippedItem));
-        }
-
-        // Since Destroy is delayed to the end of the current frame, we use a coroutine
-        // to clear out any child objects before instantiating the new one
-        IEnumerator ChangeEquipment(EquippedItem newEquippedItem)
-        {
-            while (rightHand.transform.childCount > 0)
-            {
-                Destroy(rightHand.transform.GetChild(0).gameObject);
-                yield return null;
-            }
-
-            switch (newEquippedItem)
-            {
-                case EquippedItem.ball:
-                    Instantiate(ballPrefab, rightHand.transform);
-                    break;
-                case EquippedItem.bat:
-                    Instantiate(batPrefab, rightHand.transform);
-                    break;
-                case EquippedItem.box:
-                    Instantiate(boxPrefab, rightHand.transform);
-                    break;
-            }
-        }
 
         void Update()
         {
@@ -70,21 +43,39 @@ namespace Mirror.Examples.PickupsDropsChilds
                 CmdDropItem();
         }
 
+        void OnChangeEquipment(EquippedItem _, EquippedItem newEquippedItem)
+        {
+            StartCoroutine(ChangeEquipment());
+        }
+
+        // Since Destroy is delayed to the end of the current frame, we use a coroutine
+        // to clear out any child objects before instantiating the new one
+        IEnumerator ChangeEquipment()
+        {
+            while (rightHand.transform.childCount > 0)
+            {
+                Destroy(rightHand.transform.GetChild(0).gameObject);
+                yield return null;
+            }
+
+            switch (equippedItem)
+            {
+                case EquippedItem.ball:
+                    Instantiate(ballPrefab, rightHand.transform);
+                    break;
+                case EquippedItem.bat:
+                    Instantiate(batPrefab, rightHand.transform);
+                    break;
+                case EquippedItem.box:
+                    Instantiate(boxPrefab, rightHand.transform);
+                    break;
+            }
+        }
+
         [Command]
         void CmdChangeEquippedItem(EquippedItem selectedItem)
         {
             equippedItem = selectedItem;
-        }
-
-        // public because it's called from a script on the SceneObject
-        [Command]
-        public void CmdPickupItem(GameObject sceneObject)
-        {
-            // set the player's SyncVar so clients can show the equipped item
-            equippedItem = sceneObject.GetComponent<SceneObject>().equippedItem;
-
-            // Destroy the scene object
-            NetworkServer.Destroy(sceneObject);
         }
 
         [Command]
@@ -100,17 +91,31 @@ namespace Mirror.Examples.PickupsDropsChilds
 
             SceneObject sceneObject = newSceneObject.GetComponent<SceneObject>();
 
-            // set the child object on the server
-            sceneObject.SetEquippedItem(equippedItem);
-
-            // set the SyncVar on the scene object for clients
+            // set the SyncVar on the scene object for clients to instantiate
             sceneObject.equippedItem = equippedItem;
+
+            // set the direction to launch the scene object
+            sceneObject.direction = rightHand.transform.forward;
 
             // set the player's SyncVar to nothing so clients will destroy the equipped child item
             equippedItem = EquippedItem.nothing;
 
+            // set the child object on the server
+            sceneObject.SetEquippedItem();
+
             // Spawn the scene object on the network for all to see
             NetworkServer.Spawn(newSceneObject);
+        }
+
+        // public because it's called from a script on the SceneObject
+        [Command]
+        public void CmdPickupItem(GameObject sceneObject)
+        {
+            // set the player's SyncVar so clients can show the equipped item
+            equippedItem = sceneObject.GetComponent<SceneObject>().equippedItem;
+
+            // Destroy the scene object
+            NetworkServer.Destroy(sceneObject);
         }
     }
 }
