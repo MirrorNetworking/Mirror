@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Mirror.BouncyCastle.Crypto;
 using UnityEngine;
 using UnityEngine.Profiling;
 using UnityEngine.Serialization;
@@ -151,6 +152,19 @@ namespace Mirror.Transports.Encryption
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+        }
+
+        void Awake()
+        {
+            // check if encryption via hardware acceleration is supported.
+            // this can be useful to know for low end devices.
+            //
+            // hardware acceleration requires netcoreapp3.0 or later:
+            //   https://github.com/bcgit/bc-csharp/blob/449940429c57686a6fcf6bfbb4d368dec19d906e/crypto/src/crypto/AesUtilities.cs#L18
+            // because AesEngine_x86 requires System.Runtime.Intrinsics.X86:
+            //   https://github.com/bcgit/bc-csharp/blob/449940429c57686a6fcf6bfbb4d368dec19d906e/crypto/src/crypto/engines/AesEngine_X86.cs
+            // which Unity does not support yet.
+            Debug.Log($"EncryptionTransport: IsHardwareAccelerated={AesUtilities.IsHardwareAccelerated}");
         }
 
         public override bool Available() => inner.Available();
