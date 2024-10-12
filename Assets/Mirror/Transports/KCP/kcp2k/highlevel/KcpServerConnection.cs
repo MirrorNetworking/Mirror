@@ -117,7 +117,7 @@ namespace kcp2k
                     // invalid channel indicates random internet noise.
                     // servers may receive random UDP data.
                     // just ignore it, but log for easier debugging.
-                    Log.Warning($"[KCP] ServerConnection: invalid channel header: {channel}, likely internet noise");
+                    Log.Warning($"[KCP] ServerConnection: invalid channel header: {channel} from {remoteEndPoint}, likely internet noise");
                     break;
                 }
             }
