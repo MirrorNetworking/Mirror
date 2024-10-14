@@ -6,10 +6,10 @@ Preset:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: ClientAuth-VeryCasual
+  m_Name: ClientAuth-Balanced
   m_TargetType:
     m_NativeTypeID: 114
-    m_ManagedTypePPtr: {fileID: 11500000, guid: 2f74aedd71d9a4f55b3ce499326d45fb,
+    m_ManagedTypePPtr: {fileID: 11500000, guid: a553cb17010b2403e8523b558bffbc14,
       type: 3}
     m_ManagedTypeFallback: 
   m_Properties:
@@ -35,15 +35,11 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: syncInterval
-    value: 0
+    value: 0.05
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: target
     value: 
-    objectReference: {fileID: 0}
-  - target: {fileID: 0}
-    propertyPath: clientAuthority
-    value: 0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: syncPosition
@@ -58,6 +54,14 @@ Preset:
     value: 0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
+    propertyPath: onlySyncOnChange
+    value: 1
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: compressRotation
+    value: 1
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
     propertyPath: interpolatePosition
     value: 1
     objectReference: {fileID: 0}
@@ -70,12 +74,12 @@ Preset:
     value: 0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
-    propertyPath: sendIntervalMultiplier
-    value: 6
+    propertyPath: coordinateSpace
+    value: 0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: timelineOffset
-    value: 1
+    value: 0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: showGizmos
@@ -102,12 +106,8 @@ Preset:
     value: 0.5
     objectReference: {fileID: 0}
   - target: {fileID: 0}
-    propertyPath: onlySyncOnChange
-    value: 1
-    objectReference: {fileID: 0}
-  - target: {fileID: 0}
     propertyPath: bufferResetMultiplier
-    value: 5
+    value: 3
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: positionSensitivity
@@ -121,4 +121,3 @@ Preset:
     propertyPath: scaleSensitivity
     value: 0.01
     objectReference: {fileID: 0}
-  m_ExcludedProperties: []
