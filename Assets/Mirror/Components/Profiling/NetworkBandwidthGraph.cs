@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 namespace Mirror
 {
-    public class NetworkUsageGraph : BaseUIGraph
+    public class NetworkBandwidthGraph : BaseUIGraph
     {
         int dataIn;
         int dataOut;

@@ -515,7 +515,7 @@ GameObject:
   - component: {fileID: 2138752905301465689}
   - component: {fileID: 8024388048541391361}
   m_Layer: 5
-  m_Name: NetworkGraph
+  m_Name: BandwidthGraph
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1091,7 +1091,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: NET
+  m_Text: BANDWIDTH
 --- !u!1 &6326536691934325288
 GameObject:
   m_ObjectHideFlags: 0
