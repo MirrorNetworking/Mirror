@@ -1107,6 +1107,22 @@ namespace Mirror.Tests.NetworkServers
             Assert.That(comp.onStopAuthorityCalled, Is.EqualTo(1));
         }
 
+        // test to prevent https://github.com/MirrorNetworking/Mirror/issues/2536
+        [Test]
+        public void SetListenToFalse()
+        {
+            // start the server with listen=true
+            NetworkServer.Listen(1);
+
+            // set listen=false at runtime
+            NetworkServer.listen = false;
+
+            // try connecting a client. should be reject while not listening.
+            NetworkClient.Connect("127.0.0.1");
+            UpdateTransport();
+            Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
+        }
+
         // test to reproduce a bug where stopping the server would not call
         // OnStopServer on scene objects:
         // https://github.com/vis2k/Mirror/issues/2119
@@ -1152,7 +1168,7 @@ namespace Mirror.Tests.NetworkServers
             NetworkServer.Shutdown();
 
             // state cleared?
-            Assert.That(NetworkServer.dontListen, Is.False);
+            Assert.That(NetworkServer.listen, Is.True);
             Assert.That(NetworkServer.active, Is.False);
             Assert.That(NetworkServer.isLoadingScene, Is.False);
 
