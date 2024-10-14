@@ -57,7 +57,7 @@ Many of our features quickly became the norm across all Unity netcodes!<br>
 | ❤️ **Community**              | Join our Discord with nearly 15.000 developers world wide!                                                                                                    |                 |
 | 🧜🏻‍♀️ **Long Term Support** | Maintained since 2014 with optional LTS version!                                                                                                              |                 |
 |                               |                                                                                                                                                               |                 |
-| 🔒 **Encryption**             | Secure communication with end-to-end encryption.                                                                                                              | **Preview** |
+| 🔒 **Encryption**             | Secure communication with end-to-end encryption.                                                                                                              | **Beta** |
 | 📐 **Bitpacking**             | Optimized compression (bools as 1 bit etc.)                                                                                                                   | **Researching** |
 
 ---
