@@ -71,12 +71,7 @@ namespace Mirror
             new Dictionary<uint, NetworkIdentity>();
 
         /// <summary>Single player mode can set listen=false to not accept incoming connections.</summary>
-        static bool _listen = true;
-        public static bool listen
-        {
-            get { return _listen; }
-            set { _listen = value; }
-        }
+        public static bool listen;
 
         // DEPRECATED 2024-10-14
         [Obsolete("NetworkServer.dontListen was replaced with NetworkServer.listen. The new value is the opposite, and avoids double negatives like 'dontListen=false'")]
@@ -685,6 +680,13 @@ namespace Mirror
 
         static bool IsConnectionAllowed(int connectionId, string address)
         {
+            // only accept connections while listening
+            if (!listen)
+            {
+                Debug.Log($"Server not listening, rejecting connectionId={connectionId} with address={address}");
+                return false;
+            }
+
             // connectionId needs to be != 0 because 0 is reserved for local player
             // note that some transports like kcp generate connectionId by
             // hashing which can be < 0 as well, so we need to allow < 0!
