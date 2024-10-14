@@ -33,7 +33,18 @@ namespace Mirror
         /// <para>For OP_SET and OP_REMOVE, T is the OLD value of the entry.</para>
         /// <para>For OP_CLEAR, T is default.</para>
         /// </summary>
+        // DEPRECATED 2024-10-14
+        // TODO deprecate in favor of explicit Callback, later rename Callback to OnChange for consistency with other SyncCollections.
+        [Obsolete("SyncList.OnChange(op, index, item) is obsolete. Use SyncList.Callback(op, index, oldItem, newItem) instead.")]
         public Action<Operation, int, T> OnChange;
+
+        /// <summary>
+        /// This is called for all changes to the List.
+        /// Parameters: Operation, index, oldItem, newItem.
+        /// Sometimes we need both oldItem and newItem.
+        /// Keep for compatibility since 10 years of projects use this.
+        /// </summary>
+        public Action<Operation, int, T, T> Callback;
 
         /// <summary>This is called before the list is cleared so the list can be iterated</summary>
         public Action OnClear;
@@ -110,23 +121,38 @@ namespace Mirror
             {
                 case Operation.OP_ADD:
                     OnAdd?.Invoke(itemIndex);
+ #pragma warning disable CS0618
                     OnChange?.Invoke(op, itemIndex, newItem);
+ #pragma warning restore CS0618
+                    Callback?.Invoke(op, itemIndex, oldItem, newItem);
                     break;
                 case Operation.OP_INSERT:
                     OnInsert?.Invoke(itemIndex);
+ #pragma warning disable CS0618
                     OnChange?.Invoke(op, itemIndex, newItem);
+ #pragma warning restore CS0618
+                    Callback?.Invoke(op, itemIndex, oldItem, newItem);
                     break;
                 case Operation.OP_SET:
                     OnSet?.Invoke(itemIndex, oldItem);
+ #pragma warning disable CS0618
                     OnChange?.Invoke(op, itemIndex, oldItem);
+ #pragma warning restore CS0618
+                    Callback?.Invoke(op, itemIndex, oldItem, newItem);
                     break;
                 case Operation.OP_REMOVEAT:
                     OnRemove?.Invoke(itemIndex, oldItem);
+ #pragma warning disable CS0618
                     OnChange?.Invoke(op, itemIndex, oldItem);
+ #pragma warning restore CS0618
+                    Callback?.Invoke(op, itemIndex, oldItem, newItem);
                     break;
                 case Operation.OP_CLEAR:
                     OnClear?.Invoke();
+ #pragma warning disable CS0618
                     OnChange?.Invoke(op, itemIndex, default);
+ #pragma warning restore CS0618
+                    Callback?.Invoke(op, itemIndex, default, default);
                     break;
             }
         }
