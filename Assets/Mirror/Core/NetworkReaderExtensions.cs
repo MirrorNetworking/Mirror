@@ -45,6 +45,14 @@ namespace Mirror
         public static ulong ReadULong(this NetworkReader reader) => reader.ReadBlittable<ulong>();
         public static ulong? ReadULongNullable(this NetworkReader reader) => reader.ReadBlittableNullable<ulong>();
 
+        // ReadInt/UInt/Long/ULong writes full bytes by default.
+        // define additional "VarInt" versions that Weaver will automatically prefer.
+        // 99% of the time [SyncVar] ints are small values, which makes this very much worth it.
+        [WeaverPriority] public static int ReadVarInt(this NetworkReader reader) => (int)Compression.DecompressVarInt(reader);
+        [WeaverPriority] public static uint ReadVarUInt(this NetworkReader reader) => (uint)Compression.DecompressVarUInt(reader);
+        [WeaverPriority] public static long ReadVarLong(this NetworkReader reader) => Compression.DecompressVarInt(reader);
+        [WeaverPriority] public static ulong ReadVarULong(this NetworkReader reader) => Compression.DecompressVarUInt(reader);
+
         public static float ReadFloat(this NetworkReader reader) => reader.ReadBlittable<float>();
         public static float? ReadFloatNullable(this NetworkReader reader) => reader.ReadBlittableNullable<float>();
 
@@ -97,9 +105,13 @@ namespace Mirror
         /// <exception cref="T:OverflowException">if count is invalid</exception>
         public static byte[] ReadBytesAndSize(this NetworkReader reader)
         {
-            // count = 0 means the array was null
-            // otherwise count -1 is the length of the array
-            uint count = reader.ReadUInt();
+            // we offset count by '1' to easily support null without writing another byte.
+            // encoding null as '0' instead of '-1' also allows for better compression
+            // (ushort vs. short / varuint vs. varint) etc.
+
+            // most sizes are small, read size as VarUInt!
+            uint count = (uint)Compression.DecompressVarUInt(reader);
+            // uint count = reader.ReadUInt();
             // Use checked() to force it to throw OverflowException if data is invalid
             return count == 0 ? null : reader.ReadBytes(checked((int)(count - 1u)));
         }
@@ -107,9 +119,13 @@ namespace Mirror
         /// <exception cref="T:OverflowException">if count is invalid</exception>
         public static ArraySegment<byte> ReadArraySegmentAndSize(this NetworkReader reader)
         {
-            // count = 0 means the array was null
-            // otherwise count - 1 is the length of the array
-            uint count = reader.ReadUInt();
+            // we offset count by '1' to easily support null without writing another byte.
+            // encoding null as '0' instead of '-1' also allows for better compression
+            // (ushort vs. short / varuint vs. varint) etc.
+
+            // most sizes are small, read size as VarUInt!
+            uint count = (uint)Compression.DecompressVarUInt(reader);
+            // uint count = reader.ReadUInt();
             // Use checked() to force it to throw OverflowException if data is invalid
             return count == 0 ? default : reader.ReadBytesSegment(checked((int)(count - 1u)));
         }
@@ -264,10 +280,15 @@ namespace Mirror
         // note that Weaver/Readers/GenerateReader() handles this manually.
         public static List<T> ReadList<T>(this NetworkReader reader)
         {
-            int length = reader.ReadInt();
+            // we offset count by '1' to easily support null without writing another byte.
+            // encoding null as '0' instead of '-1' also allows for better compression
+            // (ushort vs. short / varuint vs. varint) etc.
 
-            // 'null' is encoded as '-1'
-            if (length < 0) return null;
+            // most sizes are small, read size as VarUInt!
+            uint length = (uint)Compression.DecompressVarUInt(reader);
+            // uint length = reader.ReadUInt();
+            if (length == 0) return null;
+            length -= 1;
 
             // prevent allocation attacks with a reasonable limit.
             //   server shouldn't allocate too much on client devices.
@@ -278,7 +299,7 @@ namespace Mirror
                 throw new EndOfStreamException($"NetworkReader attempted to allocate a List<{typeof(T)}> {length} elements, which is larger than the allowed limit of {NetworkReader.AllocationLimit}.");
             }
 
-            List<T> result = new List<T>(length);
+            List<T> result = new List<T>((checked((int)length)));
             for (int i = 0; i < length; i++)
             {
                 result.Add(reader.Read<T>());
@@ -294,9 +315,16 @@ namespace Mirror
         /*
         public static HashSet<T> ReadHashSet<T>(this NetworkReader reader)
         {
-            int length = reader.ReadInt();
-            if (length < 0)
-                return null;
+            // we offset count by '1' to easily support null without writing another byte.
+            // encoding null as '0' instead of '-1' also allows for better compression
+            // (ushort vs. short / varuint vs. varint) etc.
+
+            // most sizes are small, read size as VarUInt!
+            uint length = (uint)Compression.DecompressVarUInt(reader);
+            //uint length = reader.ReadUInt();
+            if (length == 0) return null;
+            length -= 1;
+
             HashSet<T> result = new HashSet<T>();
             for (int i = 0; i < length; i++)
             {
@@ -308,10 +336,15 @@ namespace Mirror
 
         public static T[] ReadArray<T>(this NetworkReader reader)
         {
-            int length = reader.ReadInt();
+            // we offset count by '1' to easily support null without writing another byte.
+            // encoding null as '0' instead of '-1' also allows for better compression
+            // (ushort vs. short / varuint vs. varint) etc.
 
-            // 'null' is encoded as '-1'
-            if (length < 0) return null;
+            // most sizes are small, read size as VarUInt!
+            uint length = (uint)Compression.DecompressVarUInt(reader);
+            //uint length = reader.ReadUInt();
+            if (length == 0) return null;
+            length -= 1;
 
             // prevent allocation attacks with a reasonable limit.
             //   server shouldn't allocate too much on client devices.

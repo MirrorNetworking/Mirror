@@ -39,8 +39,6 @@ namespace Mirror
         internal static double localTimescale = 1;
 
         // catchup /////////////////////////////////////////////////////////////
-
-
         // we use EMA to average the last second worth of snapshot time diffs.
         // manually averaging the last second worth of values with a for loop
         // would be the same, but a moving average is faster because we only
@@ -48,31 +46,16 @@ namespace Mirror
         static ExponentialMovingAverage driftEma;
 
         // dynamic buffer time adjustment //////////////////////////////////////
-        // dynamically adjusts bufferTimeMultiplier for smooth results.
-        // to understand how this works, try this manually:
-        //
-        // - disable dynamic adjustment
-        // - set jitter = 0.2 (20% is a lot!)
-        // - notice some stuttering
-        // - disable interpolation to see just how much jitter this really is(!)
-        // - enable interpolation again
-        // - manually increase bufferTimeMultiplier to 3-4
-        //   ... the cube slows down (blue) until it's smooth
-        // - with dynamic adjustment enabled, it will set 4 automatically
-        //   ... the cube slows down (blue) until it's smooth as well
-        //
-        // note that 20% jitter is extreme.
-        // for this to be perfectly smooth, set the safety tolerance to '2'.
-        // but realistically this is not necessary, and '1' is enough.
-        [Header("Snapshot Interpolation: Dynamic Adjustment")]
-        [Tooltip("Automatically adjust bufferTimeMultiplier for smooth results.\nSets a low multiplier on stable connections, and a high multiplier on jittery connections.")]
-        public static bool dynamicAdjustment = true;
+        // DEPRECATED 2024-10-08
+        [Obsolete("NeworkClient.dynamicAdjustment was moved to NetworkClient.snapshotSettings.dynamicAdjustment")]
+        public static bool dynamicAdjustment => snapshotSettings.dynamicAdjustment;
+        // DEPRECATED 2024-10-08
+        [Obsolete("NeworkClient.dynamicAdjustmentTolerance was moved to NetworkClient.snapshotSettings.dynamicAdjustmentTolerance")]
+        public static float dynamicAdjustmentTolerance => snapshotSettings.dynamicAdjustmentTolerance;
+        // DEPRECATED 2024-10-08
+        [Obsolete("NeworkClient.dynamicAdjustment was moved to NetworkClient.snapshotSettings.dynamicAdjustment")]
+        public static int deliveryTimeEmaDuration => snapshotSettings.deliveryTimeEmaDuration;
 
-        [Tooltip("Safety buffer that is always added to the dynamic bufferTimeMultiplier adjustment.")]
-        public static float dynamicAdjustmentTolerance = 1; // 1 is realistically just fine, 2 is very very safe even for 20% jitter. can be half a frame too. (see above comments)
-
-        [Tooltip("Dynamic adjustment is computed over n-second exponential moving average standard deviation.")]
-        public static int deliveryTimeEmaDuration = 2;   // 1-2s recommended to capture average delivery time
         static ExponentialMovingAverage deliveryTimeEma; // average delivery time (standard deviation gives average jitter)
 
         // OnValidate: see NetworkClient.cs

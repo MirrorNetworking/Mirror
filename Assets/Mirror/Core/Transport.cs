@@ -36,7 +36,7 @@ namespace Mirror
         /// <summary>Is this transport available in the current platform?</summary>
         public abstract bool Available();
 
-        /// <summary>Is this transported encrypted for secure communication?</summary>
+        /// <summary>Is this transport encrypted for secure communication?</summary>
         public virtual bool IsEncrypted => false;
 
         /// <summary>If encrypted, which cipher is used?</summary>
@@ -66,8 +66,13 @@ namespace Mirror
         public Action OnClientDisconnected;
 
         // server //////////////////////////////////////////////////////////////
-        /// <summary>Called by Transport when a new client connected to the server.</summary>
+
+        // Deprecated 2024-07-20
+        [Obsolete("Use OnServerConnectedWithAddress and pass the remote client address instead")]
         public Action<int> OnServerConnected;
+
+        /// <summary>Called by Transport when a new client connected to the server.</summary>
+        public Action<int, string> OnServerConnectedWithAddress;
 
         /// <summary>Called by Transport when the server received a message from a client.</summary>
         public Action<int, ArraySegment<byte>, int> OnServerDataReceived;

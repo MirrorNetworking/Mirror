@@ -76,7 +76,7 @@ namespace Mirror.SimpleWeb
         {
             if (segment.Count > maxMessageSize)
             {
-                Log.Error($"[SWT-WebSocketClientWebGl]: Cant send message with length {segment.Count} because it is over the max size of {maxMessageSize}");
+                Log.Error("[SWT-WebSocketClientWebGl]: Cant send message with length {0} because it is over the max size of {1}", segment.Count, maxMessageSize);
                 return;
             }
 
@@ -128,7 +128,7 @@ namespace Mirror.SimpleWeb
             }
             catch (Exception e)
             {
-                Log.Error($"[SWT-WebSocketClientWebGl]: onMessage {e.GetType()}: {e.Message}\n{e.StackTrace}");
+                Log.Error("[SWT-WebSocketClientWebGl]: onMessage {0}: {1}\n{2}", e.GetType(), e.Message, e.StackTrace);
                 receiveQueue.Enqueue(new Message(e));
             }
         }

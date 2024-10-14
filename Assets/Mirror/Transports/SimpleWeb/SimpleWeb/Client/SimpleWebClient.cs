@@ -97,7 +97,7 @@ namespace Mirror.SimpleWeb
                 }
             }
             if (receiveQueue.Count > 0)
-                Log.Warn($"[SWT-SimpleWebClient]: ProcessMessageQueue has {receiveQueue.Count} remaining.");
+                Log.Warn("[SWT-SimpleWebClient]: ProcessMessageQueue has {0} remaining.", receiveQueue.Count);
         }
     }
 }

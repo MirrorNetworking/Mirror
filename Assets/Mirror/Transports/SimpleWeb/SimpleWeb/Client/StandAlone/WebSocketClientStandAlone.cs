@@ -60,7 +60,7 @@ namespace Mirror.SimpleWeb
                 bool success = sslHelper.TryCreateStream(conn, serverAddress);
                 if (!success)
                 {
-                    Log.Warn($"[SWT-WebSocketClientStandAlone]: Failed to create Stream with {serverAddress}");
+                    Log.Warn("[SWT-WebSocketClientStandAlone]: Failed to create Stream with {0}", serverAddress);
                     conn.Dispose();
                     return;
                 }
@@ -68,12 +68,12 @@ namespace Mirror.SimpleWeb
                 success = handshake.TryHandshake(conn, serverAddress);
                 if (!success)
                 {
-                    Log.Warn($"[SWT-WebSocketClientStandAlone]: Failed Handshake with {serverAddress}");
+                    Log.Warn("[SWT-WebSocketClientStandAlone]: Failed Handshake with {0}", serverAddress);
                     conn.Dispose();
                     return;
                 }
 
-                Log.Info($"[SWT-WebSocketClientStandAlone]: HandShake Successful with {serverAddress}");
+                Log.Info("[SWT-WebSocketClientStandAlone]: HandShake Successful with {0}", serverAddress);
 
                 state = ClientState.Connected;
 
@@ -101,7 +101,7 @@ namespace Mirror.SimpleWeb
                 ReceiveLoop.Loop(config);
             }
             catch (ThreadInterruptedException e) { Log.InfoException(e); }
-            catch (ThreadAbortException e) { Log.InfoException(e); }
+            catch (ThreadAbortException) { Log.Error("[SWT-WebSocketClientStandAlone]: Thread Abort Exception"); }
             catch (Exception e) { Log.Exception(e); }
             finally
             {

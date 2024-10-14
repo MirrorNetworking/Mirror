@@ -52,7 +52,7 @@ namespace Mirror
             new Dictionary<uint, NetworkIdentity>();
 
         /// <summary>Client's NetworkConnection to server.</summary>
-        public static NetworkConnection connection { get; internal set; }
+        public static NetworkConnectionToServer connection { get; internal set; }
 
         /// <summary>True if client is ready (= joined world).</summary>
         // TODO redundant state. point it to .connection.isReady instead (& test)
@@ -519,7 +519,7 @@ namespace Mirror
             }
 
             // These handlers are the same for host and remote clients
-            RegisterHandler<TimeSnapshotMessage>(OnTimeSnapshotMessage);
+            RegisterHandler<TimeSnapshotMessage>(OnTimeSnapshotMessage, false); // unreliable may arrive before reliable authority went through
             RegisterHandler<ChangeOwnerMessage>(OnChangeOwner);
             RegisterHandler<RpcMessage>(OnRPCMessage);
         }
@@ -563,23 +563,6 @@ namespace Mirror
             // it's not needed on client. it's always NetworkClient.connection.
             void HandlerWrapped(NetworkConnection _, T value, int channelId) => handler(value, channelId);
             handlers[msgType] = NetworkMessages.WrapHandler((Action<NetworkConnection, T, int>)HandlerWrapped, requireAuthentication, exceptionsDisconnect);
-        }
-
-        // Deprecated 2024-01-21
-        [Obsolete("Use ReplaceHandler without the NetworkConnection parameter instead. This version is obsolete and will be removed soon.")]
-        public static void ReplaceHandler<T>(Action<NetworkConnection, T> handler, bool requireAuthentication = true)
-            where T : struct, NetworkMessage
-        {
-            // we use the same WrapHandler function for server and client.
-            // so let's wrap it to ignore the NetworkConnection parameter.
-            // it's not needed on client. it's always NetworkClient.connection.
-            ushort msgType = NetworkMessageId<T>.Id;
-
-            // register Id <> Type in lookup for debugging.
-            NetworkMessages.Lookup[msgType] = typeof(T);
-
-            void HandlerWrapped(NetworkConnection _, T value) => handler(_, value);
-            handlers[msgType] = NetworkMessages.WrapHandler((Action<NetworkConnection, T>)HandlerWrapped, requireAuthentication, exceptionsDisconnect);
         }
 
         /// <summary>Replace a handler for a particular message type. Should require authentication by default.</summary>
@@ -1391,6 +1374,47 @@ namespace Mirror
             }
         }
 
+        // configure flags & invoke callbacks
+        static void BootstrapIdentity(NetworkIdentity identity)
+        {
+            InitializeIdentityFlags(identity);
+            InvokeIdentityCallbacks(identity);
+        }
+
+        // set up NetworkIdentity flags on the client.
+        // needs to be separate from invoking callbacks.
+        // cleaner, and some places need to set flags first.
+        static void InitializeIdentityFlags(NetworkIdentity identity)
+        {
+            // initialize flags before invoking callbacks.
+            // this way isClient/isLocalPlayer is correct during callbacks.
+            // fixes: https://github.com/MirrorNetworking/Mirror/issues/3362
+            identity.isClient = true;
+            identity.isLocalPlayer = localPlayer == identity;
+
+            // .connectionToServer is only available for local players.
+            // set it here, before invoking any callbacks.
+            // this way it's available in _all_ callbacks.
+            if (identity.isLocalPlayer)
+                identity.connectionToServer = connection;
+        }
+
+        // invoke NetworkIdentity callbacks on the client.
+        // needs to be separate from configuring flags.
+        // cleaner, and some places need to set flags first.
+        static void InvokeIdentityCallbacks(NetworkIdentity identity)
+        {
+            // invoke OnStartClient
+            identity.OnStartClient();
+
+            // invoke OnStartAuthority
+            identity.NotifyAuthority();
+
+            // invoke OnStartLocalPlayer
+            if (identity.isLocalPlayer)
+                identity.OnStartLocalPlayer();
+        }
+
         // client-only mode callbacks //////////////////////////////////////////
         static void OnEntityStateMessage(EntityStateMessage message)
         {
@@ -1480,99 +1504,6 @@ namespace Mirror
             }
         }
 
-        // set up NetworkIdentity flags on the client.
-        // needs to be separate from invoking callbacks.
-        // cleaner, and some places need to set flags first.
-        static void InitializeIdentityFlags(NetworkIdentity identity)
-        {
-            // initialize flags before invoking callbacks.
-            // this way isClient/isLocalPlayer is correct during callbacks.
-            // fixes: https://github.com/MirrorNetworking/Mirror/issues/3362
-            identity.isClient = true;
-            identity.isLocalPlayer = localPlayer == identity;
-
-            // .connectionToServer is only available for local players.
-            // set it here, before invoking any callbacks.
-            // this way it's available in _all_ callbacks.
-            if (identity.isLocalPlayer)
-                identity.connectionToServer = connection;
-        }
-
-        // invoke NetworkIdentity callbacks on the client.
-        // needs to be separate from configuring flags.
-        // cleaner, and some places need to set flags first.
-        static void InvokeIdentityCallbacks(NetworkIdentity identity)
-        {
-            // invoke OnStartAuthority
-            identity.NotifyAuthority();
-
-            // invoke OnStartClient
-            identity.OnStartClient();
-
-            // invoke OnStartLocalPlayer
-            if (identity.isLocalPlayer)
-                identity.OnStartLocalPlayer();
-        }
-
-        // configure flags & invoke callbacks
-        static void BootstrapIdentity(NetworkIdentity identity)
-        {
-            InitializeIdentityFlags(identity);
-            InvokeIdentityCallbacks(identity);
-        }
-
-        // broadcast ///////////////////////////////////////////////////////////
-        static void BroadcastTimeSnapshot()
-        {
-            Send(new TimeSnapshotMessage(), Channels.Unreliable);
-        }
-
-        // make sure Broadcast() is only called every sendInterval.
-        // calling it every update() would require too much bandwidth.
-        static void Broadcast()
-        {
-            // joined the world yet?
-            if (!connection.isReady) return;
-
-            // nothing to do in host mode. server already knows the state.
-            if (NetworkServer.active) return;
-
-            // send time snapshot every sendInterval.
-            BroadcastTimeSnapshot();
-
-            // for each entity that the client owns
-            foreach (NetworkIdentity identity in connection.owned)
-            {
-                // make sure it's not null or destroyed.
-                // (which can happen if someone uses
-                //  GameObject.Destroy instead of
-                //  NetworkServer.Destroy)
-                if (identity != null)
-                {
-                    using (NetworkWriterPooled writer = NetworkWriterPool.Get())
-                    {
-                        // get serialization for this entity viewed by this connection
-                        // (if anything was serialized this time)
-                        identity.SerializeClient(writer);
-                        if (writer.Position > 0)
-                        {
-                            // send state update message
-                            EntityStateMessage message = new EntityStateMessage
-                            {
-                                netId = identity.netId,
-                                payload = writer.ToArraySegment()
-                            };
-                            Send(message);
-                        }
-                    }
-                }
-                // spawned list should have no null entries because we
-                // always call Remove in OnObjectDestroy everywhere.
-                // if it does have null then we missed something.
-                else Debug.LogWarning($"Found 'null' entry in owned list for client. This is unexpected behaviour.");
-            }
-        }
-
         // update //////////////////////////////////////////////////////////////
         // NetworkEarlyUpdate called before any Update/FixedUpdate
         // (we add this to the UnityEngine in NetworkLoop)
@@ -1608,8 +1539,8 @@ namespace Mirror
                 // snapshots _but_ not every single tick.
                 //
                 // Unity 2019 doesn't have Time.timeAsDouble yet
-                if (!Application.isPlaying ||
-                    AccurateInterval.Elapsed(NetworkTime.localTime, sendInterval, ref lastSendTime))
+                bool sendIntervalElapsed = AccurateInterval.Elapsed(NetworkTime.localTime, sendInterval, ref lastSendTime);
+                if (!Application.isPlaying || sendIntervalElapsed)
                 {
                     Broadcast();
                 }
@@ -1670,6 +1601,61 @@ namespace Mirror
             // process all outgoing messages after updating the world
             if (Transport.active != null)
                 Transport.active.ClientLateUpdate();
+        }
+
+        // broadcast ///////////////////////////////////////////////////////////
+        // make sure Broadcast() is only called every sendInterval.
+        // calling it every update() would require too much bandwidth.
+        static void Broadcast()
+        {
+            // joined the world yet?
+            if (!connection.isReady) return;
+
+            // nothing to do in host mode. server already knows the state.
+            if (NetworkServer.active) return;
+
+            // send time snapshot every sendInterval.
+            Send(new TimeSnapshotMessage(), Channels.Unreliable);
+
+            // broadcast client state to server
+            BroadcastToServer();
+        }
+
+        // NetworkServer has BroadcastToConnection.
+        // NetworkClient has BroadcastToServer.
+        static void BroadcastToServer()
+        {
+            // for each entity that the client owns
+            foreach (NetworkIdentity identity in connection.owned)
+            {
+                // make sure it's not null or destroyed.
+                // (which can happen if someone uses
+                //  GameObject.Destroy instead of
+                //  NetworkServer.Destroy)
+                if (identity != null)
+                {
+                    using (NetworkWriterPooled writer = NetworkWriterPool.Get())
+                    {
+                        // get serialization for this entity viewed by this connection
+                        // (if anything was serialized this time)
+                        identity.SerializeClient(writer);
+                        if (writer.Position > 0)
+                        {
+                            // send state update message
+                            EntityStateMessage message = new EntityStateMessage
+                            {
+                                netId = identity.netId,
+                                payload = writer.ToArraySegment()
+                            };
+                            Send(message);
+                        }
+                    }
+                }
+                // spawned list should have no null entries because we
+                // always call Remove in OnObjectDestroy everywhere.
+                // if it does have null then we missed something.
+                else Debug.LogWarning($"Found 'null' entry in owned list for client. This is unexpected behaviour.");
+            }
         }
 
         // destroy /////////////////////////////////////////////////////////////
