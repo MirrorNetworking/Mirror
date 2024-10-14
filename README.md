@@ -49,6 +49,7 @@ Many of our features quickly became the norm across all Unity netcodes!<br>
 | 📏 **Snapshot Interp.**       | Perfectly smooth movement for all platforms and all games.                                                                                                    | **Stable**      |
 | 🏎 **Prediction**        | Simulate Physics locally & apply server corrections.                                                                                            | **Researching**        |
 | 🔫 **Lag Compensation**       | Roll back state to see what the player saw during input.                                                                                                      | **Beta**     |
+| 🔒 **Encryption**             | Secure communication with end-to-end encryption.                                                                                                              | **Beta** |
 |                               |                                                                                                                                                               |                 |
 | 🧙‍♂️ **General Purpose**     | Mirror supports all genres for all your games!                                                                                                                |                 |
 | 🧘‍♀️ **Stable API**          | Long term (10 years)  stability instead of new versions!                                                                                                      |
@@ -57,7 +58,6 @@ Many of our features quickly became the norm across all Unity netcodes!<br>
 | ❤️ **Community**              | Join our Discord with nearly 15.000 developers world wide!                                                                                                    |                 |
 | 🧜🏻‍♀️ **Long Term Support** | Maintained since 2014 with optional LTS version!                                                                                                              |                 |
 |                               |                                                                                                                                                               |                 |
-| 🔒 **Encryption**             | Secure communication with end-to-end encryption.                                                                                                              | **Beta** |
 | 📐 **Bitpacking**             | Optimized compression (bools as 1 bit etc.)                                                                                                                   | **Researching** |
 
 ---
