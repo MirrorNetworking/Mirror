@@ -312,7 +312,12 @@ namespace Mirror
         }
 
         // update //////////////////////////////////////////////////////////////
-        void UpdateServer()
+        void UpdateServerBaseline()
+        {
+
+        }
+
+        void UpdateServerDelta()
         {
             // broadcast to all clients each 'sendInterval'
             // (client with authority will drop the rpc)
@@ -384,7 +389,10 @@ namespace Mirror
                 }
 #endif
             }
+        }
 
+        void UpdateServerInterpolation()
+        {
             // apply buffered snapshots IF client authority
             // -> in server authority, server moves the object
             //    so no need to apply any snapshots there.
@@ -413,6 +421,16 @@ namespace Mirror
                     ApplySnapshot(computed);
                 }
             }
+        }
+
+        void UpdateServer()
+        {
+            // broadcasting
+            UpdateServerBaseline();
+            UpdateServerDelta();
+
+            // interpolate remote clients
+            UpdateServerInterpolation();
         }
 
         void UpdateClient()
