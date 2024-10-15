@@ -658,7 +658,7 @@ namespace Mirror
 
         static void OnTransportConnectedWithAddress(int connectionId, string clientAddress)
         {
-            if (IsConnectionAllowed(connectionId))
+            if (IsConnectionAllowed(connectionId, clientAddress))
             {
                 // create a connection
                 NetworkConnectionToClient conn = new NetworkConnectionToClient(connectionId, clientAddress);
@@ -671,7 +671,7 @@ namespace Mirror
             }
         }
 
-        static bool IsConnectionAllowed(int connectionId)
+        static bool IsConnectionAllowed(int connectionId, string address)
         {
             // connectionId needs to be != 0 because 0 is reserved for local player
             // note that some transports like kcp generate connectionId by
@@ -685,7 +685,7 @@ namespace Mirror
             // connectionId not in use yet?
             if (connections.ContainsKey(connectionId))
             {
-                Debug.LogError($"Server connectionId {connectionId} already in use...client will be kicked");
+                Debug.LogError($"Server connectionId {connectionId}already in use...client with address={address} will be kicked");
                 return false;
             }
 
@@ -696,7 +696,7 @@ namespace Mirror
             //  Transport can't do that)
             if (connections.Count >= maxConnections)
             {
-                Debug.LogError($"Server full, client {connectionId} will be kicked");
+                Debug.LogError($"Server full, client {connectionId} with address={address} will be kicked");
                 return false;
             }
 
