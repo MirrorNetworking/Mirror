@@ -6,15 +6,6 @@ namespace Mirror
 {
     public class SyncList<T> : SyncObject, IList<T>, IReadOnlyList<T>
     {
-        public enum Operation : byte
-        {
-            OP_ADD,
-            OP_SET,
-            OP_INSERT,
-            OP_REMOVEAT,
-            OP_CLEAR
-        }
-
         /// <summary>This is called after the item is added with index</summary>
         public Action<int> OnAdd;
 
@@ -26,6 +17,18 @@ namespace Mirror
 
         /// <summary>This is called after the item is removed with index and OLD Value</summary>
         public Action<int, T> OnRemove;
+
+        /// <summary>This is called before the list is cleared so the list can be iterated</summary>
+        public Action OnClear;
+
+        public enum Operation : byte
+        {
+            OP_ADD,
+            OP_SET,
+            OP_INSERT,
+            OP_REMOVEAT,
+            OP_CLEAR
+        }
 
         /// <summary>
         /// This is called for all changes to the List.
@@ -43,9 +46,6 @@ namespace Mirror
         /// Keep for compatibility since 10 years of projects use this.
         /// </summary>
         public Action<Operation, int, T, T> Callback;
-
-        /// <summary>This is called before the list is cleared so the list can be iterated</summary>
-        public Action OnClear;
 
         readonly IList<T> objects;
         readonly IEqualityComparer<T> comparer;

@@ -12,6 +12,9 @@ namespace Mirror
         /// <summary>This is called after the item is removed. T is the OLD item</summary>
         public Action<T> OnRemove;
 
+        /// <summary>This is called BEFORE the data is cleared</summary>
+        public Action OnClear;
+
         /// <summary>
         /// This is called for all changes to the Set.
         /// <para>For OP_ADD, T is the NEW value of the entry.</para>
@@ -19,9 +22,6 @@ namespace Mirror
         /// <para>For OP_CLEAR, T is default.</para>
         /// </summary>
         public Action<Operation, T> OnChange;
-
-        /// <summary>This is called BEFORE the data is cleared</summary>
-        public Action OnClear;
 
         protected readonly ISet<T> objects;
 
