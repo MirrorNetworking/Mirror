@@ -18,7 +18,7 @@ namespace Mirror
         /// <summary>This is called after the item is added with index</summary>
         public Action<int> OnAdd;
 
-        /// <summary>This is called after the item is inserted with inedx</summary>
+        /// <summary>This is called after the item is inserted with index</summary>
         public Action<int> OnInsert;
 
         /// <summary>This is called after the item is set with index and OLD Value</summary>
