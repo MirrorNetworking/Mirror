@@ -251,6 +251,12 @@ namespace Mirror
         }
 
         // rpc /////////////////////////////////////////////////////////////////
+        [ClientRpc(channel = Channels.Reliable)]
+        void RpcServerToClientBaselineSync(Vector3? position, Quaternion? rotation, Vector3? scale)
+        {
+            Debug.LogWarning("TODO process server->client baseline");
+        }
+
         // only unreliable. see comment above of this file.
         [ClientRpc(channel = Channels.Unreliable)]
         void RpcServerToClientSync(Vector3? position, Quaternion? rotation, Vector3? scale) =>
@@ -315,7 +321,22 @@ namespace Mirror
         // update //////////////////////////////////////////////////////////////
         void UpdateServerBaseline()
         {
+            // send a reliable baseline every 1 Hz
+            if (NetworkTime.localTime >= lastServerUnreliableBaselineTime + unreliableBaselineInterval)
+            {
+                // send snapshot without timestamp.
+                // receiver gets it from batch timestamp to save bandwidth.
+                TransformSnapshot snapshot = ConstructSnapshot();
 
+                RpcServerToClientBaselineSync(
+                    // only sync what the user wants to sync
+                    syncPosition ? snapshot.position : default(Vector3?),
+                    syncRotation ? snapshot.rotation : default(Quaternion?),
+                    syncScale ? snapshot.scale : default(Vector3?)
+                );
+
+                lastServerUnreliableBaselineTime = NetworkTime.localTime;
+            }
         }
 
         void UpdateServerDelta()
