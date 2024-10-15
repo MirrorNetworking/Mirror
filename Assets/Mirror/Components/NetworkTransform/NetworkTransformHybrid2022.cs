@@ -28,8 +28,8 @@ using UnityEngine;
 
 namespace Mirror
 {
-    [AddComponentMenu("Network/Network Transform")]
-    public class NetworkTransform : NetworkBehaviour
+    [AddComponentMenu("Network/Network Transform Quake 2022")]
+    public class NetworkTransformHybrid2022 : NetworkBehaviour
     {
         // target transform to sync. can be on a child.
         [Header("Target")]
