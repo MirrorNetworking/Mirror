@@ -45,6 +45,7 @@ namespace Mirror.Examples.Benchmark
 
         public override void OnStartServer()
         {
+            Camera.main.enabled = false;
             base.OnStartServer();
             SpawnAll();
         }
