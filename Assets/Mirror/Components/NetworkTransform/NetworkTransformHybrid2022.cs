@@ -59,6 +59,12 @@ namespace Mirror
         public float sendInterval => 1f / sendRate;
         // END CUSTOM CHANGE
 
+        /// <summary> </summary>
+        [Tooltip("Ocassionally send a full reliable state to delta compress against. This only applies to Components with SyncMethod=Unreliable.")]
+        public int unreliableBaselineRate = 1;
+        public float unreliableBaselineInterval => unreliableBaselineRate < int.MaxValue ? 1f / unreliableBaselineRate : 0; // for 1 Hz, that's 1000ms
+        double lastUnreliableBaselineTime;
+
         // only sync when changed hack /////////////////////////////////////////
 #if onlySyncOnChange_BANDWIDTH_SAVING
         [Header("Sync Only If Changed")]
