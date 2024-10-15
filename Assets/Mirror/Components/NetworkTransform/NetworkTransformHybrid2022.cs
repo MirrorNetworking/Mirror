@@ -194,7 +194,7 @@ namespace Mirror
             //For client authority, immediately pass on the client snapshot to all other
             //clients instead of waiting for server to send its snapshots.
             if (syncDirection == SyncDirection.ClientToServer &&
-                connectionToClient != null && // CUSTOM CHANGE: DropPods are clientAuthority but don't count bots by excluding connectionToClient==null
+                connectionToClient != null && // CUSTOM CHANGE: for the drop thing..
                 !disableSendingThisToClients) // CUSTOM CHANGE: see comment at definition
             {
                 RpcServerToClientSync(position, rotation, scale);
