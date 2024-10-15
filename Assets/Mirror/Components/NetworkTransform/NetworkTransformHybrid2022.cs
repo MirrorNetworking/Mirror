@@ -349,8 +349,7 @@ namespace Mirror
             // authoritative movement done by the host will have to be broadcasted
             // here by checking IsClientWithAuthority.
             // TODO send same time that NetworkServer sends time snapshot?
-            if (NetworkTime.localTime >= lastServerSendTime + sendInterval && // CUSTOM CHANGE: allow custom sendRate + sendInterval again
-                (syncDirection == SyncDirection.ServerToClient || IsClientWithAuthority))
+            if (NetworkTime.localTime >= lastServerSendTime + sendInterval) // CUSTOM CHANGE: allow custom sendRate + sendInterval again
             {
                 // send snapshot without timestamp.
                 // receiver gets it from batch timestamp to save bandwidth.
@@ -426,8 +425,11 @@ namespace Mirror
         void UpdateServer()
         {
             // broadcasting
-            UpdateServerBaseline();
-            UpdateServerDelta();
+            if (syncDirection == SyncDirection.ServerToClient || IsClientWithAuthority)
+            {
+                UpdateServerBaseline();
+                UpdateServerDelta();
+            }
 
             // interpolate remote clients
             UpdateServerInterpolation();
