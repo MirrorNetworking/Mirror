@@ -197,7 +197,7 @@ namespace Mirror
                 connectionToClient != null && // CUSTOM CHANGE: for the drop thing..
                 !disableSendingThisToClients) // CUSTOM CHANGE: see comment at definition
             {
-                RpcServerToClientSync(position, rotation, scale);
+                RpcServerToClientDeltaSync(position, rotation, scale);
             }
         }
 
@@ -259,11 +259,11 @@ namespace Mirror
 
         // only unreliable. see comment above of this file.
         [ClientRpc(channel = Channels.Unreliable)]
-        void RpcServerToClientSync(Vector3? position, Quaternion? rotation, Vector3? scale) =>
-            OnServerToClientSync(position, rotation, scale);
+        void RpcServerToClientDeltaSync(Vector3? position, Quaternion? rotation, Vector3? scale) =>
+            OnServerToClientDeltaSync(position, rotation, scale);
 
         // server broadcasts sync message to all clients
-        protected virtual void OnServerToClientSync(Vector3? position, Quaternion? rotation, Vector3? scale)
+        protected virtual void OnServerToClientDeltaSync(Vector3? position, Quaternion? rotation, Vector3? scale)
         {
             // in host mode, the server sends rpcs to all clients.
             // the host client itself will receive them too.
@@ -382,7 +382,7 @@ namespace Mirror
 #endif
 
 #if onlySyncOnChange_BANDWIDTH_SAVING
-                RpcServerToClientSync(
+                RpcServerToClientDeltaSync(
                     // only sync what the user wants to sync
                     syncPosition && positionChanged ? snapshot.position : default(Vector3?),
                     syncRotation && rotationChanged ? snapshot.rotation : default(Quaternion?),
