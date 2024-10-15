@@ -678,14 +678,14 @@ namespace Mirror
             // hashing which can be < 0 as well, so we need to allow < 0!
             if (connectionId == 0)
             {
-                Debug.LogError($"Server.HandleConnect: invalid connectionId: {connectionId} . Needs to be != 0, because 0 is reserved for local player.");
+                Debug.LogError($"Server.HandleConnect: invalid connectionId={connectionId}. Needs to be != 0, because 0 is reserved for local player.");
                 return false;
             }
 
             // connectionId not in use yet?
             if (connections.ContainsKey(connectionId))
             {
-                Debug.LogError($"Server connectionId {connectionId}already in use...client with address={address} will be kicked");
+                Debug.LogError($"Server connectionId={connectionId} already in use. Client with address={address} will be kicked");
                 return false;
             }
 
@@ -696,7 +696,7 @@ namespace Mirror
             //  Transport can't do that)
             if (connections.Count >= maxConnections)
             {
-                Debug.LogError($"Server full, client {connectionId} with address={address} will be kicked");
+                Debug.LogError($"Server full, client connectionId={connectionId} with address={address} will be kicked");
                 return false;
             }
 
