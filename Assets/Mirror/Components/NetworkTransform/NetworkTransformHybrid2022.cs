@@ -261,12 +261,22 @@ namespace Mirror
             if (syncScale)    writer.WriteVector3(scale.Value);
         }
 
-        void DeserializeServerDelta(NetworkReader reader, out byte baselineTick, out Vector3? position, out Quaternion? rotation, out Vector3? scale)
+        bool DeserializeServerDelta(NetworkReader reader, out byte baselineTick, out Vector3? position, out Quaternion? rotation, out Vector3? scale)
         {
-            baselineTick = reader.ReadByte();
             position = null;
             rotation = null;
             scale = null;
+
+            baselineTick = reader.ReadByte();
+
+            // unreliable messages may arrive out of order.
+            // ensure this is for the intended baseline.
+            // we don't want to put a delta onto an old baseline.
+            if (baselineTick != lastDeserializedBaselineTick)
+            {
+                Debug.Log($"[{name}] Client discarding unreliable delta for baseline #{baselineTick} because we already received #{lastDeserializedBaselineTick}");
+                return false;
+            }
 
             if (syncPosition)
             {
@@ -280,6 +290,8 @@ namespace Mirror
             {
                 scale = reader.ReadVector3();
             }
+
+            return true;
         }
 
         // cmd /////////////////////////////////////////////////////////////////
@@ -359,8 +371,10 @@ namespace Mirror
         {
             using (NetworkReaderPooled reader = NetworkReaderPool.Get(message))
             {
-                DeserializeServerDelta(reader, out byte baselineTick, out Vector3? position, out Quaternion? rotation, out Vector3? scale);
-                OnServerToClientDeltaSync(baselineTick, position, rotation, scale);
+                if (DeserializeServerDelta(reader, out byte baselineTick, out Vector3? position, out Quaternion? rotation, out Vector3? scale))
+                {
+                    OnServerToClientDeltaSync(baselineTick, position, rotation, scale);
+                }
             }
         }
 
@@ -377,15 +391,6 @@ namespace Mirror
 
             // don't apply for local player with authority
             if (IsClientWithAuthority) return;
-
-            // unreliable messages may arrive out of order.
-            // ensure this is for the intended baseline.
-            // we don't want to put a delta onto an old baseline.
-            if (baselineTick != lastDeserializedBaselineTick)
-            {
-                Debug.Log($"[{name}] Client discarding unreliable delta for baseline #{baselineTick} because we already received #{lastDeserializedBaselineTick}");
-                return;
-            }
 
             Debug.Log($"[{name}] Client: received delta for baseline #{baselineTick}");
 
