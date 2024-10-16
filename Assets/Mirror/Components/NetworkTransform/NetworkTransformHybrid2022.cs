@@ -70,9 +70,15 @@ namespace Mirror
         // unreliable delta since that isn't guaranteed to be delivered.
         byte lastSerializedBaselineTick = 0;
         byte lastDeserializedBaselineTick = 0;
-        Vector3 lastDeserializedBaselinePosition = Vector3.zero;
-        Quaternion lastDeserializedBaselineRotation = Quaternion.identity;
-        Vector3 lastDeserializedBaselineScale = Vector3.one;
+
+        protected Vector3Long lastSerializedPosition = Vector3Long.zero;
+        protected Vector3Long lastDeserializedPosition = Vector3Long.zero;
+
+        protected Vector4Long lastSerializedRotation = Vector4Long.zero;
+        protected Vector4Long lastDeserializedRotation = Vector4Long.zero;
+
+        protected Vector3Long lastSerializedScale = Vector3Long.zero;
+        protected Vector3Long lastDeserializedScale = Vector3Long.zero;
 
         // only sync when changed hack /////////////////////////////////////////
 #if onlySyncOnChange_BANDWIDTH_SAVING
@@ -88,6 +94,15 @@ namespace Mirror
         public float positionSensitivity = 0.01f;
         public float rotationSensitivity = 0.01f;
         public float scaleSensitivity    = 0.01f;
+
+        [Header("Compression")]
+        [Tooltip("Position is rounded in order to drastically minimize bandwidth.\n\nFor example, a precision of 0.01 rounds to a centimeter. In other words, sub-centimeter movements aren't synced until they eventually exceeded an actual centimeter.\n\nDepending on how important the object is, a precision of 0.01-0.10 (1-10 cm) is recommended.\n\nFor example, even a 1cm precision combined with delta compression cuts the Benchmark demo's bandwidth in half, compared to sending every tiny change.")]
+        [Range(0.00_01f, 1f)]                   // disallow 0 division. 1mm to 1m precision is enough range.
+        public float positionPrecision = 0.01f; // 1 cm
+        [Range(0.00_01f, 1f)]                   // disallow 0 division. 1mm to 1m precision is enough range.
+        public float rotationPrecision = 0.001f; // this is for the quaternion's components, needs to be small
+        [Range(0.00_01f, 1f)]                   // disallow 0 division. 1mm to 1m precision is enough range.
+        public float scalePrecision = 0.01f; // 1 cm
 
         protected bool positionChanged;
         protected bool rotationChanged;
@@ -203,9 +218,27 @@ namespace Mirror
             // always include the tick for deltas to compare against.
             writer.WriteByte((byte)Time.frameCount);
 
-            if (syncPosition) writer.WriteVector3(target.localPosition);
-            if (syncRotation) writer.WriteQuaternion(target.localRotation);
-            if (syncScale)    writer.WriteVector3(target.localScale);
+            if (syncPosition)
+            {
+                writer.WriteVector3(target.localPosition);
+
+                // save serialized as 'last' for next delta compression.
+                if (syncPosition) Compression.ScaleToLong(target.localPosition, positionPrecision, out lastSerializedPosition);
+            }
+            if (syncRotation)
+            {
+                writer.WriteQuaternion(target.localRotation);
+
+                // save serialized as 'last' for next delta compression.
+                if (syncRotation) Compression.ScaleToLong(target.localRotation, rotationPrecision, out lastSerializedRotation);
+            }
+            if (syncScale)
+            {
+                writer.WriteVector3(target.localScale);
+
+                // save serialized as 'last' for next delta compression.
+                if (syncScale) Compression.ScaleToLong(target.localScale, scalePrecision, out lastSerializedScale);
+            }
 
             // save the last baseline's tick number.
             // included in baseline to identify which one it was on client
@@ -222,20 +255,26 @@ namespace Mirror
             if (syncPosition)
             {
                 Vector3 position = reader.ReadVector3();
-                lastDeserializedBaselinePosition = position;
                 target.localPosition = position;
+
+                // save deserialized as 'last' for next delta compression.
+                Compression.ScaleToLong(position, positionPrecision, out lastDeserializedPosition);
             }
             if (syncRotation)
             {
                 Quaternion rotation = reader.ReadQuaternion();
-                lastDeserializedBaselineRotation = rotation;
                 target.localRotation = rotation;
+
+                // save deserialized as 'last' for next delta compression.
+                Compression.ScaleToLong(rotation, rotationPrecision, out lastDeserializedRotation);
             }
             if (syncScale)
             {
                 Vector3 scale = reader.ReadVector3();
-                lastDeserializedBaselineScale = scale;
                 target.localScale = scale;
+
+                // save deserialized as 'last' for next delta compression.
+                Compression.ScaleToLong(scale, scalePrecision, out lastDeserializedScale);
             }
         }
 
@@ -799,9 +838,15 @@ namespace Mirror
             // reset delta compression
             lastSerializedBaselineTick = 0;
             lastDeserializedBaselineTick = 0;
-            lastDeserializedBaselinePosition = Vector3.zero;
-            lastDeserializedBaselineRotation = Quaternion.identity;
-            lastDeserializedBaselineScale = Vector3.one;
+
+            lastSerializedPosition = Vector3Long.zero;
+            lastDeserializedPosition = Vector3Long.zero;
+
+            lastSerializedRotation = Vector4Long.zero;
+            lastDeserializedRotation = Vector4Long.zero;
+
+            lastSerializedScale = Vector3Long.zero;
+            lastDeserializedScale = Vector3Long.zero;
         }
 
         protected virtual void OnDisable() => Reset();
