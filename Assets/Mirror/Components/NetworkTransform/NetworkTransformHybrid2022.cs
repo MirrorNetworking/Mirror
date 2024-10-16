@@ -206,7 +206,7 @@ namespace Mirror
                 connectionToClient != null && // CUSTOM CHANGE: for the drop thing..
                 !disableSendingThisToClients) // CUSTOM CHANGE: see comment at definition
             {
-                Debug.LogWarning("CmdClientToServerSync: TODO which baseline to pass in Rpc?");
+                Debug.LogWarning($"[{name}] CmdClientToServerSync: TODO which baseline to pass in Rpc?");
                 RpcServerToClientDeltaSync(0xFF, position, rotation, scale);
             }
         }
@@ -266,7 +266,7 @@ namespace Mirror
         {
             // IMPORTANT: baselineTick is a remote "frameCount & 0xff".
             // this can be != compared but not <> compared!
-            Debug.Log($"client received baseline #{baselineTick}");
+            Debug.Log($"[{name}] client received baseline #{baselineTick}");
 
             // save the baseline including tick
             lastDeserializedBaselineTick = baselineTick;
@@ -299,11 +299,11 @@ namespace Mirror
             // we don't want to put a delta onto an old baseline.
             if (baselineTick != lastDeserializedBaselineTick)
             {
-                Debug.Log($"Client discarding unreliable delta for baseline #{baselineTick} because we already received #{lastDeserializedBaselineTick}");
+                Debug.Log($"[{name}] Client discarding unreliable delta for baseline #{baselineTick} because we already received #{lastDeserializedBaselineTick}");
                 return;
             }
 
-            Debug.Log($"Client: received delta for baseline #{baselineTick}");
+            Debug.Log($"[{name}] Client: received delta for baseline #{baselineTick}");
 
             // on the client, we receive rpcs for all entities.
             // not all of them have a connectionToServer.
@@ -751,7 +751,7 @@ namespace Mirror
             {
                 // save spawn message as baseline
                 lastDeserializedBaselineTick = (byte)Time.frameCount;
-                Debug.Log($"Spawn is used as first baseline #{lastDeserializedBaselineTick}");
+                Debug.Log($"[{name}] Spawn is used as first baseline #{lastDeserializedBaselineTick}");
 
                 if (syncPosition)
                 {
