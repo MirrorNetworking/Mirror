@@ -22,6 +22,7 @@
 //         buffer for bufferTime but end up closer to the original time
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 namespace Mirror
@@ -83,13 +84,8 @@ namespace Mirror
         [Tooltip("When true, changes are not sent unless greater than sensitivity values below.")]
         public bool onlySyncOnChange = true;
 
-        [Header("Sensitivity"), Tooltip("Sensitivity of changes needed before an updated state is sent over the network")]
-        public float positionSensitivity = 0.01f;
-        public float rotationSensitivity = 0.01f;
-        public float scaleSensitivity    = 0.01f;
-
         // Used to store last sent snapshots
-        protected TransformSnapshot lastSnapshot;
+        protected TransformSnapshot last;
 
         [Header("Compression")]
         [Tooltip("Position is rounded in order to drastically minimize bandwidth.\n\nFor example, a precision of 0.01 rounds to a centimeter. In other words, sub-centimeter movements aren't synced until they eventually exceeded an actual centimeter.\n\nDepending on how important the object is, a precision of 0.01-0.10 (1-10 cm) is recommended.\n\nFor example, even a 1cm precision combined with delta compression cuts the Benchmark demo's bandwidth in half, compared to sending every tiny change.")]
@@ -184,6 +180,29 @@ namespace Mirror
             if (syncScale)    target.localScale = interpolated.scale;
         }
 
+        // check if position / rotation / scale changed since last _full reliable_ sync.
+        protected virtual bool Changed(TransformSnapshot current) =>
+            // position is quantized and delta compressed.
+            // only consider it changed if the quantized representation is changed.
+            // careful: don't use 'serialized / deserialized last'. as it depends on sync mode etc.
+            QuantizedChanged(last.position, current.position, positionPrecision) ||
+            // rotation isn't quantized / delta compressed.
+            // check with sensitivity.
+            Quaternion.Angle(last.rotation, current.rotation) > rotationPrecision ||
+            // scale is quantized and delta compressed.
+            // only consider it changed if the quantized representation is changed.
+            // careful: don't use 'serialized / deserialized last'. as it depends on sync mode etc.
+            QuantizedChanged(last.scale, current.scale, scalePrecision);
+
+        // helper function to compare quantized representations of a Vector3
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected bool QuantizedChanged(Vector3 u, Vector3 v, float precision)
+        {
+            Compression.ScaleToLong(u, precision, out Vector3Long uQuantized);
+            Compression.ScaleToLong(v, precision, out Vector3Long vQuantized);
+            return uQuantized != vQuantized;
+        }
+
         // serialization ///////////////////////////////////////////////////////
         // serialize server->client baseline into a NetworkWriter.
         // for use in RpcSync and OnSerialize for spawn message.
@@ -219,6 +238,9 @@ namespace Mirror
             // included in deltas to ensure they are on top of the correct baseline
             lastSerializedBaselineTick = (byte)Time.frameCount;
             lastServerBaselineTime = NetworkTime.localTime;
+
+            // set 'last'
+            last = new TransformSnapshot(0, 0, position, rotation, scale);
         }
 
         void DeserializeServerBaseline(NetworkReader reader)
@@ -452,6 +474,7 @@ namespace Mirror
         }
 
         // update //////////////////////////////////////////////////////////////
+        bool baselineDirty = true;
         void UpdateServerBaseline()
         {
             // send a reliable baseline every 1 Hz
@@ -460,13 +483,24 @@ namespace Mirror
                 // only send a new reliable baseline if changed since last time
                 TransformSnapshot snapshot = ConstructSnapshot();
 
-                // send snapshot without timestamp.
-                // receiver gets it from batch timestamp to save bandwidth.
-                using (NetworkWriterPooled writer = NetworkWriterPool.Get())
+                // check if changed (unless that feature is disabled).
+                // baseline is guaranteed to be delivered over reliable.
+                // here is the only place where we can check for changes.
+                if (!onlySyncOnChange || Changed(snapshot))
                 {
-                    SerializeServerBaseline(writer, snapshot.position, snapshot.rotation, snapshot.scale);
-                    RpcServerToClientBaselineSync(writer);
+                    // reliable just changed. keep sending deltas until it's unchanged again.
+                    baselineDirty = true;
+
+                    // send snapshot without timestamp.
+                    // receiver gets it from batch timestamp to save bandwidth.
+                    using (NetworkWriterPooled writer = NetworkWriterPool.Get())
+                    {
+                        SerializeServerBaseline(writer, snapshot.position, snapshot.rotation, snapshot.scale);
+                        RpcServerToClientBaselineSync(writer);
+                    }
                 }
+                // indicate that we should stop sending deltas now
+                else baselineDirty = false;
             }
         }
 
@@ -502,6 +536,12 @@ namespace Mirror
             // authoritative movement done by the host will have to be broadcasted
             // here by checking IsClientWithAuthority.
             // TODO send same time that NetworkServer sends time snapshot?
+
+            // only sync on change:
+            // unreliable isn't guaranteed to be delivered so this depends on reliable baseline.
+            // if baseline is dirty, send unreliables every sendInterval until baseline is not dirty anymore.
+            if (onlySyncOnChange && !baselineDirty) return;
+
             if (NetworkTime.localTime >= lastServerSendTime + sendInterval) // CUSTOM CHANGE: allow custom sendRate + sendInterval again
             {
                 // send snapshot without timestamp.
@@ -523,7 +563,6 @@ namespace Mirror
                 }
 
                 lastServerSendTime = NetworkTime.localTime;
-                lastSnapshot = snapshot;
             }
         }
 
@@ -614,7 +653,6 @@ namespace Mirror
                     );
 
                     lastClientSendTime = NetworkTime.localTime;
-                    lastSnapshot = snapshot;
                 }
             }
             // for all other clients (and for local player if !authority),
@@ -788,6 +826,9 @@ namespace Mirror
 
             lastSerializedScale = Vector3Long.zero;
             lastDeserializedScale = Vector3Long.zero;
+
+            // reset 'last' for delta too
+            last = new TransformSnapshot(0, 0, Vector3.zero, Quaternion.identity, Vector3.zero);
 
             Debug.Log($"[{name}] Reset to baselineTick=0");
         }
