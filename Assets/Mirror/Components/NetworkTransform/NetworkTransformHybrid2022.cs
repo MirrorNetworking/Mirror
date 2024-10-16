@@ -795,6 +795,13 @@ namespace Mirror
             // so let's clear the buffers.
             serverSnapshots.Clear();
             clientSnapshots.Clear();
+
+            // reset delta compression
+            lastSerializedBaselineTick = 0;
+            lastDeserializedBaselineTick = 0;
+            lastDeserializedBaselinePosition = Vector3.zero;
+            lastDeserializedBaselineRotation = Quaternion.identity;
+            lastDeserializedBaselineScale = Vector3.one;
         }
 
         protected virtual void OnDisable() => Reset();
