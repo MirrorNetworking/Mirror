@@ -193,76 +193,8 @@ namespace Mirror
             return (!positionChanged && !rotationChanged && !scaleChanged);
         }
 #endif
-        // cmd /////////////////////////////////////////////////////////////////
-        // only unreliable. see comment above of this file.
-        [Command(channel = Channels.Unreliable)]
-        void CmdClientToServerSync(Vector3? position, Quaternion? rotation, Vector3? scale)
-        {
-            OnClientToServerSync(position, rotation, scale);
-            //For client authority, immediately pass on the client snapshot to all other
-            //clients instead of waiting for server to send its snapshots.
-            if (syncDirection == SyncDirection.ClientToServer &&
-                connectionToClient != null && // CUSTOM CHANGE: for the drop thing..
-                !disableSendingThisToClients) // CUSTOM CHANGE: see comment at definition
-            {
 
-                using (NetworkWriterPooled writer = NetworkWriterPool.Get())
-                {
-                    Debug.LogWarning($"[{name}] CmdClientToServerSync: TODO which baseline to pass in Rpc?");
-                    SerializeServerDelta(writer, 0xFF, position, rotation, scale);
-                    RpcServerToClientDeltaSync(writer);
-                }
-            }
-        }
-
-        // local authority client sends sync message to server for broadcasting
-        protected virtual void OnClientToServerSync(Vector3? position, Quaternion? rotation, Vector3? scale)
-        {
-            // only apply if in client authority mode
-            if (syncDirection != SyncDirection.ClientToServer) return;
-
-            // protect against ever growing buffer size attacks
-            if (serverSnapshots.Count >= connectionToClient.snapshotBufferSizeLimit) return;
-
-            // only player owned objects (with a connection) can send to
-            // server. we can get the timestamp from the connection.
-            double timestamp = connectionToClient.remoteTimeStamp;
-#if onlySyncOnChange_BANDWIDTH_SAVING
-            if (onlySyncOnChange)
-            {
-                double timeIntervalCheck = bufferResetMultiplier * sendInterval; // CUSTOM CHANGE: allow for sendRate + sendInterval again
-
-                if (serverSnapshots.Count > 0 && serverSnapshots.Values[serverSnapshots.Count - 1].remoteTime + timeIntervalCheck < timestamp)
-                {
-                    Reset();
-                }
-            }
-#endif
-            // position, rotation, scale can have no value if same as last time.
-            // saves bandwidth.
-            // but we still need to feed it to snapshot interpolation. we can't
-            // just have gaps in there if nothing has changed. for example, if
-            //   client sends snapshot at t=0
-            //   client sends nothing for 10s because not moved
-            //   client sends snapshot at t=10
-            // then the server would assume that it's one super slow move and
-            // replay it for 10 seconds.
-            if (!position.HasValue) position = serverSnapshots.Count > 0 ? serverSnapshots.Values[serverSnapshots.Count - 1].position : target.localPosition;
-            if (!rotation.HasValue) rotation = serverSnapshots.Count > 0 ? serverSnapshots.Values[serverSnapshots.Count - 1].rotation : target.localRotation;
-            if (!scale.HasValue)    scale    = serverSnapshots.Count > 0 ? serverSnapshots.Values[serverSnapshots.Count - 1].scale    : target.localScale;
-
-            // insert transform snapshot
-            SnapshotInterpolation.InsertIfNotExists(
-                serverSnapshots,
-                bufferSizeLimit,
-                new TransformSnapshot(
-                timestamp,         // arrival remote timestamp. NOT remote time.
-                Time.timeAsDouble,
-                position.Value,
-                rotation.Value,
-                scale.Value
-            ));
-        }
+        // serialization ///////////////////////////////////////////////////////
 
         // serialize server->client baseline into a NetworkWriter.
         // for use in RpcSync and OnSerialize for spawn message.
@@ -335,6 +267,76 @@ namespace Mirror
             {
                 scale = reader.ReadVector3();
             }
+        }
+
+        // cmd /////////////////////////////////////////////////////////////////
+        // only unreliable. see comment above of this file.
+        [Command(channel = Channels.Unreliable)]
+        void CmdClientToServerSync(Vector3? position, Quaternion? rotation, Vector3? scale)
+        {
+            OnClientToServerSync(position, rotation, scale);
+            //For client authority, immediately pass on the client snapshot to all other
+            //clients instead of waiting for server to send its snapshots.
+            if (syncDirection == SyncDirection.ClientToServer &&
+                connectionToClient != null && // CUSTOM CHANGE: for the drop thing..
+                !disableSendingThisToClients) // CUSTOM CHANGE: see comment at definition
+            {
+                using (NetworkWriterPooled writer = NetworkWriterPool.Get())
+                {
+                    Debug.LogWarning($"[{name}] CmdClientToServerSync: TODO which baseline to pass in Rpc?");
+                    SerializeServerDelta(writer, 0xFF, position, rotation, scale);
+                    RpcServerToClientDeltaSync(writer);
+                }
+            }
+        }
+
+        // local authority client sends sync message to server for broadcasting
+        protected virtual void OnClientToServerSync(Vector3? position, Quaternion? rotation, Vector3? scale)
+        {
+            // only apply if in client authority mode
+            if (syncDirection != SyncDirection.ClientToServer) return;
+
+            // protect against ever growing buffer size attacks
+            if (serverSnapshots.Count >= connectionToClient.snapshotBufferSizeLimit) return;
+
+            // only player owned objects (with a connection) can send to
+            // server. we can get the timestamp from the connection.
+            double timestamp = connectionToClient.remoteTimeStamp;
+#if onlySyncOnChange_BANDWIDTH_SAVING
+            if (onlySyncOnChange)
+            {
+                double timeIntervalCheck = bufferResetMultiplier * sendInterval; // CUSTOM CHANGE: allow for sendRate + sendInterval again
+
+                if (serverSnapshots.Count > 0 && serverSnapshots.Values[serverSnapshots.Count - 1].remoteTime + timeIntervalCheck < timestamp)
+                {
+                    Reset();
+                }
+            }
+#endif
+            // position, rotation, scale can have no value if same as last time.
+            // saves bandwidth.
+            // but we still need to feed it to snapshot interpolation. we can't
+            // just have gaps in there if nothing has changed. for example, if
+            //   client sends snapshot at t=0
+            //   client sends nothing for 10s because not moved
+            //   client sends snapshot at t=10
+            // then the server would assume that it's one super slow move and
+            // replay it for 10 seconds.
+            if (!position.HasValue) position = serverSnapshots.Count > 0 ? serverSnapshots.Values[serverSnapshots.Count - 1].position : target.localPosition;
+            if (!rotation.HasValue) rotation = serverSnapshots.Count > 0 ? serverSnapshots.Values[serverSnapshots.Count - 1].rotation : target.localRotation;
+            if (!scale.HasValue)    scale    = serverSnapshots.Count > 0 ? serverSnapshots.Values[serverSnapshots.Count - 1].scale    : target.localScale;
+
+            // insert transform snapshot
+            SnapshotInterpolation.InsertIfNotExists(
+                serverSnapshots,
+                bufferSizeLimit,
+                new TransformSnapshot(
+                timestamp,         // arrival remote timestamp. NOT remote time.
+                Time.timeAsDouble,
+                position.Value,
+                rotation.Value,
+                scale.Value
+            ));
         }
 
         // rpc /////////////////////////////////////////////////////////////////
