@@ -65,6 +65,10 @@ namespace Mirror
         double lastServerBaselineTime;
         double lastClientUnreliableTime;
 
+        // the last baseline we received for this object.
+        // deltas are based on the baseline, need to make sure we don't apply on an old one.
+        byte lastServerBaselineSent = 0;
+
         // only sync when changed hack /////////////////////////////////////////
 #if onlySyncOnChange_BANDWIDTH_SAVING
         [Header("Sync Only If Changed")]
@@ -253,7 +257,9 @@ namespace Mirror
         [ClientRpc(channel = Channels.Reliable)]
         void RpcServerToClientBaselineSync(byte baselineTick, Vector3? position, Quaternion? rotation, Vector3? scale)
         {
-            Debug.LogWarning("TODO process server->client baseline");
+            // IMPORTANT: baselineTick is a remote "frameCount & 0xff".
+            // this can be != compared but not <> compared!
+            Debug.LogWarning($"TODO process server->client baseline #{baselineTick}");
         }
 
         // only unreliable. see comment above of this file.
@@ -327,13 +333,19 @@ namespace Mirror
                 // receiver gets it from batch timestamp to save bandwidth.
                 TransformSnapshot snapshot = ConstructSnapshot();
 
+
                 RpcServerToClientBaselineSync(
+                    (byte)Time.frameCount,
                     // only sync what the user wants to sync
                     syncPosition ? snapshot.position : default(Vector3?),
                     syncRotation ? snapshot.rotation : default(Quaternion?),
                     syncScale ? snapshot.scale : default(Vector3?)
                 );
 
+                // save the last baseline's tick number.
+                // included in baseline to identify which one it was on client
+                // included in deltas to ensure they are on top of the correct baseline
+                lastServerBaselineSent = (byte)Time.frameCount;
                 lastServerBaselineTime = NetworkTime.localTime;
             }
         }
