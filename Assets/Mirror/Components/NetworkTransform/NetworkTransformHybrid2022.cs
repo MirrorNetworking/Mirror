@@ -67,7 +67,7 @@ namespace Mirror
 
         // the last baseline we received for this object.
         // deltas are based on the baseline, need to make sure we don't apply on an old one.
-        byte lastServerBaselineSent = 0;
+        byte lastBaselineSent = 0;
 
         // last deserialized baseline
         byte lastDeserializedBaselineTick = 0;
@@ -369,7 +369,7 @@ namespace Mirror
                 // save the last baseline's tick number.
                 // included in baseline to identify which one it was on client
                 // included in deltas to ensure they are on top of the correct baseline
-                lastServerBaselineSent = (byte)Time.frameCount;
+                lastBaselineSent = (byte)Time.frameCount;
                 lastServerBaselineTime = NetworkTime.localTime;
             }
         }
@@ -420,7 +420,7 @@ namespace Mirror
                 RpcServerToClientDeltaSync(
                     // include the last reliable baseline tick#.
                     // the unreliable delta is meant to go on top of it that, and no older one.
-                    lastServerBaselineSent,
+                    lastBaselineSent,
                     // only sync what the user wants to sync
                     syncPosition && positionChanged ? snapshot.position : default(Vector3?),
                     syncRotation && rotationChanged ? snapshot.rotation : default(Quaternion?),
@@ -733,6 +733,9 @@ namespace Mirror
             // (Spawn message wouldn't sync NTChild positions either)
             if (initialState)
             {
+                // spawn message is used as first baseline. include the tick.
+                lastBaselineSent = (byte)Time.frameCount;
+
                 if (syncPosition) writer.WriteVector3(target.localPosition);
                 if (syncRotation) writer.WriteQuaternion(target.localRotation);
                 if (syncScale)    writer.WriteVector3(target.localScale);
@@ -746,9 +749,28 @@ namespace Mirror
             // (Spawn message wouldn't sync NTChild positions either)
             if (initialState)
             {
-                if (syncPosition) target.localPosition = reader.ReadVector3();
-                if (syncRotation) target.localRotation = reader.ReadQuaternion();
-                if (syncScale)    target.localScale    = reader.ReadVector3();
+                // save spawn message as baseline
+                lastDeserializedBaselineTick = (byte)Time.frameCount;
+                Debug.Log($"Spawn is used as first baseline #{lastDeserializedBaselineTick}");
+
+                if (syncPosition)
+                {
+                    Vector3 position = reader.ReadVector3();
+                    lastDeserializedBaselinePosition = position;
+                    target.localPosition = position;
+                }
+                if (syncRotation)
+                {
+                    Quaternion rotation = reader.ReadQuaternion();
+                    lastDeserializedBaselineRotation = rotation;
+                    target.localRotation = rotation;
+                }
+                if (syncScale)
+                {
+                    Vector3 scale = reader.ReadVector3();
+                    lastDeserializedBaselineScale = scale;
+                    target.localScale = scale;
+                }
             }
         }
         // CUSTOM CHANGE ///////////////////////////////////////////////////////////
