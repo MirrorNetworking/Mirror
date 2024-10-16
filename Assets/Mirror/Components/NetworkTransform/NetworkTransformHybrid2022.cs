@@ -69,6 +69,12 @@ namespace Mirror
         // deltas are based on the baseline, need to make sure we don't apply on an old one.
         byte lastServerBaselineSent = 0;
 
+        // last deserialized baseline
+        byte lastDeserializedBaselineTick = 0;
+        Vector3 lastDeserializedBaselinePosition = Vector3.zero;
+        Quaternion lastDeserializedBaselineRotation = Quaternion.identity;
+        Vector3 lastDeserializedBaselineScale = Vector3.one;
+
         // only sync when changed hack /////////////////////////////////////////
 #if onlySyncOnChange_BANDWIDTH_SAVING
         [Header("Sync Only If Changed")]
@@ -259,7 +265,13 @@ namespace Mirror
         {
             // IMPORTANT: baselineTick is a remote "frameCount & 0xff".
             // this can be != compared but not <> compared!
-            Debug.LogWarning($"TODO process server->client baseline #{baselineTick}");
+            Debug.Log($"client received baseline #{baselineTick}");
+
+            // save the baseline including tick
+            lastDeserializedBaselineTick = baselineTick;
+            if (position.HasValue) lastDeserializedBaselinePosition = position.Value;
+            if (rotation.HasValue) lastDeserializedBaselineRotation = rotation.Value;
+            if (scale.HasValue)    lastDeserializedBaselineScale    = scale.Value;
         }
 
         // only unreliable. see comment above of this file.
