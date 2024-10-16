@@ -1,8 +1,8 @@
 {
-    "github": {
-      "sponsors": {
-        "url": "https://github.com/sponsors/miwarnec"
-      }
+  "funding": [
+    {
+      "type": "github",
+      "url": "https://github.com/sponsors/miwarnec"
     }
-  }
-  
+  ]
+}
