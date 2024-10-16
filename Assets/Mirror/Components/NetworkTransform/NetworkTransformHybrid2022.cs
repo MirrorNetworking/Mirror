@@ -187,31 +187,31 @@ namespace Mirror
         // serialization ///////////////////////////////////////////////////////
         // serialize server->client baseline into a NetworkWriter.
         // for use in RpcSync and OnSerialize for spawn message.
-        void SerializeServerBaseline(NetworkWriter writer)
+        void SerializeServerBaseline(NetworkWriter writer, Vector3 position, Quaternion rotation, Vector3 scale)
         {
             // always include the tick for deltas to compare against.
             writer.WriteByte((byte)Time.frameCount);
 
             if (syncPosition)
             {
-                writer.WriteVector3(target.localPosition);
+                writer.WriteVector3(position);
 
                 // save serialized as 'last' for next delta compression.
-                if (syncPosition) Compression.ScaleToLong(target.localPosition, positionPrecision, out lastSerializedPosition);
+                if (syncPosition) Compression.ScaleToLong(position, positionPrecision, out lastSerializedPosition);
             }
             if (syncRotation)
             {
                 writer.WriteQuaternion(target.localRotation);
 
                 // save serialized as 'last' for next delta compression.
-                if (syncRotation) Compression.ScaleToLong(target.localRotation, rotationPrecision, out lastSerializedRotation);
+                if (syncRotation) Compression.ScaleToLong(rotation, rotationPrecision, out lastSerializedRotation);
             }
             if (syncScale)
             {
                 writer.WriteVector3(target.localScale);
 
                 // save serialized as 'last' for next delta compression.
-                if (syncScale) Compression.ScaleToLong(target.localScale, scalePrecision, out lastSerializedScale);
+                if (syncScale) Compression.ScaleToLong(scale, scalePrecision, out lastSerializedScale);
             }
 
             // save the last baseline's tick number.
@@ -457,11 +457,14 @@ namespace Mirror
             // send a reliable baseline every 1 Hz
             if (NetworkTime.localTime >= lastServerBaselineTime + baselineInterval)
             {
+                // only send a new reliable baseline if changed since last time
+                TransformSnapshot snapshot = ConstructSnapshot();
+
                 // send snapshot without timestamp.
                 // receiver gets it from batch timestamp to save bandwidth.
                 using (NetworkWriterPooled writer = NetworkWriterPool.Get())
                 {
-                    SerializeServerBaseline(writer);
+                    SerializeServerBaseline(writer, snapshot.position, snapshot.rotation, snapshot.scale);
                     RpcServerToClientBaselineSync(writer);
                 }
             }
@@ -800,7 +803,8 @@ namespace Mirror
             if (initialState)
             {
                 // spawn message is used as first baseline.
-                SerializeServerBaseline(writer);
+                TransformSnapshot snapshot = ConstructSnapshot();
+                SerializeServerBaseline(writer, snapshot.position, snapshot.rotation, snapshot.scale);
             }
         }
 
