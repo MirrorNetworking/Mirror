@@ -65,11 +65,10 @@ namespace Mirror
         double lastServerBaselineTime;
         double lastClientUnreliableTime;
 
-        // the last baseline we received for this object.
-        // deltas are based on the baseline, need to make sure we don't apply on an old one.
-        byte lastBaselineSent = 0;
-
-        // last deserialized baseline
+        // delta compression needs to remember 'last' to compress against.
+        // this is from reliable full state serializations, not from last
+        // unreliable delta since that isn't guaranteed to be delivered.
+        byte lastSerializedBaselineTick = 0;
         byte lastDeserializedBaselineTick = 0;
         Vector3 lastDeserializedBaselinePosition = Vector3.zero;
         Quaternion lastDeserializedBaselineRotation = Quaternion.identity;
@@ -369,7 +368,7 @@ namespace Mirror
                 // save the last baseline's tick number.
                 // included in baseline to identify which one it was on client
                 // included in deltas to ensure they are on top of the correct baseline
-                lastBaselineSent = (byte)Time.frameCount;
+                lastSerializedBaselineTick = (byte)Time.frameCount;
                 lastServerBaselineTime = NetworkTime.localTime;
             }
         }
@@ -420,7 +419,7 @@ namespace Mirror
                 RpcServerToClientDeltaSync(
                     // include the last reliable baseline tick#.
                     // the unreliable delta is meant to go on top of it that, and no older one.
-                    lastBaselineSent,
+                    lastSerializedBaselineTick,
                     // only sync what the user wants to sync
                     syncPosition && positionChanged ? snapshot.position : default(Vector3?),
                     syncRotation && rotationChanged ? snapshot.rotation : default(Quaternion?),
@@ -734,9 +733,9 @@ namespace Mirror
             if (initialState)
             {
                 // spawn message is used as first baseline. include the tick.
-                lastBaselineSent = (byte)Time.frameCount;
+                lastSerializedBaselineTick = (byte)Time.frameCount;
 
-                writer.WriteByte(lastBaselineSent);
+                writer.WriteByte(lastSerializedBaselineTick);
                 if (syncPosition) writer.WriteVector3(target.localPosition);
                 if (syncRotation) writer.WriteQuaternion(target.localRotation);
                 if (syncScale)    writer.WriteVector3(target.localScale);
