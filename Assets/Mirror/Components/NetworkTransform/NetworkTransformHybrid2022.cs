@@ -259,19 +259,58 @@ namespace Mirror
             ));
         }
 
+        // serialize server->client baseline into a NetworkWriter.
+        // for use in RpcSync and OnSerialize for spawn message.
+        void SerializeServerBaseline(NetworkWriter writer)
+        {
+            // always include the tick for deltas to compare against.
+            writer.WriteByte((byte)Time.frameCount);
+
+            if (syncPosition) writer.WriteVector3(target.localPosition);
+            if (syncRotation) writer.WriteQuaternion(target.localRotation);
+            if (syncScale)    writer.WriteVector3(target.localScale);
+
+            // save the last baseline's tick number.
+            // included in baseline to identify which one it was on client
+            // included in deltas to ensure they are on top of the correct baseline
+            lastSerializedBaselineTick = (byte)Time.frameCount;
+            lastServerBaselineTime = NetworkTime.localTime;
+        }
+
+        void DeserializeServerBaseline(NetworkReader reader)
+        {
+            // save last deserialized baseline tick number to compare deltas against
+            lastDeserializedBaselineTick = reader.ReadByte();
+
+            if (syncPosition)
+            {
+                Vector3 position = reader.ReadVector3();
+                lastDeserializedBaselinePosition = position;
+                target.localPosition = position;
+            }
+            if (syncRotation)
+            {
+                Quaternion rotation = reader.ReadQuaternion();
+                lastDeserializedBaselineRotation = rotation;
+                target.localRotation = rotation;
+            }
+            if (syncScale)
+            {
+                Vector3 scale = reader.ReadVector3();
+                lastDeserializedBaselineScale = scale;
+                target.localScale = scale;
+            }
+        }
+
         // rpc /////////////////////////////////////////////////////////////////
         [ClientRpc(channel = Channels.Reliable)]
-        void RpcServerToClientBaselineSync(byte baselineTick, Vector3? position, Quaternion? rotation, Vector3? scale)
+        void RpcServerToClientBaselineSync(ArraySegment<byte> message)
         {
-            // IMPORTANT: baselineTick is a remote "frameCount & 0xff".
-            // this can be != compared but not <> compared!
-            Debug.Log($"[{name}] client received baseline #{baselineTick}");
-
-            // save the baseline including tick
-            lastDeserializedBaselineTick = baselineTick;
-            if (position.HasValue) lastDeserializedBaselinePosition = position.Value;
-            if (rotation.HasValue) lastDeserializedBaselineRotation = rotation.Value;
-            if (scale.HasValue)    lastDeserializedBaselineScale    = scale.Value;
+            using (NetworkReaderPooled reader = NetworkReaderPool.Get(message))
+            {
+                DeserializeServerBaseline(reader);
+                Debug.Log($"[{name}] client received baseline #{lastDeserializedBaselineTick}");
+            }
         }
 
         // only unreliable. see comment above of this file.
@@ -354,22 +393,11 @@ namespace Mirror
             {
                 // send snapshot without timestamp.
                 // receiver gets it from batch timestamp to save bandwidth.
-                TransformSnapshot snapshot = ConstructSnapshot();
-
-
-                RpcServerToClientBaselineSync(
-                    (byte)Time.frameCount,
-                    // only sync what the user wants to sync
-                    syncPosition ? snapshot.position : default(Vector3?),
-                    syncRotation ? snapshot.rotation : default(Quaternion?),
-                    syncScale ? snapshot.scale : default(Vector3?)
-                );
-
-                // save the last baseline's tick number.
-                // included in baseline to identify which one it was on client
-                // included in deltas to ensure they are on top of the correct baseline
-                lastSerializedBaselineTick = (byte)Time.frameCount;
-                lastServerBaselineTime = NetworkTime.localTime;
+                using (NetworkWriterPooled writer = NetworkWriterPool.Get())
+                {
+                    SerializeServerBaseline(writer);
+                    RpcServerToClientBaselineSync(writer);
+                }
             }
         }
 
@@ -732,13 +760,8 @@ namespace Mirror
             // (Spawn message wouldn't sync NTChild positions either)
             if (initialState)
             {
-                // spawn message is used as first baseline. include the tick.
-                lastSerializedBaselineTick = (byte)Time.frameCount;
-
-                writer.WriteByte(lastSerializedBaselineTick);
-                if (syncPosition) writer.WriteVector3(target.localPosition);
-                if (syncRotation) writer.WriteQuaternion(target.localRotation);
-                if (syncScale)    writer.WriteVector3(target.localScale);
+                // spawn message is used as first baseline.
+                SerializeServerBaseline(writer);
             }
         }
 
@@ -750,27 +773,8 @@ namespace Mirror
             if (initialState)
             {
                 // save spawn message as baseline
-                lastDeserializedBaselineTick = reader.ReadByte();
+                DeserializeServerBaseline(reader);
                 Debug.Log($"[{name}] Spawn is used as first baseline #{lastDeserializedBaselineTick}");
-
-                if (syncPosition)
-                {
-                    Vector3 position = reader.ReadVector3();
-                    lastDeserializedBaselinePosition = position;
-                    target.localPosition = position;
-                }
-                if (syncRotation)
-                {
-                    Quaternion rotation = reader.ReadQuaternion();
-                    lastDeserializedBaselineRotation = rotation;
-                    target.localRotation = rotation;
-                }
-                if (syncScale)
-                {
-                    Vector3 scale = reader.ReadVector3();
-                    lastDeserializedBaselineScale = scale;
-                    target.localScale = scale;
-                }
             }
         }
         // CUSTOM CHANGE ///////////////////////////////////////////////////////////
