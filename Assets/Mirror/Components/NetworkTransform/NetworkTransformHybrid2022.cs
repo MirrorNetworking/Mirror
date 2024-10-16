@@ -206,7 +206,8 @@ namespace Mirror
                 connectionToClient != null && // CUSTOM CHANGE: for the drop thing..
                 !disableSendingThisToClients) // CUSTOM CHANGE: see comment at definition
             {
-                RpcServerToClientDeltaSync(position, rotation, scale);
+                Debug.LogWarning("CmdClientToServerSync: TODO which baseline to pass in Rpc?");
+                RpcServerToClientDeltaSync(0xFF, position, rotation, scale);
             }
         }
 
@@ -276,11 +277,11 @@ namespace Mirror
 
         // only unreliable. see comment above of this file.
         [ClientRpc(channel = Channels.Unreliable)]
-        void RpcServerToClientDeltaSync(Vector3? position, Quaternion? rotation, Vector3? scale) =>
-            OnServerToClientDeltaSync(position, rotation, scale);
+        void RpcServerToClientDeltaSync(byte baselineTick, Vector3? position, Quaternion? rotation, Vector3? scale) =>
+            OnServerToClientDeltaSync(baselineTick, position, rotation, scale);
 
         // server broadcasts sync message to all clients
-        protected virtual void OnServerToClientDeltaSync(Vector3? position, Quaternion? rotation, Vector3? scale)
+        protected virtual void OnServerToClientDeltaSync(byte baselineTick, Vector3? position, Quaternion? rotation, Vector3? scale)
         {
             // in host mode, the server sends rpcs to all clients.
             // the host client itself will receive them too.
@@ -292,6 +293,17 @@ namespace Mirror
 
             // don't apply for local player with authority
             if (IsClientWithAuthority) return;
+
+            // unreliable messages may arrive out of order.
+            // ensure this is for the intended baseline.
+            // we don't want to put a delta onto an old baseline.
+            if (baselineTick != lastDeserializedBaselineTick)
+            {
+                Debug.Log($"Client discarding unreliable delta for baseline #{baselineTick} because we already received #{lastDeserializedBaselineTick}");
+                return;
+            }
+
+            Debug.Log($"Client: received delta for baseline #{baselineTick}");
 
             // on the client, we receive rpcs for all entities.
             // not all of them have a connectionToServer.
@@ -406,6 +418,9 @@ namespace Mirror
 
 #if onlySyncOnChange_BANDWIDTH_SAVING
                 RpcServerToClientDeltaSync(
+                    // include the last reliable baseline tick#.
+                    // the unreliable delta is meant to go on top of it that, and no older one.
+                    lastServerBaselineSent,
                     // only sync what the user wants to sync
                     syncPosition && positionChanged ? snapshot.position : default(Vector3?),
                     syncRotation && rotationChanged ? snapshot.rotation : default(Quaternion?),
