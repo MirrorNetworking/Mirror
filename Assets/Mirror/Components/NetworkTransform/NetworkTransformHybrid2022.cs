@@ -59,12 +59,11 @@ namespace Mirror
         public float sendInterval => 1f / sendRate;
         // END CUSTOM CHANGE
 
-        /// <summary> </summary>
         [Tooltip("Ocassionally send a full reliable state to delta compress against. This only applies to Components with SyncMethod=Unreliable.")]
-        public int unreliableBaselineRate = 1;
-        public float unreliableBaselineInterval => unreliableBaselineRate < int.MaxValue ? 1f / unreliableBaselineRate : 0; // for 1 Hz, that's 1000ms
-        double lastServerUnreliableBaselineTime;
-        double lastClientUnreliableBaselineTime;
+        public int baselineRate = 1;
+        public float baselineInterval => baselineRate < int.MaxValue ? 1f / baselineRate : 0; // for 1 Hz, that's 1000ms
+        double lastServerBaselineTime;
+        double lastClientUnreliableTime;
 
         // only sync when changed hack /////////////////////////////////////////
 #if onlySyncOnChange_BANDWIDTH_SAVING
@@ -252,7 +251,7 @@ namespace Mirror
 
         // rpc /////////////////////////////////////////////////////////////////
         [ClientRpc(channel = Channels.Reliable)]
-        void RpcServerToClientBaselineSync(Vector3? position, Quaternion? rotation, Vector3? scale)
+        void RpcServerToClientBaselineSync(byte baselineTick, Vector3? position, Quaternion? rotation, Vector3? scale)
         {
             Debug.LogWarning("TODO process server->client baseline");
         }
@@ -322,7 +321,7 @@ namespace Mirror
         void UpdateServerBaseline()
         {
             // send a reliable baseline every 1 Hz
-            if (NetworkTime.localTime >= lastServerUnreliableBaselineTime + unreliableBaselineInterval)
+            if (NetworkTime.localTime >= lastServerBaselineTime + baselineInterval)
             {
                 // send snapshot without timestamp.
                 // receiver gets it from batch timestamp to save bandwidth.
@@ -335,7 +334,7 @@ namespace Mirror
                     syncScale ? snapshot.scale : default(Vector3?)
                 );
 
-                lastServerUnreliableBaselineTime = NetworkTime.localTime;
+                lastServerBaselineTime = NetworkTime.localTime;
             }
         }
 
