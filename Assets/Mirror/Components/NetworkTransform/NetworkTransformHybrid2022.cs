@@ -736,6 +736,7 @@ namespace Mirror
                 // spawn message is used as first baseline. include the tick.
                 lastBaselineSent = (byte)Time.frameCount;
 
+                writer.WriteByte(lastBaselineSent);
                 if (syncPosition) writer.WriteVector3(target.localPosition);
                 if (syncRotation) writer.WriteQuaternion(target.localRotation);
                 if (syncScale)    writer.WriteVector3(target.localScale);
@@ -750,7 +751,7 @@ namespace Mirror
             if (initialState)
             {
                 // save spawn message as baseline
-                lastDeserializedBaselineTick = (byte)Time.frameCount;
+                lastDeserializedBaselineTick = reader.ReadByte();
                 Debug.Log($"[{name}] Spawn is used as first baseline #{lastDeserializedBaselineTick}");
 
                 if (syncPosition)
