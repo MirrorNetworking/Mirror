@@ -847,6 +847,8 @@ namespace Mirror
 
             lastSerializedScale = Vector3Long.zero;
             lastDeserializedScale = Vector3Long.zero;
+
+            Debug.Log($"[{name}] Reset to baselineTick=0");
         }
 
         protected virtual void OnDisable() => Reset();
