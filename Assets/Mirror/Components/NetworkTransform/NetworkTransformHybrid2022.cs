@@ -258,15 +258,23 @@ namespace Mirror
 
             if (syncPosition)
             {
-                writer.WriteVector3(position.Value);
+                // quantize -> delta -> varint
+                Compression.ScaleToLong(position.Value, positionPrecision, out Vector3Long quantized);
+                DeltaCompression.Compress(writer, lastSerializedPosition, quantized);
             }
             if (syncRotation)
             {
-                writer.WriteQuaternion(rotation.Value);
+                // quantize -> delta -> varint
+                // this works for quaternions too, where xyzw are [-1,1]
+                // and gradually change as rotation changes.
+                Compression.ScaleToLong(rotation.Value, rotationPrecision, out Vector4Long quantized);
+                DeltaCompression.Compress(writer, lastSerializedRotation, quantized);
             }
             if (syncScale)
             {
-                writer.WriteVector3(scale.Value);
+                // quantize -> delta -> varint
+                Compression.ScaleToLong(scale.Value, scalePrecision, out Vector3Long quantized);
+                DeltaCompression.Compress(writer, lastSerializedScale, quantized);
             }
         }
 
@@ -289,15 +297,23 @@ namespace Mirror
 
             if (syncPosition)
             {
-                position = reader.ReadVector3();
+                // varint -> delta -> quantize
+                Vector3Long quantized = DeltaCompression.Decompress(reader, lastDeserializedPosition);
+                position = Compression.ScaleToFloat(quantized, positionPrecision);
             }
             if (syncRotation)
             {
-                rotation = reader.ReadQuaternion();
+                // varint -> delta -> quantize
+                // this works for quaternions too, where xyzw are [-1,1]
+                // and gradually change as rotation changes.
+                Vector4Long quantized = DeltaCompression.Decompress(reader, lastDeserializedRotation);
+                rotation = Compression.ScaleToFloat(quantized, rotationPrecision);
             }
             if (syncScale)
             {
-                scale = reader.ReadVector3();
+                // varint -> delta -> quantize
+                Vector3Long quantized = DeltaCompression.Decompress(reader, lastDeserializedScale);
+                scale = Compression.ScaleToFloat(quantized, scalePrecision);
             }
 
             return true;
