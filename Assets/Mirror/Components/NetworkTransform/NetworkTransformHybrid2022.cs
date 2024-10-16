@@ -256,9 +256,18 @@ namespace Mirror
         {
             writer.WriteByte(baselineTick);
 
-            if (syncPosition) writer.WriteVector3(position.Value);
-            if (syncRotation) writer.WriteQuaternion(rotation.Value);
-            if (syncScale)    writer.WriteVector3(scale.Value);
+            if (syncPosition)
+            {
+                writer.WriteVector3(position.Value);
+            }
+            if (syncRotation)
+            {
+                writer.WriteQuaternion(rotation.Value);
+            }
+            if (syncScale)
+            {
+                writer.WriteVector3(scale.Value);
+            }
         }
 
         bool DeserializeServerDelta(NetworkReader reader, out byte baselineTick, out Vector3? position, out Quaternion? rotation, out Vector3? scale)
