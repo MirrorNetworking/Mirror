@@ -205,8 +205,13 @@ namespace Mirror
                 connectionToClient != null && // CUSTOM CHANGE: for the drop thing..
                 !disableSendingThisToClients) // CUSTOM CHANGE: see comment at definition
             {
-                Debug.LogWarning($"[{name}] CmdClientToServerSync: TODO which baseline to pass in Rpc?");
-                RpcServerToClientDeltaSync(0xFF, position, rotation, scale);
+
+                using (NetworkWriterPooled writer = NetworkWriterPool.Get())
+                {
+                    Debug.LogWarning($"[{name}] CmdClientToServerSync: TODO which baseline to pass in Rpc?");
+                    SerializeServerDelta(writer, 0xFF, position, rotation, scale);
+                    RpcServerToClientDeltaSync(writer);
+                }
             }
         }
 
@@ -302,6 +307,36 @@ namespace Mirror
             }
         }
 
+        void SerializeServerDelta(NetworkWriter writer, byte baselineTick, Vector3? position, Quaternion? rotation, Vector3? scale)
+        {
+            writer.WriteByte(baselineTick);
+
+            if (syncPosition) writer.WriteVector3(position.Value);
+            if (syncRotation) writer.WriteQuaternion(rotation.Value);
+            if (syncScale)    writer.WriteVector3(scale.Value);
+        }
+
+        void DeserializeServerDelta(NetworkReader reader, out byte baselineTick, out Vector3? position, out Quaternion? rotation, out Vector3? scale)
+        {
+            baselineTick = reader.ReadByte();
+            position = null;
+            rotation = null;
+            scale = null;
+
+            if (syncPosition)
+            {
+                position = reader.ReadVector3();
+            }
+            if (syncRotation)
+            {
+                rotation = reader.ReadQuaternion();
+            }
+            if (syncScale)
+            {
+                scale = reader.ReadVector3();
+            }
+        }
+
         // rpc /////////////////////////////////////////////////////////////////
         [ClientRpc(channel = Channels.Reliable)]
         void RpcServerToClientBaselineSync(ArraySegment<byte> message)
@@ -315,8 +350,14 @@ namespace Mirror
 
         // only unreliable. see comment above of this file.
         [ClientRpc(channel = Channels.Unreliable)]
-        void RpcServerToClientDeltaSync(byte baselineTick, Vector3? position, Quaternion? rotation, Vector3? scale) =>
-            OnServerToClientDeltaSync(baselineTick, position, rotation, scale);
+        void RpcServerToClientDeltaSync(ArraySegment<byte> message)
+        {
+            using (NetworkReaderPooled reader = NetworkReaderPool.Get(message))
+            {
+                DeserializeServerDelta(reader, out byte baselineTick, out Vector3? position, out Quaternion? rotation, out Vector3? scale);
+                OnServerToClientDeltaSync(baselineTick, position, rotation, scale);
+            }
+        }
 
         // server broadcasts sync message to all clients
         protected virtual void OnServerToClientDeltaSync(byte baselineTick, Vector3? position, Quaternion? rotation, Vector3? scale)
@@ -444,15 +485,19 @@ namespace Mirror
 #endif
 
 #if onlySyncOnChange_BANDWIDTH_SAVING
-                RpcServerToClientDeltaSync(
-                    // include the last reliable baseline tick#.
-                    // the unreliable delta is meant to go on top of it that, and no older one.
-                    lastSerializedBaselineTick,
-                    // only sync what the user wants to sync
-                    syncPosition && positionChanged ? snapshot.position : default(Vector3?),
-                    syncRotation && rotationChanged ? snapshot.rotation : default(Quaternion?),
-                    syncScale && scaleChanged ? snapshot.scale : default(Vector3?)
-                );
+                using (NetworkWriterPooled writer = NetworkWriterPool.Get())
+                {
+                    SerializeServerDelta(
+                        writer,
+                        // include the last reliable baseline tick#.
+                        // the unreliable delta is meant to go on top of it that, and no older one.
+                        lastSerializedBaselineTick,
+                        syncPosition ? snapshot.position : default(Vector3?),
+                        syncRotation ? snapshot.rotation : default(Quaternion?),
+                        syncScale ? snapshot.scale : default(Vector3?)
+                        );
+                    RpcServerToClientDeltaSync(writer);
+                }
 #else
                 RpcServerToClientSync(
                     // only sync what the user wants to sync
