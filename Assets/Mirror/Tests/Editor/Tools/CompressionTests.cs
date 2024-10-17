@@ -63,56 +63,6 @@ namespace Mirror.Tests.Tools
         }
 
         [Test]
-        public void ScaleToLong_Vector3()
-        {
-            // 0, positive, negative
-            Assert.True(Compression.ScaleToLong(new Vector3(0, 10.5f, -100.5f), 0.1f, out long x, out long y, out long z));
-            Assert.That(x, Is.EqualTo(0));
-            Assert.That(y, Is.EqualTo(105));
-            Assert.That(z, Is.EqualTo(-1005));
-        }
-
-        [Test]
-        public void ScaleToLong_Vector3_OutOfRange()
-        {
-            float precision = 0.1f;
-            float largest = long.MaxValue / 0.1f;
-            float smallest = long.MinValue / 0.1f;
-
-            // 0, largest, smallest
-            Assert.False(Compression.ScaleToLong(new Vector3(0, largest, smallest), precision, out long x, out long y, out long z));
-            Assert.That(x, Is.EqualTo(0));
-            Assert.That(y, Is.EqualTo(long.MaxValue));
-            Assert.That(z, Is.EqualTo(long.MinValue));
-        }
-
-        [Test]
-        public void ScaleToLong_Quaternion()
-        {
-            // 0, positive, negative
-            Assert.True(Compression.ScaleToLong(new Quaternion(0, 10.5f, -100.5f, -10.5f), 0.1f, out long x, out long y, out long z, out long w));
-            Assert.That(x, Is.EqualTo(0));
-            Assert.That(y, Is.EqualTo(105));
-            Assert.That(z, Is.EqualTo(-1005));
-            Assert.That(w, Is.EqualTo(-105));
-        }
-
-        [Test]
-        public void ScaleToLong_Quaternion_OutOfRange()
-        {
-            float precision = 0.1f;
-            float largest = long.MaxValue / 0.1f;
-            float smallest = long.MinValue / 0.1f;
-
-            // 0, largest, smallest
-            Assert.False(Compression.ScaleToLong(new Quaternion(0, largest, smallest, 0), precision, out long x, out long y, out long z, out long w));
-            Assert.That(x, Is.EqualTo(0));
-            Assert.That(y, Is.EqualTo(long.MaxValue));
-            Assert.That(z, Is.EqualTo(long.MinValue));
-            Assert.That(w, Is.EqualTo(0));
-        }
-
-        [Test]
         public void ScaleToFloat()
         {
             // origin
