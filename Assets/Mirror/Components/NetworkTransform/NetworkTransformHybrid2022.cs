@@ -220,7 +220,8 @@ namespace Mirror
         void SerializeServerBaseline(NetworkWriter writer, Vector3 position, Quaternion rotation)//, Vector3 scale)
         {
             // always include the tick for deltas to compare against.
-            writer.WriteByte((byte)Time.frameCount);
+            byte frameCount = (byte)Time.frameCount; // perf: only access Time.frameCount once!
+            writer.WriteByte(frameCount);
 
             if (syncPosition)
             {
@@ -247,7 +248,7 @@ namespace Mirror
             // save the last baseline's tick number.
             // included in baseline to identify which one it was on client
             // included in deltas to ensure they are on top of the correct baseline
-            lastSerializedBaselineTick = (byte)Time.frameCount;
+            lastSerializedBaselineTick = frameCount;
             lastServerBaselineTime = NetworkTime.localTime;
 
             // set 'last'
