@@ -281,14 +281,14 @@ namespace Mirror
             }
         }
 
-        void SerializeServerDelta(NetworkWriter writer, byte baselineTick, Vector3? position, Quaternion? rotation, Vector3? scale)
+        void SerializeServerDelta(NetworkWriter writer, byte baselineTick, Vector3 position, Quaternion rotation, Vector3 scale)
         {
             writer.WriteByte(baselineTick);
 
             if (syncPosition)
             {
                 // quantize -> delta -> varint
-                Compression.ScaleToLong(position.Value, positionPrecision, out Vector3Long quantized);
+                Compression.ScaleToLong(position, positionPrecision, out Vector3Long quantized);
                 DeltaCompression.Compress(writer, lastSerializedPosition, quantized);
             }
             if (syncRotation)
@@ -296,22 +296,22 @@ namespace Mirror
                 // quantize -> delta -> varint
                 // this works for quaternions too, where xyzw are [-1,1]
                 // and gradually change as rotation changes.
-                Compression.ScaleToLong(rotation.Value, rotationPrecision, out Vector4Long quantized);
+                Compression.ScaleToLong(rotation, rotationPrecision, out Vector4Long quantized);
                 DeltaCompression.Compress(writer, lastSerializedRotation, quantized);
             }
             if (syncScale)
             {
                 // quantize -> delta -> varint
-                Compression.ScaleToLong(scale.Value, scalePrecision, out Vector3Long quantized);
+                Compression.ScaleToLong(scale, scalePrecision, out Vector3Long quantized);
                 DeltaCompression.Compress(writer, lastSerializedScale, quantized);
             }
         }
 
-        bool DeserializeServerDelta(NetworkReader reader, out byte baselineTick, out Vector3? position, out Quaternion? rotation, out Vector3? scale)
+        bool DeserializeServerDelta(NetworkReader reader, out byte baselineTick, out Vector3 position, out Quaternion rotation, out Vector3 scale)
         {
-            position = null;
-            rotation = null;
-            scale = null;
+            position = default;
+            rotation = default;
+            scale = default;
 
             baselineTick = reader.ReadByte();
 
@@ -320,7 +320,7 @@ namespace Mirror
             // we don't want to put a delta onto an old baseline.
             if (baselineTick != lastDeserializedBaselineTick)
             {
-                Debug.Log($"[{name}] Client discarding unreliable delta for baseline #{baselineTick} because we already received #{lastDeserializedBaselineTick}");
+                // Debug.Log($"[{name}] Client discarding unreliable delta for baseline #{baselineTick} because we already received #{lastDeserializedBaselineTick}");
                 return false;
             }
 
@@ -365,7 +365,12 @@ namespace Mirror
                 writer.Position = 0;
                 {
                     Debug.LogWarning($"[{name}] CmdClientToServerSync: TODO which baseline to pass in Rpc?");
-                    SerializeServerDelta(writer, 0xFF, position, rotation, scale);
+                    SerializeServerDelta(writer,
+                        0xFF,
+                        position.HasValue ? position.Value : default,
+                        rotation.HasValue ? rotation.Value : default,
+                        scale.HasValue ? scale.Value : default
+                    );
                     RpcServerToClientDeltaSync(writer);
                 }
             }
@@ -427,7 +432,7 @@ namespace Mirror
         {
             using (NetworkReaderPooled reader = NetworkReaderPool.Get(message))
             {
-                if (DeserializeServerDelta(reader, out byte baselineTick, out Vector3? position, out Quaternion? rotation, out Vector3? scale))
+                if (DeserializeServerDelta(reader, out byte baselineTick, out Vector3 position, out Quaternion rotation, out Vector3 scale))
                 {
                     OnServerToClientDeltaSync(baselineTick, position, rotation, scale);
                 }
@@ -568,10 +573,10 @@ namespace Mirror
                         // include the last reliable baseline tick#.
                         // the unreliable delta is meant to go on top of it that, and no older one.
                         lastSerializedBaselineTick,
-                        syncPosition ? snapshot.position : default(Vector3?),
-                        syncRotation ? snapshot.rotation : default(Quaternion?),
-                        syncScale ? snapshot.scale : default(Vector3?)
-                        );
+                        snapshot.position,
+                        snapshot.rotation,
+                        snapshot.scale
+                    );
                     RpcServerToClientDeltaSync(writer);
                 }
 
