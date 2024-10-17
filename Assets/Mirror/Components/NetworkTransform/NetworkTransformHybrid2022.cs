@@ -181,26 +181,18 @@ namespace Mirror
         }
 
         // check if position / rotation / scale changed since last _full reliable_ sync.
-        protected virtual bool Changed(TransformSnapshot current) =>
-            // position is quantized and delta compressed.
-            // only consider it changed if the quantized representation is changed.
-            // careful: don't use 'serialized / deserialized last'. as it depends on sync mode etc.
-            QuantizedChanged(last.position, current.position, positionPrecision) ||
-            // rotation isn't quantized / delta compressed.
-            // check with sensitivity.
-            Quaternion.Angle(last.rotation, current.rotation) > rotationPrecision ||
-            // scale is quantized and delta compressed.
-            // only consider it changed if the quantized representation is changed.
-            // careful: don't use 'serialized / deserialized last'. as it depends on sync mode etc.
-            QuantizedChanged(last.scale, current.scale, scalePrecision);
-
-        // helper function to compare quantized representations of a Vector3
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected bool QuantizedChanged(Vector3 u, Vector3 v, float precision)
+        protected virtual bool Changed(TransformSnapshot current)
         {
-            Compression.ScaleToLong(u, precision, out Vector3Long uQuantized);
-            Compression.ScaleToLong(v, precision, out Vector3Long vQuantized);
-            return uQuantized != vQuantized;
+            if (syncPosition && Vector3.Distance(last.position, current.position) >= positionPrecision)
+                return true;
+
+            if (syncRotation && Quaternion.Angle(last.rotation, current.rotation) >= rotationPrecision)
+                return true;
+
+            if (syncScale && Vector3.Distance(last.scale, current.scale) >= scalePrecision)
+                return true;
+
+            return false;
         }
 
         // serialization ///////////////////////////////////////////////////////
