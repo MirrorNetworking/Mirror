@@ -79,13 +79,14 @@ namespace Mirror
         protected Vector3Long lastSerializedScale = Vector3Long.zero;
         protected Vector3Long lastDeserializedScale = Vector3Long.zero;
 
+        // also keep last serialized original values for 'has changed' check
+        Vector3 lastPosition = Vector3.zero;
+        Quaternion lastRotation = Quaternion.identity;
+
         // only sync when changed hack /////////////////////////////////////////
         [Header("Sync Only If Changed")]
         [Tooltip("When true, changes are not sent unless greater than sensitivity values below.")]
         public bool onlySyncOnChange = true;
-
-        // Used to store last sent snapshots
-        protected TransformSnapshot last;
 
         [Header("Compression")]
         [Tooltip("Position is rounded in order to drastically minimize bandwidth.\n\nFor example, a precision of 0.01 rounds to a centimeter. In other words, sub-centimeter movements aren't synced until they eventually exceeded an actual centimeter.\n\nDepending on how important the object is, a precision of 0.01-0.10 (1-10 cm) is recommended.\n\nFor example, even a 1cm precision combined with delta compression cuts the Benchmark demo's bandwidth in half, compared to sending every tiny change.")]
@@ -201,10 +202,10 @@ namespace Mirror
         bool Changed(Vector3 currentPosition, Quaternion currentRotation)//, Vector3 currentScale)
         {
             // if (syncPosition && Vector3.Distance(last.position, current.position) >= positionPrecision)
-            if (syncPosition && (currentPosition - last.position).sqrMagnitude >= positionPrecisionSqr)
+            if (syncPosition && (currentPosition - lastPosition).sqrMagnitude >= positionPrecisionSqr)
                 return true;
 
-            if (syncRotation && Quaternion.Angle(last.rotation, currentRotation) >= rotationPrecision)
+            if (syncRotation && Quaternion.Angle(lastRotation, currentRotation) >= rotationPrecision)
                 return true;
 
             // if (syncScale && Vector3.Distance(last.scale, current.scale) >= scalePrecision)
@@ -252,7 +253,8 @@ namespace Mirror
             lastServerBaselineTime = NetworkTime.localTime;
 
             // set 'last'
-            last = new TransformSnapshot(0, 0, position, rotation, Vector3.zero); // scale);
+            lastPosition = position;
+            lastRotation = rotation;
         }
 
         void DeserializeServerBaseline(NetworkReader reader)
@@ -853,7 +855,8 @@ namespace Mirror
             lastDeserializedScale = Vector3Long.zero;
 
             // reset 'last' for delta too
-            last = new TransformSnapshot(0, 0, Vector3.zero, Quaternion.identity, Vector3.zero);
+            lastPosition = Vector3.zero;
+            lastRotation = Quaternion.identity;
 
             Debug.Log($"[{name}] Reset to baselineTick=0");
         }
