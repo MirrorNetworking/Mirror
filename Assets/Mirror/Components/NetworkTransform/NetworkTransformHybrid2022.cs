@@ -198,13 +198,13 @@ namespace Mirror
         // check if position / rotation / scale changed since last _full reliable_ sync.
         // squared comparisons for performance
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        bool Changed(TransformSnapshot current)
+        bool Changed(Vector3 currentPosition, Quaternion currentRotation)//, Vector3 currentScale)
         {
             // if (syncPosition && Vector3.Distance(last.position, current.position) >= positionPrecision)
-            if (syncPosition && (current.position - last.position).sqrMagnitude >= positionPrecisionSqr)
+            if (syncPosition && (currentPosition - last.position).sqrMagnitude >= positionPrecisionSqr)
                 return true;
 
-            if (syncRotation && Quaternion.Angle(last.rotation, current.rotation) >= rotationPrecision)
+            if (syncRotation && Quaternion.Angle(last.rotation, currentRotation) >= rotationPrecision)
                 return true;
 
             // if (syncScale && Vector3.Distance(last.scale, current.scale) >= scalePrecision)
@@ -498,13 +498,15 @@ namespace Mirror
             // send a reliable baseline every 1 Hz
             if (NetworkTime.localTime >= lastServerBaselineTime + baselineInterval)
             {
-                // only send a new reliable baseline if changed since last time
-                TransformSnapshot snapshot = ConstructSnapshot();
+                // perf: get position/rotation directly. TransformSnapshot is too expensive.
+                // TransformSnapshot snapshot = ConstructSnapshot();
+                target.GetLocalPositionAndRotation(out Vector3 position, out Quaternion rotation);
 
+                // only send a new reliable baseline if changed since last time
                 // check if changed (unless that feature is disabled).
                 // baseline is guaranteed to be delivered over reliable.
                 // here is the only place where we can check for changes.
-                if (!onlySyncOnChange || Changed(snapshot))
+                if (!onlySyncOnChange || Changed(position, rotation)) //snapshot))
                 {
                     // reliable just changed. keep sending deltas until it's unchanged again.
                     baselineDirty = true;
@@ -515,7 +517,7 @@ namespace Mirror
                     // using (NetworkWriterPooled writer = NetworkWriterPool.Get())
                     writer.Position = 0;
                     {
-                        SerializeServerBaseline(writer, snapshot.position, snapshot.rotation);//, snapshot.scale);
+                        SerializeServerBaseline(writer, position, rotation);//, scale);
                         RpcServerToClientBaselineSync(writer);
                     }
                 }
