@@ -54,21 +54,24 @@ namespace Mirror
             }
         }
 
+        // high performance version without exceptions to support inlining.
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static long ScaleToLongFast(float value, float precision) =>
+            (long)(value / precision);
+
         // returns
         //   'true' if scaling was possible within 'long' bounds.
         //   'false' if clamping was necessary.
         //   never throws. checking result is optional.
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool ScaleToLong(Vector3 value, float precision, out long x, out long y, out long z)
+        public static void ScaleToLong(Vector3 value, float precision, out long x, out long y, out long z)
         {
             // attempt to convert every component.
             // do not return early if one conversion returned 'false'.
             // the return value is optional. always attempt to convert all.
-            bool result = true;
-            result &= ScaleToLong(value.x, precision, out x);
-            result &= ScaleToLong(value.y, precision, out y);
-            result &= ScaleToLong(value.z, precision, out z);
-            return result;
+            x = ScaleToLongFast(value.x, precision);
+            y = ScaleToLongFast(value.y, precision);
+            z = ScaleToLongFast(value.z, precision);
         }
 
         // returns
@@ -76,31 +79,29 @@ namespace Mirror
         //   'false' if clamping was necessary.
         //   never throws. checking result is optional.
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool ScaleToLong(Quaternion value, float precision, out long x, out long y, out long z, out long w)
+        public static void ScaleToLong(Quaternion value, float precision, out long x, out long y, out long z, out long w)
         {
             // attempt to convert every component.
             // do not return early if one conversion returned 'false'.
             // the return value is optional. always attempt to convert all.
-            bool result = true;
-            result &= ScaleToLong(value.x, precision, out x);
-            result &= ScaleToLong(value.y, precision, out y);
-            result &= ScaleToLong(value.z, precision, out z);
-            result &= ScaleToLong(value.w, precision, out w);
-            return result;
+            x = ScaleToLongFast(value.x, precision);
+            y = ScaleToLongFast(value.y, precision);
+            z = ScaleToLongFast(value.z, precision);
+            w = ScaleToLongFast(value.w, precision);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool ScaleToLong(Vector3 value, float precision, out Vector3Long quantized)
+        public static void ScaleToLong(Vector3 value, float precision, out Vector3Long quantized)
         {
             quantized = Vector3Long.zero;
-            return ScaleToLong(value, precision, out quantized.x, out quantized.y, out quantized.z);
+            ScaleToLong(value, precision, out quantized.x, out quantized.y, out quantized.z);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool ScaleToLong(Quaternion value, float precision, out Vector4Long quantized)
+        public static void ScaleToLong(Quaternion value, float precision, out Vector4Long quantized)
         {
             quantized = Vector4Long.zero;
-            return ScaleToLong(value, precision, out quantized.x, out quantized.y, out quantized.z, out quantized.w);
+            ScaleToLong(value, precision, out quantized.x, out quantized.y, out quantized.z, out quantized.w);
         }
 
         // multiple by precision.
