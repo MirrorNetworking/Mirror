@@ -177,7 +177,7 @@ namespace Mirror
             //    scale, then we should not touch scale etc.
             if (syncPosition) target.localPosition = interpolated.position;
             if (syncRotation) target.localRotation = interpolated.rotation;
-            if (syncScale)    target.localScale = interpolated.scale;
+            if (syncScale)    target.localScale    = interpolated.scale;
         }
 
         // check if position / rotation / scale changed since last _full reliable_ sync.
