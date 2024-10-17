@@ -120,6 +120,9 @@ namespace Mirror
         float positionPrecisionSqr;
         float scalePrecisionSqr;
 
+        // dedicated writer to avoid Pool.Get calls. NT is in hot path.
+        NetworkWriter writer = new NetworkWriter();
+
         // initialization //////////////////////////////////////////////////////
         // make sure to call this when inheriting too!
         protected virtual void Awake() {}
@@ -357,7 +360,9 @@ namespace Mirror
                 connectionToClient != null && // CUSTOM CHANGE: for the drop thing..
                 !disableSendingThisToClients) // CUSTOM CHANGE: see comment at definition
             {
-                using (NetworkWriterPooled writer = NetworkWriterPool.Get())
+                // reuse cached writer for performance
+                // using (NetworkWriterPooled writer = NetworkWriterPool.Get())
+                writer.Position = 0;
                 {
                     Debug.LogWarning($"[{name}] CmdClientToServerSync: TODO which baseline to pass in Rpc?");
                     SerializeServerDelta(writer, 0xFF, position, rotation, scale);
@@ -497,7 +502,9 @@ namespace Mirror
 
                     // send snapshot without timestamp.
                     // receiver gets it from batch timestamp to save bandwidth.
-                    using (NetworkWriterPooled writer = NetworkWriterPool.Get())
+                    // reuse cached writer for performance
+                    // using (NetworkWriterPooled writer = NetworkWriterPool.Get())
+                    writer.Position = 0;
                     {
                         SerializeServerBaseline(writer, snapshot.position, snapshot.rotation, snapshot.scale);
                         RpcServerToClientBaselineSync(writer);
@@ -552,7 +559,9 @@ namespace Mirror
                 // receiver gets it from batch timestamp to save bandwidth.
                 TransformSnapshot snapshot = ConstructSnapshot();
 
-                using (NetworkWriterPooled writer = NetworkWriterPool.Get())
+                // reuse cached writer for performance
+                // using (NetworkWriterPooled writer = NetworkWriterPool.Get())
+                writer.Position = 0;
                 {
                     SerializeServerDelta(
                         writer,
