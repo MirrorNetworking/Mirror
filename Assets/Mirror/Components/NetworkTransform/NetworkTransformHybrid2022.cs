@@ -429,7 +429,7 @@ namespace Mirror
             using (NetworkReaderPooled reader = NetworkReaderPool.Get(message))
             {
                 DeserializeServerBaseline(reader);
-                Debug.Log($"[{name}] client received baseline #{lastDeserializedBaselineTick}");
+                // Debug.Log($"[{name}] client received baseline #{lastDeserializedBaselineTick}");
             }
         }
 
@@ -460,7 +460,7 @@ namespace Mirror
             // don't apply for local player with authority
             if (IsClientWithAuthority) return;
 
-            Debug.Log($"[{name}] Client: received delta for baseline #{baselineTick}");
+            // Debug.Log($"[{name}] Client: received delta for baseline #{baselineTick}");
 
             // on the client, we receive rpcs for all entities.
             // not all of them have a connectionToServer.
@@ -858,7 +858,7 @@ namespace Mirror
             lastPosition = Vector3.zero;
             lastRotation = Quaternion.identity;
 
-            Debug.Log($"[{name}] Reset to baselineTick=0");
+            // Debug.Log($"[{name}] Reset to baselineTick=0");
         }
 
         protected virtual void OnDisable() => Reset();
@@ -886,7 +886,7 @@ namespace Mirror
             {
                 // save spawn message as baseline
                 DeserializeServerBaseline(reader);
-                Debug.Log($"[{name}] Spawn is used as first baseline #{lastDeserializedBaselineTick}");
+                // Debug.Log($"[{name}] Spawn is used as first baseline #{lastDeserializedBaselineTick}");
             }
         }
         // CUSTOM CHANGE ///////////////////////////////////////////////////////////
