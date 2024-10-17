@@ -21,19 +21,30 @@ namespace Mirror
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Compress(NetworkWriter writer, Vector3Long last, Vector3Long current)
         {
-            Compress(writer, last.x, current.x);
-            Compress(writer, last.y, current.y);
-            Compress(writer, last.z, current.z);
+            // Compress(writer, last.x, current.x);
+            // Compress(writer, last.y, current.y);
+            // Compress(writer, last.z, current.z);
+
+            // unroll for better inlining
+            Compression.CompressVarInt(writer, current.x - last.x);
+            Compression.CompressVarInt(writer, current.y - last.y);
+            Compression.CompressVarInt(writer, current.z - last.z);
         }
 
         // delta (usually small), then zigzag varint to support +- changes
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Compress(NetworkWriter writer, Vector4Long last, Vector4Long current)
         {
-            Compress(writer, last.x, current.x);
-            Compress(writer, last.y, current.y);
-            Compress(writer, last.z, current.z);
-            Compress(writer, last.w, current.w);
+            // Compress(writer, last.x, current.x);
+            // Compress(writer, last.y, current.y);
+            // Compress(writer, last.z, current.z);
+            // Compress(writer, last.w, current.w);
+
+            // unroll for better inlining
+            Compression.CompressVarInt(writer, current.x - last.x);
+            Compression.CompressVarInt(writer, current.y - last.y);
+            Compression.CompressVarInt(writer, current.z - last.z);
+            Compression.CompressVarInt(writer, current.w - last.w);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
