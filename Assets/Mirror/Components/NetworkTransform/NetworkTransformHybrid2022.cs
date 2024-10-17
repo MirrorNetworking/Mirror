@@ -496,10 +496,10 @@ namespace Mirror
 
         // update //////////////////////////////////////////////////////////////
         bool baselineDirty = true;
-        void UpdateServerBaseline()
+        void UpdateServerBaseline(double localTime)
         {
             // send a reliable baseline every 1 Hz
-            if (NetworkTime.localTime >= lastServerBaselineTime + baselineInterval)
+            if (localTime >= lastServerBaselineTime + baselineInterval)
             {
                 // perf: get position/rotation directly. TransformSnapshot is too expensive.
                 // TransformSnapshot snapshot = ConstructSnapshot();
@@ -529,7 +529,7 @@ namespace Mirror
             }
         }
 
-        void UpdateServerDelta()
+        void UpdateServerDelta(double localTime)
         {
             // broadcast to all clients each 'sendInterval'
             // (client with authority will drop the rpc)
@@ -567,7 +567,7 @@ namespace Mirror
             // if baseline is dirty, send unreliables every sendInterval until baseline is not dirty anymore.
             if (onlySyncOnChange && !baselineDirty) return;
 
-            if (NetworkTime.localTime >= lastServerSendTime + sendInterval) // CUSTOM CHANGE: allow custom sendRate + sendInterval again
+            if (localTime >= lastServerSendTime + sendInterval) // CUSTOM CHANGE: allow custom sendRate + sendInterval again
             {
                 // perf: get position/rotation directly. TransformSnapshot is too expensive.
                 // TransformSnapshot snapshot = ConstructSnapshot();
@@ -591,7 +591,7 @@ namespace Mirror
                     RpcServerToClientDeltaSync(writer);
                 }
 
-                lastServerSendTime = NetworkTime.localTime;
+                lastServerSendTime = localTime;
             }
         }
 
@@ -632,8 +632,10 @@ namespace Mirror
             // broadcasting
             if (syncDirection == SyncDirection.ServerToClient || IsClientWithAuthority)
             {
-                UpdateServerBaseline();
-                UpdateServerDelta();
+                // perf: only grab NetworkTime.localTime property once.
+                double localTime = NetworkTime.localTime;
+                UpdateServerBaseline(localTime);
+                UpdateServerDelta(localTime);
             }
 
             // interpolate remote clients
