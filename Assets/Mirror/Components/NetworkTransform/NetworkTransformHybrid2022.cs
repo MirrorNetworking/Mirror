@@ -96,6 +96,10 @@ namespace Mirror
         [Range(0.00_01f, 1f)]                   // disallow 0 division. 1mm to 1m precision is enough range.
         public float scalePrecision = 0.01f; // 1 cm
 
+        // squared values for faster distance checks
+        float positionPrecisionSqr;
+        float scalePrecisionSqr;
+
         // selective sync //////////////////////////////////////////////////////
         [Header("Selective Sync & interpolation")]
         public bool syncPosition = true;
@@ -126,6 +130,10 @@ namespace Mirror
 
             // use sendRate instead of syncInterval for now
             syncInterval = 0;
+
+            // cache squared precisions
+            positionPrecisionSqr = positionPrecision * positionPrecision;
+            scalePrecisionSqr = scalePrecision * scalePrecision;
 
             // obsolete clientAuthority compatibility:
             // if it was used, then set the new SyncDirection automatically.
@@ -181,15 +189,18 @@ namespace Mirror
         }
 
         // check if position / rotation / scale changed since last _full reliable_ sync.
+        // squared comparisons for performance
         protected virtual bool Changed(TransformSnapshot current)
         {
-            if (syncPosition && Vector3.Distance(last.position, current.position) >= positionPrecision)
+            // if (syncPosition && Vector3.Distance(last.position, current.position) >= positionPrecision)
+            if (syncPosition && (current.position - last.position).sqrMagnitude >= positionPrecisionSqr)
                 return true;
 
             if (syncRotation && Quaternion.Angle(last.rotation, current.rotation) >= rotationPrecision)
                 return true;
 
-            if (syncScale && Vector3.Distance(last.scale, current.scale) >= scalePrecision)
+            // if (syncScale && Vector3.Distance(last.scale, current.scale) >= scalePrecision)
+            if (syncScale && (current.scale - last.scale).sqrMagnitude >= scalePrecisionSqr)
                 return true;
 
             return false;
