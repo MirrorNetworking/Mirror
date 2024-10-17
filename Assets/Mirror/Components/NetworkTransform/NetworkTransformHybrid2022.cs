@@ -156,15 +156,18 @@ namespace Mirror
         // => internal for testing
         protected virtual TransformSnapshot ConstructSnapshot()
         {
+            // perf
+            target.GetLocalPositionAndRotation(out Vector3 localPosition, out Quaternion localRotation);
+
             // NetworkTime.localTime for double precision until Unity has it too
             return new TransformSnapshot(
                 // our local time is what the other end uses as remote time
                 Time.timeAsDouble,
                 // the other end fills out local time itself
                 0,
-                target.localPosition,
-                target.localRotation,
-                target.localScale
+                localPosition, // target.localPosition,
+                localRotation, // target.localRotation,
+                Vector3.zero   // target.localScale
             );
         }
 
