@@ -96,10 +96,6 @@ namespace Mirror
         [Range(0.00_01f, 1f)]                   // disallow 0 division. 1mm to 1m precision is enough range.
         public float scalePrecision = 0.01f; // 1 cm
 
-        // squared values for faster distance checks
-        float positionPrecisionSqr;
-        float scalePrecisionSqr;
-
         // selective sync //////////////////////////////////////////////////////
         [Header("Selective Sync & interpolation")]
         public bool syncPosition = true;
@@ -118,6 +114,11 @@ namespace Mirror
         public bool showGizmos;
         public bool  showOverlay;
         public Color overlayColor = new Color(0, 0, 0, 0.5f);
+
+        // caching /////////////////////////////////////////////////////////////
+        // squared values for faster distance checks
+        float positionPrecisionSqr;
+        float scalePrecisionSqr;
 
         // initialization //////////////////////////////////////////////////////
         // make sure to call this when inheriting too!
