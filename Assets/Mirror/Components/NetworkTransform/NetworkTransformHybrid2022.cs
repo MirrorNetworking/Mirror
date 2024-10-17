@@ -569,9 +569,9 @@ namespace Mirror
 
             if (NetworkTime.localTime >= lastServerSendTime + sendInterval) // CUSTOM CHANGE: allow custom sendRate + sendInterval again
             {
-                // send snapshot without timestamp.
-                // receiver gets it from batch timestamp to save bandwidth.
-                TransformSnapshot snapshot = ConstructSnapshot();
+                // perf: get position/rotation directly. TransformSnapshot is too expensive.
+                // TransformSnapshot snapshot = ConstructSnapshot();
+                target.GetLocalPositionAndRotation(out Vector3 position, out Quaternion rotation);
 
                 // reuse cached writer for performance
                 // using (NetworkWriterPooled writer = NetworkWriterPool.Get())
@@ -582,10 +582,12 @@ namespace Mirror
                         // include the last reliable baseline tick#.
                         // the unreliable delta is meant to go on top of it that, and no older one.
                         lastSerializedBaselineTick,
-                        snapshot.position,
-                        snapshot.rotation//,
+                        position,
+                        rotation//,
                         // snapshot.scale
                     );
+                    // send snapshot without timestamp.
+                    // receiver gets it from batch timestamp to save bandwidth.
                     RpcServerToClientDeltaSync(writer);
                 }
 
