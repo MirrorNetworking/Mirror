@@ -197,7 +197,8 @@ namespace Mirror
 
         // check if position / rotation / scale changed since last _full reliable_ sync.
         // squared comparisons for performance
-        protected virtual bool Changed(TransformSnapshot current)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        bool Changed(TransformSnapshot current)
         {
             // if (syncPosition && Vector3.Distance(last.position, current.position) >= positionPrecision)
             if (syncPosition && (current.position - last.position).sqrMagnitude >= positionPrecisionSqr)
