@@ -100,7 +100,7 @@ namespace Mirror
         [Header("Selective Sync & interpolation")]
         public bool syncPosition = true;
         public bool syncRotation = true;
-        public bool syncScale    = false; // rare. off by default.
+        // public bool syncScale    = false; // rarely used. disabled for perf so we can rely on transform.GetPositionAndRotation.
 
         double lastClientSendTime;
         double lastServerSendTime;
@@ -189,7 +189,7 @@ namespace Mirror
             //    scale, then we should not touch scale etc.
             if (syncPosition) target.localPosition = interpolated.position;
             if (syncRotation) target.localRotation = interpolated.rotation;
-            if (syncScale)    target.localScale    = interpolated.scale;
+            // if (syncScale)    target.localScale    = interpolated.scale;
         }
 
         // check if position / rotation / scale changed since last _full reliable_ sync.
@@ -204,8 +204,8 @@ namespace Mirror
                 return true;
 
             // if (syncScale && Vector3.Distance(last.scale, current.scale) >= scalePrecision)
-            if (syncScale && (current.scale - last.scale).sqrMagnitude >= scalePrecisionSqr)
-                return true;
+            // if (syncScale && (current.scale - last.scale).sqrMagnitude >= scalePrecisionSqr)
+            //     return true;
 
             return false;
         }
@@ -213,7 +213,7 @@ namespace Mirror
         // serialization ///////////////////////////////////////////////////////
         // serialize server->client baseline into a NetworkWriter.
         // for use in RpcSync and OnSerialize for spawn message.
-        void SerializeServerBaseline(NetworkWriter writer, Vector3 position, Quaternion rotation, Vector3 scale)
+        void SerializeServerBaseline(NetworkWriter writer, Vector3 position, Quaternion rotation)//, Vector3 scale)
         {
             // always include the tick for deltas to compare against.
             writer.WriteByte((byte)Time.frameCount);
@@ -232,13 +232,13 @@ namespace Mirror
                 // save serialized as 'last' for next delta compression.
                 if (syncRotation) Compression.ScaleToLong(rotation, rotationPrecision, out lastSerializedRotation);
             }
-            if (syncScale)
-            {
-                writer.WriteVector3(target.localScale);
-
-                // save serialized as 'last' for next delta compression.
-                if (syncScale) Compression.ScaleToLong(scale, scalePrecision, out lastSerializedScale);
-            }
+            // if (syncScale)
+            // {
+            //     writer.WriteVector3(target.localScale);
+            //
+            //     // save serialized as 'last' for next delta compression.
+            //     if (syncScale) Compression.ScaleToLong(scale, scalePrecision, out lastSerializedScale);
+            // }
 
             // save the last baseline's tick number.
             // included in baseline to identify which one it was on client
@@ -247,7 +247,7 @@ namespace Mirror
             lastServerBaselineTime = NetworkTime.localTime;
 
             // set 'last'
-            last = new TransformSnapshot(0, 0, position, rotation, scale);
+            last = new TransformSnapshot(0, 0, position, rotation, Vector3.zero); // scale);
         }
 
         void DeserializeServerBaseline(NetworkReader reader)
@@ -271,17 +271,17 @@ namespace Mirror
                 // save deserialized as 'last' for next delta compression.
                 Compression.ScaleToLong(rotation, rotationPrecision, out lastDeserializedRotation);
             }
-            if (syncScale)
-            {
-                Vector3 scale = reader.ReadVector3();
-                target.localScale = scale;
-
-                // save deserialized as 'last' for next delta compression.
-                Compression.ScaleToLong(scale, scalePrecision, out lastDeserializedScale);
-            }
+            // if (syncScale)
+            // {
+            //     Vector3 scale = reader.ReadVector3();
+            //     target.localScale = scale;
+            //
+            //     // save deserialized as 'last' for next delta compression.
+            //     Compression.ScaleToLong(scale, scalePrecision, out lastDeserializedScale);
+            // }
         }
 
-        void SerializeServerDelta(NetworkWriter writer, byte baselineTick, Vector3 position, Quaternion rotation, Vector3 scale)
+        void SerializeServerDelta(NetworkWriter writer, byte baselineTick, Vector3 position, Quaternion rotation)//, Vector3 scale)
         {
             writer.WriteByte(baselineTick);
 
@@ -299,12 +299,12 @@ namespace Mirror
                 Compression.ScaleToLong(rotation, rotationPrecision, out Vector4Long quantized);
                 DeltaCompression.Compress(writer, lastSerializedRotation, quantized);
             }
-            if (syncScale)
-            {
-                // quantize -> delta -> varint
-                Compression.ScaleToLong(scale, scalePrecision, out Vector3Long quantized);
-                DeltaCompression.Compress(writer, lastSerializedScale, quantized);
-            }
+            // if (syncScale)
+            // {
+            //     // quantize -> delta -> varint
+            //     Compression.ScaleToLong(scale, scalePrecision, out Vector3Long quantized);
+            //     DeltaCompression.Compress(writer, lastSerializedScale, quantized);
+            // }
         }
 
         bool DeserializeServerDelta(NetworkReader reader, out byte baselineTick, out Vector3 position, out Quaternion rotation, out Vector3 scale)
@@ -338,12 +338,12 @@ namespace Mirror
                 Vector4Long quantized = DeltaCompression.Decompress(reader, lastDeserializedRotation);
                 rotation = Compression.ScaleToFloat(quantized, rotationPrecision);
             }
-            if (syncScale)
-            {
-                // varint -> delta -> quantize
-                Vector3Long quantized = DeltaCompression.Decompress(reader, lastDeserializedScale);
-                scale = Compression.ScaleToFloat(quantized, scalePrecision);
-            }
+            // if (syncScale)
+            // {
+            //     // varint -> delta -> quantize
+            //     Vector3Long quantized = DeltaCompression.Decompress(reader, lastDeserializedScale);
+            //     scale = Compression.ScaleToFloat(quantized, scalePrecision);
+            // }
 
             return true;
         }
@@ -351,9 +351,9 @@ namespace Mirror
         // cmd /////////////////////////////////////////////////////////////////
         // only unreliable. see comment above of this file.
         [Command(channel = Channels.Unreliable)]
-        void CmdClientToServerSync(Vector3? position, Quaternion? rotation, Vector3? scale)
+        void CmdClientToServerSync(Vector3? position, Quaternion? rotation)//, Vector3? scale)
         {
-            OnClientToServerSync(position, rotation, scale);
+            OnClientToServerSync(position, rotation);//, scale);
             //For client authority, immediately pass on the client snapshot to all other
             //clients instead of waiting for server to send its snapshots.
             if (syncDirection == SyncDirection.ClientToServer &&
@@ -368,8 +368,8 @@ namespace Mirror
                     SerializeServerDelta(writer,
                         0xFF,
                         position.HasValue ? position.Value : default,
-                        rotation.HasValue ? rotation.Value : default,
-                        scale.HasValue ? scale.Value : default
+                        rotation.HasValue ? rotation.Value : default//,
+                        // scale.HasValue ? scale.Value : default
                     );
                     RpcServerToClientDeltaSync(writer);
                 }
@@ -377,7 +377,7 @@ namespace Mirror
         }
 
         // local authority client sends sync message to server for broadcasting
-        protected virtual void OnClientToServerSync(Vector3? position, Quaternion? rotation, Vector3? scale)
+        protected virtual void OnClientToServerSync(Vector3? position, Quaternion? rotation)//, Vector3? scale)
         {
             // only apply if in client authority mode
             if (syncDirection != SyncDirection.ClientToServer) return;
@@ -400,7 +400,7 @@ namespace Mirror
             // replay it for 10 seconds.
             if (!position.HasValue) position = serverSnapshots.Count > 0 ? serverSnapshots.Values[serverSnapshots.Count - 1].position : target.localPosition;
             if (!rotation.HasValue) rotation = serverSnapshots.Count > 0 ? serverSnapshots.Values[serverSnapshots.Count - 1].rotation : target.localRotation;
-            if (!scale.HasValue)    scale    = serverSnapshots.Count > 0 ? serverSnapshots.Values[serverSnapshots.Count - 1].scale    : target.localScale;
+            // if (!scale.HasValue)    scale    = serverSnapshots.Count > 0 ? serverSnapshots.Values[serverSnapshots.Count - 1].scale    : target.localScale;
 
             // insert transform snapshot
             SnapshotInterpolation.InsertIfNotExists(
@@ -411,7 +411,7 @@ namespace Mirror
                 Time.timeAsDouble,
                 position.Value,
                 rotation.Value,
-                scale.Value
+                Vector3.zero // scale
             ));
         }
 
@@ -511,7 +511,7 @@ namespace Mirror
                     // using (NetworkWriterPooled writer = NetworkWriterPool.Get())
                     writer.Position = 0;
                     {
-                        SerializeServerBaseline(writer, snapshot.position, snapshot.rotation, snapshot.scale);
+                        SerializeServerBaseline(writer, snapshot.position, snapshot.rotation);//, snapshot.scale);
                         RpcServerToClientBaselineSync(writer);
                     }
                 }
@@ -574,8 +574,8 @@ namespace Mirror
                         // the unreliable delta is meant to go on top of it that, and no older one.
                         lastSerializedBaselineTick,
                         snapshot.position,
-                        snapshot.rotation,
-                        snapshot.scale
+                        snapshot.rotation//,
+                        // snapshot.scale
                     );
                     RpcServerToClientDeltaSync(writer);
                 }
@@ -666,8 +666,8 @@ namespace Mirror
                     CmdClientToServerSync(
                         // only sync what the user wants to sync
                         syncPosition ? snapshot.position : default(Vector3?),
-                        syncRotation ? snapshot.rotation : default(Quaternion?),
-                        syncScale    ? snapshot.scale    : default(Vector3?)
+                        syncRotation ? snapshot.rotation : default(Quaternion?)//,
+                        // syncScale    ? snapshot.scale    : default(Vector3?)
                     );
 
                     lastClientSendTime = NetworkTime.localTime;
@@ -863,7 +863,7 @@ namespace Mirror
             {
                 // spawn message is used as first baseline.
                 TransformSnapshot snapshot = ConstructSnapshot();
-                SerializeServerBaseline(writer, snapshot.position, snapshot.rotation, snapshot.scale);
+                SerializeServerBaseline(writer, snapshot.position, snapshot.rotation);//, snapshot.scale);
             }
         }
 
