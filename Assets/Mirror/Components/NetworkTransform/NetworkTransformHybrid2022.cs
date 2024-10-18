@@ -494,7 +494,7 @@ namespace Mirror
             ));
         }
 
-        // update //////////////////////////////////////////////////////////////
+        // update server ///////////////////////////////////////////////////////
         bool baselineDirty = true;
         void UpdateServerBaseline(double localTime)
         {
@@ -642,6 +642,70 @@ namespace Mirror
             UpdateServerInterpolation();
         }
 
+        // update client ///////////////////////////////////////////////////////
+        void UpdateClientBroadcast()
+        {
+            // send to server each 'sendInterval'
+            // NetworkTime.localTime for double precision until Unity has it too
+            //
+            // IMPORTANT:
+            // snapshot interpolation requires constant sending.
+            // DO NOT only send if position changed. for example:
+            // ---
+            // * client sends first position at t=0
+            // * ... 10s later ...
+            // * client moves again, sends second position at t=10
+            // ---
+            // * server gets first position at t=0
+            // * server gets second position at t=10
+            // * server moves from first to second within a time of 10s
+            //   => would be a super slow move, instead of a wait & move.
+            //
+            // IMPORTANT:
+            // DO NOT send nulls if not changed 'since last send' either. we
+            // send unreliable and don't know which 'last send' the other end
+            // received successfully.
+            if (NetworkTime.localTime >= lastClientSendTime + sendInterval) // CUSTOM CHANGE: allow custom sendRate + sendInterval again
+            {
+                // send snapshot without timestamp.
+                // receiver gets it from batch timestamp to save bandwidth.
+                TransformSnapshot snapshot = ConstructSnapshot();
+
+                CmdClientToServerSync(
+                    // only sync what the user wants to sync
+                    syncPosition ? snapshot.position : default(Vector3?),
+                    syncRotation ? snapshot.rotation : default(Quaternion?)//,
+                    // syncScale    ? snapshot.scale    : default(Vector3?)
+                );
+
+                lastClientSendTime = NetworkTime.localTime;
+            }
+        }
+
+        void UpdateClientInterpolation()
+        {
+            // only while we have snapshots
+            if (clientSnapshots.Count > 0)
+            {
+                // step the interpolation without touching time.
+                // NetworkClient is responsible for time globally.
+                SnapshotInterpolation.StepInterpolation(
+                    clientSnapshots,
+                    // CUSTOM CHANGE: allow for custom sendRate+sendInterval again.
+                    // for example, if the object is moving @ 1 Hz, always put it back by 1s.
+                    // that's how we still get smooth movement even with a global timeline.
+                    NetworkTime.time - sendInterval, // == NetworkClient.localTimeline from snapshot interpolation
+                    // END CUSTOM CHANGE
+                    out TransformSnapshot from,
+                    out TransformSnapshot to,
+                    out double t);
+
+                // interpolate & apply
+                TransformSnapshot computed = TransformSnapshot.Interpolate(from, to, t);
+                ApplySnapshot(computed);
+            }
+        }
+
         void UpdateClient()
         {
             // client authority, and local player (= allowed to move myself)?
@@ -650,66 +714,13 @@ namespace Mirror
                 // https://github.com/vis2k/Mirror/pull/2992/
                 if (!NetworkClient.ready) return;
 
-                // send to server each 'sendInterval'
-                // NetworkTime.localTime for double precision until Unity has it too
-                //
-                // IMPORTANT:
-                // snapshot interpolation requires constant sending.
-                // DO NOT only send if position changed. for example:
-                // ---
-                // * client sends first position at t=0
-                // * ... 10s later ...
-                // * client moves again, sends second position at t=10
-                // ---
-                // * server gets first position at t=0
-                // * server gets second position at t=10
-                // * server moves from first to second within a time of 10s
-                //   => would be a super slow move, instead of a wait & move.
-                //
-                // IMPORTANT:
-                // DO NOT send nulls if not changed 'since last send' either. we
-                // send unreliable and don't know which 'last send' the other end
-                // received successfully.
-                if (NetworkTime.localTime >= lastClientSendTime + sendInterval) // CUSTOM CHANGE: allow custom sendRate + sendInterval again
-                {
-                    // send snapshot without timestamp.
-                    // receiver gets it from batch timestamp to save bandwidth.
-                    TransformSnapshot snapshot = ConstructSnapshot();
-
-                    CmdClientToServerSync(
-                        // only sync what the user wants to sync
-                        syncPosition ? snapshot.position : default(Vector3?),
-                        syncRotation ? snapshot.rotation : default(Quaternion?)//,
-                        // syncScale    ? snapshot.scale    : default(Vector3?)
-                    );
-
-                    lastClientSendTime = NetworkTime.localTime;
-                }
+                UpdateClientBroadcast();
             }
             // for all other clients (and for local player if !authority),
             // we need to apply snapshots from the buffer
             else
             {
-                // only while we have snapshots
-                if (clientSnapshots.Count > 0)
-                {
-                    // step the interpolation without touching time.
-                    // NetworkClient is responsible for time globally.
-                    SnapshotInterpolation.StepInterpolation(
-                        clientSnapshots,
-                        // CUSTOM CHANGE: allow for custom sendRate+sendInterval again.
-                        // for example, if the object is moving @ 1 Hz, always put it back by 1s.
-                        // that's how we still get smooth movement even with a global timeline.
-                        NetworkTime.time - sendInterval, // == NetworkClient.localTimeline from snapshot interpolation
-                        // END CUSTOM CHANGE
-                        out TransformSnapshot from,
-                        out TransformSnapshot to,
-                        out double t);
-
-                    // interpolate & apply
-                    TransformSnapshot computed = TransformSnapshot.Interpolate(from, to, t);
-                    ApplySnapshot(computed);
-                }
+                UpdateClientInterpolation();
             }
         }
 
