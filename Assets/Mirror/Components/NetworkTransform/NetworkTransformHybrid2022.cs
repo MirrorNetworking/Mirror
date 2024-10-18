@@ -371,14 +371,15 @@ namespace Mirror
                 // using (NetworkWriterPooled writer = NetworkWriterPool.Get())
                 writer.Position = 0;
                 {
+                    // TODO directly forward again later
                     Debug.LogWarning($"[{name}] CmdClientToServerSync: TODO which baseline to pass in Rpc?");
-                    SerializeServerDelta(writer,
-                        0xFF,
-                        position.HasValue ? position.Value : default,
-                        rotation.HasValue ? rotation.Value : default//,
-                        // scale.HasValue ? scale.Value : default
-                    );
-                    RpcServerToClientDeltaSync(writer);
+                    // SerializeServerDelta(writer,
+                    //     0xFF,
+                    //     position.HasValue ? position.Value : default,
+                    //     rotation.HasValue ? rotation.Value : default//,
+                    //     // scale.HasValue ? scale.Value : default
+                    // );
+                    // RpcServerToClientDeltaSync(writer);
                 }
             }
         }
