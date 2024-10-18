@@ -361,7 +361,7 @@ namespace Mirror
             using (NetworkReaderPooled reader = NetworkReaderPool.Get(message))
             {
                 DeserializeBaseline(reader);
-                Debug.Log($"[{name}] server received baseline #{lastDeserializedBaselineTick}");
+                // Debug.Log($"[{name}] server received baseline #{lastDeserializedBaselineTick}");
             }
         }
 
@@ -372,6 +372,7 @@ namespace Mirror
             {
                 if (DeserializeDelta(reader, out byte baselineTick, out Vector3 position, out Quaternion rotation, out Vector3 scale))
                 {
+                    // Debug.Log($"[{name}] server received delta for baseline #{lastDeserializedBaselineTick}");
                     OnClientToServerDeltaSync(baselineTick, position, rotation);//, scale);
 
                     //For client authority, immediately pass on the client snapshot to all other
