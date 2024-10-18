@@ -375,8 +375,8 @@ namespace Mirror
                     // Debug.Log($"[{name}] server received delta for baseline #{lastDeserializedBaselineTick}");
                     OnClientToServerDeltaSync(baselineTick, position, rotation);//, scale);
 
-                    //For client authority, immediately pass on the client snapshot to all other
-                    //clients instead of waiting for server to send its snapshots.
+                    // for client authority, immediately pass on the client snapshot to all other
+                    // clients instead of waiting for server to send its snapshots.
                     if (syncDirection == SyncDirection.ClientToServer &&
                         connectionToClient != null && // CUSTOM CHANGE: for the drop thing..
                         !disableSendingThisToClients) // CUSTOM CHANGE: see comment at definition
