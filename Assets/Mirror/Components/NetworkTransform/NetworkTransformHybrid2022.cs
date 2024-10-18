@@ -287,7 +287,7 @@ namespace Mirror
             // }
         }
 
-        void SerializeServerDelta(NetworkWriter writer, byte baselineTick, Vector3 position, Quaternion rotation)//, Vector3 scale)
+        void SerializeDelta(NetworkWriter writer, byte baselineTick, Vector3 position, Quaternion rotation)//, Vector3 scale)
         {
             writer.WriteByte(baselineTick);
 
@@ -313,7 +313,7 @@ namespace Mirror
             // }
         }
 
-        bool DeserializeServerDelta(NetworkReader reader, out byte baselineTick, out Vector3 position, out Quaternion rotation, out Vector3 scale)
+        bool DeserializeDelta(NetworkReader reader, out byte baselineTick, out Vector3 position, out Quaternion rotation, out Vector3 scale)
         {
             position = default;
             rotation = default;
@@ -355,7 +355,7 @@ namespace Mirror
         }
 
         // cmd /////////////////////////////////////////////////////////////////
-        [Command(channel = Channels.Reliable)]
+        [Command(channel = Channels.Reliable)] // reliable baseline
         void CmdClientToServerBaselineSync(ArraySegment<byte> message)
         {
             using (NetworkReaderPooled reader = NetworkReaderPool.Get(message))
@@ -365,36 +365,42 @@ namespace Mirror
             }
         }
 
-        // only unreliable. see comment above of this file.
-        [Command(channel = Channels.Unreliable)]
-        void CmdClientToServerSync(Vector3? position, Quaternion? rotation)//, Vector3? scale)
+        [Command(channel = Channels.Unreliable)] // unreliable delta
+        void CmdClientToServerDeltaSync(ArraySegment<byte> message)
         {
-            OnClientToServerSync(position, rotation);//, scale);
-            //For client authority, immediately pass on the client snapshot to all other
-            //clients instead of waiting for server to send its snapshots.
-            if (syncDirection == SyncDirection.ClientToServer &&
-                connectionToClient != null && // CUSTOM CHANGE: for the drop thing..
-                !disableSendingThisToClients) // CUSTOM CHANGE: see comment at definition
+            using (NetworkReaderPooled reader = NetworkReaderPool.Get(message))
             {
-                // reuse cached writer for performance
-                // using (NetworkWriterPooled writer = NetworkWriterPool.Get())
-                writer.Position = 0;
+                if (DeserializeDelta(reader, out byte baselineTick, out Vector3 position, out Quaternion rotation, out Vector3 scale))
                 {
-                    // TODO directly forward again later
-                    Debug.LogWarning($"[{name}] CmdClientToServerSync: TODO which baseline to pass in Rpc?");
-                    // SerializeServerDelta(writer,
-                    //     0xFF,
-                    //     position.HasValue ? position.Value : default,
-                    //     rotation.HasValue ? rotation.Value : default//,
-                    //     // scale.HasValue ? scale.Value : default
-                    // );
-                    // RpcServerToClientDeltaSync(writer);
+                    OnClientToServerDeltaSync(baselineTick, position, rotation);//, scale);
+
+                    //For client authority, immediately pass on the client snapshot to all other
+                    //clients instead of waiting for server to send its snapshots.
+                    if (syncDirection == SyncDirection.ClientToServer &&
+                        connectionToClient != null && // CUSTOM CHANGE: for the drop thing..
+                        !disableSendingThisToClients) // CUSTOM CHANGE: see comment at definition
+                    {
+                        // reuse cached writer for performance
+                        // using (NetworkWriterPooled writer = NetworkWriterPool.Get())
+                        writer.Position = 0;
+                        {
+                            // TODO directly forward again later
+                            Debug.LogWarning($"[{name}] CmdClientToServerSync: TODO which baseline to pass in Rpc?");
+                            // SerializeServerDelta(writer,
+                            //     0xFF,
+                            //     position.HasValue ? position.Value : default,
+                            //     rotation.HasValue ? rotation.Value : default//,
+                            //     // scale.HasValue ? scale.Value : default
+                            // );
+                            // RpcServerToClientDeltaSync(writer);
+                        }
+                    }
                 }
             }
         }
 
         // local authority client sends sync message to server for broadcasting
-        protected virtual void OnClientToServerSync(Vector3? position, Quaternion? rotation)//, Vector3? scale)
+        protected virtual void OnClientToServerDeltaSync(byte baselineTick, Vector3? position, Quaternion? rotation)//, Vector3? scale)
         {
             // only apply if in client authority mode
             if (syncDirection != SyncDirection.ClientToServer) return;
@@ -448,7 +454,7 @@ namespace Mirror
         {
             using (NetworkReaderPooled reader = NetworkReaderPool.Get(message))
             {
-                if (DeserializeServerDelta(reader, out byte baselineTick, out Vector3 position, out Quaternion rotation, out Vector3 scale))
+                if (DeserializeDelta(reader, out byte baselineTick, out Vector3 position, out Quaternion rotation, out Vector3 scale))
                 {
                     OnServerToClientDeltaSync(baselineTick, position, rotation, scale);
                 }
@@ -586,7 +592,7 @@ namespace Mirror
                 // using (NetworkWriterPooled writer = NetworkWriterPool.Get())
                 writer.Position = 0;
                 {
-                    SerializeServerDelta(
+                    SerializeDelta(
                         writer,
                         // include the last reliable baseline tick#.
                         // the unreliable delta is meant to go on top of it that, and no older one.
@@ -718,12 +724,23 @@ namespace Mirror
                 // TransformSnapshot snapshot = ConstructSnapshot();
                 target.GetLocalPositionAndRotation(out Vector3 position, out Quaternion rotation);
 
-                CmdClientToServerSync(
-                    // only sync what the user wants to sync
-                    syncPosition ? position : default(Vector3?),
-                    syncRotation ? rotation : default(Quaternion?)//,
-                    // syncScale    ? snapshot.scale    : default(Vector3?)
-                );
+                // reuse cached writer for performance
+                // using (NetworkWriterPooled writer = NetworkWriterPool.Get())
+                writer.Position = 0;
+                {
+                    SerializeDelta(
+                        writer,
+                        // include the last reliable baseline tick#.
+                        // the unreliable delta is meant to go on top of it that, and no older one.
+                        lastSerializedBaselineTick,
+                        position,
+                        rotation//,
+                        // snapshot.scale
+                    );
+                    // send snapshot without timestamp.
+                    // receiver gets it from batch timestamp to save bandwidth.
+                    CmdClientToServerDeltaSync(writer);
+                }
 
                 lastClientSendTime = localTime;
             }
