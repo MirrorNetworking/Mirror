@@ -22,14 +22,25 @@ namespace Mirror.Examples.Tanks
         [Header("Stats")]
         [SyncVar] public int health = 5;
 
+        // naming for easier debugging
+        public override void OnStartClient()
+        {
+            name = $"Player[{netId}|{(isLocalPlayer ? "local" : "remote")}]";
+        }
+
+        public override void OnStartServer()
+        {
+            name = $"Player[{netId}|server]";
+        }
+
         void Update()
         {
             // always update health bar.
             // (SyncVar hook would only update on clients, not on server)
             healthBar.text = new string('-', health);
-            
+
             // take input from focused window only
-            if(!Application.isFocused) return; 
+            if(!Application.isFocused) return;
 
             // movement for local player
             if (isLocalPlayer)
