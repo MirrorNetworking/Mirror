@@ -433,7 +433,7 @@ namespace Mirror
         }
 
         // rpc /////////////////////////////////////////////////////////////////
-        [ClientRpc(channel = Channels.Reliable)]
+        [ClientRpc(channel = Channels.Reliable)] // reliable baseline
         void RpcServerToClientBaselineSync(ArraySegment<byte> message)
         {
             using (NetworkReaderPooled reader = NetworkReaderPool.Get(message))
@@ -443,8 +443,7 @@ namespace Mirror
             }
         }
 
-        // only unreliable. see comment above of this file.
-        [ClientRpc(channel = Channels.Unreliable)]
+        [ClientRpc(channel = Channels.Unreliable)] // unreliable delta
         void RpcServerToClientDeltaSync(ArraySegment<byte> message)
         {
             using (NetworkReaderPooled reader = NetworkReaderPool.Get(message))
