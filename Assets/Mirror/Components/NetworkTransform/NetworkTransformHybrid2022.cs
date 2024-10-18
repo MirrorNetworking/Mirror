@@ -375,8 +375,10 @@ namespace Mirror
                     // Debug.Log($"[{name}] server received delta for baseline #{lastDeserializedBaselineTick}");
                     OnClientToServerDeltaSync(baselineTick, position, rotation);//, scale);
 
+                    // DISABLED: this is too much of a security risk: a client could make the server spam all other clients!
                     // for client authority, immediately pass on the client snapshot to all other
                     // clients instead of waiting for server to send its snapshots.
+                    /*
                     if (syncDirection == SyncDirection.ClientToServer &&
                         connectionToClient != null && // CUSTOM CHANGE: for the drop thing..
                         !disableSendingThisToClients) // CUSTOM CHANGE: see comment at definition
@@ -385,17 +387,17 @@ namespace Mirror
                         // using (NetworkWriterPooled writer = NetworkWriterPool.Get())
                         writer.Position = 0;
                         {
-                            // TODO directly forward again later
-                            Debug.LogWarning($"[{name}] CmdClientToServerSync: TODO which baseline to pass in Rpc?");
-                            // SerializeServerDelta(writer,
-                            //     0xFF,
-                            //     position.HasValue ? position.Value : default,
-                            //     rotation.HasValue ? rotation.Value : default//,
-                            //     // scale.HasValue ? scale.Value : default
-                            // );
-                            // RpcServerToClientDeltaSync(writer);
+                            SerializeDelta(
+                                writer,
+                                ? // need to use the server's last baseline tick# here
+                                position,
+                                rotation//,
+                                // scale
+                            );
+                            RpcServerToClientDeltaSync(writer);
                         }
                     }
+                    */
                 }
             }
         }
