@@ -233,7 +233,7 @@ namespace Mirror
             }
             if (syncRotation)
             {
-                writer.WriteQuaternion(target.localRotation);
+                writer.WriteQuaternion(rotation);
 
                 // save serialized as 'last' for next delta compression.
                 if (syncRotation) Compression.ScaleToLong(rotation, rotationPrecision, out lastSerializedRotation);
