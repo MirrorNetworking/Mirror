@@ -61,8 +61,7 @@ namespace Mirror
         [Tooltip("Ocassionally send a full reliable state to delta compress against. This only applies to Components with SyncMethod=Unreliable.")]
         public int baselineRate = 1;
         public float baselineInterval => baselineRate < int.MaxValue ? 1f / baselineRate : 0; // for 1 Hz, that's 1000ms
-        double lastServerBaselineTime;
-        double lastClientUnreliableTime;
+        double lastBaselineTime;
 
         // delta compression needs to remember 'last' to compress against.
         // this is from reliable full state serializations, not from last
@@ -250,7 +249,7 @@ namespace Mirror
             // included in baseline to identify which one it was on client
             // included in deltas to ensure they are on top of the correct baseline
             lastSerializedBaselineTick = frameCount;
-            lastServerBaselineTime = NetworkTime.localTime;
+            lastBaselineTime = NetworkTime.localTime;
 
             // set 'last'
             lastPosition = position;
@@ -500,7 +499,7 @@ namespace Mirror
         void UpdateServerBaseline(double localTime)
         {
             // send a reliable baseline every 1 Hz
-            if (localTime >= lastServerBaselineTime + baselineInterval)
+            if (localTime >= lastBaselineTime + baselineInterval)
             {
                 // perf: get position/rotation directly. TransformSnapshot is too expensive.
                 // TransformSnapshot snapshot = ConstructSnapshot();
