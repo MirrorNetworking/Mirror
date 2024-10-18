@@ -688,11 +688,11 @@ namespace Mirror
 
         void UpdateClientDelta(double localTime)
         {
-            // TODO
-        }
+            // only sync on change:
+            // unreliable isn't guaranteed to be delivered so this depends on reliable baseline.
+            // if baseline is dirty, send unreliables every sendInterval until baseline is not dirty anymore.
+            if (onlySyncOnChange && !baselineDirty) return;
 
-        void UpdateClientBroadcast(double localTime)
-        {
             // send to server each 'sendInterval'
             // NetworkTime.localTime for double precision until Unity has it too
             //
@@ -715,14 +715,14 @@ namespace Mirror
             // received successfully.
             if (localTime >= lastClientSendTime + sendInterval) // CUSTOM CHANGE: allow custom sendRate + sendInterval again
             {
-                // send snapshot without timestamp.
-                // receiver gets it from batch timestamp to save bandwidth.
-                TransformSnapshot snapshot = ConstructSnapshot();
+                // perf: get position/rotation directly. TransformSnapshot is too expensive.
+                // TransformSnapshot snapshot = ConstructSnapshot();
+                target.GetLocalPositionAndRotation(out Vector3 position, out Quaternion rotation);
 
                 CmdClientToServerSync(
                     // only sync what the user wants to sync
-                    syncPosition ? snapshot.position : default(Vector3?),
-                    syncRotation ? snapshot.rotation : default(Quaternion?)//,
+                    syncPosition ? position : default(Vector3?),
+                    syncRotation ? rotation : default(Quaternion?)//,
                     // syncScale    ? snapshot.scale    : default(Vector3?)
                 );
 
@@ -766,7 +766,7 @@ namespace Mirror
                 double localTime = NetworkTime.localTime;
 
                 UpdateClientBaseline(localTime);
-                UpdateClientBroadcast(localTime);
+                UpdateClientDelta(localTime);
             }
             // for all other clients (and for local player if !authority),
             // we need to apply snapshots from the buffer
