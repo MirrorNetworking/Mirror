@@ -256,7 +256,7 @@ namespace Mirror
             lastRotation = rotation;
         }
 
-        void DeserializeServerBaseline(NetworkReader reader)
+        void DeserializeBaseline(NetworkReader reader)
         {
             // save last deserialized baseline tick number to compare deltas against
             lastDeserializedBaselineTick = reader.ReadByte();
@@ -360,8 +360,8 @@ namespace Mirror
         {
             using (NetworkReaderPooled reader = NetworkReaderPool.Get(message))
             {
-                // DeserializeServerBaseline(reader);
-                Debug.Log($"[{name}] server received baseline");
+                DeserializeBaseline(reader);
+                Debug.Log($"[{name}] server received baseline #{lastDeserializedBaselineTick}");
             }
         }
 
@@ -438,7 +438,7 @@ namespace Mirror
         {
             using (NetworkReaderPooled reader = NetworkReaderPool.Get(message))
             {
-                DeserializeServerBaseline(reader);
+                DeserializeBaseline(reader);
                 // Debug.Log($"[{name}] client received baseline #{lastDeserializedBaselineTick}");
             }
         }
@@ -952,7 +952,7 @@ namespace Mirror
             if (initialState)
             {
                 // save spawn message as baseline
-                DeserializeServerBaseline(reader);
+                DeserializeBaseline(reader);
                 // Debug.Log($"[{name}] Spawn is used as first baseline #{lastDeserializedBaselineTick}");
             }
         }
