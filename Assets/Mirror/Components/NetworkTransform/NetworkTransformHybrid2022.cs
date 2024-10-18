@@ -644,7 +644,7 @@ namespace Mirror
         }
 
         // update client ///////////////////////////////////////////////////////
-        void UpdateClientBroadcast()
+        void UpdateClientBroadcast(double localTime)
         {
             // send to server each 'sendInterval'
             // NetworkTime.localTime for double precision until Unity has it too
@@ -666,7 +666,7 @@ namespace Mirror
             // DO NOT send nulls if not changed 'since last send' either. we
             // send unreliable and don't know which 'last send' the other end
             // received successfully.
-            if (NetworkTime.localTime >= lastClientSendTime + sendInterval) // CUSTOM CHANGE: allow custom sendRate + sendInterval again
+            if (localTime >= lastClientSendTime + sendInterval) // CUSTOM CHANGE: allow custom sendRate + sendInterval again
             {
                 // send snapshot without timestamp.
                 // receiver gets it from batch timestamp to save bandwidth.
@@ -679,7 +679,7 @@ namespace Mirror
                     // syncScale    ? snapshot.scale    : default(Vector3?)
                 );
 
-                lastClientSendTime = NetworkTime.localTime;
+                lastClientSendTime = localTime;
             }
         }
 
@@ -715,7 +715,10 @@ namespace Mirror
                 // https://github.com/vis2k/Mirror/pull/2992/
                 if (!NetworkClient.ready) return;
 
-                UpdateClientBroadcast();
+                // perf: only grab NetworkTime.localTime property once.
+                double localTime = NetworkTime.localTime;
+
+                UpdateClientBroadcast(localTime);
             }
             // for all other clients (and for local player if !authority),
             // we need to apply snapshots from the buffer
