@@ -445,16 +445,24 @@ namespace Mirror
         [ClientRpc(channel = Channels.Reliable)] // reliable baseline
         void RpcServerToClientBaselineSync(ArraySegment<byte> message)
         {
+            // baseline is broadcast to all clients.
+            // ignore if this object is owned by this client.
+            if (IsClientWithAuthority) return;
+
             using (NetworkReaderPooled reader = NetworkReaderPool.Get(message))
             {
                 DeserializeBaseline(reader);
-                // Debug.Log($"[{name}] client received baseline #{lastDeserializedBaselineTick}");
+                Debug.Log($"[{name}] client received baseline #{lastDeserializedBaselineTick} for {name}");
             }
         }
 
         [ClientRpc(channel = Channels.Unreliable)] // unreliable delta
         void RpcServerToClientDeltaSync(ArraySegment<byte> message)
         {
+            // delta is broadcast to all clients.
+            // ignore if this object is owned by this client.
+            if (IsClientWithAuthority) return;
+
             using (NetworkReaderPooled reader = NetworkReaderPool.Get(message))
             {
                 if (DeserializeDelta(reader, out byte baselineTick, out Vector3 position, out Quaternion rotation, out Vector3 scale))
@@ -519,6 +527,8 @@ namespace Mirror
             // send a reliable baseline every 1 Hz
             if (localTime >= lastBaselineTime + baselineInterval)
             {
+                Debug.Log($"UpdateServerBaseline for {name}");
+
                 // perf: get position/rotation directly. TransformSnapshot is too expensive.
                 // TransformSnapshot snapshot = ConstructSnapshot();
                 target.GetLocalPositionAndRotation(out Vector3 position, out Quaternion rotation);
@@ -647,14 +657,13 @@ namespace Mirror
 
         void UpdateServer()
         {
-            // broadcasting
-            if (syncDirection == SyncDirection.ServerToClient || IsClientWithAuthority)
-            {
-                // perf: only grab NetworkTime.localTime property once.
-                double localTime = NetworkTime.localTime;
-                UpdateServerBaseline(localTime);
-                UpdateServerDelta(localTime);
-            }
+            // server broadcasts all objects all the time.
+            // -> not just ServerToClient: ClientToServer need to be broadcast to others too
+
+            // perf: only grab NetworkTime.localTime property once.
+            double localTime = NetworkTime.localTime;
+            UpdateServerBaseline(localTime);
+            UpdateServerDelta(localTime);
 
             // interpolate remote clients
             UpdateServerInterpolation();
