@@ -217,7 +217,7 @@ namespace Mirror
         // serialization ///////////////////////////////////////////////////////
         // serialize server->client baseline into a NetworkWriter.
         // for use in RpcSync and OnSerialize for spawn message.
-        void SerializeServerBaseline(NetworkWriter writer, Vector3 position, Quaternion rotation)//, Vector3 scale)
+        void SerializeBaseline(NetworkWriter writer, Vector3 position, Quaternion rotation)//, Vector3 scale)
         {
             // always include the tick for deltas to compare against.
             byte frameCount = (byte)Time.frameCount; // perf: only access Time.frameCount once!
@@ -355,6 +355,16 @@ namespace Mirror
         }
 
         // cmd /////////////////////////////////////////////////////////////////
+        [Command(channel = Channels.Reliable)]
+        void CmdClientToServerBaselineSync(ArraySegment<byte> message)
+        {
+            using (NetworkReaderPooled reader = NetworkReaderPool.Get(message))
+            {
+                // DeserializeServerBaseline(reader);
+                Debug.Log($"[{name}] server received baseline");
+            }
+        }
+
         // only unreliable. see comment above of this file.
         [Command(channel = Channels.Unreliable)]
         void CmdClientToServerSync(Vector3? position, Quaternion? rotation)//, Vector3? scale)
@@ -520,7 +530,7 @@ namespace Mirror
                     // using (NetworkWriterPooled writer = NetworkWriterPool.Get())
                     writer.Position = 0;
                     {
-                        SerializeServerBaseline(writer, position, rotation);//, scale);
+                        SerializeBaseline(writer, position, rotation);//, scale);
                         RpcServerToClientBaselineSync(writer);
                     }
                 }
@@ -643,6 +653,44 @@ namespace Mirror
         }
 
         // update client ///////////////////////////////////////////////////////
+        void UpdateClientBaseline(double localTime)
+        {
+            // send a reliable baseline every 1 Hz
+            if (localTime >= lastBaselineTime + baselineInterval)
+            {
+                // perf: get position/rotation directly. TransformSnapshot is too expensive.
+                // TransformSnapshot snapshot = ConstructSnapshot();
+                target.GetLocalPositionAndRotation(out Vector3 position, out Quaternion rotation);
+
+                // only send a new reliable baseline if changed since last time
+                // check if changed (unless that feature is disabled).
+                // baseline is guaranteed to be delivered over reliable.
+                // here is the only place where we can check for changes.
+                if (!onlySyncOnChange || Changed(position, rotation)) //snapshot))
+                {
+                    // reliable just changed. keep sending deltas until it's unchanged again.
+                    baselineDirty = true;
+
+                    // send snapshot without timestamp.
+                    // receiver gets it from batch timestamp to save bandwidth.
+                    // reuse cached writer for performance
+                    // using (NetworkWriterPooled writer = NetworkWriterPool.Get())
+                    writer.Position = 0;
+                    {
+                        SerializeBaseline(writer, position, rotation);//, scale);
+                        CmdClientToServerBaselineSync(writer);
+                    }
+                }
+                // indicate that we should stop sending deltas now
+                else baselineDirty = false;
+            }
+        }
+
+        void UpdateClientDelta(double localTime)
+        {
+            // TODO
+        }
+
         void UpdateClientBroadcast(double localTime)
         {
             // send to server each 'sendInterval'
@@ -717,6 +765,7 @@ namespace Mirror
                 // perf: only grab NetworkTime.localTime property once.
                 double localTime = NetworkTime.localTime;
 
+                UpdateClientBaseline(localTime);
                 UpdateClientBroadcast(localTime);
             }
             // for all other clients (and for local player if !authority),
@@ -891,7 +940,7 @@ namespace Mirror
             {
                 // spawn message is used as first baseline.
                 TransformSnapshot snapshot = ConstructSnapshot();
-                SerializeServerBaseline(writer, snapshot.position, snapshot.rotation);//, snapshot.scale);
+                SerializeBaseline(writer, snapshot.position, snapshot.rotation);//, snapshot.scale);
             }
         }
 
