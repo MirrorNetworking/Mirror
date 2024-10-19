@@ -524,7 +524,7 @@ namespace Mirror
             // send a reliable baseline every 1 Hz
             if (localTime >= lastBaselineTime + baselineInterval)
             {
-                Debug.Log($"UpdateServerBaseline for {name}");
+                // Debug.Log($"UpdateServerBaseline for {name}");
 
                 // perf: get position/rotation directly. TransformSnapshot is too expensive.
                 // TransformSnapshot snapshot = ConstructSnapshot();
