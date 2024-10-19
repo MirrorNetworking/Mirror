@@ -110,6 +110,7 @@ namespace Mirror
         // public bool syncScale    = false; // rarely used. disabled for perf so we can rely on transform.GetPositionAndRotation.
 
         // BEGIN CUSTOM CHANGE /////////////////////////////////////////////////
+        // TODO rename to avoid double negative
         public bool disableSendingThisToClients = false;
         // END CUSTOM CHANGE ///////////////////////////////////////////////////
 
@@ -688,8 +689,7 @@ namespace Mirror
             double localTime = NetworkTime.localTime;
 
             // should we broadcast at all?
-            if (connectionToClient != null && // CUSTOM CHANGE: drop things magic
-                !disableSendingThisToClients) // CUSTOM CHANGE: see comment at definition
+            if (!disableSendingThisToClients) // CUSTOM CHANGE: see comment at definition
             {
                 UpdateServerBaseline(localTime);
                 UpdateServerDelta(localTime);
