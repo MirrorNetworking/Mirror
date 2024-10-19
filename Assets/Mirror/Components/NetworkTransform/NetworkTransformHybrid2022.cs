@@ -70,14 +70,14 @@ namespace Mirror
         byte lastSerializedBaselineTick = 0;
         byte lastDeserializedBaselineTick = 0;
 
-        protected Vector3Long lastSerializedPosition = Vector3Long.zero;
-        protected Vector3Long lastDeserializedPosition = Vector3Long.zero;
-
-        protected Vector4Long lastSerializedRotation = Vector4Long.zero;
-        protected Vector4Long lastDeserializedRotation = Vector4Long.zero;
-
-        protected Vector3Long lastSerializedScale = Vector3Long.zero;
-        protected Vector3Long lastDeserializedScale = Vector3Long.zero;
+        // protected Vector3Long lastSerializedPosition = Vector3Long.zero;
+        // protected Vector3Long lastDeserializedPosition = Vector3Long.zero;
+        //
+        // protected Vector4Long lastSerializedRotation = Vector4Long.zero;
+        // protected Vector4Long lastDeserializedRotation = Vector4Long.zero;
+        //
+        // protected Vector3Long lastSerializedScale = Vector3Long.zero;
+        // protected Vector3Long lastDeserializedScale = Vector3Long.zero;
 
         // also keep last serialized original values for 'has changed' check
         Vector3 lastPosition = Vector3.zero;
@@ -246,14 +246,14 @@ namespace Mirror
                 writer.WriteVector3(position);
 
                 // save serialized as 'last' for next delta compression.
-                Compression.ScaleToLong(position, positionPrecision, out lastSerializedPosition);
+                // Compression.ScaleToLong(position, positionPrecision, out lastSerializedPosition);
             }
             if (syncRotation)
             {
                 writer.WriteQuaternion(rotation);
 
                 // save serialized as 'last' for next delta compression.
-                Compression.ScaleToLong(rotation, rotationPrecision, out lastSerializedRotation);
+                // Compression.ScaleToLong(rotation, rotationPrecision, out lastSerializedRotation);
             }
             // if (syncScale)
             // {
@@ -285,13 +285,13 @@ namespace Mirror
             {
                 position = reader.ReadVector3();
                 // save deserialized as 'last' for next delta compression.
-                Compression.ScaleToLong(position, positionPrecision, out lastDeserializedPosition);
+                // Compression.ScaleToLong(position, positionPrecision, out lastDeserializedPosition);
             }
             if (syncRotation)
             {
                 rotation = reader.ReadQuaternion();
                 // save deserialized as 'last' for next delta compression.
-                Compression.ScaleToLong(rotation, rotationPrecision, out lastDeserializedRotation);
+                // Compression.ScaleToLong(rotation, rotationPrecision, out lastDeserializedRotation);
             }
             // if (syncScale)
             // {
@@ -307,17 +307,21 @@ namespace Mirror
 
             if (syncPosition)
             {
+                writer.WriteVector3(position);
+
                 // quantize -> delta -> varint
-                Compression.ScaleToLong(position, positionPrecision, out Vector3Long quantized);
-                DeltaCompression.Compress(writer, lastSerializedPosition, quantized);
+                // Compression.ScaleToLong(position, positionPrecision, out Vector3Long quantized);
+                // DeltaCompression.Compress(writer, lastSerializedPosition, quantized);
             }
             if (syncRotation)
             {
+                writer.WriteQuaternion(rotation);
+
                 // quantize -> delta -> varint
                 // this works for quaternions too, where xyzw are [-1,1]
                 // and gradually change as rotation changes.
-                Compression.ScaleToLong(rotation, rotationPrecision, out Vector4Long quantized);
-                DeltaCompression.Compress(writer, lastSerializedRotation, quantized);
+                // Compression.ScaleToLong(rotation, rotationPrecision, out Vector4Long quantized);
+                // DeltaCompression.Compress(writer, lastSerializedRotation, quantized);
             }
             // if (syncScale)
             // {
@@ -346,17 +350,21 @@ namespace Mirror
 
             if (syncPosition)
             {
+                position = reader.ReadVector3();
+
                 // varint -> delta -> quantize
-                Vector3Long quantized = DeltaCompression.Decompress(reader, lastDeserializedPosition);
-                position = Compression.ScaleToFloat(quantized, positionPrecision);
+                // Vector3Long quantized = DeltaCompression.Decompress(reader, lastDeserializedPosition);
+                // position = Compression.ScaleToFloat(quantized, positionPrecision);
             }
             if (syncRotation)
             {
+                rotation = reader.ReadQuaternion();
+
                 // varint -> delta -> quantize
                 // this works for quaternions too, where xyzw are [-1,1]
                 // and gradually change as rotation changes.
-                Vector4Long quantized = DeltaCompression.Decompress(reader, lastDeserializedRotation);
-                rotation = Compression.ScaleToFloat(quantized, rotationPrecision);
+                // Vector4Long quantized = DeltaCompression.Decompress(reader, lastDeserializedRotation);
+                // rotation = Compression.ScaleToFloat(quantized, rotationPrecision);
             }
             // if (syncScale)
             // {
@@ -999,14 +1007,14 @@ namespace Mirror
             lastSerializedBaselineTick = 0;
             lastDeserializedBaselineTick = 0;
 
-            lastSerializedPosition = Vector3Long.zero;
-            lastDeserializedPosition = Vector3Long.zero;
-
-            lastSerializedRotation = Vector4Long.zero;
-            lastDeserializedRotation = Vector4Long.zero;
-
-            lastSerializedScale = Vector3Long.zero;
-            lastDeserializedScale = Vector3Long.zero;
+            // lastSerializedPosition = Vector3Long.zero;
+            // lastDeserializedPosition = Vector3Long.zero;
+            //
+            // lastSerializedRotation = Vector4Long.zero;
+            // lastDeserializedRotation = Vector4Long.zero;
+            //
+            // lastSerializedScale = Vector3Long.zero;
+            // lastDeserializedScale = Vector3Long.zero;
 
             // reset 'last' for delta too
             lastPosition = Vector3.zero;
