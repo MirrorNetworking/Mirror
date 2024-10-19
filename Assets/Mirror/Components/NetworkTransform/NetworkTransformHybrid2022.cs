@@ -100,6 +100,9 @@ namespace Mirror
         [Tooltip("Enable to send all unreliable messages twice. Only useful for extremely fast paced games since it doubles bandwidth costs.")]
         public bool unreliableRedundancy = false;
 
+        [Tooltip("When sending a reliable baseline, should we also send an unreliable delta or rely on the reliable baseline to arrive in a similar time?")]
+        public bool baselineIsDelta = true;
+
         // selective sync //////////////////////////////////////////////////////
         [Header("Selective Sync & interpolation")]
         public bool syncPosition = true;
@@ -257,20 +260,22 @@ namespace Mirror
             lastRotation = rotation;
         }
 
-        void DeserializeBaseline(NetworkReader reader)
+        void DeserializeBaseline(NetworkReader reader, out byte baselineTick, out Vector3 position, out Quaternion rotation)
         {
             // save last deserialized baseline tick number to compare deltas against
-            lastDeserializedBaselineTick = reader.ReadByte();
+            lastDeserializedBaselineTick = baselineTick = reader.ReadByte();
+            position = default;
+            rotation = default;
 
             if (syncPosition)
             {
-                Vector3 position = reader.ReadVector3();
+                position = reader.ReadVector3();
                 // save deserialized as 'last' for next delta compression.
                 Compression.ScaleToLong(position, positionPrecision, out lastDeserializedPosition);
             }
             if (syncRotation)
             {
-                Quaternion rotation = reader.ReadQuaternion();
+                rotation = reader.ReadQuaternion();
                 // save deserialized as 'last' for next delta compression.
                 Compression.ScaleToLong(rotation, rotationPrecision, out lastDeserializedRotation);
             }
@@ -355,8 +360,12 @@ namespace Mirror
         {
             using (NetworkReaderPooled reader = NetworkReaderPool.Get(message))
             {
-                DeserializeBaseline(reader);
+                DeserializeBaseline(reader, out byte baselineTick, out Vector3 position, out Quaternion rotation);
                 // Debug.Log($"[{name}] server received baseline #{lastDeserializedBaselineTick}");
+
+                // if baseline counts as delta, insert it into snapshot buffer too
+                if (baselineIsDelta)
+                    OnClientToServerDeltaSync(baselineTick, position, rotation);//, scale);
             }
         }
 
@@ -446,8 +455,12 @@ namespace Mirror
 
             using (NetworkReaderPooled reader = NetworkReaderPool.Get(message))
             {
-                DeserializeBaseline(reader);
+                DeserializeBaseline(reader, out byte baselineTick, out Vector3 position, out Quaternion rotation);
                 // Debug.Log($"[{name}] client received baseline #{lastDeserializedBaselineTick} for {name}");
+
+                // if baseline counts as delta, insert it into snapshot buffer too
+                if (baselineIsDelta)
+                    OnServerToClientDeltaSync(baselineTick, position, rotation, Vector3.zero);//, scale);
             }
         }
 
@@ -549,6 +562,17 @@ namespace Mirror
                 }
                 // indicate that we should stop sending deltas now
                 else baselineDirty = false;
+
+                // perf. & bandwidth optimization:
+                // send a delta right after baseline to avoid potential head of
+                // line blocking, or skip the delta whenever we sent reliable?
+                // for example:
+                //    1 Hz baseline
+                //   10 Hz delta
+                //   => 11 Hz total if we still send delta after reliable
+                //   => 10 Hz total if we skip delta after reliable
+                // in that case, skip next delta by simply resetting last delta sync's time.
+                if (baselineIsDelta) lastDeltaTime = localTime;
             }
         }
 
@@ -706,6 +730,17 @@ namespace Mirror
                 }
                 // indicate that we should stop sending deltas now
                 else baselineDirty = false;
+
+                // perf. & bandwidth optimization:
+                // send a delta right after baseline to avoid potential head of
+                // line blocking, or skip the delta whenever we sent reliable?
+                // for example:
+                //    1 Hz baseline
+                //   10 Hz delta
+                //   => 11 Hz total if we still send delta after reliable
+                //   => 10 Hz total if we skip delta after reliable
+                // in that case, skip next delta by simply resetting last delta sync's time.
+                if (baselineIsDelta) lastDeltaTime = localTime;
             }
         }
 
@@ -991,8 +1026,12 @@ namespace Mirror
             if (initialState)
             {
                 // save spawn message as baseline
-                DeserializeBaseline(reader);
+                DeserializeBaseline(reader, out byte baselineTick, out Vector3 position, out Quaternion rotation);
                 // Debug.Log($"[{name}] Spawn is used as first baseline #{lastDeserializedBaselineTick}");
+
+                // if baseline counts as delta, insert it into snapshot buffer too
+                if (baselineIsDelta)
+                    OnServerToClientDeltaSync(baselineTick, position, rotation, Vector3.zero);//, scale);
             }
         }
         // CUSTOM CHANGE ///////////////////////////////////////////////////////////
