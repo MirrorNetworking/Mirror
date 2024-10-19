@@ -96,6 +96,9 @@ namespace Mirror
         [Range(0.00_01f, 1f)]                   // disallow 0 division. 1mm to 1m precision is enough range.
         public float scalePrecision = 0.01f; // 1 cm
 
+        [Tooltip("Enable to send all unreliable messages twice. Only useful for extremely fast paced games since it doubles bandwidth costs.")]
+        public bool unreliableRedundancy = false;
+
         // selective sync //////////////////////////////////////////////////////
         [Header("Selective Sync & interpolation")]
         public bool syncPosition = true;
@@ -608,9 +611,14 @@ namespace Mirror
                         rotation//,
                         // snapshot.scale
                     );
+
                     // send snapshot without timestamp.
                     // receiver gets it from batch timestamp to save bandwidth.
                     RpcServerToClientDeltaSync(writer);
+
+                    // unreliable redundancy to make up for potential message drops
+                    if (unreliableRedundancy)
+                        RpcServerToClientDeltaSync(writer);
                 }
 
                 lastServerSendTime = localTime;
@@ -743,9 +751,14 @@ namespace Mirror
                         rotation//,
                         // snapshot.scale
                     );
+
                     // send snapshot without timestamp.
                     // receiver gets it from batch timestamp to save bandwidth.
                     CmdClientToServerDeltaSync(writer);
+
+                    // unreliable redundancy to make up for potential message drops
+                    if (unreliableRedundancy)
+                        CmdClientToServerDeltaSync(writer);
                 }
 
                 lastClientSendTime = localTime;
