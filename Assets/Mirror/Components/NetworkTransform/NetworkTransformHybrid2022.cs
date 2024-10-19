@@ -449,7 +449,7 @@ namespace Mirror
             using (NetworkReaderPooled reader = NetworkReaderPool.Get(message))
             {
                 DeserializeBaseline(reader);
-                Debug.Log($"[{name}] client received baseline #{lastDeserializedBaselineTick} for {name}");
+                // Debug.Log($"[{name}] client received baseline #{lastDeserializedBaselineTick} for {name}");
             }
         }
 
