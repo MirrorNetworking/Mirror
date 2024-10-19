@@ -93,8 +93,8 @@ namespace Mirror
         public float positionPrecision = 0.01f; // 1 cm
         [Range(0.00_01f, 1f)]                   // disallow 0 division. 1mm to 1m precision is enough range.
         public float rotationPrecision = 0.001f; // this is for the quaternion's components, needs to be small
-        [Range(0.00_01f, 1f)]                   // disallow 0 division. 1mm to 1m precision is enough range.
-        public float scalePrecision = 0.01f; // 1 cm
+        // [Range(0.00_01f, 1f)]                   // disallow 0 division. 1mm to 1m precision is enough range.
+        // public float scalePrecision = 0.01f; // 1 cm
 
         [Tooltip("Enable to send all unreliable messages twice. Only useful for extremely fast paced games since it doubles bandwidth costs.")]
         public bool unreliableRedundancy = false;
@@ -140,7 +140,7 @@ namespace Mirror
 
             // cache squared precisions
             positionPrecisionSqr = positionPrecision * positionPrecision;
-            scalePrecisionSqr = scalePrecision * scalePrecision;
+            // scalePrecisionSqr = scalePrecision * scalePrecision;
 
             // obsolete clientAuthority compatibility:
             // if it was used, then set the new SyncDirection automatically.
