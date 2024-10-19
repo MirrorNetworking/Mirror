@@ -560,20 +560,20 @@ namespace Mirror
                         SerializeBaseline(writer, position, rotation);//, scale);
                         RpcServerToClientBaselineSync(writer);
                     }
+
+                    // perf. & bandwidth optimization:
+                    // send a delta right after baseline to avoid potential head of
+                    // line blocking, or skip the delta whenever we sent reliable?
+                    // for example:
+                    //    1 Hz baseline
+                    //   10 Hz delta
+                    //   => 11 Hz total if we still send delta after reliable
+                    //   => 10 Hz total if we skip delta after reliable
+                    // in that case, skip next delta by simply resetting last delta sync's time.
+                    if (baselineIsDelta) lastDeltaTime = localTime;
                 }
                 // indicate that we should stop sending deltas now
                 else baselineDirty = false;
-
-                // perf. & bandwidth optimization:
-                // send a delta right after baseline to avoid potential head of
-                // line blocking, or skip the delta whenever we sent reliable?
-                // for example:
-                //    1 Hz baseline
-                //   10 Hz delta
-                //   => 11 Hz total if we still send delta after reliable
-                //   => 10 Hz total if we skip delta after reliable
-                // in that case, skip next delta by simply resetting last delta sync's time.
-                if (baselineIsDelta) lastDeltaTime = localTime;
             }
         }
 
@@ -727,20 +727,20 @@ namespace Mirror
                         SerializeBaseline(writer, position, rotation);//, scale);
                         CmdClientToServerBaselineSync(writer);
                     }
+
+                    // perf. & bandwidth optimization:
+                    // send a delta right after baseline to avoid potential head of
+                    // line blocking, or skip the delta whenever we sent reliable?
+                    // for example:
+                    //    1 Hz baseline
+                    //   10 Hz delta
+                    //   => 11 Hz total if we still send delta after reliable
+                    //   => 10 Hz total if we skip delta after reliable
+                    // in that case, skip next delta by simply resetting last delta sync's time.
+                    if (baselineIsDelta) lastDeltaTime = localTime;
                 }
                 // indicate that we should stop sending deltas now
                 else baselineDirty = false;
-
-                // perf. & bandwidth optimization:
-                // send a delta right after baseline to avoid potential head of
-                // line blocking, or skip the delta whenever we sent reliable?
-                // for example:
-                //    1 Hz baseline
-                //   10 Hz delta
-                //   => 11 Hz total if we still send delta after reliable
-                //   => 10 Hz total if we skip delta after reliable
-                // in that case, skip next delta by simply resetting last delta sync's time.
-                if (baselineIsDelta) lastDeltaTime = localTime;
             }
         }
 
