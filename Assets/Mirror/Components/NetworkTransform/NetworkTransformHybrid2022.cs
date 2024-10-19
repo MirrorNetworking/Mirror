@@ -264,24 +264,18 @@ namespace Mirror
             if (syncPosition)
             {
                 Vector3 position = reader.ReadVector3();
-                target.localPosition = position;
-
                 // save deserialized as 'last' for next delta compression.
                 Compression.ScaleToLong(position, positionPrecision, out lastDeserializedPosition);
             }
             if (syncRotation)
             {
                 Quaternion rotation = reader.ReadQuaternion();
-                target.localRotation = rotation;
-
                 // save deserialized as 'last' for next delta compression.
                 Compression.ScaleToLong(rotation, rotationPrecision, out lastDeserializedRotation);
             }
             // if (syncScale)
             // {
             //     Vector3 scale = reader.ReadVector3();
-            //     target.localScale = scale;
-            //
             //     // save deserialized as 'last' for next delta compression.
             //     Compression.ScaleToLong(scale, scalePrecision, out lastDeserializedScale);
             // }
