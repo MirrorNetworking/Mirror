@@ -62,6 +62,7 @@ namespace Mirror
         public int baselineRate = 1;
         public float baselineInterval => baselineRate < int.MaxValue ? 1f / baselineRate : 0; // for 1 Hz, that's 1000ms
         double lastBaselineTime;
+        double lastDeltaTime;
 
         // delta compression needs to remember 'last' to compress against.
         // this is from reliable full state serializations, not from last
@@ -104,9 +105,6 @@ namespace Mirror
         public bool syncPosition = true;
         public bool syncRotation = true;
         // public bool syncScale    = false; // rarely used. disabled for perf so we can rely on transform.GetPositionAndRotation.
-
-        double lastClientSendTime;
-        double lastServerSendTime;
 
         // BEGIN CUSTOM CHANGE /////////////////////////////////////////////////
         public bool disableSendingThisToClients = false;
@@ -592,7 +590,7 @@ namespace Mirror
             // if baseline is dirty, send unreliables every sendInterval until baseline is not dirty anymore.
             if (onlySyncOnChange && !baselineDirty) return;
 
-            if (localTime >= lastServerSendTime + sendInterval) // CUSTOM CHANGE: allow custom sendRate + sendInterval again
+            if (localTime >= lastDeltaTime + sendInterval) // CUSTOM CHANGE: allow custom sendRate + sendInterval again
             {
                 // perf: get position/rotation directly. TransformSnapshot is too expensive.
                 // TransformSnapshot snapshot = ConstructSnapshot();
@@ -621,7 +619,7 @@ namespace Mirror
                         RpcServerToClientDeltaSync(writer);
                 }
 
-                lastServerSendTime = localTime;
+                lastDeltaTime = localTime;
             }
         }
 
@@ -738,7 +736,7 @@ namespace Mirror
             // DO NOT send nulls if not changed 'since last send' either. we
             // send unreliable and don't know which 'last send' the other end
             // received successfully.
-            if (localTime >= lastClientSendTime + sendInterval) // CUSTOM CHANGE: allow custom sendRate + sendInterval again
+            if (localTime >= lastDeltaTime + sendInterval) // CUSTOM CHANGE: allow custom sendRate + sendInterval again
             {
                 // perf: get position/rotation directly. TransformSnapshot is too expensive.
                 // TransformSnapshot snapshot = ConstructSnapshot();
@@ -767,7 +765,7 @@ namespace Mirror
                         CmdClientToServerDeltaSync(writer);
                 }
 
-                lastClientSendTime = localTime;
+                lastDeltaTime = localTime;
             }
         }
 
