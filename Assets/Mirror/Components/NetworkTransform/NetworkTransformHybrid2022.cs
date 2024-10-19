@@ -664,8 +664,14 @@ namespace Mirror
 
             // perf: only grab NetworkTime.localTime property once.
             double localTime = NetworkTime.localTime;
-            UpdateServerBaseline(localTime);
-            UpdateServerDelta(localTime);
+
+            // should we broadcast at all?
+            if (connectionToClient != null && // CUSTOM CHANGE: drop things magic
+                !disableSendingThisToClients) // CUSTOM CHANGE: see comment at definition
+            {
+                UpdateServerBaseline(localTime);
+                UpdateServerDelta(localTime);
+            }
 
             // interpolate remote clients
             UpdateServerInterpolation();
