@@ -125,7 +125,7 @@ namespace Mirror
         float scalePrecisionSqr;
 
         // dedicated writer to avoid Pool.Get calls. NT is in hot path.
-        NetworkWriter writer = new NetworkWriter();
+        readonly NetworkWriter writer = new NetworkWriter();
 
         // initialization //////////////////////////////////////////////////////
         // make sure to call this when inheriting too!
