@@ -122,8 +122,8 @@ namespace Mirror
 
         // caching /////////////////////////////////////////////////////////////
         // squared values for faster distance checks
-        float positionPrecisionSqr;
-        float scalePrecisionSqr;
+        // float positionPrecisionSqr;
+        // float scalePrecisionSqr;
 
         // dedicated writer to avoid Pool.Get calls. NT is in hot path.
         readonly NetworkWriter writer = new NetworkWriter();
@@ -141,7 +141,7 @@ namespace Mirror
             syncInterval = 0;
 
             // cache squared precisions
-            positionPrecisionSqr = positionPrecision * positionPrecision;
+            // positionPrecisionSqr = positionPrecision * positionPrecision;
             // scalePrecisionSqr = scalePrecision * scalePrecision;
 
             // obsolete clientAuthority compatibility:
@@ -205,12 +205,25 @@ namespace Mirror
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         bool Changed(Vector3 currentPosition, Quaternion currentRotation)//, Vector3 currentScale)
         {
-            // if (syncPosition && Vector3.Distance(last.position, current.position) >= positionPrecision)
-            if (syncPosition && (currentPosition - lastPosition).sqrMagnitude >= positionPrecisionSqr)
-                return true;
+            if (syncPosition)
+            {
+                float positionDelta = Vector3.Distance(currentPosition, lastPosition);
+                if (positionDelta >= positionPrecision)
+                // float positionChange = (currentPosition - lastPosition).sqrMagnitude;
+                // if (positionChange >= positionPrecisionSqr)
+                {
+                    return true;
+                }
+            }
 
-            if (syncRotation && Quaternion.Angle(lastRotation, currentRotation) >= rotationPrecision)
-                return true;
+            if (syncRotation)
+            {
+                float rotationDelta = Quaternion.Angle(lastRotation, currentRotation);
+                if (rotationDelta >= rotationPrecision)
+                {
+                    return true;
+                }
+            }
 
             // if (syncScale && Vector3.Distance(last.scale, current.scale) >= scalePrecision)
             // if (syncScale && (current.scale - last.scale).sqrMagnitude >= scalePrecisionSqr)
