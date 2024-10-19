@@ -233,14 +233,14 @@ namespace Mirror
                 writer.WriteVector3(position);
 
                 // save serialized as 'last' for next delta compression.
-                if (syncPosition) Compression.ScaleToLong(position, positionPrecision, out lastSerializedPosition);
+                Compression.ScaleToLong(position, positionPrecision, out lastSerializedPosition);
             }
             if (syncRotation)
             {
                 writer.WriteQuaternion(rotation);
 
                 // save serialized as 'last' for next delta compression.
-                if (syncRotation) Compression.ScaleToLong(rotation, rotationPrecision, out lastSerializedRotation);
+                Compression.ScaleToLong(rotation, rotationPrecision, out lastSerializedRotation);
             }
             // if (syncScale)
             // {
