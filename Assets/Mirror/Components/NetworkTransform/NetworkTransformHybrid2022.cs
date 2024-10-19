@@ -313,11 +313,11 @@ namespace Mirror
             // }
         }
 
-        bool DeserializeDelta(NetworkReader reader, out byte baselineTick, out Vector3 position, out Quaternion rotation, out Vector3 scale)
+        bool DeserializeDelta(NetworkReader reader, out byte baselineTick, out Vector3 position, out Quaternion rotation)//, out Vector3 scale)
         {
             position = default;
             rotation = default;
-            scale = default;
+            // scale = default;
 
             baselineTick = reader.ReadByte();
 
@@ -374,7 +374,7 @@ namespace Mirror
         {
             using (NetworkReaderPooled reader = NetworkReaderPool.Get(message))
             {
-                if (DeserializeDelta(reader, out byte baselineTick, out Vector3 position, out Quaternion rotation, out Vector3 scale))
+                if (DeserializeDelta(reader, out byte baselineTick, out Vector3 position, out Quaternion rotation)) //, out Vector3 scale))
                 {
                     // Debug.Log($"[{name}] server received delta for baseline #{lastDeserializedBaselineTick}");
                     OnClientToServerDeltaSync(baselineTick, position, rotation);//, scale);
@@ -441,7 +441,7 @@ namespace Mirror
                 Time.timeAsDouble,
                 position.Value,
                 rotation.Value,
-                Vector3.zero // scale
+                Vector3.one // scale
             ));
         }
 
@@ -460,7 +460,7 @@ namespace Mirror
 
                 // if baseline counts as delta, insert it into snapshot buffer too
                 if (baselineIsDelta)
-                    OnServerToClientDeltaSync(baselineTick, position, rotation, Vector3.zero);//, scale);
+                    OnServerToClientDeltaSync(baselineTick, position, rotation);//, Vector3.zero);//, scale);
             }
         }
 
@@ -473,15 +473,15 @@ namespace Mirror
 
             using (NetworkReaderPooled reader = NetworkReaderPool.Get(message))
             {
-                if (DeserializeDelta(reader, out byte baselineTick, out Vector3 position, out Quaternion rotation, out Vector3 scale))
+                if (DeserializeDelta(reader, out byte baselineTick, out Vector3 position, out Quaternion rotation))//, out Vector3 scale))
                 {
-                    OnServerToClientDeltaSync(baselineTick, position, rotation, scale);
+                    OnServerToClientDeltaSync(baselineTick, position, rotation);//, scale);
                 }
             }
         }
 
         // server broadcasts sync message to all clients
-        protected virtual void OnServerToClientDeltaSync(byte baselineTick, Vector3? position, Quaternion? rotation, Vector3? scale)
+        protected virtual void OnServerToClientDeltaSync(byte baselineTick, Vector3 position, Quaternion rotation)//, Vector3 scale)
         {
             // in host mode, the server sends rpcs to all clients.
             // the host client itself will receive them too.
@@ -511,9 +511,9 @@ namespace Mirror
             //   client sends snapshot at t=10
             // then the server would assume that it's one super slow move and
             // replay it for 10 seconds.
-            if (!position.HasValue) position = clientSnapshots.Count > 0 ? clientSnapshots.Values[clientSnapshots.Count - 1].position : target.localPosition;
-            if (!rotation.HasValue) rotation = clientSnapshots.Count > 0 ? clientSnapshots.Values[clientSnapshots.Count - 1].rotation : target.localRotation;
-            if (!scale.HasValue) scale = clientSnapshots.Count > 0 ? clientSnapshots.Values[clientSnapshots.Count - 1].scale : target.localScale;
+            // if (!syncPosition) position = clientSnapshots.Count > 0 ? clientSnapshots.Values[clientSnapshots.Count - 1].position : target.localPosition;
+            // if (!syncRotation) rotation = clientSnapshots.Count > 0 ? clientSnapshots.Values[clientSnapshots.Count - 1].rotation : target.localRotation;
+            // if (!syncScale)    scale    = clientSnapshots.Count > 0 ? clientSnapshots.Values[clientSnapshots.Count - 1].scale : target.localScale;
 
             // insert snapshot
             SnapshotInterpolation.InsertIfNotExists(
@@ -522,9 +522,9 @@ namespace Mirror
                 new TransformSnapshot(
                 timestamp,         // arrival remote timestamp. NOT remote time.
                 Time.timeAsDouble,
-                position.Value,
-                rotation.Value,
-                scale.Value
+                position,
+                rotation,
+                Vector3.one // scale
             ));
         }
 
@@ -1031,7 +1031,7 @@ namespace Mirror
 
                 // if baseline counts as delta, insert it into snapshot buffer too
                 if (baselineIsDelta)
-                    OnServerToClientDeltaSync(baselineTick, position, rotation, Vector3.zero);//, scale);
+                    OnServerToClientDeltaSync(baselineTick, position, rotation);//, scale);
             }
         }
         // CUSTOM CHANGE ///////////////////////////////////////////////////////////
