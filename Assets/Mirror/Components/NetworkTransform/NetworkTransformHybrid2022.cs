@@ -301,81 +301,6 @@ namespace Mirror
             // }
         }
 
-        void SerializeDelta(NetworkWriter writer, byte baselineTick, Vector3 position, Quaternion rotation)//, Vector3 scale)
-        {
-            writer.WriteByte(baselineTick);
-
-            if (syncPosition)
-            {
-                writer.WriteVector3(position);
-
-                // quantize -> delta -> varint
-                // Compression.ScaleToLong(position, positionPrecision, out Vector3Long quantized);
-                // DeltaCompression.Compress(writer, lastSerializedPosition, quantized);
-            }
-            if (syncRotation)
-            {
-                writer.WriteQuaternion(rotation);
-
-                // quantize -> delta -> varint
-                // this works for quaternions too, where xyzw are [-1,1]
-                // and gradually change as rotation changes.
-                // Compression.ScaleToLong(rotation, rotationPrecision, out Vector4Long quantized);
-                // DeltaCompression.Compress(writer, lastSerializedRotation, quantized);
-            }
-            // if (syncScale)
-            // {
-            //     // quantize -> delta -> varint
-            //     Compression.ScaleToLong(scale, scalePrecision, out Vector3Long quantized);
-            //     DeltaCompression.Compress(writer, lastSerializedScale, quantized);
-            // }
-        }
-
-        bool DeserializeDelta(NetworkReader reader, out byte baselineTick, out Vector3 position, out Quaternion rotation)//, out Vector3 scale)
-        {
-            position = default;
-            rotation = default;
-            // scale = default;
-
-            baselineTick = reader.ReadByte();
-
-            // unreliable messages may arrive out of order.
-            // ensure this is for the intended baseline.
-            // we don't want to put a delta onto an old baseline.
-            if (baselineTick != lastDeserializedBaselineTick)
-            {
-                // Debug.Log($"[{name}] Client discarding unreliable delta for baseline #{baselineTick} because we already received #{lastDeserializedBaselineTick}");
-                return false;
-            }
-
-            if (syncPosition)
-            {
-                position = reader.ReadVector3();
-
-                // varint -> delta -> quantize
-                // Vector3Long quantized = DeltaCompression.Decompress(reader, lastDeserializedPosition);
-                // position = Compression.ScaleToFloat(quantized, positionPrecision);
-            }
-            if (syncRotation)
-            {
-                rotation = reader.ReadQuaternion();
-
-                // varint -> delta -> quantize
-                // this works for quaternions too, where xyzw are [-1,1]
-                // and gradually change as rotation changes.
-                // Vector4Long quantized = DeltaCompression.Decompress(reader, lastDeserializedRotation);
-                // rotation = Compression.ScaleToFloat(quantized, rotationPrecision);
-            }
-            // if (syncScale)
-            // {
-            //     // varint -> delta -> quantize
-            //     Vector3Long quantized = DeltaCompression.Decompress(reader, lastDeserializedScale);
-            //     scale = Compression.ScaleToFloat(quantized, scalePrecision);
-            // }
-
-            return true;
-        }
-
         // cmd /////////////////////////////////////////////////////////////////
         [Command(channel = Channels.Reliable)] // reliable baseline
         void CmdClientToServerBaselineSync(ArraySegment<byte> message)
@@ -392,40 +317,10 @@ namespace Mirror
         }
 
         [Command(channel = Channels.Unreliable)] // unreliable delta
-        void CmdClientToServerDeltaSync(ArraySegment<byte> message)
+        void CmdClientToServerDeltaSync(byte baselineTick, Vector3 position, Quaternion rotation)
         {
-            using (NetworkReaderPooled reader = NetworkReaderPool.Get(message))
-            {
-                if (DeserializeDelta(reader, out byte baselineTick, out Vector3 position, out Quaternion rotation)) //, out Vector3 scale))
-                {
-                    // Debug.Log($"[{name}] server received delta for baseline #{lastDeserializedBaselineTick}");
-                    OnClientToServerDeltaSync(baselineTick, position, rotation);//, scale);
-
-                    // DISABLED: this is too much of a security risk: a client could make the server spam all other clients!
-                    // for client authority, immediately pass on the client snapshot to all other
-                    // clients instead of waiting for server to send its snapshots.
-                    /*
-                    if (syncDirection == SyncDirection.ClientToServer &&
-                        connectionToClient != null && // CUSTOM CHANGE: for the drop thing..
-                        !disableSendingThisToClients) // CUSTOM CHANGE: see comment at definition
-                    {
-                        // reuse cached writer for performance
-                        // using (NetworkWriterPooled writer = NetworkWriterPool.Get())
-                        writer.Position = 0;
-                        {
-                            SerializeDelta(
-                                writer,
-                                ? // need to use the server's last baseline tick# here
-                                position,
-                                rotation//,
-                                // scale
-                            );
-                            RpcServerToClientDeltaSync(writer);
-                        }
-                    }
-                    */
-                }
-            }
+            // Debug.Log($"[{name}] server received delta for baseline #{lastDeserializedBaselineTick}");
+            OnClientToServerDeltaSync(baselineTick, position, rotation);//, scale);
         }
 
         // local authority client sends sync message to server for broadcasting
@@ -487,19 +382,13 @@ namespace Mirror
         }
 
         [ClientRpc(channel = Channels.Unreliable)] // unreliable delta
-        void RpcServerToClientDeltaSync(ArraySegment<byte> message)
+        void RpcServerToClientDeltaSync(byte baselineTick, Vector3 position, Quaternion rotation)
         {
             // delta is broadcast to all clients.
             // ignore if this object is owned by this client.
             if (IsClientWithAuthority) return;
 
-            using (NetworkReaderPooled reader = NetworkReaderPool.Get(message))
-            {
-                if (DeserializeDelta(reader, out byte baselineTick, out Vector3 position, out Quaternion rotation))//, out Vector3 scale))
-                {
-                    OnServerToClientDeltaSync(baselineTick, position, rotation);//, scale);
-                }
-            }
+            OnServerToClientDeltaSync(baselineTick, position, rotation);//, scale);
         }
 
         // server broadcasts sync message to all clients
@@ -642,28 +531,13 @@ namespace Mirror
                 // TransformSnapshot snapshot = ConstructSnapshot();
                 target.GetLocalPositionAndRotation(out Vector3 position, out Quaternion rotation);
 
-                // reuse cached writer for performance
-                // using (NetworkWriterPooled writer = NetworkWriterPool.Get())
-                writer.Position = 0;
-                {
-                    SerializeDelta(
-                        writer,
-                        // include the last reliable baseline tick#.
-                        // the unreliable delta is meant to go on top of it that, and no older one.
-                        lastSerializedBaselineTick,
-                        position,
-                        rotation//,
-                        // snapshot.scale
-                    );
+                // send snapshot without timestamp.
+                // receiver gets it from batch timestamp to save bandwidth.
+                RpcServerToClientDeltaSync(lastSerializedBaselineTick, position, rotation);
 
-                    // send snapshot without timestamp.
-                    // receiver gets it from batch timestamp to save bandwidth.
-                    RpcServerToClientDeltaSync(writer);
-
-                    // unreliable redundancy to make up for potential message drops
-                    if (unreliableRedundancy)
-                        RpcServerToClientDeltaSync(writer);
-                }
+                // unreliable redundancy to make up for potential message drops
+                if (unreliableRedundancy)
+                    RpcServerToClientDeltaSync(lastSerializedBaselineTick, position, rotation);
 
                 lastDeltaTime = localTime;
             }
@@ -798,28 +672,13 @@ namespace Mirror
                 // TransformSnapshot snapshot = ConstructSnapshot();
                 target.GetLocalPositionAndRotation(out Vector3 position, out Quaternion rotation);
 
-                // reuse cached writer for performance
-                // using (NetworkWriterPooled writer = NetworkWriterPool.Get())
-                writer.Position = 0;
-                {
-                    SerializeDelta(
-                        writer,
-                        // include the last reliable baseline tick#.
-                        // the unreliable delta is meant to go on top of it that, and no older one.
-                        lastSerializedBaselineTick,
-                        position,
-                        rotation//,
-                        // snapshot.scale
-                    );
+                // send snapshot without timestamp.
+                // receiver gets it from batch timestamp to save bandwidth.
+                CmdClientToServerDeltaSync(lastSerializedBaselineTick, position, rotation);
 
-                    // send snapshot without timestamp.
-                    // receiver gets it from batch timestamp to save bandwidth.
-                    CmdClientToServerDeltaSync(writer);
-
-                    // unreliable redundancy to make up for potential message drops
-                    if (unreliableRedundancy)
-                        CmdClientToServerDeltaSync(writer);
-                }
+                // unreliable redundancy to make up for potential message drops
+                if (unreliableRedundancy)
+                    CmdClientToServerDeltaSync(lastSerializedBaselineTick, position, rotation);
 
                 lastDeltaTime = localTime;
             }
