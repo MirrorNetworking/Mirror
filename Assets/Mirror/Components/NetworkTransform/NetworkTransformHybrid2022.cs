@@ -232,90 +232,38 @@ namespace Mirror
             return false;
         }
 
-        // serialization ///////////////////////////////////////////////////////
-        // serialize server->client baseline into a NetworkWriter.
-        // for use in RpcSync and OnSerialize for spawn message.
-        void SerializeBaseline(NetworkWriter writer, Vector3 position, Quaternion rotation)//, Vector3 scale)
-        {
-            // always include the tick for deltas to compare against.
-            byte frameCount = (byte)Time.frameCount; // perf: only access Time.frameCount once!
-            writer.WriteByte(frameCount);
-
-            if (syncPosition)
-            {
-                writer.WriteVector3(position);
-
-                // save serialized as 'last' for next delta compression.
-                // Compression.ScaleToLong(position, positionPrecision, out lastSerializedPosition);
-            }
-            if (syncRotation)
-            {
-                writer.WriteQuaternion(rotation);
-
-                // save serialized as 'last' for next delta compression.
-                // Compression.ScaleToLong(rotation, rotationPrecision, out lastSerializedRotation);
-            }
-            // if (syncScale)
-            // {
-            //     writer.WriteVector3(target.localScale);
-            //
-            //     // save serialized as 'last' for next delta compression.
-            //     if (syncScale) Compression.ScaleToLong(scale, scalePrecision, out lastSerializedScale);
-            // }
-
-            // save the last baseline's tick number.
-            // included in baseline to identify which one it was on client
-            // included in deltas to ensure they are on top of the correct baseline
-            lastSerializedBaselineTick = frameCount;
-            lastBaselineTime = NetworkTime.localTime;
-
-            // set 'last'
-            lastPosition = position;
-            lastRotation = rotation;
-        }
-
-        void DeserializeBaseline(NetworkReader reader, out byte baselineTick, out Vector3 position, out Quaternion rotation)
-        {
-            // save last deserialized baseline tick number to compare deltas against
-            lastDeserializedBaselineTick = baselineTick = reader.ReadByte();
-            position = default;
-            rotation = default;
-
-            if (syncPosition)
-            {
-                position = reader.ReadVector3();
-                // save deserialized as 'last' for next delta compression.
-                // Compression.ScaleToLong(position, positionPrecision, out lastDeserializedPosition);
-            }
-            if (syncRotation)
-            {
-                rotation = reader.ReadQuaternion();
-                // save deserialized as 'last' for next delta compression.
-                // Compression.ScaleToLong(rotation, rotationPrecision, out lastDeserializedRotation);
-            }
-            // if (syncScale)
-            // {
-            //     Vector3 scale = reader.ReadVector3();
-            //     // save deserialized as 'last' for next delta compression.
-            //     Compression.ScaleToLong(scale, scalePrecision, out lastDeserializedScale);
-            // }
-        }
-
-        // cmd /////////////////////////////////////////////////////////////////
+        // cmd baseline ////////////////////////////////////////////////////////
         [Command(channel = Channels.Reliable)] // reliable baseline
-        void CmdClientToServerBaselineSync(ArraySegment<byte> message)
+        void CmdClientToServerBaseline_PositionRotation(byte baselineTick, Vector3 position, Quaternion rotation)
         {
-            using (NetworkReaderPooled reader = NetworkReaderPool.Get(message))
-            {
-                DeserializeBaseline(reader, out byte baselineTick, out Vector3 position, out Quaternion rotation);
-                // Debug.Log($"[{name}] server received baseline #{lastDeserializedBaselineTick}");
+            lastDeserializedBaselineTick = baselineTick;
 
-                // if baseline counts as delta, insert it into snapshot buffer too
-                if (baselineIsDelta)
-                    OnClientToServerDeltaSync(baselineTick, position, rotation);//, scale);
-            }
+            // if baseline counts as delta, insert it into snapshot buffer too
+            if (baselineIsDelta)
+                OnClientToServerDeltaSync(baselineTick, position, rotation);//, scale);
         }
 
+        [Command(channel = Channels.Reliable)] // reliable baseline
+        void CmdClientToServerBaseline_Position(byte baselineTick, Vector3 position)
+        {
+            lastDeserializedBaselineTick = baselineTick;
+
+            // if baseline counts as delta, insert it into snapshot buffer too
+            if (baselineIsDelta)
+                OnClientToServerDeltaSync(baselineTick, position, Quaternion.identity);//, scale);
+        }
+
+        [Command(channel = Channels.Reliable)] // reliable baseline
+        void CmdClientToServerBaseline_Rotation(byte baselineTick, Quaternion rotation)
+        {
+            lastDeserializedBaselineTick = baselineTick;
+
+            // if baseline counts as delta, insert it into snapshot buffer too
+            if (baselineIsDelta)
+                OnClientToServerDeltaSync(baselineTick, Vector3.zero, rotation);//, scale);
+        }
+
+        // cmd delta ///////////////////////////////////////////////////////////
         [Command(channel = Channels.Unreliable)] // unreliable delta
         void CmdClientToServerDelta_Position(byte baselineTick, Vector3 position)
         {
@@ -376,25 +324,53 @@ namespace Mirror
             ));
         }
 
-        // rpc /////////////////////////////////////////////////////////////////
+        // rpc baseline ////////////////////////////////////////////////////////
         [ClientRpc(channel = Channels.Reliable)] // reliable baseline
-        void RpcServerToClientBaselineSync(ArraySegment<byte> message)
+        void RpcServerToClientBaseline_PositionRotation(byte baselineTick, Vector3 position, Quaternion rotation)
         {
             // baseline is broadcast to all clients.
             // ignore if this object is owned by this client.
             if (IsClientWithAuthority) return;
 
-            using (NetworkReaderPooled reader = NetworkReaderPool.Get(message))
-            {
-                DeserializeBaseline(reader, out byte baselineTick, out Vector3 position, out Quaternion rotation);
-                // Debug.Log($"[{name}] client received baseline #{lastDeserializedBaselineTick} for {name}");
+            // save last deserialized baseline tick number to compare deltas against
+            lastDeserializedBaselineTick = baselineTick;
 
-                // if baseline counts as delta, insert it into snapshot buffer too
-                if (baselineIsDelta)
-                    OnServerToClientDeltaSync(baselineTick, position, rotation);//, Vector3.zero);//, scale);
-            }
+            // if baseline counts as delta, insert it into snapshot buffer too
+            if (baselineIsDelta)
+                OnServerToClientDeltaSync(baselineTick, position, rotation);//, Vector3.zero);//, scale);
         }
 
+        [ClientRpc(channel = Channels.Reliable)] // reliable baseline
+        void RpcServerToClientBaseline_Position(byte baselineTick, Vector3 position)
+        {
+            // baseline is broadcast to all clients.
+            // ignore if this object is owned by this client.
+            if (IsClientWithAuthority) return;
+
+            // save last deserialized baseline tick number to compare deltas against
+            lastDeserializedBaselineTick = baselineTick;
+
+            // if baseline counts as delta, insert it into snapshot buffer too
+            if (baselineIsDelta)
+                OnServerToClientDeltaSync(baselineTick, position, Quaternion.identity);//, Vector3.zero);//, scale);
+        }
+
+        [ClientRpc(channel = Channels.Reliable)] // reliable baseline
+        void RpcServerToClientBaseline_Rotation(byte baselineTick, Quaternion rotation)
+        {
+            // baseline is broadcast to all clients.
+            // ignore if this object is owned by this client.
+            if (IsClientWithAuthority) return;
+
+            // save last deserialized baseline tick number to compare deltas against
+            lastDeserializedBaselineTick = baselineTick;
+
+            // if baseline counts as delta, insert it into snapshot buffer too
+            if (baselineIsDelta)
+                OnServerToClientDeltaSync(baselineTick, Vector3.zero, rotation);//, Vector3.zero);//, scale);
+        }
+
+        // rpc delta ///////////////////////////////////////////////////////////
         [ClientRpc(channel = Channels.Unreliable)] // unreliable delta
         void RpcServerToClientDelta_PositionRotation(byte baselineTick, Vector3 position, Quaternion rotation)
         {
@@ -497,15 +473,34 @@ namespace Mirror
                     // reliable just changed. keep sending deltas until it's unchanged again.
                     baselineDirty = true;
 
-                    // send snapshot without timestamp.
-                    // receiver gets it from batch timestamp to save bandwidth.
-                    // reuse cached writer for performance
-                    // using (NetworkWriterPooled writer = NetworkWriterPool.Get())
-                    writer.Position = 0;
+                    // save bandwidth by only transmitting what is needed.
+                    // -> ArraySegment with random data is slower since byte[] copying
+                    // -> Vector3? and Quaternion? nullables takes more bandwidth
+                    byte frameCount = (byte)Time.frameCount; // perf: only access Time.frameCount once!
+                    if (syncPosition && syncRotation)
                     {
-                        SerializeBaseline(writer, position, rotation);//, scale);
-                        RpcServerToClientBaselineSync(writer);
+                        // send snapshot without timestamp.
+                        // receiver gets it from batch timestamp to save bandwidth.
+                        RpcServerToClientBaseline_PositionRotation(frameCount, position, rotation);
                     }
+                    else if (syncPosition)
+                    {
+                        // send snapshot without timestamp.
+                        // receiver gets it from batch timestamp to save bandwidth.
+                        RpcServerToClientBaseline_Position(frameCount, position);
+                    }
+                    else if (syncRotation)
+                    {
+                        // send snapshot without timestamp.
+                        // receiver gets it from batch timestamp to save bandwidth.
+                        RpcServerToClientBaseline_Rotation(frameCount, rotation);
+                    }
+
+                    // save the last baseline's tick number.
+                    // included in baseline to identify which one it was on client
+                    // included in deltas to ensure they are on top of the correct baseline
+                    lastSerializedBaselineTick = frameCount;
+                    lastBaselineTime = NetworkTime.localTime;
 
                     // perf. & bandwidth optimization:
                     // send a delta right after baseline to avoid potential head of
@@ -673,15 +668,38 @@ namespace Mirror
                     // reliable just changed. keep sending deltas until it's unchanged again.
                     baselineDirty = true;
 
-                    // send snapshot without timestamp.
-                    // receiver gets it from batch timestamp to save bandwidth.
-                    // reuse cached writer for performance
-                    // using (NetworkWriterPooled writer = NetworkWriterPool.Get())
-                    writer.Position = 0;
+                    // save bandwidth by only transmitting what is needed.
+                    // -> ArraySegment with random data is slower since byte[] copying
+                    // -> Vector3? and Quaternion? nullables takes more bandwidth
+                    byte frameCount = (byte)Time.frameCount; // perf: only access Time.frameCount once!
+                    if (syncPosition && syncRotation)
                     {
-                        SerializeBaseline(writer, position, rotation);//, scale);
-                        CmdClientToServerBaselineSync(writer);
+                        // send snapshot without timestamp.
+                        // receiver gets it from batch timestamp to save bandwidth.
+                        CmdClientToServerBaseline_PositionRotation(frameCount, position, rotation);
                     }
+                    else if (syncPosition)
+                    {
+                        // send snapshot without timestamp.
+                        // receiver gets it from batch timestamp to save bandwidth.
+                        CmdClientToServerBaseline_Position(frameCount, position);
+                    }
+                    else if (syncRotation)
+                    {
+                        // send snapshot without timestamp.
+                        // receiver gets it from batch timestamp to save bandwidth.
+                        CmdClientToServerBaseline_Rotation(frameCount, rotation);
+                    }
+
+                    // save the last baseline's tick number.
+                    // included in baseline to identify which one it was on client
+                    // included in deltas to ensure they are on top of the correct baseline
+                    lastSerializedBaselineTick = frameCount;
+                    lastBaselineTime = NetworkTime.localTime;
+
+                    // set 'last'
+                    lastPosition = position;
+                    lastRotation = rotation;
 
                     // perf. & bandwidth optimization:
                     // send a delta right after baseline to avoid potential head of
@@ -978,7 +996,23 @@ namespace Mirror
             {
                 // spawn message is used as first baseline.
                 TransformSnapshot snapshot = ConstructSnapshot();
-                SerializeBaseline(writer, snapshot.position, snapshot.rotation);//, snapshot.scale);
+
+                // always include the tick for deltas to compare against.
+                byte frameCount = (byte)Time.frameCount; // perf: only access Time.frameCount once!
+                writer.WriteByte(frameCount);
+
+                if (syncPosition) writer.WriteVector3(snapshot.position);
+                if (syncRotation) writer.WriteQuaternion(snapshot.rotation);
+
+                // save the last baseline's tick number.
+                // included in baseline to identify which one it was on client
+                // included in deltas to ensure they are on top of the correct baseline
+                lastSerializedBaselineTick = frameCount;
+                lastBaselineTime = NetworkTime.localTime;
+
+                // set 'last'
+                lastPosition = snapshot.position;
+                lastRotation = snapshot.rotation;
             }
         }
 
@@ -989,13 +1023,17 @@ namespace Mirror
             // (Spawn message wouldn't sync NTChild positions either)
             if (initialState)
             {
-                // save spawn message as baseline
-                DeserializeBaseline(reader, out byte baselineTick, out Vector3 position, out Quaternion rotation);
-                // Debug.Log($"[{name}] Spawn is used as first baseline #{lastDeserializedBaselineTick}");
+                // save last deserialized baseline tick number to compare deltas against
+                lastDeserializedBaselineTick = reader.ReadByte();
+                Vector3 position = Vector3.zero;
+                Quaternion rotation = Quaternion.identity;
+
+                if (syncPosition) position = reader.ReadVector3();
+                if (syncRotation) rotation = reader.ReadQuaternion();
 
                 // if baseline counts as delta, insert it into snapshot buffer too
                 if (baselineIsDelta)
-                    OnServerToClientDeltaSync(baselineTick, position, rotation);//, scale);
+                    OnServerToClientDeltaSync(lastDeserializedBaselineTick, position, rotation);//, scale);
             }
         }
         // CUSTOM CHANGE ///////////////////////////////////////////////////////////
