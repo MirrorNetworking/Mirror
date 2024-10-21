@@ -396,13 +396,35 @@ namespace Mirror
         }
 
         [ClientRpc(channel = Channels.Unreliable)] // unreliable delta
-        void RpcServerToClientDeltaSync(byte baselineTick, Vector3 position, Quaternion rotation)
+        void RpcServerToClientDelta_PositionRotation(byte baselineTick, Vector3 position, Quaternion rotation)
         {
             // delta is broadcast to all clients.
             // ignore if this object is owned by this client.
             if (IsClientWithAuthority) return;
 
             OnServerToClientDeltaSync(baselineTick, position, rotation);//, scale);
+        }
+
+
+        [ClientRpc(channel = Channels.Unreliable)] // unreliable delta
+        void RpcServerToClientDelta_Position(byte baselineTick, Vector3 position)
+        {
+            // delta is broadcast to all clients.
+            // ignore if this object is owned by this client.
+            if (IsClientWithAuthority) return;
+
+            OnServerToClientDeltaSync(baselineTick, position, Quaternion.identity);//, scale);
+        }
+
+
+        [ClientRpc(channel = Channels.Unreliable)] // unreliable delta
+        void RpcServerToClientDelta_Rotation(byte baselineTick, Quaternion rotation)
+        {
+            // delta is broadcast to all clients.
+            // ignore if this object is owned by this client.
+            if (IsClientWithAuthority) return;
+
+            OnServerToClientDeltaSync(baselineTick, Vector3.zero, rotation);//, scale);
         }
 
         // server broadcasts sync message to all clients
@@ -545,13 +567,37 @@ namespace Mirror
                 // TransformSnapshot snapshot = ConstructSnapshot();
                 target.GetLocalPositionAndRotation(out Vector3 position, out Quaternion rotation);
 
-                // send snapshot without timestamp.
-                // receiver gets it from batch timestamp to save bandwidth.
-                RpcServerToClientDeltaSync(lastSerializedBaselineTick, position, rotation);
+                // save bandwidth by only transmitting what is needed.
+                // -> ArraySegment with random data is slower since byte[] copying
+                // -> Vector3? and Quaternion? nullables takes more bandwidth
+                if (syncPosition && syncRotation)
+                {
+                    // send snapshot without timestamp.
+                    // receiver gets it from batch timestamp to save bandwidth.
+                    // unreliable redundancy to make up for potential message drops
+                    RpcServerToClientDelta_PositionRotation(lastSerializedBaselineTick, position, rotation);
+                    if (unreliableRedundancy)
+                        RpcServerToClientDelta_PositionRotation(lastSerializedBaselineTick, position, rotation);
+                }
+                else if (syncPosition)
+                {
+                    // send snapshot without timestamp.
+                    // receiver gets it from batch timestamp to save bandwidth.
+                    // unreliable redundancy to make up for potential message drops
+                    RpcServerToClientDelta_Position(lastSerializedBaselineTick, position);
+                    if (unreliableRedundancy)
+                        RpcServerToClientDelta_Position(lastSerializedBaselineTick, position);
+                }
+                else if (syncRotation)
+                {
+                    // send snapshot without timestamp.
+                    // receiver gets it from batch timestamp to save bandwidth.
+                    // unreliable redundancy to make up for potential message drops
+                    RpcServerToClientDelta_Rotation(lastSerializedBaselineTick, rotation);
+                    if (unreliableRedundancy)
+                        RpcServerToClientDelta_Rotation(lastSerializedBaselineTick, rotation);
+                }
 
-                // unreliable redundancy to make up for potential message drops
-                if (unreliableRedundancy)
-                    RpcServerToClientDeltaSync(lastSerializedBaselineTick, position, rotation);
 
                 lastDeltaTime = localTime;
             }
