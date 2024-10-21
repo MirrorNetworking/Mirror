@@ -317,7 +317,21 @@ namespace Mirror
         }
 
         [Command(channel = Channels.Unreliable)] // unreliable delta
-        void CmdClientToServerDeltaSync(byte baselineTick, Vector3 position, Quaternion rotation)
+        void CmdClientToServerDelta_Position(byte baselineTick, Vector3 position)
+        {
+            // Debug.Log($"[{name}] server received delta for baseline #{lastDeserializedBaselineTick}");
+            OnClientToServerDeltaSync(baselineTick, position, Quaternion.identity);//, scale);
+        }
+
+        [Command(channel = Channels.Unreliable)] // unreliable delta
+        void CmdClientToServerDelta_Rotation(byte baselineTick, Quaternion rotation)
+        {
+            // Debug.Log($"[{name}] server received delta for baseline #{lastDeserializedBaselineTick}");
+            OnClientToServerDeltaSync(baselineTick, Vector3.zero, rotation);//, scale);
+        }
+
+        [Command(channel = Channels.Unreliable)] // unreliable delta
+        void CmdClientToServerDelta_PositionRotation(byte baselineTick, Vector3 position, Quaternion rotation)
         {
             // Debug.Log($"[{name}] server received delta for baseline #{lastDeserializedBaselineTick}");
             OnClientToServerDeltaSync(baselineTick, position, rotation);//, scale);
@@ -672,13 +686,37 @@ namespace Mirror
                 // TransformSnapshot snapshot = ConstructSnapshot();
                 target.GetLocalPositionAndRotation(out Vector3 position, out Quaternion rotation);
 
-                // send snapshot without timestamp.
-                // receiver gets it from batch timestamp to save bandwidth.
-                CmdClientToServerDeltaSync(lastSerializedBaselineTick, position, rotation);
+                // save bandwidth by only transmitting what is needed.
+                // -> ArraySegment with random data is slower since byte[] copying
+                // -> Vector3? and Quaternion? nullables takes more bandwidth
+                if (syncPosition && syncRotation)
+                {
+                    // send snapshot without timestamp.
+                    // receiver gets it from batch timestamp to save bandwidth.
+                    // unreliable redundancy to make up for potential message drops
+                    CmdClientToServerDelta_PositionRotation(lastSerializedBaselineTick, position, rotation);
+                    if (unreliableRedundancy)
+                        CmdClientToServerDelta_PositionRotation(lastSerializedBaselineTick, position, rotation);
 
-                // unreliable redundancy to make up for potential message drops
-                if (unreliableRedundancy)
-                    CmdClientToServerDeltaSync(lastSerializedBaselineTick, position, rotation);
+                }
+                else if (syncPosition)
+                {
+                    // send snapshot without timestamp.
+                    // receiver gets it from batch timestamp to save bandwidth.
+                    // unreliable redundancy to make up for potential message drops
+                    CmdClientToServerDelta_Position(lastSerializedBaselineTick, position);
+                    if (unreliableRedundancy)
+                        CmdClientToServerDelta_Position(lastSerializedBaselineTick, position);
+                }
+                else if (syncRotation)
+                {
+                    // send snapshot without timestamp.
+                    // receiver gets it from batch timestamp to save bandwidth.
+                    // unreliable redundancy to make up for potential message drops
+                    CmdClientToServerDelta_Rotation(lastSerializedBaselineTick, rotation);
+                    if (unreliableRedundancy)
+                        CmdClientToServerDelta_Rotation(lastSerializedBaselineTick, rotation);
+                }
 
                 lastDeltaTime = localTime;
             }
