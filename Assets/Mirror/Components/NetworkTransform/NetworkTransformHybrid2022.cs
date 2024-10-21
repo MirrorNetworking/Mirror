@@ -1,25 +1,12 @@
-// NetworkTransform V2 by mischa (2021-07)
+// Quake NetworkTransform based on 2022 NetworkTransformUnreliable.
 // Snapshot Interpolation: https://gafferongames.com/post/snapshot_interpolation/
-//
-// CUSTOM: this is Mirror's NetworkTransform from Oct 25, 2022:
-// "breaking: NetworkTransform.clientAuthority flag obsoleted. use SyncDirection instead. automatically sets syncDirection if still used. (#3250)"
+// Quake: https://www.jfedor.org/quake3/
 //
 // Base class for NetworkTransform and NetworkTransformChild.
 // => simple unreliable sync without any interpolation for now.
 // => which means we don't need teleport detection either
 //
-// NOTE: several functions are virtual in case someone needs to modify a part.
-//
-// Channel: uses UNRELIABLE at all times.
-// -> out of order packets are dropped automatically
-// -> it's better than RELIABLE for several reasons:
-//    * head of line blocking would add delay
-//    * resending is mostly pointless
-//    * bigger data race:
-//      -> if we use a Cmd() at position X over reliable
-//      -> client gets Cmd() and X at the same time, but buffers X for bufferTime
-//      -> for unreliable, it would get X before the reliable Cmd(), still
-//         buffer for bufferTime but end up closer to the original time
+// several functions are virtual in case someone needs to modify a part.
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -27,7 +14,7 @@ using UnityEngine;
 
 namespace Mirror
 {
-    [AddComponentMenu("Network/Network Transform Quake 2022")]
+    [AddComponentMenu("Network/Network Transform Hybrid 2022")]
     public class NetworkTransformHybrid2022 : NetworkBehaviour
     {
         // target transform to sync. can be on a child.
