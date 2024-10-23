@@ -10,15 +10,26 @@ namespace Mirror.Tests.NetworkIdentities
     public class NetworkIdentitySerializationTests : MirrorEditModeTest
     {
         // writers are always needed. create in setup for convenience.
-        NetworkWriter ownerWriter;
-        NetworkWriter observersWriter;
+        NetworkWriter ownerWriterReliable;
+        NetworkWriter observersWriterReliable;
+        NetworkWriter ownerWriterUnreliableBaseline;
+        NetworkWriter observersWriterUnreliableBaseline;
+        NetworkWriter ownerWriterUnreliableDelta;
+        NetworkWriter observersWriterUnreliableDelta;
 
         [SetUp]
         public override void SetUp()
         {
             base.SetUp();
-            ownerWriter = new NetworkWriter();
-            observersWriter = new NetworkWriter();
+
+            ownerWriterReliable = new NetworkWriter();
+            observersWriterReliable = new NetworkWriter();
+
+            ownerWriterUnreliableBaseline = new NetworkWriter();
+            observersWriterUnreliableBaseline = new NetworkWriter();
+
+            ownerWriterUnreliableDelta = new NetworkWriter();
+            observersWriterUnreliableDelta = new NetworkWriter();
 
             NetworkServer.Listen(1);
             ConnectClientBlockingAuthenticatedAndReady(out _);
@@ -33,7 +44,7 @@ namespace Mirror.Tests.NetworkIdentities
         // serialize -> deserialize. multiple components to be sure.
         // one for Owner, one for Observer
         [Test]
-        public void SerializeAndDeserializeAll()
+        public void SerializeServer_Spawn_OwnerAndObserver()
         {
             // need two of both versions so we can serialize -> deserialize
             CreateNetworkedAndSpawn(
@@ -50,10 +61,10 @@ namespace Mirror.Tests.NetworkIdentities
             serverObserversComp.value = 42;
 
             // serialize server object
-            serverIdentity.SerializeServer(true, ownerWriter, observersWriter);
+            serverIdentity.SerializeServer_Spawn(ownerWriterReliable, observersWriterReliable);
 
             // deserialize client object with OWNER payload
-            NetworkReader reader = new NetworkReader(ownerWriter.ToArray());
+            NetworkReader reader = new NetworkReader(ownerWriterReliable.ToArray());
             clientIdentity.DeserializeClient(reader, true);
             Assert.That(clientOwnerComp.value, Is.EqualTo("42"));
             Assert.That(clientObserversComp.value, Is.EqualTo(42));
@@ -63,7 +74,7 @@ namespace Mirror.Tests.NetworkIdentities
             clientObserversComp.value = 0;
 
             // deserialize client object with OBSERVERS payload
-            reader = new NetworkReader(observersWriter.ToArray());
+            reader = new NetworkReader(observersWriterReliable.ToArray());
             clientIdentity.DeserializeClient(reader, true);
             Assert.That(clientOwnerComp.value, Is.EqualTo(null)); // owner mode shouldn't be in data
             Assert.That(clientObserversComp.value, Is.EqualTo(42)); // observers mode should be in data
@@ -96,12 +107,12 @@ namespace Mirror.Tests.NetworkIdentities
             // serialize server object
             // should work even if compExc throws an exception.
             // error log because of the exception is expected.
-            serverIdentity.SerializeServer(true, ownerWriter, observersWriter);
+            serverIdentity.SerializeServer_Spawn(ownerWriterReliable, observersWriterReliable);
 
             // deserialize client object with OWNER payload
             // should work even if compExc throws an exception
             // error log because of the exception is expected
-            NetworkReader reader = new NetworkReader(ownerWriter.ToArray());
+            NetworkReader reader = new NetworkReader(ownerWriterReliable.ToArray());
             clientIdentity.DeserializeClient(reader, true);
             Assert.That(clientComp2.value, Is.EqualTo("42"));
 
@@ -111,7 +122,7 @@ namespace Mirror.Tests.NetworkIdentities
             // deserialize client object with OBSERVER payload
             // should work even if compExc throws an exception
             // error log because of the exception is expected
-            reader = new NetworkReader(observersWriter.ToArray());
+            reader = new NetworkReader(observersWriterReliable.ToArray());
             clientIdentity.DeserializeClient(reader, true);
             Assert.That(clientComp2.value, Is.EqualTo(null)); // owner mode should be in data
 
@@ -187,12 +198,12 @@ namespace Mirror.Tests.NetworkIdentities
             serverComp.value = "42";
 
             // serialize server object
-            serverIdentity.SerializeServer(true, ownerWriter, observersWriter);
+            serverIdentity.SerializeServer_Spawn(ownerWriterReliable, observersWriterReliable);
 
             // deserialize on client
             // ignore warning log because of serialization mismatch
             LogAssert.ignoreFailingMessages = true;
-            NetworkReader reader = new NetworkReader(ownerWriter.ToArray());
+            NetworkReader reader = new NetworkReader(ownerWriterReliable.ToArray());
             clientIdentity.DeserializeClient(reader, true);
             LogAssert.ignoreFailingMessages = false;
 
@@ -206,12 +217,16 @@ namespace Mirror.Tests.NetworkIdentities
         // 0-dirty-mask. instead, we need to ensure it writes nothing.
         // too easy to miss, with too significant bandwidth implications.
         [Test]
-        public void SerializeServer_NotInitial_NotDirty_WritesNothing()
+        public void SerializeServer_Broadcast_NotDirty_WritesNothing()
         {
             // create spawned so that isServer/isClient is set properly
             CreateNetworkedAndSpawn(
                 out _, out NetworkIdentity serverIdentity, out SerializeTest1NetworkBehaviour serverComp1, out SerializeTest2NetworkBehaviour serverComp2,
                 out _, out NetworkIdentity clientIdentity, out SerializeTest1NetworkBehaviour clientComp1, out SerializeTest2NetworkBehaviour clientComp2);
+
+            // some reliable, some unreliable components
+            serverComp1.syncMethod = clientComp1.syncMethod = SyncMethod.Reliable;
+            serverComp2.syncMethod = clientComp2.syncMethod = SyncMethod.Unreliable;
 
             // change nothing
             // serverComp.value = "42";
@@ -219,9 +234,20 @@ namespace Mirror.Tests.NetworkIdentities
             // serialize server object.
             // 'initial' would write everything.
             // instead, try 'not initial' with 0 dirty bits
-            serverIdentity.SerializeServer(false, ownerWriter, observersWriter);
-            Assert.That(ownerWriter.Position, Is.EqualTo(0));
-            Assert.That(observersWriter.Position, Is.EqualTo(0));
+            serverIdentity.SerializeServer_Broadcast(
+                ownerWriterReliable, observersWriterReliable,
+                ownerWriterUnreliableBaseline, observersWriterUnreliableBaseline,
+                ownerWriterUnreliableDelta, observersWriterUnreliableDelta,
+                false);
+
+            Assert.That(ownerWriterReliable.Position, Is.EqualTo(0));
+            Assert.That(observersWriterReliable.Position, Is.EqualTo(0));
+
+            Assert.That(ownerWriterUnreliableBaseline.Position, Is.EqualTo(0));
+            Assert.That(observersWriterUnreliableBaseline.Position, Is.EqualTo(0));
+
+            Assert.That(ownerWriterUnreliableDelta.Position, Is.EqualTo(0));
+            Assert.That(observersWriterUnreliableDelta.Position, Is.EqualTo(0));
         }
 
         [Test]
@@ -231,6 +257,10 @@ namespace Mirror.Tests.NetworkIdentities
             CreateNetworkedAndSpawn(
                 out _, out NetworkIdentity serverIdentity, out SerializeTest1NetworkBehaviour serverComp1, out SerializeTest2NetworkBehaviour serverComp2,
                 out _, out NetworkIdentity clientIdentity, out SerializeTest1NetworkBehaviour clientComp1, out SerializeTest2NetworkBehaviour clientComp2);
+
+            // some reliable, some unreliable components
+            serverComp1.syncMethod = clientComp1.syncMethod = SyncMethod.Reliable;
+            serverComp2.syncMethod = clientComp2.syncMethod = SyncMethod.Unreliable;
 
             // client only serializes owned ClientToServer components
             clientIdentity.isOwned = true;
@@ -243,8 +273,10 @@ namespace Mirror.Tests.NetworkIdentities
             // clientComp.value = "42";
 
             // serialize client object
-            clientIdentity.SerializeClient(ownerWriter);
-            Assert.That(ownerWriter.Position, Is.EqualTo(0));
+            clientIdentity.SerializeClient(ownerWriterReliable, ownerWriterUnreliableBaseline, ownerWriterUnreliableDelta, false);
+            Assert.That(ownerWriterReliable.Position, Is.EqualTo(0));
+            Assert.That(ownerWriterUnreliableBaseline.Position, Is.EqualTo(0));
+            Assert.That(ownerWriterUnreliableDelta.Position, Is.EqualTo(0));
         }
 
         // serialize -> deserialize. multiple components to be sure.
@@ -267,11 +299,11 @@ namespace Mirror.Tests.NetworkIdentities
             comp2.value = "67890";
 
             // serialize all
-            identity.SerializeClient(ownerWriter);
+            identity.SerializeClient(ownerWriterReliable, new NetworkWriter(), new NetworkWriter(), false);
 
             // shouldn't sync anything. because even though it's ClientToServer,
             // we don't own this one so we shouldn't serialize & sync it.
-            Assert.That(ownerWriter.Position, Is.EqualTo(0));
+            Assert.That(ownerWriterReliable.Position, Is.EqualTo(0));
         }
 
         // server should still send initial even if Owner + ClientToServer
@@ -279,72 +311,262 @@ namespace Mirror.Tests.NetworkIdentities
         public void SerializeServer_OwnerMode_ClientToServer()
         {
             CreateNetworked(out GameObject _, out NetworkIdentity identity,
-                out SyncVarTest1NetworkBehaviour comp);
+                out SyncVarTest1NetworkBehaviour comp1,
+                out SyncVarTest2NetworkBehaviour comp2);
+
+            // one Reliable, one Unreliable component
+            comp1.syncMethod = SyncMethod.Reliable;
+            comp2.syncMethod = SyncMethod.Unreliable;
 
             // pretend to be owned
             identity.isOwned = true;
-            comp.syncMode = SyncMode.Owner;
-            comp.syncInterval = 0;
+            comp1.syncMode = comp2.syncMode = SyncMode.Owner;
+            comp1.syncInterval = comp2.syncInterval = 0;
 
             // set to CLIENT with some unique values
             // and set connection to server to pretend we are the owner.
-            comp.syncDirection = SyncDirection.ClientToServer;
-            comp.SetValue(11); // modify with helper function to avoid #3525
+            comp1.syncDirection = comp2.syncDirection = SyncDirection.ClientToServer;
+            comp1.SetValue(11); // modify with helper function to avoid #3525
+            comp2.SetValue("22"); // modify with helper function to avoid #3525
 
             // initial: should still write for owner
-            identity.SerializeServer(true, ownerWriter, observersWriter);
-            Debug.Log("initial ownerWriter: " + ownerWriter);
-            Debug.Log("initial observerWriter: " + observersWriter);
-            Assert.That(ownerWriter.Position, Is.GreaterThan(0));
-            Assert.That(observersWriter.Position, Is.EqualTo(0));
+            identity.SerializeServer_Spawn(ownerWriterReliable, observersWriterReliable);
+            Debug.Log("initial ownerWriter: " + ownerWriterReliable);
+            Debug.Log("initial observerWriter: " + observersWriterReliable);
+            Assert.That(ownerWriterReliable.Position, Is.GreaterThan(0));
+            Assert.That(observersWriterReliable.Position, Is.EqualTo(0));
 
             // delta: ClientToServer comes from the client
-            comp.SetValue(22); // modify with helper function to avoid #3525
-            ownerWriter.Position = 0;
-            observersWriter.Position = 0;
-            identity.SerializeServer(false, ownerWriter, observersWriter);
-            Debug.Log("delta ownerWriter: " + ownerWriter);
-            Debug.Log("delta observersWriter: " + observersWriter);
-            Assert.That(ownerWriter.Position, Is.EqualTo(0));
-            Assert.That(observersWriter.Position, Is.EqualTo(0));
+            comp1.SetValue(33); // modify with helper function to avoid #3525
+            comp2.SetValue("44"); // modify with helper function to avoid #3525
+            ownerWriterReliable.Position = 0;
+            observersWriterReliable.Position = 0;
+            identity.SerializeServer_Broadcast(
+                ownerWriterReliable, observersWriterReliable,
+                ownerWriterUnreliableBaseline, observersWriterUnreliableBaseline,
+                ownerWriterUnreliableDelta, observersWriterUnreliableDelta,
+                false);
+            Debug.Log("delta ownerWriter: " + ownerWriterReliable);
+            Debug.Log("delta observersWriter: " + observersWriterReliable);
+
+            Assert.That(ownerWriterReliable.Position, Is.EqualTo(0));
+            Assert.That(observersWriterReliable.Position, Is.EqualTo(0));
+
+            Assert.That(ownerWriterUnreliableBaseline.Position, Is.EqualTo(0));
+            Assert.That(observersWriterUnreliableBaseline.Position, Is.EqualTo(0));
+
+            Assert.That(ownerWriterUnreliableDelta.Position, Is.EqualTo(0));
+            Assert.That(observersWriterUnreliableDelta.Position, Is.EqualTo(0));
         }
 
-        // TODO this started failing after we moved SyncVarTest1NetworkBehaviour
-        // into it's own asmdef.
         // server should still broadcast ClientToServer components to everyone
         // except the owner.
         [Test]
         public void SerializeServer_ObserversMode_ClientToServer()
         {
             CreateNetworked(out GameObject _, out NetworkIdentity identity,
-                out SyncVarTest1NetworkBehaviour comp);
+                out SyncVarTest1NetworkBehaviour comp1,
+                out SyncVarTest2NetworkBehaviour comp2);
+
+            // one Reliable, one Unreliable component
+            comp1.syncMethod = SyncMethod.Reliable;
+            comp2.syncMethod = SyncMethod.Unreliable;
 
             // pretend to be owned
             identity.isOwned = true;
-            comp.syncMode = SyncMode.Observers;
-            comp.syncInterval = 0;
+            comp1.syncMode = comp2.syncMode = SyncMode.Observers;
+            comp1.syncInterval = comp2.syncInterval = 0;
 
             // set to CLIENT with some unique values
             // and set connection to server to pretend we are the owner.
-            comp.syncDirection = SyncDirection.ClientToServer;
-            comp.SetValue(11); // modify with helper function to avoid #3525
+            comp1.syncDirection = comp2.syncDirection = SyncDirection.ClientToServer;
+            comp1.SetValue(11); // modify with helper function to avoid #3525
+            comp2.SetValue("22"); // modify with helper function to avoid #3525
 
-            // initial: should write something for owner and observers
-            identity.SerializeServer(true, ownerWriter, observersWriter);
-            Debug.Log("initial ownerWriter: " + ownerWriter);
-            Debug.Log("initial observerWriter: " + observersWriter);
-            Assert.That(ownerWriter.Position, Is.GreaterThan(0));
-            Assert.That(observersWriter.Position, Is.GreaterThan(0));
+            // initial: should still write for owner AND observers
+            identity.SerializeServer_Spawn(ownerWriterReliable, observersWriterReliable);
+            Debug.Log("initial ownerWriter: " + ownerWriterReliable);
+            Debug.Log("initial observerWriter: " + observersWriterReliable);
+            Assert.That(ownerWriterReliable.Position, Is.GreaterThan(0));
+            Assert.That(observersWriterReliable.Position, Is.GreaterThan(0));
 
             // delta: should only write for observers
-            comp.SetValue(22); // modify with helper function to avoid #3525
-            ownerWriter.Position = 0;
-            observersWriter.Position = 0;
-            identity.SerializeServer(false, ownerWriter, observersWriter);
-            Debug.Log("delta ownerWriter: " + ownerWriter);
-            Debug.Log("delta observersWriter: " + observersWriter);
-            Assert.That(ownerWriter.Position, Is.EqualTo(0));
-            Assert.That(observersWriter.Position, Is.GreaterThan(0));
+            comp1.SetValue(33); // modify with helper function to avoid #3525
+            comp2.SetValue("44"); // modify with helper function to avoid #3525
+            ownerWriterReliable.Position = 0;
+            observersWriterReliable.Position = 0;
+            identity.SerializeServer_Broadcast(
+                ownerWriterReliable, observersWriterReliable,
+                ownerWriterUnreliableBaseline, observersWriterUnreliableBaseline,
+                ownerWriterUnreliableDelta, observersWriterUnreliableDelta,
+                false);
+            Debug.Log("delta ownerWriter: " + ownerWriterReliable);
+            Debug.Log("delta observersWriter: " + observersWriterReliable);
+
+            Assert.That(ownerWriterReliable.Position, Is.EqualTo(0));
+            Assert.That(observersWriterReliable.Position, Is.GreaterThan(0));
+
+            Assert.That(ownerWriterUnreliableBaseline.Position, Is.EqualTo(0));
+            Assert.That(observersWriterUnreliableBaseline.Position, Is.GreaterThan(0));
+
+            Assert.That(ownerWriterUnreliableDelta.Position, Is.EqualTo(0));
+            Assert.That(observersWriterUnreliableDelta.Position, Is.GreaterThan(0));
+        }
+
+        [Test]
+        public void SerializeServer_ObserversMode_ServerToClient_ReliableAndUnreliable()
+        {
+            CreateNetworked(out GameObject _, out NetworkIdentity identity,
+                out SyncVarTest1NetworkBehaviour comp1,
+                out SyncVarTest2NetworkBehaviour comp2);
+
+            // one Reliable, one Unreliable component
+            comp1.syncMethod = SyncMethod.Reliable;
+            comp2.syncMethod = SyncMethod.Unreliable;
+
+            // pretend to be owned
+            identity.isOwned = true;
+            comp1.syncMode = comp2.syncMode = SyncMode.Observers;
+            comp1.syncInterval = comp2.syncInterval = 0;
+
+            // set to CLIENT with some unique values
+            // and set connection to server to pretend we are the owner.
+            comp1.syncDirection = comp2.syncDirection = SyncDirection.ServerToClient;
+            comp1.SetValue(11); // modify with helper function to avoid #3525
+            comp2.SetValue("22"); // modify with helper function to avoid #3525
+
+            // initial: should still write for owner AND observers
+            identity.SerializeServer_Spawn(ownerWriterReliable, observersWriterReliable);
+            Debug.Log("initial ownerWriter: " + ownerWriterReliable);
+            Debug.Log("initial observerWriter: " + observersWriterReliable);
+            Assert.That(ownerWriterReliable.Position, Is.GreaterThan(0));
+            Assert.That(observersWriterReliable.Position, Is.GreaterThan(0));
+
+            // delta: should write something for all
+            comp1.SetValue(33); // modify with helper function to avoid #3525
+            comp2.SetValue("44"); // modify with helper function to avoid #3525
+            ownerWriterReliable.Position = 0;
+            observersWriterReliable.Position = 0;
+            identity.SerializeServer_Broadcast(
+                ownerWriterReliable, observersWriterReliable,
+                ownerWriterUnreliableBaseline, observersWriterUnreliableBaseline,
+                ownerWriterUnreliableDelta, observersWriterUnreliableDelta,
+                false);
+            Debug.Log("delta ownerWriter: " + ownerWriterReliable);
+            Debug.Log("delta observersWriter: " + observersWriterReliable);
+
+            Assert.That(ownerWriterReliable.Position, Is.GreaterThan(0));
+            Assert.That(observersWriterReliable.Position, Is.GreaterThan(0));
+
+            Assert.That(ownerWriterUnreliableBaseline.Position, Is.GreaterThan(0));
+            Assert.That(observersWriterUnreliableBaseline.Position, Is.GreaterThan(0));
+
+            Assert.That(ownerWriterUnreliableDelta.Position, Is.GreaterThan(0));
+            Assert.That(observersWriterUnreliableDelta.Position, Is.GreaterThan(0));
+        }
+
+        [Test]
+        public void SerializeServer_ObserversMode_ServerToClient_ReliableOnly()
+        {
+            CreateNetworked(out GameObject _, out NetworkIdentity identity,
+                out SyncVarTest1NetworkBehaviour comp1,
+                out SyncVarTest2NetworkBehaviour comp2);
+
+            // one Reliable, one Unreliable component
+            comp1.syncMethod = SyncMethod.Reliable;
+            comp2.syncMethod = SyncMethod.Unreliable;
+
+            // pretend to be owned
+            identity.isOwned = true;
+            comp1.syncMode = comp2.syncMode = SyncMode.Observers;
+            comp1.syncInterval = comp2.syncInterval = 0;
+
+            // set to CLIENT with some unique values
+            // and set connection to server to pretend we are the owner.
+            comp1.syncDirection = comp2.syncDirection = SyncDirection.ServerToClient;
+            comp1.SetValue(11); // modify with helper function to avoid #3525
+            // comp2.SetValue("22"); // Unreliable component doesn't change this time
+
+            // initial: should still write for owner AND observers
+            identity.SerializeServer_Spawn(ownerWriterReliable, observersWriterReliable);
+            Debug.Log("initial ownerWriter: " + ownerWriterReliable);
+            Debug.Log("initial observerWriter: " + observersWriterReliable);
+            Assert.That(ownerWriterReliable.Position, Is.GreaterThan(0));
+            Assert.That(observersWriterReliable.Position, Is.GreaterThan(0));
+
+            // delta: should write something for all
+            comp1.SetValue(33); // modify with helper function to avoid #3525
+            // comp2.SetValue("44"); // Unreliable component doesn't change this time
+            ownerWriterReliable.Position = 0;
+            observersWriterReliable.Position = 0;
+            identity.SerializeServer_Broadcast(
+                ownerWriterReliable, observersWriterReliable,
+                ownerWriterUnreliableBaseline, observersWriterUnreliableBaseline,
+                ownerWriterUnreliableDelta, observersWriterUnreliableDelta,
+                false);
+            Debug.Log("delta ownerWriter: " + ownerWriterReliable);
+            Debug.Log("delta observersWriter: " + observersWriterReliable);
+
+            Assert.That(ownerWriterReliable.Position, Is.GreaterThan(0));
+            Assert.That(observersWriterReliable.Position, Is.GreaterThan(0));
+
+            Assert.That(ownerWriterUnreliableBaseline.Position, Is.EqualTo(0));
+            Assert.That(observersWriterUnreliableBaseline.Position, Is.EqualTo(0));
+
+            Assert.That(ownerWriterUnreliableDelta.Position, Is.EqualTo(0));
+            Assert.That(observersWriterUnreliableDelta.Position, Is.EqualTo(0));
+        }
+
+        [Test]
+        public void SerializeServer_ObserversMode_ServerToClient_UnreliableOnly()
+        {
+            CreateNetworked(out GameObject _, out NetworkIdentity identity,
+                out SyncVarTest1NetworkBehaviour comp1,
+                out SyncVarTest2NetworkBehaviour comp2);
+
+            // one Reliable, one Unreliable component
+            comp1.syncMethod = SyncMethod.Reliable;
+            comp2.syncMethod = SyncMethod.Unreliable;
+
+            // pretend to be owned
+            identity.isOwned = true;
+            comp1.syncMode = comp2.syncMode = SyncMode.Observers;
+            comp1.syncInterval = comp2.syncInterval = 0;
+
+            // set to CLIENT with some unique values
+            // and set connection to server to pretend we are the owner.
+            comp1.syncDirection = comp2.syncDirection = SyncDirection.ServerToClient;
+            // comp1.SetValue(11); // Reliable component doesn't change this time
+            comp2.SetValue("22"); // modify with helper function to avoid #3525
+
+            // initial: should still write for owner AND observers
+            identity.SerializeServer_Spawn(ownerWriterReliable, observersWriterReliable);
+            Debug.Log("initial ownerWriter: " + ownerWriterReliable);
+            Debug.Log("initial observerWriter: " + observersWriterReliable);
+            Assert.That(ownerWriterReliable.Position, Is.GreaterThan(0));
+            Assert.That(observersWriterReliable.Position, Is.GreaterThan(0));
+
+            // delta: should write something for all
+            // comp1.SetValue(33); // Reliable component doesn't change this time
+            comp2.SetValue("44"); // modify with helper function to avoid #3525
+            ownerWriterReliable.Position = 0;
+            observersWriterReliable.Position = 0;
+            identity.SerializeServer_Broadcast(
+                ownerWriterReliable, observersWriterReliable,
+                ownerWriterUnreliableBaseline, observersWriterUnreliableBaseline,
+                ownerWriterUnreliableDelta, observersWriterUnreliableDelta,
+                false);
+            Debug.Log("delta ownerWriter: " + ownerWriterReliable);
+            Debug.Log("delta observersWriter: " + observersWriterReliable);
+
+            Assert.That(ownerWriterReliable.Position, Is.EqualTo(0));
+            Assert.That(observersWriterReliable.Position, Is.EqualTo(0));
+
+            Assert.That(ownerWriterUnreliableBaseline.Position, Is.GreaterThan(0));
+            Assert.That(observersWriterUnreliableBaseline.Position, Is.GreaterThan(0));
+
+            Assert.That(ownerWriterUnreliableDelta.Position, Is.GreaterThan(0));
+            Assert.That(observersWriterUnreliableDelta.Position, Is.GreaterThan(0));
         }
     }
 }
