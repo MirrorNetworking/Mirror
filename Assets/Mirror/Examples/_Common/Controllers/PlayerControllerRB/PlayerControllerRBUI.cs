@@ -6,7 +6,7 @@ namespace Mirror.Examples.Common.Controllers.Player
 {
     [AddComponentMenu("")]
     [DisallowMultipleComponent]
-    public class PlayerControllerKRBUI : ContollerUIBase
+    public class PlayerControllerRBUI : ContollerUIBase
     {
         [Serializable]
         public struct MoveTexts
@@ -31,7 +31,7 @@ namespace Mirror.Examples.Common.Controllers.Player
         [SerializeField] MoveTexts moveTexts;
         [SerializeField] OptionsTexts optionsTexts;
 
-        public void Refresh(PlayerControllerKRBBase.MoveKeys moveKeys, PlayerControllerKRBBase.OptionsKeys optionsKeys)
+        public void Refresh(PlayerControllerRBBase.MoveKeys moveKeys, PlayerControllerRBBase.OptionsKeys optionsKeys)
         {
             // Movement Keys
             moveTexts.keyTextTurnLeft.text = GetKeyText(moveKeys.TurnLeft);

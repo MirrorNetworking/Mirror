@@ -9,7 +9,7 @@ namespace Mirror.Examples.Common.Controllers.Player
     [RequireComponent(typeof(CapsuleCollider))]
     [RequireComponent(typeof(NetworkIdentity))]
     [DisallowMultipleComponent]
-    public class PlayerControllerKRBBase : NetworkBehaviour
+    public class PlayerControllerRBBase : NetworkBehaviour
     {
         const float BASE_DPI = 96f;
 
@@ -290,7 +290,7 @@ namespace Mirror.Examples.Common.Controllers.Player
 
             if (runtimeData.controllerUI != null)
             {
-                if (runtimeData.controllerUI.TryGetComponent(out PlayerControllerKRBUI canvasControlPanel))
+                if (runtimeData.controllerUI.TryGetComponent(out PlayerControllerRBUI canvasControlPanel))
                     canvasControlPanel.Refresh(moveKeys, optionsKeys);
 
                 runtimeData.controllerUI.SetActive(controlOptions.HasFlag(ControlOptions.ShowUI));
@@ -322,6 +322,22 @@ namespace Mirror.Examples.Common.Controllers.Player
             HandleMove(deltaTime);
         }
 
+        void FixedUpdate()
+        {
+            float fixedDeltaTime = Time.fixedDeltaTime;
+            ApplyMove(fixedDeltaTime);
+
+            // Update ground state
+            bool isGrounded = Physics.Raycast(transform.position, Vector3.down, capsuleCollider.height / 2 + 0.1f);
+            if (isGrounded)
+                runtimeData.groundState = GroundState.Grounded;
+            else if (runtimeData.groundState != GroundState.Jumping)
+                runtimeData.groundState = GroundState.Falling;
+
+            // Update velocity for diagnostics
+            runtimeData.velocity = Vector3Int.FloorToInt(rigidBody.velocity);
+        }
+
         void HandleOptions()
         {
             if (optionsKeys.MouseSteer != KeyCode.None && Input.GetKeyUp(optionsKeys.MouseSteer))
@@ -346,22 +362,6 @@ namespace Mirror.Examples.Common.Controllers.Player
         {
             Cursor.lockState = locked ? CursorLockMode.Locked : CursorLockMode.None;
             Cursor.visible = !locked;
-        }
-
-        void FixedUpdate()
-        {
-            float fixedDeltaTime = Time.fixedDeltaTime;
-            ApplyMove(fixedDeltaTime);
-
-            // Update ground state
-            bool isGrounded = Physics.Raycast(transform.position, Vector3.down, capsuleCollider.height / 2 + 0.1f);
-            if (isGrounded)
-                runtimeData.groundState = GroundState.Grounded;
-            else if (runtimeData.groundState != GroundState.Jumping)
-                runtimeData.groundState = GroundState.Falling;
-
-            // Update velocity for diagnostics
-            runtimeData.velocity = Vector3Int.FloorToInt(rigidBody.velocity);
         }
 
         // Turning works while airborne...feature?
