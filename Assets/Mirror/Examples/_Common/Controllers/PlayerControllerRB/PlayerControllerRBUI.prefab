@@ -143,7 +143,7 @@ GameObject:
   - component: {fileID: 28027543193692803}
   - component: {fileID: 5839359391402956113}
   m_Layer: 5
-  m_Name: PlayerControllerKRBUI
+  m_Name: PlayerControllerRBUI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
