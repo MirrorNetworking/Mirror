@@ -236,8 +236,6 @@ namespace Mirror.Examples.Common.Controllers.Player
             // Freeze rotation on X and Z axes, but allow rotation on Y axis
             rigidBody.constraints = RigidbodyConstraints.FreezeRotation;
 
-            GetComponent<Rigidbody>().isKinematic = true;
-
 #if UNITY_EDITOR
             // For convenience in the examples, we use the GUID of the PlayerControllerUI
             // to find the correct prefab in the Mirror/Examples/_Common/Controllers folder.
@@ -312,6 +310,16 @@ namespace Mirror.Examples.Common.Controllers.Player
         void Update()
         {
             HandleOptions();
+
+            float deltaTime = Time.deltaTime;
+
+            if (controlOptions.HasFlag(ControlOptions.MouseSteer))
+                HandleMouseSteer(deltaTime);
+            else
+                HandleTurning(deltaTime);
+
+            HandleJumping(deltaTime);
+            HandleMove(deltaTime);
         }
 
         void HandleOptions()
@@ -343,14 +351,6 @@ namespace Mirror.Examples.Common.Controllers.Player
         void FixedUpdate()
         {
             float fixedDeltaTime = Time.fixedDeltaTime;
-
-            if (controlOptions.HasFlag(ControlOptions.MouseSteer))
-                HandleMouseSteer(fixedDeltaTime);
-            else
-                HandleTurning(fixedDeltaTime);
-
-            HandleJumping(fixedDeltaTime);
-            HandleMove(fixedDeltaTime);
             ApplyMove(fixedDeltaTime);
 
             // Update ground state
@@ -365,7 +365,7 @@ namespace Mirror.Examples.Common.Controllers.Player
         }
 
         // Turning works while airborne...feature?
-        void HandleTurning(float fixedDeltaTime)
+        void HandleTurning(float deltaTime)
         {
             float targetTurnSpeed = 0f;
 
@@ -378,13 +378,13 @@ namespace Mirror.Examples.Common.Controllers.Player
             // If there's turn input or AutoRun is not enabled, adjust turn speed towards target
             // If no turn input and AutoRun is enabled, maintain the previous turn speed
             if (targetTurnSpeed != 0f || !controlOptions.HasFlag(ControlOptions.AutoRun))
-                runtimeData.turnSpeed = Mathf.MoveTowards(runtimeData.turnSpeed, targetTurnSpeed, turnAcceleration * maxTurnSpeed * fixedDeltaTime);
+                runtimeData.turnSpeed = Mathf.MoveTowards(runtimeData.turnSpeed, targetTurnSpeed, turnAcceleration * maxTurnSpeed * deltaTime);
 
             //transform.Rotate(0f, runtimeData.turnSpeed * fixedDeltaTime, 0f);
-            transform.Rotate(transform.up, runtimeData.turnSpeed * fixedDeltaTime, Space.World);
+            transform.Rotate(transform.up, runtimeData.turnSpeed * deltaTime, Space.World);
         }
 
-        void HandleMouseSteer(float fixedDeltaTime)
+        void HandleMouseSteer(float deltaTime)
         {
             // Accumulate mouse input over time
             runtimeData.mouseInputX += Input.GetAxisRaw("Mouse X") * runtimeData.mouseSensitivity;
@@ -396,16 +396,16 @@ namespace Mirror.Examples.Common.Controllers.Player
             float targetTurnSpeed = runtimeData.mouseInputX * maxTurnSpeed;
 
             // Use the same acceleration logic as HandleTurning
-            runtimeData.turnSpeed = Mathf.MoveTowards(runtimeData.turnSpeed, targetTurnSpeed, runtimeData.mouseSensitivity * maxTurnSpeed * fixedDeltaTime);
+            runtimeData.turnSpeed = Mathf.MoveTowards(runtimeData.turnSpeed, targetTurnSpeed, runtimeData.mouseSensitivity * maxTurnSpeed * deltaTime);
 
             // Apply rotation
             //transform.Rotate(0f, runtimeData.turnSpeed * fixedDeltaTime, 0f);
-            transform.Rotate(transform.up, runtimeData.turnSpeed * fixedDeltaTime, Space.World);
+            transform.Rotate(transform.up, runtimeData.turnSpeed * deltaTime, Space.World);
 
-            runtimeData.mouseInputX = Mathf.MoveTowards(runtimeData.mouseInputX, 0f, runtimeData.mouseSensitivity * fixedDeltaTime);
+            runtimeData.mouseInputX = Mathf.MoveTowards(runtimeData.mouseInputX, 0f, runtimeData.mouseSensitivity * deltaTime);
         }
 
-        void HandleJumping(float fixedDeltaTime)
+        void HandleJumping(float deltaTime)
         {
             if (runtimeData.groundState != GroundState.Falling && moveKeys.Jump != KeyCode.None && Input.GetKey(moveKeys.Jump))
             {
@@ -418,7 +418,7 @@ namespace Mirror.Examples.Common.Controllers.Player
                 {
                     // Increase jumpSpeed using a square root function for a fast start and slow finish
                     float jumpProgress = (runtimeData.jumpSpeed - initialJumpSpeed) / (maxJumpSpeed - initialJumpSpeed);
-                    runtimeData.jumpSpeed += (jumpAcceleration * Mathf.Sqrt(1 - jumpProgress)) * fixedDeltaTime;
+                    runtimeData.jumpSpeed += (jumpAcceleration * Mathf.Sqrt(1 - jumpProgress)) * deltaTime;
                 }
 
                 if (runtimeData.jumpSpeed >= maxJumpSpeed)
@@ -431,14 +431,14 @@ namespace Mirror.Examples.Common.Controllers.Player
             {
                 runtimeData.groundState = GroundState.Falling;
                 runtimeData.jumpSpeed = Mathf.Min(runtimeData.jumpSpeed, maxJumpSpeed);
-                runtimeData.jumpSpeed += Physics.gravity.y * fixedDeltaTime;
+                runtimeData.jumpSpeed += Physics.gravity.y * deltaTime;
             }
             else
                 // maintain small downward speed for when falling off ledges
-                runtimeData.jumpSpeed = Physics.gravity.y * fixedDeltaTime;
+                runtimeData.jumpSpeed = Physics.gravity.y * deltaTime;
         }
 
-        void HandleMove(float fixedDeltaTime)
+        void HandleMove(float deltaTime)
         {
             // Initialize target movement variables
             float targetMoveX = 0f;
@@ -453,18 +453,18 @@ namespace Mirror.Examples.Common.Controllers.Player
             if (targetMoveX == 0f)
             {
                 if (!controlOptions.HasFlag(ControlOptions.AutoRun))
-                    runtimeData.horizontal = Mathf.MoveTowards(runtimeData.horizontal, targetMoveX, inputGravity * fixedDeltaTime);
+                    runtimeData.horizontal = Mathf.MoveTowards(runtimeData.horizontal, targetMoveX, inputGravity * deltaTime);
             }
             else
-                runtimeData.horizontal = Mathf.MoveTowards(runtimeData.horizontal, targetMoveX, inputSensitivity * fixedDeltaTime);
+                runtimeData.horizontal = Mathf.MoveTowards(runtimeData.horizontal, targetMoveX, inputSensitivity * deltaTime);
 
             if (targetMoveZ == 0f)
             {
                 if (!controlOptions.HasFlag(ControlOptions.AutoRun))
-                    runtimeData.vertical = Mathf.MoveTowards(runtimeData.vertical, targetMoveZ, inputGravity * fixedDeltaTime);
+                    runtimeData.vertical = Mathf.MoveTowards(runtimeData.vertical, targetMoveZ, inputGravity * deltaTime);
             }
             else
-                runtimeData.vertical = Mathf.MoveTowards(runtimeData.vertical, targetMoveZ, inputSensitivity * fixedDeltaTime);
+                runtimeData.vertical = Mathf.MoveTowards(runtimeData.vertical, targetMoveZ, inputSensitivity * deltaTime);
         }
 
         void ApplyMove(float fixedDeltaTime)
