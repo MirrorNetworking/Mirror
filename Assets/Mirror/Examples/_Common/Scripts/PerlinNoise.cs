@@ -21,8 +21,9 @@ namespace Mirror.Examples.Common.Controllers.Player
                 Debug.LogError("No Terrain component found on this GameObject.");
                 return;
             }
-
+#if UNITY_EDITOR
             Undo.RecordObject(terrain, "Generate Perlin Noise Terrain");
+#endif
             terrain.terrainData = GenerateTerrainData(terrain.terrainData);
         }
 
