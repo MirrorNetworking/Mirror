@@ -314,11 +314,11 @@ namespace System
         /// <returns>A value less than zero if this is less than <paramref name="obj"/>, zero if this is equal to <paramref name="obj"/>, or a value greater than zero if this is greater than <paramref name="obj"/>.</returns>
         public int CompareTo(object obj)
         {
-            if (obj is not Half other)
+            if (obj is Half other)
             {
-                return (obj is null) ? 1 : throw new ArgumentException("SR.Arg_MustBeHalf");
+                return CompareTo(other);
             }
-            return CompareTo(other);
+            return (obj is null) ? 1 : throw new ArgumentException("SR.Arg_MustBeHalf");
         }
 
         /// <summary>
