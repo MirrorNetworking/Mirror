@@ -132,7 +132,7 @@ PrefabInstance:
     - target: {fileID: 1098173225717622921, guid: c624c75494b4d7d4086b9212f897e56a,
         type: 3}
       propertyPath: m_RootOrder
-      value: 3
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 1098173225717622921, guid: c624c75494b4d7d4086b9212f897e56a,
         type: 3}
@@ -201,18 +201,8 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5948271423698091598, guid: c624c75494b4d7d4086b9212f897e56a,
         type: 3}
-      propertyPath: originScene
-      value: Assets/DungeonTest/Scenes/Level2.unity
-      objectReference: {fileID: 0}
-    - target: {fileID: 5948271423698091598, guid: c624c75494b4d7d4086b9212f897e56a,
-        type: 3}
       propertyPath: startPosition.x
       value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 5948271423698091598, guid: c624c75494b4d7d4086b9212f897e56a,
-        type: 3}
-      propertyPath: startPosition.y
-      value: 1.1
       objectReference: {fileID: 0}
     - target: {fileID: 5948271423698091598, guid: c624c75494b4d7d4086b9212f897e56a,
         type: 3}

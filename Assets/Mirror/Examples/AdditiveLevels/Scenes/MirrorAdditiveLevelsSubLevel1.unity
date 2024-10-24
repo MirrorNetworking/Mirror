@@ -197,7 +197,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 472411619}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -6, y: 0, z: 0}
+  m_LocalPosition: {x: -6, y: 1.02, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1518259679}
@@ -240,7 +240,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 493146027}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -9, y: 0, z: 0}
+  m_LocalPosition: {x: -9, y: 1.02, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1518259679}
@@ -397,7 +397,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1224119056}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 1.02, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1518259679}
@@ -670,7 +670,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1513281386}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -3, y: 0, z: 0}
+  m_LocalPosition: {x: -3, y: 1.02, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1518259679}
@@ -712,7 +712,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1518259678}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.1, z: -10}
+  m_LocalPosition: {x: 0, y: 0, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 493146028}
@@ -872,22 +872,12 @@ PrefabInstance:
     - target: {fileID: 3141292696673982546, guid: c624c75494b4d7d4086b9212f897e56a,
         type: 3}
       propertyPath: sceneId
-      value: 1143465467
-      objectReference: {fileID: 0}
-    - target: {fileID: 3141292696673982546, guid: c624c75494b4d7d4086b9212f897e56a,
-        type: 3}
-      propertyPath: serverOnly
-      value: 0
+      value: 182638750
       objectReference: {fileID: 0}
     - target: {fileID: 5948271423698091598, guid: c624c75494b4d7d4086b9212f897e56a,
         type: 3}
       propertyPath: startPosition.x
       value: -5
-      objectReference: {fileID: 0}
-    - target: {fileID: 5948271423698091598, guid: c624c75494b4d7d4086b9212f897e56a,
-        type: 3}
-      propertyPath: startPosition.y
-      value: 1.1
       objectReference: {fileID: 0}
     - target: {fileID: 5948271423698091598, guid: c624c75494b4d7d4086b9212f897e56a,
         type: 3}
