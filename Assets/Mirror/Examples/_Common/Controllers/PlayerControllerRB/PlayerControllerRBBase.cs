@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -335,7 +335,11 @@ namespace Mirror.Examples.Common.Controllers.Player
                 runtimeData.groundState = GroundState.Falling;
 
             // Update velocity for diagnostics
+#if UNITY_6000_0_OR_NEWER
+            runtimeData.velocity = Vector3Int.FloorToInt(rigidBody.linearVelocity);
+#else
             runtimeData.velocity = Vector3Int.FloorToInt(rigidBody.velocity);
+#endif
         }
 
         void HandleOptions()
@@ -479,7 +483,11 @@ namespace Mirror.Examples.Common.Controllers.Player
             rigidBody.MovePosition(rigidBody.position + runtimeData.direction * fixedDeltaTime);
 
             // Handle vertical movement (jumping and gravity)
+#if UNITY_6000_0_OR_NEWER
+            Vector3 verticalMovement = rigidBody.linearVelocity;
+#else
             Vector3 verticalMovement = rigidBody.velocity;
+#endif
             verticalMovement.y = runtimeData.jumpSpeed;
 
             // Apply gravity
@@ -487,7 +495,11 @@ namespace Mirror.Examples.Common.Controllers.Player
                 verticalMovement.y += Physics.gravity.y * fixedDeltaTime;
 
             // Apply vertical movement
+#if UNITY_6000_0_OR_NEWER
+            rigidBody.linearVelocity = new Vector3(rigidBody.linearVelocity.x, verticalMovement.y, rigidBody.linearVelocity.z);
+#else
             rigidBody.velocity = new Vector3(rigidBody.velocity.x, verticalMovement.y, rigidBody.velocity.z);
+#endif
         }
     }
 }
