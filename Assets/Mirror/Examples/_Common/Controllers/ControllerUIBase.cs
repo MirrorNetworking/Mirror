@@ -4,7 +4,7 @@ namespace Mirror.Examples.Common.Controllers
 {
     [AddComponentMenu("")]
     [DisallowMultipleComponent]
-    public class ContollerUIBase : MonoBehaviour
+    public class ControllerUIBase : MonoBehaviour
     {
 
         // Returns a string representation of a KeyCode that is more suitable

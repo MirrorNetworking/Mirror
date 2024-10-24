@@ -6,7 +6,7 @@ namespace Mirror.Examples.Common.Controllers.Player
 {
     [AddComponentMenu("")]
     [DisallowMultipleComponent]
-    public class PlayerControllerRBUI : ContollerUIBase
+    public class PlayerControllerRBUI : ControllerUIBase
     {
         [Serializable]
         public struct MoveTexts
