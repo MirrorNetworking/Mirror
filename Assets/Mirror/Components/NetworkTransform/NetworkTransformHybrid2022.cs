@@ -247,8 +247,11 @@ namespace Mirror
 
         // cmd delta ///////////////////////////////////////////////////////////
         [Command(channel = Channels.Unreliable)] // unreliable delta
-        void CmdClientToServerDelta_Position(byte baselineTick, Vector3 position)
+        void CmdClientToServerDelta_Position(byte baselineTick, Half x, Half y, Half z)
         {
+            // Half: +-65k with 0.0001 precision is enough for deltas
+            Vector3 position = new Vector3((float)x, (float)y, (float)z);
+
             // Debug.Log($"[{name}] server received delta for baseline #{lastDeserializedBaselineTick}");
             OnClientToServerDeltaSync(baselineTick, position, Quaternion.identity);//, scale);
         }
@@ -261,8 +264,11 @@ namespace Mirror
         }
 
         [Command(channel = Channels.Unreliable)] // unreliable delta
-        void CmdClientToServerDelta_PositionRotation(byte baselineTick, Vector3 position, Quaternion rotation)
+        void CmdClientToServerDelta_PositionRotation(byte baselineTick, Half x, Half y, Half z, Quaternion rotation)
         {
+            // Half: +-65k with 0.0001 precision is enough for deltas
+            Vector3 position = new Vector3((float)x, (float)y, (float)z);
+
             // Debug.Log($"[{name}] server received delta for baseline #{lastDeserializedBaselineTick}");
             OnClientToServerDeltaSync(baselineTick, position, rotation);//, scale);
         }
@@ -368,22 +374,28 @@ namespace Mirror
 
         // rpc delta ///////////////////////////////////////////////////////////
         [ClientRpc(channel = Channels.Unreliable)] // unreliable delta
-        void RpcServerToClientDelta_PositionRotation(byte baselineTick, Vector3 position, Quaternion rotation)
+        void RpcServerToClientDelta_PositionRotation(byte baselineTick, Half x, Half y, Half z, Quaternion rotation)
         {
             // delta is broadcast to all clients.
             // ignore if this object is owned by this client.
             if (IsClientWithAuthority) return;
+
+            // Half: +-65k with 0.0001 precision is enough for deltas
+            Vector3 position = new Vector3((float)x, (float)y, (float)z);
 
             OnServerToClientDeltaSync(baselineTick, position, rotation);//, scale);
         }
 
 
         [ClientRpc(channel = Channels.Unreliable)] // unreliable delta
-        void RpcServerToClientDelta_Position(byte baselineTick, Vector3 position)
+        void RpcServerToClientDelta_Position(byte baselineTick, Half x, Half y, Half z)
         {
             // delta is broadcast to all clients.
             // ignore if this object is owned by this client.
             if (IsClientWithAuthority) return;
+
+            // Half: +-65k with 0.0001 precision is enough for deltas
+            Vector3 position = new Vector3((float)x, (float)y, (float)z);
 
             OnServerToClientDeltaSync(baselineTick, position, Quaternion.identity);//, scale);
         }
@@ -570,26 +582,33 @@ namespace Mirror
                 // TransformSnapshot snapshot = ConstructSnapshot();
                 target.GetLocalPositionAndRotation(out Vector3 position, out Quaternion rotation);
 
+                // Half: +-65k with 0.0001 precision is enough for deltas.
+                // and this cuts position sync bandwidth in half.
+                Half x = (Half)position.x;
+                Half y = (Half)position.y;
+                Half z = (Half)position.z;
+
                 // save bandwidth by only transmitting what is needed.
                 // -> ArraySegment with random data is slower since byte[] copying
                 // -> Vector3? and Quaternion? nullables takes more bandwidth
                 if (syncPosition && syncRotation)
                 {
+
                     // send snapshot without timestamp.
                     // receiver gets it from batch timestamp to save bandwidth.
                     // unreliable redundancy to make up for potential message drops
-                    RpcServerToClientDelta_PositionRotation(lastSerializedBaselineTick, position, rotation);
+                    RpcServerToClientDelta_PositionRotation(lastSerializedBaselineTick, x,y,z, rotation);
                     if (unreliableRedundancy)
-                        RpcServerToClientDelta_PositionRotation(lastSerializedBaselineTick, position, rotation);
+                        RpcServerToClientDelta_PositionRotation(lastSerializedBaselineTick, x,y,z, rotation);
                 }
                 else if (syncPosition)
                 {
                     // send snapshot without timestamp.
                     // receiver gets it from batch timestamp to save bandwidth.
                     // unreliable redundancy to make up for potential message drops
-                    RpcServerToClientDelta_Position(lastSerializedBaselineTick, position);
+                    RpcServerToClientDelta_Position(lastSerializedBaselineTick, x,y,z);
                     if (unreliableRedundancy)
-                        RpcServerToClientDelta_Position(lastSerializedBaselineTick, position);
+                        RpcServerToClientDelta_Position(lastSerializedBaselineTick, x,y,z);
                 }
                 else if (syncRotation)
                 {
@@ -756,6 +775,12 @@ namespace Mirror
                 // TransformSnapshot snapshot = ConstructSnapshot();
                 target.GetLocalPositionAndRotation(out Vector3 position, out Quaternion rotation);
 
+                // Half: +-65k with 0.0001 precision is enough for deltas.
+                // and this cuts position sync bandwidth in half.
+                Half x = (Half)position.x;
+                Half y = (Half)position.y;
+                Half z = (Half)position.z;
+
                 // save bandwidth by only transmitting what is needed.
                 // -> ArraySegment with random data is slower since byte[] copying
                 // -> Vector3? and Quaternion? nullables takes more bandwidth
@@ -764,9 +789,9 @@ namespace Mirror
                     // send snapshot without timestamp.
                     // receiver gets it from batch timestamp to save bandwidth.
                     // unreliable redundancy to make up for potential message drops
-                    CmdClientToServerDelta_PositionRotation(lastSerializedBaselineTick, position, rotation);
+                    CmdClientToServerDelta_PositionRotation(lastSerializedBaselineTick, x,y,z, rotation);
                     if (unreliableRedundancy)
-                        CmdClientToServerDelta_PositionRotation(lastSerializedBaselineTick, position, rotation);
+                        CmdClientToServerDelta_PositionRotation(lastSerializedBaselineTick, x,y,z, rotation);
 
                 }
                 else if (syncPosition)
@@ -774,9 +799,9 @@ namespace Mirror
                     // send snapshot without timestamp.
                     // receiver gets it from batch timestamp to save bandwidth.
                     // unreliable redundancy to make up for potential message drops
-                    CmdClientToServerDelta_Position(lastSerializedBaselineTick, position);
+                    CmdClientToServerDelta_Position(lastSerializedBaselineTick, x,y,z);
                     if (unreliableRedundancy)
-                        CmdClientToServerDelta_Position(lastSerializedBaselineTick, position);
+                        CmdClientToServerDelta_Position(lastSerializedBaselineTick, x,y,z);
                 }
                 else if (syncRotation)
                 {
