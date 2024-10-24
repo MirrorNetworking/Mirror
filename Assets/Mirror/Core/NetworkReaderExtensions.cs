@@ -62,6 +62,8 @@ namespace Mirror
         public static decimal ReadDecimal(this NetworkReader reader) => reader.ReadBlittable<decimal>();
         public static decimal? ReadDecimalNullable(this NetworkReader reader) => reader.ReadBlittableNullable<decimal>();
 
+        public static Half ReadHalf(this NetworkReader reader) => new Half(reader.ReadUShort());
+
         /// <exception cref="T:System.ArgumentException">if an invalid utf8 string is sent</exception>
         public static string ReadString(this NetworkReader reader)
         {
