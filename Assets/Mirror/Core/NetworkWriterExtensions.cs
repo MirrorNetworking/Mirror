@@ -57,6 +57,8 @@ namespace Mirror
         public static void WriteDecimal(this NetworkWriter writer, decimal value) => writer.WriteBlittable(value);
         public static void WriteDecimalNullable(this NetworkWriter writer, decimal? value) => writer.WriteBlittableNullable(value);
 
+        public static void WriteHalf(this NetworkWriter writer, Half value) => writer.WriteUShort(value._value);
+
         public static void WriteString(this NetworkWriter writer, string value)
         {
             // we offset count by '1' to easily support null without writing another byte.
