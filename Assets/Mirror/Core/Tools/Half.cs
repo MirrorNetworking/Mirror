@@ -415,10 +415,6 @@ namespace System
         /// <returns><paramref name="value" /> converted to its nearest representable half-precision floating-point value.</returns>
         public static explicit operator Half(long value) => (Half)(float)value;
 
-        /// <summary>Explicitly converts a <see cref="nint" /> value to its nearest representable half-precision floating-point value.</summary>
-        /// <returns><paramref name="value" /> converted to its nearest representable half-precision floating-point value.</returns>
-        public static explicit operator Half(nint value) => (Half)(float)value;
-
         /// <summary>Explicitly converts a <see cref="float" /> value to its nearest representable half-precision floating-point value.</summary>
         /// <returns><paramref name="value" /> converted to its nearest representable half-precision floating-point value.</returns>
         public static explicit operator Half(float value)
