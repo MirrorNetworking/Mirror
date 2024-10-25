@@ -28,7 +28,7 @@ namespace Mirror.Discovery
 
             // Add default event handler if not already present
             if (!Enumerable.Range(0, networkDiscovery.OnServerFound.GetPersistentEventCount())
-                .Any(i => networkDiscovery.OnServerFound.GetPersistentMethodName(i) == "OnDiscoveredServer"))
+                .Any(i => networkDiscovery.OnServerFound.GetPersistentMethodName(i) == nameof(OnDiscoveredServer)))
             {
                 UnityEditor.Events.UnityEventTools.AddPersistentListener(networkDiscovery.OnServerFound, OnDiscoveredServer);
                 UnityEditor.Undo.RecordObjects(new UnityEngine.Object[] { this, networkDiscovery }, "Set NetworkDiscovery");
