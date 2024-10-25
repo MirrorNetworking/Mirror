@@ -11,10 +11,10 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using UnityEngine;
 
 namespace System
 {
@@ -347,14 +347,13 @@ namespace System
                 return IsNaN(other) ? 0 : -1;
             }
 
-            Debug.Assert(IsNaN(other));
             return 1;
         }
 
         /// <summary>
         /// Returns a value that indicates whether this instance is equal to a specified <paramref name="obj"/>.
         /// </summary>
-        public override bool Equals([NotNullWhen(true)] object obj)
+        public override bool Equals(object obj)
         {
             return (obj is Half other) && Equals(other);
         }
@@ -420,7 +419,7 @@ namespace System
         public static explicit operator Half(float value)
         {
             // Unity implement this!
-            return new Half(UnityEngine.Mathf.FloatToHalf(value));
+            return new Half(Mathf.FloatToHalf(value));
         }
 
         /// <summary>Explicitly converts a <see cref="ushort" /> value to its nearest representable half-precision floating-point value.</summary>
@@ -434,10 +433,6 @@ namespace System
         /// <summary>Explicitly converts a <see cref="ulong" /> value to its nearest representable half-precision floating-point value.</summary>
         /// <returns><paramref name="value" /> converted to its nearest representable half-precision floating-point value.</returns>
         public static explicit operator Half(ulong value) => (Half)(float)value;
-
-        /// <summary>Explicitly converts a <see cref="nuint" /> value to its nearest representable half-precision floating-point value.</summary>
-        /// <returns><paramref name="value" /> converted to its nearest representable half-precision floating-point value.</returns>
-        public static explicit operator Half(nuint value) => (Half)(float)value;
 
         //
         // Explicit Convert From Half
@@ -483,10 +478,6 @@ namespace System
         /// <returns><paramref name="value" /> converted to its nearest representable <see cref="ulong" /> value.</returns>
         public static explicit operator ulong(Half value) => (ulong)(float)value;
 
-        /// <summary>Explicitly converts a half-precision floating-point value to its nearest representable <see cref="UIntPtr" /> value.</summary>
-        /// <returns><paramref name="value" /> converted to its nearest representable <see cref="UIntPtr" /> value.</returns>
-        public static explicit operator nuint(Half value) => (nuint)(float)value;
-
         //
         // Implicit Convert To Half
         //
@@ -503,7 +494,7 @@ namespace System
         /// <returns><paramref name="value" /> converted to its nearest representable <see cref="float" /> value.</returns>
         public static explicit operator float(Half value)
         {
-            return UnityEngine.Mathf.HalfToFloat(value._value);
+            return Mathf.HalfToFloat(value._value);
         }
 
         // IEEE 754 specifies NaNs to be propagated
@@ -535,25 +526,25 @@ namespace System
         // IExponentialFunctions
         //
 
-        public static Half Exp(Half x) => (Half)MathF.Exp((float)x);
+        public static Half Exp(Half x) => (Half)Math.Exp((float)x);
 
         //
         // IFloatingPoint
         //
 
-        public static Half Ceiling(Half x) => (Half)MathF.Ceiling((float)x);
+        public static Half Ceiling(Half x) => (Half)Math.Ceiling((float)x);
 
-        public static Half Floor(Half x) => (Half)MathF.Floor((float)x);
+        public static Half Floor(Half x) => (Half)Math.Floor((float)x);
 
-        public static Half Round(Half x) => (Half)MathF.Round((float)x);
+        public static Half Round(Half x) => (Half)Math.Round((float)x);
 
-        public static Half Round(Half x, int digits) => (Half)MathF.Round((float)x, digits);
+        public static Half Round(Half x, int digits) => (Half)Math.Round((float)x, digits);
 
-        public static Half Round(Half x, MidpointRounding mode) => (Half)MathF.Round((float)x, mode);
+        public static Half Round(Half x, MidpointRounding mode) => (Half)Math.Round((float)x, mode);
 
-        public static Half Round(Half x, int digits, MidpointRounding mode) => (Half)MathF.Round((float)x, digits, mode);
+        public static Half Round(Half x, int digits, MidpointRounding mode) => (Half)Math.Round((float)x, digits, mode);
 
-        public static Half Truncate(Half x) => (Half)MathF.Truncate((float)x);
+        public static Half Truncate(Half x) => (Half)Math.Truncate((float)x);
 
         //
         // IFloatingPointConstants
@@ -571,25 +562,19 @@ namespace System
 
         public static Half NegativeZero => new Half(NegativeZeroBits);
 
-        public static Half Atan2(Half y, Half x) => (Half)MathF.Atan2((float)y, (float)x);
+        public static Half Atan2(Half y, Half x) => (Half)Math.Atan2((float)y, (float)x);
 
-        public static Half Lerp(Half value1, Half value2, Half amount) => (Half)UnityEngine.Mathf.Lerp((float)value1, (float)value2, (float)amount);
+        public static Half Lerp(Half value1, Half value2, Half amount) => (Half)Mathf.Lerp((float)value1, (float)value2, (float)amount);
 
         //
         // IHyperbolicFunctions
         //
 
-        public static Half Acosh(Half x) => (Half)MathF.Acosh((float)x);
+        public static Half Cosh(Half x) => (Half)Math.Cosh((float)x);
 
-        public static Half Asinh(Half x) => (Half)MathF.Asinh((float)x);
+        public static Half Sinh(Half x) => (Half)Math.Sinh((float)x);
 
-        public static Half Atanh(Half x) => (Half)MathF.Atanh((float)x);
-
-        public static Half Cosh(Half x) => (Half)MathF.Cosh((float)x);
-
-        public static Half Sinh(Half x) => (Half)MathF.Sinh((float)x);
-
-        public static Half Tanh(Half x) => (Half)MathF.Tanh((float)x);
+        public static Half Tanh(Half x) => (Half)Math.Tanh((float)x);
 
         //
         // IIncrementOperators
@@ -606,9 +591,9 @@ namespace System
         // ILogarithmicFunctions
         //
 
-        public static Half Log(Half x) => (Half)MathF.Log((float)x);
+        public static Half Log(Half x) => (Half)Math.Log((float)x);
 
-        public static Half Log(Half x, Half newBase) => (Half)MathF.Log((float)x, (float)newBase);
+        public static Half Log(Half x, Half newBase) => (Half)Math.Log((float)x, (float)newBase);
 
         //
         // IModulusOperators
@@ -632,7 +617,7 @@ namespace System
         // INumber
         //
 
-        public static Half Clamp(Half value, Half min, Half max) => (Half)Math.Clamp((float)value, (float)min, (float)max);
+        public static Half Clamp(Half value, Half min, Half max) => (Half)Mathf.Clamp((float)value, (float)min, (float)max);
 
         public static Half CopySign(Half value, Half sign)
         {
@@ -646,7 +631,7 @@ namespace System
             return new Half((ushort)((xbits & ~SignMask) | (ybits & SignMask)));
         }
 
-        public static Half Max(Half x, Half y) => (Half)MathF.Max((float)x, (float)y);
+        public static Half Max(Half x, Half y) => (Half)Math.Max((float)x, (float)y);
 
         public static Half MaxNumber(Half x, Half y)
         {
@@ -669,7 +654,7 @@ namespace System
             return IsNegative(y) ? x : y;
         }
 
-        public static Half Min(Half x, Half y) => (Half)MathF.Min((float)x, (float)y);
+        public static Half Min(Half x, Half y) => (Half)Math.Min((float)x, (float)y);
 
         public static Half MinNumber(Half x, Half y)
         {
@@ -737,13 +722,13 @@ namespace System
         // IPowerFunctions
         //
 
-        public static Half Pow(Half x, Half y) => (Half)MathF.Pow((float)x, (float)y);
+        public static Half Pow(Half x, Half y) => (Half)Math.Pow((float)x, (float)y);
 
         //
         // IRootFunctions
         //
 
-        public static Half Sqrt(Half x) => (Half)MathF.Sqrt((float)x);
+        public static Half Sqrt(Half x) => (Half)Math.Sqrt((float)x);
 
         //
         // ISignedNumber
@@ -761,17 +746,17 @@ namespace System
         // ITrigonometricFunctions
         //
 
-        public static Half Acos(Half x) => (Half)MathF.Acos((float)x);
+        public static Half Acos(Half x) => (Half)Math.Acos((float)x);
 
-        public static Half Asin(Half x) => (Half)MathF.Asin((float)x);
+        public static Half Asin(Half x) => (Half)Math.Asin((float)x);
 
-        public static Half Atan(Half x) => (Half)MathF.Atan((float)x);
+        public static Half Atan(Half x) => (Half)Math.Atan((float)x);
 
-        public static Half Cos(Half x) => (Half)MathF.Cos((float)x);
+        public static Half Cos(Half x) => (Half)Math.Cos((float)x);
 
-        public static Half Sin(Half x) => (Half)MathF.Sin((float)x);
+        public static Half Sin(Half x) => (Half)Math.Sin((float)x);
 
-        public static Half Tan(Half x) => (Half)MathF.Tan((float)x);
+        public static Half Tan(Half x) => (Half)Math.Tan((float)x);
 
         //
         // IUnaryNegationOperators
