@@ -17,11 +17,11 @@ namespace Mirror.Transports.Encryption
 
         void OnEnable()
         {
-            innerProperty = serializedObject.FindProperty("inner");
-            clientValidatesServerPubKeyProperty = serializedObject.FindProperty("clientValidateServerPubKey");
-            clientTrustedPubKeySignaturesProperty = serializedObject.FindProperty("clientTrustedPubKeySignatures");
-            serverKeypairPathProperty = serializedObject.FindProperty("serverKeypairPath");
-            serverLoadKeyPairFromFileProperty = serializedObject.FindProperty("serverLoadKeyPairFromFile");
+            innerProperty = serializedObject.FindProperty("Inner");
+            clientValidatesServerPubKeyProperty = serializedObject.FindProperty("ClientValidateServerPubKey");
+            clientTrustedPubKeySignaturesProperty = serializedObject.FindProperty("ClientTrustedPubKeySignatures");
+            serverKeypairPathProperty = serializedObject.FindProperty("ServerKeypairPath");
+            serverLoadKeyPairFromFileProperty = serializedObject.FindProperty("ServerLoadKeyPairFromFile");
         }
 
         public override void OnInspectorGUI()
