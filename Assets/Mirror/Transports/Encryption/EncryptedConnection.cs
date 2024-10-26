@@ -1,6 +1,7 @@
 using System;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using Mirror.BouncyCastle.Crypto;
 using Mirror.BouncyCastle.Crypto.Agreement;
 using Mirror.BouncyCastle.Crypto.Digests;
@@ -48,20 +49,19 @@ namespace Mirror.Transports.Encryption
         // Set up a global cipher instance, it is initialised/reset before use
         // (AesFastEngine used to exist, but was removed due to side channel issues)
         // use AesUtilities.CreateEngine here as it'll pick the hardware accelerated one if available (which is will not be unless on .net core)
-        static readonly GcmBlockCipher Cipher = new GcmBlockCipher(AesUtilities.CreateEngine());
+        static readonly ThreadLocal<GcmBlockCipher> Cipher = new ThreadLocal<GcmBlockCipher>(() => new GcmBlockCipher(AesUtilities.CreateEngine()));
 
         // Set up a global HKDF with a SHA-256 digest
-        static readonly HkdfBytesGenerator Hkdf = new HkdfBytesGenerator(new Sha256Digest());
+        static readonly ThreadLocal<HkdfBytesGenerator> Hkdf = new ThreadLocal<HkdfBytesGenerator>(() => new HkdfBytesGenerator(new Sha256Digest()));
 
         // Global byte array to store nonce sent by the remote side, they're used immediately after
-        static readonly byte[] ReceiveNonce = new byte[NonceSize];
+        static readonly ThreadLocal<byte[]> ReceiveNonce = new ThreadLocal<byte[]>(() => new byte[NonceSize]);
 
         // Buffer for the remote salt, as bouncycastle needs to take a byte[] *rolls eyes*
-        static readonly byte[] TMPRemoteSaltBuffer = new byte[HkdfSaltSize];
+        static readonly ThreadLocal<byte[]> TMPRemoteSaltBuffer = new ThreadLocal<byte[]>(() => new byte[HkdfSaltSize]);
+
         // buffer for encrypt/decrypt operations, resized larger as needed
-        // this is also the buffer that will be returned to mirror via ArraySegment
-        // so any thread safety concerns would need to take extra care here
-        static byte[] TMPCryptBuffer = new byte[2048];
+        static ThreadLocal<byte[]> TMPCryptBuffer = new ThreadLocal<byte[]>(() => new byte[2048]);
 
         // packet headers
         enum OpCodes : byte
@@ -189,7 +189,7 @@ namespace Mirror.Transports.Encryption
                         }
 
                         ArraySegment<byte> ciphertext = reader.ReadBytesSegment(reader.Remaining - NonceSize);
-                        reader.ReadBytes(ReceiveNonce, NonceSize);
+                        reader.ReadBytes(ReceiveNonce.Value, NonceSize);
 
                         Profiler.BeginSample("EncryptedConnection.Decrypt");
                         ArraySegment<byte> plaintext = Decrypt(ciphertext);
@@ -233,8 +233,8 @@ namespace Mirror.Transports.Encryption
 
                         state = State.WaitingHandshakeReply;
                         ResetTimeouts();
-                        reader.ReadBytes(TMPRemoteSaltBuffer, HkdfSaltSize);
-                        CompleteExchange(reader.ReadBytesSegment(reader.Remaining), TMPRemoteSaltBuffer);
+                        reader.ReadBytes(TMPRemoteSaltBuffer.Value, HkdfSaltSize);
+                        CompleteExchange(reader.ReadBytesSegment(reader.Remaining), TMPRemoteSaltBuffer.Value);
                         SendHandshakeFin();
                         break;
                     case OpCodes.HandshakeFin:
@@ -282,7 +282,7 @@ namespace Mirror.Transports.Encryption
 
         public void Send(ArraySegment<byte> data, int channel)
         {
-            using (NetworkWriterPooled writer = NetworkWriterPool.Get())
+            using (ConcurrentNetworkWriterPooled writer = ConcurrentNetworkWriterPool.Get())
             {
                 writer.WriteByte((byte)OpCodes.Data);
                 Profiler.BeginSample("EncryptedConnection.Encrypt");
@@ -307,25 +307,28 @@ namespace Mirror.Transports.Encryption
             // Need to make the nonce unique again before encrypting another message
             UpdateNonce();
             // Re-initialize the cipher with our cached parameters
-            Cipher.Init(true, cipherParametersEncrypt);
+            Cipher.Value.Init(true, cipherParametersEncrypt);
 
             // Calculate the expected output size, this should always be input size + mac size
-            int outSize = Cipher.GetOutputSize(plaintext.Count);
+            int outSize = Cipher.Value.GetOutputSize(plaintext.Count);
 #if UNITY_EDITOR
             // expecting the outSize to be input size + MacSize
             if (outSize != plaintext.Count + MacSizeBytes)
                 throw new Exception($"Encrypt: Unexpected output size (Expected {plaintext.Count + MacSizeBytes}, got {outSize}");
 #endif
             // Resize the static buffer to fit
-            EnsureSize(ref TMPCryptBuffer, outSize);
+            byte[] cryptBuffer = TMPCryptBuffer.Value;
+            EnsureSize(ref cryptBuffer, outSize);
+            TMPCryptBuffer.Value = cryptBuffer;
+
             int resultLen;
             try
             {
                 // Run the plain text through the cipher, ProcessBytes will only process full blocks
                 resultLen =
-                    Cipher.ProcessBytes(plaintext.Array, plaintext.Offset, plaintext.Count, TMPCryptBuffer, 0);
+                    Cipher.Value.ProcessBytes(plaintext.Array, plaintext.Offset, plaintext.Count, cryptBuffer, 0);
                 // Then run any potentially remaining partial blocks through with DoFinal (and calculate the mac)
-                resultLen += Cipher.DoFinal(TMPCryptBuffer, resultLen);
+                resultLen += Cipher.Value.DoFinal(cryptBuffer, resultLen);
             }
             // catch all Exception's since BouncyCastle is fairly noisy with both standard and their own exception types
             //
@@ -339,7 +342,7 @@ namespace Mirror.Transports.Encryption
             if (resultLen != outSize)
                 throw new Exception($"Encrypt: resultLen did not match outSize (expected {outSize}, got {resultLen})");
 #endif
-            return new ArraySegment<byte>(TMPCryptBuffer, 0, resultLen);
+            return new ArraySegment<byte>(cryptBuffer, 0, resultLen);
         }
 
         ArraySegment<byte> Decrypt(ArraySegment<byte> ciphertext)
@@ -351,25 +354,28 @@ namespace Mirror.Transports.Encryption
                 return new ArraySegment<byte>();
             }
             // Re-initialize the cipher with our cached parameters
-            Cipher.Init(false, cipherParametersDecrypt);
+            Cipher.Value.Init(false, cipherParametersDecrypt);
 
             // Calculate the expected output size, this should always be input size - mac size
-            int outSize = Cipher.GetOutputSize(ciphertext.Count);
+            int outSize = Cipher.Value.GetOutputSize(ciphertext.Count);
 #if UNITY_EDITOR
             // expecting the outSize to be input size - MacSize
             if (outSize != ciphertext.Count - MacSizeBytes)
                 throw new Exception($"Decrypt: Unexpected output size (Expected {ciphertext.Count - MacSizeBytes}, got {outSize}");
 #endif
-            // Resize the static buffer to fit
-            EnsureSize(ref TMPCryptBuffer, outSize);
+
+            byte[] cryptBuffer = TMPCryptBuffer.Value;
+            EnsureSize(ref cryptBuffer, outSize);
+            TMPCryptBuffer.Value = cryptBuffer;
+
             int resultLen;
             try
             {
                 // Run the ciphertext through the cipher, ProcessBytes will only process full blocks
                 resultLen =
-                    Cipher.ProcessBytes(ciphertext.Array, ciphertext.Offset, ciphertext.Count, TMPCryptBuffer, 0);
+                    Cipher.Value.ProcessBytes(ciphertext.Array, ciphertext.Offset, ciphertext.Count, cryptBuffer, 0);
                 // Then run any potentially remaining partial blocks through with DoFinal (and calculate/check the mac)
-                resultLen += Cipher.DoFinal(TMPCryptBuffer, resultLen);
+                resultLen += Cipher.Value.DoFinal(cryptBuffer, resultLen);
             }
             // catch all Exception's since BouncyCastle is fairly noisy with both standard and their own exception types
             catch (Exception e)
@@ -382,7 +388,7 @@ namespace Mirror.Transports.Encryption
             if (resultLen != outSize)
                 throw new Exception($"Decrypt: resultLen did not match outSize (expected {outSize}, got {resultLen})");
 #endif
-            return new ArraySegment<byte>(TMPCryptBuffer, 0, resultLen);
+            return new ArraySegment<byte>(cryptBuffer, 0, resultLen);
         }
 
         void UpdateNonce()
@@ -407,7 +413,7 @@ namespace Mirror.Transports.Encryption
 
         void SendHandshakeAndPubKey(OpCodes opcode)
         {
-            using (NetworkWriterPooled writer = NetworkWriterPool.Get())
+            using (ConcurrentNetworkWriterPooled writer = ConcurrentNetworkWriterPool.Get())
             {
                 writer.WriteByte((byte)opcode);
                 if (opcode == OpCodes.HandshakeAck)
@@ -419,7 +425,7 @@ namespace Mirror.Transports.Encryption
 
         void SendHandshakeFin()
         {
-            using (NetworkWriterPooled writer = NetworkWriterPool.Get())
+            using (ConcurrentNetworkWriterPooled writer = ConcurrentNetworkWriterPool.Get())
             {
                 writer.WriteByte((byte)OpCodes.HandshakeFin);
                 send(writer.ToArraySegment(), Channels.Unreliable);
@@ -477,13 +483,13 @@ namespace Mirror.Transports.Encryption
                 return;
             }
 
-            Hkdf.Init(new HkdfParameters(sharedSecret, salt, HkdfInfo));
+            Hkdf.Value.Init(new HkdfParameters(sharedSecret, salt, HkdfInfo));
 
             // Allocate a buffer for the output key
             byte[] keyRaw = new byte[KeyLength];
 
             // Generate the output keying material
-            Hkdf.GenerateBytes(keyRaw, 0, keyRaw.Length);
+            Hkdf.Value.GenerateBytes(keyRaw, 0, keyRaw.Length);
 
             KeyParameter key = new KeyParameter(keyRaw);
 
@@ -493,7 +499,7 @@ namespace Mirror.Transports.Encryption
             // we pass in the nonce array once (as it's stored by reference) so we can cache the AeadParameters instance
             // instead of creating a new one each encrypt/decrypt
             cipherParametersEncrypt = new AeadParameters(key, MacSizeBits, nonce);
-            cipherParametersDecrypt = new AeadParameters(key, MacSizeBits, ReceiveNonce);
+            cipherParametersDecrypt = new AeadParameters(key, MacSizeBits, ReceiveNonce.Value);
         }
 
         /**

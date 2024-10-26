@@ -77,5 +77,8 @@ namespace Mirror.Transports.Encryption
 
             serializedObject.ApplyModifiedProperties();
         }
+
+        [CustomEditor(typeof(ThreadedEncryptionTransport), true)]
+        class EncryptionThreadedTransportInspector : EncryptionTransportInspector {}
     }
 }
