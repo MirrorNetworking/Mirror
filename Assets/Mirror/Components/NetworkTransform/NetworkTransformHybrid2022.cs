@@ -55,9 +55,10 @@ namespace Mirror
         // this is from reliable full state serializations, not from last
         // unreliable delta since that isn't guaranteed to be delivered.
         byte lastSerializedBaselineTick = 0;
-        byte lastDeserializedBaselineTick = 0;
         Vector3 lastSerializedBaselinePosition = Vector3.zero;
         Quaternion lastSerializedBaselineRotation = Quaternion.identity;
+
+        byte lastDeserializedBaselineTick = 0;
 
         // only sync when changed hack /////////////////////////////////////////
         [Header("Sync Only If Changed")]
