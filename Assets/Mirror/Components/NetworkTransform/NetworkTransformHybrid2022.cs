@@ -56,19 +56,8 @@ namespace Mirror
         // unreliable delta since that isn't guaranteed to be delivered.
         byte lastSerializedBaselineTick = 0;
         byte lastDeserializedBaselineTick = 0;
-
-        // protected Vector3Long lastSerializedPosition = Vector3Long.zero;
-        // protected Vector3Long lastDeserializedPosition = Vector3Long.zero;
-        //
-        // protected Vector4Long lastSerializedRotation = Vector4Long.zero;
-        // protected Vector4Long lastDeserializedRotation = Vector4Long.zero;
-        //
-        // protected Vector3Long lastSerializedScale = Vector3Long.zero;
-        // protected Vector3Long lastDeserializedScale = Vector3Long.zero;
-
-        // also keep last serialized original values for 'has changed' check
-        Vector3 lastPosition = Vector3.zero;
-        Quaternion lastRotation = Quaternion.identity;
+        Vector3 lastSerializedBaselinePosition = Vector3.zero;
+        Quaternion lastSerializedBaselineRotation = Quaternion.identity;
 
         // only sync when changed hack /////////////////////////////////////////
         [Header("Sync Only If Changed")]
@@ -192,7 +181,7 @@ namespace Mirror
         {
             if (syncPosition)
             {
-                float positionDelta = Vector3.Distance(currentPosition, lastPosition);
+                float positionDelta = Vector3.Distance(currentPosition, lastSerializedBaselinePosition);
                 if (positionDelta >= positionSensitivity)
                 // float positionChange = (currentPosition - lastPosition).sqrMagnitude;
                 // if (positionChange >= positionPrecisionSqr)
@@ -203,7 +192,7 @@ namespace Mirror
 
             if (syncRotation)
             {
-                float rotationDelta = Quaternion.Angle(lastRotation, currentRotation);
+                float rotationDelta = Quaternion.Angle(lastSerializedBaselineRotation, currentRotation);
                 if (rotationDelta >= rotationSensitivity)
                 {
                     return true;
@@ -502,6 +491,8 @@ namespace Mirror
                     // included in deltas to ensure they are on top of the correct baseline
                     lastSerializedBaselineTick = frameCount;
                     lastBaselineTime = NetworkTime.localTime;
+                    lastSerializedBaselinePosition = position;
+                    lastSerializedBaselineRotation = rotation;
 
                     // perf. & bandwidth optimization:
                     // send a delta right after baseline to avoid potential head of
@@ -697,10 +688,8 @@ namespace Mirror
                     // included in deltas to ensure they are on top of the correct baseline
                     lastSerializedBaselineTick = frameCount;
                     lastBaselineTime = NetworkTime.localTime;
-
-                    // set 'last'
-                    lastPosition = position;
-                    lastRotation = rotation;
+                    lastSerializedBaselinePosition = position;
+                    lastSerializedBaselineRotation = rotation;
 
                     // perf. & bandwidth optimization:
                     // send a delta right after baseline to avoid potential head of
@@ -965,22 +954,11 @@ namespace Mirror
             serverSnapshots.Clear();
             clientSnapshots.Clear();
 
-            // reset delta compression
+            // reset baseline
             lastSerializedBaselineTick = 0;
             lastDeserializedBaselineTick = 0;
-
-            // lastSerializedPosition = Vector3Long.zero;
-            // lastDeserializedPosition = Vector3Long.zero;
-            //
-            // lastSerializedRotation = Vector4Long.zero;
-            // lastDeserializedRotation = Vector4Long.zero;
-            //
-            // lastSerializedScale = Vector3Long.zero;
-            // lastDeserializedScale = Vector3Long.zero;
-
-            // reset 'last' for delta too
-            lastPosition = Vector3.zero;
-            lastRotation = Quaternion.identity;
+            lastSerializedBaselinePosition = Vector3.zero;
+            lastSerializedBaselineRotation = Quaternion.identity;
 
             // Debug.Log($"[{name}] Reset to baselineTick=0");
         }
@@ -1010,10 +988,8 @@ namespace Mirror
                 // included in deltas to ensure they are on top of the correct baseline
                 lastSerializedBaselineTick = frameCount;
                 lastBaselineTime = NetworkTime.localTime;
-
-                // set 'last'
-                lastPosition = snapshot.position;
-                lastRotation = snapshot.rotation;
+                lastSerializedBaselinePosition = snapshot.position;
+                lastSerializedBaselineRotation = snapshot.rotation;
             }
         }
 
