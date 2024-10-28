@@ -58,7 +58,10 @@ namespace Mirror
         Vector3 lastSerializedBaselinePosition = Vector3.zero;
         Quaternion lastSerializedBaselineRotation = Quaternion.identity;
 
+        // save last deserialized baseline to delta decompress against
         byte lastDeserializedBaselineTick = 0;
+        Vector3 lastDeserializedBaselinePosition = Vector3.zero;
+        Quaternion lastDeserializedBaselineRotation = Quaternion.identity;
 
         // only sync when changed hack /////////////////////////////////////////
         [Header("Sync Only If Changed")]
@@ -212,6 +215,8 @@ namespace Mirror
         void CmdClientToServerBaseline_PositionRotation(byte baselineTick, Vector3 position, Quaternion rotation)
         {
             lastDeserializedBaselineTick = baselineTick;
+            lastDeserializedBaselinePosition = position;
+            lastDeserializedBaselineRotation = rotation;
 
             // if baseline counts as delta, insert it into snapshot buffer too
             if (baselineIsDelta)
@@ -222,6 +227,7 @@ namespace Mirror
         void CmdClientToServerBaseline_Position(byte baselineTick, Vector3 position)
         {
             lastDeserializedBaselineTick = baselineTick;
+            lastDeserializedBaselinePosition = position;
 
             // if baseline counts as delta, insert it into snapshot buffer too
             if (baselineIsDelta)
@@ -232,6 +238,7 @@ namespace Mirror
         void CmdClientToServerBaseline_Rotation(byte baselineTick, Quaternion rotation)
         {
             lastDeserializedBaselineTick = baselineTick;
+            lastDeserializedBaselineRotation = rotation;
 
             // if baseline counts as delta, insert it into snapshot buffer too
             if (baselineIsDelta)
@@ -319,6 +326,8 @@ namespace Mirror
 
             // save last deserialized baseline tick number to compare deltas against
             lastDeserializedBaselineTick = baselineTick;
+            lastDeserializedBaselinePosition = position;
+            lastDeserializedBaselineRotation = rotation;
 
             // if baseline counts as delta, insert it into snapshot buffer too
             if (baselineIsDelta)
@@ -334,6 +343,7 @@ namespace Mirror
 
             // save last deserialized baseline tick number to compare deltas against
             lastDeserializedBaselineTick = baselineTick;
+            lastDeserializedBaselinePosition = position;
 
             // if baseline counts as delta, insert it into snapshot buffer too
             if (baselineIsDelta)
@@ -349,6 +359,7 @@ namespace Mirror
 
             // save last deserialized baseline tick number to compare deltas against
             lastDeserializedBaselineTick = baselineTick;
+            lastDeserializedBaselineRotation = rotation;
 
             // if baseline counts as delta, insert it into snapshot buffer too
             if (baselineIsDelta)
@@ -1014,8 +1025,16 @@ namespace Mirror
                 Vector3 position = Vector3.zero;
                 Quaternion rotation = Quaternion.identity;
 
-                if (syncPosition) position = reader.ReadVector3();
-                if (syncRotation) rotation = reader.ReadQuaternion();
+                if (syncPosition)
+                {
+                    position = reader.ReadVector3();
+                    lastDeserializedBaselinePosition = position;
+                }
+                if (syncRotation)
+                {
+                    rotation = reader.ReadQuaternion();
+                    lastDeserializedBaselineRotation = rotation;
+                }
 
                 // if baseline counts as delta, insert it into snapshot buffer too
                 if (baselineIsDelta)
