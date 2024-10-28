@@ -250,7 +250,10 @@ namespace Mirror
         void CmdClientToServerDelta_Position(byte baselineTick, Half x, Half y, Half z)
         {
             // Half: +-65k with 0.0001 precision is enough for deltas
-            Vector3 position = new Vector3((float)x, (float)y, (float)z);
+            Vector3 positionDelta = new Vector3((float)x, (float)y, (float)z);
+
+            // reconstruct full position from delta + baseline
+            Vector3 position = lastDeserializedBaselinePosition + positionDelta;
 
             // Debug.Log($"[{name}] server received delta for baseline #{lastDeserializedBaselineTick}");
             OnClientToServerDeltaSync(baselineTick, position, Quaternion.identity);//, scale);
@@ -267,7 +270,10 @@ namespace Mirror
         void CmdClientToServerDelta_PositionRotation(byte baselineTick, Half x, Half y, Half z, Quaternion rotation)
         {
             // Half: +-65k with 0.0001 precision is enough for deltas
-            Vector3 position = new Vector3((float)x, (float)y, (float)z);
+            Vector3 positionDelta = new Vector3((float)x, (float)y, (float)z);
+
+            // reconstruct full position from delta + baseline
+            Vector3 position = lastDeserializedBaselinePosition + positionDelta;
 
             // Debug.Log($"[{name}] server received delta for baseline #{lastDeserializedBaselineTick}");
             OnClientToServerDeltaSync(baselineTick, position, rotation);//, scale);
@@ -785,11 +791,15 @@ namespace Mirror
                 // TransformSnapshot snapshot = ConstructSnapshot();
                 target.GetLocalPositionAndRotation(out Vector3 position, out Quaternion rotation);
 
+                // send the delta since last baseline, not the full position.
+                // TODO rotation delta too?
+                Vector3 positionDelta = position - lastSerializedBaselinePosition;
+
                 // Half: +-65k with 0.0001 precision is enough for deltas.
                 // and this cuts position sync bandwidth in half.
-                Half x = (Half)position.x;
-                Half y = (Half)position.y;
-                Half z = (Half)position.z;
+                Half x = (Half)positionDelta.x;
+                Half y = (Half)positionDelta.y;
+                Half z = (Half)positionDelta.z;
 
                 // save bandwidth by only transmitting what is needed.
                 // -> ArraySegment with random data is slower since byte[] copying
