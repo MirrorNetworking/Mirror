@@ -969,6 +969,9 @@ namespace Mirror
 
         public override void OnSerialize(NetworkWriter writer, bool initialState)
         {
+            // OnSerialize(initial) is called every time when a player starts observing us.
+            // note this is _not_ called just once on spawn.
+
             // sync target component's position on spawn.
             // fixes https://github.com/vis2k/Mirror/pull/3051/
             // (Spawn message wouldn't sync NTChild positions either)
