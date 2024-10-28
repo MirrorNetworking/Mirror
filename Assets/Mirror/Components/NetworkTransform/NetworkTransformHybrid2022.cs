@@ -959,6 +959,7 @@ namespace Mirror
             lastDeserializedBaselineTick = 0;
             lastSerializedBaselinePosition = Vector3.zero;
             lastSerializedBaselineRotation = Quaternion.identity;
+            baselineDirty = true;
 
             // Debug.Log($"[{name}] Reset to baselineTick=0");
         }
