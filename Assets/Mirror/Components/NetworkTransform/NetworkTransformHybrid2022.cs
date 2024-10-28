@@ -972,10 +972,13 @@ namespace Mirror
 
             // reset baseline
             lastSerializedBaselineTick = 0;
-            lastDeserializedBaselineTick = 0;
             lastSerializedBaselinePosition = Vector3.zero;
             lastSerializedBaselineRotation = Quaternion.identity;
             baselineDirty = true;
+
+            lastDeserializedBaselineTick = 0;
+            lastDeserializedBaselinePosition = Vector3.zero;
+            lastDeserializedBaselineRotation = Quaternion.identity;
 
             // Debug.Log($"[{name}] Reset to baselineTick=0");
         }
