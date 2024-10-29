@@ -126,6 +126,13 @@ namespace Mirror.Weaver
 
                 return GenerateCollectionWriter(variableReference, elementType, nameof(NetworkWriterExtensions.WriteList), ref WeavingFailed);
             }
+            if (variableReference.Is(typeof(HashSet<>)))
+            {
+                GenericInstanceType genericInstance = (GenericInstanceType)variableReference;
+                TypeReference elementType = genericInstance.GenericArguments[0];
+
+                return GenerateCollectionWriter(variableReference, elementType, nameof(NetworkWriterExtensions.WriteHashSet), ref WeavingFailed);
+            }
 
             // handle both NetworkBehaviour and inheritors.
             // fixes: https://github.com/MirrorNetworking/Mirror/issues/2939
