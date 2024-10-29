@@ -323,7 +323,7 @@ namespace Edgegap
             _request = request;
         }
 
-        private void OnDestroy()
+        public override void OnDestroy()
         {
             // attempt to clean up lobbies, if active
             if (NetworkServer.active)
@@ -340,6 +340,8 @@ namespace Edgegap
                 // sorry. this can go once the lobby service can timeout lobbies itself
                 Thread.Sleep(300);
             }
+
+            base.OnDestroy();
         }
     }
 }

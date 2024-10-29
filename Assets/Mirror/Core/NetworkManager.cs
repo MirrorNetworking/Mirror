@@ -779,7 +779,7 @@ namespace Mirror
         // don't use this anymore.
         // fixes: https://github.com/MirrorNetworking/Mirror/issues/2802
         // DEPRECATED 2024-10-29
-        [Obsolete("Override OnDestroy instead of OnApplicationQuit. Fixes: https://github.com/MirrorNetworking/Mirror/issues/2802")]
+        [Obsolete("Override OnDestroy instead of OnApplicationQuit.")]
         public virtual void OnApplicationQuit() {}
 
         /// <summary>The name of the current network scene.</summary>
