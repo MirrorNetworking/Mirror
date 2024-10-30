@@ -68,6 +68,20 @@ namespace Mirror
         [Tooltip("When true, changes are not sent unless greater than sensitivity values below.")]
         public bool onlySyncOnChange = true;
 
+        // change detection: we need to do this carefully in order to get it right.
+        //
+        // DONT just check changes in UpdateBaseline(). this would introduce MrG's grid issue:
+        //   server start in A1, reliable baseline sent to client
+        //   server moves to A2, unreliabe delta sent to client
+        //   server moves to A1, nothing is sent to client becuase last baseline position == position
+        //   => client wouldn't know we moved back to A1
+        //
+        // INSTEAD: every update() check for changes since baseline:
+        //   UpdateDelta() keeps sending only if changed since _baseline_
+        //   UpdateBaseline() resends if there was any change in the period since last baseline.
+        //   => this avoids the A1->A2->A1 grid issue above
+        bool changedSinceBaseline = false;
+
         // sensitivity is for changed-detection,
         // this is != precision, which is for quantization and delta compression.
         [Header("Sensitivity"), Tooltip("Sensitivity of changes needed before an updated state is sent over the network")]
@@ -460,9 +474,11 @@ namespace Mirror
         }
 
         // update server ///////////////////////////////////////////////////////
-        bool baselineDirty = true;
         void UpdateServerBaseline(double localTime)
         {
+            // only sync on change: only resend baseline if changed since last.
+            if (onlySyncOnChange && !changedSinceBaseline) return;
+
             // send a reliable baseline every 1 Hz
             if (localTime >= lastBaselineTime + baselineInterval)
             {
@@ -472,59 +488,50 @@ namespace Mirror
                 // TransformSnapshot snapshot = ConstructSnapshot();
                 target.GetLocalPositionAndRotation(out Vector3 position, out Quaternion rotation);
 
-                // only send a new reliable baseline if changed since last time
-                // check if changed (unless that feature is disabled).
-                // baseline is guaranteed to be delivered over reliable.
-                // here is the only place where we can check for changes.
-                if (!onlySyncOnChange || Changed(position, rotation)) //snapshot))
+                // save bandwidth by only transmitting what is needed.
+                // -> ArraySegment with random data is slower since byte[] copying
+                // -> Vector3? and Quaternion? nullables takes more bandwidth
+                byte frameCount = (byte)Time.frameCount; // perf: only access Time.frameCount once!
+                if (syncPosition && syncRotation)
                 {
-                    // reliable just changed. keep sending deltas until it's unchanged again.
-                    baselineDirty = true;
-
-                    // save bandwidth by only transmitting what is needed.
-                    // -> ArraySegment with random data is slower since byte[] copying
-                    // -> Vector3? and Quaternion? nullables takes more bandwidth
-                    byte frameCount = (byte)Time.frameCount; // perf: only access Time.frameCount once!
-                    if (syncPosition && syncRotation)
-                    {
-                        // send snapshot without timestamp.
-                        // receiver gets it from batch timestamp to save bandwidth.
-                        RpcServerToClientBaseline_PositionRotation(frameCount, position, rotation);
-                    }
-                    else if (syncPosition)
-                    {
-                        // send snapshot without timestamp.
-                        // receiver gets it from batch timestamp to save bandwidth.
-                        RpcServerToClientBaseline_Position(frameCount, position);
-                    }
-                    else if (syncRotation)
-                    {
-                        // send snapshot without timestamp.
-                        // receiver gets it from batch timestamp to save bandwidth.
-                        RpcServerToClientBaseline_Rotation(frameCount, rotation);
-                    }
-
-                    // save the last baseline's tick number.
-                    // included in baseline to identify which one it was on client
-                    // included in deltas to ensure they are on top of the correct baseline
-                    lastSerializedBaselineTick = frameCount;
-                    lastBaselineTime = NetworkTime.localTime;
-                    lastSerializedBaselinePosition = position;
-                    lastSerializedBaselineRotation = rotation;
-
-                    // perf. & bandwidth optimization:
-                    // send a delta right after baseline to avoid potential head of
-                    // line blocking, or skip the delta whenever we sent reliable?
-                    // for example:
-                    //    1 Hz baseline
-                    //   10 Hz delta
-                    //   => 11 Hz total if we still send delta after reliable
-                    //   => 10 Hz total if we skip delta after reliable
-                    // in that case, skip next delta by simply resetting last delta sync's time.
-                    if (baselineIsDelta) lastDeltaTime = localTime;
+                    // send snapshot without timestamp.
+                    // receiver gets it from batch timestamp to save bandwidth.
+                    RpcServerToClientBaseline_PositionRotation(frameCount, position, rotation);
                 }
-                // indicate that we should stop sending deltas now
-                else baselineDirty = false;
+                else if (syncPosition)
+                {
+                    // send snapshot without timestamp.
+                    // receiver gets it from batch timestamp to save bandwidth.
+                    RpcServerToClientBaseline_Position(frameCount, position);
+                }
+                else if (syncRotation)
+                {
+                    // send snapshot without timestamp.
+                    // receiver gets it from batch timestamp to save bandwidth.
+                    RpcServerToClientBaseline_Rotation(frameCount, rotation);
+                }
+
+                // save the last baseline's tick number.
+                // included in baseline to identify which one it was on client
+                // included in deltas to ensure they are on top of the correct baseline
+                lastSerializedBaselineTick = frameCount;
+                lastBaselineTime = NetworkTime.localTime;
+                lastSerializedBaselinePosition = position;
+                lastSerializedBaselineRotation = rotation;
+
+                // baseline was just sent after a change. reset change detection.
+                changedSinceBaseline = false;
+
+                // perf. & bandwidth optimization:
+                // send a delta right after baseline to avoid potential head of
+                // line blocking, or skip the delta whenever we sent reliable?
+                // for example:
+                //    1 Hz baseline
+                //   10 Hz delta
+                //   => 11 Hz total if we still send delta after reliable
+                //   => 10 Hz total if we skip delta after reliable
+                // in that case, skip next delta by simply resetting last delta sync's time.
+                if (baselineIsDelta) lastDeltaTime = localTime;
             }
         }
 
@@ -561,16 +568,26 @@ namespace Mirror
             // here by checking IsClientWithAuthority.
             // TODO send same time that NetworkServer sends time snapshot?
 
-            // only sync on change:
-            // unreliable isn't guaranteed to be delivered so this depends on reliable baseline.
-            // if baseline is dirty, send unreliables every sendInterval until baseline is not dirty anymore.
-            if (onlySyncOnChange && !baselineDirty) return;
-
             if (localTime >= lastDeltaTime + sendInterval) // CUSTOM CHANGE: allow custom sendRate + sendInterval again
             {
                 // perf: get position/rotation directly. TransformSnapshot is too expensive.
                 // TransformSnapshot snapshot = ConstructSnapshot();
                 target.GetLocalPositionAndRotation(out Vector3 position, out Quaternion rotation);
+
+                // look for changes every unreliable sendInterval!
+                // every reliable interval isn't enough, this would cause MrG's grid issue:
+                //   server start in A1, reliable baseline sent to client
+                //   server moves to A2, unreliabe delta sent to client
+                //   server moves to A1, nothing is sent to client becuase last baseline position == position
+                //   => client wouldn't know we moved back to A1
+                // every update works, but it's unnecessary overhead since sends only happen every sendInterval
+                // every unreliable sendInterval is the perfect place to look for changes.
+                if (onlySyncOnChange && Changed(position, rotation))
+                    changedSinceBaseline = true;
+
+                // only sync on change:
+                // unreliable isn't guaranteed to be delivered so this depends on reliable baseline.
+                if (onlySyncOnChange && !changedSinceBaseline) return;
 
                 // save bandwidth by only transmitting what is needed.
                 // -> ArraySegment with random data is slower since byte[] copying
@@ -662,6 +679,9 @@ namespace Mirror
         // update client ///////////////////////////////////////////////////////
         void UpdateClientBaseline(double localTime)
         {
+            // only sync on change: only resend baseline if changed since last.
+            if (onlySyncOnChange && !changedSinceBaseline) return;
+
             // send a reliable baseline every 1 Hz
             if (localTime >= lastBaselineTime + baselineInterval)
             {
@@ -669,69 +689,55 @@ namespace Mirror
                 // TransformSnapshot snapshot = ConstructSnapshot();
                 target.GetLocalPositionAndRotation(out Vector3 position, out Quaternion rotation);
 
-                // only send a new reliable baseline if changed since last time
-                // check if changed (unless that feature is disabled).
-                // baseline is guaranteed to be delivered over reliable.
-                // here is the only place where we can check for changes.
-                if (!onlySyncOnChange || Changed(position, rotation)) //snapshot))
+                // save bandwidth by only transmitting what is needed.
+                // -> ArraySegment with random data is slower since byte[] copying
+                // -> Vector3? and Quaternion? nullables takes more bandwidth
+                byte frameCount = (byte)Time.frameCount; // perf: only access Time.frameCount once!
+                if (syncPosition && syncRotation)
                 {
-                    // reliable just changed. keep sending deltas until it's unchanged again.
-                    baselineDirty = true;
-
-                    // save bandwidth by only transmitting what is needed.
-                    // -> ArraySegment with random data is slower since byte[] copying
-                    // -> Vector3? and Quaternion? nullables takes more bandwidth
-                    byte frameCount = (byte)Time.frameCount; // perf: only access Time.frameCount once!
-                    if (syncPosition && syncRotation)
-                    {
-                        // send snapshot without timestamp.
-                        // receiver gets it from batch timestamp to save bandwidth.
-                        CmdClientToServerBaseline_PositionRotation(frameCount, position, rotation);
-                    }
-                    else if (syncPosition)
-                    {
-                        // send snapshot without timestamp.
-                        // receiver gets it from batch timestamp to save bandwidth.
-                        CmdClientToServerBaseline_Position(frameCount, position);
-                    }
-                    else if (syncRotation)
-                    {
-                        // send snapshot without timestamp.
-                        // receiver gets it from batch timestamp to save bandwidth.
-                        CmdClientToServerBaseline_Rotation(frameCount, rotation);
-                    }
-
-                    // save the last baseline's tick number.
-                    // included in baseline to identify which one it was on client
-                    // included in deltas to ensure they are on top of the correct baseline
-                    lastSerializedBaselineTick = frameCount;
-                    lastBaselineTime = NetworkTime.localTime;
-                    lastSerializedBaselinePosition = position;
-                    lastSerializedBaselineRotation = rotation;
-
-                    // perf. & bandwidth optimization:
-                    // send a delta right after baseline to avoid potential head of
-                    // line blocking, or skip the delta whenever we sent reliable?
-                    // for example:
-                    //    1 Hz baseline
-                    //   10 Hz delta
-                    //   => 11 Hz total if we still send delta after reliable
-                    //   => 10 Hz total if we skip delta after reliable
-                    // in that case, skip next delta by simply resetting last delta sync's time.
-                    if (baselineIsDelta) lastDeltaTime = localTime;
+                    // send snapshot without timestamp.
+                    // receiver gets it from batch timestamp to save bandwidth.
+                    CmdClientToServerBaseline_PositionRotation(frameCount, position, rotation);
                 }
-                // indicate that we should stop sending deltas now
-                else baselineDirty = false;
+                else if (syncPosition)
+                {
+                    // send snapshot without timestamp.
+                    // receiver gets it from batch timestamp to save bandwidth.
+                    CmdClientToServerBaseline_Position(frameCount, position);
+                }
+                else if (syncRotation)
+                {
+                    // send snapshot without timestamp.
+                    // receiver gets it from batch timestamp to save bandwidth.
+                    CmdClientToServerBaseline_Rotation(frameCount, rotation);
+                }
+
+                // save the last baseline's tick number.
+                // included in baseline to identify which one it was on client
+                // included in deltas to ensure they are on top of the correct baseline
+                lastSerializedBaselineTick = frameCount;
+                lastBaselineTime = NetworkTime.localTime;
+                lastSerializedBaselinePosition = position;
+                lastSerializedBaselineRotation = rotation;
+
+                // baseline was just sent after a change. reset change detection.
+                changedSinceBaseline = false;
+
+                // perf. & bandwidth optimization:
+                // send a delta right after baseline to avoid potential head of
+                // line blocking, or skip the delta whenever we sent reliable?
+                // for example:
+                //    1 Hz baseline
+                //   10 Hz delta
+                //   => 11 Hz total if we still send delta after reliable
+                //   => 10 Hz total if we skip delta after reliable
+                // in that case, skip next delta by simply resetting last delta sync's time.
+                if (baselineIsDelta) lastDeltaTime = localTime;
             }
         }
 
         void UpdateClientDelta(double localTime)
         {
-            // only sync on change:
-            // unreliable isn't guaranteed to be delivered so this depends on reliable baseline.
-            // if baseline is dirty, send unreliables every sendInterval until baseline is not dirty anymore.
-            if (onlySyncOnChange && !baselineDirty) return;
-
             // send to server each 'sendInterval'
             // NetworkTime.localTime for double precision until Unity has it too
             //
@@ -757,6 +763,22 @@ namespace Mirror
                 // perf: get position/rotation directly. TransformSnapshot is too expensive.
                 // TransformSnapshot snapshot = ConstructSnapshot();
                 target.GetLocalPositionAndRotation(out Vector3 position, out Quaternion rotation);
+
+                // look for changes every unreliable sendInterval!
+                //
+                // every reliable interval isn't enough, this would cause MrG's grid issue:
+                //   client start in A1, reliable baseline sent to server
+                //   client moves to A2, unreliabe delta sent to server
+                //   client moves to A1, nothing is sent to server becuase last baseline position == position
+                //   => server wouldn't know we moved back to A1
+                // every update works, but it's unnecessary overhead since sends only happen every sendInterval
+                // every unreliable sendInterval is the perfect place to look for changes.
+                if (onlySyncOnChange && Changed(position, rotation))
+                    changedSinceBaseline = true;
+
+                // only sync on change:
+                // unreliable isn't guaranteed to be delivered so this depends on reliable baseline.
+                if (onlySyncOnChange && !changedSinceBaseline) return;
 
                 // save bandwidth by only transmitting what is needed.
                 // -> ArraySegment with random data is slower since byte[] copying
@@ -976,7 +998,7 @@ namespace Mirror
             lastSerializedBaselineTick = 0;
             lastSerializedBaselinePosition = Vector3.zero;
             lastSerializedBaselineRotation = Quaternion.identity;
-            baselineDirty = true;
+            changedSinceBaseline = false;
 
             lastDeserializedBaselineTick = 0;
             lastDeserializedBaselinePosition = Vector3.zero;
