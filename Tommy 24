@@ -1,0 +1,46 @@
+using Mirror;
+using UnityEngine;
+
+public class PlayerController : NetworkBehaviour
+{
+    public float moveSpeed = 5f;
+    public Transform bulletSpawn;
+    public GameObject[] weapons; // Array of weapons
+    private int currentWeaponIndex = 0;
+
+    void Update()
+    {
+        if (!isLocalPlayer) return;
+
+        // Movement
+        float x = Input.GetAxis("Horizontal") * moveSpeed * Time.deltaTime;
+        float z = Input.GetAxis("Vertical") * moveSpeed * Time.deltaTime;
+        transform.Translate(x, 0, z);
+
+        // Fire weapon
+        if (Input.GetButtonDown("Fire1"))
+        {
+            CmdFire();
+        }
+
+        // Switch weapon
+        if (Input.GetKeyDown(KeyCode.Q))
+        {
+            SwitchWeapon();
+        }
+    }
+
+    [Command]
+    void CmdFire()
+    {
+        GameObject bullet = Instantiate(weapons[currentWeaponIndex], bulletSpawn.position, bulletSpawn.rotation);
+        NetworkServer.Spawn(bullet);
+        Destroy(bullet, 2.0f); // Destroy after 2 seconds
+    }
+
+    void SwitchWeapon()
+    {
+        currentWeaponIndex = (currentWeaponIndex + 1) % weapons.Length;
+        // You might need additional code to show the active weapon visually
+    }
+}
