@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Mirror.RemoteCalls;
 using UnityEngine;
+using UnityEngine.Profiling;
 
 namespace Mirror
 {
@@ -1500,8 +1501,11 @@ namespace Mirror
         internal static void NetworkEarlyUpdate()
         {
             // process all incoming messages first before updating the world
+            // profiling marker for shallow profiling to show more than "UpdateFunction.Invoke
+            Profiler.BeginSample("NetworkClient: Transport Processing");
             if (Transport.active != null)
                 Transport.active.ClientEarlyUpdate();
+            Profiler.EndSample();
 
             // time snapshot interpolation
             UpdateTimeInterpolation();
@@ -1532,7 +1536,10 @@ namespace Mirror
                 bool sendIntervalElapsed = AccurateInterval.Elapsed(NetworkTime.localTime, sendInterval, ref lastSendTime);
                 if (!Application.isPlaying || sendIntervalElapsed)
                 {
+                    // profiling marker for shallow profiling to show more than "UpdateFunction.Invoke
+                    Profiler.BeginSample("NetworkClient: Broadcast");
                     Broadcast();
+                    Profiler.EndSample();
                 }
 
                 UpdateConnectionQuality();
@@ -1589,8 +1596,11 @@ namespace Mirror
             }
 
             // process all outgoing messages after updating the world
+            // profiling marker for shallow profiling to show more than "UpdateFunction.Invoke
+            Profiler.BeginSample("NetworkClient: Transport Flush");
             if (Transport.active != null)
                 Transport.active.ClientLateUpdate();
+            Profiler.EndSample();
         }
 
         // broadcast ///////////////////////////////////////////////////////////
@@ -1628,7 +1638,11 @@ namespace Mirror
                     {
                         // get serialization for this entity viewed by this connection
                         // (if anything was serialized this time)
+                        // profiling marker for shallow profiling to show more than "UpdateFunction.Invoke
+                        Profiler.BeginSample("BroadcastToServer: SerializeClient");
                         identity.SerializeClient(writer);
+                        Profiler.EndSample();
+
                         if (writer.Position > 0)
                         {
                             // send state update message
@@ -1637,7 +1651,11 @@ namespace Mirror
                                 netId = identity.netId,
                                 payload = writer.ToArraySegment()
                             };
+
+                            // profiling marker for shallow profiling to show more than "UpdateFunction.Invoke
+                            Profiler.BeginSample("BroadcastToServer: Flush");
                             Send(message);
+                            Profiler.EndSample();
                         }
                     }
                 }

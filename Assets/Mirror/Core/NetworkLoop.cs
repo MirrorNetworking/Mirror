@@ -28,6 +28,7 @@ using System;
 using UnityEngine;
 using UnityEngine.LowLevel;
 using UnityEngine.PlayerLoop;
+using UnityEngine.Profiling;
 
 namespace Mirror
 {
@@ -187,12 +188,17 @@ namespace Mirror
             // however, we only want to call NetworkServer/Client in play mode.
             if (!Application.isPlaying) return;
 
+            // profiling marker for shallow profiling to show more than "UpdateFunction.Invoke"
+            Profiler.BeginSample("NetworkEarlyUpdate");
+
             NetworkTime.EarlyUpdate();
             //Debug.Log($"NetworkEarlyUpdate {Time.time}");
             NetworkServer.NetworkEarlyUpdate();
             NetworkClient.NetworkEarlyUpdate();
             // invoke event after mirror has done it's early updating.
             OnEarlyUpdate?.Invoke();
+
+            Profiler.EndSample();
         }
 
         static void NetworkLateUpdate()
@@ -201,11 +207,16 @@ namespace Mirror
             // however, we only want to call NetworkServer/Client in play mode.
             if (!Application.isPlaying) return;
 
+            // profiling marker for shallow profiling to show more than "UpdateFunction.Invoke"
+            Profiler.BeginSample("NetworkLateUpdate");
+
             //Debug.Log($"NetworkLateUpdate {Time.time}");
             // invoke event before mirror does its final late updating.
             OnLateUpdate?.Invoke();
             NetworkServer.NetworkLateUpdate();
             NetworkClient.NetworkLateUpdate();
+
+            Profiler.EndSample();
         }
     }
 }
