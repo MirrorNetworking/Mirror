@@ -19,7 +19,7 @@ namespace Mirror
     {
         // target transform to sync. can be on a child.
         [Header("Target")]
-        [Tooltip("The Transform component to sync. May be on on this GameObject, or on a child.")]
+        [Tooltip("The Transform component to sync. May be on this GameObject, or on a child.")]
         public Transform target;
 
         // Is this a client with authority over this transform?
