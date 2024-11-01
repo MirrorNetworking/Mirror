@@ -1030,9 +1030,16 @@ namespace Mirror
                 if (syncPosition) writer.WriteVector3(snapshot.position);
                 if (syncRotation) writer.WriteQuaternion(snapshot.rotation);
 
-                // save the last baseline's tick number.
-                // included in baseline to identify which one it was on client
-                // included in deltas to ensure they are on top of the correct baseline
+                // IMPORTANT
+                // OnSerialize(initial) is called for the spawn payload whenever
+                // someone starts observing this object. we always must make
+                // this the new baseline, otherwise this happens:
+                //   - server broadcasts baseline @ t=1
+                //   - server broadcasts delta for baseline @ t=1
+                //   - ... time passes ...
+                //   - new observer -> OnSerialize sends current position @ t=2
+                //   - server broadcasts delta for baseline @ t=1
+                //   => client's baseline is t=2 but receives delta for t=1 _!_
                 lastSerializedBaselineTick = frameCount;
                 lastBaselineTime = NetworkTime.localTime;
                 lastSerializedBaselinePosition = snapshot.position;
