@@ -278,7 +278,7 @@ namespace Mirror
             // only apply if in client authority mode
             if (syncDirection != SyncDirection.ClientToServer) return;
 
-            // protect against ever growing buffer size attacks
+            // protect against ever-growing buffer size attacks
             if (serverSnapshots.Count >= connectionToClient.snapshotBufferSizeLimit) return;
 
             // only player owned objects (with a connection) can send to
