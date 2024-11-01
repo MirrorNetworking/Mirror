@@ -83,7 +83,7 @@ namespace Mirror
         public float rotationSensitivity = 0.01f;
         // public float scaleSensitivity    = 0.01f;
 
-        [Tooltip("Enable to send all unreliable messages twice. Only useful for extremely fast paced games since it doubles bandwidth costs.")]
+        [Tooltip("Enable to send all unreliable messages twice. Only useful for extremely fast-paced games since it doubles bandwidth costs.")]
         public bool unreliableRedundancy = false;
 
         [Tooltip("When sending a reliable baseline, should we also send an unreliable delta or rely on the reliable baseline to arrive in a similar time?")]
