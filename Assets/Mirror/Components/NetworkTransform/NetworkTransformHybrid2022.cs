@@ -127,21 +127,6 @@ namespace Mirror
 
             // use sendRate instead of syncInterval for now
             syncInterval = 0;
-
-            // cache squared precisions
-            // positionPrecisionSqr = positionPrecision * positionPrecision;
-            // scalePrecisionSqr = scalePrecision * scalePrecision;
-
-            // obsolete clientAuthority compatibility:
-            // if it was used, then set the new SyncDirection automatically.
-            // if it wasn't used, then don't touch syncDirection.
- #pragma warning disable CS0618
-            if (clientAuthority)
-            {
-                syncDirection = SyncDirection.ClientToServer;
-                Debug.LogWarning($"{name}'s NetworkTransform component has obsolete .clientAuthority enabled. Please disable it and set SyncDirection to ClientToServer instead.");
-            }
- #pragma warning restore CS0618
         }
 
         // snapshot functions //////////////////////////////////////////////////
