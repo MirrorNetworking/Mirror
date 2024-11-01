@@ -39,7 +39,7 @@ namespace Mirror
         public float sendInterval => 1f / sendRate;
         // END CUSTOM CHANGE
 
-        [Tooltip("Ocassionally send a full reliable state to delta compress against. This only applies to Components with SyncMethod=Unreliable.")]
+        [Tooltip("Occasionally send a full reliable state to delta compress against. This only applies to Components with SyncMethod=Unreliable.")]
         public int baselineRate = 1;
         public float baselineInterval => baselineRate < int.MaxValue ? 1f / baselineRate : 0; // for 1 Hz, that's 1000ms
         double lastBaselineTime;
