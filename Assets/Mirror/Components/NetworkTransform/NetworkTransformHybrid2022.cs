@@ -22,12 +22,6 @@ namespace Mirror
         [Tooltip("The Transform component to sync. May be on on this GameObject, or on a child.")]
         public Transform target;
 
-        // TODO SyncDirection { ClientToServer, ServerToClient } is easier?
-        [Obsolete("NetworkTransform clientAuthority was replaced with syncDirection. To enable client authority, set SyncDirection to ClientToServer in the Inspector.")]
-        [Header("[Obsolete]")] // Unity doesn't show obsolete warning for fields. do it manually.
-        [Tooltip("Set to true if moves come from owner client, set to false if moves always come from server")]
-        public bool clientAuthority;
-
         // Is this a client with authority over this transform?
         // This component could be on the player object or any object that has been assigned authority to this client.
         protected bool IsClientWithAuthority => isClient && authority;
