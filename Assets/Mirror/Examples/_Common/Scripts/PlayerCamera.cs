@@ -19,11 +19,6 @@ namespace Mirror.Examples.Common
             mainCam = Camera.main;
         }
 
-        void OnDisable()
-        {
-            //Debug.Log("PlayerCamera.OnDisable");
-        }
-
         public override void OnStartLocalPlayer()
         {
             if (mainCam != null)
@@ -38,16 +33,46 @@ namespace Mirror.Examples.Common
                 Debug.LogWarning("PlayerCamera: Could not find a camera in scene with 'MainCamera' tag.");
         }
 
+        void OnApplicationQuit()
+        {
+            //Debug.Log("PlayerCamera.OnApplicationQuit");
+            ReleaseCamera();
+        }
+
         public override void OnStopLocalPlayer()
+        {
+            //Debug.Log("PlayerCamera.OnStopLocalPlayer");
+            ReleaseCamera();
+        }
+
+        void OnDisable()
+        {
+            //Debug.Log("PlayerCamera.OnDisable");
+            ReleaseCamera();
+        }
+
+        void OnDestroy()
+        {
+            //Debug.Log("PlayerCamera.OnDestroy");
+            ReleaseCamera();
+        }
+
+        void ReleaseCamera()
         {
             if (mainCam != null && mainCam.transform.parent == transform)
             {
+                //Debug.Log("PlayerCamera.ReleaseCamera");
+
                 mainCam.transform.SetParent(null);
-                SceneManager.MoveGameObjectToScene(mainCam.gameObject, SceneManager.GetActiveScene());
                 mainCam.orthographic = true;
                 mainCam.orthographicSize = 15f;
                 mainCam.transform.localPosition = new Vector3(0f, 70f, 0f);
                 mainCam.transform.localEulerAngles = new Vector3(90f, 0f, 0f);
+
+                if (mainCam.gameObject.scene != SceneManager.GetActiveScene())
+                    SceneManager.MoveGameObjectToScene(mainCam.gameObject, SceneManager.GetActiveScene());
+
+                mainCam = null;
             }
         }
     }
