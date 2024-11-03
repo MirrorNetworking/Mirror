@@ -338,7 +338,7 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
-  offset: {x: 0, y: 3, z: -8}
+  offset: {x: 0, y: 3, z: -12}
   rotation: {x: 10, y: 0, z: 0}
 --- !u!114 &5382001159774817068
 MonoBehaviour:
@@ -510,7 +510,7 @@ TextMesh:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8833598509264872235}
-  m_Text: RB Reliable
+  m_Text: Reliable
   m_OffsetZ: 0
   m_CharacterSize: 0.5
   m_LineSpacing: 1

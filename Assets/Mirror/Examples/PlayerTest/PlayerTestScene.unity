@@ -902,7 +902,9 @@ MonoBehaviour:
     deliveryTimeEmaDuration: 2
   evaluationMethod: 0
   evaluationInterval: 3
-  timeInterpolationGui: 0
+  timeInterpolationGui: 1
+  spawnHenchman: 1
+  henchmanPrefab: {fileID: 7863680369626900553, guid: 400bac1c9e1e96648a83f333d4837484, type: 3}
 --- !u!114 &2126814507
 MonoBehaviour:
   m_ObjectHideFlags: 0

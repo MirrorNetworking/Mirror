@@ -450,7 +450,7 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
-  offset: {x: 0, y: 3, z: -8}
+  offset: {x: 0, y: 3, z: -12}
   rotation: {x: 10, y: 0, z: 0}
 --- !u!114 &5277671853267693090
 MonoBehaviour:
@@ -479,8 +479,8 @@ MonoBehaviour:
   syncPosition: 1
   syncRotation: 1
   disableSendingThisToClients: 0
-  showGizmos: 0
-  showOverlay: 0
+  showGizmos: 1
+  showOverlay: 1
   overlayColor: {r: 0, g: 0, b: 0, a: 0.5}
 --- !u!114 &-218831818502395344
 MonoBehaviour:
