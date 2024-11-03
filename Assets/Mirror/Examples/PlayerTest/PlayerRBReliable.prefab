@@ -469,6 +469,7 @@ MonoBehaviour:
     _mouseInputX: 0
     _mouseSensitivity: 0
     _groundState: 0
+    _mousePosition: {x: 0, y: 0}
     _direction: {x: 0, y: 0, z: 0}
     _velocity: {x: 0, y: 0, z: 0}
     _controllerUI: {fileID: 0}

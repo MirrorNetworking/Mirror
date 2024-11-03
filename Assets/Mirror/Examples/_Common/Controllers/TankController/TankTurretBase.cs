@@ -127,6 +127,7 @@ namespace Mirror.Examples.Common.Controllers.Tank
             [ReadOnly, SerializeField, Range(0, 30f)] float _mouseSensitivity;
             [ReadOnly, SerializeField] double _lastShotTime;
             [ReadOnly, SerializeField] GameObject _turretUI;
+            [ReadOnly, SerializeField] Vector2 _mousePosition;
 
             #region Properties
 
@@ -170,6 +171,12 @@ namespace Mirror.Examples.Common.Controllers.Tank
             {
                 get => _turretUI;
                 internal set => _turretUI = value;
+            }
+
+            public Vector2 mousePosition
+            {
+                get => _mousePosition;
+                internal set => _mousePosition = value;
             }
 
             #endregion
@@ -277,6 +284,7 @@ namespace Mirror.Examples.Common.Controllers.Tank
             // Calculate DPI-aware sensitivity
             float dpiScale = (Screen.dpi > 0) ? (Screen.dpi / BASE_DPI) : 1f;
             runtimeData.mouseSensitivity = turretAcceleration * dpiScale;
+            runtimeData.mousePosition = Input.mousePosition;
 
             SetCursor(controlOptions.HasFlag(ControlOptions.MouseLock));
             this.enabled = true;
@@ -316,7 +324,7 @@ namespace Mirror.Examples.Common.Controllers.Tank
 
         void SetCursor(bool locked)
         {
-            Cursor.lockState = locked ? CursorLockMode.Locked : CursorLockMode.None;
+            //Cursor.lockState = locked ? CursorLockMode.Locked : CursorLockMode.None;
             Cursor.visible = !locked;
         }
 
@@ -356,8 +364,13 @@ namespace Mirror.Examples.Common.Controllers.Tank
 
         void HandleMouseTurret(float deltaTime)
         {
+            // Get mouse position, calculate delta
+            Vector2 currentMousePosition = Input.mousePosition;
+            Vector2 mouseDelta = currentMousePosition - runtimeData.mousePosition;
+            runtimeData.mousePosition = currentMousePosition;
+
             // Accumulate mouse input over time
-            runtimeData.mouseInputX += Input.GetAxisRaw("Mouse X") * runtimeData.mouseSensitivity;
+            runtimeData.mouseInputX += mouseDelta.x * runtimeData.mouseSensitivity;
 
             // Clamp the accumulator to simulate key press behavior
             runtimeData.mouseInputX = Mathf.Clamp(runtimeData.mouseInputX, -1f, 1f);
@@ -371,6 +384,7 @@ namespace Mirror.Examples.Common.Controllers.Tank
             // Apply rotation
             turret.Rotate(0f, runtimeData.turretSpeed * deltaTime, 0f);
 
+            // Decay mouse input
             runtimeData.mouseInputX = Mathf.MoveTowards(runtimeData.mouseInputX, 0f, runtimeData.mouseSensitivity * deltaTime);
         }
 

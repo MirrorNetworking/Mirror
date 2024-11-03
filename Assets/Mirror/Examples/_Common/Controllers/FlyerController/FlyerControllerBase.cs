@@ -161,6 +161,7 @@ namespace Mirror.Examples.Common.Controllers.Flyer
             [ReadOnly, SerializeField, Range(-1f, 1f)] float _mouseInputX;
             [ReadOnly, SerializeField, Range(0, 30f)] float _mouseSensitivity;
             [ReadOnly, SerializeField] GroundState _groundState;
+            [ReadOnly, SerializeField] Vector2 _mousePosition;
             [ReadOnly, SerializeField] Vector3 _direction;
             [ReadOnly, SerializeField] Vector3Int _velocity;
             [ReadOnly, SerializeField] GameObject _controllerUI;
@@ -239,6 +240,12 @@ namespace Mirror.Examples.Common.Controllers.Flyer
                 internal set => _groundState = value;
             }
 
+            public Vector2 mousePosition
+            {
+                get => _mousePosition;
+                internal set => _mousePosition = value;
+            }
+
             public Vector3 direction
             {
                 get => _direction;
@@ -313,6 +320,7 @@ namespace Mirror.Examples.Common.Controllers.Flyer
             // Calculate DPI-aware sensitivity
             float dpiScale = (Screen.dpi > 0) ? (Screen.dpi / BASE_DPI) : 1f;
             runtimeData.mouseSensitivity = turnAcceleration * dpiScale;
+            runtimeData.mousePosition = Input.mousePosition;
 
             SetCursor(controlOptions.HasFlag(ControlOptions.MouseSteer));
 
@@ -392,7 +400,7 @@ namespace Mirror.Examples.Common.Controllers.Flyer
 
         void SetCursor(bool locked)
         {
-            Cursor.lockState = locked ? CursorLockMode.Locked : CursorLockMode.None;
+            //Cursor.lockState = locked ? CursorLockMode.Locked : CursorLockMode.None;
             Cursor.visible = !locked;
         }
 
@@ -436,8 +444,13 @@ namespace Mirror.Examples.Common.Controllers.Flyer
 
         void HandleMouseSteer(float deltaTime)
         {
+            // Get mouse position, calculate delta
+            Vector2 currentMousePosition = Input.mousePosition;
+            Vector2 mouseDelta = currentMousePosition - runtimeData.mousePosition;
+            runtimeData.mousePosition = currentMousePosition;
+
             // Accumulate mouse input over time
-            runtimeData.mouseInputX += Input.GetAxisRaw("Mouse X") * runtimeData.mouseSensitivity;
+            runtimeData.mouseInputX += mouseDelta.x * runtimeData.mouseSensitivity;
 
             // Clamp the accumulator to simulate key press behavior
             runtimeData.mouseInputX = Mathf.Clamp(runtimeData.mouseInputX, -1f, 1f);

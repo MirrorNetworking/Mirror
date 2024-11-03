@@ -260,6 +260,7 @@ MonoBehaviour:
     _mouseSensitivity: 10
     _lastShotTime: 0
     _turretUI: {fileID: 0}
+    _mousePosition: {x: 0, y: 0}
   turretNetworkTransform: {fileID: 8662002890669114756}
   barrelNetworkTransform: {fileID: 4362334322449175123}
 --- !u!114 &8662002890669114756
