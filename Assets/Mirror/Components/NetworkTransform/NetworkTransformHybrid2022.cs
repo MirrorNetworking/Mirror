@@ -347,6 +347,8 @@ namespace Mirror
             lastDeserializedBaselinePosition = position;
             lastDeserializedBaselineRotation = rotation;
 
+            Debug.Log($"{name} RpcServerToClientBaseline sets new baseline := {baselineTick}");
+
             // debug draw: baseline
             if (debugDraw) Debug.DrawLine(position, position + Vector3.up, Color.yellow, 10f);
 
@@ -366,6 +368,8 @@ namespace Mirror
             lastDeserializedBaselineTick = baselineTick;
             lastDeserializedBaselinePosition = position;
 
+            Debug.Log($"{name} RpcServerToClientBaseline sets new baseline := {baselineTick}");
+
             // debug draw: baseline
             if (debugDraw) Debug.DrawLine(position, position + Vector3.up, Color.yellow, 10f);
 
@@ -384,6 +388,8 @@ namespace Mirror
             // save last deserialized baseline tick number to compare deltas against
             lastDeserializedBaselineTick = baselineTick;
             lastDeserializedBaselineRotation = rotation;
+
+            Debug.Log($"{name} RpcServerToClientBaseline sets new baseline := {baselineTick}");
 
             // if baseline counts as delta, insert it into snapshot buffer too
             if (baselineIsDelta)
@@ -1078,6 +1084,8 @@ namespace Mirror
                 lastDeserializedBaselineTick = reader.ReadByte();
                 Vector3 position = Vector3.zero;
                 Quaternion rotation = Quaternion.identity;
+
+                Debug.Log($"{name} OnDeserialize sets new baseline := {lastDeserializedBaselineTick}");
 
                 if (syncPosition)
                 {
