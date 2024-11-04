@@ -278,6 +278,9 @@ namespace Mirror
         // local authority client sends sync message to server for broadcasting
         protected virtual void OnClientToServerDeltaSync(byte baselineTick, Vector3? position, Quaternion? rotation)//, Vector3? scale)
         {
+            // only apply if in client authority mode
+            if (syncDirection != SyncDirection.ClientToServer) return;
+
             // ensure this delta is for our last known baseline.
             // we should never apply a delta on top of a wrong baseline.
             if (baselineTick != lastDeserializedBaselineTick)
@@ -293,9 +296,6 @@ namespace Mirror
                 // Debug.Log($"[{name}] Server: received delta for wrong baseline #{baselineTick} from: {connectionToClient}. Last was {lastDeserializedBaselineTick}. Ignoring.");
                 return;
             }
-
-            // only apply if in client authority mode
-            if (syncDirection != SyncDirection.ClientToServer) return;
 
             // protect against ever-growing buffer size attacks
             if (serverSnapshots.Count >= connectionToClient.snapshotBufferSizeLimit) return;
