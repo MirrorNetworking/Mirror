@@ -428,6 +428,17 @@ namespace Mirror
         // server broadcasts sync message to all clients
         protected virtual void OnServerToClientDeltaSync(byte baselineTick, Vector3 position, Quaternion rotation)//, Vector3 scale)
         {
+            // in host mode, the server sends rpcs to all clients.
+            // the host client itself will receive them too.
+            // -> host server is always the source of truth
+            // -> we can ignore any rpc on the host client
+            // => otherwise host objects would have ever growing clientBuffers
+            // (rpc goes to clients. if isServer is true too then we are host)
+            if (isServer) return;
+
+            // don't apply for local player with authority
+            if (IsClientWithAuthority) return;
+
             // ensure this delta is for our last known baseline.
             // we should never apply a delta on top of a wrong baseline.
             if (baselineTick != lastDeserializedBaselineTick)
@@ -443,17 +454,6 @@ namespace Mirror
                 // Debug.Log($"[{name}] Client: received delta for wrong baseline #{baselineTick}. Last was {lastDeserializedBaselineTick}. Ignoring.");
                 return;
             }
-
-            // in host mode, the server sends rpcs to all clients.
-            // the host client itself will receive them too.
-            // -> host server is always the source of truth
-            // -> we can ignore any rpc on the host client
-            // => otherwise host objects would have ever growing clientBuffers
-            // (rpc goes to clients. if isServer is true too then we are host)
-            if (isServer) return;
-
-            // don't apply for local player with authority
-            if (IsClientWithAuthority) return;
 
             // Debug.Log($"[{name}] Client: received delta for baseline #{baselineTick}");
 
