@@ -217,6 +217,8 @@ namespace Mirror
             // debug draw: baseline
             if (debugDraw) Debug.DrawLine(position, position + Vector3.up, Color.yellow, 10f);
 
+            Debug.Log($"{name} server received baseline: {baselineTick}");
+
             // if baseline counts as delta, insert it into snapshot buffer too
             if (baselineIsDelta)
                 OnClientToServerDeltaSync(baselineTick, position, rotation);//, scale);
@@ -270,6 +272,8 @@ namespace Mirror
         {
             // debug draw: delta
             if (debugDraw) Debug.DrawLine(position, position + Vector3.up, Color.white, 10f);
+
+            Debug.Log($"[{name}] server received delta for {baselineTick}, with last baseline {lastDeserializedBaselineTick}");
 
             // Debug.Log($"[{name}] server received delta for baseline #{lastDeserializedBaselineTick}");
             OnClientToServerDeltaSync(baselineTick, position, rotation);//, scale);
