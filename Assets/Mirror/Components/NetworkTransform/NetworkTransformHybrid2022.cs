@@ -338,6 +338,11 @@ namespace Mirror
             // ignore if this object is owned by this client.
             if (IsClientWithAuthority) return;
 
+            // host mode: baseline Rpc is also sent through host's local connection and applied.
+            // applying host's baseline as last deserialized would overwrite the owner client's data and cause jitter.
+            // in other words: never apply the rpcs in host mode.
+            if (isServer) return;
+
             // save last deserialized baseline tick number to compare deltas against
             lastDeserializedBaselineTick = baselineTick;
             lastDeserializedBaselinePosition = position;
@@ -358,6 +363,11 @@ namespace Mirror
             // ignore if this object is owned by this client.
             if (IsClientWithAuthority) return;
 
+            // host mode: baseline Rpc is also sent through host's local connection and applied.
+            // applying host's baseline as last deserialized would overwrite the owner client's data and cause jitter.
+            // in other words: never apply the rpcs in host mode.
+            if (isServer) return;
+
             // save last deserialized baseline tick number to compare deltas against
             lastDeserializedBaselineTick = baselineTick;
             lastDeserializedBaselinePosition = position;
@@ -377,6 +387,11 @@ namespace Mirror
             // ignore if this object is owned by this client.
             if (IsClientWithAuthority) return;
 
+            // host mode: baseline Rpc is also sent through host's local connection and applied.
+            // applying host's baseline as last deserialized would overwrite the owner client's data and cause jitter.
+            // in other words: never apply the rpcs in host mode.
+            if (isServer) return;
+
             // save last deserialized baseline tick number to compare deltas against
             lastDeserializedBaselineTick = baselineTick;
             lastDeserializedBaselineRotation = rotation;
@@ -394,6 +409,11 @@ namespace Mirror
             // ignore if this object is owned by this client.
             if (IsClientWithAuthority) return;
 
+            // host mode: baseline Rpc is also sent through host's local connection and applied.
+            // applying host's baseline as last deserialized would overwrite the owner client's data and cause jitter.
+            // in other words: never apply the rpcs in host mode.
+            if (isServer) return;
+
             // debug draw: delta
             if (debugDraw) Debug.DrawLine(position, position + Vector3.up, Color.white, 10f);
 
@@ -408,6 +428,11 @@ namespace Mirror
             // ignore if this object is owned by this client.
             if (IsClientWithAuthority) return;
 
+            // host mode: baseline Rpc is also sent through host's local connection and applied.
+            // applying host's baseline as last deserialized would overwrite the owner client's data and cause jitter.
+            // in other words: never apply the rpcs in host mode.
+            if (isServer) return;
+
             // debug draw: delta
             if (debugDraw) Debug.DrawLine(position, position + Vector3.up, Color.white, 10f);
 
@@ -421,6 +446,11 @@ namespace Mirror
             // delta is broadcast to all clients.
             // ignore if this object is owned by this client.
             if (IsClientWithAuthority) return;
+
+            // host mode: baseline Rpc is also sent through host's local connection and applied.
+            // applying host's baseline as last deserialized would overwrite the owner client's data and cause jitter.
+            // in other words: never apply the rpcs in host mode.
+            if (isServer) return;
 
             OnServerToClientDeltaSync(baselineTick, Vector3.zero, rotation);//, scale);
         }
