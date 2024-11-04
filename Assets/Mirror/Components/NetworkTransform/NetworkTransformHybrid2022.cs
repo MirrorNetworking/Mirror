@@ -293,7 +293,7 @@ namespace Mirror
 
                 // this can happen if unreliable arrives before reliable etc.
                 // no need to log this except when debugging.
-                Debug.Log($"[{name}] Server: received delta for wrong baseline #{baselineTick} from: {connectionToClient}. Last was {lastDeserializedBaselineTick}. Ignoring.");
+                Debug.LogWarning($"[{name}] Server: received delta for wrong baseline #{baselineTick} from: {connectionToClient}. Last was {lastDeserializedBaselineTick}. Ignoring.");
                 return;
             }
 
@@ -451,7 +451,7 @@ namespace Mirror
 
                 // this can happen if unreliable arrives before reliable etc.
                 // no need to log this except when debugging.
-                Debug.Log($"[{name}] Client: received delta for wrong baseline #{baselineTick}. Last was {lastDeserializedBaselineTick}. Ignoring.");
+                Debug.LogWarning($"[{name}] Client: received delta for wrong baseline #{baselineTick}. Last was {lastDeserializedBaselineTick}. Ignoring.");
                 return;
             }
 
