@@ -102,6 +102,7 @@ namespace Mirror
 
         // debugging ///////////////////////////////////////////////////////////
         [Header("Debug")]
+        public bool debugDraw;
         public bool showGizmos;
         public bool  showOverlay;
         public Color overlayColor = new Color(0, 0, 0, 0.5f);
@@ -213,6 +214,9 @@ namespace Mirror
             lastDeserializedBaselinePosition = position;
             lastDeserializedBaselineRotation = rotation;
 
+            // debug draw: baseline
+            if (debugDraw) Debug.DrawLine(position, position + Vector3.up, Color.yellow, 10f);
+
             // if baseline counts as delta, insert it into snapshot buffer too
             if (baselineIsDelta)
                 OnClientToServerDeltaSync(baselineTick, position, rotation);//, scale);
@@ -223,6 +227,9 @@ namespace Mirror
         {
             lastDeserializedBaselineTick = baselineTick;
             lastDeserializedBaselinePosition = position;
+
+            // debug draw: baseline
+            if (debugDraw) Debug.DrawLine(position, position + Vector3.up, Color.yellow, 10f);
 
             // if baseline counts as delta, insert it into snapshot buffer too
             if (baselineIsDelta)
@@ -244,6 +251,9 @@ namespace Mirror
         [Command(channel = Channels.Unreliable)] // unreliable delta
         void CmdClientToServerDelta_Position(byte baselineTick, Vector3 position)
         {
+            // debug draw: delta
+            if (debugDraw) Debug.DrawLine(position, position + Vector3.up, Color.white, 10f);
+
             // Debug.Log($"[{name}] server received delta for baseline #{lastDeserializedBaselineTick}");
             OnClientToServerDeltaSync(baselineTick, position, Quaternion.identity);//, scale);
         }
@@ -258,6 +268,9 @@ namespace Mirror
         [Command(channel = Channels.Unreliable)] // unreliable delta
         void CmdClientToServerDelta_PositionRotation(byte baselineTick, Vector3 position, Quaternion rotation)
         {
+            // debug draw: delta
+            if (debugDraw) Debug.DrawLine(position, position + Vector3.up, Color.white, 10f);
+
             // Debug.Log($"[{name}] server received delta for baseline #{lastDeserializedBaselineTick}");
             OnClientToServerDeltaSync(baselineTick, position, rotation);//, scale);
         }
@@ -324,6 +337,9 @@ namespace Mirror
             lastDeserializedBaselinePosition = position;
             lastDeserializedBaselineRotation = rotation;
 
+            // debug draw: baseline
+            if (debugDraw) Debug.DrawLine(position, position + Vector3.up, Color.yellow, 10f);
+
             // if baseline counts as delta, insert it into snapshot buffer too
             if (baselineIsDelta)
                 OnServerToClientDeltaSync(baselineTick, position, rotation);//, Vector3.zero);//, scale);
@@ -339,6 +355,9 @@ namespace Mirror
             // save last deserialized baseline tick number to compare deltas against
             lastDeserializedBaselineTick = baselineTick;
             lastDeserializedBaselinePosition = position;
+
+            // debug draw: baseline
+            if (debugDraw) Debug.DrawLine(position, position + Vector3.up, Color.yellow, 10f);
 
             // if baseline counts as delta, insert it into snapshot buffer too
             if (baselineIsDelta)
@@ -369,6 +388,9 @@ namespace Mirror
             // ignore if this object is owned by this client.
             if (IsClientWithAuthority) return;
 
+            // debug draw: delta
+            if (debugDraw) Debug.DrawLine(position, position + Vector3.up, Color.white, 10f);
+
             OnServerToClientDeltaSync(baselineTick, position, rotation);//, scale);
         }
 
@@ -379,6 +401,9 @@ namespace Mirror
             // delta is broadcast to all clients.
             // ignore if this object is owned by this client.
             if (IsClientWithAuthority) return;
+
+            // debug draw: delta
+            if (debugDraw) Debug.DrawLine(position, position + Vector3.up, Color.white, 10f);
 
             OnServerToClientDeltaSync(baselineTick, position, Quaternion.identity);//, scale);
         }
