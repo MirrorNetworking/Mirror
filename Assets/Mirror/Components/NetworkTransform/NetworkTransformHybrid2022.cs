@@ -694,8 +694,13 @@ namespace Mirror
             // should we broadcast at all?
             if (!disableSendingThisToClients) // CUSTOM CHANGE: see comment at definition
             {
-                UpdateServerBaseline(localTime);
-                UpdateServerDelta(localTime);
+                // only broadcast for server owned objects.
+                // otherwise server would overwrite ClientToServer object's baselines.
+                if (syncDirection == SyncDirection.ServerToClient || IsClientWithAuthority)
+                {
+                    UpdateServerBaseline(localTime);
+                    UpdateServerDelta(localTime);
+                }
             }
 
             // interpolate remote clients
