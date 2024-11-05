@@ -97,11 +97,6 @@ namespace Mirror
         public bool syncRotation = true;
         public bool syncScale    = false;
 
-        // BEGIN CUSTOM CHANGE /////////////////////////////////////////////////
-        // TODO rename to avoid double negative
-        public bool disableSendingThisToClients = false;
-        // END CUSTOM CHANGE ///////////////////////////////////////////////////
-
         // debugging ///////////////////////////////////////////////////////////
         [Header("Debug")]
         public bool debugDraw;
@@ -962,12 +957,9 @@ namespace Mirror
             // perf: only grab NetworkTime.localTime property once.
             double localTime = NetworkTime.localTime;
 
-            // should we broadcast at all?
-            if (!disableSendingThisToClients) // CUSTOM CHANGE: see comment at definition
-            {
-                UpdateServerBaseline(localTime);
-                UpdateServerDelta(localTime);
-            }
+            // broadcast
+            UpdateServerBaseline(localTime);
+            UpdateServerDelta(localTime);
 
             // interpolate remote clients
             UpdateServerInterpolation();
