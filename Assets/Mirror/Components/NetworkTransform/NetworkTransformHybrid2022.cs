@@ -175,8 +175,6 @@ namespace Mirror
             {
                 float positionDelta = Vector3.Distance(currentPosition, lastSerializedBaselinePosition);
                 if (positionDelta >= positionSensitivity)
-                // float positionChange = (currentPosition - lastPosition).sqrMagnitude;
-                // if (positionChange >= positionPrecisionSqr)
                 {
                     return true;
                 }
