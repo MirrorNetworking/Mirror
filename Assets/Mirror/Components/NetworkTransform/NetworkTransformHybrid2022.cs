@@ -1205,6 +1205,7 @@ namespace Mirror
             }
         }
 
+        // Update() without LateUpdate() split: otherwise perf. is cut in half!
         void Update()
         {
             // if server then always sync to others.
