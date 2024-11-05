@@ -511,14 +511,17 @@ namespace Mirror
                 byte frameCount = (byte)Time.frameCount; // perf: only access Time.frameCount once!
                 if (syncPosition && syncRotation)
                 {
+                    // no unreliable redundancy: baseline is reliable
                     RpcServerToClientBaseline_PositionRotation(frameCount, position, rotation);
                 }
                 else if (syncPosition)
                 {
+                    // no unreliable redundancy: baseline is reliable
                     RpcServerToClientBaseline_Position(frameCount, position);
                 }
                 else if (syncRotation)
                 {
+                    // no unreliable redundancy: baseline is reliable
                     RpcServerToClientBaseline_Rotation(frameCount, rotation);
                 }
 
@@ -700,14 +703,17 @@ namespace Mirror
                 byte frameCount = (byte)Time.frameCount; // perf: only access Time.frameCount once!
                 if (syncPosition && syncRotation)
                 {
+                    // no unreliable redundancy: baseline is reliable
                     CmdClientToServerBaseline_PositionRotation(frameCount, position, rotation);
                 }
                 else if (syncPosition)
                 {
+                    // no unreliable redundancy: baseline is reliable
                     CmdClientToServerBaseline_Position(frameCount, position);
                 }
                 else if (syncRotation)
                 {
+                    // no unreliable redundancy: baseline is reliable
                     CmdClientToServerBaseline_Rotation(frameCount, rotation);
                 }
 
