@@ -286,10 +286,7 @@ namespace Mirror
             if (baselineTick != lastDeserializedBaselineTick)
             {
                 // debug draw: drop
-                if (debugDraw)
-                {
-                    if (position.HasValue) Debug.DrawLine(position.Value, position.Value + Vector3.up, Color.red, 10f);
-                }
+                if (debugDraw) Debug.DrawLine(position, position + Vector3.up, Color.red, 10f);
 
                 // this can happen if unreliable arrives before reliable etc.
                 // no need to log this except when debugging.
@@ -474,10 +471,7 @@ namespace Mirror
             if (baselineTick != lastDeserializedBaselineTick)
             {
                 // debug draw: drop
-                if (debugDraw)
-                {
-                    Debug.DrawLine(position, position + Vector3.up, Color.red, 10f);
-                }
+                if (debugDraw) Debug.DrawLine(position, position + Vector3.up, Color.red, 10f);
 
                 // this can happen if unreliable arrives before reliable etc.
                 // no need to log this except when debugging.
