@@ -17,6 +17,39 @@ namespace Mirror
     [AddComponentMenu("Network/Network Transform Hybrid")]
     public class NetworkTransformHybrid2022 : NetworkBehaviour
     {
+        #region Flag Enums
+
+        [Flags]
+        public enum Settings
+        {
+            Nothing,
+            OnlySyncOnChange = 1 << 0,
+            UnreliableRedundancy = 1 << 1,
+            BaselineIsDelta = 1 << 2,
+            DisableSendingThisToClients = 1 << 3
+        }
+
+        [Flags]
+        public enum SyncOptions
+        {
+            Nothing,
+            Position = 1 << 0,
+            Rotation = 1 << 1,
+            Scale = 1 << 2,
+            Default = Position | Rotation
+        }
+
+        [Flags]
+        public enum DebugOptions
+        {
+            Nothing,
+            DebugDraw = 1 << 0,
+            ShowGizmos = 1 << 1,
+            ShowOverlay = 1 << 2
+        }
+
+        #endregion
+
         // target transform to sync. can be on a child.
         [Header("Target")]
         [Tooltip("The Transform component to sync. May be on this GameObject, or on a child.")]
@@ -59,11 +92,6 @@ namespace Mirror
         Quaternion lastDeserializedBaselineRotation = Quaternion.identity;      // unused, but keep for delta
         Vector3 lastDeserializedBaselineScale = Vector3.one;                    // unused, but keep for delta
 
-        // only sync when changed hack /////////////////////////////////////////
-        [Header("Sync Only If Changed")]
-        [Tooltip("When true, changes are not sent unless greater than sensitivity values below.")]
-        public bool onlySyncOnChange = true;
-
         // change detection: we need to do this carefully in order to get it right.
         //
         // DONT just check changes in UpdateBaseline(). this would introduce MrG's grid issue:
@@ -78,6 +106,19 @@ namespace Mirror
         //   => this avoids the A1->A2->A1 grid issue above
         bool changedSinceBaseline = false;
 
+        [Header("Configuration")]
+        // selective sync //////////////////////////////////////////////////////
+        public SyncOptions syncOptions = SyncOptions.Default;
+        bool syncPosition => syncOptions.HasFlag(SyncOptions.Position);
+        bool syncRotation => syncOptions.HasFlag(SyncOptions.Rotation);
+        bool syncScale => syncOptions.HasFlag(SyncOptions.Scale);
+
+        public Settings settings = Settings.OnlySyncOnChange;
+        bool onlySyncOnChange => settings.HasFlag(Settings.OnlySyncOnChange);
+        bool unreliableRedundancy => settings.HasFlag(Settings.UnreliableRedundancy);
+        bool baselineIsDelta => settings.HasFlag(Settings.BaselineIsDelta);
+        bool disableSendingThisToClients => settings.HasFlag(Settings.DisableSendingThisToClients);
+
         // sensitivity is for changed-detection,
         // this is != precision, which is for quantization and delta compression.
         [Header("Sensitivity"), Tooltip("Sensitivity of changes needed before an updated state is sent over the network")]
@@ -85,28 +126,35 @@ namespace Mirror
         public float rotationSensitivity = 0.01f;
         public float scaleSensitivity    = 0.01f;
 
-        [Tooltip("Enable to send all unreliable messages twice. Only useful for extremely fast-paced games since it doubles bandwidth costs.")]
-        public bool unreliableRedundancy = false;
+        //[Tooltip("Enable to send all unreliable messages twice. Only useful for extremely fast-paced games since it doubles bandwidth costs.")]
+        //public bool unreliableRedundancy = false;
 
-        [Tooltip("When sending a reliable baseline, should we also send an unreliable delta or rely on the reliable baseline to arrive in a similar time?")]
-        public bool baselineIsDelta = true;
+        //[Tooltip("When sending a reliable baseline, should we also send an unreliable delta or rely on the reliable baseline to arrive in a similar time?")]
+        //public bool baselineIsDelta = true;
 
-        // selective sync //////////////////////////////////////////////////////
-        [Header("Selective Sync & interpolation")]
-        public bool syncPosition = true;
-        public bool syncRotation = true;
-        public bool syncScale    = false;
+        //// selective sync //////////////////////////////////////////////////////
+        //[Header("Selective Sync & interpolation")]
+        //public bool syncPosition = true;
+        //public bool syncRotation = true;
+        //public bool syncScale    = false;
 
-        // BEGIN CUSTOM CHANGE /////////////////////////////////////////////////
-        // TODO rename to avoid double negative
-        public bool disableSendingThisToClients = false;
-        // END CUSTOM CHANGE ///////////////////////////////////////////////////
+        //// BEGIN CUSTOM CHANGE /////////////////////////////////////////////////
+        //// TODO rename to avoid double negative
+        //public bool disableSendingThisToClients = false;
+        //// END CUSTOM CHANGE ///////////////////////////////////////////////////
 
-        // debugging ///////////////////////////////////////////////////////////
+        //// debugging ///////////////////////////////////////////////////////////
+        //[Header("Debug")]
+        //public bool debugDraw;
+        //public bool showGizmos;
+        //public bool  showOverlay;
+
         [Header("Debug")]
-        public bool debugDraw;
-        public bool showGizmos;
-        public bool  showOverlay;
+        public DebugOptions debugOptions;
+        bool debugDraw => debugOptions.HasFlag(DebugOptions.DebugDraw);
+        bool showGizmos => debugOptions.HasFlag(DebugOptions.ShowGizmos);
+        bool showOverlay => debugOptions.HasFlag(DebugOptions.ShowOverlay);
+
         public Color overlayColor = new Color(0, 0, 0, 0.5f);
 
         // initialization //////////////////////////////////////////////////////
