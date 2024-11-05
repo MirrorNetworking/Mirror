@@ -25,8 +25,7 @@ namespace Mirror
             Nothing,
             OnlySyncOnChange = 1 << 0,
             UnreliableRedundancy = 1 << 1,
-            BaselineIsDelta = 1 << 2,
-            DisableSendingThisToClients = 1 << 3
+            BaselineIsDelta = 1 << 2
         }
 
         [Flags]
@@ -117,7 +116,6 @@ namespace Mirror
         bool onlySyncOnChange => settings.HasFlag(Settings.OnlySyncOnChange);
         bool unreliableRedundancy => settings.HasFlag(Settings.UnreliableRedundancy);
         bool baselineIsDelta => settings.HasFlag(Settings.BaselineIsDelta);
-        bool disableSendingThisToClients => settings.HasFlag(Settings.DisableSendingThisToClients);
 
         // sensitivity is for changed-detection,
         // this is != precision, which is for quantization and delta compression.
@@ -137,11 +135,6 @@ namespace Mirror
         //public bool syncPosition = true;
         //public bool syncRotation = true;
         //public bool syncScale    = false;
-
-        //// BEGIN CUSTOM CHANGE /////////////////////////////////////////////////
-        //// TODO rename to avoid double negative
-        //public bool disableSendingThisToClients = false;
-        //// END CUSTOM CHANGE ///////////////////////////////////////////////////
 
         //// debugging ///////////////////////////////////////////////////////////
         //[Header("Debug")]
@@ -1010,12 +1003,9 @@ namespace Mirror
             // perf: only grab NetworkTime.localTime property once.
             double localTime = NetworkTime.localTime;
 
-            // should we broadcast at all?
-            if (!disableSendingThisToClients) // CUSTOM CHANGE: see comment at definition
-            {
-                UpdateServerBaseline(localTime);
-                UpdateServerDelta(localTime);
-            }
+            // broadcast
+            UpdateServerBaseline(localTime);
+            UpdateServerDelta(localTime);
 
             // interpolate remote clients
             UpdateServerInterpolation();
@@ -1253,6 +1243,7 @@ namespace Mirror
             }
         }
 
+        // Update() without LateUpdate() split: otherwise perf. is cut in half!
         void Update()
         {
             // if server then always sync to others.
