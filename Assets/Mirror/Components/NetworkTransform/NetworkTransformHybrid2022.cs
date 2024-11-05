@@ -511,20 +511,14 @@ namespace Mirror
                 byte frameCount = (byte)Time.frameCount; // perf: only access Time.frameCount once!
                 if (syncPosition && syncRotation)
                 {
-                    // send snapshot without timestamp.
-                    // receiver gets it from batch timestamp to save bandwidth.
                     RpcServerToClientBaseline_PositionRotation(frameCount, position, rotation);
                 }
                 else if (syncPosition)
                 {
-                    // send snapshot without timestamp.
-                    // receiver gets it from batch timestamp to save bandwidth.
                     RpcServerToClientBaseline_Position(frameCount, position);
                 }
                 else if (syncRotation)
                 {
-                    // send snapshot without timestamp.
-                    // receiver gets it from batch timestamp to save bandwidth.
                     RpcServerToClientBaseline_Rotation(frameCount, rotation);
                 }
 
@@ -611,8 +605,6 @@ namespace Mirror
                 // -> Vector3? and Quaternion? nullables takes more bandwidth
                 if (syncPosition && syncRotation)
                 {
-                    // send snapshot without timestamp.
-                    // receiver gets it from batch timestamp to save bandwidth.
                     // unreliable redundancy to make up for potential message drops
                     RpcServerToClientDelta_PositionRotation(lastSerializedBaselineTick, position, rotation);
                     if (unreliableRedundancy)
@@ -620,8 +612,6 @@ namespace Mirror
                 }
                 else if (syncPosition)
                 {
-                    // send snapshot without timestamp.
-                    // receiver gets it from batch timestamp to save bandwidth.
                     // unreliable redundancy to make up for potential message drops
                     RpcServerToClientDelta_Position(lastSerializedBaselineTick, position);
                     if (unreliableRedundancy)
@@ -629,8 +619,6 @@ namespace Mirror
                 }
                 else if (syncRotation)
                 {
-                    // send snapshot without timestamp.
-                    // receiver gets it from batch timestamp to save bandwidth.
                     // unreliable redundancy to make up for potential message drops
                     RpcServerToClientDelta_Rotation(lastSerializedBaselineTick, rotation);
                     if (unreliableRedundancy)
@@ -712,20 +700,14 @@ namespace Mirror
                 byte frameCount = (byte)Time.frameCount; // perf: only access Time.frameCount once!
                 if (syncPosition && syncRotation)
                 {
-                    // send snapshot without timestamp.
-                    // receiver gets it from batch timestamp to save bandwidth.
                     CmdClientToServerBaseline_PositionRotation(frameCount, position, rotation);
                 }
                 else if (syncPosition)
                 {
-                    // send snapshot without timestamp.
-                    // receiver gets it from batch timestamp to save bandwidth.
                     CmdClientToServerBaseline_Position(frameCount, position);
                 }
                 else if (syncRotation)
                 {
-                    // send snapshot without timestamp.
-                    // receiver gets it from batch timestamp to save bandwidth.
                     CmdClientToServerBaseline_Rotation(frameCount, rotation);
                 }
 
@@ -802,8 +784,6 @@ namespace Mirror
                 // -> Vector3? and Quaternion? nullables takes more bandwidth
                 if (syncPosition && syncRotation)
                 {
-                    // send snapshot without timestamp.
-                    // receiver gets it from batch timestamp to save bandwidth.
                     // unreliable redundancy to make up for potential message drops
                     CmdClientToServerDelta_PositionRotation(lastSerializedBaselineTick, position, rotation);
                     if (unreliableRedundancy)
@@ -812,8 +792,6 @@ namespace Mirror
                 }
                 else if (syncPosition)
                 {
-                    // send snapshot without timestamp.
-                    // receiver gets it from batch timestamp to save bandwidth.
                     // unreliable redundancy to make up for potential message drops
                     CmdClientToServerDelta_Position(lastSerializedBaselineTick, position);
                     if (unreliableRedundancy)
@@ -821,8 +799,6 @@ namespace Mirror
                 }
                 else if (syncRotation)
                 {
-                    // send snapshot without timestamp.
-                    // receiver gets it from batch timestamp to save bandwidth.
                     // unreliable redundancy to make up for potential message drops
                     CmdClientToServerDelta_Rotation(lastSerializedBaselineTick, rotation);
                     if (unreliableRedundancy)
