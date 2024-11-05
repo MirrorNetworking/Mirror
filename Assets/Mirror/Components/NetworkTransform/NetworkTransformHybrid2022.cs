@@ -51,11 +51,13 @@ namespace Mirror
         byte lastSerializedBaselineTick = 0;
         Vector3 lastSerializedBaselinePosition = Vector3.zero;
         Quaternion lastSerializedBaselineRotation = Quaternion.identity;
+        Vector3 lastSerializedBaselineScale = Vector3.one;
 
         // save last deserialized baseline to delta decompress against
         byte lastDeserializedBaselineTick = 0;
         Vector3 lastDeserializedBaselinePosition = Vector3.zero;                // unused, but keep for delta
         Quaternion lastDeserializedBaselineRotation = Quaternion.identity;      // unused, but keep for delta
+        Vector3 lastDeserializedBaselineScale = Vector3.one;                    // unused, but keep for delta
 
         // only sync when changed hack /////////////////////////////////////////
         [Header("Sync Only If Changed")]
@@ -81,7 +83,7 @@ namespace Mirror
         [Header("Sensitivity"), Tooltip("Sensitivity of changes needed before an updated state is sent over the network")]
         public float positionSensitivity = 0.01f;
         public float rotationSensitivity = 0.01f;
-        // public float scaleSensitivity    = 0.01f;
+        public float scaleSensitivity    = 0.01f;
 
         [Tooltip("Enable to send all unreliable messages twice. Only useful for extremely fast-paced games since it doubles bandwidth costs.")]
         public bool unreliableRedundancy = false;
@@ -93,7 +95,7 @@ namespace Mirror
         [Header("Selective Sync & interpolation")]
         public bool syncPosition = true;
         public bool syncRotation = true;
-        // public bool syncScale    = false; // rarely used. disabled for perf so we can rely on transform.GetPositionAndRotation.
+        public bool syncScale    = false;
 
         // BEGIN CUSTOM CHANGE /////////////////////////////////////////////////
         // TODO rename to avoid double negative
@@ -143,13 +145,13 @@ namespace Mirror
             //    scale, then we should not touch scale etc.
             if (syncPosition) target.localPosition = interpolated.position;
             if (syncRotation) target.localRotation = interpolated.rotation;
-            // if (syncScale)    target.localScale    = interpolated.scale;
+            if (syncScale)    target.localScale    = interpolated.scale;
         }
 
         // check if position / rotation / scale changed since last _full reliable_ sync.
         // squared comparisons for performance
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        bool Changed(Vector3 currentPosition, Quaternion currentRotation)//, Vector3 currentScale)
+        bool Changed(Vector3 currentPosition, Quaternion currentRotation, Vector3 currentScale)
         {
             if (syncPosition)
             {
@@ -169,14 +171,35 @@ namespace Mirror
                 }
             }
 
-            // if (syncScale && Vector3.Distance(last.scale, current.scale) >= scalePrecision)
-            // if (syncScale && (current.scale - last.scale).sqrMagnitude >= scalePrecisionSqr)
-            //     return true;
+            if (syncScale)
+            {
+                float scaleDelta = Vector3.Distance(currentScale, lastSerializedBaselineScale);
+                if (scaleDelta >= scaleSensitivity)
+                {
+                    return true;
+                }
+            }
 
             return false;
         }
 
         // cmd baseline ////////////////////////////////////////////////////////
+        [Command(channel = Channels.Reliable)] // reliable baseline
+        void CmdClientToServerBaseline_PositionRotationScale(byte baselineTick, Vector3 position, Quaternion rotation, Vector3 scale)
+        {
+            lastDeserializedBaselineTick = baselineTick;
+            lastDeserializedBaselinePosition = position;
+            lastDeserializedBaselineRotation = rotation;
+            lastDeserializedBaselineScale    = scale;
+
+            // debug draw: baseline
+            if (debugDraw) Debug.DrawLine(position, position + Vector3.up, Color.yellow, 10f);
+
+            // if baseline counts as delta, insert it into snapshot buffer too
+            if (baselineIsDelta)
+                OnClientToServerDeltaSync(baselineTick, position, rotation, scale);
+        }
+
         [Command(channel = Channels.Reliable)] // reliable baseline
         void CmdClientToServerBaseline_PositionRotation(byte baselineTick, Vector3 position, Quaternion rotation)
         {
@@ -189,7 +212,34 @@ namespace Mirror
 
             // if baseline counts as delta, insert it into snapshot buffer too
             if (baselineIsDelta)
-                OnClientToServerDeltaSync(baselineTick, position, rotation);//, scale);
+                OnClientToServerDeltaSync(baselineTick, position, rotation, Vector3.one);
+        }
+
+        [Command(channel = Channels.Reliable)] // reliable baseline
+        void CmdClientToServerBaseline_PositionScale(byte baselineTick, Vector3 position, Vector3 scale)
+        {
+            lastDeserializedBaselineTick = baselineTick;
+            lastDeserializedBaselinePosition = position;
+            lastDeserializedBaselineScale    = scale;
+
+            // debug draw: baseline
+            if (debugDraw) Debug.DrawLine(position, position + Vector3.up, Color.yellow, 10f);
+
+            // if baseline counts as delta, insert it into snapshot buffer too
+            if (baselineIsDelta)
+                OnClientToServerDeltaSync(baselineTick, position, Quaternion.identity, scale);
+        }
+
+        [Command(channel = Channels.Reliable)] // reliable baseline
+        void CmdClientToServerBaseline_RotationScale(byte baselineTick, Quaternion rotation, Vector3 scale)
+        {
+            lastDeserializedBaselineTick = baselineTick;
+            lastDeserializedBaselineRotation = rotation;
+            lastDeserializedBaselineScale    = scale;
+
+            // if baseline counts as delta, insert it into snapshot buffer too
+            if (baselineIsDelta)
+                OnClientToServerDeltaSync(baselineTick, Vector3.zero, rotation, scale);
         }
 
         [Command(channel = Channels.Reliable)] // reliable baseline
@@ -203,7 +253,7 @@ namespace Mirror
 
             // if baseline counts as delta, insert it into snapshot buffer too
             if (baselineIsDelta)
-                OnClientToServerDeltaSync(baselineTick, position, Quaternion.identity);//, scale);
+                OnClientToServerDeltaSync(baselineTick, position, Quaternion.identity, Vector3.one);
         }
 
         [Command(channel = Channels.Reliable)] // reliable baseline
@@ -214,7 +264,18 @@ namespace Mirror
 
             // if baseline counts as delta, insert it into snapshot buffer too
             if (baselineIsDelta)
-                OnClientToServerDeltaSync(baselineTick, Vector3.zero, rotation);//, scale);
+                OnClientToServerDeltaSync(baselineTick, Vector3.zero, rotation, Vector3.one);
+        }
+
+        [Command(channel = Channels.Reliable)] // reliable baseline
+        void CmdClientToServerBaseline_Scale(byte baselineTick, Vector3 scale)
+        {
+            lastDeserializedBaselineTick = baselineTick;
+            lastDeserializedBaselineScale = scale;
+
+            // if baseline counts as delta, insert it into snapshot buffer too
+            if (baselineIsDelta)
+                OnClientToServerDeltaSync(baselineTick, Vector3.zero, Quaternion.identity, scale);
         }
 
         // cmd delta ///////////////////////////////////////////////////////////
@@ -225,14 +286,31 @@ namespace Mirror
             if (debugDraw) Debug.DrawLine(position, position + Vector3.up, Color.white, 10f);
 
             // Debug.Log($"[{name}] server received delta for baseline #{lastDeserializedBaselineTick}");
-            OnClientToServerDeltaSync(baselineTick, position, Quaternion.identity);//, scale);
+            OnClientToServerDeltaSync(baselineTick, position, Quaternion.identity, Vector3.one);
         }
 
         [Command(channel = Channels.Unreliable)] // unreliable delta
         void CmdClientToServerDelta_Rotation(byte baselineTick, Quaternion rotation)
         {
             // Debug.Log($"[{name}] server received delta for baseline #{lastDeserializedBaselineTick}");
-            OnClientToServerDeltaSync(baselineTick, Vector3.zero, rotation);//, scale);
+            OnClientToServerDeltaSync(baselineTick, Vector3.zero, rotation, Vector3.one);
+        }
+
+        [Command(channel = Channels.Unreliable)] // unreliable delta
+        void CmdClientToServerDelta_Scale(byte baselineTick, Vector3 scale)
+        {
+            // Debug.Log($"[{name}] server received delta for baseline #{lastDeserializedBaselineTick}");
+            OnClientToServerDeltaSync(baselineTick, Vector3.zero, Quaternion.identity, scale);
+        }
+
+        [Command(channel = Channels.Unreliable)] // unreliable delta
+        void CmdClientToServerDelta_PositionRotationScale(byte baselineTick, Vector3 position, Quaternion rotation, Vector3 scale)
+        {
+            // debug draw: delta
+            if (debugDraw) Debug.DrawLine(position, position + Vector3.up, Color.white, 10f);
+
+            // Debug.Log($"[{name}] server received delta for baseline #{lastDeserializedBaselineTick}");
+            OnClientToServerDeltaSync(baselineTick, position, rotation, scale);
         }
 
         [Command(channel = Channels.Unreliable)] // unreliable delta
@@ -242,11 +320,28 @@ namespace Mirror
             if (debugDraw) Debug.DrawLine(position, position + Vector3.up, Color.white, 10f);
 
             // Debug.Log($"[{name}] server received delta for baseline #{lastDeserializedBaselineTick}");
-            OnClientToServerDeltaSync(baselineTick, position, rotation);//, scale);
+            OnClientToServerDeltaSync(baselineTick, position, rotation, Vector3.one);
+        }
+
+        [Command(channel = Channels.Unreliable)] // unreliable delta
+        void CmdClientToServerDelta_PositionScale(byte baselineTick, Vector3 position, Vector3 scale)
+        {
+            // debug draw: delta
+            if (debugDraw) Debug.DrawLine(position, position + Vector3.up, Color.white, 10f);
+
+            // Debug.Log($"[{name}] server received delta for baseline #{lastDeserializedBaselineTick}");
+            OnClientToServerDeltaSync(baselineTick, position, Quaternion.identity, scale);
+        }
+
+        [Command(channel = Channels.Unreliable)] // unreliable delta
+        void CmdClientToServerDelta_RotationScale(byte baselineTick, Quaternion rotation, Vector3 scale)
+        {
+            // Debug.Log($"[{name}] server received delta for baseline #{lastDeserializedBaselineTick}");
+            OnClientToServerDeltaSync(baselineTick, Vector3.zero, rotation, scale);
         }
 
         // local authority client sends sync message to server for broadcasting
-        protected virtual void OnClientToServerDeltaSync(byte baselineTick, Vector3 position, Quaternion rotation)//, Vector3 scale)
+        protected virtual void OnClientToServerDeltaSync(byte baselineTick, Vector3 position, Quaternion rotation, Vector3 scale)
         {
             // only apply if in client authority mode
             if (syncDirection != SyncDirection.ClientToServer) return;
@@ -280,11 +375,37 @@ namespace Mirror
                 Time.timeAsDouble,
                 position,
                 rotation,
-                Vector3.one // scale
+                scale
             ));
         }
 
         // rpc baseline ////////////////////////////////////////////////////////
+        [ClientRpc(channel = Channels.Reliable)] // reliable baseline
+        void RpcServerToClientBaseline_PositionRotationScale(byte baselineTick, Vector3 position, Quaternion rotation, Vector3 scale)
+        {
+            // baseline is broadcast to all clients.
+            // ignore if this object is owned by this client.
+            if (IsClientWithAuthority) return;
+
+            // host mode: baseline Rpc is also sent through host's local connection and applied.
+            // applying host's baseline as last deserialized would overwrite the owner client's data and cause jitter.
+            // in other words: never apply the rpcs in host mode.
+            if (isServer) return;
+
+            // save last deserialized baseline tick number to compare deltas against
+            lastDeserializedBaselineTick = baselineTick;
+            lastDeserializedBaselinePosition = position;
+            lastDeserializedBaselineRotation = rotation;
+            lastDeserializedBaselineScale = scale;
+
+            // debug draw: baseline
+            if (debugDraw) Debug.DrawLine(position, position + Vector3.up, Color.yellow, 10f);
+
+            // if baseline counts as delta, insert it into snapshot buffer too
+            if (baselineIsDelta)
+                OnServerToClientDeltaSync(baselineTick, position, rotation, scale);
+        }
+
         [ClientRpc(channel = Channels.Reliable)] // reliable baseline
         void RpcServerToClientBaseline_PositionRotation(byte baselineTick, Vector3 position, Quaternion rotation)
         {
@@ -307,7 +428,54 @@ namespace Mirror
 
             // if baseline counts as delta, insert it into snapshot buffer too
             if (baselineIsDelta)
-                OnServerToClientDeltaSync(baselineTick, position, rotation);//, Vector3.zero);//, scale);
+                OnServerToClientDeltaSync(baselineTick, position, rotation, Vector3.one);
+        }
+
+        [ClientRpc(channel = Channels.Reliable)] // reliable baseline
+        void RpcServerToClientBaseline_PositionScale(byte baselineTick, Vector3 position, Vector3 scale)
+        {
+            // baseline is broadcast to all clients.
+            // ignore if this object is owned by this client.
+            if (IsClientWithAuthority) return;
+
+            // host mode: baseline Rpc is also sent through host's local connection and applied.
+            // applying host's baseline as last deserialized would overwrite the owner client's data and cause jitter.
+            // in other words: never apply the rpcs in host mode.
+            if (isServer) return;
+
+            // save last deserialized baseline tick number to compare deltas against
+            lastDeserializedBaselineTick = baselineTick;
+            lastDeserializedBaselinePosition = position;
+            lastDeserializedBaselineScale    = scale;
+
+            // debug draw: baseline
+            if (debugDraw) Debug.DrawLine(position, position + Vector3.up, Color.yellow, 10f);
+
+            // if baseline counts as delta, insert it into snapshot buffer too
+            if (baselineIsDelta)
+                OnServerToClientDeltaSync(baselineTick, position, Quaternion.identity, scale);
+        }
+
+        [ClientRpc(channel = Channels.Reliable)] // reliable baseline
+        void RpcServerToClientBaseline_RotationScale(byte baselineTick, Quaternion rotation, Vector3 scale)
+        {
+            // baseline is broadcast to all clients.
+            // ignore if this object is owned by this client.
+            if (IsClientWithAuthority) return;
+
+            // host mode: baseline Rpc is also sent through host's local connection and applied.
+            // applying host's baseline as last deserialized would overwrite the owner client's data and cause jitter.
+            // in other words: never apply the rpcs in host mode.
+            if (isServer) return;
+
+            // save last deserialized baseline tick number to compare deltas against
+            lastDeserializedBaselineTick = baselineTick;
+            lastDeserializedBaselineRotation = rotation;
+            lastDeserializedBaselineScale    = scale;
+
+            // if baseline counts as delta, insert it into snapshot buffer too
+            if (baselineIsDelta)
+                OnServerToClientDeltaSync(baselineTick, Vector3.zero, rotation, scale);
         }
 
         [ClientRpc(channel = Channels.Reliable)] // reliable baseline
@@ -331,7 +499,7 @@ namespace Mirror
 
             // if baseline counts as delta, insert it into snapshot buffer too
             if (baselineIsDelta)
-                OnServerToClientDeltaSync(baselineTick, position, Quaternion.identity);//, Vector3.zero);//, scale);
+                OnServerToClientDeltaSync(baselineTick, position, Quaternion.identity, Vector3.one);
         }
 
         [ClientRpc(channel = Channels.Reliable)] // reliable baseline
@@ -352,10 +520,49 @@ namespace Mirror
 
             // if baseline counts as delta, insert it into snapshot buffer too
             if (baselineIsDelta)
-                OnServerToClientDeltaSync(baselineTick, Vector3.zero, rotation);//, Vector3.zero);//, scale);
+                OnServerToClientDeltaSync(baselineTick, Vector3.zero, rotation, Vector3.one);
+        }
+
+        [ClientRpc(channel = Channels.Reliable)] // reliable baseline
+        void RpcServerToClientBaseline_Scale(byte baselineTick, Vector3 scale)
+        {
+            // baseline is broadcast to all clients.
+            // ignore if this object is owned by this client.
+            if (IsClientWithAuthority) return;
+
+            // host mode: baseline Rpc is also sent through host's local connection and applied.
+            // applying host's baseline as last deserialized would overwrite the owner client's data and cause jitter.
+            // in other words: never apply the rpcs in host mode.
+            if (isServer) return;
+
+            // save last deserialized baseline tick number to compare deltas against
+            lastDeserializedBaselineTick = baselineTick;
+            lastDeserializedBaselineScale = scale;
+
+            // if baseline counts as delta, insert it into snapshot buffer too
+            if (baselineIsDelta)
+                OnServerToClientDeltaSync(baselineTick, Vector3.zero, Quaternion.identity, scale);
         }
 
         // rpc delta ///////////////////////////////////////////////////////////
+        [ClientRpc(channel = Channels.Unreliable)] // unreliable delta
+        void RpcServerToClientDelta_PositionRotationScale(byte baselineTick, Vector3 position, Quaternion rotation, Vector3 scale)
+        {
+            // delta is broadcast to all clients.
+            // ignore if this object is owned by this client.
+            if (IsClientWithAuthority) return;
+
+            // host mode: baseline Rpc is also sent through host's local connection and applied.
+            // applying host's baseline as last deserialized would overwrite the owner client's data and cause jitter.
+            // in other words: never apply the rpcs in host mode.
+            if (isServer) return;
+
+            // debug draw: delta
+            if (debugDraw) Debug.DrawLine(position, position + Vector3.up, Color.white, 10f);
+
+            OnServerToClientDeltaSync(baselineTick, position, rotation, scale);
+        }
+
         [ClientRpc(channel = Channels.Unreliable)] // unreliable delta
         void RpcServerToClientDelta_PositionRotation(byte baselineTick, Vector3 position, Quaternion rotation)
         {
@@ -371,9 +578,41 @@ namespace Mirror
             // debug draw: delta
             if (debugDraw) Debug.DrawLine(position, position + Vector3.up, Color.white, 10f);
 
-            OnServerToClientDeltaSync(baselineTick, position, rotation);//, scale);
+            OnServerToClientDeltaSync(baselineTick, position, rotation, Vector3.one);
         }
 
+        [ClientRpc(channel = Channels.Unreliable)] // unreliable delta
+        void RpcServerToClientDelta_PositionScale(byte baselineTick, Vector3 position, Vector3 scale)
+        {
+            // delta is broadcast to all clients.
+            // ignore if this object is owned by this client.
+            if (IsClientWithAuthority) return;
+
+            // host mode: baseline Rpc is also sent through host's local connection and applied.
+            // applying host's baseline as last deserialized would overwrite the owner client's data and cause jitter.
+            // in other words: never apply the rpcs in host mode.
+            if (isServer) return;
+
+            // debug draw: delta
+            if (debugDraw) Debug.DrawLine(position, position + Vector3.up, Color.white, 10f);
+
+            OnServerToClientDeltaSync(baselineTick, position, Quaternion.identity, scale);
+        }
+
+        [ClientRpc(channel = Channels.Unreliable)] // unreliable delta
+        void RpcServerToClientDelta_RotationScale(byte baselineTick, Quaternion rotation, Vector3 scale)
+        {
+            // delta is broadcast to all clients.
+            // ignore if this object is owned by this client.
+            if (IsClientWithAuthority) return;
+
+            // host mode: baseline Rpc is also sent through host's local connection and applied.
+            // applying host's baseline as last deserialized would overwrite the owner client's data and cause jitter.
+            // in other words: never apply the rpcs in host mode.
+            if (isServer) return;
+
+            OnServerToClientDeltaSync(baselineTick, Vector3.zero, rotation, scale);
+        }
 
         [ClientRpc(channel = Channels.Unreliable)] // unreliable delta
         void RpcServerToClientDelta_Position(byte baselineTick, Vector3 position)
@@ -390,9 +629,8 @@ namespace Mirror
             // debug draw: delta
             if (debugDraw) Debug.DrawLine(position, position + Vector3.up, Color.white, 10f);
 
-            OnServerToClientDeltaSync(baselineTick, position, Quaternion.identity);//, scale);
+            OnServerToClientDeltaSync(baselineTick, position, Quaternion.identity, Vector3.one);
         }
-
 
         [ClientRpc(channel = Channels.Unreliable)] // unreliable delta
         void RpcServerToClientDelta_Rotation(byte baselineTick, Quaternion rotation)
@@ -406,11 +644,26 @@ namespace Mirror
             // in other words: never apply the rpcs in host mode.
             if (isServer) return;
 
-            OnServerToClientDeltaSync(baselineTick, Vector3.zero, rotation);//, scale);
+            OnServerToClientDeltaSync(baselineTick, Vector3.zero, rotation, Vector3.one);
+        }
+
+        [ClientRpc(channel = Channels.Unreliable)] // unreliable delta
+        void RpcServerToClientDelta_Scale(byte baselineTick, Vector3 scale)
+        {
+            // delta is broadcast to all clients.
+            // ignore if this object is owned by this client.
+            if (IsClientWithAuthority) return;
+
+            // host mode: baseline Rpc is also sent through host's local connection and applied.
+            // applying host's baseline as last deserialized would overwrite the owner client's data and cause jitter.
+            // in other words: never apply the rpcs in host mode.
+            if (isServer) return;
+
+            OnServerToClientDeltaSync(baselineTick, Vector3.zero, Quaternion.identity, scale);
         }
 
         // server broadcasts sync message to all clients
-        protected virtual void OnServerToClientDeltaSync(byte baselineTick, Vector3 position, Quaternion rotation)//, Vector3 scale)
+        protected virtual void OnServerToClientDeltaSync(byte baselineTick, Vector3 position, Quaternion rotation, Vector3 scale)
         {
             // in host mode, the server sends rpcs to all clients.
             // the host client itself will receive them too.
@@ -466,7 +719,7 @@ namespace Mirror
                 Time.timeAsDouble,
                 position,
                 rotation,
-                Vector3.one // scale
+                scale
             ));
         }
 
@@ -484,15 +737,32 @@ namespace Mirror
                 // perf: get position/rotation directly. TransformSnapshot is too expensive.
                 // TransformSnapshot snapshot = ConstructSnapshot();
                 target.GetLocalPositionAndRotation(out Vector3 position, out Quaternion rotation);
+                Vector3 scale = target.localScale;
 
                 // save bandwidth by only transmitting what is needed.
                 // -> ArraySegment with random data is slower since byte[] copying
                 // -> Vector3? and Quaternion? nullables takes more bandwidth
                 byte frameCount = (byte)Time.frameCount; // perf: only access Time.frameCount once!
-                if (syncPosition && syncRotation)
+
+                if (syncPosition && syncRotation && syncScale)
+                {
+                    // no unreliable redundancy: baseline is reliable
+                    RpcServerToClientBaseline_PositionRotationScale(frameCount, position, rotation, scale);
+                }
+                else if (syncPosition && syncRotation)
                 {
                     // no unreliable redundancy: baseline is reliable
                     RpcServerToClientBaseline_PositionRotation(frameCount, position, rotation);
+                }
+                else if (syncPosition && syncScale)
+                {
+                    // no unreliable redundancy: baseline is reliable
+                    RpcServerToClientBaseline_PositionScale(frameCount, position, scale);
+                }
+                else if (syncRotation && syncScale)
+                {
+                    // no unreliable redundancy: baseline is reliable
+                    RpcServerToClientBaseline_RotationScale(frameCount, rotation, scale);
                 }
                 else if (syncPosition)
                 {
@@ -504,6 +774,15 @@ namespace Mirror
                     // no unreliable redundancy: baseline is reliable
                     RpcServerToClientBaseline_Rotation(frameCount, rotation);
                 }
+                else if (syncScale)
+                {
+                    // no unreliable redundancy: baseline is reliable
+                    RpcServerToClientBaseline_Scale(frameCount, scale);
+                }
+
+                // position, rotation, scale
+                // position, rotation, !scale
+                // position,
 
                 // save the last baseline's tick number.
                 // included in baseline to identify which one it was on client
@@ -512,6 +791,7 @@ namespace Mirror
                 lastBaselineTime = NetworkTime.localTime;
                 lastSerializedBaselinePosition = position;
                 lastSerializedBaselineRotation = rotation;
+                lastSerializedBaselineScale = scale;
 
                 // baseline was just sent after a change. reset change detection.
                 changedSinceBaseline = false;
@@ -567,6 +847,7 @@ namespace Mirror
                 // perf: get position/rotation directly. TransformSnapshot is too expensive.
                 // TransformSnapshot snapshot = ConstructSnapshot();
                 target.GetLocalPositionAndRotation(out Vector3 position, out Quaternion rotation);
+                Vector3 scale = target.localScale;
 
                 // look for changes every unreliable sendInterval!
                 // every reliable interval isn't enough, this would cause MrG's grid issue:
@@ -576,7 +857,7 @@ namespace Mirror
                 //   => client wouldn't know we moved back to A1
                 // every update works, but it's unnecessary overhead since sends only happen every sendInterval
                 // every unreliable sendInterval is the perfect place to look for changes.
-                if (onlySyncOnChange && Changed(position, rotation))
+                if (onlySyncOnChange && Changed(position, rotation, scale))
                     changedSinceBaseline = true;
 
                 // only sync on change:
@@ -586,12 +867,34 @@ namespace Mirror
                 // save bandwidth by only transmitting what is needed.
                 // -> ArraySegment with random data is slower since byte[] copying
                 // -> Vector3? and Quaternion? nullables takes more bandwidth
-                if (syncPosition && syncRotation)
+
+                if (syncPosition && syncRotation && syncScale)
+                {
+                    // unreliable redundancy to make up for potential message drops
+                    RpcServerToClientDelta_PositionRotationScale(lastSerializedBaselineTick, position, rotation, scale);
+                    if (unreliableRedundancy)
+                        RpcServerToClientDelta_PositionRotationScale(lastSerializedBaselineTick, position, rotation, scale);
+                }
+                else if (syncPosition && syncRotation)
                 {
                     // unreliable redundancy to make up for potential message drops
                     RpcServerToClientDelta_PositionRotation(lastSerializedBaselineTick, position, rotation);
                     if (unreliableRedundancy)
                         RpcServerToClientDelta_PositionRotation(lastSerializedBaselineTick, position, rotation);
+                }
+                else if (syncPosition && syncScale)
+                {
+                    // unreliable redundancy to make up for potential message drops
+                    RpcServerToClientDelta_PositionScale(lastSerializedBaselineTick, position, scale);
+                    if (unreliableRedundancy)
+                        RpcServerToClientDelta_PositionScale(lastSerializedBaselineTick, position, scale);
+                }
+                else if (syncRotation && syncScale)
+                {
+                    // unreliable redundancy to make up for potential message drops
+                    RpcServerToClientDelta_RotationScale(lastSerializedBaselineTick, rotation, scale);
+                    if (unreliableRedundancy)
+                        RpcServerToClientDelta_RotationScale(lastSerializedBaselineTick, rotation, scale);
                 }
                 else if (syncPosition)
                 {
@@ -607,7 +910,13 @@ namespace Mirror
                     if (unreliableRedundancy)
                         RpcServerToClientDelta_Rotation(lastSerializedBaselineTick, rotation);
                 }
-
+                else if (syncScale)
+                {
+                    // unreliable redundancy to make up for potential message drops
+                    RpcServerToClientDelta_Scale(lastSerializedBaselineTick, scale);
+                    if (unreliableRedundancy)
+                        RpcServerToClientDelta_Scale(lastSerializedBaselineTick, scale);
+                }
 
                 lastDeltaTime = localTime;
             }
@@ -676,15 +985,32 @@ namespace Mirror
                 // perf: get position/rotation directly. TransformSnapshot is too expensive.
                 // TransformSnapshot snapshot = ConstructSnapshot();
                 target.GetLocalPositionAndRotation(out Vector3 position, out Quaternion rotation);
+                Vector3 scale = target.localScale;
 
                 // save bandwidth by only transmitting what is needed.
                 // -> ArraySegment with random data is slower since byte[] copying
                 // -> Vector3? and Quaternion? nullables takes more bandwidth
                 byte frameCount = (byte)Time.frameCount; // perf: only access Time.frameCount once!
-                if (syncPosition && syncRotation)
+
+                if (syncPosition && syncRotation && syncScale)
+                {
+                    // no unreliable redundancy: baseline is reliable
+                    CmdClientToServerBaseline_PositionRotationScale(frameCount, position, rotation, scale);
+                }
+                else if (syncPosition && syncRotation)
                 {
                     // no unreliable redundancy: baseline is reliable
                     CmdClientToServerBaseline_PositionRotation(frameCount, position, rotation);
+                }
+                else if (syncPosition && syncScale)
+                {
+                    // no unreliable redundancy: baseline is reliable
+                    CmdClientToServerBaseline_PositionScale(frameCount, position, scale);
+                }
+                else if (syncRotation && syncScale)
+                {
+                    // no unreliable redundancy: baseline is reliable
+                    CmdClientToServerBaseline_RotationScale(frameCount, rotation, scale);
                 }
                 else if (syncPosition)
                 {
@@ -696,6 +1022,11 @@ namespace Mirror
                     // no unreliable redundancy: baseline is reliable
                     CmdClientToServerBaseline_Rotation(frameCount, rotation);
                 }
+                else if (syncScale)
+                {
+                    // no unreliable redundancy: baseline is reliable
+                    CmdClientToServerBaseline_Scale(frameCount, scale);
+                }
 
                 // save the last baseline's tick number.
                 // included in baseline to identify which one it was on client
@@ -704,6 +1035,7 @@ namespace Mirror
                 lastBaselineTime = NetworkTime.localTime;
                 lastSerializedBaselinePosition = position;
                 lastSerializedBaselineRotation = rotation;
+                lastSerializedBaselineScale = scale;
 
                 // baseline was just sent after a change. reset change detection.
                 changedSinceBaseline = false;
@@ -748,6 +1080,7 @@ namespace Mirror
                 // perf: get position/rotation directly. TransformSnapshot is too expensive.
                 // TransformSnapshot snapshot = ConstructSnapshot();
                 target.GetLocalPositionAndRotation(out Vector3 position, out Quaternion rotation);
+                Vector3 scale = target.localScale;
 
                 // look for changes every unreliable sendInterval!
                 //
@@ -758,7 +1091,7 @@ namespace Mirror
                 //   => server wouldn't know we moved back to A1
                 // every update works, but it's unnecessary overhead since sends only happen every sendInterval
                 // every unreliable sendInterval is the perfect place to look for changes.
-                if (onlySyncOnChange && Changed(position, rotation))
+                if (onlySyncOnChange && Changed(position, rotation, scale))
                     changedSinceBaseline = true;
 
                 // only sync on change:
@@ -768,16 +1101,39 @@ namespace Mirror
                 // save bandwidth by only transmitting what is needed.
                 // -> ArraySegment with random data is slower since byte[] copying
                 // -> Vector3? and Quaternion? nullables takes more bandwidth
-                if (syncPosition && syncRotation)
+
+                if (syncPosition && syncRotation && syncScale)
                 {
+                    CmdClientToServerDelta_PositionRotationScale(lastSerializedBaselineTick, position, rotation, scale);
+                    if (unreliableRedundancy)
+                        CmdClientToServerDelta_PositionRotationScale(lastSerializedBaselineTick, position, rotation, scale);
+                }
+                else if (syncPosition && syncRotation)
+                {
+                    // send snapshot without timestamp.
+                    // receiver gets it from batch timestamp to save bandwidth.
                     // unreliable redundancy to make up for potential message drops
                     CmdClientToServerDelta_PositionRotation(lastSerializedBaselineTick, position, rotation);
                     if (unreliableRedundancy)
                         CmdClientToServerDelta_PositionRotation(lastSerializedBaselineTick, position, rotation);
 
                 }
+                else if (syncPosition && syncScale)
+                {
+                    CmdClientToServerDelta_PositionScale(lastSerializedBaselineTick, position, scale);
+                    if (unreliableRedundancy)
+                        CmdClientToServerDelta_PositionScale(lastSerializedBaselineTick, position, scale);
+                }
+                else if (syncRotation && syncScale)
+                {
+                    CmdClientToServerDelta_RotationScale(lastSerializedBaselineTick, rotation, scale);
+                    if (unreliableRedundancy)
+                        CmdClientToServerDelta_RotationScale(lastSerializedBaselineTick, rotation, scale);
+                }
                 else if (syncPosition)
                 {
+                    // send snapshot without timestamp.
+                    // receiver gets it from batch timestamp to save bandwidth.
                     // unreliable redundancy to make up for potential message drops
                     CmdClientToServerDelta_Position(lastSerializedBaselineTick, position);
                     if (unreliableRedundancy)
@@ -785,10 +1141,18 @@ namespace Mirror
                 }
                 else if (syncRotation)
                 {
+                    // send snapshot without timestamp.
+                    // receiver gets it from batch timestamp to save bandwidth.
                     // unreliable redundancy to make up for potential message drops
                     CmdClientToServerDelta_Rotation(lastSerializedBaselineTick, rotation);
                     if (unreliableRedundancy)
                         CmdClientToServerDelta_Rotation(lastSerializedBaselineTick, rotation);
+                }
+                else if (syncScale)
+                {
+                    CmdClientToServerDelta_Scale(lastSerializedBaselineTick, scale);
+                    if (unreliableRedundancy)
+                        CmdClientToServerDelta_Scale(lastSerializedBaselineTick, scale);
                 }
 
                 lastDeltaTime = localTime;
@@ -977,11 +1341,13 @@ namespace Mirror
             lastSerializedBaselineTick = 0;
             lastSerializedBaselinePosition = Vector3.zero;
             lastSerializedBaselineRotation = Quaternion.identity;
+            lastSerializedBaselineScale    = Vector3.one;
             changedSinceBaseline = false;
 
             lastDeserializedBaselineTick = 0;
             lastDeserializedBaselinePosition = Vector3.zero;
             lastDeserializedBaselineRotation = Quaternion.identity;
+            lastDeserializedBaselineScale    = Vector3.one;
 
             // Debug.Log($"[{name}] Reset to baselineTick=0");
         }
@@ -1003,6 +1369,7 @@ namespace Mirror
                 // perf: get position/rotation directly. TransformSnapshot is too expensive.
                 // TransformSnapshot snapshot = ConstructSnapshot();
                 target.GetLocalPositionAndRotation(out Vector3 position, out Quaternion rotation);
+                Vector3 scale = target.localScale;
 
                 // always include the tick for deltas to compare against.
                 byte frameCount = (byte)Time.frameCount; // perf: only access Time.frameCount once!
@@ -1010,6 +1377,7 @@ namespace Mirror
 
                 if (syncPosition) writer.WriteVector3(position);
                 if (syncRotation) writer.WriteQuaternion(rotation);
+                if (syncScale)    writer.WriteVector3(scale);
 
                 // IMPORTANT
                 // OnSerialize(initial) is called for the spawn payload whenever
@@ -1025,6 +1393,7 @@ namespace Mirror
                 lastBaselineTime = NetworkTime.localTime;
                 lastSerializedBaselinePosition = position;
                 lastSerializedBaselineRotation = rotation;
+                lastSerializedBaselineScale    = scale;
             }
         }
 
@@ -1039,6 +1408,7 @@ namespace Mirror
                 lastDeserializedBaselineTick = reader.ReadByte();
                 Vector3 position = Vector3.zero;
                 Quaternion rotation = Quaternion.identity;
+                Vector3 scale = Vector3.one;
 
                 if (syncPosition)
                 {
@@ -1050,10 +1420,15 @@ namespace Mirror
                     rotation = reader.ReadQuaternion();
                     lastDeserializedBaselineRotation = rotation;
                 }
+                if (syncScale)
+                {
+                    scale = reader.ReadVector3();
+                    lastDeserializedBaselineScale = scale;
+                }
 
                 // if baseline counts as delta, insert it into snapshot buffer too
                 if (baselineIsDelta)
-                    OnServerToClientDeltaSync(lastDeserializedBaselineTick, position, rotation);//, scale);
+                    OnServerToClientDeltaSync(lastDeserializedBaselineTick, position, rotation, scale);
             }
         }
         // CUSTOM CHANGE ///////////////////////////////////////////////////////////
