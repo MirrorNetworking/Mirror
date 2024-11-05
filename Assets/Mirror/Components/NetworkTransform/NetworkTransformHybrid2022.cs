@@ -276,7 +276,7 @@ namespace Mirror
         }
 
         // local authority client sends sync message to server for broadcasting
-        protected virtual void OnClientToServerDeltaSync(byte baselineTick, Vector3? position, Quaternion? rotation)//, Vector3? scale)
+        protected virtual void OnClientToServerDeltaSync(byte baselineTick, Vector3 position, Quaternion rotation)//, Vector3 scale)
         {
             // only apply if in client authority mode
             if (syncDirection != SyncDirection.ClientToServer) return;
@@ -301,19 +301,6 @@ namespace Mirror
             // server. we can get the timestamp from the connection.
             double timestamp = connectionToClient.remoteTimeStamp;
 
-            // position, rotation, scale can have no value if same as last time.
-            // saves bandwidth.
-            // but we still need to feed it to snapshot interpolation. we can't
-            // just have gaps in there if nothing has changed. for example, if
-            //   client sends snapshot at t=0
-            //   client sends nothing for 10s because not moved
-            //   client sends snapshot at t=10
-            // then the server would assume that it's one super slow move and
-            // replay it for 10 seconds.
-            if (!position.HasValue) position = serverSnapshots.Count > 0 ? serverSnapshots.Values[serverSnapshots.Count - 1].position : target.localPosition;
-            if (!rotation.HasValue) rotation = serverSnapshots.Count > 0 ? serverSnapshots.Values[serverSnapshots.Count - 1].rotation : target.localRotation;
-            // if (!scale.HasValue)    scale    = serverSnapshots.Count > 0 ? serverSnapshots.Values[serverSnapshots.Count - 1].scale    : target.localScale;
-
             // insert transform snapshot
             SnapshotInterpolation.InsertIfNotExists(
                 serverSnapshots,
@@ -321,8 +308,8 @@ namespace Mirror
                 new TransformSnapshot(
                 timestamp,         // arrival remote timestamp. NOT remote time.
                 Time.timeAsDouble,
-                position.Value,
-                rotation.Value,
+                position,
+                rotation,
                 Vector3.one // scale
             ));
         }
