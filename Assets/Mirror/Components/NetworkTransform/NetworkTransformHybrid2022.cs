@@ -107,14 +107,6 @@ namespace Mirror
         public bool  showOverlay;
         public Color overlayColor = new Color(0, 0, 0, 0.5f);
 
-        // caching /////////////////////////////////////////////////////////////
-        // squared values for faster distance checks
-        // float positionPrecisionSqr;
-        // float scalePrecisionSqr;
-
-        // dedicated writer to avoid Pool.Get calls. NT is in hot path.
-        readonly NetworkWriter writer = new NetworkWriter();
-
         // initialization //////////////////////////////////////////////////////
         // make sure to call this when inheriting too!
         protected virtual void Awake() {}
