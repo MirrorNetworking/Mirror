@@ -122,26 +122,6 @@ namespace Mirror
             syncInterval = 0;
         }
 
-        // snapshot functions //////////////////////////////////////////////////
-        // construct a snapshot of the current state
-        // => internal for testing
-        protected virtual TransformSnapshot ConstructSnapshot()
-        {
-            // perf
-            target.GetLocalPositionAndRotation(out Vector3 localPosition, out Quaternion localRotation);
-
-            // NetworkTime.localTime for double precision until Unity has it too
-            return new TransformSnapshot(
-                // our local time is what the other end uses as remote time
-                Time.timeAsDouble,
-                // the other end fills out local time itself
-                0,
-                localPosition, // target.localPosition,
-                localRotation, // target.localRotation,
-                Vector3.zero   // target.localScale
-            );
-        }
-
         // apply a snapshot to the Transform.
         // -> start, end, interpolated are all passed in caes they are needed
         // -> a regular game would apply the 'interpolated' snapshot
@@ -1020,14 +1000,16 @@ namespace Mirror
             if (initialState)
             {
                 // spawn message is used as first baseline.
-                TransformSnapshot snapshot = ConstructSnapshot();
+                // perf: get position/rotation directly. TransformSnapshot is too expensive.
+                // TransformSnapshot snapshot = ConstructSnapshot();
+                target.GetLocalPositionAndRotation(out Vector3 position, out Quaternion rotation);
 
                 // always include the tick for deltas to compare against.
                 byte frameCount = (byte)Time.frameCount; // perf: only access Time.frameCount once!
                 writer.WriteByte(frameCount);
 
-                if (syncPosition) writer.WriteVector3(snapshot.position);
-                if (syncRotation) writer.WriteQuaternion(snapshot.rotation);
+                if (syncPosition) writer.WriteVector3(position);
+                if (syncRotation) writer.WriteQuaternion(rotation);
 
                 // IMPORTANT
                 // OnSerialize(initial) is called for the spawn payload whenever
@@ -1041,8 +1023,8 @@ namespace Mirror
                 //   => client's baseline is t=2 but receives delta for t=1 _!_
                 lastSerializedBaselineTick = frameCount;
                 lastBaselineTime = NetworkTime.localTime;
-                lastSerializedBaselinePosition = snapshot.position;
-                lastSerializedBaselineRotation = snapshot.rotation;
+                lastSerializedBaselinePosition = position;
+                lastSerializedBaselineRotation = rotation;
             }
         }
 
