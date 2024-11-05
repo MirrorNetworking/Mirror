@@ -54,8 +54,8 @@ namespace Mirror
 
         // save last deserialized baseline to delta decompress against
         byte lastDeserializedBaselineTick = 0;
-        Vector3 lastDeserializedBaselinePosition = Vector3.zero;
-        Quaternion lastDeserializedBaselineRotation = Quaternion.identity;
+        Vector3 lastDeserializedBaselinePosition = Vector3.zero;                // unused, but keep for delta
+        Quaternion lastDeserializedBaselineRotation = Quaternion.identity;      // unused, but keep for delta
 
         // only sync when changed hack /////////////////////////////////////////
         [Header("Sync Only If Changed")]
