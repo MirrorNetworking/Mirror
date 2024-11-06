@@ -180,8 +180,12 @@ namespace Mirror
 
         // cmd baseline ////////////////////////////////////////////////////////
         [Command(channel = Channels.Reliable)] // reliable baseline
-        void CmdClientToServerBaseline_PositionRotationScale(byte baselineTick, Vector3 position, Quaternion rotation, Vector3 scale)
+        void CmdClientToServerBaseline_PositionRotationScale(byte baselineTick, Vector3Half halfPosition, Quaternion rotation, Vector3Half halfScale)
         {
+            // decompress half
+            Vector3 position = new Vector3((float)halfPosition.x, (float)halfPosition.y, (float)halfPosition.z);
+            Vector3 scale    = new Vector3((float)halfScale.x,    (float)halfScale.y,    (float)halfScale.z);
+
             lastDeserializedBaselineTick = baselineTick;
             lastDeserializedBaselinePosition = position;
             lastDeserializedBaselineRotation = rotation;
@@ -196,8 +200,11 @@ namespace Mirror
         }
 
         [Command(channel = Channels.Reliable)] // reliable baseline
-        void CmdClientToServerBaseline_PositionRotation(byte baselineTick, Vector3 position, Quaternion rotation)
+        void CmdClientToServerBaseline_PositionRotation(byte baselineTick, Vector3Half halfPosition, Quaternion rotation)
         {
+            // decompress half
+            Vector3 position = new Vector3((float)halfPosition.x, (float)halfPosition.y, (float)halfPosition.z);
+
             lastDeserializedBaselineTick = baselineTick;
             lastDeserializedBaselinePosition = position;
             lastDeserializedBaselineRotation = rotation;
@@ -211,8 +218,12 @@ namespace Mirror
         }
 
         [Command(channel = Channels.Reliable)] // reliable baseline
-        void CmdClientToServerBaseline_PositionScale(byte baselineTick, Vector3 position, Vector3 scale)
+        void CmdClientToServerBaseline_PositionScale(byte baselineTick, Vector3Half halfPosition, Vector3Half halfScale)
         {
+            // decompress half
+            Vector3 position = new Vector3((float)halfPosition.x, (float)halfPosition.y, (float)halfPosition.z);
+            Vector3 scale    = new Vector3((float)halfScale.x,    (float)halfScale.y,    (float)halfScale.z);
+
             lastDeserializedBaselineTick = baselineTick;
             lastDeserializedBaselinePosition = position;
             lastDeserializedBaselineScale    = scale;
@@ -226,8 +237,11 @@ namespace Mirror
         }
 
         [Command(channel = Channels.Reliable)] // reliable baseline
-        void CmdClientToServerBaseline_RotationScale(byte baselineTick, Quaternion rotation, Vector3 scale)
+        void CmdClientToServerBaseline_RotationScale(byte baselineTick, Quaternion rotation, Vector3Half halfScale)
         {
+            // decompress half
+            Vector3 scale = new Vector3((float)halfScale.x,    (float)halfScale.y,    (float)halfScale.z);
+
             lastDeserializedBaselineTick = baselineTick;
             lastDeserializedBaselineRotation = rotation;
             lastDeserializedBaselineScale    = scale;
@@ -238,8 +252,11 @@ namespace Mirror
         }
 
         [Command(channel = Channels.Reliable)] // reliable baseline
-        void CmdClientToServerBaseline_Position(byte baselineTick, Vector3 position)
+        void CmdClientToServerBaseline_Position(byte baselineTick, Vector3Half halfPosition)
         {
+            // decompress half
+            Vector3 position = new Vector3((float)halfPosition.x, (float)halfPosition.y, (float)halfPosition.z);
+
             lastDeserializedBaselineTick = baselineTick;
             lastDeserializedBaselinePosition = position;
 
@@ -263,8 +280,11 @@ namespace Mirror
         }
 
         [Command(channel = Channels.Reliable)] // reliable baseline
-        void CmdClientToServerBaseline_Scale(byte baselineTick, Vector3 scale)
+        void CmdClientToServerBaseline_Scale(byte baselineTick, Vector3Half halfScale)
         {
+            // decompress half
+            Vector3 scale    = new Vector3((float)halfScale.x,    (float)halfScale.y,    (float)halfScale.z);
+
             lastDeserializedBaselineTick = baselineTick;
             lastDeserializedBaselineScale = scale;
 
@@ -275,8 +295,11 @@ namespace Mirror
 
         // cmd delta ///////////////////////////////////////////////////////////
         [Command(channel = Channels.Unreliable)] // unreliable delta
-        void CmdClientToServerDelta_Position(byte baselineTick, Vector3 position)
+        void CmdClientToServerDelta_Position(byte baselineTick, Vector3Half halfPosition)
         {
+            // decompress half
+            Vector3 position = new Vector3((float)halfPosition.x, (float)halfPosition.y, (float)halfPosition.z);
+
             // debug draw: delta
             if (debugDraw) Debug.DrawLine(position, position + Vector3.up, Color.white, 10f);
 
@@ -292,15 +315,22 @@ namespace Mirror
         }
 
         [Command(channel = Channels.Unreliable)] // unreliable delta
-        void CmdClientToServerDelta_Scale(byte baselineTick, Vector3 scale)
+        void CmdClientToServerDelta_Scale(byte baselineTick, Vector3Half halfScale)
         {
+            // decompress half
+            Vector3 scale = new Vector3((float)halfScale.x, (float)halfScale.y, (float)halfScale.z);
+
             // Debug.Log($"[{name}] server received delta for baseline #{lastDeserializedBaselineTick}");
             OnClientToServerDeltaSync(baselineTick, Vector3.zero, Quaternion.identity, scale);
         }
 
         [Command(channel = Channels.Unreliable)] // unreliable delta
-        void CmdClientToServerDelta_PositionRotationScale(byte baselineTick, Vector3 position, Quaternion rotation, Vector3 scale)
+        void CmdClientToServerDelta_PositionRotationScale(byte baselineTick, Vector3Half halfPosition, Quaternion rotation, Vector3Half halfScale)
         {
+            // decompress half
+            Vector3 position = new Vector3((float)halfPosition.x, (float)halfPosition.y, (float)halfPosition.z);
+            Vector3 scale    = new Vector3((float)halfScale.x,    (float)halfScale.y,    (float)halfScale.z);
+
             // debug draw: delta
             if (debugDraw) Debug.DrawLine(position, position + Vector3.up, Color.white, 10f);
 
@@ -309,8 +339,11 @@ namespace Mirror
         }
 
         [Command(channel = Channels.Unreliable)] // unreliable delta
-        void CmdClientToServerDelta_PositionRotation(byte baselineTick, Vector3 position, Quaternion rotation)
+        void CmdClientToServerDelta_PositionRotation(byte baselineTick, Vector3Half halfPosition, Quaternion rotation)
         {
+            // decompress half
+            Vector3 position = new Vector3((float)halfPosition.x, (float)halfPosition.y, (float)halfPosition.z);
+
             // debug draw: delta
             if (debugDraw) Debug.DrawLine(position, position + Vector3.up, Color.white, 10f);
 
@@ -319,8 +352,12 @@ namespace Mirror
         }
 
         [Command(channel = Channels.Unreliable)] // unreliable delta
-        void CmdClientToServerDelta_PositionScale(byte baselineTick, Vector3 position, Vector3 scale)
+        void CmdClientToServerDelta_PositionScale(byte baselineTick, Vector3Half halfPosition, Vector3Half halfScale)
         {
+            // decompress half
+            Vector3 position = new Vector3((float)halfPosition.x, (float)halfPosition.y, (float)halfPosition.z);
+            Vector3 scale    = new Vector3((float)halfScale.x,    (float)halfScale.y,    (float)halfScale.z);
+
             // debug draw: delta
             if (debugDraw) Debug.DrawLine(position, position + Vector3.up, Color.white, 10f);
 
@@ -329,8 +366,11 @@ namespace Mirror
         }
 
         [Command(channel = Channels.Unreliable)] // unreliable delta
-        void CmdClientToServerDelta_RotationScale(byte baselineTick, Quaternion rotation, Vector3 scale)
+        void CmdClientToServerDelta_RotationScale(byte baselineTick, Quaternion rotation, Vector3Half halfScale)
         {
+            // decompress half
+            Vector3 scale    = new Vector3((float)halfScale.x,    (float)halfScale.y,    (float)halfScale.z);
+
             // Debug.Log($"[{name}] server received delta for baseline #{lastDeserializedBaselineTick}");
             OnClientToServerDeltaSync(baselineTick, Vector3.zero, rotation, scale);
         }
@@ -376,7 +416,7 @@ namespace Mirror
 
         // rpc baseline ////////////////////////////////////////////////////////
         [ClientRpc(channel = Channels.Reliable)] // reliable baseline
-        void RpcServerToClientBaseline_PositionRotationScale(byte baselineTick, Vector3 position, Quaternion rotation, Vector3 scale)
+        void RpcServerToClientBaseline_PositionRotationScale(byte baselineTick, Vector3Half halfPosition, Quaternion rotation, Vector3Half halfScale)
         {
             // baseline is broadcast to all clients.
             // ignore if this object is owned by this client.
@@ -386,6 +426,10 @@ namespace Mirror
             // applying host's baseline as last deserialized would overwrite the owner client's data and cause jitter.
             // in other words: never apply the rpcs in host mode.
             if (isServer) return;
+
+            // decompress half
+            Vector3 position = new Vector3((float)halfPosition.x, (float)halfPosition.y, (float)halfPosition.z);
+            Vector3 scale    = new Vector3((float)halfScale.x,    (float)halfScale.y,    (float)halfScale.z);
 
             // save last deserialized baseline tick number to compare deltas against
             lastDeserializedBaselineTick = baselineTick;
@@ -402,7 +446,7 @@ namespace Mirror
         }
 
         [ClientRpc(channel = Channels.Reliable)] // reliable baseline
-        void RpcServerToClientBaseline_PositionRotation(byte baselineTick, Vector3 position, Quaternion rotation)
+        void RpcServerToClientBaseline_PositionRotation(byte baselineTick, Vector3Half halfPosition, Quaternion rotation)
         {
             // baseline is broadcast to all clients.
             // ignore if this object is owned by this client.
@@ -412,6 +456,9 @@ namespace Mirror
             // applying host's baseline as last deserialized would overwrite the owner client's data and cause jitter.
             // in other words: never apply the rpcs in host mode.
             if (isServer) return;
+
+            // decompress half
+            Vector3 position = new Vector3((float)halfPosition.x, (float)halfPosition.y, (float)halfPosition.z);
 
             // save last deserialized baseline tick number to compare deltas against
             lastDeserializedBaselineTick = baselineTick;
@@ -427,7 +474,7 @@ namespace Mirror
         }
 
         [ClientRpc(channel = Channels.Reliable)] // reliable baseline
-        void RpcServerToClientBaseline_PositionScale(byte baselineTick, Vector3 position, Vector3 scale)
+        void RpcServerToClientBaseline_PositionScale(byte baselineTick, Vector3Half halfPosition, Vector3Half halfScale)
         {
             // baseline is broadcast to all clients.
             // ignore if this object is owned by this client.
@@ -437,6 +484,10 @@ namespace Mirror
             // applying host's baseline as last deserialized would overwrite the owner client's data and cause jitter.
             // in other words: never apply the rpcs in host mode.
             if (isServer) return;
+
+            // decompress half
+            Vector3 position = new Vector3((float)halfPosition.x, (float)halfPosition.y, (float)halfPosition.z);
+            Vector3 scale    = new Vector3((float)halfScale.x,    (float)halfScale.y,    (float)halfScale.z);
 
             // save last deserialized baseline tick number to compare deltas against
             lastDeserializedBaselineTick = baselineTick;
@@ -452,7 +503,7 @@ namespace Mirror
         }
 
         [ClientRpc(channel = Channels.Reliable)] // reliable baseline
-        void RpcServerToClientBaseline_RotationScale(byte baselineTick, Quaternion rotation, Vector3 scale)
+        void RpcServerToClientBaseline_RotationScale(byte baselineTick, Quaternion rotation, Vector3Half halfScale)
         {
             // baseline is broadcast to all clients.
             // ignore if this object is owned by this client.
@@ -462,6 +513,9 @@ namespace Mirror
             // applying host's baseline as last deserialized would overwrite the owner client's data and cause jitter.
             // in other words: never apply the rpcs in host mode.
             if (isServer) return;
+
+            // decompress half
+            Vector3 scale = new Vector3((float)halfScale.x, (float)halfScale.y, (float)halfScale.z);
 
             // save last deserialized baseline tick number to compare deltas against
             lastDeserializedBaselineTick = baselineTick;
@@ -474,7 +528,7 @@ namespace Mirror
         }
 
         [ClientRpc(channel = Channels.Reliable)] // reliable baseline
-        void RpcServerToClientBaseline_Position(byte baselineTick, Vector3 position)
+        void RpcServerToClientBaseline_Position(byte baselineTick, Vector3Half halfPosition)
         {
             // baseline is broadcast to all clients.
             // ignore if this object is owned by this client.
@@ -484,6 +538,9 @@ namespace Mirror
             // applying host's baseline as last deserialized would overwrite the owner client's data and cause jitter.
             // in other words: never apply the rpcs in host mode.
             if (isServer) return;
+
+            // decompress half
+            Vector3 position = new Vector3((float)halfPosition.x, (float)halfPosition.y, (float)halfPosition.z);
 
             // save last deserialized baseline tick number to compare deltas against
             lastDeserializedBaselineTick = baselineTick;
@@ -519,7 +576,7 @@ namespace Mirror
         }
 
         [ClientRpc(channel = Channels.Reliable)] // reliable baseline
-        void RpcServerToClientBaseline_Scale(byte baselineTick, Vector3 scale)
+        void RpcServerToClientBaseline_Scale(byte baselineTick, Vector3Half halfScale)
         {
             // baseline is broadcast to all clients.
             // ignore if this object is owned by this client.
@@ -529,6 +586,9 @@ namespace Mirror
             // applying host's baseline as last deserialized would overwrite the owner client's data and cause jitter.
             // in other words: never apply the rpcs in host mode.
             if (isServer) return;
+
+            // decompress half
+            Vector3 scale = new Vector3((float)halfScale.x, (float)halfScale.y, (float)halfScale.z);
 
             // save last deserialized baseline tick number to compare deltas against
             lastDeserializedBaselineTick = baselineTick;
@@ -541,7 +601,7 @@ namespace Mirror
 
         // rpc delta ///////////////////////////////////////////////////////////
         [ClientRpc(channel = Channels.Unreliable)] // unreliable delta
-        void RpcServerToClientDelta_PositionRotationScale(byte baselineTick, Vector3 position, Quaternion rotation, Vector3 scale)
+        void RpcServerToClientDelta_PositionRotationScale(byte baselineTick, Vector3Half halfPosition, Quaternion rotation, Vector3Half halfScale)
         {
             // delta is broadcast to all clients.
             // ignore if this object is owned by this client.
@@ -551,6 +611,10 @@ namespace Mirror
             // applying host's baseline as last deserialized would overwrite the owner client's data and cause jitter.
             // in other words: never apply the rpcs in host mode.
             if (isServer) return;
+
+            // decompress half
+            Vector3 position = new Vector3((float)halfPosition.x, (float)halfPosition.y, (float)halfPosition.z);
+            Vector3 scale    = new Vector3((float)halfScale.x,    (float)halfScale.y,    (float)halfScale.z);
 
             // debug draw: delta
             if (debugDraw) Debug.DrawLine(position, position + Vector3.up, Color.white, 10f);
@@ -559,7 +623,7 @@ namespace Mirror
         }
 
         [ClientRpc(channel = Channels.Unreliable)] // unreliable delta
-        void RpcServerToClientDelta_PositionRotation(byte baselineTick, Vector3 position, Quaternion rotation)
+        void RpcServerToClientDelta_PositionRotation(byte baselineTick, Vector3Half halfPosition, Quaternion rotation)
         {
             // delta is broadcast to all clients.
             // ignore if this object is owned by this client.
@@ -569,6 +633,9 @@ namespace Mirror
             // applying host's baseline as last deserialized would overwrite the owner client's data and cause jitter.
             // in other words: never apply the rpcs in host mode.
             if (isServer) return;
+
+            // decompress half
+            Vector3 position = new Vector3((float)halfPosition.x, (float)halfPosition.y, (float)halfPosition.z);
 
             // debug draw: delta
             if (debugDraw) Debug.DrawLine(position, position + Vector3.up, Color.white, 10f);
@@ -577,7 +644,7 @@ namespace Mirror
         }
 
         [ClientRpc(channel = Channels.Unreliable)] // unreliable delta
-        void RpcServerToClientDelta_PositionScale(byte baselineTick, Vector3 position, Vector3 scale)
+        void RpcServerToClientDelta_PositionScale(byte baselineTick, Vector3Half halfPosition, Vector3Half halfScale)
         {
             // delta is broadcast to all clients.
             // ignore if this object is owned by this client.
@@ -587,6 +654,10 @@ namespace Mirror
             // applying host's baseline as last deserialized would overwrite the owner client's data and cause jitter.
             // in other words: never apply the rpcs in host mode.
             if (isServer) return;
+
+            // decompress half
+            Vector3 position = new Vector3((float)halfPosition.x, (float)halfPosition.y, (float)halfPosition.z);
+            Vector3 scale    = new Vector3((float)halfScale.x,    (float)halfScale.y,    (float)halfScale.z);
 
             // debug draw: delta
             if (debugDraw) Debug.DrawLine(position, position + Vector3.up, Color.white, 10f);
@@ -595,7 +666,7 @@ namespace Mirror
         }
 
         [ClientRpc(channel = Channels.Unreliable)] // unreliable delta
-        void RpcServerToClientDelta_RotationScale(byte baselineTick, Quaternion rotation, Vector3 scale)
+        void RpcServerToClientDelta_RotationScale(byte baselineTick, Quaternion rotation, Vector3Half halfScale)
         {
             // delta is broadcast to all clients.
             // ignore if this object is owned by this client.
@@ -605,12 +676,15 @@ namespace Mirror
             // applying host's baseline as last deserialized would overwrite the owner client's data and cause jitter.
             // in other words: never apply the rpcs in host mode.
             if (isServer) return;
+
+            // decompress half
+            Vector3 scale    = new Vector3((float)halfScale.x,    (float)halfScale.y,    (float)halfScale.z);
 
             OnServerToClientDeltaSync(baselineTick, Vector3.zero, rotation, scale);
         }
 
         [ClientRpc(channel = Channels.Unreliable)] // unreliable delta
-        void RpcServerToClientDelta_Position(byte baselineTick, Vector3 position)
+        void RpcServerToClientDelta_Position(byte baselineTick, Vector3Half halfPosition)
         {
             // delta is broadcast to all clients.
             // ignore if this object is owned by this client.
@@ -620,6 +694,9 @@ namespace Mirror
             // applying host's baseline as last deserialized would overwrite the owner client's data and cause jitter.
             // in other words: never apply the rpcs in host mode.
             if (isServer) return;
+
+            // decompress half
+            Vector3 position = new Vector3((float)halfPosition.x, (float)halfPosition.y, (float)halfPosition.z);
 
             // debug draw: delta
             if (debugDraw) Debug.DrawLine(position, position + Vector3.up, Color.white, 10f);
@@ -643,7 +720,7 @@ namespace Mirror
         }
 
         [ClientRpc(channel = Channels.Unreliable)] // unreliable delta
-        void RpcServerToClientDelta_Scale(byte baselineTick, Vector3 scale)
+        void RpcServerToClientDelta_Scale(byte baselineTick, Vector3Half halfScale)
         {
             // delta is broadcast to all clients.
             // ignore if this object is owned by this client.
@@ -653,6 +730,9 @@ namespace Mirror
             // applying host's baseline as last deserialized would overwrite the owner client's data and cause jitter.
             // in other words: never apply the rpcs in host mode.
             if (isServer) return;
+
+            // decompress half
+            Vector3 scale = new Vector3((float)halfScale.x, (float)halfScale.y, (float)halfScale.z);
 
             OnServerToClientDeltaSync(baselineTick, Vector3.zero, Quaternion.identity, scale);
         }
@@ -734,6 +814,10 @@ namespace Mirror
                 target.GetLocalPositionAndRotation(out Vector3 position, out Quaternion rotation);
                 Vector3 scale = target.localScale;
 
+                // compress half
+                Vector3Half halfPosition = new Vector3Half((Half)position.x, (Half)position.y, (Half)position.z);
+                Vector3Half halfScale    = new Vector3Half((Half)scale.x,    (Half)scale.y,    (Half)scale.z);
+
                 // save bandwidth by only transmitting what is needed.
                 // -> ArraySegment with random data is slower since byte[] copying
                 // -> Vector3? and Quaternion? nullables takes more bandwidth
@@ -742,27 +826,27 @@ namespace Mirror
                 if (syncPosition && syncRotation && syncScale)
                 {
                     // no unreliable redundancy: baseline is reliable
-                    RpcServerToClientBaseline_PositionRotationScale(frameCount, position, rotation, scale);
+                    RpcServerToClientBaseline_PositionRotationScale(frameCount, halfPosition, rotation, halfScale);
                 }
                 else if (syncPosition && syncRotation)
                 {
                     // no unreliable redundancy: baseline is reliable
-                    RpcServerToClientBaseline_PositionRotation(frameCount, position, rotation);
+                    RpcServerToClientBaseline_PositionRotation(frameCount, halfPosition, rotation);
                 }
                 else if (syncPosition && syncScale)
                 {
                     // no unreliable redundancy: baseline is reliable
-                    RpcServerToClientBaseline_PositionScale(frameCount, position, scale);
+                    RpcServerToClientBaseline_PositionScale(frameCount, halfPosition, halfScale);
                 }
                 else if (syncRotation && syncScale)
                 {
                     // no unreliable redundancy: baseline is reliable
-                    RpcServerToClientBaseline_RotationScale(frameCount, rotation, scale);
+                    RpcServerToClientBaseline_RotationScale(frameCount, rotation, halfScale);
                 }
                 else if (syncPosition)
                 {
                     // no unreliable redundancy: baseline is reliable
-                    RpcServerToClientBaseline_Position(frameCount, position);
+                    RpcServerToClientBaseline_Position(frameCount, halfPosition);
                 }
                 else if (syncRotation)
                 {
@@ -772,7 +856,7 @@ namespace Mirror
                 else if (syncScale)
                 {
                     // no unreliable redundancy: baseline is reliable
-                    RpcServerToClientBaseline_Scale(frameCount, scale);
+                    RpcServerToClientBaseline_Scale(frameCount, halfScale);
                 }
 
                 // position, rotation, scale
@@ -859,6 +943,10 @@ namespace Mirror
                 // unreliable isn't guaranteed to be delivered so this depends on reliable baseline.
                 if (onlySyncOnChange && !changedSinceBaseline) return;
 
+                // compress half
+                Vector3Half halfPosition = new Vector3Half((Half)position.x, (Half)position.y, (Half)position.z);
+                Vector3Half halfScale    = new Vector3Half((Half)scale.x,    (Half)scale.y,    (Half)scale.z);
+
                 // save bandwidth by only transmitting what is needed.
                 // -> ArraySegment with random data is slower since byte[] copying
                 // -> Vector3? and Quaternion? nullables takes more bandwidth
@@ -866,37 +954,37 @@ namespace Mirror
                 if (syncPosition && syncRotation && syncScale)
                 {
                     // unreliable redundancy to make up for potential message drops
-                    RpcServerToClientDelta_PositionRotationScale(lastSerializedBaselineTick, position, rotation, scale);
+                    RpcServerToClientDelta_PositionRotationScale(lastSerializedBaselineTick, halfPosition, rotation, halfScale);
                     if (unreliableRedundancy)
-                        RpcServerToClientDelta_PositionRotationScale(lastSerializedBaselineTick, position, rotation, scale);
+                        RpcServerToClientDelta_PositionRotationScale(lastSerializedBaselineTick, halfPosition, rotation, halfScale);
                 }
                 else if (syncPosition && syncRotation)
                 {
                     // unreliable redundancy to make up for potential message drops
-                    RpcServerToClientDelta_PositionRotation(lastSerializedBaselineTick, position, rotation);
+                    RpcServerToClientDelta_PositionRotation(lastSerializedBaselineTick, halfPosition, rotation);
                     if (unreliableRedundancy)
-                        RpcServerToClientDelta_PositionRotation(lastSerializedBaselineTick, position, rotation);
+                        RpcServerToClientDelta_PositionRotation(lastSerializedBaselineTick, halfPosition, rotation);
                 }
                 else if (syncPosition && syncScale)
                 {
                     // unreliable redundancy to make up for potential message drops
-                    RpcServerToClientDelta_PositionScale(lastSerializedBaselineTick, position, scale);
+                    RpcServerToClientDelta_PositionScale(lastSerializedBaselineTick, halfPosition, halfScale);
                     if (unreliableRedundancy)
-                        RpcServerToClientDelta_PositionScale(lastSerializedBaselineTick, position, scale);
+                        RpcServerToClientDelta_PositionScale(lastSerializedBaselineTick, halfPosition, halfScale);
                 }
                 else if (syncRotation && syncScale)
                 {
                     // unreliable redundancy to make up for potential message drops
-                    RpcServerToClientDelta_RotationScale(lastSerializedBaselineTick, rotation, scale);
+                    RpcServerToClientDelta_RotationScale(lastSerializedBaselineTick, rotation, halfScale);
                     if (unreliableRedundancy)
-                        RpcServerToClientDelta_RotationScale(lastSerializedBaselineTick, rotation, scale);
+                        RpcServerToClientDelta_RotationScale(lastSerializedBaselineTick, rotation, halfScale);
                 }
                 else if (syncPosition)
                 {
                     // unreliable redundancy to make up for potential message drops
-                    RpcServerToClientDelta_Position(lastSerializedBaselineTick, position);
+                    RpcServerToClientDelta_Position(lastSerializedBaselineTick, halfPosition);
                     if (unreliableRedundancy)
-                        RpcServerToClientDelta_Position(lastSerializedBaselineTick, position);
+                        RpcServerToClientDelta_Position(lastSerializedBaselineTick, halfPosition);
                 }
                 else if (syncRotation)
                 {
@@ -908,9 +996,9 @@ namespace Mirror
                 else if (syncScale)
                 {
                     // unreliable redundancy to make up for potential message drops
-                    RpcServerToClientDelta_Scale(lastSerializedBaselineTick, scale);
+                    RpcServerToClientDelta_Scale(lastSerializedBaselineTick, halfScale);
                     if (unreliableRedundancy)
-                        RpcServerToClientDelta_Scale(lastSerializedBaselineTick, scale);
+                        RpcServerToClientDelta_Scale(lastSerializedBaselineTick, halfScale);
                 }
 
                 lastDeltaTime = localTime;
@@ -979,6 +1067,10 @@ namespace Mirror
                 target.GetLocalPositionAndRotation(out Vector3 position, out Quaternion rotation);
                 Vector3 scale = target.localScale;
 
+                // compress half
+                Vector3Half halfPosition = new Vector3Half((Half)position.x, (Half)position.y, (Half)position.z);
+                Vector3Half halfScale    = new Vector3Half((Half)scale.x,    (Half)scale.y,    (Half)scale.z);
+
                 // save bandwidth by only transmitting what is needed.
                 // -> ArraySegment with random data is slower since byte[] copying
                 // -> Vector3? and Quaternion? nullables takes more bandwidth
@@ -987,27 +1079,27 @@ namespace Mirror
                 if (syncPosition && syncRotation && syncScale)
                 {
                     // no unreliable redundancy: baseline is reliable
-                    CmdClientToServerBaseline_PositionRotationScale(frameCount, position, rotation, scale);
+                    CmdClientToServerBaseline_PositionRotationScale(frameCount, halfPosition, rotation, halfScale);
                 }
                 else if (syncPosition && syncRotation)
                 {
                     // no unreliable redundancy: baseline is reliable
-                    CmdClientToServerBaseline_PositionRotation(frameCount, position, rotation);
+                    CmdClientToServerBaseline_PositionRotation(frameCount, halfPosition, rotation);
                 }
                 else if (syncPosition && syncScale)
                 {
                     // no unreliable redundancy: baseline is reliable
-                    CmdClientToServerBaseline_PositionScale(frameCount, position, scale);
+                    CmdClientToServerBaseline_PositionScale(frameCount, halfPosition, halfScale);
                 }
                 else if (syncRotation && syncScale)
                 {
                     // no unreliable redundancy: baseline is reliable
-                    CmdClientToServerBaseline_RotationScale(frameCount, rotation, scale);
+                    CmdClientToServerBaseline_RotationScale(frameCount, rotation, halfScale);
                 }
                 else if (syncPosition)
                 {
                     // no unreliable redundancy: baseline is reliable
-                    CmdClientToServerBaseline_Position(frameCount, position);
+                    CmdClientToServerBaseline_Position(frameCount, halfPosition);
                 }
                 else if (syncRotation)
                 {
@@ -1017,7 +1109,7 @@ namespace Mirror
                 else if (syncScale)
                 {
                     // no unreliable redundancy: baseline is reliable
-                    CmdClientToServerBaseline_Scale(frameCount, scale);
+                    CmdClientToServerBaseline_Scale(frameCount, halfScale);
                 }
 
                 // save the last baseline's tick number.
@@ -1094,42 +1186,46 @@ namespace Mirror
                 // -> ArraySegment with random data is slower since byte[] copying
                 // -> Vector3? and Quaternion? nullables takes more bandwidth
 
+                // compress half
+                Vector3Half halfPosition = new Vector3Half((Half)position.x, (Half)position.y, (Half)position.z);
+                Vector3Half halfScale    = new Vector3Half((Half)scale.x,    (Half)scale.y,    (Half)scale.z);
+
                 if (syncPosition && syncRotation && syncScale)
                 {
-                    CmdClientToServerDelta_PositionRotationScale(lastSerializedBaselineTick, position, rotation, scale);
+                    CmdClientToServerDelta_PositionRotationScale(lastSerializedBaselineTick, halfPosition, rotation, halfScale);
                     if (unreliableRedundancy)
-                        CmdClientToServerDelta_PositionRotationScale(lastSerializedBaselineTick, position, rotation, scale);
+                        CmdClientToServerDelta_PositionRotationScale(lastSerializedBaselineTick, halfPosition, rotation, halfScale);
                 }
                 else if (syncPosition && syncRotation)
                 {
                     // send snapshot without timestamp.
                     // receiver gets it from batch timestamp to save bandwidth.
                     // unreliable redundancy to make up for potential message drops
-                    CmdClientToServerDelta_PositionRotation(lastSerializedBaselineTick, position, rotation);
+                    CmdClientToServerDelta_PositionRotation(lastSerializedBaselineTick, halfPosition, rotation);
                     if (unreliableRedundancy)
-                        CmdClientToServerDelta_PositionRotation(lastSerializedBaselineTick, position, rotation);
+                        CmdClientToServerDelta_PositionRotation(lastSerializedBaselineTick, halfPosition, rotation);
 
                 }
                 else if (syncPosition && syncScale)
                 {
-                    CmdClientToServerDelta_PositionScale(lastSerializedBaselineTick, position, scale);
+                    CmdClientToServerDelta_PositionScale(lastSerializedBaselineTick, halfPosition, halfScale);
                     if (unreliableRedundancy)
-                        CmdClientToServerDelta_PositionScale(lastSerializedBaselineTick, position, scale);
+                        CmdClientToServerDelta_PositionScale(lastSerializedBaselineTick, halfPosition, halfScale);
                 }
                 else if (syncRotation && syncScale)
                 {
-                    CmdClientToServerDelta_RotationScale(lastSerializedBaselineTick, rotation, scale);
+                    CmdClientToServerDelta_RotationScale(lastSerializedBaselineTick, rotation, halfScale);
                     if (unreliableRedundancy)
-                        CmdClientToServerDelta_RotationScale(lastSerializedBaselineTick, rotation, scale);
+                        CmdClientToServerDelta_RotationScale(lastSerializedBaselineTick, rotation, halfScale);
                 }
                 else if (syncPosition)
                 {
                     // send snapshot without timestamp.
                     // receiver gets it from batch timestamp to save bandwidth.
                     // unreliable redundancy to make up for potential message drops
-                    CmdClientToServerDelta_Position(lastSerializedBaselineTick, position);
+                    CmdClientToServerDelta_Position(lastSerializedBaselineTick, halfPosition);
                     if (unreliableRedundancy)
-                        CmdClientToServerDelta_Position(lastSerializedBaselineTick, position);
+                        CmdClientToServerDelta_Position(lastSerializedBaselineTick, halfPosition);
                 }
                 else if (syncRotation)
                 {
@@ -1142,9 +1238,9 @@ namespace Mirror
                 }
                 else if (syncScale)
                 {
-                    CmdClientToServerDelta_Scale(lastSerializedBaselineTick, scale);
+                    CmdClientToServerDelta_Scale(lastSerializedBaselineTick, halfScale);
                     if (unreliableRedundancy)
-                        CmdClientToServerDelta_Scale(lastSerializedBaselineTick, scale);
+                        CmdClientToServerDelta_Scale(lastSerializedBaselineTick, halfScale);
                 }
 
                 lastDeltaTime = localTime;
@@ -1368,9 +1464,20 @@ namespace Mirror
                 byte frameCount = (byte)Time.frameCount; // perf: only access Time.frameCount once!
                 writer.WriteByte(frameCount);
 
-                if (syncPosition) writer.WriteVector3(position);
-                if (syncRotation) writer.WriteQuaternion(rotation);
-                if (syncScale)    writer.WriteVector3(scale);
+                if (syncPosition)
+                {
+                    Vector3Half halfPosition = new Vector3Half((Half)position.x, (Half)position.y, (Half)position.z);
+                    writer.WriteVector3Half(halfPosition);
+                }
+                if (syncRotation)
+                {
+                    writer.WriteQuaternion(rotation);
+                }
+                if (syncScale)
+                {
+                    Vector3Half halfScale = new Vector3Half((Half)scale.x, (Half)scale.y, (Half)scale.z);
+                    writer.WriteVector3Half(halfScale);
+                }
 
                 // IMPORTANT
                 // OnSerialize(initial) is called for the spawn payload whenever
@@ -1405,7 +1512,8 @@ namespace Mirror
 
                 if (syncPosition)
                 {
-                    position = reader.ReadVector3();
+                    Vector3Half halfPosition = reader.ReadVector3Half();
+                    position = new Vector3((float)halfPosition.x, (float)halfPosition.y, (float)halfPosition.z);
                     lastDeserializedBaselinePosition = position;
                 }
                 if (syncRotation)
@@ -1415,7 +1523,8 @@ namespace Mirror
                 }
                 if (syncScale)
                 {
-                    scale = reader.ReadVector3();
+                    Vector3Half halfScale = reader.ReadVector3Half();
+                    scale = new Vector3((float)halfScale.x, (float)halfScale.y, (float)halfScale.z);
                     lastDeserializedBaselineScale = scale;
                 }
 
