@@ -58,6 +58,12 @@ namespace Mirror
         public static void WriteDecimalNullable(this NetworkWriter writer, decimal? value) => writer.WriteBlittableNullable(value);
 
         public static void WriteHalf(this NetworkWriter writer, Half value) => writer.WriteUShort(value._value);
+        public static void WriteVector3Half(this NetworkWriter writer, Vector3Half value)
+        {
+            writer.WriteHalf(value.x);
+            writer.WriteHalf(value.y);
+            writer.WriteHalf(value.z);
+        }
 
         public static void WriteString(this NetworkWriter writer, string value)
         {
