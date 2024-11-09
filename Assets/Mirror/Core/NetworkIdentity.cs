@@ -863,7 +863,7 @@ namespace Mirror
             for (int i = 0; i < components.Length; ++i)
             {
                 NetworkBehaviour component = components[i];
-                ulong nthBit = (1u << i);
+                ulong nthBit = 1ul << i;
 
                 bool dirty = component.IsDirty();
 
@@ -910,7 +910,7 @@ namespace Mirror
 
                 // on client, only consider owned components with SyncDirection to server
                 NetworkBehaviour component = components[i];
-                ulong nthBit = (1u << i);
+                ulong nthBit = 1ul << i;
 
                 if (isOwned && component.syncDirection == SyncDirection.ClientToServer)
                 {
@@ -928,7 +928,7 @@ namespace Mirror
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static bool IsDirty(ulong mask, int index)
         {
-            ulong nthBit = (ulong)(1 << index);
+            ulong nthBit = 1ul << index;
             return (mask & nthBit) != 0;
         }
 

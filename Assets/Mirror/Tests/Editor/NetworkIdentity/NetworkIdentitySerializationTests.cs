@@ -1,4 +1,5 @@
 // OnDe/SerializeSafely tests.
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Mirror.Tests.EditorBehaviours.NetworkIdentities;
 using NUnit.Framework;
@@ -42,7 +43,7 @@ namespace Mirror.Tests.NetworkIdentities
             );
 
             // set sync modes
-            serverOwnerComp.syncMode     = clientOwnerComp.syncMode     = SyncMode.Owner;
+            serverOwnerComp.syncMode = clientOwnerComp.syncMode = SyncMode.Owner;
             serverObserversComp.syncMode = clientObserversComp.syncMode = SyncMode.Observers;
 
             // set unique values on server components
@@ -65,9 +66,126 @@ namespace Mirror.Tests.NetworkIdentities
             // deserialize client object with OBSERVERS payload
             reader = new NetworkReader(observersWriter.ToArray());
             clientIdentity.DeserializeClient(reader, true);
-            Assert.That(clientOwnerComp.value, Is.EqualTo(null)); // owner mode shouldn't be in data
+            Assert.That(clientOwnerComp.value, Is.EqualTo(null));   // owner mode shouldn't be in data
             Assert.That(clientObserversComp.value, Is.EqualTo(42)); // observers mode should be in data
         }
+
+        // test serialize -> deserialize of any supported number of components
+        [Test]
+        public void SerializeAndDeserializeN([NUnit.Framework.Range(1, 64)] int numberOfNBs)
+        {
+            List<SerializeTest1NetworkBehaviour> serverNBs = new List<SerializeTest1NetworkBehaviour>();
+            List<SerializeTest1NetworkBehaviour> clientNBs = new List<SerializeTest1NetworkBehaviour>();
+            // need two of both versions so we can serialize -> deserialize
+            CreateNetworkedAndSpawn(
+                out _, out NetworkIdentity serverIdentity, ni =>
+                {
+                    for (int i = 0; i < numberOfNBs; i++)
+                    {
+                        SerializeTest1NetworkBehaviour nb = ni.gameObject.AddComponent<SerializeTest1NetworkBehaviour>();
+                        nb.syncInterval = 0;
+                        nb.syncMode = SyncMode.Observers;
+                        serverNBs.Add(nb);
+                    }
+                },
+                out _, out NetworkIdentity clientIdentity, ni =>
+                {
+                    for (int i = 0; i < numberOfNBs; i++)
+                    {
+                        SerializeTest1NetworkBehaviour nb = ni.gameObject.AddComponent<SerializeTest1NetworkBehaviour>();
+                        nb.syncInterval = 0;
+                        nb.syncMode = SyncMode.Observers;
+                        clientNBs.Add(nb);
+                    }
+                }
+            );
+
+            // INITIAL SYNC
+            // set unique values on server components
+            for (int i = 0; i < serverNBs.Count; i++)
+            {
+                serverNBs[i].value = (i + 1) * 3;
+                serverNBs[i].SetDirty();
+            }
+
+            // serialize server object
+            serverIdentity.SerializeServer(true, ownerWriter, observersWriter);
+
+            // deserialize client object with OBSERVERS payload
+            NetworkReader reader = new NetworkReader(observersWriter.ToArray());
+            clientIdentity.DeserializeClient(reader, true);
+            for (int i = 0; i < clientNBs.Count; i++)
+            {
+                int expected = (i + 1) * 3;
+                Assert.That(clientNBs[i].value, Is.EqualTo(expected), $"Expected the clientNBs[{i}] to have a value of {expected}");
+            }
+
+            // clear dirty bits for incremental sync
+            foreach (SerializeTest1NetworkBehaviour serverNB in serverNBs)
+                serverNB.ClearAllDirtyBits();
+
+            // INCREMENTAL SYNC ALL
+            // set unique values on server components
+            for (int i = 0; i < serverNBs.Count; i++)
+            {
+                serverNBs[i].value = (i + 1) * 11;
+                serverNBs[i].SetDirty();
+            }
+
+            ownerWriter.Reset();
+            observersWriter.Reset();
+            // serialize server object
+            serverIdentity.SerializeServer(false, ownerWriter, observersWriter);
+
+            // deserialize client object with OBSERVERS payload
+            reader = new NetworkReader(observersWriter.ToArray());
+            clientIdentity.DeserializeClient(reader, false);
+            for (int i = 0; i < clientNBs.Count; i++)
+            {
+                int expected = (i + 1) * 11;
+                Assert.That(clientNBs[i].value, Is.EqualTo(expected), $"Expected the clientNBs[{i}] to have a value of {expected}");
+            }
+
+            // clear dirty bits for incremental sync
+            foreach (SerializeTest1NetworkBehaviour serverNB in serverNBs)
+                serverNB.ClearAllDirtyBits();
+
+            // INCREMENTAL SYNC INDIVIDUAL
+            for (int i = 0; i < numberOfNBs; i++)
+            {
+                // reset all client nbs
+                foreach (SerializeTest1NetworkBehaviour clientNB in clientNBs)
+                    clientNB.value = 0;
+
+                int expected = (i + 1) * 7;
+
+                // set unique value on server components
+                serverNBs[i].value = expected;
+                serverNBs[i].SetDirty();
+
+                ownerWriter.Reset();
+                observersWriter.Reset();
+                // serialize server object
+                serverIdentity.SerializeServer(false, ownerWriter, observersWriter);
+
+                // deserialize client object with OBSERVERS payload
+                reader = new NetworkReader(observersWriter.ToArray());
+                clientIdentity.DeserializeClient(reader, false);
+                for (int index = 0; index < clientNBs.Count; index++)
+                {
+                    SerializeTest1NetworkBehaviour clientNB = clientNBs[index];
+                    if (index == i)
+                    {
+                        Assert.That(clientNB.value, Is.EqualTo(expected), $"Expected the clientNBs[{index}] to have a value of {expected}");
+                    }
+                    else
+                    {
+                        Assert.That(clientNB.value, Is.EqualTo(0), $"Expected the clientNBs[{index}] to have a value of 0 since we're not syncing that index (on sync of #{i})");
+                    }
+                }
+            }
+        }
+
 
         // serialization should work even if a component throws an exception.
         // so if first component throws, second should still be serialized fine.
@@ -150,20 +268,20 @@ namespace Mirror.Tests.NetworkIdentities
         public void ErrorCorrection()
         {
             int original = 0x12345678;
-            byte safety  =       0x78; // last byte
+            byte safety = 0x78; // last byte
 
             // correct size shouldn't be corrected
-            Assert.That(NetworkBehaviour.ErrorCorrection(original + 0, safety),  Is.EqualTo(original));
+            Assert.That(NetworkBehaviour.ErrorCorrection(original + 0, safety), Is.EqualTo(original));
 
             // read a little too much
-            Assert.That(NetworkBehaviour.ErrorCorrection(original + 1, safety),   Is.EqualTo(original));
-            Assert.That(NetworkBehaviour.ErrorCorrection(original + 2, safety),   Is.EqualTo(original));
-            Assert.That(NetworkBehaviour.ErrorCorrection(original + 42, safety),  Is.EqualTo(original));
+            Assert.That(NetworkBehaviour.ErrorCorrection(original + 1, safety), Is.EqualTo(original));
+            Assert.That(NetworkBehaviour.ErrorCorrection(original + 2, safety), Is.EqualTo(original));
+            Assert.That(NetworkBehaviour.ErrorCorrection(original + 42, safety), Is.EqualTo(original));
 
             // read a little too less
-            Assert.That(NetworkBehaviour.ErrorCorrection(original - 1, safety),   Is.EqualTo(original));
-            Assert.That(NetworkBehaviour.ErrorCorrection(original - 2, safety),   Is.EqualTo(original));
-            Assert.That(NetworkBehaviour.ErrorCorrection(original - 42, safety),  Is.EqualTo(original));
+            Assert.That(NetworkBehaviour.ErrorCorrection(original - 1, safety), Is.EqualTo(original));
+            Assert.That(NetworkBehaviour.ErrorCorrection(original - 2, safety), Is.EqualTo(original));
+            Assert.That(NetworkBehaviour.ErrorCorrection(original - 42, safety), Is.EqualTo(original));
 
             // reading way too much / less is expected to fail.
             // we can only correct the last byte, not more.
