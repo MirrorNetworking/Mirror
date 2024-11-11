@@ -367,7 +367,7 @@ namespace Mirror
                 bufferSizeLimit,
                 new TransformSnapshot(
                 timestamp,         // arrival remote timestamp. NOT remote time.
-                Time.timeAsDouble,
+                NetworkTime.localTime, // Unity 2019 doesn't have Time.timeAsDouble yet
                 position,
                 rotation,
                 scale
@@ -710,8 +710,8 @@ namespace Mirror
                 clientSnapshots,
                 bufferSizeLimit,
                 new TransformSnapshot(
-                timestamp,         // arrival remote timestamp. NOT remote time.
-                Time.timeAsDouble,
+                timestamp,             // arrival remote timestamp. NOT remote time.
+                NetworkTime.localTime, // Unity 2019 doesn't have Time.timeAsDouble yet
                 position,
                 rotation,
                 scale
