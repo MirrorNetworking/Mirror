@@ -109,7 +109,7 @@ namespace Mirror.Transports.Encryption
         // Our asymmetric credentials for the initial DH exchange
         EncryptionCredentials credentials;
         readonly byte[] hkdfSalt;
-        NetworkReader _tmpReader = new NetworkReader(ArraySegment<byte>.Empty);
+        NetworkReader _tmpReader = new NetworkReader(new ArraySegment<byte>());
 
         // After no handshake packet in this many seconds, the handshake fails
         double handshakeTimeout;
