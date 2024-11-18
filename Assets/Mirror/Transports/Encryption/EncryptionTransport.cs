@@ -13,6 +13,7 @@ namespace Mirror.Transports.Encryption
         public override bool IsEncrypted => true;
         public override string EncryptionCipher => "AES256-GCM";
         [FormerlySerializedAs("inner")]
+        [HideInInspector]
         public Transport Inner;
 
         public ushort Port
@@ -44,14 +45,18 @@ namespace Mirror.Transports.Encryption
         }
 
         [FormerlySerializedAs("clientValidateServerPubKey")]
+        [HideInInspector]
         public ValidationMode ClientValidateServerPubKey;
         [FormerlySerializedAs("clientTrustedPubKeySignatures")]
+        [HideInInspector]
         [Tooltip("List of public key fingerprints the client will accept")]
         public string[] ClientTrustedPubKeySignatures;
         public Func<PubKeyInfo, bool> OnClientValidateServerPubKey;
         [FormerlySerializedAs("serverLoadKeyPairFromFile")]
+        [HideInInspector]
         public bool ServerLoadKeyPairFromFile;
         [FormerlySerializedAs("serverKeypairPath")]
+        [HideInInspector]
         public string ServerKeypairPath = "./server-keys.json";
 
         EncryptedConnection client;
@@ -255,6 +260,8 @@ namespace Mirror.Transports.Encryption
         public override int GetMaxPacketSize(int channelId = Channels.Reliable) =>
             Inner.GetMaxPacketSize(channelId) - EncryptedConnection.Overhead;
 
+        public override int GetBatchThreshold(int channelId = Channels.Reliable) => Inner.GetBatchThreshold(channelId) - EncryptedConnection.Overhead;
+
         public override void Shutdown() => Inner.Shutdown();
 
         public override void ClientEarlyUpdate() => Inner.ClientEarlyUpdate();
@@ -279,5 +286,4 @@ namespace Mirror.Transports.Encryption
             Profiler.EndSample();
         }
     }
-
 }

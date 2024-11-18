@@ -28,9 +28,15 @@ namespace Mirror.Transports.Encryption
         {
             serializedObject.Update();
 
-            EditorGUILayout.LabelField("Common", EditorStyles.boldLabel);
-            EditorGUILayout.PropertyField(innerProperty);
-            EditorGUILayout.Separator();
+            // Draw default inspector for the parent class
+            DrawDefaultInspector();
+            EditorGUILayout.LabelField("Encryption Settings", EditorStyles.boldLabel);
+            if (innerProperty != null)
+            {
+                EditorGUILayout.LabelField("Common", EditorStyles.boldLabel);
+                EditorGUILayout.PropertyField(innerProperty);
+                EditorGUILayout.Separator();
+            }
             // Client Section
             EditorGUILayout.LabelField("Client", EditorStyles.boldLabel);
             EditorGUILayout.HelpBox("Validating the servers public key is essential for complete man-in-the-middle (MITM) safety, but might not be feasible for all modes of hosting.", MessageType.Info);
@@ -78,7 +84,7 @@ namespace Mirror.Transports.Encryption
             serializedObject.ApplyModifiedProperties();
         }
 
-        [CustomEditor(typeof(ThreadedEncryptionTransport), true)]
+        [CustomEditor(typeof(ThreadedEncryptionKcpTransport), true)]
         class EncryptionThreadedTransportInspector : EncryptionTransportInspector {}
     }
 }

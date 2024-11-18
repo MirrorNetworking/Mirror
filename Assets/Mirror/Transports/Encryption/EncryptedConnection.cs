@@ -109,6 +109,7 @@ namespace Mirror.Transports.Encryption
         // Our asymmetric credentials for the initial DH exchange
         EncryptionCredentials credentials;
         readonly byte[] hkdfSalt;
+        NetworkReader _tmpReader = new NetworkReader(ArraySegment<byte>.Empty);
 
         // After no handshake packet in this many seconds, the handshake fails
         double handshakeTimeout;
@@ -162,6 +163,7 @@ namespace Mirror.Transports.Encryption
             return bytes;
         }
 
+
         public void OnReceiveRaw(ArraySegment<byte> data, int channel)
         {
             if (data.Count < 1)
@@ -170,98 +172,96 @@ namespace Mirror.Transports.Encryption
                 return;
             }
 
-            using (NetworkReaderPooled reader = NetworkReaderPool.Get(data))
+            _tmpReader.SetBuffer(data);
+            OpCodes opcode = (OpCodes)_tmpReader.ReadByte();
+            switch (opcode)
             {
-                OpCodes opcode = (OpCodes)reader.ReadByte();
-                switch (opcode)
-                {
-                    case OpCodes.Data:
-                        // first sender ready is implicit when data is received
-                        if (sendsFirst && state == State.WaitingHandshakeReply)
-                            SetReady();
-                        else if (!IsReady)
-                            error(TransportError.Unexpected, "Unexpected data while not ready.");
-
-                        if (reader.Remaining < Overhead)
-                        {
-                            error(TransportError.Unexpected, "received data packet smaller than metadata size");
-                            return;
-                        }
-
-                        ArraySegment<byte> ciphertext = reader.ReadBytesSegment(reader.Remaining - NonceSize);
-                        reader.ReadBytes(ReceiveNonce.Value, NonceSize);
-
-                        Profiler.BeginSample("EncryptedConnection.Decrypt");
-                        ArraySegment<byte> plaintext = Decrypt(ciphertext);
-                        Profiler.EndSample();
-                        if (plaintext.Count == 0)
-                            // error
-                            return;
-                        receive(plaintext, channel);
-                        break;
-                    case OpCodes.HandshakeStart:
-                        if (sendsFirst)
-                        {
-                            error(TransportError.Unexpected, "Received HandshakeStart packet, we don't expect this.");
-                            return;
-                        }
-
-                        if (state == State.WaitingHandshakeReply)
-                            // this is fine, packets may arrive out of order
-                            return;
-
-                        state = State.WaitingHandshakeReply;
-                        ResetTimeouts();
-                        CompleteExchange(reader.ReadBytesSegment(reader.Remaining), hkdfSalt);
-                        SendHandshakeAndPubKey(OpCodes.HandshakeAck);
-                        break;
-                    case OpCodes.HandshakeAck:
-                        if (!sendsFirst)
-                        {
-                            error(TransportError.Unexpected, "Received HandshakeAck packet, we don't expect this.");
-                            return;
-                        }
-
-                        if (IsReady)
-                            // this is fine, packets may arrive out of order
-                            return;
-
-                        if (state == State.WaitingHandshakeReply)
-                            // this is fine, packets may arrive out of order
-                            return;
-
-
-                        state = State.WaitingHandshakeReply;
-                        ResetTimeouts();
-                        reader.ReadBytes(TMPRemoteSaltBuffer.Value, HkdfSaltSize);
-                        CompleteExchange(reader.ReadBytesSegment(reader.Remaining), TMPRemoteSaltBuffer.Value);
-                        SendHandshakeFin();
-                        break;
-                    case OpCodes.HandshakeFin:
-                        if (sendsFirst)
-                        {
-                            error(TransportError.Unexpected, "Received HandshakeFin packet, we don't expect this.");
-                            return;
-                        }
-
-                        if (IsReady)
-                            // this is fine, packets may arrive out of order
-                            return;
-
-                        if (state != State.WaitingHandshakeReply)
-                        {
-                            error(TransportError.Unexpected,
-                                "Received HandshakeFin packet, we didn't expect this yet.");
-                            return;
-                        }
-
+                case OpCodes.Data:
+                    // first sender ready is implicit when data is received
+                    if (sendsFirst && state == State.WaitingHandshakeReply)
                         SetReady();
+                    else if (!IsReady)
+                        error(TransportError.Unexpected, "Unexpected data while not ready.");
 
-                        break;
-                    default:
-                        error(TransportError.InvalidReceive, $"Unhandled opcode {(byte)opcode:x}");
-                        break;
-                }
+                    if (_tmpReader.Remaining < Overhead)
+                    {
+                        error(TransportError.Unexpected, "received data packet smaller than metadata size");
+                        return;
+                    }
+
+                    ArraySegment<byte> ciphertext = _tmpReader.ReadBytesSegment(_tmpReader.Remaining - NonceSize);
+                    _tmpReader.ReadBytes(ReceiveNonce.Value, NonceSize);
+
+                    Profiler.BeginSample("EncryptedConnection.Decrypt");
+                    ArraySegment<byte> plaintext = Decrypt(ciphertext);
+                    Profiler.EndSample();
+                    if (plaintext.Count == 0)
+                        // error
+                        return;
+                    receive(plaintext, channel);
+                    break;
+                case OpCodes.HandshakeStart:
+                    if (sendsFirst)
+                    {
+                        error(TransportError.Unexpected, "Received HandshakeStart packet, we don't expect this.");
+                        return;
+                    }
+
+                    if (state == State.WaitingHandshakeReply)
+                        // this is fine, packets may arrive out of order
+                        return;
+
+                    state = State.WaitingHandshakeReply;
+                    ResetTimeouts();
+                    CompleteExchange(_tmpReader.ReadBytesSegment(_tmpReader.Remaining), hkdfSalt);
+                    SendHandshakeAndPubKey(OpCodes.HandshakeAck);
+                    break;
+                case OpCodes.HandshakeAck:
+                    if (!sendsFirst)
+                    {
+                        error(TransportError.Unexpected, "Received HandshakeAck packet, we don't expect this.");
+                        return;
+                    }
+
+                    if (IsReady)
+                        // this is fine, packets may arrive out of order
+                        return;
+
+                    if (state == State.WaitingHandshakeReply)
+                        // this is fine, packets may arrive out of order
+                        return;
+
+
+                    state = State.WaitingHandshakeReply;
+                    ResetTimeouts();
+                    _tmpReader.ReadBytes(TMPRemoteSaltBuffer.Value, HkdfSaltSize);
+                    CompleteExchange(_tmpReader.ReadBytesSegment(_tmpReader.Remaining), TMPRemoteSaltBuffer.Value);
+                    SendHandshakeFin();
+                    break;
+                case OpCodes.HandshakeFin:
+                    if (sendsFirst)
+                    {
+                        error(TransportError.Unexpected, "Received HandshakeFin packet, we don't expect this.");
+                        return;
+                    }
+
+                    if (IsReady)
+                        // this is fine, packets may arrive out of order
+                        return;
+
+                    if (state != State.WaitingHandshakeReply)
+                    {
+                        error(TransportError.Unexpected,
+                            "Received HandshakeFin packet, we didn't expect this yet.");
+                        return;
+                    }
+
+                    SetReady();
+
+                    break;
+                default:
+                    error(TransportError.InvalidReceive, $"Unhandled opcode {(byte)opcode:x}");
+                    break;
             }
         }
 
