@@ -32,9 +32,9 @@ namespace Mirror
             rigidbodyCopy.isKinematic = original.isKinematic;
             rigidbodyCopy.interpolation = original.interpolation;
             rigidbodyCopy.collisionDetectionMode = original.collisionDetectionMode;
+            rigidbodyCopy.freezeRotation = original.freezeRotation;
             rigidbodyCopy.constraints = original.constraints;
             rigidbodyCopy.sleepThreshold = original.sleepThreshold;
-            rigidbodyCopy.freezeRotation = original.freezeRotation;
 
             // moving (Configurable)Joints messes up their range of motion unless
             // we reset to initial position first (we do this in PredictedRigibody.cs).
