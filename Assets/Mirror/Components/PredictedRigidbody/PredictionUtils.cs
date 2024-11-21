@@ -32,6 +32,8 @@ namespace Mirror
             rigidbodyCopy.isKinematic = original.isKinematic;
             rigidbodyCopy.interpolation = original.interpolation;
             rigidbodyCopy.collisionDetectionMode = original.collisionDetectionMode;
+            // fix: need to set freezeRotation before constraints:
+            // https://github.com/MirrorNetworking/Mirror/pull/3946
             rigidbodyCopy.freezeRotation = original.freezeRotation;
             rigidbodyCopy.constraints = original.constraints;
             rigidbodyCopy.sleepThreshold = original.sleepThreshold;
