@@ -46,6 +46,24 @@ namespace Mirror
         {
             foreach (Renderer rend in identity.GetComponentsInChildren<Renderer>())
                 rend.enabled = visible;
+
+            foreach (Light light in identity.GetComponentsInChildren<Light>())
+                light.enabled = visible;
+
+            foreach (AudioSource audio in identity.GetComponentsInChildren<AudioSource>())
+                audio.enabled = visible;
+
+            foreach (Terrain terrain in identity.GetComponentsInChildren<Terrain>())
+            {
+                terrain.drawHeightmap = visible;
+                terrain.drawTreesAndFoliage = visible;
+            }
+
+            foreach (ParticleSystem particle in identity.GetComponentsInChildren<ParticleSystem>())
+            {
+                ParticleSystem.EmissionModule emission = particle.emission;
+                emission.enabled = visible;
+            }
         }
 
         /// <summary>Called on the server when a new networked object is spawned.</summary>
