@@ -131,6 +131,7 @@ GameObject:
   m_Component:
   - component: {fileID: 185921129}
   - component: {fileID: 185921128}
+  - component: {fileID: 185921127}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -138,6 +139,14 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!81 &185921127
+AudioListener:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 185921126}
+  m_Enabled: 1
 --- !u!20 &185921128
 Camera:
   m_ObjectHideFlags: 0
@@ -349,8 +358,6 @@ MonoBehaviour:
   headlessStartMode: 1
   editorAutoStart: 0
   sendRate: 30
-  autoStartServerBuild: 0
-  autoConnectClientBuild: 0
   offlineScene: Assets/Mirror/Examples/AdditiveLevels/Scenes/MirrorAdditiveLevelsOffline.unity
   onlineScene: Assets/Mirror/Examples/AdditiveLevels/Scenes/MirrorAdditiveLevelsOnline.unity
   offlineSceneLoadDelay: 0
