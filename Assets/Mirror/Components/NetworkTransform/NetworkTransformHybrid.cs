@@ -15,7 +15,7 @@ using UnityEngine;
 namespace Mirror
 {
     [AddComponentMenu("Network/Network Transform Hybrid")]
-    public class NetworkTransformHybrid2022 : NetworkBehaviour
+    public class NetworkTransformHybrid : NetworkBehaviour
     {
         // target transform to sync. can be on a child.
         [Header("Target")]
