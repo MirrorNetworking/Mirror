@@ -1325,6 +1325,9 @@ namespace Mirror
 
         public virtual void Reset()
         {
+            // default to ClientToServer so this works immediately for users
+            syncDirection = SyncDirection.ClientToServer;
+
             // disabled objects aren't updated anymore.
             // so let's clear the buffers.
             serverSnapshots.Clear();
