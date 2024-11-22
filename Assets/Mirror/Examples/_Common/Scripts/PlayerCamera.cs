@@ -71,8 +71,6 @@ namespace Mirror.Examples.Common
 
                 if (mainCam.gameObject.scene != SceneManager.GetActiveScene())
                     SceneManager.MoveGameObjectToScene(mainCam.gameObject, SceneManager.GetActiveScene());
-
-                mainCam = null;
             }
         }
     }
