@@ -71,14 +71,6 @@ namespace Mirror.Examples.PlayerTest
             base.ConfigureHeadlessFrameRate();
         }
 
-        /// <summary>
-        /// called when quitting the application by closing the window / pressing stop in the editor
-        /// </summary>
-        public override void OnApplicationQuit()
-        {
-            base.OnApplicationQuit();
-        }
-
         #endregion
 
         #region Scene Management

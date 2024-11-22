@@ -21,9 +21,9 @@ namespace Mirror
         public enum Operation : byte
         {
             OP_ADD,
-            OP_CLEAR,
+            OP_SET,
             OP_REMOVE,
-            OP_SET
+            OP_CLEAR
         }
 
         /// <summary>

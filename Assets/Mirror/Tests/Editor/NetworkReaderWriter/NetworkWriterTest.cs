@@ -1341,7 +1341,15 @@ namespace Mirror.Tests.NetworkReaderWriter
             Assert.That(readList, Is.Null);
         }
 
-        [Test, Ignore("TODO")]
+        // writer.Write<T> for HashSet only works if it's actually used by weaver somewhere.
+        // so for TestHashSet() to pass, we need to pretend using a HashSet<int> somewhere.
+        class HashSetNetworkBehaviour : NetworkBehaviour
+        {
+            [Command]
+            public void CmdHashSet(HashSet<int> hashSet) {}
+        }
+
+        [Test] // requires HashSetNetworkBehaviour to exits!
         public void TestHashSet()
         {
             HashSet<int> original = new HashSet<int>() { 1, 2, 3, 4, 5 };
@@ -1353,7 +1361,7 @@ namespace Mirror.Tests.NetworkReaderWriter
             Assert.That(readHashSet, Is.EqualTo(original));
         }
 
-        [Test, Ignore("TODO")]
+        [Test] // requires HashSetNetworkBehaviour to exits!
         public void TestNullHashSet()
         {
             NetworkWriter writer = new NetworkWriter();

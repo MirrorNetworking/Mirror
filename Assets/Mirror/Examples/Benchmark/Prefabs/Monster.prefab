@@ -148,5 +148,5 @@ MonoBehaviour:
   syncMode: 0
   syncInterval: 0.1
   speed: 1
-  movementProbability: 0.5
+  movementProbability: 0.1
   movementDistance: 20

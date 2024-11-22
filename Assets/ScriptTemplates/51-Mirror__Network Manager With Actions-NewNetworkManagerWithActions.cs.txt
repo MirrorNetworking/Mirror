@@ -15,8 +15,6 @@ public class #SCRIPTNAME# : NetworkManager
     public event Action OnStartAction;
     public event Action OnDestroyAction;
 
-    public event Action OnApplicationQuitAction;
-
     public event Action<string> ServerChangeSceneAction;
     public event Action<string> OnServerChangeSceneAction;
     public event Action<string> OnServerSceneChangedAction;
@@ -115,15 +113,6 @@ public class #SCRIPTNAME# : NetworkManager
     public override void ConfigureHeadlessFrameRate()
     {
         base.ConfigureHeadlessFrameRate();
-    }
-
-    /// <summary>
-    /// called when quitting the application by closing the window / pressing stop in the editor
-    /// </summary>
-    public override void OnApplicationQuit()
-    {
-        OnApplicationQuitAction?.Invoke();
-        base.OnApplicationQuit();
     }
 
     #endregion
