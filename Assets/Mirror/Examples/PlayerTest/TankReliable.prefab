@@ -218,7 +218,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fbb0b0f4ce2fede4f95abe4cf1737365, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  syncDirection: 0
+  syncDirection: 1
   syncMode: 0
   syncInterval: 0
   turretUIPrefab: {fileID: 644766297742565710, guid: 4d16730f7a8ba0a419530d1156d25080,
