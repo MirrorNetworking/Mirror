@@ -22,7 +22,7 @@ namespace Mirror.Tests.Transports
             GameObject gameObject = new GameObject();
 
             encryption = gameObject.AddComponent<EncryptionTransport>();
-            encryption.inner = inner;
+            encryption.Inner = inner;
         }
 
         [TearDown]
