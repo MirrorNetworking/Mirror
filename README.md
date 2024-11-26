@@ -127,17 +127,15 @@ If you are migrating from UNET, then please check out our [Migration Guide](http
 
 ---
 ## Mirror Guard
-We recently built the first version of our new "Mirror Guard" - Cheat Detection for Multiplayer Games.
-Mirror Guard is running in a production game today, so we want to make this available to more studios on demand.
+We recently built the first version of our new "Mirror Guard" - Cheat Detection for Multiplayer Games.<br/>
+Mirror Guard is running in a production game today, so we want to make this available to more studios on demand.<br/>
 
-Mirror Guard is built with three core principles in mind:
-1️⃣ Detection over Prevention: we believe that silently reporting cheaters to the game server is more effective than blocking on the client directly.
-2️⃣ Zero Risk: Mirror Guard focuses on stability, we never want honest players to encounter issues, ever.
-3️⃣ Real World Threats: Mirror Guard only blocks cheats which we encountered in production.
+Mirror Guard is built with three core principles in mind:<br/>
+1️⃣ Detection over Prevention: we believe that silently reporting cheaters to the game server is more effective than blocking on the client directly.<br/>
+2️⃣ Zero Risk: Mirror Guard focuses on stability, we never want honest players to encounter issues, ever.<br/>
+3️⃣ Real World Threats: Mirror Guard only blocks cheats which we encountered in production.<br/>
 
 🍉 Mirror Guard V1 is able to safely detect Melon Loader, which we've found to be the foundation for the vast majority of cheats that we encountered.
-
----------
 
 If you are interested, talk to any of our devs or email business at mirror-networking.com.
 
