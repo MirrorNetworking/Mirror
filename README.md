@@ -131,7 +131,7 @@ We recently built the first version of our new "Mirror Guard" - Cheat Detection 
 Mirror Guard is running in a production game today, so we want to make this available to more studios on demand.<br/>
 
 Mirror Guard is built with three core principles in mind:<br/>
-1️⃣ Detection over Prevention: we believe that silently reporting cheaters to the game server is more effective than blocking on the client directly.<br/>
+1️⃣ Detection over Prevention: silently reports cheaters to the server, instead of trying to block them.<br/>
 2️⃣ Zero Risk: Mirror Guard focuses on stability, we never want honest players to encounter issues, ever.<br/>
 3️⃣ Real World Threats: Mirror Guard only blocks cheats which we encountered in production.<br/>
 
