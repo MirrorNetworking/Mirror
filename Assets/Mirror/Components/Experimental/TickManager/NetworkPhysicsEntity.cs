@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Mirror{
+namespace Mirror.Components.Experimental{
   /// <summary>
   /// Interface representing a network item that requires updates at various stages of the network tick cycle.
   /// Each method in this interface is intended to handle specific stages of the update process.

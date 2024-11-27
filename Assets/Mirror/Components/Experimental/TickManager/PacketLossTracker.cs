@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Mirror{
+namespace Mirror.Components.Experimental{
   /// <summary>
   /// A class for tracking packet loss over a sliding window of packets.
   /// It calculates the packet loss rate as a fraction based on a fixed sample size,

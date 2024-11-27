@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Mirror{
+namespace Mirror.Components.Experimental{
   /// <summary>
   /// A class that maintains a running minimum over a fixed-size sliding window of integers.
   /// Provides efficient tracking of the minimum value as elements are added and removed from the window.

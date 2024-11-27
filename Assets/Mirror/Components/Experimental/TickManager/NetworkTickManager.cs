@@ -2,7 +2,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-namespace Mirror{
+namespace Mirror.Components.Experimental{
   /// <summary>
   /// Represents data sent from the client to track its current state.
   /// </summary>

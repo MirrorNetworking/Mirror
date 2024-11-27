@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System;
 
-namespace Mirror{
+namespace Mirror.Components.Experimental{
   [DefaultExecutionOrder(-10)]
   [DisallowMultipleComponent]
   [AddComponentMenu("Network/Network Physics Controller")]

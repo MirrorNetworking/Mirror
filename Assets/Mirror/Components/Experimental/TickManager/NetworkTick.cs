@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Mirror{
+namespace Mirror.Components.Experimental{
   public class NetworkTick{
     /*** Private Definitions ***/
 
