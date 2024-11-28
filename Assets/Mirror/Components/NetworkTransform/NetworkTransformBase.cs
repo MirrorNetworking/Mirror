@@ -156,6 +156,54 @@ namespace Mirror
             Configure();
         }
 
+        // These are in global coordinates for calculating velocity and angular velocity.
+        Vector3 lastPosition;
+        Quaternion lastRotation;
+
+        public Vector3 velocity { get; internal set; } = Vector3.zero;
+        public Vector3 angularVelocity { get; internal set; } = Vector3.zero;
+
+        protected virtual void Start()
+        {
+            // set target to self if none yet
+            if (target == null) target = transform;
+
+            // Set last position and rotation to current values
+            // so we can calculate velocity and angular velocity.
+            target.GetPositionAndRotation(out lastPosition, out lastRotation);
+        }
+
+        protected virtual void Update()
+        {
+            // set target to self if none yet
+            if (target == null) target = transform;
+
+            // Use global coordinates for velocity and angular velocity.
+            target.GetPositionAndRotation(out Vector3 pos, out Quaternion rot);
+
+            // Update velocity and angular velocity
+            velocity = (pos - lastPosition) / Time.deltaTime;
+            CalculateAngularVelocity(rot);
+
+            // Update last position and rotation
+            lastPosition = pos;
+            lastRotation = rot;
+        }
+
+        void CalculateAngularVelocity(Quaternion currentRot)
+        {
+            // calculate angle between two rotations
+            Quaternion deltaRotation = currentRot * Quaternion.Inverse(lastRotation);
+            //Quaternion deltaRotation = (currentRot * Quaternion.Inverse(lastRotation)).normalize;
+
+            // convert to angle axis
+            deltaRotation.ToAngleAxis(out float angle, out Vector3 axis);
+
+            // we assume the angle is always the shortest path
+            // we don't need to check for 360 degree rotations
+            angularVelocity = axis * angle * Mathf.Deg2Rad / Time.deltaTime;
+        }
+
         // snapshot functions //////////////////////////////////////////////////
         // get local/world position
         protected virtual Vector3 GetPosition() =>
@@ -414,6 +462,16 @@ namespace Mirror
             // so let's clear the buffers.
             serverSnapshots.Clear();
             clientSnapshots.Clear();
+
+            // set target to self if none yet
+            if (target == null) target = transform;
+
+            // Reset last position and rotation
+            target.GetPositionAndRotation(out lastPosition, out lastRotation);
+
+            // Reset velocity / angular velocity
+            velocity = Vector3.zero;
+            angularVelocity = Vector3.zero;
         }
 
         public virtual void Reset()
