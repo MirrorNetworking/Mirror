@@ -398,7 +398,17 @@ namespace Mirror
                 return;
             }
 
-            mode = NetworkManagerMode.ClientOnly;
+            if (mode == NetworkManagerMode.ServerOnly)
+            {
+                mode = NetworkManagerMode.Host;
+
+                // Redirect to FinishStartHost to do all the proper setup for host mode
+                // Exit here after that's completed, instead of proceeding as a remote client.
+                FinishStartHost();
+                return;
+            }
+            else
+                mode = NetworkManagerMode.ClientOnly;
 
             SetupClient();
 
@@ -1273,8 +1283,18 @@ namespace Mirror
             // shutdown client
             NetworkClient.Shutdown();
 
-            // Exit here if we're now in ServerOnly mode (StopClient called in Host mode).
-            if (mode == NetworkManagerMode.ServerOnly) return;
+            // If we're in ServerOnly mode now, StopClient was called for host client.
+            // We need to reset clientStarted to false so that when we return to
+            // Host mode, we properly respawn objects from StartClient again.
+            if (mode == NetworkManagerMode.ServerOnly)
+            {
+                foreach (NetworkIdentity identity in NetworkServer.spawned.Values)
+                    identity.clientStarted = false;
+
+                // Exit here if we're now in ServerOnly mode (StopClient called in Host mode).
+                // This allows the server to keep running without the host client, keeping remote clients connected.
+                return;
+            }
 
             // Get Network Manager out of DDOL before going to offline scene
             // to avoid collision and let a fresh Network Manager be created.
