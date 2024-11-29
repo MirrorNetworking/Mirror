@@ -47,6 +47,14 @@ namespace Mirror
             foreach (Renderer rend in identity.GetComponentsInChildren<Renderer>())
                 rend.enabled = visible;
 
+            // reason to also set lights/audio/terrain/etc.:
+            // Let's say players were holding a flashlight or magic wand with a particle effect. Without this, 
+            // host client would see the light / particles for all players in all subscenes because we don't 
+            // hide lights and particles. Host client would hear ALL audio sources in all subscenes too. We 
+            // hide the renderers, which covers basic objects and UI, but we don't hide anything else that may 
+            // be a child of a networked object. Same idea for cars with lights and sounds in other subscenes 
+            // that host client shouldn't see or hear...host client wouldn't see the car itself, but sees the 
+            // lights moving around and hears all of their engines / horns / etc.
             foreach (Light light in identity.GetComponentsInChildren<Light>())
                 light.enabled = visible;
 
