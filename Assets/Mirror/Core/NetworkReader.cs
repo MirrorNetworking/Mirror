@@ -20,7 +20,10 @@ namespace Mirror
         // internal buffer
         // byte[] pointer would work, but we use ArraySegment to also support
         // the ArraySegment constructor
-        internal ArraySegment<byte> buffer;
+        /// <summary>
+        /// Gets buffer of network reader.
+        /// </summary>
+        public ArraySegment<byte> buffer;
 
         /// <summary>Next position to read from the buffer</summary>
         // 'int' is the best type for .Position. 'short' is too small if we send >32kb which would result in negative .Position

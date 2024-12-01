@@ -14,7 +14,7 @@ namespace Mirror
 
         public LocalConnectionToClient() : base(LocalConnectionId) {}
 
-        internal override void Send(ArraySegment<byte> segment, int channelId = Channels.Reliable)
+        public override void Send(ArraySegment<byte> segment, int channelId = Channels.Reliable)
         {
             // instead of invoking it directly, we enqueue and process next update.
             // this way we can simulate a similar call flow as with remote clients.

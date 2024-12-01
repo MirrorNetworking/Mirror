@@ -17,7 +17,11 @@ namespace Mirror
         // note: BinaryWriter allocates too much, so we only use a MemoryStream
         // => 1500 bytes by default because on average, most packets will be <= MTU
         public const int DefaultCapacity = 1500;
-        internal byte[] buffer = new byte[DefaultCapacity];
+
+        /// <summary>
+        /// Gets buffer of network writer.
+        /// </summary>
+        public byte[] buffer = new byte[DefaultCapacity];
 
         /// <summary>Next position to write to the buffer</summary>
         public int Position;
@@ -43,6 +47,12 @@ namespace Mirror
         {
             Position = 0;
         }
+
+        /// <summary>
+        /// Ensures length of a buffer.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void EnsureLength(int value) => EnsureCapacity(Position + value);
 
         // NOTE that our runtime resizing comes at no extra cost because:
         // 1. 'has space' checks are necessary even for fixed sized writers.

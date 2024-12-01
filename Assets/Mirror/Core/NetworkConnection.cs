@@ -124,7 +124,7 @@ namespace Mirror
         // the client. they would be detected as a message. send messages instead.
         // => make sure to validate message<T> size before calling Send<byte>!
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal virtual void Send(ArraySegment<byte> segment, int channelId = Channels.Reliable)
+        public virtual void Send(ArraySegment<byte> segment, int channelId = Channels.Reliable)
         {
             //Debug.Log($"ConnectionSend {this} bytes:{BitConverter.ToString(segment.Array, segment.Offset, segment.Count)}");
 

@@ -20,7 +20,7 @@ namespace Mirror
         internal void QueueDisconnectedEvent() => disconnectedEventPending = true;
 
         // Send stage two: serialized NetworkMessage as ArraySegment<byte>
-        internal override void Send(ArraySegment<byte> segment, int channelId = Channels.Reliable)
+        public override void Send(ArraySegment<byte> segment, int channelId = Channels.Reliable)
         {
             if (segment.Count == 0)
             {

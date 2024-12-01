@@ -1,0 +1,11 @@
+{
+  "name": "com.revenantx.litenetlib",
+  "version": "1.0.1-1",
+  "displayName": "LiteNetLib",
+  "description": "Lite reliable UDP library for .NET Standard 2.0 (Mono, .NET Core, .NET Framework)",
+  "unity": "2018.3",
+  "author": {
+    "name": "RevenantX",
+    "url": "https://github.com/RevenantX"
+  }
+}

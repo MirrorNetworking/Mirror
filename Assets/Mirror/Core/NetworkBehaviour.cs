@@ -118,7 +118,21 @@ namespace Mirror
         // component index from in here by searching all NetworkComponents.
 
         /// <summary>Returns the NetworkIdentity of this object</summary>
-        public NetworkIdentity netIdentity { get; internal set; }
+        public NetworkIdentity netIdentity
+        {
+            get
+            {
+                if (_identitySet)
+                    return _identityCache;
+
+                _identitySet = true;
+                _identityCache = GetComponent<NetworkIdentity>();
+
+                return _identityCache;
+            }
+
+            internal set => _identityCache = value;
+        }
 
         /// <summary>Returns the index of the component on this object</summary>
         public byte ComponentIndex { get; internal set; }
@@ -148,6 +162,9 @@ namespace Mirror
         // the setter would call the hook and we deadlock.
         // hook guard prevents that.
         ulong syncVarHookGuard;
+
+        private NetworkIdentity _identityCache;
+        private bool _identitySet;
 
         protected virtual void OnValidate()
         {

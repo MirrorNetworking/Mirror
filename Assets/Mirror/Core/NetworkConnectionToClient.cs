@@ -14,7 +14,17 @@ namespace Mirror
         readonly NetworkWriter reliableRpcs = new NetworkWriter();
         readonly NetworkWriter unreliableRpcs = new NetworkWriter();
 
-        public virtual string address { get; private set; }
+        /// <summary>
+        /// Overriden player's IP address.
+        /// </summary>
+        public string IpOverride;
+
+        public virtual string address => IpOverride ?? OriginalIpAddress;
+
+        /// <summary>
+        /// Non-overriden IP address of the player
+        /// </summary>
+        public string OriginalIpAddress { get; private set; }
 
         /// <summary>NetworkIdentities that this connection can see</summary>
         // TODO move to server's NetworkConnectionToClient?
@@ -53,7 +63,7 @@ namespace Mirror
         public NetworkConnectionToClient(int networkConnectionId, string clientAddress = "localhost")
             : base(networkConnectionId)
         {
-            address = clientAddress;
+            OriginalIpAddress = clientAddress;
 
             // initialize EMA with 'emaDuration' seconds worth of history.
             // 1 second holds 'sendRate' worth of values.

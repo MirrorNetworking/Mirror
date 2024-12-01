@@ -382,7 +382,7 @@ namespace Mirror
         }
 
         /// <summary>Starts the client, connects it to the server with networkAddress.</summary>
-        public void StartClient()
+        public virtual void StartClient()
         {
             // Do checks and short circuits before setting anything up.
             // If / when we retry, we won't have conflict issues.
@@ -584,11 +584,11 @@ namespace Mirror
             // to avoid collision and let a fresh Network Manager be created.
             // IMPORTANT: .gameObject can be null if StopClient is called from
             //            OnApplicationQuit or from tests!
-            if (gameObject != null
+            /*if (gameObject != null
                 && gameObject.scene.name == "DontDestroyOnLoad"
                 && !string.IsNullOrWhiteSpace(offlineScene)
                 && SceneManager.GetActiveScene().path != offlineScene)
-                SceneManager.MoveGameObjectToScene(gameObject, SceneManager.GetActiveScene());
+                SceneManager.MoveGameObjectToScene(gameObject, SceneManager.GetActiveScene());*/
 
             OnStopServer();
 
@@ -1280,11 +1280,11 @@ namespace Mirror
             // to avoid collision and let a fresh Network Manager be created.
             // IMPORTANT: .gameObject can be null if StopClient is called from
             //            OnApplicationQuit or from tests!
-            if (gameObject != null
+            /*if (gameObject != null
                 && gameObject.scene.name == "DontDestroyOnLoad"
                 && !string.IsNullOrWhiteSpace(offlineScene)
                 && SceneManager.GetActiveScene().path != offlineScene)
-                SceneManager.MoveGameObjectToScene(gameObject, SceneManager.GetActiveScene());
+                SceneManager.MoveGameObjectToScene(gameObject, SceneManager.GetActiveScene());*/
 
             // If StopHost called in Host mode, StopServer will change scenes after this.
             // Check loadingSceneAsync to ensure we don't double-invoke the scene change.
@@ -1445,11 +1445,13 @@ namespace Mirror
 
 #if DEBUG
         // keep OnGUI even in builds. useful to debug snap interp.
+#if UNITY_EDITOR
         void OnGUI()
         {
             if (!timeInterpolationGui) return;
             NetworkClient.OnGUI();
         }
+#endif
 #endif
     }
 }

@@ -6,6 +6,11 @@ namespace Mirror
 {
     public class SyncList<T> : SyncObject, IList<T>, IReadOnlyList<T>
     {
+        /// <summary>
+        /// Event called when all the operations have been applied.
+        /// </summary>
+        public event Action OnModified;
+
         /// <summary>This is called after the item is added with index</summary>
         public Action<int> OnAdd;
 
@@ -213,6 +218,8 @@ namespace Mirror
             // the next time the list is synchronized
             // because they have already been applied
             changesAhead = (int)reader.ReadUInt();
+
+            OnModified?.Invoke();
         }
 
         public override void OnDeserializeDelta(NetworkReader reader)
@@ -310,6 +317,9 @@ namespace Mirror
                     changesAhead--;
                 }
             }
+
+            if (changesCount > 0)
+                OnModified?.Invoke();
         }
 
         public void Add(T item)

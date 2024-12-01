@@ -1492,6 +1492,9 @@ namespace Mirror
                 // https://github.com/MirrorNetworking/Mirror/issues/3330
                 if (Utils.IsSceneObject(identity) && identity.netId == 0)
                 {
+                    if (!identity.gameObject.activeInHierarchy)
+                        identity.InitializeNetworkBehaviours();
+
                     // Debug.Log($"SpawnObjects sceneId:{identity.sceneId:X} name:{identity.gameObject.name}");
                     identity.gameObject.SetActive(true);
                 }

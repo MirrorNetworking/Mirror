@@ -9,6 +9,7 @@
     "com.unity.test-framework": "1.1.33",
     "com.unity.testtools.codecoverage": "1.2.5",
     "com.unity.toolchain.macos-arm64-linux-x86_64": "1.0.1",
+    "com.unity.toolchain.win-x86_64-linux-x86_64": "2.0.10",
     "com.unity.ugui": "1.0.0",
     "com.unity.xr.legacyinputhelpers": "2.1.10",
     "com.unity.modules.ai": "1.0.0",
