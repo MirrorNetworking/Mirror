@@ -163,6 +163,11 @@ SWARM is a fast-paced, arcade-style grapple shooter, with quick sessions, bright
 
 Available for the [Meta Quest](https://www.oculus.com/experiences/quest/2236053486488156/), made with Mirror.
 
+### [Liars Bar](https://store.steampowered.com/app/3097560/Liars_Bar/)
+[![liarsbar](https://github.com/user-attachments/assets/9100563e-2d9f-44f6-b8c2-332f718b8190)](https://store.steampowered.com/app/3097560/Liars_Bar/)
+With over 20.000 Overwhelmingly Positive reviews on Steam, Liars Bar is one of our largest showcase games of 2024.<br/>
+This isn't your average pub – it's a den of lies, deception, and mind games. Grab a seat at a table of four and immerse yourself in the ultimate first-person multiplayer online experience where cunning and trickery are the name of the game.
+
 ### [Castaways](https://www.castaways.com/)
 [![Castaways](https://user-images.githubusercontent.com/16416509/207313082-e6b95590-80c6-4685-b0d1-f1c39c236316.png)](https://www.castaways.com/)
 [Castaways](https://www.castaways.com/) is a sandbox game where you are castaway to a small remote island where you must work with others to survive and build a thriving new civilization. 
