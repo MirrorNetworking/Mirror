@@ -196,15 +196,9 @@ namespace Mirror
         /// <summary>Shut down the transport, both as client and server</summary>
         public abstract void Shutdown();
 
-        // [Obsolete] in case someone is inheriting it.
-        // don't use this anymore.
-        // fixes: https://github.com/MirrorNetworking/Mirror/issues/2802
-        // DEPRECATED 2024-10-29
-        [Obsolete("Override OnDestroy instead of OnApplicationQuit.")]
-        public virtual void OnApplicationQuit() {}
-
-        // fixes: https://github.com/MirrorNetworking/Mirror/issues/2802
-        public virtual void OnDestroy()
+        /// <summary>Called by Unity when quitting. Inheriting Transports should call base for proper Shutdown.</summary>
+        // (this can't be in OnDestroy: https://github.com/MirrorNetworking/Mirror/issues/3952)
+        public virtual void OnApplicationQuit()
         {
             // stop transport (e.g. to shut down threads)
             // (when pressing Stop in the Editor, Unity keeps threads alive
