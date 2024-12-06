@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Mirror.RemoteCalls;
 using UnityEngine;
+using UnityEngine.Profiling;
 
 namespace Mirror
 {
@@ -1928,7 +1929,11 @@ namespace Mirror
                 {
                     // get serialization for this entity viewed by this connection
                     // (if anything was serialized this time)
+                    // profiling marker for shallow profiling to show more than "UpdateFunction.Invoke
+                    Profiler.BeginSample("BroadcastToConnection: SerializeForConnection");
                     NetworkWriter serialization = SerializeForConnection(identity, connection);
+                    Profiler.EndSample();
+
                     if (serialization != null)
                     {
                         EntityStateMessage message = new EntityStateMessage
@@ -1936,7 +1941,11 @@ namespace Mirror
                             netId = identity.netId,
                             payload = serialization.ToArraySegment()
                         };
+
+                        // profiling marker for shallow profiling to show more than "UpdateFunction.Invoke
+                        Profiler.BeginSample("BroadcastToConnection: Send");
                         connection.Send(message);
+                        Profiler.EndSample();
                     }
                 }
                 // spawned list should have no null entries because we
@@ -2017,7 +2026,10 @@ namespace Mirror
                 }
 
                 // update connection to flush out batched messages
+                // profiling marker for shallow profiling to show more than "UpdateFunction.Invoke
+                Profiler.BeginSample("Broadcast: Flush");
                 connection.Update();
+                Profiler.EndSample();
             }
         }
 
@@ -2034,12 +2046,19 @@ namespace Mirror
             }
 
             // process all incoming messages first before updating the world
+            // profiling marker for shallow profiling to show more than "UpdateFunction.Invoke
+            Profiler.BeginSample("NetworkServer: Transport Processing");
             if (Transport.active != null)
                 Transport.active.ServerEarlyUpdate();
+            Profiler.EndSample();
+
 
             // step each connection's local time interpolation in early update.
+            // profiling marker for shallow profiling to show more than "UpdateFunction.Invoke
+            Profiler.BeginSample("NetworkServer: Connections Time Update");
             foreach (NetworkConnectionToClient connection in connections.Values)
                 connection.UpdateTimeInterpolation();
+            Profiler.EndSample();
 
             if (active) earlyUpdateDuration.End();
         }
@@ -2068,13 +2087,21 @@ namespace Mirror
                 // Unity 2019 doesn't have Time.timeAsDouble yet
                 bool sendIntervalElapsed = AccurateInterval.Elapsed(NetworkTime.localTime, sendInterval, ref lastSendTime);
                 if (!Application.isPlaying || sendIntervalElapsed)
+                {
+                    // profiling marker for shallow profiling to show more than "UpdateFunction.Invoke
+                    Profiler.BeginSample("NetworkServer: Broadcast");
                     Broadcast();
+                    Profiler.EndSample();
+                }
             }
 
             // process all outgoing messages after updating the world
             // (even if not active. still want to process disconnects etc.)
+            // profiling marker for shallow profiling to show more than "UpdateFunction.Invoke
+            Profiler.BeginSample("NetworkServer: Transport Flush");
             if (Transport.active != null)
                 Transport.active.ServerLateUpdate();
+            Profiler.EndSample();
 
             // measure actual tick rate every second.
             if (active)
