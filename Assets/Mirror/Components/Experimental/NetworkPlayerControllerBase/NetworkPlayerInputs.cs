@@ -206,7 +206,7 @@ namespace Mirror.Components.Experimental{
     /// <summary> Serializes the NetworkPlayerInputs by encoding presence of inputs in a 16-bit header and writes relevant fields conditionally. </summary>
     /// <param name="writer">The NetworkWriter to write to.</param>
     /// <param name="inputs">The NetworkPlayerInputs to serialize.</param>
-    public static void Serialize(NetworkWriter writer, NetworkPlayerInputs inputs) {
+    public static void WriteNetworkPlayerInputs(NetworkWriter writer, NetworkPlayerInputs inputs) {
       // Ensure tick number is set; otherwise, we may send the wrong tick number here
       if (inputs._tickNumber is null)
         throw new InvalidOperationException("TickNumber must be set before serialization.");
@@ -253,7 +253,7 @@ namespace Mirror.Components.Experimental{
     /// <summary> Deserializes NetworkPlayerInputs by reading a 16-bit header to determine which fields are present and reads them conditionally. </summary>
     /// <param name="reader">The NetworkReader to read from.</param>
     /// <returns>A deserialized instance of NetworkPlayerInputs.</returns>
-    public static NetworkPlayerInputs Deserialize(NetworkReader reader) {
+    public static NetworkPlayerInputs ReadNetworkPlayerInputs(NetworkReader reader) {
       // Read the header first
       ushort header = reader.ReadUShort();
 
@@ -273,7 +273,13 @@ namespace Mirror.Components.Experimental{
       ushort? joystickVector = hasJoystickVector ? reader.ReadUShort() : null;
       ushort? mouseVectorX = hasMouseVector ? reader.ReadUShort() : null;
       ushort? mouseVectorY = hasMouseVector ? reader.ReadUShort() : null;
-      ReadOnlyMemory<byte>? additionalInputs = hasAdditionalInputs ? new ReadOnlyMemory<byte>(reader.ReadBytesAndSize()) : null;
+
+      // Compiler nonsense requires me to use explicit if-else to avoid getting byte[0] instead of null
+      ReadOnlyMemory<byte>? additionalInputs;
+      if (hasAdditionalInputs)
+        additionalInputs = new ReadOnlyMemory<byte>(reader.ReadBytesAndSize());
+      else
+        additionalInputs = null;
 
       // Construct and return the NetworkPlayerInputs object
       return new NetworkPlayerInputs(
@@ -318,5 +324,15 @@ namespace Mirror.Components.Experimental{
     }
 
     #endregion
+  }
+
+  public static class GeneratedNetworkCode{
+    public static void WriteNetworkPlayerInputs(this NetworkWriter writer, NetworkPlayerInputs value) {
+      NetworkPlayerInputs.WriteNetworkPlayerInputs(writer, value);
+    }
+
+    public static NetworkPlayerInputs ReadNetworkPlayerInputs(this NetworkReader reader) {
+      return NetworkPlayerInputs.ReadNetworkPlayerInputs(reader);
+    }
   }
 }
