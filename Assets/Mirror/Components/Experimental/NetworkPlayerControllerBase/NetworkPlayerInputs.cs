@@ -43,6 +43,10 @@ namespace Mirror.Components.Experimental{
       _additionalInputs = additionalInputs;
     }
 
+    /* Inputs Compare and Extend methods */
+
+    #region Inputs Compare and Extend methods
+
     /// <summary>
     /// Compares the current NetworkPlayerInputs with another and returns the differences as a new instance.
     /// Only fields that differ will be set in the returned instance; others will remain null.
@@ -75,6 +79,24 @@ namespace Mirror.Components.Experimental{
           additionalInputs: additionalInputs
         );
     }
+
+    /// <summary>
+    /// Creates a new NetworkPlayerInputs instance by overriding non-null fields from the given `overrides` instance.
+    /// Fields that are null in `overrides` remain unchanged from the current instance.
+    /// </summary>
+    /// <param name="overrides">The NetworkPlayerInputs instance providing the overriding values.</param>
+    /// <returns>A new NetworkPlayerInputs instance with fields overridden by non-null values from `overrides`.</returns>
+    public NetworkPlayerInputs OverrideWith(NetworkPlayerInputs overrides) => new(
+      tickNumber: overrides._tickNumber ?? _tickNumber,
+      serverTickOffset: overrides._serverTickOffset ?? _serverTickOffset,
+      movementVector: overrides._movementVector ?? _movementVector,
+      joystickVector: overrides._joystickVector ?? _joystickVector,
+      mouseVectorX: overrides._mouseVectorX ?? _mouseVectorX,
+      mouseVectorY: overrides._mouseVectorY ?? _mouseVectorY,
+      additionalInputs: overrides._additionalInputs ?? _additionalInputs
+    );
+
+    #endregion
 
     /* Tick Number Handling */
 
