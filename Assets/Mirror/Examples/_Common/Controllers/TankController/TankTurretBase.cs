@@ -192,6 +192,9 @@ namespace Mirror.Examples.Common.Controllers.Tank
         // NOTE: Do not put objects in DontDestroyOnLoad (DDOL) in Awake.  You can do that in Start instead.
         protected virtual void Reset()
         {
+            // Ensure syncDirection is Client to Server
+            syncDirection = SyncDirection.ClientToServer;
+
             if (animator == null)
                 animator = GetComponentInChildren<Animator>();
 

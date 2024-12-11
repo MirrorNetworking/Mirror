@@ -15,7 +15,7 @@ using UnityEngine;
 namespace Mirror
 {
     [AddComponentMenu("Network/Network Transform Hybrid")]
-    public class NetworkTransformHybrid2022 : NetworkBehaviour
+    public class NetworkTransformHybrid : NetworkBehaviour
     {
         // target transform to sync. can be on a child.
         [Header("Target")]
@@ -1325,6 +1325,9 @@ namespace Mirror
 
         public virtual void Reset()
         {
+            // default to ClientToServer so this works immediately for users
+            syncDirection = SyncDirection.ClientToServer;
+
             // disabled objects aren't updated anymore.
             // so let's clear the buffers.
             serverSnapshots.Clear();

@@ -261,8 +261,6 @@ MonoBehaviour:
   headlessStartMode: 1
   editorAutoStart: 0
   sendRate: 30
-  autoStartServerBuild: 0
-  autoConnectClientBuild: 0
   offlineScene: Assets/Mirror/Examples/Room/Scenes/MirrorRoomOffline.unity
   onlineScene: Assets/Mirror/Examples/Room/Scenes/MirrorRoomOnline.unity
   offlineSceneLoadDelay: 0
@@ -276,8 +274,7 @@ MonoBehaviour:
     type: 3}
   autoCreatePlayer: 1
   playerSpawnMethod: 1
-  spawnPrefabs:
-  - {fileID: 1139254171913846, guid: 52f1c9ea06cfd154cb68ff9d1b66fc13, type: 3}
+  spawnPrefabs: []
   exceptionsDisconnect: 1
   snapshotSettings:
     bufferTimeMultiplier: 2

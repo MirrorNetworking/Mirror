@@ -62,6 +62,15 @@ namespace Mirror.Examples.AutoLANClientController
             base.LateUpdate();
         }
 
+        /// <summary>
+        /// Runs on both Server and Client
+        /// </summary>
+        public override void OnDestroy()
+        {
+            base.OnDestroy();
+            //UnityEngine.Debug.Log("OnDestroy");
+        }
+
 #endregion
 
         #region Start & Stop
@@ -78,10 +87,10 @@ namespace Mirror.Examples.AutoLANClientController
         /// <summary>
         /// called when quitting the application by closing the window / pressing stop in the editor
         /// </summary>
-        public override void OnDestroy()
+        public override void OnApplicationQuit()
         {
-            base.OnDestroy();
-            //UnityEngine.Debug.Log("OnDestroy");
+            base.OnApplicationQuit();
+            //UnityEngine.Debug.Log("OnApplicationQuit");
         }
 
         #endregion

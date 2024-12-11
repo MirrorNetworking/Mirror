@@ -634,6 +634,32 @@ namespace Mirror
             NetworkClient.Disconnect();
         }
 
+        // called when quitting the application by closing the window / pressing
+        // stop in the editor. virtual so that inheriting classes'
+        // OnApplicationQuit() can call base.OnApplicationQuit() too
+        // (this can't be in OnDestroy: https://github.com/MirrorNetworking/Mirror/issues/3952)
+        public virtual void OnApplicationQuit()
+        {
+            // stop client first
+            // (we want to send the quit packet to the server instead of waiting
+            //  for a timeout)
+            if (NetworkClient.isConnected)
+            {
+                StopClient();
+                //Debug.Log("OnApplicationQuit: stopped client");
+            }
+
+            // stop server after stopping client (for proper host mode stopping)
+            if (NetworkServer.active)
+            {
+                StopServer();
+                //Debug.Log("OnApplicationQuit: stopped server");
+            }
+
+            // Call ResetStatics to reset statics and singleton
+            ResetStatics();
+        }
+
         /// <summary>Set the frame rate for a headless builds. Override to disable or modify.</summary>
         // useful for dedicated servers.
         // useful for headless benchmark clients.
@@ -747,40 +773,11 @@ namespace Mirror
             singleton = null;
         }
 
-        // called when quitting the application by closing the window / pressing
-        // stop in the editor.
-        // use OnDestroy instead of OnApplicationQuit:
-        // fixes: https://github.com/MirrorNetworking/Mirror/issues/2802
+        // virtual so that inheriting classes' OnDestroy() can call base.OnDestroy() too
         public virtual void OnDestroy()
         {
             //Debug.Log("NetworkManager destroyed");
-
-            // stop client first
-            // (we want to send the quit packet to the server instead of waiting
-            //  for a timeout)
-            if (NetworkClient.isConnected)
-            {
-                StopClient();
-                //Debug.Log("OnApplicationQuit: stopped client");
-            }
-
-            // stop server after stopping client (for proper host mode stopping)
-            if (NetworkServer.active)
-            {
-                StopServer();
-                //Debug.Log("OnApplicationQuit: stopped server");
-            }
-
-            // Call ResetStatics to reset statics and singleton
-            ResetStatics();
         }
-
-        // [Obsolete] in case someone is inheriting it.
-        // don't use this anymore.
-        // fixes: https://github.com/MirrorNetworking/Mirror/issues/2802
-        // DEPRECATED 2024-10-29
-        [Obsolete("Override OnDestroy instead of OnApplicationQuit.")]
-        public virtual void OnApplicationQuit() {}
 
         /// <summary>The name of the current network scene.</summary>
         // set by NetworkManager when changing the scene.

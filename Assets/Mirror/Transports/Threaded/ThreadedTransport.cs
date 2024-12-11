@@ -197,10 +197,11 @@ namespace Mirror
             Debug.Log($"ThreadedTransport: started worker thread!");
         }
 
-        public override void OnDestroy()
+        protected virtual void OnDestroy()
         {
             // stop thread fully
-            base.OnDestroy();
+            Shutdown();
+
             // TODO recycle writers.
         }
 
