@@ -1,10 +1,6 @@
 ﻿using System;
 using UnityEngine;
-
-namespace System.Runtime.CompilerServices{
-  internal static class IsExternalInit{
-  }
-}
+using System.Runtime.CompilerServices; // do not remove, required to add init support for net4.9 or lower
 
 #nullable enable
 namespace Mirror.Components.Experimental{
@@ -348,7 +344,7 @@ namespace Mirror.Components.Experimental{
     #endregion
   }
 
-  public static class GeneratedNetworkCode{
+  public static class NetworkPlayerInputsSerializer{
     public static void WriteNetworkPlayerInputs(this NetworkWriter writer, NetworkPlayerInputs value) {
       NetworkPlayerInputs.WriteNetworkPlayerInputs(writer, value);
     }
