@@ -1,6 +1,7 @@
-﻿using System;
+﻿using System.Runtime.CompilerServices; // do not remove, required to add init support for net4.9 or lower
+using System;
+using System.Linq;
 using UnityEngine;
-using System.Runtime.CompilerServices; // do not remove, required to add init support for net4.9 or lower
 
 #nullable enable
 namespace Mirror.Components.Experimental{
@@ -54,7 +55,7 @@ namespace Mirror.Components.Experimental{
       byte? serverTickOffset = _serverTickOffset != inputs._serverTickOffset ? _serverTickOffset : null;
       ushort? movementVector = _movementVector != inputs._movementVector ? _movementVector : null;
       ushort? joystickVector = _joystickVector != inputs._joystickVector ? _joystickVector : null;
-      ReadOnlyMemory<byte>? additionalInputs = !_additionalInputs.Equals(inputs._additionalInputs) ? _additionalInputs : null;
+      ReadOnlyMemory<byte>? additionalInputs = !ByteArraysEqual(_additionalInputs, inputs._additionalInputs) ? _additionalInputs : null;
 
       // If any of these are different we need to send both
       bool mouseVectorDiff = _mouseVectorX != inputs._mouseVectorX || _mouseVectorY != inputs._mouseVectorY;
@@ -317,6 +318,20 @@ namespace Mirror.Components.Experimental{
     /* Utility functions */
 
     #region Utility functions
+
+    /// <summary> Compares two byte arrays for equality, including handling null values. </summary>
+    /// <param name="byteArray1">The first ReadOnlyMemory<byte>? to compare, can be null. </param>
+    /// <param name="byteArray2">The second ReadOnlyMemory<byte>? to compare, can be null. </param>
+    /// <returns> Comparison by value </returns>
+    static bool ByteArraysEqual(ReadOnlyMemory<byte>? byteArray1, ReadOnlyMemory<byte>? byteArray2) {
+      // If both are null, they are equal
+      if (byteArray1 == null && byteArray2 == null) return true;
+
+      // If one is null but not the other, they are not equal
+      if (byteArray1 == null || byteArray2 == null) return false;
+
+      return byteArray1.Value.Span.SequenceEqual(byteArray2.Value.Span);
+    }
 
     /// <summary> Decompresses a <see cref="ushort"/> back into normalized Vector2 values (X and Y). </summary>
     /// <param name="compressedValue">The compressed <see cref="ushort"/> value.</param>
