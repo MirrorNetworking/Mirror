@@ -323,7 +323,7 @@ namespace Mirror.Components.Experimental{
     /// <param name="byteArray1">The first ReadOnlyMemory<byte>? to compare, can be null. </param>
     /// <param name="byteArray2">The second ReadOnlyMemory<byte>? to compare, can be null. </param>
     /// <returns> Comparison by value </returns>
-    static bool ByteArraysEqual(ReadOnlyMemory<byte>? byteArray1, ReadOnlyMemory<byte>? byteArray2) {
+    private static bool ByteArraysEqual(in ReadOnlyMemory<byte>? byteArray1, in ReadOnlyMemory<byte>? byteArray2) {
       // If both are null, they are equal
       if (byteArray1 == null && byteArray2 == null) return true;
 
