@@ -54,8 +54,7 @@ namespace Mirror.Examples.NetworkRoom
             GameObject next = pool.Get();
 
             // set position/rotation and set active
-            next.transform.position = position;
-            next.transform.rotation = rotation;
+            next.transform.SetPositionAndRotation(position, rotation);
             next.SetActive(true);
             return next;
         }
