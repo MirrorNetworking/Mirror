@@ -69,6 +69,9 @@ namespace Mirror.Examples.MultipleAdditiveScenes
             // disable object
             spawned.SetActive(false);
 
+            // move the object out of reach so OnTriggerEnter doesn't get called
+            spawned.transform.position = new Vector3(0, -1000, 0);
+
             // add back to pool
             pool.Return(spawned);
         }
