@@ -3,45 +3,51 @@ using UnityEngine;
 using System.Collections.Generic;
 
 namespace Mirror.Components.Experimental{
-  /// <summary>
-  /// Represents data sent from the client to track its current state.
-  /// </summary>
-  public struct ClientData{
-    public int ClientNonce;
-    public int ClientTick;
-    public PacketLossTracker RemoteClientLoss;
-    public int SentPackets;
-  }
-
-  /// <summary>
-  /// Represents a server response that includes synchronization data for the client tick and packet loss information.
-  /// </summary>
-  public struct ServerPong{
-    public ushort ServerTickWithNonce; // 5 bits for nonce + 11 bits for the tick
-    public ushort ClientTickWithLoss; // 5 bits for packet loss value + 11 bits for the tick
-  }
-
-  /// <summary>
-  /// Represents a server response with an absolute tick count to help the client synchronize with the server more accurately.
-  /// </summary>
-  public struct AbsoluteServerPong{
-    public ushort ServerTickWithNonce; // 5 bits for nonce + 11 bits for the tick
-    public ushort ClientTickWithLoss; // 5 bits for packet loss value + 11 bits for the tick
-    public int AbsoluteServerTick; // Absolute server tick count to sync the client
-  }
-
-  /// <summary>
-  /// Represents a client request sent to the server, including the client tick and a unique nonce for tracking.
-  /// </summary>
-  public struct ClientPing{
-    public ushort ClientTickWithNonce; // 5 bits for nonce + 11 bits for the tick
-  }
-
   // Ensure we run first and that there is only one instance present.
   [DefaultExecutionOrder(-10)]
   [DisallowMultipleComponent]
   [AddComponentMenu("Network/Network Tick Manager")]
   public class NetworkTickManager : NetworkBehaviour{
+    /*** Struct Definitions ***/
+
+    #region Struct Definitions
+
+    /// <summary>
+    /// Represents data sent from the client to track its current state.
+    /// </summary>
+    private struct ClientData{
+      public int ClientNonce;
+      public int ClientTick;
+      public PacketLossTracker ClientToServerLoss;
+      public int SentPackets;
+    }
+
+    /// <summary>
+    /// Represents a server response that includes synchronization data for the client tick and packet loss information.
+    /// </summary>
+    private struct ServerPong{
+      public ushort ServerTickWithNonce; // 5 bits for nonce + 11 bits for the tick
+      public ushort ClientTickWithLoss; // 5 bits for packet loss value + 11 bits for the tick
+    }
+
+    /// <summary>
+    /// Represents a server response with an absolute tick count to help the client synchronize with the server more accurately.
+    /// </summary>
+    private struct AbsoluteServerPong{
+      public ushort ServerTickWithNonce; // 5 bits for nonce + 11 bits for the tick
+      public ushort ClientTickWithLoss; // 5 bits for packet loss value + 11 bits for the tick
+      public int AbsoluteServerTick; // Absolute server tick count to sync the client
+    }
+
+    /// <summary>
+    /// Represents a client request sent to the server, including the client tick and a unique nonce for tracking.
+    /// </summary>
+    private struct ClientPing{
+      public ushort ClientTickWithNonce; // 5 bits for nonce + 11 bits for the tick
+    }
+
+    #endregion
+
     /*** Public Definitions ***/
 
     #region Public Definitions
@@ -82,7 +88,7 @@ namespace Mirror.Components.Experimental{
     public int longCalculationSeconds = 30;
 
     [Tooltip("Tick compensation when packet loss is present: \ncompensation = loss percent / factor")] [Range(1, 30)]
-    public int packetLossCompensationFactor = 10;
+    public int packetLossCompensationFactor = 5;
 
     [Header("Absolute tick sync settings:")]
     [Min(1)]
@@ -101,7 +107,7 @@ namespace Mirror.Components.Experimental{
     #region Private Definitions
 
     // Local clients list on the server for efficient communication
-    private readonly Dictionary<NetworkConnection, ClientData> _clients = new Dictionary<NetworkConnection, ClientData>();
+    private readonly Dictionary<int, ClientData> _clients = new Dictionary<int, ClientData>();
 
     // Instance of NetworkTick used for managing and changing the tick counters
     private readonly NetworkTick _networkTick = new NetworkTick();
@@ -110,7 +116,6 @@ namespace Mirror.Components.Experimental{
     private int _internalClientRunaway = 0;
     private int _internalServerRunaway = 0;
     private int _internalMinClientRunaway = 0;
-
     private int _internalMinServerRunaway = 0;
 
     // Running minimum counters used to avoid adjusting too fast and oscillating back and forth
@@ -121,6 +126,7 @@ namespace Mirror.Components.Experimental{
 
     // Client side packet loss tracker for packets from the server
     private PacketLossTracker _receivePacketLoss;
+    private int _lastSentServerToClientCompensation;
 
     // Server and Client last nonce values - used to dettect packet losses
     private int _serverNonce = 0;
@@ -150,15 +156,16 @@ namespace Mirror.Components.Experimental{
     }
 
     public static NetworkTickManager singleton;
-    
+
     void Awake() {
       if (singleton != null && singleton != this) {
         Destroy(gameObject);
         return;
       }
+
       singleton = this;
     }
-    
+
     #endregion
 
     /*** Server Startup and Setup ***/
@@ -195,16 +202,19 @@ namespace Mirror.Components.Experimental{
     /// </summary>
     /// <param name="conn">The network connection for the connected client.</param>
     [Server]
-    private void OnClientConnected(NetworkConnection conn) => _clients[conn] = new ClientData()
-      { ClientNonce = 0, ClientTick = 0, RemoteClientLoss = new PacketLossTracker(packetLossSamples), SentPackets = 0 };
+    private void OnClientConnected(NetworkConnection conn) => _clients[conn.connectionId] = new ClientData()
+      { ClientNonce = 0, ClientTick = 0, ClientToServerLoss = new PacketLossTracker(packetLossSamples), SentPackets = 0 };
 
     /// <summary>
-    /// Called when a client disconnects from the server. Removes the client entry from the _clients dictionary
+    /// Called when a client disconnects from the server. Removes the client entry from the _clients dictionary and clears NetworkTick
     /// to free up resources and maintain an accurate list of active clients.
     /// </summary>
     /// <param name="conn">The network connection for the disconnected client.</param>
     [Server]
-    private void OnClientDisconnected(NetworkConnection conn) => _clients.Remove(conn);
+    private void OnClientDisconnected(NetworkConnection conn) {
+      _clients.Remove(conn.connectionId);
+      _networkTick.ServerClearCompensations(conn.connectionId);
+    }
 
     #endregion
 
@@ -402,7 +412,7 @@ namespace Mirror.Components.Experimental{
         return;
       }
 
-      // Wait until we receive positive tick from server before starting the initial 2 step sync  
+      // Wait until we receive positive tick from server before starting the initial 2 step sync
       if (clientTick > 0) {
         SynchronizeStart(serverTick, clientTick);
         ResetRunningMins();
@@ -479,7 +489,7 @@ namespace Mirror.Components.Experimental{
         _networkTick.IncrementServerAbsoluteTick(-serverAdjustment);
       }
 
-      // If client or server are adjusting we need to wait for confirmation to avoid oscillating adjusments 
+      // If client or server are adjusting we need to wait for confirmation to avoid oscillating adjusments
       if (clientAdjustment != 0 || serverAdjustment != 0)
         SetAdjusting(NetworkTick.IncrementTick(_networkTick.GetClientTick(), deltaTicks + clientAdjustment));
 
@@ -555,6 +565,16 @@ namespace Mirror.Components.Experimental{
       // Increase nonce by 1 but keep withing 5 bits of data [0-31]
       _clientNonce = NextNonce(_clientNonce);
       CmdPingServer(new ClientPing() { ClientTickWithNonce = NetworkTick.CombineBitsTick(_clientNonce, _networkTick.GetClientTick()) });
+
+      // 0-30 % are reported on change but 31 or higher are aggregated as just 31 ( more than 30% packet loss is extreme! )
+      var compressedLoss = Math.Min(31, (int)Math.Ceiling(_receivePacketLoss.Loss));
+
+      // Only send if compensation value changed ( loss % can be volatile )
+      var compensationTicks = CalculateTickCompensation(compressedLoss);
+      if (compensationTicks != _lastSentServerToClientCompensation) {
+        CmdUpdateServerToClientLoss((byte)compressedLoss);
+        _lastSentServerToClientCompensation = compensationTicks;
+      }
     }
 
     /// <summary> Sends synchronization updates to all connected clients, including tick counts and packet loss information. </summary>
@@ -563,15 +583,17 @@ namespace Mirror.Components.Experimental{
       // Increase nonce by 1 but keep withing 5 bits of data [0-31]
       _serverNonce = NextNonce(_serverNonce);
       var absoluteServerTick = _networkTick.GetServerAbsoluteTick();
-      var isSendAbsolute = absoluteServerTick % _absoluteServerTickModulus == 0;
+      var isSendAbsolute = (absoluteServerTick % _absoluteServerTickModulus) == 0;
       var serverTickWithNonce = NetworkTick.CombineBitsTick(_serverNonce, _networkTick.GetServerTick());
       foreach (NetworkConnectionToClient conn in NetworkServer.connections.Values) {
         // If connection is on the same machine as the server we skip it.
         if (conn == NetworkServer.localConnection) continue;
 
-        if (_clients.TryGetValue(conn, out ClientData clientData)) {
+        if (_clients.TryGetValue(conn.connectionId, out ClientData clientData)) {
           // 0-30 % are reported regularly but 31 or higher are aggregated as just 31 ( mor ethan 30% packet loss is extreme! )
-          int compressedLoss = Math.Min(31, (int)Math.Ceiling(clientData.RemoteClientLoss.Loss));
+          int compressedLoss = Math.Min(31, (int)Math.Ceiling(clientData.ClientToServerLoss.Loss));
+          // Update client to server compensation ticks
+          _networkTick.ServerSetClientToServerCompensation(conn.connectionId, CalculateTickCompensation(compressedLoss));
 
           if (isSendAbsolute || clientData.SentPackets < absoluteTickSyncHandshakeTicks)
             // If requested by interval or during hand shake send absolute tick alongside tick information
@@ -593,7 +615,7 @@ namespace Mirror.Components.Experimental{
 
           // Count how many packets were sent
           clientData.SentPackets += 1;
-          _clients[conn] = clientData;
+          _clients[conn.connectionId] = clientData;
         }
       }
     }
@@ -630,15 +652,26 @@ namespace Mirror.Components.Experimental{
     /// <param name="connectionToClient">The connection to the client sending the ping.</param>
     [Command(requiresAuthority = false, channel = Channels.Unreliable)]
     private void CmdPingServer(ClientPing clientPing, NetworkConnectionToClient connectionToClient = null) {
-      if (connectionToClient == null) return;
+      if (connectionToClient is null || !_clients.TryGetValue(connectionToClient.connectionId, out var clientData)) return;
       var (nonce, clientTick) = NetworkTick.SplitCombinedBitsTick(clientPing.ClientTickWithNonce);
-      _clients[connectionToClient].RemoteClientLoss.AddPacket(NextNonce(_clients[connectionToClient].ClientNonce) != nonce);
-      _clients[connectionToClient] = new ClientData() {
-        ClientTick = clientTick,
-        ClientNonce = nonce,
-        RemoteClientLoss = _clients[connectionToClient].RemoteClientLoss,
-        SentPackets = _clients[connectionToClient].SentPackets,
-      };
+
+      // Update packet loss, new tick and nonce
+      clientData.ClientToServerLoss.AddPacket(NextNonce(_clients[connectionToClient.connectionId].ClientNonce) != nonce);
+      clientData.ClientTick = clientTick;
+      clientData.ClientNonce = nonce;
+
+      _clients[connectionToClient.connectionId] = clientData;
+    }
+
+    /// <summary> Receives the client's reported server-to-client packet loss % and updates the server-side NetworkTick compensation accordingly. </summary>
+    [Command(requiresAuthority = false, channel = Channels.Reliable)]
+    private void CmdUpdateServerToClientLoss(byte serverToClientLoss, NetworkConnectionToClient connectionToClient = null) {
+      if (connectionToClient is null) return;
+      // We update the compensation base on loss % to compensation ticks, we calculate compensation on the server. (max 31%)
+      _networkTick.ServerSetServerToClientCompensation(
+        connectionId: connectionToClient.connectionId,
+        compensation: CalculateTickCompensation(Math.Min(31, (int)serverToClientLoss))
+      );
     }
 
     #endregion
@@ -677,7 +710,7 @@ namespace Mirror.Components.Experimental{
     }
 
     /// <summary>
-    /// Generates the next nonce value by incrementing the current nonce. 
+    /// Generates the next nonce value by incrementing the current nonce.
     /// The nonce is a looping 5-bit variable (0-31), ensuring it wraps around correctly when reaching 31.
     /// </summary>
     /// <param name="startNonce">The starting nonce value to increment.</param>
@@ -686,7 +719,7 @@ namespace Mirror.Components.Experimental{
 
     /// <summary>
     /// Calculates the tick compensation based on packet loss and a predefined compensation factor.
-    /// This is used to adjust for lost packets, smoothing gameplay experience based on the 
+    /// This is used to adjust for lost packets, smoothing gameplay experience based on the
     /// `packetLossCompensationFactor`.
     /// </summary>
     /// <param name="loss">The packet loss percentage used to calculate compensation ticks.</param>

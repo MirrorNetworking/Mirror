@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Mirror.Components.Experimental{
   public class NetworkTick{
@@ -21,6 +22,47 @@ namespace Mirror.Components.Experimental{
     // Packet loss compensation ticks
     private static int _clientToServerPacketLossCompensation = 0;
     private static int _serverToClientPacketLossCompensation = 0;
+
+    // Holds server-only data for tracking tick compensations for incoming and outgoing packets.
+    private static readonly Dictionary<int, int> ServerToClientCompensations = new();
+    private static readonly Dictionary<int, int> ClientToServerCompensations = new();
+
+    #endregion
+
+    /*** SERVER ONLY METHODS ***/
+
+    #region SERVER ONLY METHODS
+
+    /// <summary> Provides server-only methods for retrieving compensation values. </summary>
+    public static class Server{
+      /// <summary> Gets the server-to-client compensation for the specified connection ID. Throws an exception if called from a non-server context. </summary>
+      public static int GetServerToClientCompensation(int connectionId) => _isServer
+        ? ServerToClientCompensations.GetValueOrDefault(connectionId, 0)
+        : throw new InvalidOperationException("Server.GetServerToClientCompensation is server-only and cannot be accessed on the client.");
+
+      /// <summary> Gets the client-to-server compensation for the specified connection ID. Throws an exception if called from a non-server context. </summary>
+      public static int GetClientToServerCompensation(int connectionId) => _isServer
+        ? ClientToServerCompensations.GetValueOrDefault(connectionId, 0)
+        : throw new InvalidOperationException("Server.GetServerToClientCompensation is server-only and cannot be accessed on the client.");
+    }
+
+    /// <summary> Sets the server-to-client compensation value based on connection ID. Throws an exception if called from a non-server context. </summary>
+    public void ServerSetServerToClientCompensation(int connectionId, int compensation) =>
+      ServerToClientCompensations[connectionId] = _isServer
+        ? Math.Max(compensation, 0)
+        : throw new InvalidOperationException("ServerSetServerToClientCompensation is server-only.");
+
+    /// <summary> Sets the client-to-server compensation value based on connection ID. Throws an exception if called from a non-server context. </summary>
+    public void ServerSetClientToServerCompensation(int connectionId, int compensation) =>
+      ClientToServerCompensations[connectionId] = _isServer
+        ? Math.Max(compensation, 0)
+        : throw new InvalidOperationException("ServerSetServerToClientCompensation is server-only.");
+
+    /// <summary> Removes both server-to-client and client-to-server compensation entries for the specified connection ID on the server. </summary>
+    public void ServerClearCompensations(int connectionId) {
+      ServerToClientCompensations.Remove(connectionId);
+      ClientToServerCompensations.Remove(connectionId);
+    }
 
     #endregion
 
@@ -230,12 +272,12 @@ namespace Mirror.Components.Experimental{
     }
 
     /// <summary>
-    /// Increments a tick value by a specified amount, wrapping around within a 2048 tick range.
+    /// Increments a tick value by a specified amount, wrapping around within a 2047 tick range.
     /// This function ensures that tick values stay within a defined range by handling wraparound correctly.
     /// </summary>
     /// <param name="tick">The initial tick value.</param>
     /// <param name="increment">The amount to increment the tick by.</param>
-    /// <returns>The incremented tick value, wrapped within the 2048 range.</returns>
+    /// <returns>The incremented tick value, wrapped within the 2047 range.</returns>
     public static int IncrementTick(int tick, int increment) {
       return (tick + increment) & 0b11111111111;
     }
