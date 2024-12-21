@@ -103,10 +103,10 @@ namespace Mirror.Components.Experimental{
     /// <summary> Represents the tick number for the player's state, validated to be within the range [0, 2047]. </summary>
     /// <exception cref="ArgumentOutOfRangeException"> Thrown if the tick number is outside the range [0, 2047]. </exception>
     public int? TickNumber {
-        get => _tickNumber;
-        set => _tickNumber = value is null or < 0 or > 2047
-            ? throw new ArgumentOutOfRangeException(nameof(value), $"Invalid TickNumber: {value}. It must be between 0 and 2047.")
-            : value % 2048;
+      get => _tickNumber;
+      set => _tickNumber = value is null or < 0 or > 2047
+        ? throw new ArgumentOutOfRangeException(nameof(value), $"Invalid TickNumber: {value}. It must be between 0 and 2047.")
+        : value % 2048;
     }
 
     #endregion
@@ -263,7 +263,7 @@ namespace Mirror.Components.Experimental{
     /// <param name="byteArray1">The first ReadOnlyMemory<byte>? to compare, can be null. </param>
     /// <param name="byteArray2">The second ReadOnlyMemory<byte>? to compare, can be null. </param>
     /// <returns> Comparison by value </returns>
-    static bool ByteArraysEqual(ReadOnlyMemory<byte>? byteArray1, ReadOnlyMemory<byte>? byteArray2) {
+    private static bool ByteArraysEqual(in ReadOnlyMemory<byte>? byteArray1, in ReadOnlyMemory<byte>? byteArray2) {
       // If both are null, they are equal
       if (byteArray1 == null && byteArray2 == null) return true;
 
