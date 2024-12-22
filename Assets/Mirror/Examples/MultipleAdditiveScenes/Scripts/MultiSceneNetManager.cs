@@ -105,9 +105,10 @@ namespace Mirror.Examples.MultipleAdditiveScenes
             }
 
             Spawner.InitializePool(rewardPrefab, poolSize);
-            for (int index = 0; index < subScenes.Count; index++)
-                if (subScenes[index].IsValid())
-                    Spawner.InitialSpawn(subScenes[index]);
+
+            foreach (Scene scene in subScenes)
+                if (scene.IsValid())
+                    Spawner.InitialSpawn(scene);
 
             subscenesLoaded = true;
         }
@@ -118,7 +119,10 @@ namespace Mirror.Examples.MultipleAdditiveScenes
         public override void OnStopServer()
         {
             NetworkServer.SendToAll(new SceneMessage { sceneName = gameScene, sceneOperation = SceneOperation.UnloadAdditive });
-            if (gameObject.activeSelf) StartCoroutine(ServerUnloadSubScenes());
+            
+            if (gameObject.activeSelf) 
+                StartCoroutine(ServerUnloadSubScenes());
+
             Spawner.ClearPool();
             clientIndex = 0;
         }
