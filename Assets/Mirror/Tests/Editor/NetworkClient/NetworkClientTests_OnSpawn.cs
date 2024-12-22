@@ -400,7 +400,7 @@ namespace Mirror.Tests.NetworkClients
             SpawnMessage msg = new SpawnMessage
             {
                 netId = netId,
-                authorityFlags = AuthorityFlags.isOwner,
+                authorityFlags = isOwner ? AuthorityFlags.isOwner : 0,
                 sceneId = 0,
                 assetId = 0,
                 // use local values for VR support
