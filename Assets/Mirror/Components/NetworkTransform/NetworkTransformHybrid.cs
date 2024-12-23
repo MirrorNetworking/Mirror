@@ -280,9 +280,9 @@ namespace Mirror
             ));
         }
 
-        // rpc baseline ////////////////////////////////////////////////////////
+        // rpc server to client ////////////////////////////////////////////////
         [ClientRpc(channel = Channels.Reliable)] // reliable baseline
-        void RpcServerToClientBaseline_PositionRotationScale(byte baselineTick, Vector3 position, Quaternion rotation, Vector3 scale)
+        void RpcServerToClientBaseline(ArraySegment<byte> data)
         {
             // baseline is broadcast to all clients.
             // ignore if this object is owned by this client.
@@ -293,156 +293,39 @@ namespace Mirror
             // in other words: never apply the rpcs in host mode.
             if (isServer) return;
 
-            // save last deserialized baseline tick number to compare deltas against
-            lastDeserializedBaselineTick = baselineTick;
-            lastDeserializedBaselinePosition = position;
-            lastDeserializedBaselineRotation = rotation;
-            lastDeserializedBaselineScale = scale;
+            using (NetworkReaderPooled reader = NetworkReaderPool.Get(data))
+            {
+                // deserialize
+                Vector3?    position = null;
+                Quaternion? rotation = null;
+                Vector3?    scale    = null;
 
-            // debug draw: baseline
-            if (debugDraw) Debug.DrawLine(position, position + Vector3.up, Color.yellow, 10f);
+                // save last deserialized baseline tick number to compare deltas against
+                lastDeserializedBaselineTick = reader.ReadByte();
 
-            // if baseline counts as delta, insert it into snapshot buffer too
-            if (baselineIsDelta)
-                OnServerToClientDeltaSync(baselineTick, position, rotation, scale);
-        }
+                if (syncPosition)
+                {
+                    position = reader.ReadVector3();
+                    lastDeserializedBaselinePosition = position.Value;
+                }
+                if (syncRotation)
+                {
+                    rotation = reader.ReadQuaternion();
+                    lastDeserializedBaselineRotation = rotation.Value;
+                }
+                if (syncScale)
+                {
+                    scale    = reader.ReadVector3();
+                    lastDeserializedBaselineScale = scale.Value;
+                }
 
-        [ClientRpc(channel = Channels.Reliable)] // reliable baseline
-        void RpcServerToClientBaseline_PositionRotation(byte baselineTick, Vector3 position, Quaternion rotation)
-        {
-            // baseline is broadcast to all clients.
-            // ignore if this object is owned by this client.
-            if (IsClientWithAuthority) return;
+               // debug draw: baseline = yellow
+                if (debugDraw && position.HasValue) Debug.DrawLine(position.Value, position.Value + Vector3.up, Color.yellow, 10f);
 
-            // host mode: baseline Rpc is also sent through host's local connection and applied.
-            // applying host's baseline as last deserialized would overwrite the owner client's data and cause jitter.
-            // in other words: never apply the rpcs in host mode.
-            if (isServer) return;
-
-            // save last deserialized baseline tick number to compare deltas against
-            lastDeserializedBaselineTick = baselineTick;
-            lastDeserializedBaselinePosition = position;
-            lastDeserializedBaselineRotation = rotation;
-
-            // debug draw: baseline
-            if (debugDraw) Debug.DrawLine(position, position + Vector3.up, Color.yellow, 10f);
-
-            // if baseline counts as delta, insert it into snapshot buffer too
-            if (baselineIsDelta)
-                OnServerToClientDeltaSync(baselineTick, position, rotation, Vector3.one);
-        }
-
-        [ClientRpc(channel = Channels.Reliable)] // reliable baseline
-        void RpcServerToClientBaseline_PositionScale(byte baselineTick, Vector3 position, Vector3 scale)
-        {
-            // baseline is broadcast to all clients.
-            // ignore if this object is owned by this client.
-            if (IsClientWithAuthority) return;
-
-            // host mode: baseline Rpc is also sent through host's local connection and applied.
-            // applying host's baseline as last deserialized would overwrite the owner client's data and cause jitter.
-            // in other words: never apply the rpcs in host mode.
-            if (isServer) return;
-
-            // save last deserialized baseline tick number to compare deltas against
-            lastDeserializedBaselineTick = baselineTick;
-            lastDeserializedBaselinePosition = position;
-            lastDeserializedBaselineScale    = scale;
-
-            // debug draw: baseline
-            if (debugDraw) Debug.DrawLine(position, position + Vector3.up, Color.yellow, 10f);
-
-            // if baseline counts as delta, insert it into snapshot buffer too
-            if (baselineIsDelta)
-                OnServerToClientDeltaSync(baselineTick, position, Quaternion.identity, scale);
-        }
-
-        [ClientRpc(channel = Channels.Reliable)] // reliable baseline
-        void RpcServerToClientBaseline_RotationScale(byte baselineTick, Quaternion rotation, Vector3 scale)
-        {
-            // baseline is broadcast to all clients.
-            // ignore if this object is owned by this client.
-            if (IsClientWithAuthority) return;
-
-            // host mode: baseline Rpc is also sent through host's local connection and applied.
-            // applying host's baseline as last deserialized would overwrite the owner client's data and cause jitter.
-            // in other words: never apply the rpcs in host mode.
-            if (isServer) return;
-
-            // save last deserialized baseline tick number to compare deltas against
-            lastDeserializedBaselineTick = baselineTick;
-            lastDeserializedBaselineRotation = rotation;
-            lastDeserializedBaselineScale    = scale;
-
-            // if baseline counts as delta, insert it into snapshot buffer too
-            if (baselineIsDelta)
-                OnServerToClientDeltaSync(baselineTick, Vector3.zero, rotation, scale);
-        }
-
-        [ClientRpc(channel = Channels.Reliable)] // reliable baseline
-        void RpcServerToClientBaseline_Position(byte baselineTick, Vector3 position)
-        {
-            // baseline is broadcast to all clients.
-            // ignore if this object is owned by this client.
-            if (IsClientWithAuthority) return;
-
-            // host mode: baseline Rpc is also sent through host's local connection and applied.
-            // applying host's baseline as last deserialized would overwrite the owner client's data and cause jitter.
-            // in other words: never apply the rpcs in host mode.
-            if (isServer) return;
-
-            // save last deserialized baseline tick number to compare deltas against
-            lastDeserializedBaselineTick = baselineTick;
-            lastDeserializedBaselinePosition = position;
-
-            // debug draw: baseline
-            if (debugDraw) Debug.DrawLine(position, position + Vector3.up, Color.yellow, 10f);
-
-            // if baseline counts as delta, insert it into snapshot buffer too
-            if (baselineIsDelta)
-                OnServerToClientDeltaSync(baselineTick, position, Quaternion.identity, Vector3.one);
-        }
-
-        [ClientRpc(channel = Channels.Reliable)] // reliable baseline
-        void RpcServerToClientBaseline_Rotation(byte baselineTick, Quaternion rotation)
-        {
-            // baseline is broadcast to all clients.
-            // ignore if this object is owned by this client.
-            if (IsClientWithAuthority) return;
-
-            // host mode: baseline Rpc is also sent through host's local connection and applied.
-            // applying host's baseline as last deserialized would overwrite the owner client's data and cause jitter.
-            // in other words: never apply the rpcs in host mode.
-            if (isServer) return;
-
-            // save last deserialized baseline tick number to compare deltas against
-            lastDeserializedBaselineTick = baselineTick;
-            lastDeserializedBaselineRotation = rotation;
-
-            // if baseline counts as delta, insert it into snapshot buffer too
-            if (baselineIsDelta)
-                OnServerToClientDeltaSync(baselineTick, Vector3.zero, rotation, Vector3.one);
-        }
-
-        [ClientRpc(channel = Channels.Reliable)] // reliable baseline
-        void RpcServerToClientBaseline_Scale(byte baselineTick, Vector3 scale)
-        {
-            // baseline is broadcast to all clients.
-            // ignore if this object is owned by this client.
-            if (IsClientWithAuthority) return;
-
-            // host mode: baseline Rpc is also sent through host's local connection and applied.
-            // applying host's baseline as last deserialized would overwrite the owner client's data and cause jitter.
-            // in other words: never apply the rpcs in host mode.
-            if (isServer) return;
-
-            // save last deserialized baseline tick number to compare deltas against
-            lastDeserializedBaselineTick = baselineTick;
-            lastDeserializedBaselineScale = scale;
-
-            // if baseline counts as delta, insert it into snapshot buffer too
-            if (baselineIsDelta)
-                OnServerToClientDeltaSync(baselineTick, Vector3.zero, Quaternion.identity, scale);
+                // if baseline counts as delta, insert it into snapshot buffer too
+                if (baselineIsDelta)
+                    OnServerToClientDeltaSync(lastDeserializedBaselineTick, position, rotation, scale);
+            }
         }
 
         // rpc delta ///////////////////////////////////////////////////////////
@@ -564,7 +447,7 @@ namespace Mirror
         }
 
         // server broadcasts sync message to all clients
-        protected virtual void OnServerToClientDeltaSync(byte baselineTick, Vector3 position, Quaternion rotation, Vector3 scale)
+        protected virtual void OnServerToClientDeltaSync(byte baselineTick, Vector3? position, Quaternion? rotation, Vector3? scale)
         {
             // in host mode, the server sends rpcs to all clients.
             // the host client itself will receive them too.
@@ -582,7 +465,7 @@ namespace Mirror
             if (baselineTick != lastDeserializedBaselineTick)
             {
                 // debug draw: drop
-                if (debugDraw) Debug.DrawLine(position, position + Vector3.up, Color.red, 10f);
+                if (debugDraw && position.HasValue) Debug.DrawLine(position.Value, position.Value + Vector3.up, Color.red, 10f);
 
                 // this can happen if unreliable arrives before reliable etc.
                 // no need to log this except when debugging.
@@ -618,9 +501,9 @@ namespace Mirror
                 new TransformSnapshot(
                 timestamp,             // arrival remote timestamp. NOT remote time.
                 NetworkTime.localTime, // Unity 2019 doesn't have Time.timeAsDouble yet
-                position,
-                rotation,
-                scale
+                position.HasValue ? position.Value : Vector3.zero,
+                rotation.HasValue ? rotation.Value : Quaternion.identity,
+                scale.HasValue ? scale.Value : Vector3.one
             ));
         }
 
@@ -645,45 +528,17 @@ namespace Mirror
                 // -> Vector3? and Quaternion? nullables takes more bandwidth
                 byte frameCount = (byte)Time.frameCount; // perf: only access Time.frameCount once!
 
-                if (syncPosition && syncRotation && syncScale)
+                using (NetworkWriterPooled writer = NetworkWriterPool.Get())
                 {
-                    // no unreliable redundancy: baseline is reliable
-                    RpcServerToClientBaseline_PositionRotationScale(frameCount, position, rotation, scale);
-                }
-                else if (syncPosition && syncRotation)
-                {
-                    // no unreliable redundancy: baseline is reliable
-                    RpcServerToClientBaseline_PositionRotation(frameCount, position, rotation);
-                }
-                else if (syncPosition && syncScale)
-                {
-                    // no unreliable redundancy: baseline is reliable
-                    RpcServerToClientBaseline_PositionScale(frameCount, position, scale);
-                }
-                else if (syncRotation && syncScale)
-                {
-                    // no unreliable redundancy: baseline is reliable
-                    RpcServerToClientBaseline_RotationScale(frameCount, rotation, scale);
-                }
-                else if (syncPosition)
-                {
-                    // no unreliable redundancy: baseline is reliable
-                    RpcServerToClientBaseline_Position(frameCount, position);
-                }
-                else if (syncRotation)
-                {
-                    // no unreliable redundancy: baseline is reliable
-                    RpcServerToClientBaseline_Rotation(frameCount, rotation);
-                }
-                else if (syncScale)
-                {
-                    // no unreliable redundancy: baseline is reliable
-                    RpcServerToClientBaseline_Scale(frameCount, scale);
-                }
+                    // serialize
+                    writer.WriteByte(frameCount);
+                    if (syncPosition) writer.WriteVector3(position);
+                    if (syncRotation) writer.WriteQuaternion(rotation);
+                    if (syncScale)    writer.WriteVector3(scale);
 
-                // position, rotation, scale
-                // position, rotation, !scale
-                // position,
+                    // send (no need for redundancy since baseline is reliable)
+                    RpcServerToClientBaseline(writer);
+                }
 
                 // save the last baseline's tick number.
                 // included in baseline to identify which one it was on client
