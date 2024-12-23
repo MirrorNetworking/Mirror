@@ -1,6 +1,7 @@
 // base class for "Hybrid" sync components.
 // inspired by the Quake networking model, but made to scale.
 // https://www.jfedor.org/quake3/
+using System;
 using UnityEngine;
 
 namespace Mirror
@@ -31,6 +32,112 @@ namespace Mirror
         {
             lastSerializedBaselineTick = 0;
             lastDeserializedBaselineTick = 0;
+        }
+
+        // update server ///////////////////////////////////////////////////////
+        // write all baseline sync data in here. this is sent over reliable.
+        // TODO reuse in OnSerialize?
+        // TODO reuse for ClientToServer?
+        protected abstract void OnSerializeServerBaseline(NetworkWriter writer);
+
+        // TODO move some of this Rpc's code into the base class here for convenience
+        protected abstract void RpcServerToClientBaseline(ArraySegment<byte> data);
+
+        protected virtual void UpdateServerBaseline(double localTime)
+        {
+            // send a reliable baseline every 1 Hz
+            if (localTime < lastBaselineTime + baselineInterval) return;
+
+            // Debug.Log($"UpdateServerBaseline for {name}");
+
+            // save bandwidth by only transmitting what is needed.
+            // -> ArraySegment with random data is slower since byte[] copying
+            // -> Vector3? and Quaternion? nullables takes more bandwidth
+            byte frameCount = (byte)Time.frameCount; // perf: only access Time.frameCount once!
+
+            using (NetworkWriterPooled writer = NetworkWriterPool.Get())
+            {
+                // always include baseline tick
+                writer.WriteByte(frameCount);
+                // include user serialization
+                OnSerializeServerBaseline(writer);
+
+                // TODO
+                // send (no need for redundancy since baseline is reliable)
+                RpcServerToClientBaseline(writer);
+            }
+
+            // save the last baseline's tick number.
+            // included in baseline to identify which one it was on client
+            // included in deltas to ensure they are on top of the correct baseline
+            lastSerializedBaselineTick = frameCount;
+            lastBaselineTime = NetworkTime.localTime;
+
+            // perf. & bandwidth optimization:
+            // send a delta right after baseline to avoid potential head of
+            // line blocking, or skip the delta whenever we sent reliable?
+            // for example:
+            //    1 Hz baseline
+            //   10 Hz delta
+            //   => 11 Hz total if we still send delta after reliable
+            //   => 10 Hz total if we skip delta after reliable
+            // in that case, skip next delta by simply resetting last delta sync's time.
+            if (baselineIsDelta) lastDeltaTime = localTime;
+        }
+
+        protected virtual void UpdateServerDelta(double localTime)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected virtual void UpdateServerSync()
+        {
+            // server broadcasts all objects all the time.
+            // -> not just ServerToClient: ClientToServer need to be broadcast to others too
+
+            // perf: only grab NetworkTime.localTime property once.
+            double localTime = NetworkTime.localTime;
+
+            // broadcast
+            UpdateServerBaseline(localTime);
+            UpdateServerDelta(localTime);
+        }
+
+        // update client ///////////////////////////////////////////////////////
+        protected virtual void UpdateClientBaseline(double localTime)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected virtual void UpdateClientDelta(double localTime)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected virtual void UpdateClientSync()
+        {
+            // client authority, and local player (= allowed to move myself)?
+            if (IsClientWithAuthority)
+            {
+                // https://github.com/vis2k/Mirror/pull/2992/
+                if (!NetworkClient.ready) return;
+
+                // perf: only grab NetworkTime.localTime property once.
+                double localTime = NetworkTime.localTime;
+
+                UpdateClientBaseline(localTime);
+                UpdateClientDelta(localTime);
+            }
+        }
+
+        // Update() without LateUpdate() split: otherwise perf. is cut in half!
+        protected virtual void Update()
+        {
+            // if server then always sync to others.
+            if (isServer) UpdateServerSync();
+            // 'else if' because host mode shouldn't send anything to server.
+            // it is the server. don't overwrite anything there.
+            else if (isClient) UpdateClientSync();
         }
 
         // OnSerialize(initial) is called every time when a player starts observing us.

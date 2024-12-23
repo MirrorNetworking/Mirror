@@ -263,8 +263,9 @@ namespace Mirror
         }
 
         // rpc server to client ////////////////////////////////////////////////
+        // TODO move some of this Rpc's code into the base class here for convenience
         [ClientRpc(channel = Channels.Reliable)] // reliable baseline
-        void RpcServerToClientBaseline(ArraySegment<byte> data)
+        protected override void RpcServerToClientBaseline(ArraySegment<byte> data)
         {
             // baseline is broadcast to all clients.
             // ignore if this object is owned by this client.
@@ -404,64 +405,36 @@ namespace Mirror
         }
 
         // update server ///////////////////////////////////////////////////////
-        void UpdateServerBaseline(double localTime)
+        protected override void OnSerializeServerBaseline(NetworkWriter writer)
         {
+            // perf: get position/rotation directly. TransformSnapshot is too expensive.
+            // TransformSnapshot snapshot = ConstructSnapshot();
+            target.GetLocalPositionAndRotation(out Vector3 position, out Quaternion rotation);
+            Vector3 scale = target.localScale;
+
+            if (syncPosition) writer.WriteVector3(position);
+            if (syncRotation) writer.WriteQuaternion(rotation);
+            if (syncScale)    writer.WriteVector3(scale);
+
+            // save last baseline data
+            lastSerializedBaselinePosition = position;
+            lastSerializedBaselineRotation = rotation;
+            lastSerializedBaselineScale = scale;
+
+            // baseline was just sent after a change. reset change detection.
+            changedSinceBaseline = false;
+        }
+
+        protected override void UpdateServerBaseline(double localTime)
+        {
+            // TODO move change detection to base later? or not?
             // only sync on change: only resend baseline if changed since last.
             if (onlySyncOnChange && !changedSinceBaseline) return;
 
-            // send a reliable baseline every 1 Hz
-            if (localTime >= lastBaselineTime + baselineInterval)
-            {
-                // Debug.Log($"UpdateServerBaseline for {name}");
-
-                // perf: get position/rotation directly. TransformSnapshot is too expensive.
-                // TransformSnapshot snapshot = ConstructSnapshot();
-                target.GetLocalPositionAndRotation(out Vector3 position, out Quaternion rotation);
-                Vector3 scale = target.localScale;
-
-                // save bandwidth by only transmitting what is needed.
-                // -> ArraySegment with random data is slower since byte[] copying
-                // -> Vector3? and Quaternion? nullables takes more bandwidth
-                byte frameCount = (byte)Time.frameCount; // perf: only access Time.frameCount once!
-
-                using (NetworkWriterPooled writer = NetworkWriterPool.Get())
-                {
-                    // serialize
-                    writer.WriteByte(frameCount);
-                    if (syncPosition) writer.WriteVector3(position);
-                    if (syncRotation) writer.WriteQuaternion(rotation);
-                    if (syncScale)    writer.WriteVector3(scale);
-
-                    // send (no need for redundancy since baseline is reliable)
-                    RpcServerToClientBaseline(writer);
-                }
-
-                // save the last baseline's tick number.
-                // included in baseline to identify which one it was on client
-                // included in deltas to ensure they are on top of the correct baseline
-                lastSerializedBaselineTick = frameCount;
-                lastBaselineTime = NetworkTime.localTime;
-                lastSerializedBaselinePosition = position;
-                lastSerializedBaselineRotation = rotation;
-                lastSerializedBaselineScale = scale;
-
-                // baseline was just sent after a change. reset change detection.
-                changedSinceBaseline = false;
-
-                // perf. & bandwidth optimization:
-                // send a delta right after baseline to avoid potential head of
-                // line blocking, or skip the delta whenever we sent reliable?
-                // for example:
-                //    1 Hz baseline
-                //   10 Hz delta
-                //   => 11 Hz total if we still send delta after reliable
-                //   => 10 Hz total if we skip delta after reliable
-                // in that case, skip next delta by simply resetting last delta sync's time.
-                if (baselineIsDelta) lastDeltaTime = localTime;
-            }
+            base.UpdateServerBaseline(localTime);
         }
 
-        void UpdateServerDelta(double localTime)
+        protected override void UpdateServerDelta(double localTime)
         {
             // broadcast to all clients each 'sendInterval'
             // (client with authority will drop the rpc)
@@ -566,24 +539,8 @@ namespace Mirror
             }
         }
 
-        void UpdateServer()
-        {
-            // server broadcasts all objects all the time.
-            // -> not just ServerToClient: ClientToServer need to be broadcast to others too
-
-            // perf: only grab NetworkTime.localTime property once.
-            double localTime = NetworkTime.localTime;
-
-            // broadcast
-            UpdateServerBaseline(localTime);
-            UpdateServerDelta(localTime);
-
-            // interpolate remote clients
-            UpdateServerInterpolation();
-        }
-
         // update client ///////////////////////////////////////////////////////
-        void UpdateClientBaseline(double localTime)
+        protected override void UpdateClientBaseline(double localTime)
         {
             // only sync on change: only resend baseline if changed since last.
             if (onlySyncOnChange && !changedSinceBaseline) return;
@@ -634,7 +591,7 @@ namespace Mirror
             }
         }
 
-        void UpdateClientDelta(double localTime)
+        protected override void UpdateClientDelta(double localTime)
         {
             // send to server each 'sendInterval'
             // NetworkTime.localTime for double precision until Unity has it too
@@ -720,36 +677,22 @@ namespace Mirror
             }
         }
 
-        void UpdateClient()
-        {
-            // client authority, and local player (= allowed to move myself)?
-            if (IsClientWithAuthority)
-            {
-                // https://github.com/vis2k/Mirror/pull/2992/
-                if (!NetworkClient.ready) return;
-
-                // perf: only grab NetworkTime.localTime property once.
-                double localTime = NetworkTime.localTime;
-
-                UpdateClientBaseline(localTime);
-                UpdateClientDelta(localTime);
-            }
-            // for all other clients (and for local player if !authority),
-            // we need to apply snapshots from the buffer
-            else
-            {
-                UpdateClientInterpolation();
-            }
-        }
-
         // Update() without LateUpdate() split: otherwise perf. is cut in half!
-        void Update()
+        protected override void Update()
         {
-            // if server then always sync to others.
-            if (isServer) UpdateServer();
-            // 'else if' because host mode shouldn't send anything to server.
-            // it is the server. don't overwrite anything there.
-            else if (isClient) UpdateClient();
+            base.Update(); // NetworkBehaviourHybrid
+
+            if (isServer)
+            {
+                // interpolate remote clients
+                UpdateServerInterpolation();
+            }
+            // 'else if' because host mode shouldn't update both.
+            else if (isClient)
+            {
+                // interpolate remote client (and local player if no authority)
+                if (!IsClientWithAuthority) UpdateClientInterpolation();
+            }
         }
 
         // common Teleport code for client->server and server->client
