@@ -1401,8 +1401,8 @@ namespace Mirror
                 SpawnMessage message = new SpawnMessage
                 {
                     netId = identity.netId,
-                    isLocalPlayer = conn.identity == identity,
-                    isOwner = isOwner,
+                    authorityFlags = (isOwner ? AuthorityFlags.isOwner : 0)
+                                   | (conn.identity == identity ? AuthorityFlags.isLocalPlayer : 0),
                     sceneId = identity.sceneId,
                     assetId = identity.assetId,
                     // use local values for VR support
@@ -1453,8 +1453,8 @@ namespace Mirror
             conn.Send(new ChangeOwnerMessage
             {
                 netId = identity.netId,
-                isOwner = identity.connectionToClient == conn,
-                isLocalPlayer = (conn.identity == identity && identity.connectionToClient == conn)
+                authorityFlags = identity.connectionToClient == conn ? AuthorityFlags.isOwner : 0
+                               | (conn.identity == identity && identity.connectionToClient == conn ? AuthorityFlags.isLocalPlayer : 0)
             });
         }
 

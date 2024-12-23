@@ -52,13 +52,18 @@ namespace Mirror
         public ArraySegment<byte> payload;
     }
 
+    [Flags] public enum AuthorityFlags : byte
+    {
+        None = 0,
+        isOwner = 1,
+        isLocalPlayer = 2
+    }
+
     public struct SpawnMessage : NetworkMessage
     {
         // netId of new or existing object
         public uint netId;
-        public bool isLocalPlayer;
-        // Sets hasAuthority on the spawned object
-        public bool isOwner;
+        public AuthorityFlags authorityFlags;
         public ulong sceneId;
         // If sceneId != 0 then it is used instead of assetId
         public uint assetId;
@@ -71,13 +76,42 @@ namespace Mirror
         // serialized component data
         // ArraySegment to avoid unnecessary allocations
         public ArraySegment<byte> payload;
+
+        // Deprecated 2024-12-22
+        [Obsolete("Use authorityFlags enum instead")]
+        public bool isOwner
+        {
+            get => authorityFlags.HasFlag(AuthorityFlags.isOwner);
+            set => authorityFlags = value ? authorityFlags | AuthorityFlags.isOwner : authorityFlags & ~AuthorityFlags.isOwner;
+        }
+
+        [Obsolete("Use authorityFlags enum instead")]
+        public bool isLocalPlayer
+        {
+            get => authorityFlags.HasFlag(AuthorityFlags.isLocalPlayer);
+            set => authorityFlags = value ? authorityFlags | AuthorityFlags.isLocalPlayer : authorityFlags & ~AuthorityFlags.isLocalPlayer;
+        }
     }
 
     public struct ChangeOwnerMessage : NetworkMessage
     {
         public uint netId;
-        public bool isOwner;
-        public bool isLocalPlayer;
+        public AuthorityFlags authorityFlags;
+
+        // Deprecated 2024-12-22
+        [Obsolete("Use authorityFlags enum instead")]
+        public bool isOwner
+        {
+            get => authorityFlags.HasFlag(AuthorityFlags.isOwner);
+            set => authorityFlags = value ? authorityFlags | AuthorityFlags.isOwner : authorityFlags & ~AuthorityFlags.isOwner;
+        }
+
+        [Obsolete("Use authorityFlags enum instead")]
+        public bool isLocalPlayer
+        {
+            get => authorityFlags.HasFlag(AuthorityFlags.isLocalPlayer);
+            set => authorityFlags = value ? authorityFlags | AuthorityFlags.isLocalPlayer : authorityFlags & ~AuthorityFlags.isLocalPlayer;
+        }
     }
 
     public struct ObjectSpawnStartedMessage : NetworkMessage {}

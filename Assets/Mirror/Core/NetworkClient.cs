@@ -1123,10 +1123,10 @@ namespace Mirror
             // the below DeserializeClient call invokes SyncVarHooks.
             // flags always need to be initialized before that.
             // fixes: https://github.com/MirrorNetworking/Mirror/issues/3259
-            identity.isOwned = message.isOwner;
+            identity.isOwned = message.authorityFlags.HasFlag(AuthorityFlags.isOwner);
             identity.netId = message.netId;
 
-            if (message.isLocalPlayer)
+            if (message.authorityFlags.HasFlag(AuthorityFlags.isLocalPlayer))
                 InternalAddPlayer(identity);
 
             // configure isClient/isLocalPlayer flags.
@@ -1349,17 +1349,17 @@ namespace Mirror
             if (NetworkServer.spawned.TryGetValue(message.netId, out NetworkIdentity identity) && identity != null)
             {
                 spawned[message.netId] = identity;
-                if (message.isOwner) connection.owned.Add(identity);
+                if (message.authorityFlags.HasFlag(AuthorityFlags.isOwner)) connection.owned.Add(identity);
 
                 // now do the actual 'spawning' on host mode
-                if (message.isLocalPlayer)
+                if (message.authorityFlags.HasFlag(AuthorityFlags.isLocalPlayer))
                     InternalAddPlayer(identity);
 
                 // set visibility before invoking OnStartClient etc. callbacks
                 if (aoi != null)
                     aoi.SetHostVisibility(identity, true);
 
-                identity.isOwned = message.isOwner;
+                identity.isOwned = message.authorityFlags.HasFlag(AuthorityFlags.isOwner);
                 BootstrapIdentity(identity);
             }
         }
@@ -1457,13 +1457,13 @@ namespace Mirror
         {
             // local player before, but not anymore?
             // call OnStopLocalPlayer before setting new values.
-            if (identity.isLocalPlayer && !message.isLocalPlayer)
+            if (identity.isLocalPlayer && !message.authorityFlags.HasFlag(AuthorityFlags.isLocalPlayer))
             {
                 identity.OnStopLocalPlayer();
             }
 
             // set ownership flag (aka authority)
-            identity.isOwned = message.isOwner;
+            identity.isOwned = message.authorityFlags.HasFlag(AuthorityFlags.isOwner);
 
             // Add / Remove to client's connectionToServer.owned hashset.
             if (identity.isOwned)
@@ -1475,7 +1475,7 @@ namespace Mirror
             identity.NotifyAuthority();
 
             // set localPlayer flag
-            identity.isLocalPlayer = message.isLocalPlayer;
+            identity.isLocalPlayer = message.authorityFlags.HasFlag(AuthorityFlags.isLocalPlayer);
 
             // identity is now local player. set our static helper field to it.
             if (identity.isLocalPlayer)
