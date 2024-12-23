@@ -46,7 +46,7 @@ Many of our features quickly became the norm across all Unity netcodes!<br>
 | 🪚️ **IL Post Processing**    | Zero overhead [Rpcs] and [Commands] via IL post processing!                                                                                                   | **Stable**      |
 | ☁️ **Two Click Hosting**      | (Optional) <a href="https://mirror-networking.gitbook.io/docs/hosting/edgegap-hosting-plugin-guide">Build & Push</a> directly from Unity Editor to the Cloud. | **Stable**     |
 |                               |                                                                                                                                                               |                 |
-| 📏 **Snapshot Interp.**       | Perfectly smooth movement for all platforms and all games.                                                                                                    | **Stable**      |
+| 📏 **Snapshot Interpolation**       | Perfectly smooth movement for all platforms & genres.                                                                                                    | **Stable**      |
 | 🔫 **Lag Compensation**       | Roll back state to see what the player saw during input.                                                                                                      | **Beta**     |
 | 🔒 **Encryption**             | Secure communication with end-to-end encryption.                                                                                                              | **Beta** |
 | 🔒 **Cheat Detection**        | Mirror Guard safely detects Melon Loader & more.                                                                                                              | **Beta** |
