@@ -50,7 +50,7 @@ Many of our features quickly became the norm across all Unity netcodes!<br>
 | 🔫 **Lag Compensation**       | Roll back state to see what the player saw during input.                                                                                                      | **Beta**     |
 | 🔒 **Encryption**             | Secure communication with end-to-end encryption.                                                                                                              | **Beta** |
 | 🔒 **Cheat Detection**        | Mirror Guard safely detects Melon Loader & more.                                                                                                              | **Beta** |
-| 🚀 **Unreliable Mode**       | (Optional) Quake style Unreliable SyncMode for any component                                                                                                      | **Experimental**     |
+| 🚀 **Unreliable Mode**       | Quake style Unreliable SyncMode for any component.                                                                                                      | **Development**     |
 |                               |                                                                                                                                                               |                 |
 | 🧙‍♂️ **General Purpose**     | Mirror supports all genres for all your games!                                                                                                                |                 |
 | 🧘‍♀️ **Stable API**          | Long term (10 years)  stability instead of new versions!                                                                                                      |
