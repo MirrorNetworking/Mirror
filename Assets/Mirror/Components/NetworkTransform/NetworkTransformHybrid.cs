@@ -328,9 +328,8 @@ namespace Mirror
             }
         }
 
-        // rpc delta ///////////////////////////////////////////////////////////
         [ClientRpc(channel = Channels.Unreliable)] // unreliable delta
-        void RpcServerToClientDelta_PositionRotationScale(byte baselineTick, Vector3 position, Quaternion rotation, Vector3 scale)
+        void RpcServerToClientDelta(ArraySegment<byte> data)
         {
             // delta is broadcast to all clients.
             // ignore if this object is owned by this client.
@@ -341,109 +340,24 @@ namespace Mirror
             // in other words: never apply the rpcs in host mode.
             if (isServer) return;
 
-            // debug draw: delta
-            if (debugDraw) Debug.DrawLine(position, position + Vector3.up, Color.white, 10f);
+            // deserialize
+            using (NetworkReaderPooled reader = NetworkReaderPool.Get(data))
+            {
+                Vector3? position = null;
+                Quaternion? rotation = null;
+                Vector3? scale = null;
 
-            OnServerToClientDeltaSync(baselineTick, position, rotation, scale);
-        }
+                byte baselineTick = reader.ReadByte();
 
-        [ClientRpc(channel = Channels.Unreliable)] // unreliable delta
-        void RpcServerToClientDelta_PositionRotation(byte baselineTick, Vector3 position, Quaternion rotation)
-        {
-            // delta is broadcast to all clients.
-            // ignore if this object is owned by this client.
-            if (IsClientWithAuthority) return;
+                if (syncPosition) position = reader.ReadVector3();
+                if (syncRotation) rotation = reader.ReadQuaternion();
+                if (syncScale)    scale    = reader.ReadVector3();
 
-            // host mode: baseline Rpc is also sent through host's local connection and applied.
-            // applying host's baseline as last deserialized would overwrite the owner client's data and cause jitter.
-            // in other words: never apply the rpcs in host mode.
-            if (isServer) return;
+                // debug draw: delta = white
+                if (debugDraw && position.HasValue) Debug.DrawLine(position.Value, position.Value + Vector3.up, Color.white, 10f);
 
-            // debug draw: delta
-            if (debugDraw) Debug.DrawLine(position, position + Vector3.up, Color.white, 10f);
-
-            OnServerToClientDeltaSync(baselineTick, position, rotation, Vector3.one);
-        }
-
-        [ClientRpc(channel = Channels.Unreliable)] // unreliable delta
-        void RpcServerToClientDelta_PositionScale(byte baselineTick, Vector3 position, Vector3 scale)
-        {
-            // delta is broadcast to all clients.
-            // ignore if this object is owned by this client.
-            if (IsClientWithAuthority) return;
-
-            // host mode: baseline Rpc is also sent through host's local connection and applied.
-            // applying host's baseline as last deserialized would overwrite the owner client's data and cause jitter.
-            // in other words: never apply the rpcs in host mode.
-            if (isServer) return;
-
-            // debug draw: delta
-            if (debugDraw) Debug.DrawLine(position, position + Vector3.up, Color.white, 10f);
-
-            OnServerToClientDeltaSync(baselineTick, position, Quaternion.identity, scale);
-        }
-
-        [ClientRpc(channel = Channels.Unreliable)] // unreliable delta
-        void RpcServerToClientDelta_RotationScale(byte baselineTick, Quaternion rotation, Vector3 scale)
-        {
-            // delta is broadcast to all clients.
-            // ignore if this object is owned by this client.
-            if (IsClientWithAuthority) return;
-
-            // host mode: baseline Rpc is also sent through host's local connection and applied.
-            // applying host's baseline as last deserialized would overwrite the owner client's data and cause jitter.
-            // in other words: never apply the rpcs in host mode.
-            if (isServer) return;
-
-            OnServerToClientDeltaSync(baselineTick, Vector3.zero, rotation, scale);
-        }
-
-        [ClientRpc(channel = Channels.Unreliable)] // unreliable delta
-        void RpcServerToClientDelta_Position(byte baselineTick, Vector3 position)
-        {
-            // delta is broadcast to all clients.
-            // ignore if this object is owned by this client.
-            if (IsClientWithAuthority) return;
-
-            // host mode: baseline Rpc is also sent through host's local connection and applied.
-            // applying host's baseline as last deserialized would overwrite the owner client's data and cause jitter.
-            // in other words: never apply the rpcs in host mode.
-            if (isServer) return;
-
-            // debug draw: delta
-            if (debugDraw) Debug.DrawLine(position, position + Vector3.up, Color.white, 10f);
-
-            OnServerToClientDeltaSync(baselineTick, position, Quaternion.identity, Vector3.one);
-        }
-
-        [ClientRpc(channel = Channels.Unreliable)] // unreliable delta
-        void RpcServerToClientDelta_Rotation(byte baselineTick, Quaternion rotation)
-        {
-            // delta is broadcast to all clients.
-            // ignore if this object is owned by this client.
-            if (IsClientWithAuthority) return;
-
-            // host mode: baseline Rpc is also sent through host's local connection and applied.
-            // applying host's baseline as last deserialized would overwrite the owner client's data and cause jitter.
-            // in other words: never apply the rpcs in host mode.
-            if (isServer) return;
-
-            OnServerToClientDeltaSync(baselineTick, Vector3.zero, rotation, Vector3.one);
-        }
-
-        [ClientRpc(channel = Channels.Unreliable)] // unreliable delta
-        void RpcServerToClientDelta_Scale(byte baselineTick, Vector3 scale)
-        {
-            // delta is broadcast to all clients.
-            // ignore if this object is owned by this client.
-            if (IsClientWithAuthority) return;
-
-            // host mode: baseline Rpc is also sent through host's local connection and applied.
-            // applying host's baseline as last deserialized would overwrite the owner client's data and cause jitter.
-            // in other words: never apply the rpcs in host mode.
-            if (isServer) return;
-
-            OnServerToClientDeltaSync(baselineTick, Vector3.zero, Quaternion.identity, scale);
+                OnServerToClientDeltaSync(baselineTick, position, rotation, scale);
+            }
         }
 
         // server broadcasts sync message to all clients
@@ -620,58 +534,18 @@ namespace Mirror
                 // unreliable isn't guaranteed to be delivered so this depends on reliable baseline.
                 if (onlySyncOnChange && !changedSinceBaseline) return;
 
-                // save bandwidth by only transmitting what is needed.
-                // -> ArraySegment with random data is slower since byte[] copying
-                // -> Vector3? and Quaternion? nullables takes more bandwidth
+                using (NetworkWriterPooled writer = NetworkWriterPool.Get())
+                {
+                    // serialize
+                    writer.WriteByte(lastSerializedBaselineTick);
+                    if (syncPosition) writer.WriteVector3(position);
+                    if (syncRotation) writer.WriteQuaternion(rotation);
+                    if (syncScale)    writer.WriteVector3(scale);
 
-                if (syncPosition && syncRotation && syncScale)
-                {
-                    // unreliable redundancy to make up for potential message drops
-                    RpcServerToClientDelta_PositionRotationScale(lastSerializedBaselineTick, position, rotation, scale);
+                    // send (with optional redundancy to make up for message drops)
+                    RpcServerToClientDelta(writer);
                     if (unreliableRedundancy)
-                        RpcServerToClientDelta_PositionRotationScale(lastSerializedBaselineTick, position, rotation, scale);
-                }
-                else if (syncPosition && syncRotation)
-                {
-                    // unreliable redundancy to make up for potential message drops
-                    RpcServerToClientDelta_PositionRotation(lastSerializedBaselineTick, position, rotation);
-                    if (unreliableRedundancy)
-                        RpcServerToClientDelta_PositionRotation(lastSerializedBaselineTick, position, rotation);
-                }
-                else if (syncPosition && syncScale)
-                {
-                    // unreliable redundancy to make up for potential message drops
-                    RpcServerToClientDelta_PositionScale(lastSerializedBaselineTick, position, scale);
-                    if (unreliableRedundancy)
-                        RpcServerToClientDelta_PositionScale(lastSerializedBaselineTick, position, scale);
-                }
-                else if (syncRotation && syncScale)
-                {
-                    // unreliable redundancy to make up for potential message drops
-                    RpcServerToClientDelta_RotationScale(lastSerializedBaselineTick, rotation, scale);
-                    if (unreliableRedundancy)
-                        RpcServerToClientDelta_RotationScale(lastSerializedBaselineTick, rotation, scale);
-                }
-                else if (syncPosition)
-                {
-                    // unreliable redundancy to make up for potential message drops
-                    RpcServerToClientDelta_Position(lastSerializedBaselineTick, position);
-                    if (unreliableRedundancy)
-                        RpcServerToClientDelta_Position(lastSerializedBaselineTick, position);
-                }
-                else if (syncRotation)
-                {
-                    // unreliable redundancy to make up for potential message drops
-                    RpcServerToClientDelta_Rotation(lastSerializedBaselineTick, rotation);
-                    if (unreliableRedundancy)
-                        RpcServerToClientDelta_Rotation(lastSerializedBaselineTick, rotation);
-                }
-                else if (syncScale)
-                {
-                    // unreliable redundancy to make up for potential message drops
-                    RpcServerToClientDelta_Scale(lastSerializedBaselineTick, scale);
-                    if (unreliableRedundancy)
-                        RpcServerToClientDelta_Scale(lastSerializedBaselineTick, scale);
+                        RpcServerToClientDelta(writer);
                 }
 
                 lastDeltaTime = localTime;
