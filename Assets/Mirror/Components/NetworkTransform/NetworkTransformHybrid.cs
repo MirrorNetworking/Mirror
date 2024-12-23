@@ -15,7 +15,7 @@ using UnityEngine;
 namespace Mirror
 {
     [AddComponentMenu("Network/Network Transform Hybrid")]
-    public class NetworkTransformHybrid : NetworkBehaviour
+    public class NetworkTransformHybrid : NetworkBehaviourHybrid
     {
         // target transform to sync. can be on a child.
         [Header("Target")]
@@ -39,22 +39,14 @@ namespace Mirror
         public float sendInterval => 1f / sendRate;
         // END CUSTOM CHANGE
 
-        [Tooltip("Occasionally send a full reliable state to delta compress against. This only applies to Components with SyncMethod=Unreliable.")]
-        public int baselineRate = 1;
-        public float baselineInterval => baselineRate < int.MaxValue ? 1f / baselineRate : 0; // for 1 Hz, that's 1000ms
-        double lastBaselineTime;
-        double lastDeltaTime;
-
         // delta compression needs to remember 'last' to compress against.
         // this is from reliable full state serializations, not from last
         // unreliable delta since that isn't guaranteed to be delivered.
-        byte lastSerializedBaselineTick = 0;
         Vector3 lastSerializedBaselinePosition = Vector3.zero;
         Quaternion lastSerializedBaselineRotation = Quaternion.identity;
         Vector3 lastSerializedBaselineScale = Vector3.one;
 
         // save last deserialized baseline to delta decompress against
-        byte lastDeserializedBaselineTick = 0;
         Vector3 lastDeserializedBaselinePosition = Vector3.zero;                // unused, but keep for delta
         Quaternion lastDeserializedBaselineRotation = Quaternion.identity;      // unused, but keep for delta
         Vector3 lastDeserializedBaselineScale = Vector3.one;                    // unused, but keep for delta
@@ -84,12 +76,6 @@ namespace Mirror
         public float positionSensitivity = 0.01f;
         public float rotationSensitivity = 0.01f;
         public float scaleSensitivity    = 0.01f;
-
-        [Tooltip("Enable to send all unreliable messages twice. Only useful for extremely fast-paced games since it doubles bandwidth costs.")]
-        public bool unreliableRedundancy = false;
-
-        [Tooltip("When sending a reliable baseline, should we also send an unreliable delta or rely on the reliable baseline to arrive in a similar time?")]
-        public bool baselineIsDelta = true;
 
         // selective sync //////////////////////////////////////////////////////
         [Header("Selective Sync & interpolation")]
@@ -886,8 +872,10 @@ namespace Mirror
             RpcTeleport(destination, rotation);
         }
 
-        public virtual void Reset()
+        public override void Reset()
         {
+            base.Reset(); // NetworkBehaviourHybrid
+
             // default to ClientToServer so this works immediately for users
             syncDirection = SyncDirection.ClientToServer;
 
@@ -897,13 +885,11 @@ namespace Mirror
             clientSnapshots.Clear();
 
             // reset baseline
-            lastSerializedBaselineTick = 0;
             lastSerializedBaselinePosition = Vector3.zero;
             lastSerializedBaselineRotation = Quaternion.identity;
             lastSerializedBaselineScale    = Vector3.one;
             changedSinceBaseline = false;
 
-            lastDeserializedBaselineTick = 0;
             lastDeserializedBaselinePosition = Vector3.zero;
             lastDeserializedBaselineRotation = Quaternion.identity;
             lastDeserializedBaselineScale    = Vector3.one;
@@ -919,6 +905,8 @@ namespace Mirror
             // OnSerialize(initial) is called every time when a player starts observing us.
             // note this is _not_ called just once on spawn.
 
+            base.OnSerialize(writer, initialState); // NetworkBehaviourHybrid
+
             // sync target component's position on spawn.
             // fixes https://github.com/vis2k/Mirror/pull/3051/
             // (Spawn message wouldn't sync NTChild positions either)
@@ -929,10 +917,6 @@ namespace Mirror
                 // TransformSnapshot snapshot = ConstructSnapshot();
                 target.GetLocalPositionAndRotation(out Vector3 position, out Quaternion rotation);
                 Vector3 scale = target.localScale;
-
-                // always include the tick for deltas to compare against.
-                byte frameCount = (byte)Time.frameCount; // perf: only access Time.frameCount once!
-                writer.WriteByte(frameCount);
 
                 if (syncPosition) writer.WriteVector3(position);
                 if (syncRotation) writer.WriteQuaternion(rotation);
@@ -948,8 +932,6 @@ namespace Mirror
                 //   - new observer -> OnSerialize sends current position @ t=2
                 //   - server broadcasts delta for baseline @ t=1
                 //   => client's baseline is t=2 but receives delta for t=1 _!_
-                lastSerializedBaselineTick = frameCount;
-                lastBaselineTime = NetworkTime.localTime;
                 lastSerializedBaselinePosition = position;
                 lastSerializedBaselineRotation = rotation;
                 lastSerializedBaselineScale    = scale;
@@ -958,13 +940,14 @@ namespace Mirror
 
         public override void OnDeserialize(NetworkReader reader, bool initialState)
         {
+            base.OnDeserialize(reader, initialState); // NetworkBehaviourHybrid
+
             // sync target component's position on spawn.
             // fixes https://github.com/vis2k/Mirror/pull/3051/
             // (Spawn message wouldn't sync NTChild positions either)
             if (initialState)
             {
                 // save last deserialized baseline tick number to compare deltas against
-                lastDeserializedBaselineTick = reader.ReadByte();
                 Vector3 position = Vector3.zero;
                 Quaternion rotation = Quaternion.identity;
                 Vector3 scale = Vector3.one;
