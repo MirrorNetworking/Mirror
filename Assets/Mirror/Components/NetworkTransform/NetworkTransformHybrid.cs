@@ -178,115 +178,63 @@ namespace Mirror
             return false;
         }
 
-        // cmd baseline ////////////////////////////////////////////////////////
+        // cmd client to server ////////////////////////////////////////////////
         [Command(channel = Channels.Reliable)] // reliable baseline
-        void CmdClientToServerBaseline_PositionRotationScale(byte baselineTick, Vector3 position, Quaternion rotation, Vector3 scale)
+        void CmdClientToServerBaseline(ArraySegment<byte> data)
         {
-            lastDeserializedBaselineTick = baselineTick;
-            lastDeserializedBaselinePosition = position;
-            lastDeserializedBaselineRotation = rotation;
-            lastDeserializedBaselineScale    = scale;
+            // deserialize
+            using (NetworkReaderPooled reader = NetworkReaderPool.Get(data))
+            {
+                // deserialize
+                Vector3? position = null;
+                Quaternion? rotation = null;
+                Vector3? scale = null;
 
-            // debug draw: baseline
-            if (debugDraw) Debug.DrawLine(position, position + Vector3.up, Color.yellow, 10f);
+                // save last deserialized baseline tick number to compare deltas against
+                lastDeserializedBaselineTick = reader.ReadByte();
 
-            // if baseline counts as delta, insert it into snapshot buffer too
-            if (baselineIsDelta)
-                OnClientToServerDeltaSync(baselineTick, position, rotation, scale);
+                if (syncPosition)
+                {
+                    position = reader.ReadVector3();
+                    lastDeserializedBaselinePosition = position.Value;
+                }
+                if (syncRotation)
+                {
+                    rotation = reader.ReadQuaternion();
+                    lastDeserializedBaselineRotation = rotation.Value;
+                }
+                if (syncScale)
+                {
+                    scale = reader.ReadVector3();
+                    lastDeserializedBaselineScale = scale.Value;
+                }
+
+                // debug draw: new baseline = yellow
+                if (debugDraw && position.HasValue) Debug.DrawLine(position.Value, position.Value + Vector3.up, Color.yellow, 10f);
+
+                // if baseline counts as delta, insert it into snapshot buffer too
+                if (baselineIsDelta)
+                    OnClientToServerDeltaSync(lastDeserializedBaselineTick, position, rotation, scale);
+            }
         }
 
-        [Command(channel = Channels.Reliable)] // reliable baseline
-        void CmdClientToServerBaseline_PositionRotation(byte baselineTick, Vector3 position, Quaternion rotation)
-        {
-            lastDeserializedBaselineTick = baselineTick;
-            lastDeserializedBaselinePosition = position;
-            lastDeserializedBaselineRotation = rotation;
-
-            // debug draw: baseline
-            if (debugDraw) Debug.DrawLine(position, position + Vector3.up, Color.yellow, 10f);
-
-            // if baseline counts as delta, insert it into snapshot buffer too
-            if (baselineIsDelta)
-                OnClientToServerDeltaSync(baselineTick, position, rotation, Vector3.one);
-        }
-
-        [Command(channel = Channels.Reliable)] // reliable baseline
-        void CmdClientToServerBaseline_PositionScale(byte baselineTick, Vector3 position, Vector3 scale)
-        {
-            lastDeserializedBaselineTick = baselineTick;
-            lastDeserializedBaselinePosition = position;
-            lastDeserializedBaselineScale    = scale;
-
-            // debug draw: baseline
-            if (debugDraw) Debug.DrawLine(position, position + Vector3.up, Color.yellow, 10f);
-
-            // if baseline counts as delta, insert it into snapshot buffer too
-            if (baselineIsDelta)
-                OnClientToServerDeltaSync(baselineTick, position, Quaternion.identity, scale);
-        }
-
-        [Command(channel = Channels.Reliable)] // reliable baseline
-        void CmdClientToServerBaseline_RotationScale(byte baselineTick, Quaternion rotation, Vector3 scale)
-        {
-            lastDeserializedBaselineTick = baselineTick;
-            lastDeserializedBaselineRotation = rotation;
-            lastDeserializedBaselineScale    = scale;
-
-            // if baseline counts as delta, insert it into snapshot buffer too
-            if (baselineIsDelta)
-                OnClientToServerDeltaSync(baselineTick, Vector3.zero, rotation, scale);
-        }
-
-        [Command(channel = Channels.Reliable)] // reliable baseline
-        void CmdClientToServerBaseline_Position(byte baselineTick, Vector3 position)
-        {
-            lastDeserializedBaselineTick = baselineTick;
-            lastDeserializedBaselinePosition = position;
-
-            // debug draw: baseline
-            if (debugDraw) Debug.DrawLine(position, position + Vector3.up, Color.yellow, 10f);
-
-            // if baseline counts as delta, insert it into snapshot buffer too
-            if (baselineIsDelta)
-                OnClientToServerDeltaSync(baselineTick, position, Quaternion.identity, Vector3.one);
-        }
-
-        [Command(channel = Channels.Reliable)] // reliable baseline
-        void CmdClientToServerBaseline_Rotation(byte baselineTick, Quaternion rotation)
-        {
-            lastDeserializedBaselineTick = baselineTick;
-            lastDeserializedBaselineRotation = rotation;
-
-            // if baseline counts as delta, insert it into snapshot buffer too
-            if (baselineIsDelta)
-                OnClientToServerDeltaSync(baselineTick, Vector3.zero, rotation, Vector3.one);
-        }
-
-        [Command(channel = Channels.Reliable)] // reliable baseline
-        void CmdClientToServerBaseline_Scale(byte baselineTick, Vector3 scale)
-        {
-            lastDeserializedBaselineTick = baselineTick;
-            lastDeserializedBaselineScale = scale;
-
-            // if baseline counts as delta, insert it into snapshot buffer too
-            if (baselineIsDelta)
-                OnClientToServerDeltaSync(baselineTick, Vector3.zero, Quaternion.identity, scale);
-        }
-
-        // cmd delta ///////////////////////////////////////////////////////////
         [Command(channel = Channels.Unreliable)] // unreliable delta
         void CmdClientToServerDelta(ArraySegment<byte> data)
         {
             using (NetworkReaderPooled reader = NetworkReaderPool.Get(data))
             {
                 // deserialize
-                byte baselineTick = reader.ReadByte();
                 Vector3?    position = null;
                 Quaternion? rotation = null;
                 Vector3?    scale    = null;
+
+                byte baselineTick = reader.ReadByte();
                 if (syncPosition) position = reader.ReadVector3();
                 if (syncRotation) rotation = reader.ReadQuaternion();
                 if (syncScale)    scale    = reader.ReadVector3();
+
+                // debug draw: new delta = white
+                if (debugDraw && position.HasValue) Debug.DrawLine(position.Value, position.Value + Vector3.up, Color.white, 10f);
 
                 // process
                 OnClientToServerDeltaSync(baselineTick, position, rotation, scale);
@@ -311,9 +259,6 @@ namespace Mirror
                 // Debug.Log($"[{name}] Server: received delta for wrong baseline #{baselineTick} from: {connectionToClient}. Last was {lastDeserializedBaselineTick}. Ignoring.");
                 return;
             }
-
-            // debug draw: new position
-            if (debugDraw && position.HasValue) Debug.DrawLine(position.Value, position.Value + Vector3.up, Color.white, 10f);
 
             // protect against ever-growing buffer size attacks
             if (serverSnapshots.Count >= connectionToClient.snapshotBufferSizeLimit) return;
@@ -940,45 +885,17 @@ namespace Mirror
                 target.GetLocalPositionAndRotation(out Vector3 position, out Quaternion rotation);
                 Vector3 scale = target.localScale;
 
-                // save bandwidth by only transmitting what is needed.
-                // -> ArraySegment with random data is slower since byte[] copying
-                // -> Vector3? and Quaternion? nullables takes more bandwidth
                 byte frameCount = (byte)Time.frameCount; // perf: only access Time.frameCount once!
+                using (NetworkWriterPooled writer = NetworkWriterPool.Get())
+                {
+                    // serialize
+                    writer.WriteByte(frameCount);
+                    if (syncPosition) writer.WriteVector3(position);
+                    if (syncRotation) writer.WriteQuaternion(rotation);
+                    if (syncScale)    writer.WriteVector3(scale);
 
-                if (syncPosition && syncRotation && syncScale)
-                {
-                    // no unreliable redundancy: baseline is reliable
-                    CmdClientToServerBaseline_PositionRotationScale(frameCount, position, rotation, scale);
-                }
-                else if (syncPosition && syncRotation)
-                {
-                    // no unreliable redundancy: baseline is reliable
-                    CmdClientToServerBaseline_PositionRotation(frameCount, position, rotation);
-                }
-                else if (syncPosition && syncScale)
-                {
-                    // no unreliable redundancy: baseline is reliable
-                    CmdClientToServerBaseline_PositionScale(frameCount, position, scale);
-                }
-                else if (syncRotation && syncScale)
-                {
-                    // no unreliable redundancy: baseline is reliable
-                    CmdClientToServerBaseline_RotationScale(frameCount, rotation, scale);
-                }
-                else if (syncPosition)
-                {
-                    // no unreliable redundancy: baseline is reliable
-                    CmdClientToServerBaseline_Position(frameCount, position);
-                }
-                else if (syncRotation)
-                {
-                    // no unreliable redundancy: baseline is reliable
-                    CmdClientToServerBaseline_Rotation(frameCount, rotation);
-                }
-                else if (syncScale)
-                {
-                    // no unreliable redundancy: baseline is reliable
-                    CmdClientToServerBaseline_Scale(frameCount, scale);
+                    // send (no unreliable redundancy: baseline is reliable)
+                    CmdClientToServerBaseline(writer);
                 }
 
                 // save the last baseline's tick number.
