@@ -42,7 +42,10 @@ namespace Mirror
         protected abstract void OnSerializeServerDelta(NetworkWriter writer);
 
         // TODO move some of this Rpc's code into the base class here for convenience
+        [ClientRpc(channel = Channels.Reliable)]
         protected abstract void RpcServerToClientBaseline(ArraySegment<byte> data);
+
+        [ClientRpc(channel = Channels.Unreliable)]
         protected abstract void RpcServerToClientDelta(ArraySegment<byte> data);
 
         // this can be used for change detection
