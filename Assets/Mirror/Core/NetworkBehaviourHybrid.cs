@@ -43,13 +43,13 @@ namespace Mirror
         protected abstract void OnSerializeClientBaseline(NetworkWriter writer);
 
         // TODO move some of this Rpc's code into the base class here for convenience
-        [ClientRpc(channel = Channels.Reliable)]
+        //[ClientRpc(channel = Channels.Reliable)] <- define this when inheriting!
         protected abstract void RpcServerToClientBaseline(ArraySegment<byte> data);
 
-        [ClientRpc(channel = Channels.Unreliable)]
+        //[ClientRpc(channel = Channels.Unreliable)] <- define this when inheriting!
         protected abstract void RpcServerToClientDelta(ArraySegment<byte> data);
 
-        [Command(channel = Channels.Reliable)]
+        //[Command(channel = Channels.Reliable)] <- define this when inheriting!
         protected abstract void CmdClientToServerBaseline(ArraySegment<byte> data);
 
         // this can be used for change detection
