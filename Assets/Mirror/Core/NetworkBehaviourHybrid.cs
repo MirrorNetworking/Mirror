@@ -41,6 +41,7 @@ namespace Mirror
         protected abstract void OnSerializeServerBaseline(NetworkWriter writer);
         protected abstract void OnSerializeServerDelta(NetworkWriter writer);
         protected abstract void OnSerializeClientBaseline(NetworkWriter writer);
+        protected abstract void OnSerializeClientDelta(NetworkWriter writer);
 
         // TODO move some of this Rpc's code into the base class here for convenience
         //[ClientRpc(channel = Channels.Reliable)] <- define this when inheriting!
@@ -52,10 +53,14 @@ namespace Mirror
         //[Command(channel = Channels.Reliable)] <- define this when inheriting!
         protected abstract void CmdClientToServerBaseline(ArraySegment<byte> data);
 
+        //[Command(channel = Channels.Unreliable)] <- define this when inheriting!
+        protected abstract void CmdClientToServerDelta(ArraySegment<byte> data);
+
         // this can be used for change detection
         protected virtual bool ShouldSyncServerBaseline(double localTime) => true;
         protected virtual bool ShouldSyncServerDelta(double localTime) => true;
         protected virtual bool ShouldSyncClientBaseline(double localTime) => true;
+        protected virtual bool ShouldSyncClientDelta(double localTime) => true;
 
         // update server ///////////////////////////////////////////////////////
         protected virtual void UpdateServerBaseline(double localTime)
@@ -212,7 +217,46 @@ namespace Mirror
 
         protected virtual void UpdateClientDelta(double localTime)
         {
-            throw new NotImplementedException();
+            // send to server each 'sendInterval'
+            // NetworkTime.localTime for double precision until Unity has it too
+            //
+            // IMPORTANT:
+            // snapshot interpolation requires constant sending.
+            // DO NOT only send if position changed. for example:
+            // ---
+            // * client sends first position at t=0
+            // * ... 10s later ...
+            // * client moves again, sends second position at t=10
+            // ---
+            // * server gets first position at t=0
+            // * server gets second position at t=10
+            // * server moves from first to second within a time of 10s
+            //   => would be a super slow move, instead of a wait & move.
+            //
+            // IMPORTANT:
+            // DO NOT send nulls if not changed 'since last send' either. we
+            // send unreliable and don't know which 'last send' the other end
+            // received successfully.
+
+            if (localTime < lastDeltaTime + syncInterval) return;
+
+            // user check for change detection etc.
+            if (!ShouldSyncClientDelta(localTime)) return;
+
+            using (NetworkWriterPooled writer = NetworkWriterPool.Get())
+            {
+                // include baseline tick that this delta is meant for
+                writer.WriteByte(lastSerializedBaselineTick);
+                // include user serialization
+                OnSerializeClientDelta(writer);
+
+                // send (with optional redundancy to make up for message drops)
+                CmdClientToServerDelta(writer);
+                if (unreliableRedundancy)
+                    CmdClientToServerDelta(writer);
+            }
+
+            lastDeltaTime = localTime;
         }
 
         protected virtual void UpdateClientSync()

@@ -202,7 +202,7 @@ namespace Mirror
         }
 
         [Command(channel = Channels.Unreliable)] // unreliable delta
-        void CmdClientToServerDelta(ArraySegment<byte> data)
+        protected override void CmdClientToServerDelta(ArraySegment<byte> data)
         {
             using (NetworkReaderPooled reader = NetworkReaderPool.Get(data))
             {
@@ -526,6 +526,18 @@ namespace Mirror
             changedSinceBaseline = false;
         }
 
+        protected override void OnSerializeClientDelta(NetworkWriter writer)
+        {
+            // perf: get position/rotation directly. TransformSnapshot is too expensive.
+            // TransformSnapshot snapshot = ConstructSnapshot();
+            target.GetLocalPositionAndRotation(out Vector3 position, out Quaternion rotation);
+            Vector3 scale = target.localScale;
+
+            if (syncPosition) writer.WriteVector3(position);
+            if (syncRotation) writer.WriteQuaternion(rotation);
+            if (syncScale)    writer.WriteVector3(scale);
+        }
+
         protected override bool ShouldSyncClientBaseline(double localTime)
         {
             // TODO move change detection to base later? or not?
@@ -535,66 +547,30 @@ namespace Mirror
             return true;
         }
 
-        protected override void UpdateClientDelta(double localTime)
+        protected override bool ShouldSyncClientDelta(double localTime)
         {
-            // send to server each 'sendInterval'
-            // NetworkTime.localTime for double precision until Unity has it too
+            // perf: get position/rotation directly. TransformSnapshot is too expensive.
+            // TransformSnapshot snapshot = ConstructSnapshot();
+            target.GetLocalPositionAndRotation(out Vector3 position, out Quaternion rotation);
+            Vector3 scale = target.localScale;
+
+            // look for changes every unreliable sendInterval!
             //
-            // IMPORTANT:
-            // snapshot interpolation requires constant sending.
-            // DO NOT only send if position changed. for example:
-            // ---
-            // * client sends first position at t=0
-            // * ... 10s later ...
-            // * client moves again, sends second position at t=10
-            // ---
-            // * server gets first position at t=0
-            // * server gets second position at t=10
-            // * server moves from first to second within a time of 10s
-            //   => would be a super slow move, instead of a wait & move.
-            //
-            // IMPORTANT:
-            // DO NOT send nulls if not changed 'since last send' either. we
-            // send unreliable and don't know which 'last send' the other end
-            // received successfully.
-            if (localTime >= lastDeltaTime + sendInterval) // CUSTOM CHANGE: allow custom sendRate + sendInterval again
-            {
-                // perf: get position/rotation directly. TransformSnapshot is too expensive.
-                // TransformSnapshot snapshot = ConstructSnapshot();
-                target.GetLocalPositionAndRotation(out Vector3 position, out Quaternion rotation);
-                Vector3 scale = target.localScale;
+            // every reliable interval isn't enough, this would cause MrG's grid issue:
+            //   client start in A1, reliable baseline sent to server
+            //   client moves to A2, unreliabe delta sent to server
+            //   client moves to A1, nothing is sent to server becuase last baseline position == position
+            //   => server wouldn't know we moved back to A1
+            // every update works, but it's unnecessary overhead since sends only happen every sendInterval
+            // every unreliable sendInterval is the perfect place to look for changes.
+            if (onlySyncOnChange && Changed(position, rotation, scale))
+                changedSinceBaseline = true;
 
-                // look for changes every unreliable sendInterval!
-                //
-                // every reliable interval isn't enough, this would cause MrG's grid issue:
-                //   client start in A1, reliable baseline sent to server
-                //   client moves to A2, unreliabe delta sent to server
-                //   client moves to A1, nothing is sent to server becuase last baseline position == position
-                //   => server wouldn't know we moved back to A1
-                // every update works, but it's unnecessary overhead since sends only happen every sendInterval
-                // every unreliable sendInterval is the perfect place to look for changes.
-                if (onlySyncOnChange && Changed(position, rotation, scale))
-                    changedSinceBaseline = true;
+            // only sync on change:
+            // unreliable isn't guaranteed to be delivered so this depends on reliable baseline.
+            if (onlySyncOnChange && !changedSinceBaseline) return false;
 
-                // only sync on change:
-                // unreliable isn't guaranteed to be delivered so this depends on reliable baseline.
-                if (onlySyncOnChange && !changedSinceBaseline) return;
-
-                using (NetworkWriterPooled writer = NetworkWriterPool.Get())
-                {
-                    // serialize
-                    writer.WriteByte(lastSerializedBaselineTick);
-                    if (syncPosition) writer.WriteVector3(position);
-                    if (syncRotation) writer.WriteQuaternion(rotation);
-                    if (syncScale)    writer.WriteVector3(scale);
-
-                    // send (with redundancy)
-                    CmdClientToServerDelta(writer);
-                    if (unreliableRedundancy) CmdClientToServerDelta(writer);
-                }
-
-                lastDeltaTime = localTime;
-            }
+            return true;
         }
 
         void UpdateClientInterpolation()
