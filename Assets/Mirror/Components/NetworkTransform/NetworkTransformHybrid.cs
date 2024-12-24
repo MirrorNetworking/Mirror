@@ -425,13 +425,13 @@ namespace Mirror
             changedSinceBaseline = false;
         }
 
-        protected override void UpdateServerBaseline(double localTime)
+        protected override bool ShouldSyncServerBaseline(double localTime)
         {
             // TODO move change detection to base later? or not?
             // only sync on change: only resend baseline if changed since last.
-            if (onlySyncOnChange && !changedSinceBaseline) return;
+            if (onlySyncOnChange && !changedSinceBaseline) return false;
 
-            base.UpdateServerBaseline(localTime);
+            return true;
         }
 
         protected override void UpdateServerDelta(double localTime)

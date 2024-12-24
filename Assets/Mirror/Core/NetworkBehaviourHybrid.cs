@@ -43,12 +43,16 @@ namespace Mirror
         // TODO move some of this Rpc's code into the base class here for convenience
         protected abstract void RpcServerToClientBaseline(ArraySegment<byte> data);
 
+        // this can be used for change detection
+        protected virtual bool ShouldSyncServerBaseline(double localTime) => true;
+
         protected virtual void UpdateServerBaseline(double localTime)
         {
             // send a reliable baseline every 1 Hz
             if (localTime < lastBaselineTime + baselineInterval) return;
 
-            // Debug.Log($"UpdateServerBaseline for {name}");
+            // user check for change detection etc.
+            if (!ShouldSyncServerBaseline(localTime)) return;
 
             // save bandwidth by only transmitting what is needed.
             // -> ArraySegment with random data is slower since byte[] copying
