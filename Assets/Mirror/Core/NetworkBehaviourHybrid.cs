@@ -73,7 +73,6 @@ namespace Mirror
                 // include user serialization
                 OnSerializeServerBaseline(writer);
 
-                // TODO
                 // send (no need for redundancy since baseline is reliable)
                 RpcServerToClientBaseline(writer);
             }
