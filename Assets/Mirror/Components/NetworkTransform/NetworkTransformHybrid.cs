@@ -265,6 +265,38 @@ namespace Mirror
             changedSinceBaseline = false;
         }
 
+        // on server
+        protected override void OnDeserializeClientBaseline(NetworkReader reader, byte baselineTick)
+        {
+            // deserialize
+            Vector3? position = null;
+            Quaternion? rotation = null;
+            Vector3? scale = null;
+
+            if (syncPosition)
+            {
+                position = reader.ReadVector3();
+                lastDeserializedBaselinePosition = position.Value;
+            }
+            if (syncRotation)
+            {
+                rotation = reader.ReadQuaternion();
+                lastDeserializedBaselineRotation = rotation.Value;
+            }
+            if (syncScale)
+            {
+                scale = reader.ReadVector3();
+                lastDeserializedBaselineScale = scale.Value;
+            }
+
+            // debug draw: new baseline = yellow
+            if (debugDraw && position.HasValue) Debug.DrawLine(position.Value, position.Value + Vector3.up, Color.yellow, 10f);
+
+            // if baseline counts as delta, insert it into snapshot buffer too
+            if (baselineIsDelta)
+                OnClientToServerDeltaSync(lastDeserializedBaselineTick, position, rotation, scale);
+        }
+
         protected override void OnSerializeClientDelta(NetworkWriter writer)
         {
             // perf: get position/rotation directly. TransformSnapshot is too expensive.
@@ -278,45 +310,6 @@ namespace Mirror
         }
 
         // rpcs/cmds ///////////////////////////////////////////////////////////
-        [Command(channel = Channels.Reliable)] // reliable baseline
-        protected override void CmdClientToServerBaseline(ArraySegment<byte> data)
-        {
-            // deserialize
-            using (NetworkReaderPooled reader = NetworkReaderPool.Get(data))
-            {
-                // deserialize
-                Vector3? position = null;
-                Quaternion? rotation = null;
-                Vector3? scale = null;
-
-                // save last deserialized baseline tick number to compare deltas against
-                lastDeserializedBaselineTick = reader.ReadByte();
-
-                if (syncPosition)
-                {
-                    position = reader.ReadVector3();
-                    lastDeserializedBaselinePosition = position.Value;
-                }
-                if (syncRotation)
-                {
-                    rotation = reader.ReadQuaternion();
-                    lastDeserializedBaselineRotation = rotation.Value;
-                }
-                if (syncScale)
-                {
-                    scale = reader.ReadVector3();
-                    lastDeserializedBaselineScale = scale.Value;
-                }
-
-                // debug draw: new baseline = yellow
-                if (debugDraw && position.HasValue) Debug.DrawLine(position.Value, position.Value + Vector3.up, Color.yellow, 10f);
-
-                // if baseline counts as delta, insert it into snapshot buffer too
-                if (baselineIsDelta)
-                    OnClientToServerDeltaSync(lastDeserializedBaselineTick, position, rotation, scale);
-            }
-        }
-
         [Command(channel = Channels.Unreliable)] // unreliable delta
         protected override void CmdClientToServerDelta(ArraySegment<byte> data)
         {

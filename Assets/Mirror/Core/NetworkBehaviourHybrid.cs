@@ -45,10 +45,9 @@ namespace Mirror
         protected abstract void OnDeserializeServerDelta(NetworkReader reader, byte baselineTick); // on client
 
         protected abstract void OnSerializeClientBaseline(NetworkWriter writer);   // on client
-        protected abstract void OnSerializeClientDelta(NetworkWriter writer);      // on client
+        protected abstract void OnDeserializeClientBaseline(NetworkReader reader, byte baselineTick); // on client
 
-        //[Command(channel = Channels.Reliable)] <- define this when inheriting!
-        protected abstract void CmdClientToServerBaseline(ArraySegment<byte> data);
+        protected abstract void OnSerializeClientDelta(NetworkWriter writer);      // on client
 
         //[Command(channel = Channels.Unreliable)] <- define this when inheriting!
         protected abstract void CmdClientToServerDelta(ArraySegment<byte> data);
@@ -99,6 +98,18 @@ namespace Mirror
                 // deserialize
                 byte baselineTick = reader.ReadByte();
                 OnDeserializeServerDelta(reader, baselineTick);
+            }
+        }
+
+        [Command(channel = Channels.Reliable)] // reliable baseline
+        void CmdClientToServerBaseline(ArraySegment<byte> data)
+        {
+            // deserialize
+            using (NetworkReaderPooled reader = NetworkReaderPool.Get(data))
+            {
+                // deserialize
+                lastDeserializedBaselineTick = reader.ReadByte();
+                OnDeserializeClientBaseline(reader, lastDeserializedBaselineTick);
             }
         }
 
