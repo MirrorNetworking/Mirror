@@ -163,7 +163,7 @@ namespace Mirror
 
         // cmd client to server ////////////////////////////////////////////////
         [Command(channel = Channels.Reliable)] // reliable baseline
-        void CmdClientToServerBaseline(ArraySegment<byte> data)
+        protected override void CmdClientToServerBaseline(ArraySegment<byte> data)
         {
             // deserialize
             using (NetworkReaderPooled reader = NetworkReaderPool.Get(data))
@@ -506,55 +506,33 @@ namespace Mirror
         }
 
         // update client ///////////////////////////////////////////////////////
-        protected override void UpdateClientBaseline(double localTime)
+        protected override void OnSerializeClientBaseline(NetworkWriter writer)
         {
+            // perf: get position/rotation directly. TransformSnapshot is too expensive.
+            // TransformSnapshot snapshot = ConstructSnapshot();
+            target.GetLocalPositionAndRotation(out Vector3 position, out Quaternion rotation);
+            Vector3 scale = target.localScale;
+
+            if (syncPosition) writer.WriteVector3(position);
+            if (syncRotation) writer.WriteQuaternion(rotation);
+            if (syncScale)    writer.WriteVector3(scale);
+
+            // save last baseline data
+            lastSerializedBaselinePosition = position;
+            lastSerializedBaselineRotation = rotation;
+            lastSerializedBaselineScale = scale;
+
+            // baseline was just sent after a change. reset change detection.
+            changedSinceBaseline = false;
+        }
+
+        protected override bool ShouldSyncClientBaseline(double localTime)
+        {
+            // TODO move change detection to base later? or not?
             // only sync on change: only resend baseline if changed since last.
-            if (onlySyncOnChange && !changedSinceBaseline) return;
+            if (onlySyncOnChange && !changedSinceBaseline) return false;
 
-            // send a reliable baseline every 1 Hz
-            if (localTime >= lastBaselineTime + baselineInterval)
-            {
-                // perf: get position/rotation directly. TransformSnapshot is too expensive.
-                // TransformSnapshot snapshot = ConstructSnapshot();
-                target.GetLocalPositionAndRotation(out Vector3 position, out Quaternion rotation);
-                Vector3 scale = target.localScale;
-
-                byte frameCount = (byte)Time.frameCount; // perf: only access Time.frameCount once!
-                using (NetworkWriterPooled writer = NetworkWriterPool.Get())
-                {
-                    // serialize
-                    writer.WriteByte(frameCount);
-                    if (syncPosition) writer.WriteVector3(position);
-                    if (syncRotation) writer.WriteQuaternion(rotation);
-                    if (syncScale)    writer.WriteVector3(scale);
-
-                    // send (no unreliable redundancy: baseline is reliable)
-                    CmdClientToServerBaseline(writer);
-                }
-
-                // save the last baseline's tick number.
-                // included in baseline to identify which one it was on client
-                // included in deltas to ensure they are on top of the correct baseline
-                lastSerializedBaselineTick = frameCount;
-                lastBaselineTime = NetworkTime.localTime;
-                lastSerializedBaselinePosition = position;
-                lastSerializedBaselineRotation = rotation;
-                lastSerializedBaselineScale = scale;
-
-                // baseline was just sent after a change. reset change detection.
-                changedSinceBaseline = false;
-
-                // perf. & bandwidth optimization:
-                // send a delta right after baseline to avoid potential head of
-                // line blocking, or skip the delta whenever we sent reliable?
-                // for example:
-                //    1 Hz baseline
-                //   10 Hz delta
-                //   => 11 Hz total if we still send delta after reliable
-                //   => 10 Hz total if we skip delta after reliable
-                // in that case, skip next delta by simply resetting last delta sync's time.
-                if (baselineIsDelta) lastDeltaTime = localTime;
-            }
+            return true;
         }
 
         protected override void UpdateClientDelta(double localTime)

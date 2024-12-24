@@ -40,6 +40,7 @@ namespace Mirror
         // TODO reuse for ClientToServer?
         protected abstract void OnSerializeServerBaseline(NetworkWriter writer);
         protected abstract void OnSerializeServerDelta(NetworkWriter writer);
+        protected abstract void OnSerializeClientBaseline(NetworkWriter writer);
 
         // TODO move some of this Rpc's code into the base class here for convenience
         [ClientRpc(channel = Channels.Reliable)]
@@ -48,9 +49,13 @@ namespace Mirror
         [ClientRpc(channel = Channels.Unreliable)]
         protected abstract void RpcServerToClientDelta(ArraySegment<byte> data);
 
+        [Command(channel = Channels.Reliable)]
+        protected abstract void CmdClientToServerBaseline(ArraySegment<byte> data);
+
         // this can be used for change detection
         protected virtual bool ShouldSyncServerBaseline(double localTime) => true;
         protected virtual bool ShouldSyncServerDelta(double localTime) => true;
+        protected virtual bool ShouldSyncClientBaseline(double localTime) => true;
 
         // update server ///////////////////////////////////////////////////////
         protected virtual void UpdateServerBaseline(double localTime)
@@ -165,7 +170,44 @@ namespace Mirror
         // update client ///////////////////////////////////////////////////////
         protected virtual void UpdateClientBaseline(double localTime)
         {
-            throw new NotImplementedException();
+            // send a reliable baseline every 1 Hz
+            if (localTime < lastBaselineTime + baselineInterval) return;
+
+            // user check for change detection etc.
+            if (!ShouldSyncClientBaseline(localTime)) return;
+
+            // save bandwidth by only transmitting what is needed.
+            // -> ArraySegment with random data is slower since byte[] copying
+            // -> Vector3? and Quaternion? nullables takes more bandwidth
+            byte frameCount = (byte)Time.frameCount; // perf: only access Time.frameCount once!
+
+            using (NetworkWriterPooled writer = NetworkWriterPool.Get())
+            {
+                // always include baseline tick
+                writer.WriteByte(frameCount);
+                // include user serialization
+                OnSerializeClientBaseline(writer);
+
+                // send (no need for redundancy since baseline is reliable)
+                CmdClientToServerBaseline(writer);
+            }
+
+            // save the last baseline's tick number.
+            // included in baseline to identify which one it was on client
+            // included in deltas to ensure they are on top of the correct baseline
+            lastSerializedBaselineTick = frameCount;
+            lastBaselineTime = NetworkTime.localTime;
+
+            // perf. & bandwidth optimization:
+            // send a delta right after baseline to avoid potential head of
+            // line blocking, or skip the delta whenever we sent reliable?
+            // for example:
+            //    1 Hz baseline
+            //   10 Hz delta
+            //   => 11 Hz total if we still send delta after reliable
+            //   => 10 Hz total if we skip delta after reliable
+            // in that case, skip next delta by simply resetting last delta sync's time.
+            if (baselineIsDelta) lastDeltaTime = localTime;
         }
 
         protected virtual void UpdateClientDelta(double localTime)
