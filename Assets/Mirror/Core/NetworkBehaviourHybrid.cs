@@ -34,7 +34,7 @@ namespace Mirror
             lastDeserializedBaselineTick = 0;
         }
 
-        // update server ///////////////////////////////////////////////////////
+        // user callbacks //////////////////////////////////////////////////////
         // write all baseline sync data in here. this is sent over reliable.
         // TODO reuse in OnSerialize?
         // TODO reuse for ClientToServer?
@@ -49,6 +49,7 @@ namespace Mirror
         protected virtual bool ShouldSyncServerBaseline(double localTime) => true;
         protected virtual bool ShouldSyncServerDelta(double localTime) => true;
 
+        // update server ///////////////////////////////////////////////////////
         protected virtual void UpdateServerBaseline(double localTime)
         {
             // send a reliable baseline every 1 Hz
