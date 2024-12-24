@@ -161,7 +161,72 @@ namespace Mirror
             return false;
         }
 
-        // cmd client to server ////////////////////////////////////////////////
+        // serialization ///////////////////////////////////////////////////////
+        protected override void OnSerializeServerBaseline(NetworkWriter writer)
+        {
+            // perf: get position/rotation directly. TransformSnapshot is too expensive.
+            // TransformSnapshot snapshot = ConstructSnapshot();
+            target.GetLocalPositionAndRotation(out Vector3 position, out Quaternion rotation);
+            Vector3 scale = target.localScale;
+
+            if (syncPosition) writer.WriteVector3(position);
+            if (syncRotation) writer.WriteQuaternion(rotation);
+            if (syncScale)    writer.WriteVector3(scale);
+
+            // save last baseline data
+            lastSerializedBaselinePosition = position;
+            lastSerializedBaselineRotation = rotation;
+            lastSerializedBaselineScale = scale;
+
+            // baseline was just sent after a change. reset change detection.
+            changedSinceBaseline = false;
+        }
+
+        protected override void OnSerializeServerDelta(NetworkWriter writer)
+        {
+            // perf: get position/rotation directly. TransformSnapshot is too expensive.
+            // TransformSnapshot snapshot = ConstructSnapshot();
+            target.GetLocalPositionAndRotation(out Vector3 position, out Quaternion rotation);
+            Vector3 scale = target.localScale;
+
+            if (syncPosition) writer.WriteVector3(position);
+            if (syncRotation) writer.WriteQuaternion(rotation);
+            if (syncScale)    writer.WriteVector3(scale);
+        }
+
+        protected override void OnSerializeClientBaseline(NetworkWriter writer)
+        {
+            // perf: get position/rotation directly. TransformSnapshot is too expensive.
+            // TransformSnapshot snapshot = ConstructSnapshot();
+            target.GetLocalPositionAndRotation(out Vector3 position, out Quaternion rotation);
+            Vector3 scale = target.localScale;
+
+            if (syncPosition) writer.WriteVector3(position);
+            if (syncRotation) writer.WriteQuaternion(rotation);
+            if (syncScale)    writer.WriteVector3(scale);
+
+            // save last baseline data
+            lastSerializedBaselinePosition = position;
+            lastSerializedBaselineRotation = rotation;
+            lastSerializedBaselineScale = scale;
+
+            // baseline was just sent after a change. reset change detection.
+            changedSinceBaseline = false;
+        }
+
+        protected override void OnSerializeClientDelta(NetworkWriter writer)
+        {
+            // perf: get position/rotation directly. TransformSnapshot is too expensive.
+            // TransformSnapshot snapshot = ConstructSnapshot();
+            target.GetLocalPositionAndRotation(out Vector3 position, out Quaternion rotation);
+            Vector3 scale = target.localScale;
+
+            if (syncPosition) writer.WriteVector3(position);
+            if (syncRotation) writer.WriteQuaternion(rotation);
+            if (syncScale)    writer.WriteVector3(scale);
+        }
+
+        // rpcs/cmds ///////////////////////////////////////////////////////////
         [Command(channel = Channels.Reliable)] // reliable baseline
         protected override void CmdClientToServerBaseline(ArraySegment<byte> data)
         {
@@ -224,46 +289,6 @@ namespace Mirror
             }
         }
 
-        // local authority client sends sync message to server for broadcasting
-        protected virtual void OnClientToServerDeltaSync(byte baselineTick, Vector3? position, Quaternion? rotation, Vector3? scale)
-        {
-            // only apply if in client authority mode
-            if (syncDirection != SyncDirection.ClientToServer) return;
-
-            // ensure this delta is for our last known baseline.
-            // we should never apply a delta on top of a wrong baseline.
-            if (baselineTick != lastDeserializedBaselineTick)
-            {
-                // debug draw: drop
-                if (debugDraw && position.HasValue) Debug.DrawLine(position.Value, position.Value + Vector3.up, Color.red, 10f);
-
-                // this can happen if unreliable arrives before reliable etc.
-                // no need to log this except when debugging.
-                // Debug.Log($"[{name}] Server: received delta for wrong baseline #{baselineTick} from: {connectionToClient}. Last was {lastDeserializedBaselineTick}. Ignoring.");
-                return;
-            }
-
-            // protect against ever-growing buffer size attacks
-            if (serverSnapshots.Count >= connectionToClient.snapshotBufferSizeLimit) return;
-
-            // only player owned objects (with a connection) can send to
-            // server. we can get the timestamp from the connection.
-            double timestamp = connectionToClient.remoteTimeStamp;
-
-            // insert transform snapshot
-            SnapshotInterpolation.InsertIfNotExists(
-                serverSnapshots,
-                bufferSizeLimit,
-                new TransformSnapshot(
-                timestamp,         // arrival remote timestamp. NOT remote time.
-                NetworkTime.localTime, // Unity 2019 doesn't have Time.timeAsDouble yet
-                position.HasValue ? position.Value : Vector3.zero,
-                rotation.HasValue ? rotation.Value : Quaternion.identity,
-                scale.HasValue ? scale.Value : Vector3.one
-            ));
-        }
-
-        // rpc server to client ////////////////////////////////////////////////
         // TODO move some of this Rpc's code into the base class here for convenience
         [ClientRpc(channel = Channels.Reliable)] // reliable baseline
         protected override void RpcServerToClientBaseline(ArraySegment<byte> data)
@@ -345,6 +370,46 @@ namespace Mirror
             }
         }
 
+        // processing //////////////////////////////////////////////////////////
+        // local authority client sends sync message to server for broadcasting
+        protected virtual void OnClientToServerDeltaSync(byte baselineTick, Vector3? position, Quaternion? rotation, Vector3? scale)
+        {
+            // only apply if in client authority mode
+            if (syncDirection != SyncDirection.ClientToServer) return;
+
+            // ensure this delta is for our last known baseline.
+            // we should never apply a delta on top of a wrong baseline.
+            if (baselineTick != lastDeserializedBaselineTick)
+            {
+                // debug draw: drop
+                if (debugDraw && position.HasValue) Debug.DrawLine(position.Value, position.Value + Vector3.up, Color.red, 10f);
+
+                // this can happen if unreliable arrives before reliable etc.
+                // no need to log this except when debugging.
+                // Debug.Log($"[{name}] Server: received delta for wrong baseline #{baselineTick} from: {connectionToClient}. Last was {lastDeserializedBaselineTick}. Ignoring.");
+                return;
+            }
+
+            // protect against ever-growing buffer size attacks
+            if (serverSnapshots.Count >= connectionToClient.snapshotBufferSizeLimit) return;
+
+            // only player owned objects (with a connection) can send to
+            // server. we can get the timestamp from the connection.
+            double timestamp = connectionToClient.remoteTimeStamp;
+
+            // insert transform snapshot
+            SnapshotInterpolation.InsertIfNotExists(
+                serverSnapshots,
+                bufferSizeLimit,
+                new TransformSnapshot(
+                timestamp,         // arrival remote timestamp. NOT remote time.
+                NetworkTime.localTime, // Unity 2019 doesn't have Time.timeAsDouble yet
+                position.HasValue ? position.Value : Vector3.zero,
+                rotation.HasValue ? rotation.Value : Quaternion.identity,
+                scale.HasValue ? scale.Value : Vector3.one
+            ));
+        }
+
         // server broadcasts sync message to all clients
         protected virtual void OnServerToClientDeltaSync(byte baselineTick, Vector3? position, Quaternion? rotation, Vector3? scale)
         {
@@ -407,38 +472,6 @@ namespace Mirror
         }
 
         // update server ///////////////////////////////////////////////////////
-        protected override void OnSerializeServerBaseline(NetworkWriter writer)
-        {
-            // perf: get position/rotation directly. TransformSnapshot is too expensive.
-            // TransformSnapshot snapshot = ConstructSnapshot();
-            target.GetLocalPositionAndRotation(out Vector3 position, out Quaternion rotation);
-            Vector3 scale = target.localScale;
-
-            if (syncPosition) writer.WriteVector3(position);
-            if (syncRotation) writer.WriteQuaternion(rotation);
-            if (syncScale)    writer.WriteVector3(scale);
-
-            // save last baseline data
-            lastSerializedBaselinePosition = position;
-            lastSerializedBaselineRotation = rotation;
-            lastSerializedBaselineScale = scale;
-
-            // baseline was just sent after a change. reset change detection.
-            changedSinceBaseline = false;
-        }
-
-        protected override void OnSerializeServerDelta(NetworkWriter writer)
-        {
-            // perf: get position/rotation directly. TransformSnapshot is too expensive.
-            // TransformSnapshot snapshot = ConstructSnapshot();
-            target.GetLocalPositionAndRotation(out Vector3 position, out Quaternion rotation);
-            Vector3 scale = target.localScale;
-
-            if (syncPosition) writer.WriteVector3(position);
-            if (syncRotation) writer.WriteQuaternion(rotation);
-            if (syncScale)    writer.WriteVector3(scale);
-        }
-
         protected override bool ShouldSyncServerBaseline(double localTime)
         {
             // TODO move change detection to base later? or not?
@@ -506,38 +539,6 @@ namespace Mirror
         }
 
         // update client ///////////////////////////////////////////////////////
-        protected override void OnSerializeClientBaseline(NetworkWriter writer)
-        {
-            // perf: get position/rotation directly. TransformSnapshot is too expensive.
-            // TransformSnapshot snapshot = ConstructSnapshot();
-            target.GetLocalPositionAndRotation(out Vector3 position, out Quaternion rotation);
-            Vector3 scale = target.localScale;
-
-            if (syncPosition) writer.WriteVector3(position);
-            if (syncRotation) writer.WriteQuaternion(rotation);
-            if (syncScale)    writer.WriteVector3(scale);
-
-            // save last baseline data
-            lastSerializedBaselinePosition = position;
-            lastSerializedBaselineRotation = rotation;
-            lastSerializedBaselineScale = scale;
-
-            // baseline was just sent after a change. reset change detection.
-            changedSinceBaseline = false;
-        }
-
-        protected override void OnSerializeClientDelta(NetworkWriter writer)
-        {
-            // perf: get position/rotation directly. TransformSnapshot is too expensive.
-            // TransformSnapshot snapshot = ConstructSnapshot();
-            target.GetLocalPositionAndRotation(out Vector3 position, out Quaternion rotation);
-            Vector3 scale = target.localScale;
-
-            if (syncPosition) writer.WriteVector3(position);
-            if (syncRotation) writer.WriteQuaternion(rotation);
-            if (syncScale)    writer.WriteVector3(scale);
-        }
-
         protected override bool ShouldSyncClientBaseline(double localTime)
         {
             // TODO move change detection to base later? or not?
