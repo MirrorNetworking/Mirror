@@ -39,12 +39,15 @@ namespace Mirror
         // TODO reuse in OnSerialize?
         // TODO reuse for ClientToServer?
         protected abstract void OnSerializeServerBaseline(NetworkWriter writer);
+        protected abstract void OnSerializeServerDelta(NetworkWriter writer);
 
         // TODO move some of this Rpc's code into the base class here for convenience
         protected abstract void RpcServerToClientBaseline(ArraySegment<byte> data);
+        protected abstract void RpcServerToClientDelta(ArraySegment<byte> data);
 
         // this can be used for change detection
         protected virtual bool ShouldSyncServerBaseline(double localTime) => true;
+        protected virtual bool ShouldSyncServerDelta(double localTime) => true;
 
         protected virtual void UpdateServerBaseline(double localTime)
         {
@@ -91,7 +94,56 @@ namespace Mirror
 
         protected virtual void UpdateServerDelta(double localTime)
         {
-            throw new NotImplementedException();
+            // broadcast to all clients each 'sendInterval'
+            // (client with authority will drop the rpc)
+            // NetworkTime.localTime for double precision until Unity has it too
+            //
+            // IMPORTANT:
+            // snapshot interpolation requires constant sending.
+            // DO NOT only send if position changed. for example:
+            // ---
+            // * client sends first position at t=0
+            // * ... 10s later ...
+            // * client moves again, sends second position at t=10
+            // ---
+            // * server gets first position at t=0
+            // * server gets second position at t=10
+            // * server moves from first to second within a time of 10s
+            //   => would be a super slow move, instead of a wait & move.
+            //
+            // IMPORTANT:
+            // DO NOT send nulls if not changed 'since last send' either. we
+            // send unreliable and don't know which 'last send' the other end
+            // received successfully.
+            //
+            // Checks to ensure server only sends snapshots if object is
+            // on server authority(!clientAuthority) mode because on client
+            // authority mode snapshots are broadcasted right after the authoritative
+            // client updates server in the command function(see above), OR,
+            // since host does not send anything to update the server, any client
+            // authoritative movement done by the host will have to be broadcasted
+            // here by checking IsClientWithAuthority.
+            // TODO send same time that NetworkServer sends time snapshot?
+
+            if (localTime < lastDeltaTime + syncInterval) return;
+
+            // user check for change detection etc.
+            if (!ShouldSyncServerDelta(localTime)) return;
+
+            using (NetworkWriterPooled writer = NetworkWriterPool.Get())
+            {
+                // include baseline tick that this delta is meant for
+                writer.WriteByte(lastSerializedBaselineTick);
+                // include user serialization
+                OnSerializeServerDelta(writer);
+
+                // send (with optional redundancy to make up for message drops)
+                RpcServerToClientDelta(writer);
+                if (unreliableRedundancy)
+                    RpcServerToClientDelta(writer);
+            }
+
+            lastDeltaTime = localTime;
         }
 
         protected virtual void UpdateServerSync()

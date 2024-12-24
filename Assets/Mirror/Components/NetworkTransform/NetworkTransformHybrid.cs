@@ -97,8 +97,9 @@ namespace Mirror
             // set target to self if none yet
             if (target == null) target = transform;
 
-            // use sendRate instead of syncInterval for now
-            syncInterval = 0;
+            // we use sendRate for convenience.
+            // but project it to syncInterval for NetworkTransformHybrid to work properly.
+            syncInterval = sendInterval;
         }
 
         // apply a snapshot to the Transform.
@@ -311,8 +312,9 @@ namespace Mirror
             }
         }
 
+        // TODO move some of this Rpc's code into the base class here for convenience
         [ClientRpc(channel = Channels.Unreliable)] // unreliable delta
-        void RpcServerToClientDelta(ArraySegment<byte> data)
+        protected override void RpcServerToClientDelta(ArraySegment<byte> data)
         {
             // delta is broadcast to all clients.
             // ignore if this object is owned by this client.
@@ -425,6 +427,18 @@ namespace Mirror
             changedSinceBaseline = false;
         }
 
+        protected override void OnSerializeServerDelta(NetworkWriter writer)
+        {
+            // perf: get position/rotation directly. TransformSnapshot is too expensive.
+            // TransformSnapshot snapshot = ConstructSnapshot();
+            target.GetLocalPositionAndRotation(out Vector3 position, out Quaternion rotation);
+            Vector3 scale = target.localScale;
+
+            if (syncPosition) writer.WriteVector3(position);
+            if (syncRotation) writer.WriteQuaternion(rotation);
+            if (syncScale)    writer.WriteVector3(scale);
+        }
+
         protected override bool ShouldSyncServerBaseline(double localTime)
         {
             // TODO move change detection to base later? or not?
@@ -434,77 +448,29 @@ namespace Mirror
             return true;
         }
 
-        protected override void UpdateServerDelta(double localTime)
+        protected override bool ShouldSyncServerDelta(double localTime)
         {
-            // broadcast to all clients each 'sendInterval'
-            // (client with authority will drop the rpc)
-            // NetworkTime.localTime for double precision until Unity has it too
-            //
-            // IMPORTANT:
-            // snapshot interpolation requires constant sending.
-            // DO NOT only send if position changed. for example:
-            // ---
-            // * client sends first position at t=0
-            // * ... 10s later ...
-            // * client moves again, sends second position at t=10
-            // ---
-            // * server gets first position at t=0
-            // * server gets second position at t=10
-            // * server moves from first to second within a time of 10s
-            //   => would be a super slow move, instead of a wait & move.
-            //
-            // IMPORTANT:
-            // DO NOT send nulls if not changed 'since last send' either. we
-            // send unreliable and don't know which 'last send' the other end
-            // received successfully.
-            //
-            // Checks to ensure server only sends snapshots if object is
-            // on server authority(!clientAuthority) mode because on client
-            // authority mode snapshots are broadcasted right after the authoritative
-            // client updates server in the command function(see above), OR,
-            // since host does not send anything to update the server, any client
-            // authoritative movement done by the host will have to be broadcasted
-            // here by checking IsClientWithAuthority.
-            // TODO send same time that NetworkServer sends time snapshot?
+            // perf: get position/rotation directly. TransformSnapshot is too expensive.
+            // TransformSnapshot snapshot = ConstructSnapshot();
+            target.GetLocalPositionAndRotation(out Vector3 position, out Quaternion rotation);
+            Vector3 scale = target.localScale;
 
-            if (localTime >= lastDeltaTime + sendInterval) // CUSTOM CHANGE: allow custom sendRate + sendInterval again
-            {
-                // perf: get position/rotation directly. TransformSnapshot is too expensive.
-                // TransformSnapshot snapshot = ConstructSnapshot();
-                target.GetLocalPositionAndRotation(out Vector3 position, out Quaternion rotation);
-                Vector3 scale = target.localScale;
+            // look for changes every unreliable sendInterval!
+            // every reliable interval isn't enough, this would cause MrG's grid issue:
+            //   server start in A1, reliable baseline sent to client
+            //   server moves to A2, unreliabe delta sent to client
+            //   server moves to A1, nothing is sent to client becuase last baseline position == position
+            //   => client wouldn't know we moved back to A1
+            // every update works, but it's unnecessary overhead since sends only happen every sendInterval
+            // every unreliable sendInterval is the perfect place to look for changes.
+            if (onlySyncOnChange && Changed(position, rotation, scale))
+                changedSinceBaseline = true;
 
-                // look for changes every unreliable sendInterval!
-                // every reliable interval isn't enough, this would cause MrG's grid issue:
-                //   server start in A1, reliable baseline sent to client
-                //   server moves to A2, unreliabe delta sent to client
-                //   server moves to A1, nothing is sent to client becuase last baseline position == position
-                //   => client wouldn't know we moved back to A1
-                // every update works, but it's unnecessary overhead since sends only happen every sendInterval
-                // every unreliable sendInterval is the perfect place to look for changes.
-                if (onlySyncOnChange && Changed(position, rotation, scale))
-                    changedSinceBaseline = true;
+            // only sync on change:
+            // unreliable isn't guaranteed to be delivered so this depends on reliable baseline.
+            if (onlySyncOnChange && !changedSinceBaseline) return false;
 
-                // only sync on change:
-                // unreliable isn't guaranteed to be delivered so this depends on reliable baseline.
-                if (onlySyncOnChange && !changedSinceBaseline) return;
-
-                using (NetworkWriterPooled writer = NetworkWriterPool.Get())
-                {
-                    // serialize
-                    writer.WriteByte(lastSerializedBaselineTick);
-                    if (syncPosition) writer.WriteVector3(position);
-                    if (syncRotation) writer.WriteQuaternion(rotation);
-                    if (syncScale)    writer.WriteVector3(scale);
-
-                    // send (with optional redundancy to make up for message drops)
-                    RpcServerToClientDelta(writer);
-                    if (unreliableRedundancy)
-                        RpcServerToClientDelta(writer);
-                }
-
-                lastDeltaTime = localTime;
-            }
+            return true;
         }
 
         void UpdateServerInterpolation()
