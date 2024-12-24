@@ -42,12 +42,10 @@ namespace Mirror
         protected abstract void OnDeserializeServerBaseline(NetworkReader reader, byte baselineTick); // on client
 
         protected abstract void OnSerializeServerDelta(NetworkWriter writer);      // on server
+        protected abstract void OnDeserializeServerDelta(NetworkReader reader, byte baselineTick); // on client
+
         protected abstract void OnSerializeClientBaseline(NetworkWriter writer);   // on client
         protected abstract void OnSerializeClientDelta(NetworkWriter writer);      // on client
-
-
-        //[ClientRpc(channel = Channels.Unreliable)] <- define this when inheriting!
-        protected abstract void RpcServerToClientDelta(ArraySegment<byte> data);
 
         //[Command(channel = Channels.Reliable)] <- define this when inheriting!
         protected abstract void CmdClientToServerBaseline(ArraySegment<byte> data);
@@ -80,6 +78,27 @@ namespace Mirror
                 // save last deserialized baseline tick number to compare deltas against
                 lastDeserializedBaselineTick = reader.ReadByte();
                 OnDeserializeServerBaseline(reader, lastDeserializedBaselineTick);
+            }
+        }
+
+        [ClientRpc(channel = Channels.Unreliable)] // unreliable delta
+        void RpcServerToClientDelta(ArraySegment<byte> data)
+        {
+            // delta is broadcast to all clients.
+            // ignore if this object is owned by this client.
+            if (IsClientWithAuthority) return;
+
+            // host mode: baseline Rpc is also sent through host's local connection and applied.
+            // applying host's baseline as last deserialized would overwrite the owner client's data and cause jitter.
+            // in other words: never apply the rpcs in host mode.
+            if (isServer) return;
+
+            // deserialize
+            using (NetworkReaderPooled reader = NetworkReaderPool.Get(data))
+            {
+                // deserialize
+                byte baselineTick = reader.ReadByte();
+                OnDeserializeServerDelta(reader, baselineTick);
             }
         }
 

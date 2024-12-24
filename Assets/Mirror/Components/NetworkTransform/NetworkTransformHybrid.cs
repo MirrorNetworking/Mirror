@@ -215,6 +215,7 @@ namespace Mirror
                 OnServerToClientDeltaSync(baselineTick, position, rotation, scale);
         }
 
+        // on server
         protected override void OnSerializeServerDelta(NetworkWriter writer)
         {
             // perf: get position/rotation directly. TransformSnapshot is too expensive.
@@ -225,6 +226,23 @@ namespace Mirror
             if (syncPosition) writer.WriteVector3(position);
             if (syncRotation) writer.WriteQuaternion(rotation);
             if (syncScale)    writer.WriteVector3(scale);
+        }
+
+        // on client
+        protected override void OnDeserializeServerDelta(NetworkReader reader, byte baselineTick)
+        {
+            Vector3? position = null;
+            Quaternion? rotation = null;
+            Vector3? scale = null;
+
+            if (syncPosition) position = reader.ReadVector3();
+            if (syncRotation) rotation = reader.ReadQuaternion();
+            if (syncScale)    scale    = reader.ReadVector3();
+
+            // debug draw: delta = white
+            if (debugDraw && position.HasValue) Debug.DrawLine(position.Value, position.Value + Vector3.up, Color.white, 10f);
+
+            OnServerToClientDeltaSync(baselineTick, position, rotation, scale);
         }
 
         protected override void OnSerializeClientBaseline(NetworkWriter writer)
@@ -260,39 +278,6 @@ namespace Mirror
         }
 
         // rpcs/cmds ///////////////////////////////////////////////////////////
-        // TODO move some of this Rpc's code into the base class here for convenience
-        [ClientRpc(channel = Channels.Unreliable)] // unreliable delta
-        protected override void RpcServerToClientDelta(ArraySegment<byte> data)
-        {
-            // delta is broadcast to all clients.
-            // ignore if this object is owned by this client.
-            if (IsClientWithAuthority) return;
-
-            // host mode: baseline Rpc is also sent through host's local connection and applied.
-            // applying host's baseline as last deserialized would overwrite the owner client's data and cause jitter.
-            // in other words: never apply the rpcs in host mode.
-            if (isServer) return;
-
-            // deserialize
-            using (NetworkReaderPooled reader = NetworkReaderPool.Get(data))
-            {
-                Vector3? position = null;
-                Quaternion? rotation = null;
-                Vector3? scale = null;
-
-                byte baselineTick = reader.ReadByte();
-
-                if (syncPosition) position = reader.ReadVector3();
-                if (syncRotation) rotation = reader.ReadQuaternion();
-                if (syncScale)    scale    = reader.ReadVector3();
-
-                // debug draw: delta = white
-                if (debugDraw && position.HasValue) Debug.DrawLine(position.Value, position.Value + Vector3.up, Color.white, 10f);
-
-                OnServerToClientDeltaSync(baselineTick, position, rotation, scale);
-            }
-        }
-
         [Command(channel = Channels.Reliable)] // reliable baseline
         protected override void CmdClientToServerBaseline(ArraySegment<byte> data)
         {
