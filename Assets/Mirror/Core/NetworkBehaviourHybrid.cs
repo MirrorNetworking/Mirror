@@ -38,11 +38,8 @@ namespace Mirror
         protected abstract void OnSerializeBaseline(NetworkWriter writer);
         protected abstract void OnDeserializeBaseline(NetworkReader reader, byte baselineTick);
 
-        protected abstract void OnSerializeServerToClientDelta(NetworkWriter writer);
-        protected abstract void OnDeserializeServerToClientDelta(NetworkReader reader, byte baselineTick);
-
-        protected abstract void OnSerializeClientToServerDelta(NetworkWriter writer);
-        protected abstract void OnDeserializeClientToServerDelta(NetworkReader reader, byte baselineTick);
+        protected abstract void OnSerializeDelta(NetworkWriter writer);
+        protected abstract void OnDeserializeDelta(NetworkReader reader, byte baselineTick);
 
         // this can be used for change detection
         protected virtual bool ShouldSyncServerToClientBaseline(double localTime) => true;
@@ -105,7 +102,7 @@ namespace Mirror
                     return;
                 }
 
-                OnDeserializeServerToClientDelta(reader, baselineTick);
+                OnDeserializeDelta(reader, baselineTick);
             }
         }
 
@@ -141,7 +138,7 @@ namespace Mirror
                     return;
                 }
 
-                OnDeserializeClientToServerDelta(reader, baselineTick);
+                OnDeserializeDelta(reader, baselineTick);
             }
         }
 
@@ -227,10 +224,9 @@ namespace Mirror
 
             using (NetworkWriterPooled writer = NetworkWriterPool.Get())
             {
-                // include baseline tick that this delta is meant for
+                // serialize
                 writer.WriteByte(lastSerializedBaselineTick);
-                // include user serialization
-                OnSerializeServerToClientDelta(writer);
+                OnSerializeDelta(writer);
 
                 // send (with optional redundancy to make up for message drops)
                 RpcServerToClientDelta(writer);
@@ -326,10 +322,9 @@ namespace Mirror
 
             using (NetworkWriterPooled writer = NetworkWriterPool.Get())
             {
-                // include baseline tick that this delta is meant for
+                // serialize
                 writer.WriteByte(lastSerializedBaselineTick);
-                // include user serialization
-                OnSerializeClientToServerDelta(writer);
+                OnSerializeDelta(writer);
 
                 // send (with optional redundancy to make up for message drops)
                 CmdClientToServerDelta(writer);

@@ -224,8 +224,8 @@ namespace Mirror
             }
         }
 
-        // on server
-        protected override void OnSerializeServerToClientDelta(NetworkWriter writer)
+        // called on server and on client, depending on SyncDirection
+        protected override void OnSerializeDelta(NetworkWriter writer)
         {
             // perf: get position/rotation directly. TransformSnapshot is too expensive.
             // TransformSnapshot snapshot = ConstructSnapshot();
@@ -237,8 +237,8 @@ namespace Mirror
             if (syncScale)    writer.WriteVector3(scale);
         }
 
-        // on client
-        protected override void OnDeserializeServerToClientDelta(NetworkReader reader, byte baselineTick)
+        // called on server and on client, depending on SyncDirection
+        protected override void OnDeserializeDelta(NetworkReader reader, byte baselineTick)
         {
             Vector3? position = null;
             Quaternion? rotation = null;
@@ -251,36 +251,14 @@ namespace Mirror
             // debug draw: delta = white
             if (debugDraw && position.HasValue) Debug.DrawLine(position.Value, position.Value + Vector3.up, Color.white, 10f);
 
-            OnServerToClientDeltaSync(position, rotation, scale);
-        }
-
-        protected override void OnSerializeClientToServerDelta(NetworkWriter writer)
-        {
-            // perf: get position/rotation directly. TransformSnapshot is too expensive.
-            // TransformSnapshot snapshot = ConstructSnapshot();
-            target.GetLocalPositionAndRotation(out Vector3 position, out Quaternion rotation);
-            Vector3 scale = target.localScale;
-
-            if (syncPosition) writer.WriteVector3(position);
-            if (syncRotation) writer.WriteQuaternion(rotation);
-            if (syncScale)    writer.WriteVector3(scale);
-        }
-
-        // on client
-        protected override void OnDeserializeClientToServerDelta(NetworkReader reader, byte baselineTick)
-        {
-            Vector3? position = null;
-            Quaternion? rotation = null;
-            Vector3? scale = null;
-
-            if (syncPosition) position = reader.ReadVector3();
-            if (syncRotation) rotation = reader.ReadQuaternion();
-            if (syncScale)    scale    = reader.ReadVector3();
-
-            // debug draw: delta = white
-            if (debugDraw && position.HasValue) Debug.DrawLine(position.Value, position.Value + Vector3.up, Color.white, 10f);
-
-            OnClientToServerDeltaSync(position, rotation, scale);
+            if (isServer)
+            {
+                OnClientToServerDeltaSync(position, rotation, scale);
+            }
+            else if (isClient)
+            {
+                OnServerToClientDeltaSync(position, rotation, scale);
+            }
         }
 
         // processing //////////////////////////////////////////////////////////
