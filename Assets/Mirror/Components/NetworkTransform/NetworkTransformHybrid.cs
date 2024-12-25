@@ -163,7 +163,7 @@ namespace Mirror
 
         // serialization ///////////////////////////////////////////////////////
         // on server
-        protected override void OnSerializeServerBaseline(NetworkWriter writer)
+        protected override void OnSerializeServerToClientBaseline(NetworkWriter writer)
         {
             // perf: get position/rotation directly. TransformSnapshot is too expensive.
             // TransformSnapshot snapshot = ConstructSnapshot();
@@ -184,7 +184,7 @@ namespace Mirror
         }
 
         // on client
-        protected override void OnDeserializeServerBaseline(NetworkReader reader, byte baselineTick)
+        protected override void OnDeserializeServerToClientBaseline(NetworkReader reader, byte baselineTick)
         {
             // deserialize
             Vector3?    position = null;
@@ -216,7 +216,7 @@ namespace Mirror
         }
 
         // on server
-        protected override void OnSerializeServerDelta(NetworkWriter writer)
+        protected override void OnSerializeServerToClientDelta(NetworkWriter writer)
         {
             // perf: get position/rotation directly. TransformSnapshot is too expensive.
             // TransformSnapshot snapshot = ConstructSnapshot();
@@ -229,7 +229,7 @@ namespace Mirror
         }
 
         // on client
-        protected override void OnDeserializeServerDelta(NetworkReader reader, byte baselineTick)
+        protected override void OnDeserializeServerToClientDelta(NetworkReader reader, byte baselineTick)
         {
             Vector3? position = null;
             Quaternion? rotation = null;
@@ -245,7 +245,7 @@ namespace Mirror
             OnServerToClientDeltaSync(baselineTick, position, rotation, scale);
         }
 
-        protected override void OnSerializeClientBaseline(NetworkWriter writer)
+        protected override void OnSerializeClientToServerBaseline(NetworkWriter writer)
         {
             // perf: get position/rotation directly. TransformSnapshot is too expensive.
             // TransformSnapshot snapshot = ConstructSnapshot();
@@ -266,7 +266,7 @@ namespace Mirror
         }
 
         // on server
-        protected override void OnDeserializeClientBaseline(NetworkReader reader, byte baselineTick)
+        protected override void OnDeserializeClientToServerBaseline(NetworkReader reader, byte baselineTick)
         {
             // deserialize
             Vector3? position = null;
@@ -294,10 +294,10 @@ namespace Mirror
 
             // if baseline counts as delta, insert it into snapshot buffer too
             if (baselineIsDelta)
-                OnClientToServerDeltaSync(lastDeserializedBaselineTick, position, rotation, scale);
+                OnClientToServerDeltaSync(baselineTick, position, rotation, scale);
         }
 
-        protected override void OnSerializeClientDelta(NetworkWriter writer)
+        protected override void OnSerializeClientToServerDelta(NetworkWriter writer)
         {
             // perf: get position/rotation directly. TransformSnapshot is too expensive.
             // TransformSnapshot snapshot = ConstructSnapshot();
@@ -310,7 +310,7 @@ namespace Mirror
         }
 
         // on client
-        protected override void OnDeserializeClientDelta(NetworkReader reader, byte baselineTick)
+        protected override void OnDeserializeClientToServerDelta(NetworkReader reader, byte baselineTick)
         {
             Vector3? position = null;
             Quaternion? rotation = null;
@@ -428,7 +428,7 @@ namespace Mirror
         }
 
         // update server ///////////////////////////////////////////////////////
-        protected override bool ShouldSyncServerBaseline(double localTime)
+        protected override bool ShouldSyncServerToClientBaseline(double localTime)
         {
             // TODO move change detection to base later? or not?
             // only sync on change: only resend baseline if changed since last.
@@ -437,7 +437,7 @@ namespace Mirror
             return true;
         }
 
-        protected override bool ShouldSyncServerDelta(double localTime)
+        protected override bool ShouldSyncServerToClientDelta(double localTime)
         {
             // perf: get position/rotation directly. TransformSnapshot is too expensive.
             // TransformSnapshot snapshot = ConstructSnapshot();
@@ -495,7 +495,7 @@ namespace Mirror
         }
 
         // update client ///////////////////////////////////////////////////////
-        protected override bool ShouldSyncClientBaseline(double localTime)
+        protected override bool ShouldSyncClientToServerBaseline(double localTime)
         {
             // TODO move change detection to base later? or not?
             // only sync on change: only resend baseline if changed since last.
@@ -504,7 +504,7 @@ namespace Mirror
             return true;
         }
 
-        protected override bool ShouldSyncClientDelta(double localTime)
+        protected override bool ShouldSyncClientToServerDelta(double localTime)
         {
             // perf: get position/rotation directly. TransformSnapshot is too expensive.
             // TransformSnapshot snapshot = ConstructSnapshot();

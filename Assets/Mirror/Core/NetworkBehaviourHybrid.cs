@@ -38,23 +38,23 @@ namespace Mirror
         // write all baseline sync data in here. this is sent over reliable.
         // TODO reuse in OnSerialize?
         // TODO reuse for ClientToServer?
-        protected abstract void OnSerializeServerBaseline(NetworkWriter writer);   // on server
-        protected abstract void OnDeserializeServerBaseline(NetworkReader reader, byte baselineTick); // on client
+        protected abstract void OnSerializeServerToClientBaseline(NetworkWriter writer);
+        protected abstract void OnDeserializeServerToClientBaseline(NetworkReader reader, byte baselineTick);
 
-        protected abstract void OnSerializeServerDelta(NetworkWriter writer);      // on server
-        protected abstract void OnDeserializeServerDelta(NetworkReader reader, byte baselineTick); // on client
+        protected abstract void OnSerializeServerToClientDelta(NetworkWriter writer);
+        protected abstract void OnDeserializeServerToClientDelta(NetworkReader reader, byte baselineTick);
 
-        protected abstract void OnSerializeClientBaseline(NetworkWriter writer);   // on client
-        protected abstract void OnDeserializeClientBaseline(NetworkReader reader, byte baselineTick); // on client
+        protected abstract void OnSerializeClientToServerBaseline(NetworkWriter writer);
+        protected abstract void OnDeserializeClientToServerBaseline(NetworkReader reader, byte baselineTick);
 
-        protected abstract void OnSerializeClientDelta(NetworkWriter writer);      // on client
-        protected abstract void OnDeserializeClientDelta(NetworkReader reader, byte baselineTick); // on client
+        protected abstract void OnSerializeClientToServerDelta(NetworkWriter writer);
+        protected abstract void OnDeserializeClientToServerDelta(NetworkReader reader, byte baselineTick);
 
         // this can be used for change detection
-        protected virtual bool ShouldSyncServerBaseline(double localTime) => true;
-        protected virtual bool ShouldSyncServerDelta(double localTime) => true;
-        protected virtual bool ShouldSyncClientBaseline(double localTime) => true;
-        protected virtual bool ShouldSyncClientDelta(double localTime) => true;
+        protected virtual bool ShouldSyncServerToClientBaseline(double localTime) => true;
+        protected virtual bool ShouldSyncServerToClientDelta(double localTime) => true;
+        protected virtual bool ShouldSyncClientToServerBaseline(double localTime) => true;
+        protected virtual bool ShouldSyncClientToServerDelta(double localTime) => true;
 
         // rpcs / cmds /////////////////////////////////////////////////////////
         [ClientRpc(channel = Channels.Reliable)] // reliable baseline
@@ -74,7 +74,7 @@ namespace Mirror
                 // deserialize
                 // save last deserialized baseline tick number to compare deltas against
                 lastDeserializedBaselineTick = reader.ReadByte();
-                OnDeserializeServerBaseline(reader, lastDeserializedBaselineTick);
+                OnDeserializeServerToClientBaseline(reader, lastDeserializedBaselineTick);
             }
         }
 
@@ -95,7 +95,7 @@ namespace Mirror
             {
                 // deserialize
                 byte baselineTick = reader.ReadByte();
-                OnDeserializeServerDelta(reader, baselineTick);
+                OnDeserializeServerToClientDelta(reader, baselineTick);
             }
         }
 
@@ -107,7 +107,7 @@ namespace Mirror
             {
                 // deserialize
                 lastDeserializedBaselineTick = reader.ReadByte();
-                OnDeserializeClientBaseline(reader, lastDeserializedBaselineTick);
+                OnDeserializeClientToServerBaseline(reader, lastDeserializedBaselineTick);
             }
         }
 
@@ -118,7 +118,7 @@ namespace Mirror
             {
                 // deserialize
                 byte baselineTick = reader.ReadByte();
-                OnDeserializeClientDelta(reader, baselineTick);
+                OnDeserializeClientToServerDelta(reader, baselineTick);
             }
         }
 
@@ -129,7 +129,7 @@ namespace Mirror
             if (localTime < lastBaselineTime + baselineInterval) return;
 
             // user check for change detection etc.
-            if (!ShouldSyncServerBaseline(localTime)) return;
+            if (!ShouldSyncServerToClientBaseline(localTime)) return;
 
             // save bandwidth by only transmitting what is needed.
             // -> ArraySegment with random data is slower since byte[] copying
@@ -141,7 +141,7 @@ namespace Mirror
                 // always include baseline tick
                 writer.WriteByte(frameCount);
                 // include user serialization
-                OnSerializeServerBaseline(writer);
+                OnSerializeServerToClientBaseline(writer);
 
                 // send (no need for redundancy since baseline is reliable)
                 RpcServerToClientBaseline(writer);
@@ -201,14 +201,14 @@ namespace Mirror
             if (localTime < lastDeltaTime + syncInterval) return;
 
             // user check for change detection etc.
-            if (!ShouldSyncServerDelta(localTime)) return;
+            if (!ShouldSyncServerToClientDelta(localTime)) return;
 
             using (NetworkWriterPooled writer = NetworkWriterPool.Get())
             {
                 // include baseline tick that this delta is meant for
                 writer.WriteByte(lastSerializedBaselineTick);
                 // include user serialization
-                OnSerializeServerDelta(writer);
+                OnSerializeServerToClientDelta(writer);
 
                 // send (with optional redundancy to make up for message drops)
                 RpcServerToClientDelta(writer);
@@ -239,7 +239,7 @@ namespace Mirror
             if (localTime < lastBaselineTime + baselineInterval) return;
 
             // user check for change detection etc.
-            if (!ShouldSyncClientBaseline(localTime)) return;
+            if (!ShouldSyncClientToServerBaseline(localTime)) return;
 
             // save bandwidth by only transmitting what is needed.
             // -> ArraySegment with random data is slower since byte[] copying
@@ -251,7 +251,7 @@ namespace Mirror
                 // always include baseline tick
                 writer.WriteByte(frameCount);
                 // include user serialization
-                OnSerializeClientBaseline(writer);
+                OnSerializeClientToServerBaseline(writer);
 
                 // send (no need for redundancy since baseline is reliable)
                 CmdClientToServerBaseline(writer);
@@ -301,14 +301,14 @@ namespace Mirror
             if (localTime < lastDeltaTime + syncInterval) return;
 
             // user check for change detection etc.
-            if (!ShouldSyncClientDelta(localTime)) return;
+            if (!ShouldSyncClientToServerDelta(localTime)) return;
 
             using (NetworkWriterPooled writer = NetworkWriterPool.Get())
             {
                 // include baseline tick that this delta is meant for
                 writer.WriteByte(lastSerializedBaselineTick);
                 // include user serialization
-                OnSerializeClientDelta(writer);
+                OnSerializeClientToServerDelta(writer);
 
                 // send (with optional redundancy to make up for message drops)
                 CmdClientToServerDelta(writer);
