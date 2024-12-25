@@ -48,9 +48,7 @@ namespace Mirror
         protected abstract void OnDeserializeClientBaseline(NetworkReader reader, byte baselineTick); // on client
 
         protected abstract void OnSerializeClientDelta(NetworkWriter writer);      // on client
-
-        //[Command(channel = Channels.Unreliable)] <- define this when inheriting!
-        protected abstract void CmdClientToServerDelta(ArraySegment<byte> data);
+        protected abstract void OnDeserializeClientDelta(NetworkReader reader, byte baselineTick); // on client
 
         // this can be used for change detection
         protected virtual bool ShouldSyncServerBaseline(double localTime) => true;
@@ -110,6 +108,17 @@ namespace Mirror
                 // deserialize
                 lastDeserializedBaselineTick = reader.ReadByte();
                 OnDeserializeClientBaseline(reader, lastDeserializedBaselineTick);
+            }
+        }
+
+        [Command(channel = Channels.Unreliable)] // unreliable delta
+        void CmdClientToServerDelta(ArraySegment<byte> data)
+        {
+            using (NetworkReaderPooled reader = NetworkReaderPool.Get(data))
+            {
+                // deserialize
+                byte baselineTick = reader.ReadByte();
+                OnDeserializeClientDelta(reader, baselineTick);
             }
         }
 

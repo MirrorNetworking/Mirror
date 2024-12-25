@@ -309,28 +309,21 @@ namespace Mirror
             if (syncScale)    writer.WriteVector3(scale);
         }
 
-        // rpcs/cmds ///////////////////////////////////////////////////////////
-        [Command(channel = Channels.Unreliable)] // unreliable delta
-        protected override void CmdClientToServerDelta(ArraySegment<byte> data)
+        // on client
+        protected override void OnDeserializeClientDelta(NetworkReader reader, byte baselineTick)
         {
-            using (NetworkReaderPooled reader = NetworkReaderPool.Get(data))
-            {
-                // deserialize
-                Vector3?    position = null;
-                Quaternion? rotation = null;
-                Vector3?    scale    = null;
+            Vector3? position = null;
+            Quaternion? rotation = null;
+            Vector3? scale = null;
 
-                byte baselineTick = reader.ReadByte();
-                if (syncPosition) position = reader.ReadVector3();
-                if (syncRotation) rotation = reader.ReadQuaternion();
-                if (syncScale)    scale    = reader.ReadVector3();
+            if (syncPosition) position = reader.ReadVector3();
+            if (syncRotation) rotation = reader.ReadQuaternion();
+            if (syncScale)    scale    = reader.ReadVector3();
 
-                // debug draw: new delta = white
-                if (debugDraw && position.HasValue) Debug.DrawLine(position.Value, position.Value + Vector3.up, Color.white, 10f);
+            // debug draw: delta = white
+            if (debugDraw && position.HasValue) Debug.DrawLine(position.Value, position.Value + Vector3.up, Color.white, 10f);
 
-                // process
-                OnClientToServerDeltaSync(baselineTick, position, rotation, scale);
-            }
+            OnClientToServerDeltaSync(baselineTick, position, rotation, scale);
         }
 
         // processing //////////////////////////////////////////////////////////
