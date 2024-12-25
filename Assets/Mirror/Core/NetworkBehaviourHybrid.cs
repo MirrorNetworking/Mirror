@@ -35,17 +35,11 @@ namespace Mirror
         }
 
         // user callbacks //////////////////////////////////////////////////////
-        // write all baseline sync data in here. this is sent over reliable.
-        // TODO reuse in OnSerialize?
-        // TODO reuse for ClientToServer?
-        protected abstract void OnSerializeServerToClientBaseline(NetworkWriter writer);
-        protected abstract void OnDeserializeServerToClientBaseline(NetworkReader reader, byte baselineTick);
+        protected abstract void OnSerializeBaseline(NetworkWriter writer);
+        protected abstract void OnDeserializeBaseline(NetworkReader reader, byte baselineTick);
 
         protected abstract void OnSerializeServerToClientDelta(NetworkWriter writer);
         protected abstract void OnDeserializeServerToClientDelta(NetworkReader reader, byte baselineTick);
-
-        protected abstract void OnSerializeClientToServerBaseline(NetworkWriter writer);
-        protected abstract void OnDeserializeClientToServerBaseline(NetworkReader reader, byte baselineTick);
 
         protected abstract void OnSerializeClientToServerDelta(NetworkWriter writer);
         protected abstract void OnDeserializeClientToServerDelta(NetworkReader reader, byte baselineTick);
@@ -77,7 +71,7 @@ namespace Mirror
                 // deserialize
                 // save last deserialized baseline tick number to compare deltas against
                 lastDeserializedBaselineTick = reader.ReadByte();
-                OnDeserializeServerToClientBaseline(reader, lastDeserializedBaselineTick);
+                OnDeserializeBaseline(reader, lastDeserializedBaselineTick);
             }
         }
 
@@ -123,7 +117,7 @@ namespace Mirror
             {
                 // deserialize
                 lastDeserializedBaselineTick = reader.ReadByte();
-                OnDeserializeClientToServerBaseline(reader, lastDeserializedBaselineTick);
+                OnDeserializeBaseline(reader, lastDeserializedBaselineTick);
             }
         }
 
@@ -167,10 +161,9 @@ namespace Mirror
 
             using (NetworkWriterPooled writer = NetworkWriterPool.Get())
             {
-                // always include baseline tick
+                // serialize
                 writer.WriteByte(frameCount);
-                // include user serialization
-                OnSerializeServerToClientBaseline(writer);
+                OnSerializeBaseline(writer);
 
                 // send (no need for redundancy since baseline is reliable)
                 RpcServerToClientBaseline(writer);
@@ -277,10 +270,9 @@ namespace Mirror
 
             using (NetworkWriterPooled writer = NetworkWriterPool.Get())
             {
-                // always include baseline tick
+                // serialize
                 writer.WriteByte(frameCount);
-                // include user serialization
-                OnSerializeClientToServerBaseline(writer);
+                OnSerializeBaseline(writer);
 
                 // send (no need for redundancy since baseline is reliable)
                 CmdClientToServerBaseline(writer);

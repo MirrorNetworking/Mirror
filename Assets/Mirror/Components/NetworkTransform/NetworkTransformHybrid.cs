@@ -162,8 +162,8 @@ namespace Mirror
         }
 
         // serialization ///////////////////////////////////////////////////////
-        // on server
-        protected override void OnSerializeServerToClientBaseline(NetworkWriter writer)
+        // called on server and on client, depending on SyncDirection
+        protected override void OnSerializeBaseline(NetworkWriter writer)
         {
             // perf: get position/rotation directly. TransformSnapshot is too expensive.
             // TransformSnapshot snapshot = ConstructSnapshot();
@@ -183,8 +183,8 @@ namespace Mirror
             changedSinceBaseline = false;
         }
 
-        // on client
-        protected override void OnDeserializeServerToClientBaseline(NetworkReader reader, byte baselineTick)
+        // called on server and on client, depending on SyncDirection
+        protected override void OnDeserializeBaseline(NetworkReader reader, byte baselineTick)
         {
             // deserialize
             Vector3?    position = null;
@@ -212,7 +212,16 @@ namespace Mirror
 
             // if baseline counts as delta, insert it into snapshot buffer too
             if (baselineIsDelta)
-                OnServerToClientDeltaSync(position, rotation, scale);
+            {
+                if (isServer)
+                {
+                    OnClientToServerDeltaSync(position, rotation, scale);
+                }
+                else if (isClient)
+                {
+                    OnServerToClientDeltaSync(position, rotation, scale);
+                }
+            }
         }
 
         // on server
@@ -243,58 +252,6 @@ namespace Mirror
             if (debugDraw && position.HasValue) Debug.DrawLine(position.Value, position.Value + Vector3.up, Color.white, 10f);
 
             OnServerToClientDeltaSync(position, rotation, scale);
-        }
-
-        protected override void OnSerializeClientToServerBaseline(NetworkWriter writer)
-        {
-            // perf: get position/rotation directly. TransformSnapshot is too expensive.
-            // TransformSnapshot snapshot = ConstructSnapshot();
-            target.GetLocalPositionAndRotation(out Vector3 position, out Quaternion rotation);
-            Vector3 scale = target.localScale;
-
-            if (syncPosition) writer.WriteVector3(position);
-            if (syncRotation) writer.WriteQuaternion(rotation);
-            if (syncScale)    writer.WriteVector3(scale);
-
-            // save last baseline data
-            lastSerializedBaselinePosition = position;
-            lastSerializedBaselineRotation = rotation;
-            lastSerializedBaselineScale = scale;
-
-            // baseline was just sent after a change. reset change detection.
-            changedSinceBaseline = false;
-        }
-
-        // on server
-        protected override void OnDeserializeClientToServerBaseline(NetworkReader reader, byte baselineTick)
-        {
-            // deserialize
-            Vector3? position = null;
-            Quaternion? rotation = null;
-            Vector3? scale = null;
-
-            if (syncPosition)
-            {
-                position = reader.ReadVector3();
-                lastDeserializedBaselinePosition = position.Value;
-            }
-            if (syncRotation)
-            {
-                rotation = reader.ReadQuaternion();
-                lastDeserializedBaselineRotation = rotation.Value;
-            }
-            if (syncScale)
-            {
-                scale = reader.ReadVector3();
-                lastDeserializedBaselineScale = scale.Value;
-            }
-
-            // debug draw: new baseline = yellow
-            if (debugDraw && position.HasValue) Debug.DrawLine(position.Value, position.Value + Vector3.up, Color.yellow, 10f);
-
-            // if baseline counts as delta, insert it into snapshot buffer too
-            if (baselineIsDelta)
-                OnClientToServerDeltaSync(position, rotation, scale);
         }
 
         protected override void OnSerializeClientToServerDelta(NetworkWriter writer)
