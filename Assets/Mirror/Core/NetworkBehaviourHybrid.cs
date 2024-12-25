@@ -19,8 +19,8 @@ namespace Mirror
         protected double lastDeltaTime;
 
         // delta compression needs to remember 'last' to compress against.
-        protected byte lastSerializedBaselineTick = 0;
-        protected byte lastDeserializedBaselineTick = 0;
+        byte lastSerializedBaselineTick = 0;
+        byte lastDeserializedBaselineTick = 0;
 
         [Tooltip("Enable to send all unreliable messages twice. Only useful for extremely fast-paced games since it doubles bandwidth costs.")]
         public bool unreliableRedundancy = false;
@@ -55,6 +55,9 @@ namespace Mirror
         protected virtual bool ShouldSyncServerToClientDelta(double localTime) => true;
         protected virtual bool ShouldSyncClientToServerBaseline(double localTime) => true;
         protected virtual bool ShouldSyncClientToServerDelta(double localTime) => true;
+
+        // user callback in case drops due to baseline mismatch need to be logged/visualized/debugged.
+        protected virtual void OnDrop(byte lastBaselineTick, byte baselineTick, NetworkReader reader) {}
 
         // rpcs / cmds /////////////////////////////////////////////////////////
         [ClientRpc(channel = Channels.Reliable)] // reliable baseline
@@ -95,6 +98,19 @@ namespace Mirror
             {
                 // deserialize
                 byte baselineTick = reader.ReadByte();
+
+                // ensure this delta is for our last known baseline.
+                // we should never apply a delta on top of a wrong baseline.
+                if (baselineTick != lastDeserializedBaselineTick)
+                {
+                    OnDrop(lastDeserializedBaselineTick, baselineTick, reader);
+
+                    // this can happen if unreliable arrives before reliable etc.
+                    // no need to log this except when debugging.
+                    // Debug.Log($"[{name}] Client: received delta for wrong baseline #{baselineTick}. Last was {lastDeserializedBaselineTick}. Ignoring.");
+                    return;
+                }
+
                 OnDeserializeServerToClientDelta(reader, baselineTick);
             }
         }
@@ -118,6 +134,19 @@ namespace Mirror
             {
                 // deserialize
                 byte baselineTick = reader.ReadByte();
+
+                // ensure this delta is for our last known baseline.
+                // we should never apply a delta on top of a wrong baseline.
+                if (baselineTick != lastDeserializedBaselineTick)
+                {
+                    OnDrop(lastDeserializedBaselineTick, baselineTick, reader);
+
+                    // this can happen if unreliable arrives before reliable etc.
+                    // no need to log this except when debugging.
+                    // Debug.Log($"[{name}] Server: received delta for wrong baseline #{baselineTick} from: {connectionToClient}. Last was {lastDeserializedBaselineTick}. Ignoring.");
+                    return;
+                }
+
                 OnDeserializeClientToServerDelta(reader, baselineTick);
             }
         }

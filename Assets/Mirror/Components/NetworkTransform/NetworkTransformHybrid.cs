@@ -212,7 +212,7 @@ namespace Mirror
 
             // if baseline counts as delta, insert it into snapshot buffer too
             if (baselineIsDelta)
-                OnServerToClientDeltaSync(baselineTick, position, rotation, scale);
+                OnServerToClientDeltaSync(position, rotation, scale);
         }
 
         // on server
@@ -242,7 +242,7 @@ namespace Mirror
             // debug draw: delta = white
             if (debugDraw && position.HasValue) Debug.DrawLine(position.Value, position.Value + Vector3.up, Color.white, 10f);
 
-            OnServerToClientDeltaSync(baselineTick, position, rotation, scale);
+            OnServerToClientDeltaSync(position, rotation, scale);
         }
 
         protected override void OnSerializeClientToServerBaseline(NetworkWriter writer)
@@ -294,7 +294,7 @@ namespace Mirror
 
             // if baseline counts as delta, insert it into snapshot buffer too
             if (baselineIsDelta)
-                OnClientToServerDeltaSync(baselineTick, position, rotation, scale);
+                OnClientToServerDeltaSync(position, rotation, scale);
         }
 
         protected override void OnSerializeClientToServerDelta(NetworkWriter writer)
@@ -323,28 +323,15 @@ namespace Mirror
             // debug draw: delta = white
             if (debugDraw && position.HasValue) Debug.DrawLine(position.Value, position.Value + Vector3.up, Color.white, 10f);
 
-            OnClientToServerDeltaSync(baselineTick, position, rotation, scale);
+            OnClientToServerDeltaSync(position, rotation, scale);
         }
 
         // processing //////////////////////////////////////////////////////////
         // local authority client sends sync message to server for broadcasting
-        protected virtual void OnClientToServerDeltaSync(byte baselineTick, Vector3? position, Quaternion? rotation, Vector3? scale)
+        protected virtual void OnClientToServerDeltaSync(Vector3? position, Quaternion? rotation, Vector3? scale)
         {
             // only apply if in client authority mode
             if (syncDirection != SyncDirection.ClientToServer) return;
-
-            // ensure this delta is for our last known baseline.
-            // we should never apply a delta on top of a wrong baseline.
-            if (baselineTick != lastDeserializedBaselineTick)
-            {
-                // debug draw: drop
-                if (debugDraw && position.HasValue) Debug.DrawLine(position.Value, position.Value + Vector3.up, Color.red, 10f);
-
-                // this can happen if unreliable arrives before reliable etc.
-                // no need to log this except when debugging.
-                // Debug.Log($"[{name}] Server: received delta for wrong baseline #{baselineTick} from: {connectionToClient}. Last was {lastDeserializedBaselineTick}. Ignoring.");
-                return;
-            }
 
             // protect against ever-growing buffer size attacks
             if (serverSnapshots.Count >= connectionToClient.snapshotBufferSizeLimit) return;
@@ -367,7 +354,7 @@ namespace Mirror
         }
 
         // server broadcasts sync message to all clients
-        protected virtual void OnServerToClientDeltaSync(byte baselineTick, Vector3? position, Quaternion? rotation, Vector3? scale)
+        protected virtual void OnServerToClientDeltaSync(Vector3? position, Quaternion? rotation, Vector3? scale)
         {
             // in host mode, the server sends rpcs to all clients.
             // the host client itself will receive them too.
@@ -379,19 +366,6 @@ namespace Mirror
 
             // don't apply for local player with authority
             if (IsClientWithAuthority) return;
-
-            // ensure this delta is for our last known baseline.
-            // we should never apply a delta on top of a wrong baseline.
-            if (baselineTick != lastDeserializedBaselineTick)
-            {
-                // debug draw: drop
-                if (debugDraw && position.HasValue) Debug.DrawLine(position.Value, position.Value + Vector3.up, Color.red, 10f);
-
-                // this can happen if unreliable arrives before reliable etc.
-                // no need to log this except when debugging.
-                // Debug.Log($"[{name}] Client: received delta for wrong baseline #{baselineTick}. Last was {lastDeserializedBaselineTick}. Ignoring.");
-                return;
-            }
 
             // Debug.Log($"[{name}] Client: received delta for baseline #{baselineTick}");
 
@@ -786,7 +760,7 @@ namespace Mirror
 
                 // if baseline counts as delta, insert it into snapshot buffer too
                 if (baselineIsDelta)
-                    OnServerToClientDeltaSync(lastDeserializedBaselineTick, position, rotation, scale);
+                    OnServerToClientDeltaSync(position, rotation, scale);
             }
         }
         // CUSTOM CHANGE ///////////////////////////////////////////////////////////
