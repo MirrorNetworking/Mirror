@@ -47,20 +47,6 @@ namespace Mirror
         Quaternion lastDeserializedBaselineRotation = Quaternion.identity;      // unused, but keep for delta
         Vector3 lastDeserializedBaselineScale = Vector3.one;                    // unused, but keep for delta
 
-        // change detection: we need to do this carefully in order to get it right.
-        //
-        // DONT just check changes in UpdateBaseline(). this would introduce MrG's grid issue:
-        //   server start in A1, reliable baseline sent to client
-        //   server moves to A2, unreliabe delta sent to client
-        //   server moves to A1, nothing is sent to client becuase last baseline position == position
-        //   => client wouldn't know we moved back to A1
-        //
-        // INSTEAD: every update() check for changes since baseline:
-        //   UpdateDelta() keeps sending only if changed since _baseline_
-        //   UpdateBaseline() resends if there was any change in the period since last baseline.
-        //   => this avoids the A1->A2->A1 grid issue above
-        bool changedSinceBaseline = false;
-
         // sensitivity is for changed-detection,
         // this is != precision, which is for quantization and delta compression.
         [Header("Sensitivity"), Tooltip("Sensitivity of changes needed before an updated state is sent over the network")]
@@ -121,14 +107,23 @@ namespace Mirror
             if (syncScale)    target.localScale    = interpolated.scale;
         }
 
+        // store state after baseline sync
+        protected override void StoreState()
+        {
+            target.GetLocalPositionAndRotation(out lastSerializedBaselinePosition, out lastSerializedBaselineRotation);
+            lastSerializedBaselineScale = target.localScale;
+        }
+
         // check if position / rotation / scale changed since last _full reliable_ sync.
         // squared comparisons for performance
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        bool Changed(Vector3 currentPosition, Quaternion currentRotation, Vector3 currentScale)
+        protected override bool StateChanged()
         {
+            target.GetLocalPositionAndRotation(out Vector3 position, out Quaternion rotation);
+            Vector3 scale = target.localScale;
+
             if (syncPosition)
             {
-                float positionDelta = Vector3.Distance(currentPosition, lastSerializedBaselinePosition);
+                float positionDelta = Vector3.Distance(position, lastSerializedBaselinePosition);
                 if (positionDelta >= positionSensitivity)
                 {
                     return true;
@@ -137,7 +132,7 @@ namespace Mirror
 
             if (syncRotation)
             {
-                float rotationDelta = Quaternion.Angle(lastSerializedBaselineRotation, currentRotation);
+                float rotationDelta = Quaternion.Angle(lastSerializedBaselineRotation, rotation);
                 if (rotationDelta >= rotationSensitivity)
                 {
                     return true;
@@ -146,7 +141,7 @@ namespace Mirror
 
             if (syncScale)
             {
-                float scaleDelta = Vector3.Distance(currentScale, lastSerializedBaselineScale);
+                float scaleDelta = Vector3.Distance(scale, lastSerializedBaselineScale);
                 if (scaleDelta >= scaleSensitivity)
                 {
                     return true;
@@ -168,14 +163,6 @@ namespace Mirror
             if (syncPosition) writer.WriteVector3(position);
             if (syncRotation) writer.WriteQuaternion(rotation);
             if (syncScale)    writer.WriteVector3(scale);
-
-            // save last baseline data
-            lastSerializedBaselinePosition = position;
-            lastSerializedBaselineRotation = rotation;
-            lastSerializedBaselineScale = scale;
-
-            // baseline was just sent after a change. reset change detection.
-            changedSinceBaseline = false;
         }
 
         // called on server and on client, depending on SyncDirection
@@ -332,34 +319,6 @@ namespace Mirror
         }
 
         // update server ///////////////////////////////////////////////////////
-        protected override bool ShouldSyncServerToClientBaseline(double localTime) =>
-            changedSinceBaseline;
-
-        protected override bool ShouldSyncServerToClientDelta(double localTime)
-        {
-            // perf: get position/rotation directly. TransformSnapshot is too expensive.
-            // TransformSnapshot snapshot = ConstructSnapshot();
-            target.GetLocalPositionAndRotation(out Vector3 position, out Quaternion rotation);
-            Vector3 scale = target.localScale;
-
-            // look for changes every unreliable sendInterval!
-            // every reliable interval isn't enough, this would cause MrG's grid issue:
-            //   server start in A1, reliable baseline sent to client
-            //   server moves to A2, unreliabe delta sent to client
-            //   server moves to A1, nothing is sent to client becuase last baseline position == position
-            //   => client wouldn't know we moved back to A1
-            // every update works, but it's unnecessary overhead since sends only happen every sendInterval
-            // every unreliable sendInterval is the perfect place to look for changes.
-            if (Changed(position, rotation, scale))
-                changedSinceBaseline = true;
-
-            // only sync on change:
-            // unreliable isn't guaranteed to be delivered so this depends on reliable baseline.
-            if (!changedSinceBaseline) return false;
-
-            return true;
-        }
-
         void UpdateServerInterpolation()
         {
             // apply buffered snapshots IF client authority
@@ -393,34 +352,6 @@ namespace Mirror
         }
 
         // update client ///////////////////////////////////////////////////////
-        protected override bool ShouldSyncClientToServerBaseline(double localTime) => changedSinceBaseline;
-
-        protected override bool ShouldSyncClientToServerDelta(double localTime)
-        {
-            // perf: get position/rotation directly. TransformSnapshot is too expensive.
-            // TransformSnapshot snapshot = ConstructSnapshot();
-            target.GetLocalPositionAndRotation(out Vector3 position, out Quaternion rotation);
-            Vector3 scale = target.localScale;
-
-            // look for changes every unreliable sendInterval!
-            //
-            // every reliable interval isn't enough, this would cause MrG's grid issue:
-            //   client start in A1, reliable baseline sent to server
-            //   client moves to A2, unreliabe delta sent to server
-            //   client moves to A1, nothing is sent to server becuase last baseline position == position
-            //   => server wouldn't know we moved back to A1
-            // every update works, but it's unnecessary overhead since sends only happen every sendInterval
-            // every unreliable sendInterval is the perfect place to look for changes.
-            if (Changed(position, rotation, scale))
-                changedSinceBaseline = true;
-
-            // only sync on change:
-            // unreliable isn't guaranteed to be delivered so this depends on reliable baseline.
-            if (!changedSinceBaseline) return false;
-
-            return true;
-        }
-
         void UpdateClientInterpolation()
         {
             // only while we have snapshots
@@ -595,7 +526,6 @@ namespace Mirror
             lastSerializedBaselinePosition = Vector3.zero;
             lastSerializedBaselineRotation = Quaternion.identity;
             lastSerializedBaselineScale    = Vector3.one;
-            changedSinceBaseline = false;
 
             lastDeserializedBaselinePosition = Vector3.zero;
             lastDeserializedBaselineRotation = Quaternion.identity;
@@ -628,20 +558,6 @@ namespace Mirror
                 if (syncPosition) writer.WriteVector3(position);
                 if (syncRotation) writer.WriteQuaternion(rotation);
                 if (syncScale)    writer.WriteVector3(scale);
-
-                // IMPORTANT
-                // OnSerialize(initial) is called for the spawn payload whenever
-                // someone starts observing this object. we always must make
-                // this the new baseline, otherwise this happens:
-                //   - server broadcasts baseline @ t=1
-                //   - server broadcasts delta for baseline @ t=1
-                //   - ... time passes ...
-                //   - new observer -> OnSerialize sends current position @ t=2
-                //   - server broadcasts delta for baseline @ t=1
-                //   => client's baseline is t=2 but receives delta for t=1 _!_
-                lastSerializedBaselinePosition = position;
-                lastSerializedBaselineRotation = rotation;
-                lastSerializedBaselineScale    = scale;
             }
         }
 

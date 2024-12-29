@@ -28,10 +28,25 @@ namespace Mirror
         [Tooltip("When sending a reliable baseline, should we also send an unreliable delta or rely on the reliable baseline to arrive in a similar time?")]
         public bool baselineIsDelta = true;
 
+        // change detection: we need to do this carefully in order to get it right.
+        //
+        // DONT just check changes in UpdateBaseline(). this would introduce MrG's grid issue:
+        //   server start in A1, reliable baseline sent to client
+        //   server moves to A2, unreliabe delta sent to client
+        //   server moves to A1, nothing is sent to client becuase last baseline position == position
+        //   => client wouldn't know we moved back to A1
+        //
+        // INSTEAD: every update() check for changes since baseline:
+        //   UpdateDelta() keeps sending only if changed since _baseline_
+        //   UpdateBaseline() resends if there was any change in the period since last baseline.
+        //   => this avoids the A1->A2->A1 grid issue above
+        bool changedSinceBaseline = false;
+
         public virtual void Reset()
         {
             lastSerializedBaselineTick = 0;
             lastDeserializedBaselineTick = 0;
+            changedSinceBaseline = false;
         }
 
         // user callbacks //////////////////////////////////////////////////////
@@ -41,11 +56,17 @@ namespace Mirror
         protected abstract void OnSerializeDelta(NetworkWriter writer);
         protected abstract void OnDeserializeDelta(NetworkReader reader, byte baselineTick);
 
-        // this can be used for change detection
-        protected virtual bool ShouldSyncServerToClientBaseline(double localTime) => true;
-        protected virtual bool ShouldSyncServerToClientDelta(double localTime) => true;
-        protected virtual bool ShouldSyncClientToServerBaseline(double localTime) => true;
-        protected virtual bool ShouldSyncClientToServerDelta(double localTime) => true;
+        // implementations must store the current baseline state when requested:
+        // - implementations can use this to compress deltas against
+        // - implementations can use this to detect changes since baseline
+        // this is called whenever a baseline was sent.
+        protected abstract void StoreState();
+
+        // implementations may compare current state to the last stored state.
+        // this way we only need to send another reliable baseline if changed since last.
+        // this is called every syncInterval, not every baseline sync interval.
+        // (see comments where this is called).
+        protected abstract bool StateChanged();
 
         // user callback in case drops due to baseline mismatch need to be logged/visualized/debugged.
         protected virtual void OnDrop(byte lastBaselineTick, byte baselineTick, NetworkReader reader) {}
@@ -148,8 +169,8 @@ namespace Mirror
             // send a reliable baseline every 1 Hz
             if (localTime < lastBaselineTime + baselineInterval) return;
 
-            // user check for change detection etc.
-            if (!ShouldSyncServerToClientBaseline(localTime)) return;
+            // only sync if changed since last reliable baseline
+            if (!changedSinceBaseline) return;
 
             // save bandwidth by only transmitting what is needed.
             // -> ArraySegment with random data is slower since byte[] copying
@@ -182,6 +203,12 @@ namespace Mirror
             //   => 10 Hz total if we skip delta after reliable
             // in that case, skip next delta by simply resetting last delta sync's time.
             if (baselineIsDelta) lastDeltaTime = localTime;
+
+            // request to store last baseline state (i.e. position) for change detection.
+            StoreState();
+
+            // baseline was just sent after a change. reset change detection.
+            changedSinceBaseline = false;
         }
 
         protected virtual void UpdateServerDelta(double localTime)
@@ -219,8 +246,19 @@ namespace Mirror
 
             if (localTime < lastDeltaTime + syncInterval) return;
 
-            // user check for change detection etc.
-            if (!ShouldSyncServerToClientDelta(localTime)) return;
+            // look for changes every unreliable sendInterval!
+            // every reliable interval isn't enough, this would cause MrG's grid issue:
+            //   server start in A1, reliable baseline sent to client
+            //   server moves to A2, unreliabe delta sent to client
+            //   server moves to A1, nothing is sent to client becuase last baseline position == position
+            //   => client wouldn't know we moved back to A1
+            // every update works, but it's unnecessary overhead since sends only happen every sendInterval
+            // every unreliable sendInterval is the perfect place to look for changes.
+            if (StateChanged()) changedSinceBaseline = true;
+
+            // only sync on change:
+            // unreliable isn't guaranteed to be delivered so this depends on reliable baseline.
+            if (!changedSinceBaseline) return;
 
             using (NetworkWriterPooled writer = NetworkWriterPool.Get())
             {
@@ -256,8 +294,8 @@ namespace Mirror
             // send a reliable baseline every 1 Hz
             if (localTime < lastBaselineTime + baselineInterval) return;
 
-            // user check for change detection etc.
-            if (!ShouldSyncClientToServerBaseline(localTime)) return;
+            // only sync if changed since last reliable baseline
+            if (!changedSinceBaseline) return;
 
             // save bandwidth by only transmitting what is needed.
             // -> ArraySegment with random data is slower since byte[] copying
@@ -290,6 +328,22 @@ namespace Mirror
             //   => 10 Hz total if we skip delta after reliable
             // in that case, skip next delta by simply resetting last delta sync's time.
             if (baselineIsDelta) lastDeltaTime = localTime;
+
+            // request to store last baseline state (i.e. position) for change detection.
+            // IMPORTANT
+            // OnSerialize(initial) is called for the spawn payload whenever
+            // someone starts observing this object. we always must make
+            // this the new baseline, otherwise this happens:
+            //   - server broadcasts baseline @ t=1
+            //   - server broadcasts delta for baseline @ t=1
+            //   - ... time passes ...
+            //   - new observer -> OnSerialize sends current position @ t=2
+            //   - server broadcasts delta for baseline @ t=1
+            //   => client's baseline is t=2 but receives delta for t=1 _!_
+            StoreState();
+
+            // baseline was just sent after a change. reset change detection.
+            changedSinceBaseline = false;
         }
 
         protected virtual void UpdateClientDelta(double localTime)
@@ -317,8 +371,19 @@ namespace Mirror
 
             if (localTime < lastDeltaTime + syncInterval) return;
 
-            // user check for change detection etc.
-            if (!ShouldSyncClientToServerDelta(localTime)) return;
+            // look for changes every unreliable sendInterval!
+            // every reliable interval isn't enough, this would cause MrG's grid issue:
+            //   server start in A1, reliable baseline sent to client
+            //   server moves to A2, unreliabe delta sent to client
+            //   server moves to A1, nothing is sent to client becuase last baseline position == position
+            //   => client wouldn't know we moved back to A1
+            // every update works, but it's unnecessary overhead since sends only happen every sendInterval
+            // every unreliable sendInterval is the perfect place to look for changes.
+            if (StateChanged()) changedSinceBaseline = true;
+
+            // only sync on change:
+            // unreliable isn't guaranteed to be delivered so this depends on reliable baseline.
+            if (!changedSinceBaseline) return;
 
             using (NetworkWriterPooled writer = NetworkWriterPool.Get())
             {
@@ -384,6 +449,9 @@ namespace Mirror
                 //   => client's baseline is t=2 but receives delta for t=1 _!_
                 lastSerializedBaselineTick = (byte)Time.frameCount;
                 lastBaselineTime = NetworkTime.localTime;
+
+                // request to store last baseline state (i.e. position) for change detection.
+                StoreState();
             }
         }
 
