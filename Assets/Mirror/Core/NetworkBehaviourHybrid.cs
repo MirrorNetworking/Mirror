@@ -42,6 +42,9 @@ namespace Mirror
         //   => this avoids the A1->A2->A1 grid issue above
         bool changedSinceBaseline = false;
 
+        [Header("Debug")]
+        public bool debugLog = false;
+
         public virtual void Reset()
         {
             lastSerializedBaselineTick = 0;
@@ -119,7 +122,7 @@ namespace Mirror
 
                     // this can happen if unreliable arrives before reliable etc.
                     // no need to log this except when debugging.
-                    // Debug.Log($"[{name}] Client: received delta for wrong baseline #{baselineTick}. Last was {lastDeserializedBaselineTick}. Ignoring.");
+                    if (debugLog) Debug.Log($"[{name}] Client: received delta for wrong baseline #{baselineTick}. Last was {lastDeserializedBaselineTick}. Ignoring.");
                     return;
                 }
 
@@ -155,7 +158,7 @@ namespace Mirror
 
                     // this can happen if unreliable arrives before reliable etc.
                     // no need to log this except when debugging.
-                    // Debug.Log($"[{name}] Server: received delta for wrong baseline #{baselineTick} from: {connectionToClient}. Last was {lastDeserializedBaselineTick}. Ignoring.");
+                    if (debugLog) Debug.Log($"[{name}] Server: received delta for wrong baseline #{baselineTick} from: {connectionToClient}. Last was {lastDeserializedBaselineTick}. Ignoring.");
                     return;
                 }
 
@@ -209,6 +212,8 @@ namespace Mirror
 
             // baseline was just sent after a change. reset change detection.
             changedSinceBaseline = false;
+
+            if (debugLog) Debug.Log($"[{name}] Server: sent baseline #{lastSerializedBaselineTick} to: {connectionToClient} at time: {localTime}");
         }
 
         protected virtual void UpdateServerDelta(double localTime)
@@ -273,6 +278,8 @@ namespace Mirror
             }
 
             lastDeltaTime = localTime;
+
+            if (debugLog) Debug.Log($"[{name}] Server: sent delta for #{lastSerializedBaselineTick} to: {connectionToClient} at time: {localTime}");
         }
 
         protected virtual void UpdateServerSync()
@@ -344,6 +351,8 @@ namespace Mirror
 
             // baseline was just sent after a change. reset change detection.
             changedSinceBaseline = false;
+
+            if (debugLog) Debug.Log($"[{name}] Client: sent baseline #{lastSerializedBaselineTick} at time: {localTime}");
         }
 
         protected virtual void UpdateClientDelta(double localTime)
@@ -398,6 +407,8 @@ namespace Mirror
             }
 
             lastDeltaTime = localTime;
+
+            if (debugLog) Debug.Log($"[{name}] Client: sent delta for #{lastSerializedBaselineTick} at time: {localTime}");
         }
 
         protected virtual void UpdateClientSync()
