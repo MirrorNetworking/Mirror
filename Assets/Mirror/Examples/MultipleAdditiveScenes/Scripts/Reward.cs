@@ -15,7 +15,16 @@ namespace Mirror.Examples.MultipleAdditiveScenes
 
         protected override void OnValidate()
         {
+            if (Application.isPlaying) return;
+
             base.OnValidate();
+            Reset();
+        }
+
+        void Reset()
+        {
+            // Default position out of reach
+            transform.position = new Vector3(0, -1000, 0);
 
             if (randomColor == null)
                 randomColor = GetComponent<Common.RandomColor>();
@@ -29,6 +38,9 @@ namespace Mirror.Examples.MultipleAdditiveScenes
         [ServerCallback]
         void OnTriggerEnter(Collider other)
         {
+            // Don't process collisions when it's in the pool
+            if (!gameObject.activeSelf) return;
+
             // Set up physics layers to prevent this from being called by non-players
             // and eliminate the need for a tag check here.
             if (!other.CompareTag("Player")) return;

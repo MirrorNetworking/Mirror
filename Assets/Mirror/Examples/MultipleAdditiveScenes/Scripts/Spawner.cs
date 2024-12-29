@@ -55,8 +55,7 @@ namespace Mirror.Examples.MultipleAdditiveScenes
             GameObject next = pool.Get();
 
             // set position/rotation and set active
-            next.transform.position = position;
-            next.transform.rotation = rotation;
+            next.transform.SetPositionAndRotation(position, rotation);
             next.SetActive(true);
             return next;
         }
@@ -68,6 +67,9 @@ namespace Mirror.Examples.MultipleAdditiveScenes
         {
             // disable object
             spawned.SetActive(false);
+
+            // move the object out of reach so OnTriggerEnter doesn't get called
+            spawned.transform.position = new Vector3(0, -1000, 0);
 
             // add back to pool
             pool.Return(spawned);

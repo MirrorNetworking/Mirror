@@ -16,7 +16,7 @@
 ![mmos_conceptart](https://github.com/user-attachments/assets/a95f2229-2f07-4c8c-9245-93a5e8004b7d)
 
 ## Mirror Networking 
-The **#1** free **open source** game networking library for **Unity 2019 / 2020 / 2021 / 2022 LTS**.
+The **#1** free **open source** game networking library for **Unity 2019 / 2020 / 2021 / 2022 / 6**.
 
 Used **in production** by major hits like [**Population: ONE**](https://www.populationonevr.com/) and many [**more**](#made-with-mirror).
 
@@ -40,16 +40,17 @@ Many of our features quickly became the norm across all Unity netcodes!<br>
 | 🐌 **Latency Simulation**     | Simulate latency, packet loss & jitter locally.                                                                                                               | **Stable**      |
 | 🧲 **Batching**               | Minimize message overhead via batching automatically.                                                                                                         | **Stable**      |
 | 💌 **RPCs & SyncVars**        | Synced vars and remote function calls built in & safe.                                                                                                        | **Stable**      |
-| 🙅‍♀️**Allocation Free**      | Free of runtime allocations and no GC (except Transports).                                                                                                    | **Stable**      |
-| 🛞  **Transform & Physics**   | Transform & Physics sync built in.                                                                                                                            | **Stable**      |
+| 🙅‍♀️ **Allocation Free**      | Free of runtime allocations and no GC (except Transports).                                                                                                    | **Stable**      |
+| 🛞 **Transform & Physics**   | Transform & Physics sync built in.                                                                                                                            | **Stable**      |
 | 👩‍🍼 **Child Components**    | Put networked components on anything.                                                                                                                         | **Stable**      |
 | 🪚️ **IL Post Processing**    | Zero overhead [Rpcs] and [Commands] via IL post processing!                                                                                                   | **Stable**      |
 | ☁️ **Two Click Hosting**      | (Optional) <a href="https://mirror-networking.gitbook.io/docs/hosting/edgegap-hosting-plugin-guide">Build & Push</a> directly from Unity Editor to the Cloud. | **Stable**     |
 |                               |                                                                                                                                                               |                 |
-| 📏 **Snapshot Interp.**       | Perfectly smooth movement for all platforms and all games.                                                                                                    | **Stable**      |
+| 📏 **Snapshot Interpolation**       | Perfectly smooth movement for all platforms & genres.                                                                                                    | **Stable**      |
 | 🔫 **Lag Compensation**       | Roll back state to see what the player saw during input.                                                                                                      | **Beta**     |
 | 🔒 **Encryption**             | Secure communication with end-to-end encryption.                                                                                                              | **Beta** |
 | 🔒 **Cheat Detection**        | Mirror Guard safely detects Melon Loader & more.                                                                                                              | **Beta** |
+| 🚀 **Unreliable Mode**       | Quake style Unreliable SyncMode for any component.                                                                                                      | **Development**     |
 |                               |                                                                                                                                                               |                 |
 | 🧙‍♂️ **General Purpose**     | Mirror supports all genres for all your games!                                                                                                                |                 |
 | 🧘‍♀️ **Stable API**          | Long term (10 years)  stability instead of new versions!                                                                                                      |
