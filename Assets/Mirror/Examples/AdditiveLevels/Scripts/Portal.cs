@@ -74,6 +74,10 @@ namespace Mirror.Examples.AdditiveLevels
             // Remove player after fader has completed
             NetworkServer.RemovePlayerForConnection(conn, RemovePlayerOptions.Unspawn);
 
+            // yield a frame allowing interest management to update
+            // and all spawned objects to be destroyed on client
+            yield return null;
+
             // reposition player on server and client
             player.transform.position = startPosition;
 
