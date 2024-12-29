@@ -47,11 +47,6 @@ namespace Mirror
         Quaternion lastDeserializedBaselineRotation = Quaternion.identity;      // unused, but keep for delta
         Vector3 lastDeserializedBaselineScale = Vector3.one;                    // unused, but keep for delta
 
-        // only sync when changed hack /////////////////////////////////////////
-        [Header("Sync Only If Changed")]
-        [Tooltip("When true, changes are not sent unless greater than sensitivity values below.")]
-        public bool onlySyncOnChange = true;
-
         // change detection: we need to do this carefully in order to get it right.
         //
         // DONT just check changes in UpdateBaseline(). this would introduce MrG's grid issue:
@@ -337,14 +332,8 @@ namespace Mirror
         }
 
         // update server ///////////////////////////////////////////////////////
-        protected override bool ShouldSyncServerToClientBaseline(double localTime)
-        {
-            // TODO move change detection to base later? or not?
-            // only sync on change: only resend baseline if changed since last.
-            if (onlySyncOnChange && !changedSinceBaseline) return false;
-
-            return true;
-        }
+        protected override bool ShouldSyncServerToClientBaseline(double localTime) =>
+            changedSinceBaseline;
 
         protected override bool ShouldSyncServerToClientDelta(double localTime)
         {
@@ -361,12 +350,12 @@ namespace Mirror
             //   => client wouldn't know we moved back to A1
             // every update works, but it's unnecessary overhead since sends only happen every sendInterval
             // every unreliable sendInterval is the perfect place to look for changes.
-            if (onlySyncOnChange && Changed(position, rotation, scale))
+            if (Changed(position, rotation, scale))
                 changedSinceBaseline = true;
 
             // only sync on change:
             // unreliable isn't guaranteed to be delivered so this depends on reliable baseline.
-            if (onlySyncOnChange && !changedSinceBaseline) return false;
+            if (!changedSinceBaseline) return false;
 
             return true;
         }
@@ -404,14 +393,7 @@ namespace Mirror
         }
 
         // update client ///////////////////////////////////////////////////////
-        protected override bool ShouldSyncClientToServerBaseline(double localTime)
-        {
-            // TODO move change detection to base later? or not?
-            // only sync on change: only resend baseline if changed since last.
-            if (onlySyncOnChange && !changedSinceBaseline) return false;
-
-            return true;
-        }
+        protected override bool ShouldSyncClientToServerBaseline(double localTime) => changedSinceBaseline;
 
         protected override bool ShouldSyncClientToServerDelta(double localTime)
         {
@@ -429,12 +411,12 @@ namespace Mirror
             //   => server wouldn't know we moved back to A1
             // every update works, but it's unnecessary overhead since sends only happen every sendInterval
             // every unreliable sendInterval is the perfect place to look for changes.
-            if (onlySyncOnChange && Changed(position, rotation, scale))
+            if (Changed(position, rotation, scale))
                 changedSinceBaseline = true;
 
             // only sync on change:
             // unreliable isn't guaranteed to be delivered so this depends on reliable baseline.
-            if (onlySyncOnChange && !changedSinceBaseline) return false;
+            if (!changedSinceBaseline) return false;
 
             return true;
         }
