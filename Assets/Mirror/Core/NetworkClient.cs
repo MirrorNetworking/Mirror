@@ -1457,7 +1457,9 @@ namespace Mirror
             if (FindOrSpawnObject(message, out NetworkIdentity identity))
             {
                 if (isSpawnFinished)
+                {
                     ApplySpawnPayload(identity, message);
+                }
                 else
                 {
                     // Defer ApplySpawnPayload until OnObjectSpawnFinished
