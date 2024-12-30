@@ -1,6 +1,7 @@
 ﻿using System.Runtime.CompilerServices; // do not remove, required to add init support for net4.9 or lower
-using System;
+using System.Collections.Generic;
 using System.Linq;
+using System;
 using UnityEngine;
 
 #nullable enable
@@ -49,13 +50,14 @@ namespace Mirror.Components.Experimental{
     /// If no fields differ, returns null.
     /// </summary>
     /// <param name="state">The other NetworkPlayerState to compare with.</param>
+    /// <param name="ignorePosition">When set skips comparing positions.</param>
     /// <returns>A new NetworkPlayerState instance with only differing values, or null if there are no differences. </returns>
     public NetworkPlayerState? GetChangedStateComparedTo(NetworkPlayerState state) {
       // Compare items that can be sent via network
       uint? parentId = _parentId != state._parentId ? _parentId : null;
-      Vector3? position = Position != state.Position ? Position : null;
-      Vector3? baseVelocity = BaseVelocity != state.BaseVelocity ? BaseVelocity : null;
-      Quaternion? rotation = Rotation != state.Rotation ? Rotation : null;
+      Vector3? position = !Vector3BitwiseEqual(Position, state.Position) ? Position : null;
+      Vector3? baseVelocity = !Vector3BitwiseEqual(BaseVelocity, state.BaseVelocity) ? BaseVelocity : null;
+      Quaternion? rotation = !QuaternionBitwiseEqual(Rotation, state.Rotation) ? Rotation : null;
       ReadOnlyMemory<byte>? additionalState = !ByteArraysEqual(_additionalState, state._additionalState) ? _additionalState : null;
 
       // Ensure to align the parent NetworkIdentity instance with the changed parent state
@@ -259,6 +261,23 @@ namespace Mirror.Components.Experimental{
 
     #region Utility Functions
 
+    private static bool Vector3BitwiseEqual(Vector3? v1, Vector3? v2) =>
+      v1.HasValue && v2.HasValue
+        ? BitConverter.SingleToInt32Bits(v1.Value.x) == BitConverter.SingleToInt32Bits(v2.Value.x)
+          && BitConverter.SingleToInt32Bits(v1.Value.y) == BitConverter.SingleToInt32Bits(v2.Value.y)
+          && BitConverter.SingleToInt32Bits(v1.Value.z) == BitConverter.SingleToInt32Bits(v2.Value.z)
+        : v1 == v2;
+
+
+    private static bool QuaternionBitwiseEqual(Quaternion? q1, Quaternion? q2) =>
+      q1.HasValue && q2.HasValue
+        ? BitConverter.SingleToInt32Bits(q1.Value.x) == BitConverter.SingleToInt32Bits(q2.Value.x)
+          && BitConverter.SingleToInt32Bits(q1.Value.y) == BitConverter.SingleToInt32Bits(q2.Value.y)
+          && BitConverter.SingleToInt32Bits(q1.Value.z) == BitConverter.SingleToInt32Bits(q2.Value.z)
+          && BitConverter.SingleToInt32Bits(q1.Value.w) == BitConverter.SingleToInt32Bits(q2.Value.w)
+        : q1 == q2;
+
+
     /// <summary> Compares two byte arrays for equality, including handling null values. </summary>
     /// <param name="byteArray1">The first ReadOnlyMemory<byte>? to compare, can be null. </param>
     /// <param name="byteArray2">The second ReadOnlyMemory<byte>? to compare, can be null. </param>
@@ -276,6 +295,7 @@ namespace Mirror.Components.Experimental{
     #endregion
   }
 
+  // Serializers for the NetworkPlayerState Struct
   public static class NetworkPlayerStateSerializer{
     public static void WriteNetworkPlayerState(this NetworkWriter writer, NetworkPlayerState value) {
       NetworkPlayerState.WriteNetworkPlayerState(writer, value);
@@ -284,5 +304,29 @@ namespace Mirror.Components.Experimental{
     public static NetworkPlayerState ReadNetworkPlayerState(this NetworkReader reader) {
       return NetworkPlayerState.ReadNetworkPlayerState(reader);
     }
+
+    public static void WriteNetworkPlayerStateListArray(this NetworkWriter writer, NetworkPlayerState[] value) {
+      if (value.Length > 255)
+        throw new ArgumentOutOfRangeException(nameof(value), "NetworkPlayerState[]: Max supported length is 255");
+      writer.WriteByte((byte)value.Length);
+      Array.ForEach(value, item => NetworkPlayerState.WriteNetworkPlayerState(writer, item));
+    }
+
+    public static NetworkPlayerState[] ReadNetworkPlayerStateArray(this NetworkReader reader) =>
+      Enumerable.Range(0, reader.ReadByte())
+        .Select(_ => NetworkPlayerState.ReadNetworkPlayerState(reader))
+        .ToArray();
+
+    public static void WriteNetworkPlayerStateListList(this NetworkWriter writer, List<NetworkPlayerState> value) {
+      if (value.Count > 255)
+        throw new ArgumentOutOfRangeException(nameof(value), "List<NetworkPlayerState>: Max supported length is 255");
+      writer.WriteByte((byte)value.Count);
+      value.ForEach(item => NetworkPlayerState.WriteNetworkPlayerState(writer, item));
+    }
+
+    public static List<NetworkPlayerState> ReadNetworkPlayerStateList(this NetworkReader reader) =>
+      Enumerable.Range(0, reader.ReadByte())
+        .Select(_ => NetworkPlayerState.ReadNetworkPlayerState(reader))
+        .ToList();
   }
 }
