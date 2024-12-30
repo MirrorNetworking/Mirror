@@ -7,6 +7,11 @@ namespace Mirror.Components.Experimental{
   /// </summary>
   public interface INetworkedItem{
     /// <summary>
+    /// Called before the network reconciliation process begins, allowing the item to properly reset state to the last known good state.
+    /// </summary>
+    void OnResetNetworkState();
+
+    /// <summary>
     /// Called before the main network update, allowing the item to perform any necessary preparation or pre-update logic.
     /// </summary>
     /// <param name="deltaTicks">The number of ticks since the last update.</param>
@@ -51,6 +56,15 @@ namespace Mirror.Components.Experimental{
       NetworkItems.RemoveAll(entry => entry.item.Equals(item));
     }
 
+    /// <summary>
+    /// Runs the OnResetNetworkState method on each network item in priority order.
+    /// This method is intended to reset the network state before any updates are processed.
+    /// </summary>
+    public static void RunResetNetworkState() {
+      foreach (var (_, item) in NetworkItems) {
+        item.OnResetNetworkState();
+      }
+    }
 
     /// <summary>
     /// Runs the BeforeNetworkUpdate method on each network item in priority order.
@@ -59,11 +73,10 @@ namespace Mirror.Components.Experimental{
     /// <param name="deltaTicks">The number of ticks since the last update.</param>
     /// <param name="deltaTime">The time elapsed since the last update in seconds.</param>
     public static void RunBeforeNetworkUpdates(int deltaTicks, float deltaTime) {
-      foreach (var (priority, item) in NetworkItems) {
+      foreach (var (_, item) in NetworkItems) {
         item.BeforeNetworkUpdate(deltaTicks, deltaTime);
       }
     }
-
 
     /// <summary>
     /// Runs the OnNetworkUpdate method on each network item in priority order.
@@ -72,11 +85,10 @@ namespace Mirror.Components.Experimental{
     /// <param name="deltaTicks">The number of ticks since the last update.</param>
     /// <param name="deltaTime">The time elapsed since the last update in seconds.</param>
     public static void RunNetworkUpdates(int deltaTicks, float deltaTime) {
-      foreach (var (priority, item) in NetworkItems) {
+      foreach (var (_, item) in NetworkItems) {
         item.OnNetworkUpdate(deltaTicks, deltaTime);
       }
     }
-
 
     /// <summary>
     /// Runs the AfterNetworkUpdate method on each network item in priority order.
@@ -85,7 +97,7 @@ namespace Mirror.Components.Experimental{
     /// <param name="deltaTicks">The number of ticks since the last update.</param>
     /// <param name="deltaTime">The time elapsed since the last update in seconds.</param>
     public static void RunAfterNetworkUpdates(int deltaTicks, float deltaTime) {
-      foreach (var (priority, item) in NetworkItems) {
+      foreach (var (_, item) in NetworkItems) {
         item.AfterNetworkUpdate(deltaTicks, deltaTime);
       }
     }

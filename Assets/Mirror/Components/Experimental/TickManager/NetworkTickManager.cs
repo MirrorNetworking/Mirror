@@ -493,6 +493,12 @@ namespace Mirror.Components.Experimental{
       if (clientAdjustment != 0 || serverAdjustment != 0)
         SetAdjusting(NetworkTick.IncrementTick(_networkTick.GetClientTick(), deltaTicks + clientAdjustment));
 
+      // // When server tick is skipping forward we want to reconcile the ticks to keep the simulation whole
+      if (serverAdjustment < 0 || clientAdjustment < 0) {
+        var reconcileTarget = NetworkTick.IncrementTick(_networkTick.GetClientTick(), serverAdjustment + clientAdjustment);
+        physicsController.ReconcileFromTick(reconcileTarget);
+      }
+
       return deltaTicks + clientAdjustment;
     }
 
@@ -503,17 +509,22 @@ namespace Mirror.Components.Experimental{
     #region Tick Simulation Functions
 
     /// <summary> Checks for any required reconciliation due to state discrepancies and resimulates physics accordingly. </summary>
-    /// <param name="deltaTicks">The number of ticks advanced since the last update.</param>
     [Client]
-    private void CheckReconcile(int deltaTicks) {
-      var reconcileStartTick = physicsController.GetReconcileStartTick();
-      if (reconcileStartTick > 0) {
-        var reconcileTicks = _networkTick.GetClientTick() - reconcileStartTick + deltaTicks;
-        OnTickForwardClient(-reconcileTicks);
-        _networkTick.SetReconciling(true);
-        physicsController.RunSimulate(reconcileTicks);
+    private void CheckReconcile() {
+      if (physicsController.IsPEndingReconcile()) {
+        // Since tick us forwarded before simulation we need to ensure we get the requested tick included in the reconciled ticks.
+        var reconcileTicks = NetworkTick.SubtractTicks(_networkTick.GetClientTick(), physicsController.GetReconcileStartTick()) + 1;
+        // Ensure safety in case developer sends us future tick for... whatever reason
+        if (reconcileTicks > 0) {
+          OnTickForwardClient(-reconcileTicks);
+          // Run reconcile ticks
+          _networkTick.SetReconciling(true);
+          physicsController.RunSimulate(reconcileTicks, true);
+          _networkTick.SetReconciling(false);
+        }
+
+        // Reset reconcile state
         physicsController.ResetReconcile();
-        _networkTick.SetReconciling(false);
       }
     }
 
@@ -521,15 +532,15 @@ namespace Mirror.Components.Experimental{
     /// <param name="deltaTicks">The number of ticks to advance.</param>
     [Client]
     private void UpdateClient(int deltaTicks) {
-      // Check if need reconciling - if yes reconcile before executing the next ticks
-      CheckReconcile(deltaTicks);
-
       // Adjust the delta ticks if not waiting for adjustment confirmation
       var adjustedTicks = _capturedOffsets && !_isAdjusting ? GetAdjustedTicks(deltaTicks) : deltaTicks;
 
       // fix discrepancies cause by client tick adjustment
       _networkTick.IncrementServerTick(deltaTicks - adjustedTicks);
       _networkTick.IncrementServerAbsoluteTick(deltaTicks - adjustedTicks);
+
+      // Check if need reconciling - if yes reconcile before executing the next ticks
+      CheckReconcile();
 
       // Simulate ticks or skip if pause was requested
       if (adjustedTicks > 0)
