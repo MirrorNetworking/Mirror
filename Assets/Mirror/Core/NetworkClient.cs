@@ -1303,7 +1303,7 @@ namespace Mirror
             isSpawnFinished = false;
         }
 
-        static Dictionary<NetworkIdentity, SpawnMessage> pendingSpawns = new Dictionary<NetworkIdentity, SpawnMessage>();
+        static readonly Dictionary<NetworkIdentity, SpawnMessage> pendingSpawns = new Dictionary<NetworkIdentity, SpawnMessage>();
 
         internal static void OnObjectSpawnFinished(ObjectSpawnFinishedMessage _)
         {
