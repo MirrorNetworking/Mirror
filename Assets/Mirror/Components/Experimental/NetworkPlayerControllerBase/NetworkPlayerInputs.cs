@@ -1,6 +1,7 @@
 ﻿using System.Runtime.CompilerServices; // do not remove, required to add init support for net4.9 or lower
-using System;
+using System.Collections.Generic;
 using System.Linq;
+using System;
 using UnityEngine;
 
 #nullable enable
@@ -359,6 +360,7 @@ namespace Mirror.Components.Experimental{
     #endregion
   }
 
+  // Serializers for the NetworkPlayerInputs Struct
   public static class NetworkPlayerInputsSerializer{
     public static void WriteNetworkPlayerInputs(this NetworkWriter writer, NetworkPlayerInputs value) {
       NetworkPlayerInputs.WriteNetworkPlayerInputs(writer, value);
@@ -367,5 +369,29 @@ namespace Mirror.Components.Experimental{
     public static NetworkPlayerInputs ReadNetworkPlayerInputs(this NetworkReader reader) {
       return NetworkPlayerInputs.ReadNetworkPlayerInputs(reader);
     }
+
+    public static void WriteNetworkPlayerInputsListArray(this NetworkWriter writer, NetworkPlayerInputs[] value) {
+      if (value.Length > 255)
+        throw new ArgumentOutOfRangeException(nameof(value), "NetworkPlayerInputs[]: Max supported length is 255");
+      writer.WriteByte((byte)value.Length);
+      Array.ForEach(value, item => NetworkPlayerInputs.WriteNetworkPlayerInputs(writer, item));
+    }
+
+    public static NetworkPlayerInputs[] ReadNetworkPlayerInputsArray(this NetworkReader reader) =>
+      Enumerable.Range(0, reader.ReadByte())
+        .Select(_ => NetworkPlayerInputs.ReadNetworkPlayerInputs(reader))
+        .ToArray();
+
+    public static void WriteNetworkPlayerInputsListList(this NetworkWriter writer, List<NetworkPlayerInputs> value) {
+      if (value.Count > 255)
+        throw new ArgumentOutOfRangeException(nameof(value), "List<NetworkPlayerInputs>: Max supported length is 255");
+      writer.WriteByte((byte)value.Count);
+      value.ForEach(item => NetworkPlayerInputs.WriteNetworkPlayerInputs(writer, item));
+    }
+
+    public static List<NetworkPlayerInputs> ReadNetworkPlayerInputsList(this NetworkReader reader) =>
+      Enumerable.Range(0, reader.ReadByte())
+        .Select(_ => NetworkPlayerInputs.ReadNetworkPlayerInputs(reader))
+        .ToList();
   }
 }
