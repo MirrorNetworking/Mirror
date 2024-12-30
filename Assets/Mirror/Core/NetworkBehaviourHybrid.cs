@@ -75,7 +75,9 @@ namespace Mirror
         protected virtual void OnDrop(byte lastBaselineTick, byte baselineTick, NetworkReader reader) {}
 
         // rpcs / cmds /////////////////////////////////////////////////////////
-        [ClientRpc(channel = Channels.Reliable)] // reliable baseline
+        // reliable baseline.
+        // include owner in case of server authority.
+        [ClientRpc(channel = Channels.Reliable)]
         void RpcServerToClientBaseline(ArraySegment<byte> data)
         {
             // baseline is broadcast to all clients.
@@ -96,7 +98,9 @@ namespace Mirror
             }
         }
 
-        [ClientRpc(channel = Channels.Unreliable)] // unreliable delta
+        // unreliable delta.
+        // include owner in case of server authority.
+        [ClientRpc(channel = Channels.Unreliable)]
         void RpcServerToClientDelta(ArraySegment<byte> data)
         {
             // delta is broadcast to all clients.
