@@ -495,7 +495,8 @@ namespace Mirror
             // 'message id not found' errors.
             if (hostMode)
             {
-                RegisterHandler<ObjectDestroyMessage>(OnHostClientObjectDestroy);
+                // host mode doesn't need destroy messages (see NetworkServer::UnSpawnInternal)
+                RegisterHandler<ObjectDestroyMessage>(_ => { });
                 RegisterHandler<ObjectHideMessage>(OnHostClientObjectHide);
                 RegisterHandler<NetworkPongMessage>(_ => { }, false);
                 RegisterHandler<SpawnMessage>(OnHostClientSpawn);
@@ -1320,17 +1321,6 @@ namespace Mirror
         }
 
         // host mode callbacks /////////////////////////////////////////////////
-        static void OnHostClientObjectDestroy(ObjectDestroyMessage message)
-        {
-            //Debug.Log($"NetworkClient.OnLocalObjectObjDestroy netId:{message.netId}");
-
-            // remove from owned (if any)
-            if (spawned.TryGetValue(message.netId, out NetworkIdentity identity))
-                connection.owned.Remove(identity);
-
-            spawned.Remove(message.netId);
-        }
-
         static void OnHostClientObjectHide(ObjectHideMessage message)
         {
             //Debug.Log($"ClientScene::OnLocalObjectObjHide netId:{message.netId}");
