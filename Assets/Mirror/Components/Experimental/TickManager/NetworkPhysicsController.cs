@@ -69,6 +69,7 @@ namespace Mirror.Components.Experimental{
         PhysicsTick(deltaTime);
         NetworkPhysicsEntity.RunAfterNetworkUpdates(1, deltaTime);
       }
+      if (isReconciling) NetworkPhysicsEntity.RunAfterReconcile();
     }
 
     /// <summary> Requests the reconciliation process to start from a specific tick (including the requested tick ) </summary>

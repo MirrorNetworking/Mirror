@@ -12,11 +12,18 @@ namespace Mirror.Components.Experimental{
     void OnResetNetworkState();
 
     /// <summary>
+    /// Called after the network reconciliation process ends.
+    /// </summary>
+    void AfterNetworkReconcile() {
+    }
+
+    /// <summary>
     /// Called before the main network update, allowing the item to perform any necessary preparation or pre-update logic.
     /// </summary>
     /// <param name="deltaTicks">The number of ticks since the last update.</param>
     /// <param name="deltaTime">The time elapsed since the last update in seconds.</param>
-    void BeforeNetworkUpdate(int deltaTicks, float deltaTime);
+    void BeforeNetworkUpdate(int deltaTicks, float deltaTime) {
+    }
 
     /// <summary>
     /// Called during the main network update, allowing the item to handle core updates related to network state, physics, or entity positioning.
@@ -30,7 +37,8 @@ namespace Mirror.Components.Experimental{
     /// </summary>
     /// <param name="deltaTicks">The number of ticks since the last update.</param>
     /// <param name="deltaTime">The time elapsed since the last update in seconds.</param>
-    void AfterNetworkUpdate(int deltaTicks, float deltaTime);
+    void AfterNetworkUpdate(int deltaTicks, float deltaTime) {
+    }
   }
 
   /// <summary>
@@ -54,6 +62,16 @@ namespace Mirror.Components.Experimental{
     /// <param name="item">The network item to remove.</param>
     public static void RemoveNetworkEntity(INetworkedItem item) {
       NetworkItems.RemoveAll(entry => entry.item.Equals(item));
+    }
+
+    /// <summary>
+    /// Runs the AfterReconcile method on each network item in priority order.
+    /// This method is intended to signal reconcile complete.
+    /// </summary>
+    public static void RunAfterReconcile() {
+      foreach (var (_, item) in NetworkItems) {
+        item.AfterNetworkReconcile();
+      }
     }
 
     /// <summary>
