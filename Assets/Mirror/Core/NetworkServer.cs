@@ -350,7 +350,13 @@ namespace Mirror
                                 return;
                             }
 
-                    Debug.LogWarning("Command received while client is not ready.\nThis may be ignored if client intentionally set NotReady.");
+                    if (RemoteProcedureCalls.GetFunctionMethodName(msg.functionHash, out string method))
+                    {
+                        Debug.LogWarning($"Command {method} received from {conn} when client was not ready.\nThis may be ignored if client intentionally set NotReady.");
+                        return;
+                    }
+
+                    Debug.LogWarning($"Command received from {conn} while client is not ready.\nThis may be ignored if client intentionally set NotReady.");
                 }
                 return;
             }
@@ -1714,6 +1720,9 @@ namespace Mirror
             // in host mode, call OnStopClient/OnStopLocalPlayer manually
             if (NetworkClient.active && activeHost)
             {
+                // fix: #3962 custom unspawn handler for this prefab (for prefab pools etc.)
+                NetworkClient.InvokeUnSpawnHandler(identity.assetId, identity.gameObject);
+
                 if (identity.isLocalPlayer)
                     identity.OnStopLocalPlayer();
 

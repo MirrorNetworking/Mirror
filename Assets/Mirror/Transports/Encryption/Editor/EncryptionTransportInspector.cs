@@ -17,20 +17,26 @@ namespace Mirror.Transports.Encryption
 
         void OnEnable()
         {
-            innerProperty = serializedObject.FindProperty("inner");
-            clientValidatesServerPubKeyProperty = serializedObject.FindProperty("clientValidateServerPubKey");
-            clientTrustedPubKeySignaturesProperty = serializedObject.FindProperty("clientTrustedPubKeySignatures");
-            serverKeypairPathProperty = serializedObject.FindProperty("serverKeypairPath");
-            serverLoadKeyPairFromFileProperty = serializedObject.FindProperty("serverLoadKeyPairFromFile");
+            innerProperty = serializedObject.FindProperty("Inner");
+            clientValidatesServerPubKeyProperty = serializedObject.FindProperty("ClientValidateServerPubKey");
+            clientTrustedPubKeySignaturesProperty = serializedObject.FindProperty("ClientTrustedPubKeySignatures");
+            serverKeypairPathProperty = serializedObject.FindProperty("ServerKeypairPath");
+            serverLoadKeyPairFromFileProperty = serializedObject.FindProperty("ServerLoadKeyPairFromFile");
         }
 
         public override void OnInspectorGUI()
         {
             serializedObject.Update();
 
-            EditorGUILayout.LabelField("Common", EditorStyles.boldLabel);
-            EditorGUILayout.PropertyField(innerProperty);
-            EditorGUILayout.Separator();
+            // Draw default inspector for the parent class
+            DrawDefaultInspector();
+            EditorGUILayout.LabelField("Encryption Settings", EditorStyles.boldLabel);
+            if (innerProperty != null)
+            {
+                EditorGUILayout.LabelField("Common", EditorStyles.boldLabel);
+                EditorGUILayout.PropertyField(innerProperty);
+                EditorGUILayout.Separator();
+            }
             // Client Section
             EditorGUILayout.LabelField("Client", EditorStyles.boldLabel);
             EditorGUILayout.HelpBox("Validating the servers public key is essential for complete man-in-the-middle (MITM) safety, but might not be feasible for all modes of hosting.", MessageType.Info);
@@ -77,5 +83,8 @@ namespace Mirror.Transports.Encryption
 
             serializedObject.ApplyModifiedProperties();
         }
+
+        [CustomEditor(typeof(ThreadedEncryptionKcpTransport), true)]
+        class EncryptionThreadedTransportInspector : EncryptionTransportInspector {}
     }
 }

@@ -11,6 +11,7 @@ namespace Mirror.Examples.MultipleAdditiveScenes
         [Header("Spawner Setup")]
         [Tooltip("Reward Prefab for the Spawner")]
         public GameObject rewardPrefab;
+        public byte poolSize = 20;
 
         [Header("MultiScene Setup")]
         public int instances = 3;
@@ -53,9 +54,16 @@ namespace Mirror.Examples.MultipleAdditiveScenes
             // Wait for end of frame before adding the player to ensure Scene Message goes first
             yield return new WaitForEndOfFrame();
 
-            base.OnServerAddPlayer(conn);
+            Transform startPos = GetStartPosition();
+            GameObject player = startPos != null
+                ? Instantiate(playerPrefab, startPos.position, startPos.rotation)
+                : Instantiate(playerPrefab);
 
-            PlayerScore playerScore = conn.identity.GetComponent<PlayerScore>();
+            // instantiating a "Player" prefab gives it the name "Player(clone)"
+            // => appending the connectionId is WAY more useful for debugging!
+            player.name = $"{playerPrefab.name} [connId={conn.connectionId}]";
+
+            PlayerScore playerScore = player.GetComponent<PlayerScore>();
             playerScore.playerNumber = clientIndex;
             playerScore.scoreIndex = clientIndex / subScenes.Count;
             playerScore.matchIndex = clientIndex % subScenes.Count;
@@ -64,8 +72,9 @@ namespace Mirror.Examples.MultipleAdditiveScenes
             // This is what allows Scene Interest Management
             // to isolate matches per scene instance on server.
             if (subScenes.Count > 0)
-                SceneManager.MoveGameObjectToScene(conn.identity.gameObject, subScenes[clientIndex % subScenes.Count]);
+                SceneManager.MoveGameObjectToScene(player, subScenes[clientIndex % subScenes.Count]);
 
+            NetworkServer.AddPlayerForConnection(conn, player);
             clientIndex++;
         }
 
@@ -93,8 +102,13 @@ namespace Mirror.Examples.MultipleAdditiveScenes
 
                 Scene newScene = SceneManager.GetSceneAt(index);
                 subScenes.Add(newScene);
-                Spawner.InitialSpawn(newScene);
             }
+
+            Spawner.InitializePool(rewardPrefab, poolSize);
+
+            foreach (Scene scene in subScenes)
+                if (scene.IsValid())
+                    Spawner.InitialSpawn(scene);
 
             subscenesLoaded = true;
         }
@@ -105,7 +119,11 @@ namespace Mirror.Examples.MultipleAdditiveScenes
         public override void OnStopServer()
         {
             NetworkServer.SendToAll(new SceneMessage { sceneName = gameScene, sceneOperation = SceneOperation.UnloadAdditive });
-            StartCoroutine(ServerUnloadSubScenes());
+            
+            if (gameObject.activeSelf) 
+                StartCoroutine(ServerUnloadSubScenes());
+
+            Spawner.ClearPool();
             clientIndex = 0;
         }
 
@@ -122,14 +140,14 @@ namespace Mirror.Examples.MultipleAdditiveScenes
             yield return Resources.UnloadUnusedAssets();
         }
 
-        /// <summary>
-        /// This is called when a client is stopped.
-        /// </summary>
-        public override void OnStopClient()
+        public override void OnClientSceneChanged()
         {
-            // Make sure we're not in ServerOnly mode now after stopping host client
-            if (mode == NetworkManagerMode.Offline)
-                StartCoroutine(ClientUnloadSubScenes());
+            // Don't initialize the pool for host client because it's
+            // already initialized in OnRoomServerSceneChanged
+            if (!NetworkServer.active && SceneManager.sceneCount > 1)
+                Spawner.InitializePool(rewardPrefab, 10);
+
+            base.OnClientSceneChanged();
         }
 
         // Unload all but the active scene, which is the "container" scene
@@ -138,6 +156,22 @@ namespace Mirror.Examples.MultipleAdditiveScenes
             for (int index = 0; index < SceneManager.sceneCount; index++)
                 if (SceneManager.GetSceneAt(index) != SceneManager.GetActiveScene())
                     yield return SceneManager.UnloadSceneAsync(SceneManager.GetSceneAt(index));
+        }
+
+        /// <summary>
+        /// This is called when a client is stopped.
+        /// </summary>
+        public override void OnStopClient()
+        {
+            // Clear the pool when stopping client
+            // Only do this if we're not the host client because
+            // pool needs to remain active for remote clients
+            if (!NetworkServer.active)
+                Spawner.ClearPool();
+
+            // Make sure we're not in ServerOnly mode now after stopping host client
+            if (mode == NetworkManagerMode.Offline)
+                if (gameObject.activeSelf) StartCoroutine(ClientUnloadSubScenes());
         }
 
         #endregion
