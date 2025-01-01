@@ -1,3 +1,5 @@
+using System;
+
 namespace kcp2k
 {
     // header for messages processed by kcp.
@@ -22,5 +24,34 @@ namespace kcp2k
         Data = 4,
         // disconnect always goes through rapid fire unreliable (glenn fielder)
         Disconnect = 5,
+    }
+
+    // save convert the enums from/to byte.
+    // attackers may attempt to send invalid values, so '255' may not convert.
+    public static class KcpHeader
+    {
+        public static bool ParseReliable(byte value, out KcpHeaderReliable header)
+        {
+            if (Enum.IsDefined(typeof(KcpHeaderReliable), value))
+            {
+                header = (KcpHeaderReliable)value;
+                return true;
+            }
+
+            header = KcpHeaderReliable.Ping; // any default
+            return false;
+        }
+
+        public static bool ParseUnreliable(byte value, out KcpHeaderUnreliable header)
+        {
+            if (Enum.IsDefined(typeof(KcpHeaderUnreliable), value))
+            {
+                header = (KcpHeaderUnreliable)value;
+                return true;
+            }
+
+            header = KcpHeaderUnreliable.Disconnect; // any default
+            return false;
+        }
     }
 }

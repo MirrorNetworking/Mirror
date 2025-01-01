@@ -1,14 +1,14 @@
 using System;
 using System.IO;
-using Org.BouncyCastle.Asn1.Pkcs;
-using Org.BouncyCastle.Asn1.X509;
-using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Crypto.Digests;
-using Org.BouncyCastle.Crypto.Generators;
-using Org.BouncyCastle.X509;
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Pkcs;
-using Org.BouncyCastle.Security;
+using Mirror.BouncyCastle.Asn1.Pkcs;
+using Mirror.BouncyCastle.Asn1.X509;
+using Mirror.BouncyCastle.Crypto;
+using Mirror.BouncyCastle.Crypto.Digests;
+using Mirror.BouncyCastle.Crypto.Generators;
+using Mirror.BouncyCastle.X509;
+using Mirror.BouncyCastle.Crypto.Parameters;
+using Mirror.BouncyCastle.Pkcs;
+using Mirror.BouncyCastle.Security;
 using UnityEngine;
 
 namespace Mirror.Transports.Encryption
@@ -51,13 +51,11 @@ namespace Mirror.Transports.Encryption
             return publicKeyInfo.ToAsn1Object().GetDerEncoded();
         }
 
-        public static AsymmetricKeyParameter DeserializePublicKey(ArraySegment<byte> pubKey)
-        {
+        public static AsymmetricKeyParameter DeserializePublicKey(ArraySegment<byte> pubKey) =>
             // And then we do this to deserialize from the DER (from above)
             // the "new MemoryStream" actually saves an allocation, since otherwise the ArraySegment would be converted
             // to a byte[] first and then shoved through a MemoryStream
-            return PublicKeyFactory.CreateKey(new MemoryStream(pubKey.Array, pubKey.Offset, pubKey.Count, false));
-        }
+            PublicKeyFactory.CreateKey(new MemoryStream(pubKey.Array, pubKey.Offset, pubKey.Count, false));
 
         public static byte[] SerializePrivateKey(AsymmetricKeyParameter privateKey)
         {
@@ -66,13 +64,11 @@ namespace Mirror.Transports.Encryption
             return privateKeyInfo.ToAsn1Object().GetDerEncoded();
         }
 
-        public static AsymmetricKeyParameter DeserializePrivateKey(ArraySegment<byte> privateKey)
-        {
+        public static AsymmetricKeyParameter DeserializePrivateKey(ArraySegment<byte> privateKey) =>
             // And then we do this to deserialize from the DER (from above)
             // the "new MemoryStream" actually saves an allocation, since otherwise the ArraySegment would be converted
             // to a byte[] first and then shoved through a MemoryStream
-            return PrivateKeyFactory.CreateKey(new MemoryStream(privateKey.Array, privateKey.Offset, privateKey.Count, false));
-        }
+            PrivateKeyFactory.CreateKey(new MemoryStream(privateKey.Array, privateKey.Offset, privateKey.Count, false));
 
         public static string PubKeyFingerprint(ArraySegment<byte> publicKeyBytes)
         {
@@ -90,7 +86,7 @@ namespace Mirror.Transports.Encryption
             {
                 PublicKeyFingerprint = PublicKeyFingerprint,
                 PublicKey = Convert.ToBase64String(PublicKeySerialized),
-                PrivateKey= Convert.ToBase64String(SerializePrivateKey(PrivateKey)),
+                PrivateKey= Convert.ToBase64String(SerializePrivateKey(PrivateKey))
             });
             File.WriteAllText(path, json);
         }
@@ -104,9 +100,7 @@ namespace Mirror.Transports.Encryption
             byte[] privateKeyBytes = Convert.FromBase64String(serializedPair.PrivateKey);
 
             if (serializedPair.PublicKeyFingerprint != PubKeyFingerprint(new ArraySegment<byte>(publicKeyBytes)))
-            {
                 throw new Exception("Saved public key fingerprint does not match public key.");
-            }
             return new EncryptionCredentials
             {
                 PublicKeySerialized = publicKeyBytes,
@@ -115,7 +109,7 @@ namespace Mirror.Transports.Encryption
             };
         }
 
-        private class SerializedPair
+        class SerializedPair
         {
             public string PublicKeyFingerprint;
             public string PublicKey;

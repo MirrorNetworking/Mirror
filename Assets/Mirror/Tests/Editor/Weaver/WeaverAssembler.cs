@@ -93,11 +93,13 @@ namespace Mirror.Weaver.Tests
 
         public static void Build(Action<string> OnWarning, Action<string> OnError)
         {
+#pragma warning disable 618
             AssemblyBuilder assemblyBuilder = new AssemblyBuilder(Path.Combine(OutputDirectory, OutputFile), SourceFiles.ToArray())
             {
                 // "The type 'MonoBehaviour' is defined in an assembly that is not referenced"
                 referencesOptions = ReferencesOptions.UseEngineModules
             };
+#pragma warning restore 618
             if (AllowUnsafe)
             {
                 assemblyBuilder.compilerOptions.AllowUnsafeCode = true;

@@ -80,19 +80,6 @@ namespace Mirror.Tests.SyncCollections
         public void TestAdd()
         {
             // Adds a new entry with index of 4 using .Add method
-#pragma warning disable 618 // Type or member is obsolete
-            bool called = false;
-            clientSyncDictionary.Callback = (op, key, item) =>
-            {
-                called = true;
-
-                Assert.That(op, Is.EqualTo(SyncDictionary<int, string>.Operation.OP_ADD));
-                Assert.That(key, Is.EqualTo(4));
-                Assert.That(item, Is.EqualTo("yay"));
-                Assert.That(clientSyncDictionary[key], Is.EqualTo("yay"));
-            };
-#pragma warning restore 618 // Type or member is obsolete
-
             bool actionCalled = false;
             clientSyncDictionary.OnAdd = (key) =>
             {
@@ -105,7 +92,6 @@ namespace Mirror.Tests.SyncCollections
             SerializeDeltaTo(serverSyncDictionary, clientSyncDictionary);
             Assert.That(clientSyncDictionary.ContainsKey(4));
             Assert.That(clientSyncDictionary[4], Is.EqualTo("yay"));
-            Assert.That(called, Is.True);
             Assert.That(actionCalled, Is.True);
         }
 
@@ -113,17 +99,6 @@ namespace Mirror.Tests.SyncCollections
         public void TestClear()
         {
             // Verifies that the clear method works and that the data is still present for the Callback.
-#pragma warning disable 618 // Type or member is obsolete
-            bool called = false;
-            clientSyncDictionary.Callback = (op, key, item) =>
-            {
-                called = true;
-
-                Assert.That(op, Is.EqualTo(SyncDictionary<int, string>.Operation.OP_CLEAR));
-                Assert.That(clientSyncDictionary.Count, Is.EqualTo(3));
-            };
-#pragma warning restore 618 // Type or member is obsolete
-
             bool actionCalled = false;
             clientSyncDictionary.OnClear = () =>
             {
@@ -134,7 +109,6 @@ namespace Mirror.Tests.SyncCollections
             serverSyncDictionary.Clear();
             SerializeDeltaTo(serverSyncDictionary, clientSyncDictionary);
             Assert.That(serverSyncDictionary, Is.EquivalentTo(new SyncDictionary<int, string>()));
-            Assert.That(called, Is.True);
             Assert.That(actionCalled, Is.True);
         }
 
@@ -142,20 +116,6 @@ namespace Mirror.Tests.SyncCollections
         public void TestSet()
         {
             // Overwrites an existing entry
-#pragma warning disable 618 // Type or member is obsolete
-            bool called = false;
-            clientSyncDictionary.Callback = (op, key, item) =>
-            {
-                called = true;
-
-                Assert.That(op, Is.EqualTo(SyncDictionary<int, string>.Operation.OP_SET));
-                Assert.That(key, Is.EqualTo(1));
-                Assert.That(item, Is.EqualTo("yay"));
-                Assert.That(clientSyncDictionary[key], Is.EqualTo("yay"));
-
-            };
-#pragma warning restore 618 // Type or member is obsolete
-
             bool actionCalled = false;
             clientSyncDictionary.OnSet = (key, oldItem) =>
             {
@@ -169,7 +129,6 @@ namespace Mirror.Tests.SyncCollections
             SerializeDeltaTo(serverSyncDictionary, clientSyncDictionary);
             Assert.That(clientSyncDictionary.ContainsKey(1));
             Assert.That(clientSyncDictionary[1], Is.EqualTo("yay"));
-            Assert.That(called, Is.True);
             Assert.That(actionCalled, Is.True);
         }
 
@@ -177,20 +136,6 @@ namespace Mirror.Tests.SyncCollections
         public void TestBareSet()
         {
             // Adds a new entry with index of 4 without using .Add method
-#pragma warning disable 618 // Type or member is obsolete
-            bool called = false;
-            clientSyncDictionary.Callback = (op, key, item) =>
-            {
-                called = true;
-
-                Assert.That(op, Is.EqualTo(SyncDictionary<int, string>.Operation.OP_ADD));
-                Assert.That(key, Is.EqualTo(4));
-                Assert.That(item, Is.EqualTo("yay"));
-                Assert.That(clientSyncDictionary[key], Is.EqualTo("yay"));
-
-            };
-#pragma warning restore 618 // Type or member is obsolete
-
             bool actionCalled = false;
             clientSyncDictionary.OnAdd = (key) =>
             {
@@ -203,7 +148,6 @@ namespace Mirror.Tests.SyncCollections
             SerializeDeltaTo(serverSyncDictionary, clientSyncDictionary);
             Assert.That(clientSyncDictionary.ContainsKey(4));
             Assert.That(clientSyncDictionary[4], Is.EqualTo("yay"));
-            Assert.That(called, Is.True);
             Assert.That(actionCalled, Is.True);
         }
 
@@ -268,20 +212,6 @@ namespace Mirror.Tests.SyncCollections
         [Test]
         public void CallbackTest()
         {
-#pragma warning disable 618 // Type or member is obsolete
-            bool called = false;
-            clientSyncDictionary.Callback = (op, key, item) =>
-            {
-                called = true;
-
-                Assert.That(op, Is.EqualTo(SyncDictionary<int, string>.Operation.OP_ADD));
-                Assert.That(key, Is.EqualTo(3));
-                Assert.That(item, Is.EqualTo("yay"));
-                Assert.That(clientSyncDictionary[key], Is.EqualTo("yay"));
-
-            };
-#pragma warning restore 618 // Type or member is obsolete
-
             bool actionCalled = false;
             clientSyncDictionary.OnAdd = (key) =>
             {
@@ -290,28 +220,24 @@ namespace Mirror.Tests.SyncCollections
                 Assert.That(clientSyncDictionary[key], Is.EqualTo("yay"));
             };
 
+            bool changeActionCalled = false;
+            clientSyncDictionary.OnChange = (op, key, item) =>
+            {
+                changeActionCalled = true;
+                Assert.That(op, Is.EqualTo(SyncDictionary<int, string>.Operation.OP_ADD));
+                Assert.That(key, Is.EqualTo(3));
+                Assert.That(clientSyncDictionary[key], Is.EqualTo("yay"));
+            };
+
             serverSyncDictionary.Add(3, "yay");
             SerializeDeltaTo(serverSyncDictionary, clientSyncDictionary);
-            Assert.That(called, Is.True);
             Assert.That(actionCalled, Is.True);
+            Assert.That(changeActionCalled, Is.True);
         }
 
         [Test]
         public void ServerCallbackTest()
         {
-#pragma warning disable 618 // Type or member is obsolete
-            bool called = false;
-            serverSyncDictionary.Callback = (op, key, item) =>
-            {
-                called = true;
-
-                Assert.That(op, Is.EqualTo(SyncDictionary<int, string>.Operation.OP_ADD));
-                Assert.That(key, Is.EqualTo(3));
-                Assert.That(item, Is.EqualTo("yay"));
-                Assert.That(serverSyncDictionary[key], Is.EqualTo("yay"));
-            };
-#pragma warning restore 618 // Type or member is obsolete
-
             bool actionCalled = false;
             serverSyncDictionary.OnAdd = (key) =>
             {
@@ -320,25 +246,23 @@ namespace Mirror.Tests.SyncCollections
                 Assert.That(serverSyncDictionary[key], Is.EqualTo("yay"));
             };
 
+            bool changeActionCalled = false;
+            serverSyncDictionary.OnChange = (op, key, item) =>
+            {
+                changeActionCalled = true;
+                Assert.That(op, Is.EqualTo(SyncDictionary<int, string>.Operation.OP_ADD));
+                Assert.That(key, Is.EqualTo(3));
+                Assert.That(serverSyncDictionary[key], Is.EqualTo("yay"));
+            };
+
             serverSyncDictionary[3] = "yay";
-            Assert.That(called, Is.True);
             Assert.That(actionCalled, Is.True);
+            Assert.That(changeActionCalled, Is.True);
         }
 
         [Test]
         public void CallbackRemoveTest()
         {
-#pragma warning disable 618 // Type or member is obsolete
-            bool called = false;
-            clientSyncDictionary.Callback = (op, key, item) =>
-            {
-                called = true;
-                Assert.That(op, Is.EqualTo(SyncDictionary<int, string>.Operation.OP_REMOVE));
-                Assert.That(key, Is.EqualTo(1));
-                Assert.That(item, Is.EqualTo("World"));
-            };
-#pragma warning restore 618 // Type or member is obsolete
-
             bool actionCalled = false;
             clientSyncDictionary.OnRemove = (key, oldItem) =>
             {
@@ -348,10 +272,19 @@ namespace Mirror.Tests.SyncCollections
                 Assert.That(!clientSyncDictionary.ContainsKey(1));
             };
 
+            bool changeActionCalled = false;
+            clientSyncDictionary.OnChange = (op, key, item) =>
+            {
+                changeActionCalled = true;
+                Assert.That(op, Is.EqualTo(SyncDictionary<int, string>.Operation.OP_REMOVE));
+                Assert.That(key, Is.EqualTo(1));
+                Assert.That(item, Is.EqualTo("World"));
+            };
+
             serverSyncDictionary.Remove(1);
             SerializeDeltaTo(serverSyncDictionary, clientSyncDictionary);
-            Assert.That(called, Is.True);
             Assert.That(actionCalled, Is.True);
+            Assert.That(changeActionCalled, Is.True);
         }
 
         [Test]
@@ -433,11 +366,13 @@ namespace Mirror.Tests.SyncCollections
 
             // nothing to send
             Assert.That(serverSyncDictionaryDirtyCalled, Is.EqualTo(0));
+            Assert.That(clientSyncDictionaryDirtyCalled, Is.EqualTo(0));
 
             // something has changed
             serverSyncDictionary.Add(15, "yay");
             Assert.That(serverSyncDictionaryDirtyCalled, Is.EqualTo(1));
             SerializeDeltaTo(serverSyncDictionary, clientSyncDictionary);
+            Assert.That(clientSyncDictionaryDirtyCalled, Is.EqualTo(1));
         }
 
         [Test]

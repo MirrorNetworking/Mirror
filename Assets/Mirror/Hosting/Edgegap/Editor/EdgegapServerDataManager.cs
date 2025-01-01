@@ -4,6 +4,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
+using System.IO;
 
 namespace Edgegap
 {
@@ -88,9 +89,16 @@ namespace Edgegap
 
         public static Status GetServerStatus() => _serverData;
 
+#if UNITY_EDITOR
+        internal static string StylesheetPath =>
+            Path.GetDirectoryName(AssetDatabase.GUIDToAssetPath(AssetDatabase.FindAssets($"t:Script {nameof(EdgegapServerDataManager)}")[0]));
+#endif
+
         static EdgegapServerDataManager()
         {
-            _serverDataStylesheet = AssetDatabase.LoadAssetAtPath<StyleSheet>("Assets/Edgegap/Editor/EdgegapServerData.uss");
+#if UNITY_EDITOR
+            _serverDataStylesheet = AssetDatabase.LoadAssetAtPath<StyleSheet>($"{StylesheetPath}{Path.DirectorySeparatorChar}EdgegapServerData.uss");
+#endif
         }
         public static void RegisterServerDataContainer(VisualElement serverDataContainer)
         {

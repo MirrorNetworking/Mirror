@@ -149,6 +149,35 @@ namespace Mirror
         // hook guard prevents that.
         ulong syncVarHookGuard;
 
+        protected virtual void OnValidate()
+        {
+            // Skip if Editor is in Play mode
+            if (Application.isPlaying) return;
+
+            // we now allow child NetworkBehaviours.
+            // we can not [RequireComponent(typeof(NetworkIdentity))] anymore.
+            // instead, we need to ensure a NetworkIdentity is somewhere in the
+            // parents.
+            // only run this in Editor. don't add more runtime overhead.
+
+            // GetComponentInParent(includeInactive) is needed because Prefabs are not
+            // considered active, so this check requires to scan inactive.
+#if UNITY_2021_3_OR_NEWER // 2021 has GetComponentInParent(bool includeInactive = false)
+            if (GetComponent<NetworkIdentity>() == null &&
+                GetComponentInParent<NetworkIdentity>(true) == null)
+            {
+                Debug.LogError($"{GetType()} on {name} requires a NetworkIdentity. Please add a NetworkIdentity component to {name} or it's parents.", this);
+            }
+#elif UNITY_2020_3_OR_NEWER // 2020 only has GetComponentsInParent(bool includeInactive = false), we can use this too
+            NetworkIdentity[] parentsIds = GetComponentsInParent<NetworkIdentity>(true);
+            int parentIdsCount = parentsIds != null ? parentsIds.Length : 0;
+            if (GetComponent<NetworkIdentity>() == null && parentIdsCount == 0)
+            {
+                Debug.LogError($"{GetType()} on {name} requires a NetworkIdentity. Please add a NetworkIdentity component to {name} or it's parents.", this);
+            }
+#endif
+        }
+
         // USED BY WEAVER to set syncvars in host mode without deadlocking
         protected bool GetSyncVarHookGuard(ulong dirtyBit) =>
             (syncVarHookGuard & dirtyBit) != 0UL;
@@ -302,34 +331,6 @@ namespace Mirror
             };
         }
 
-        protected virtual void OnValidate()
-        {
-            // we now allow child NetworkBehaviours.
-            // we can not [RequireComponent(typeof(NetworkIdentity))] anymore.
-            // instead, we need to ensure a NetworkIdentity is somewhere in the
-            // parents.
-            // only run this in Editor. don't add more runtime overhead.
-
-            // GetComponentInParent(includeInactive) is needed because Prefabs are not
-            // considered active, so this check requires to scan inactive.
-#if UNITY_EDITOR
-#if UNITY_2021_3_OR_NEWER // 2021 has GetComponentInParent(bool includeInactive = false)
-            if (GetComponent<NetworkIdentity>() == null &&
-                GetComponentInParent<NetworkIdentity>(true) == null)
-            {
-                Debug.LogError($"{GetType()} on {name} requires a NetworkIdentity. Please add a NetworkIdentity component to {name} or it's parents.", this);
-            }
-#elif UNITY_2020_3_OR_NEWER // 2020 only has GetComponentsInParent(bool includeInactive = false), we can use this too
-            NetworkIdentity[] parentsIds = GetComponentsInParent<NetworkIdentity>(true);
-            int parentIdsCount = parentsIds != null ? parentsIds.Length : 0;
-            if (GetComponent<NetworkIdentity>() == null && parentIdsCount == 0)
-            {
-                Debug.LogError($"{GetType()} on {name} requires a NetworkIdentity. Please add a NetworkIdentity component to {name} or it's parents.", this);
-            }
-#endif
-#endif
-        }
-
         // pass full function name to avoid ClassA.Func <-> ClassB.Func collisions
         protected void SendCommandInternal(string functionFullName, int functionHashCode, NetworkWriter writer, int channelId, bool requiresAuthority = true)
         {
@@ -370,6 +371,12 @@ namespace Mirror
             if (NetworkClient.connection == null)
             {
                 Debug.LogError($"Command {functionFullName} called on {name} with no client running.", gameObject);
+                return;
+            }
+
+            if (netId == 0)
+            {
+                Debug.LogWarning($"Command {functionFullName} called on {name} with netId=0. Maybe it wasn't spawned yet?", gameObject);
                 return;
             }
 
@@ -1052,7 +1059,7 @@ namespace Mirror
             // Debug.Log($"SetSyncVarNetworkBehaviour NetworkIdentity {GetType().Name} bit [{dirtyBit}] netIdField:{oldField}->{syncField}");
         }
 
-        // helper function for [SyncVar] NetworkIdentities.
+        // helper function for [SyncVar] NetworkBehaviours.
         // -> ref GameObject as second argument makes OnDeserialize processing easier
         protected T GetSyncVarNetworkBehaviour<T>(NetworkBehaviourSyncVar syncNetBehaviour, ref T behaviourField) where T : NetworkBehaviour
         {
@@ -1068,6 +1075,15 @@ namespace Mirror
             // over and over again, which shouldn't null them forever
             if (!NetworkClient.spawned.TryGetValue(syncNetBehaviour.netId, out NetworkIdentity identity))
             {
+                return null;
+            }
+            
+            // ensure componentIndex is in range.
+            // show explicit errors if something went wrong, instead of IndexOutOfRangeException.
+            // removing components at runtime isn't allowed, yet this happened in a project so we need to check for it.
+            if (syncNetBehaviour.componentIndex >= identity.NetworkBehaviours.Length)
+            {
+                Debug.LogError($"[SyncVar] {typeof(T)} on {name}'s {GetType()}: can't access {identity.name} NetworkBehaviour[{syncNetBehaviour.componentIndex}] because it only has {identity.NetworkBehaviours.Length} components.\nWas a NetworkBeahviour accidentally destroyed at runtime?");
                 return null;
             }
 
@@ -1113,7 +1129,7 @@ namespace Mirror
 
         void SerializeSyncObjects(NetworkWriter writer, bool initialState)
         {
-            // if initialState: write all SyncVars.
+            // if initialState: write all SyncObjects (SyncList/Set/etc)
             // otherwise write dirtyBits+dirty SyncVars
             if (initialState)
                 SerializeObjectsAll(writer);

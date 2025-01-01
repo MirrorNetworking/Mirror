@@ -855,6 +855,28 @@ namespace Mirror.Tests.NetworkBehaviours
             Assert.That(comp.onStopLocalPlayerCalled, Is.EqualTo(1));
         }
 
+        // test to prevent: https://github.com/MirrorNetworking/Mirror/issues/3832
+        class NetworkBehaviourOnDestroy : NetworkBehaviour
+        {
+            void OnDestroy()
+            {
+                Debug.LogWarning("OnDestroy called with isServer=" + isServer);
+                // on server, IsServer should still be false in OnDestroy.
+                Assert.That(isServer, Is.EqualTo(NetworkServer.active));
+            }
+        }
+        [Test]
+        public void NetworkDestroy_OnDestroyFlags()
+        {
+            NetworkServer.Listen(1);
+            ConnectClientBlockingAuthenticatedAndReady(out _);
+
+            CreateNetworked(out GameObject _, out NetworkIdentity identity, out NetworkBehaviourOnDestroy comp);
+            NetworkServer.Destroy(identity.gameObject);
+
+            // the NetworkBehaviourOnDestroy component has the asset to check isServer..
+        }
+
         [Test]
         public void AuthorityIsFalseVariations()
         {

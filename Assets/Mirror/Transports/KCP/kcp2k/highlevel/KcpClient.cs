@@ -183,6 +183,7 @@ namespace kcp2k
                 // at least log a message for easier debugging.
                 Log.Info($"[KCP] Client.RawSend: looks like the other end has closed the connection. This is fine: {e}");
                 // base.Disconnect(); <- don't call this, would deadlock if SendDisconnect() already throws
+
             }
         }
 

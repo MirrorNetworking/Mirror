@@ -2,6 +2,7 @@
 
 namespace Mirror.Examples.Common
 {
+    [AddComponentMenu("")]
     public class RandomColor : NetworkBehaviour
     {
         // Unity clones the material when GetComponent<Renderer>().material is called
@@ -20,8 +21,8 @@ namespace Mirror.Examples.Common
 
         public override void OnStartServer()
         {
-            // Only set the color once. Players may be respawned,
-            // and we don't want to keep changing their colors.
+            // Only set the color once. Players / objects may be unspawned and
+            // respawned and we don't want to keep changing their colors.
             if (color == Color.black)
                 color = Random.ColorHSV(0f, 1f, 1f, 1f, 0.5f, 1f);
         }

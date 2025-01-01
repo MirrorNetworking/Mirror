@@ -56,7 +56,7 @@ namespace Mirror
         /// List of players that are in the Room
         /// </summary>
         [FormerlySerializedAs("m_PendingPlayers")]
-        public List<PendingPlayer> pendingPlayers = new List<PendingPlayer>();
+        public HashSet<PendingPlayer> pendingPlayers = new HashSet<PendingPlayer>();
 
         [Header("Diagnostics")]
         /// <summary>
@@ -71,7 +71,7 @@ namespace Mirror
         /// <para>The slotId on players is global to the game - across all players.</para>
         /// </summary>
         [ReadOnly, Tooltip("List of Room Player objects")]
-        public List<NetworkRoomPlayer> roomSlots = new List<NetworkRoomPlayer>();
+        public HashSet<NetworkRoomPlayer> roomSlots = new HashSet<NetworkRoomPlayer>();
 
         public bool allPlayersReady
         {
@@ -146,7 +146,7 @@ namespace Mirror
                 return;
 
             // replace room player with game player
-            NetworkServer.ReplacePlayerForConnection(conn, gamePlayer, true);
+            NetworkServer.ReplacePlayerForConnection(conn, gamePlayer, ReplacePlayerOptions.KeepAuthority);
         }
 
         internal void CallOnClientEnterRoom()
@@ -251,11 +251,10 @@ namespace Mirror
             OnRoomServerDisconnect(conn);
             base.OnServerDisconnect(conn);
 
-            if (Utils.IsHeadless())
-            {
-                if (numPlayers < 1)
-                    StopServer();
-            }
+            // Restart the server if we're headless and no players are connected.
+            // This will send server to offline scene, where auto-start will run.
+            if (Utils.IsHeadless() && numPlayers < 1)
+                StopServer();
         }
 
         // Sequential index used in round-robin deployment of players into instances and score positioning
@@ -316,10 +315,9 @@ namespace Mirror
         {
             if (roomSlots.Count > 0)
             {
-                for (int i = 0; i < roomSlots.Count; i++)
-                {
-                    roomSlots[i].index = i;
-                }
+                int i = 0;
+                foreach (NetworkRoomPlayer player in roomSlots)
+                    player.index = i++;
             }
         }
 
@@ -344,7 +342,7 @@ namespace Mirror
                     {
                         // re-add the room object
                         roomPlayer.GetComponent<NetworkRoomPlayer>().readyToBegin = false;
-                        NetworkServer.ReplacePlayerForConnection(identity.connectionToClient, roomPlayer.gameObject);
+                        NetworkServer.ReplacePlayerForConnection(identity.connectionToClient, roomPlayer.gameObject, ReplacePlayerOptions.KeepAuthority);
                     }
                 }
 

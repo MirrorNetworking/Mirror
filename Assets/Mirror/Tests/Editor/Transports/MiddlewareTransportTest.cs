@@ -272,13 +272,33 @@ namespace Mirror.Tests.Transports
         }
 
         [Test]
-        [TestCase(0)]
-        [TestCase(1)]
-        [TestCase(19)]
-        public void TestServerConnectedCallback(int id)
+        public void TestClientExceptionCallback()
         {
             int called = 0;
-            middleware.OnServerConnected = (i) =>
+            middleware.OnClientTransportException = (exception) =>
+            {
+                called++;
+                // Assert that exception is System.Exception
+                Assert.That(exception, Is.TypeOf<Exception>());
+            };
+            // connect to give callback to inner
+            middleware.ClientConnect("localhost");
+
+            inner.OnClientTransportException.Invoke(new Exception());
+            Assert.That(called, Is.EqualTo(1));
+
+            inner.OnClientTransportException.Invoke(new Exception());
+            Assert.That(called, Is.EqualTo(2));
+        }
+
+        [Test]
+        [TestCase(0, "")]
+        [TestCase(1, "")]
+        [TestCase(19, "")]
+        public void TestServerConnectedCallback(int id, string remoteClientAddress)
+        {
+            int called = 0;
+            middleware.OnServerConnectedWithAddress = (i, clientAddress) =>
             {
                 called++;
                 Assert.That(i, Is.EqualTo(id));
@@ -286,10 +306,10 @@ namespace Mirror.Tests.Transports
             // start to give callback to inner
             middleware.ServerStart();
 
-            inner.OnServerConnected.Invoke(id);
+            inner.OnServerConnectedWithAddress.Invoke(id, remoteClientAddress);
             Assert.That(called, Is.EqualTo(1));
 
-            inner.OnServerConnected.Invoke(id);
+            inner.OnServerConnectedWithAddress.Invoke(id, remoteClientAddress);
             Assert.That(called, Is.EqualTo(2));
         }
 

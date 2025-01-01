@@ -24,7 +24,7 @@ namespace Mirror.SimpleWeb
                 string key = Convert.ToBase64String(keyBuffer);
                 string keySum = key + Constants.HandshakeGUID;
                 byte[] keySumBytes = Encoding.ASCII.GetBytes(keySum);
-                Log.Verbose($"[SWT-ClientHandshake]: Handshake Hashing {Encoding.ASCII.GetString(keySumBytes)}");
+                Log.Verbose("[SWT-ClientHandshake]: Handshake Hashing {0}", Encoding.ASCII.GetString(keySumBytes));
 
                 // SHA-1 is the websocket standard:
                 // https://www.rfc-editor.org/rfc/rfc6455
@@ -55,14 +55,14 @@ namespace Mirror.SimpleWeb
                 }
 
                 string responseString = Encoding.ASCII.GetString(responseBuffer, 0, lengthOrNull.Value);
-                Log.Verbose($"[SWT-ClientHandshake]: Handshake Response {responseString}");
+                Log.Verbose("[SWT-ClientHandshake]: Handshake Response {0}", responseString);
 
                 string acceptHeader = "Sec-WebSocket-Accept: ";
                 int startIndex = responseString.IndexOf(acceptHeader, StringComparison.InvariantCultureIgnoreCase);
 
                 if (startIndex < 0)
                 {
-                    Log.Error($"[SWT-ClientHandshake]: Unexpected Handshake Response {responseString}");
+                    Log.Error("[SWT-ClientHandshake]: Unexpected Handshake Response {0}", responseString);
                     return false;
                 }
 
@@ -72,10 +72,7 @@ namespace Mirror.SimpleWeb
 
                 if (responseKey != expectedResponse)
                 {
-                    Log.Error($"[SWT-ClientHandshake]: Response key incorrect\n" +
-                        $"Expected:{expectedResponse}\n" +
-                        $"Response:{responseKey}\n" +
-                        $"This can happen if Websocket Protocol is not installed in Windows Server Roles.");
+                    Log.Error("[SWT-ClientHandshake]: Response key incorrect\nExpected:{0}\nResponse:{1}\nThis can happen if Websocket Protocol is not installed in Windows Server Roles.", expectedResponse, responseKey);
                     return false;
                 }
 

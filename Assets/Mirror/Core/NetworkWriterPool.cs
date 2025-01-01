@@ -18,6 +18,9 @@ namespace Mirror
             1000
         );
 
+        // expose count for testing
+        public static int Count => Pool.Count;
+
         /// <summary>Get a writer from the pool. Creates new one if pool is empty.</summary>
         public static NetworkWriterPooled Get()
         {

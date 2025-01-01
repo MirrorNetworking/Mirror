@@ -2,6 +2,7 @@ using UnityEngine;
 
 namespace Mirror.Examples.CharacterSelection
 {
+    [AddComponentMenu("")]
     public class NetworkManagerCharacterSelection : NetworkManager
     {
         // See the scene 'SceneMapSpawnWithNoCharacter', to spawn as empty player.
@@ -112,8 +113,7 @@ namespace Mirror.Examples.CharacterSelection
             GameObject playerObject = Instantiate(characterData.characterPrefabs[message.createCharacterMessage.characterNumber], oldPlayer.transform.position, oldPlayer.transform.rotation);
 
             // Instantiate the new player object and broadcast to clients
-            // Include true for keepAuthority paramater to prevent ownership change
-            NetworkServer.ReplacePlayerForConnection(conn, playerObject, true);
+            NetworkServer.ReplacePlayerForConnection(conn, playerObject, ReplacePlayerOptions.KeepActive);
 
             // Apply data from the message however appropriate for your game
             // Typically Player would be a component you write with syncvars or properties

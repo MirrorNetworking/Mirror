@@ -1,6 +1,6 @@
 using Mirror;
 
-namespace WeaverSyncVarTests.SyncVarsCantBeArray
+namespace WeaverSyncVarTests.SyncVarsCanBeArray
 {
     class SyncVarsCanBeArray : NetworkBehaviour
     {

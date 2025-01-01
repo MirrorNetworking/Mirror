@@ -12,7 +12,7 @@ namespace Mirror.Examples.Chat
     [AddComponentMenu("")]
     public class ChatAuthenticator : NetworkAuthenticator
     {
-        readonly HashSet<NetworkConnection> connectionsPendingDisconnect = new HashSet<NetworkConnection>();
+        readonly HashSet<NetworkConnectionToClient> connectionsPendingDisconnect = new HashSet<NetworkConnectionToClient>();
         internal static readonly HashSet<string> playerNames = new HashSet<string>();
 
         [Header("Client Username")]

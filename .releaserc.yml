@@ -1,33 +1,77 @@
-{
-    verifyConditions: ["@semantic-release/github"],
-    prepare: [
-        {
-            "path": "@semantic-release/exec",
-            "prepareCmd": "echo ${nextRelease.version} > Assets/Mirror/version.txt"
-        }
-    ],
-    publish: [        
-        {
-            "path": "@semantic-release/github",
-            "assets": [
-                {"path": "Mirror.unitypackage", "label": "Mirror Unity Package", "name": "Mirror-${nextRelease.version}.unitypackage"}
-            ]
-        }
-    ],
-    "plugins": [
-        ["@semantic-release/commit-analyzer", {
-            "preset": "angular",
-            "releaseRules": [
-                {"type": "breaking", "release": "major"},
-                {"type": "feature", "release": "minor"},
-            ]
-        }],
-        ['@semantic-release/release-notes-generator', {
-          "preset": "angular",
-            "releaseRules": [
-                {"type": "breaking", "release": "major"},
-                {"type": "feature", "release": "minor"},
-            ]
-        }],
-    ]
-}
+branches:
+  - name: master
+  
+verifyConditions:
+  - "@semantic-release/github"
+
+plugins:
+  # Determines the type of release to create, if any.
+  # See https://github.com/angular/angular.js/blob/master/DEVELOPERS.md#type
+  # More types can be added here and in release-notes-generator below.
+  - - '@semantic-release/commit-analyzer'
+    - preset: "angular"
+      releaseRules:
+      - type: "breaking"
+        release: "major"
+      - type: "release"
+        release: "major"
+      - type: "feature"
+        release: "minor"
+
+  # Extends the behavior of semantic-release to generate release notes.
+  # 'fix' and 'feat' are built in and don't need to be defined here.
+  # More types can be added to correspond with commit-analyzer above.
+  - - '@semantic-release/release-notes-generator'
+    - preset: "conventionalcommits"
+      presetConfig:
+        types:
+        - type: "breaking"
+          section: "Breaking Changes"
+          hidden: false
+        - type: "release"
+          section: "Release"
+          hidden: false
+        - type: "fix"
+          section: "Bug Fixes"
+          hidden: false
+        - type: "feat"
+          section: "Features"
+          hidden: false
+        - type: "feature"
+          section: "Features"
+          hidden: false
+        - type: "perf"
+          section: "Performance Improvements"
+          hidden: false
+
+  # Write the new version in version.txt
+  - - '@semantic-release/exec'
+    - prepareCmd: "echo ${nextRelease.version} > Assets/Mirror/version.txt"
+
+  # Remove Test folder so it's excluded from Unity package
+  # -f: force, -r: recursive
+  - - '@semantic-release/exec'
+    - prepareCmd: "rm -f -r Assets/Mirror/Tests && rm -f Assets/Mirror/Tests.meta"
+  
+  # Remove EdgeGap Hosting folder so it's excluded from Unity package
+  # -f: force, -r: recursive
+  # - - '@semantic-release/exec'
+  #   - prepareCmd: "rm -f -r Assets/Mirror/Hosting && rm -f Assets/Mirror/Hosting.meta"
+  
+  # Move ScriptTemplates to Mirror folder so they're included in Unity package
+  # There's an editor script that moves them back to Assets when imported to Unity
+  - - '@semantic-release/exec'
+    - prepareCmd: "mv Assets/ScriptTemplates Assets/Mirror/ && mv Assets/ScriptTemplates.meta Assets/Mirror/"
+
+  # Create Unity package with Mirror, ScriptTemplates, and LICENSE
+  - - '@semantic-release/exec'
+    - prepareCmd: "dotnet script .github/UnityPack.csx ${nextRelease.version}"
+
+  # Create a new release on GitHub
+  - - '@semantic-release/github'
+    - assets:
+      - path: "Mirror.unitypackage"
+        label: "Mirror Unity Package"
+        name: "Mirror-${nextRelease.version}.unitypackage"
+      successCommentCondition: "false"
+      failCommentCondition: "false"

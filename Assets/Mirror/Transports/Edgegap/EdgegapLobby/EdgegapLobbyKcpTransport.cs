@@ -206,63 +206,66 @@ namespace Edgegap
                 Api.GetLobby(lobbyId, lobby =>
                 {
                     waitingForResponse = false;
-                    if (!string.IsNullOrEmpty(lobby.assignment.ip))
+                    if (string.IsNullOrEmpty(lobby.assignment.ip))
                     {
-                        relayAddress = lobby.assignment.ip;
-                        foreach (Lobby.Port aport in lobby.assignment.ports)
+                        // no lobby deployed yet, have the outer loop retry
+                        return;
+                    }
+                    relayAddress = lobby.assignment.ip;
+                    foreach (Lobby.Port aport in lobby.assignment.ports)
+                    {
+                        if (aport.protocol == "UDP")
                         {
-                            if (aport.protocol == "UDP")
+                            if (aport.name == "server")
                             {
-                                if (aport.name == "server")
-                                {
-                                    relayGameServerPort = (ushort)aport.port;
+                                relayGameServerPort = (ushort)aport.port;
 
-                                }
-                                else if (aport.name == "client")
-                                {
-                                    relayGameClientPort = (ushort)aport.port;
-                                }
                             }
-                        }
-                        bool found = false;
-                        foreach (Lobby.Player player in lobby.players)
-                        {
-                            if (player.id == _playerId)
+                            else if (aport.name == "client")
                             {
-                                userId = player.authorization_token;
-                                sessionId = lobby.assignment.authorization_token;
-                                found = true;
-                                break;
+                                relayGameClientPort = (ushort)aport.port;
                             }
                         }
-                        running = false;
-                        if (!found)
+                    }
+                    bool found = false;
+                    foreach (Lobby.Player player in lobby.players)
+                    {
+                        if (player.id == _playerId)
                         {
-                            string errorMsg = $"Couldn't find my player ({_playerId})";
-                            Debug.LogError(errorMsg);
+                            userId = player.authorization_token;
+                            sessionId = lobby.assignment.authorization_token;
+                            found = true;
+                            break;
+                        }
+                    }
+                    running = false;
+                    if (!found)
+                    {
+                        string errorMsg = $"Couldn't find my player ({_playerId})";
+                        Debug.LogError(errorMsg);
 
-                            if (forServer)
-                            {
-                                _status = TransportStatus.Error;
-                                OnServerError?.Invoke(0, TransportError.Unexpected, errorMsg);
-                                ServerStop();
-                            }
-                            else
-                            {
-                                _status = TransportStatus.Error;
-                                OnClientError?.Invoke(TransportError.Unexpected, errorMsg);
-                                ClientDisconnect();
-                            }
-                        }
-                        _status = TransportStatus.Connecting;
                         if (forServer)
                         {
-                            base.ServerStart();
+                            _status = TransportStatus.Error;
+                            OnServerError?.Invoke(0, TransportError.Unexpected, errorMsg);
+                            ServerStop();
                         }
                         else
                         {
-                            base.ClientConnect("");
+                            _status = TransportStatus.Error;
+                            OnClientError?.Invoke(TransportError.Unexpected, errorMsg);
+                            ClientDisconnect();
                         }
+                        return;
+                    }
+                    _status = TransportStatus.Connecting;
+                    if (forServer)
+                    {
+                        base.ServerStart();
+                    }
+                    else
+                    {
+                        base.ClientConnect("");
                     }
                 }, error =>
                 {

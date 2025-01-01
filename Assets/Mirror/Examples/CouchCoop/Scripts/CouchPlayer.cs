@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -20,6 +21,23 @@ namespace Mirror.Examples.CouchCoop
         public int playerNumber = 0;
         public Text textPlayerNumber;
 
+        // a list of players, is used for camera
+        public readonly static List<GameObject> playersList = new List<GameObject>();
+
+        public void Start()
+        {
+            playersList.Add(this.gameObject);
+           // print("playersList: " + playersList.Count);
+
+            SetPlayerUI();
+        }
+
+        public void OnDestroy()
+        {
+            playersList.Remove(this.gameObject);
+           // print("playersList: " + playersList.Count);
+        }
+
         public override void OnStartAuthority()
         {
             this.enabled = true;
@@ -39,11 +57,6 @@ namespace Mirror.Examples.CouchCoop
             }
         }
 
-        public void Start()
-        {
-            SetPlayerUI();
-        }
-
         void Update()
         {
             if (!Application.isFocused) return;
@@ -55,7 +68,11 @@ namespace Mirror.Examples.CouchCoop
             {
                 if (Input.GetKey(KeyCode.Space) || Input.GetKeyDown(jumpKey))
                 {
+#if UNITY_6000_0_OR_NEWER
+                    rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpSpeed);
+#else
                     rb.velocity = new Vector2(rb.velocity.x, jumpSpeed);
+#endif
                 }
             }
 
@@ -69,8 +86,11 @@ namespace Mirror.Examples.CouchCoop
             {
                 movementVelocity = movementSpeed;
             }
-
+#if UNITY_6000_0_OR_NEWER
+            rb.linearVelocity = new Vector2(movementVelocity, rb.linearVelocity.y);
+#else
             rb.velocity = new Vector2(movementVelocity, rb.velocity.y);
+#endif
         }
 
         [ClientCallback]
@@ -86,7 +106,7 @@ namespace Mirror.Examples.CouchCoop
             if (isOwned == false) { return; }
             isGrounded = true;
         }
-       
+
         void OnNumberChangedHook(int _old, int _new)
         {
             //Debug.Log(name + " - OnNumberChangedHook: " + playerNumber);

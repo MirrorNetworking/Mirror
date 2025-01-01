@@ -18,7 +18,7 @@ namespace Mirror.SimpleWeb
 
         [FormerlySerializedAs("handshakeMaxSize")]
         [Tooltip("Max size for http header send as handshake for websockets")]
-        public int maxHandshakeSize = 3000;
+        public int maxHandshakeSize = 16 * 1024;
 
         [FormerlySerializedAs("serverMaxMessagesPerTick")]
         [Tooltip("Caps the number of messages the server will process per tick. Allows LateUpdate to finish to let the reset of unity continue in case more messages arrive before they are processed")]
@@ -51,7 +51,7 @@ namespace Mirror.SimpleWeb
         [Header("Server settings")]
 
         [Tooltip("Port to use for server")]
-        public ushort port = 7778;
+        public ushort port = 27777;
         public ushort Port
         {
             get
@@ -90,7 +90,7 @@ namespace Mirror.SimpleWeb
 
         [Tooltip("Sets connect scheme to wss. Useful when client needs to connect using wss when TLS is outside of transport.\nNOTE: if sslEnabled is true clientUseWss is also true")]
         public bool clientUseWss;
-        public ClientWebsocketSettings clientWebsocketSettings;
+        public ClientWebsocketSettings clientWebsocketSettings = new ClientWebsocketSettings { ClientPortOption = WebsocketPortOption.DefaultSameAsServer, CustomClientPort = 7777 };
 
         [Header("Logging")]
 
@@ -300,7 +300,7 @@ namespace Mirror.SimpleWeb
             SslConfig config = SslConfigLoader.Load(sslEnabled, sslCertJson, sslProtocols);
             server = new SimpleWebServer(serverMaxMsgsPerTick, TcpConfig, maxMessageSize, maxHandshakeSize, config);
 
-            server.onConnect += OnServerConnected.Invoke;
+            server.onConnect += OnServerConnectedWithAddress.Invoke;
             server.onDisconnect += OnServerDisconnected.Invoke;
             server.onData += (int connId, ArraySegment<byte> data) => OnServerDataReceived.Invoke(connId, data, Channels.Reliable);
 

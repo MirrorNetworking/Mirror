@@ -1,3 +1,8 @@
+V1.41 [2024-04-28]
+- fix: KcpHeader is now parsed safely, handling attackers potentially sending values out of enum range
+- fix: KcpClient RawSend may throw ConnectionRefused SocketException when OnDisconnected calls SendDisconnect(), which is fine
+- fix: less scary cookie message and better explanation
+
 V1.40 [2024-01-03]
 - added [KCP] to all log messages
 - fix: #3704 remove old fix for #2353 which caused log spam and isn't needed anymore since the

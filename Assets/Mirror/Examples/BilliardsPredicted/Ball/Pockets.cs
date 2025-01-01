@@ -23,7 +23,11 @@ namespace Mirror.Examples.BilliardsPredicted
                 {
                     Rigidbody rigidBody = predicted.predictedRigidbody;
                     rigidBody.position = white.startPosition;
+#if UNITY_6000_0_OR_NEWER
+                    rigidBody.linearVelocity = Vector3.zero;
+#else
                     rigidBody.velocity = Vector3.zero;
+#endif
                 }
 
                 // is it a read ball?

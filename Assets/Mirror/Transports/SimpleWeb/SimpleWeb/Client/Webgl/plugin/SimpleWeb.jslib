@@ -49,23 +49,21 @@ function Connect(addressPtr, openCallbackPtr, closeCallBackPtr, messageCallbackP
     const index = SimpleWeb.AddNextSocket(webSocket);
 
     // Connection opened
-    webSocket.addEventListener('open', function (event)
+    webSocket.onopen = function(event) 
     {
         console.log("Connected to " + address);
         Runtime.dynCall('vi', openCallbackPtr, [index]);
-    });
-    webSocket.addEventListener('close', function (event)
+    };
+
+    webSocket.onclose = function(event) 
     {
         console.log("Disconnected from " + address);
         Runtime.dynCall('vi', closeCallBackPtr, [index]);
-    });
+    };
 
-    // Listen for messages
-    webSocket.addEventListener('message', function (event)
+    webSocket.onmessage = function(event) 
     {
-        if (event.data instanceof ArrayBuffer)
-        {
-            // TODO dont alloc each time
+        if (event.data instanceof ArrayBuffer) {
             var array = new Uint8Array(event.data);
             var arrayLength = array.length;
 
@@ -80,13 +78,13 @@ function Connect(addressPtr, openCallbackPtr, closeCallBackPtr, messageCallbackP
         {
             console.error("message type not supported")
         }
-    });
+    };
 
-    webSocket.addEventListener('error', function (event)
+    webSocket.onerror = function(event) 
     {
         console.error('Socket Error', event);
         Runtime.dynCall('vi', errorCallbackPtr, [index]);
-    });
+    };
 
     return index;
 }

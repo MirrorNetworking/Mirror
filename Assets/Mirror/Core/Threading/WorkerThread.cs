@@ -21,8 +21,10 @@ namespace Mirror
         // callbacks need to be set after constructor.
         // inheriting classes can't pass their member funcs to base ctor.
         // don't set them while the thread is running!
+        // -> Tick() returns a bool so it can easily stop the thread
+        //    without needing to throw InterruptExceptions or similar.
         public Action Init;
-        public Action Tick;
+        public Func<bool> Tick;
         public Action Cleanup;
 
         public WorkerThread(string identifier)
@@ -104,7 +106,7 @@ namespace Mirror
         // always define them, and make them call actions.
         // those can be set at any time.
         void OnInit()    => Init?.Invoke();
-        void OnTick()    => Tick?.Invoke();
+        bool OnTick()    => Tick?.Invoke() ?? false;
         void OnCleanup() => Cleanup?.Invoke();
 
         // guarded wrapper for thread code.
@@ -128,7 +130,9 @@ namespace Mirror
                 // run thread func while active
                 while (active)
                 {
-                    OnTick();
+                    // Tick() returns a bool so it can easily stop the thread
+                    // without needing to throw InterruptExceptions or similar.
+                    if (!OnTick()) break;
                 }
             }
             // Thread.Interrupt() will gracefully raise a InterruptedException.

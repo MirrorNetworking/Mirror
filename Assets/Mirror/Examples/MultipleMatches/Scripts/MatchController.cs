@@ -58,10 +58,6 @@ namespace Mirror.Examples.MultipleMatch
 
         public override void OnStartClient()
         {
-#pragma warning disable CS0618 // Type or member is obsolete
-            matchPlayerData.Callback = UpdateWins;
-#pragma warning restore CS0618 // Type or member is obsolete
-
             canvasGroup.alpha = 1f;
             canvasGroup.interactable = true;
             canvasGroup.blocksRaycasts = true;
@@ -279,22 +275,22 @@ namespace Mirror.Examples.MultipleMatch
 
             if (!disconnected)
             {
-                NetworkServer.RemovePlayerForConnection(player1.connectionToClient, true);
+                NetworkServer.RemovePlayerForConnection(player1.connectionToClient, RemovePlayerOptions.Destroy);
                 CanvasController.waitingConnections.Add(player1.connectionToClient);
 
-                NetworkServer.RemovePlayerForConnection(player2.connectionToClient, true);
+                NetworkServer.RemovePlayerForConnection(player2.connectionToClient, RemovePlayerOptions.Destroy);
                 CanvasController.waitingConnections.Add(player2.connectionToClient);
             }
             else if (conn == player1.connectionToClient)
             {
                 // player1 has disconnected - send player2 back to Lobby
-                NetworkServer.RemovePlayerForConnection(player2.connectionToClient, true);
+                NetworkServer.RemovePlayerForConnection(player2.connectionToClient, RemovePlayerOptions.Destroy);
                 CanvasController.waitingConnections.Add(player2.connectionToClient);
             }
             else if (conn == player2.connectionToClient)
             {
                 // player2 has disconnected - send player1 back to Lobby
-                NetworkServer.RemovePlayerForConnection(player1.connectionToClient, true);
+                NetworkServer.RemovePlayerForConnection(player1.connectionToClient, RemovePlayerOptions.Destroy);
                 CanvasController.waitingConnections.Add(player1.connectionToClient);
             }
 

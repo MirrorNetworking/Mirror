@@ -87,6 +87,32 @@ namespace Mirror.Tests.Tools
         }
 
         [Test]
+        public void ScaleToLong_Quaternion()
+        {
+            // 0, positive, negative
+            Assert.True(Compression.ScaleToLong(new Quaternion(0, 10.5f, -100.5f, -10.5f), 0.1f, out long x, out long y, out long z, out long w));
+            Assert.That(x, Is.EqualTo(0));
+            Assert.That(y, Is.EqualTo(105));
+            Assert.That(z, Is.EqualTo(-1005));
+            Assert.That(w, Is.EqualTo(-105));
+        }
+
+        [Test]
+        public void ScaleToLong_Quaternion_OutOfRange()
+        {
+            float precision = 0.1f;
+            float largest = long.MaxValue / 0.1f;
+            float smallest = long.MinValue / 0.1f;
+
+            // 0, largest, smallest
+            Assert.False(Compression.ScaleToLong(new Quaternion(0, largest, smallest, 0), precision, out long x, out long y, out long z, out long w));
+            Assert.That(x, Is.EqualTo(0));
+            Assert.That(y, Is.EqualTo(long.MaxValue));
+            Assert.That(z, Is.EqualTo(long.MinValue));
+            Assert.That(w, Is.EqualTo(0));
+        }
+
+        [Test]
         public void ScaleToFloat()
         {
             // origin
@@ -128,6 +154,17 @@ namespace Mirror.Tests.Tools
             Assert.That(v.x, Is.EqualTo(0));
             Assert.That(v.y, Is.EqualTo(10.5f));
             Assert.That(v.z, Is.EqualTo(-100.5f));
+        }
+
+        [Test]
+        public void ScaleToFloat_Quaternion()
+        {
+            // 0, positive, negative
+            Quaternion q = Compression.ScaleToFloat(0, 105, -1005, -105, 0.1f);
+            Assert.That(q.x, Is.EqualTo(0));
+            Assert.That(q.y, Is.EqualTo(10.5f));
+            Assert.That(q.z, Is.EqualTo(-100.5f));
+            Assert.That(q.w, Is.EqualTo(-10.5f));
         }
 
         [Test]

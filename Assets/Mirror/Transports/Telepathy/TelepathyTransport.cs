@@ -178,7 +178,7 @@ namespace Mirror
             // system's hook (e.g. statistics OnData) was added is to wrap
             // them all in a lambda and always call the latest hook.
             // (= lazy call)
-            server.OnConnected = (connectionId) => OnServerConnected.Invoke(connectionId);
+            server.OnConnected = (connectionId, remoteClientAddress) => OnServerConnectedWithAddress.Invoke(connectionId, remoteClientAddress);
             server.OnData = (connectionId, segment) => OnServerDataReceived.Invoke(connectionId, segment, Channels.Reliable);
             server.OnDisconnected = (connectionId) => OnServerDisconnected.Invoke(connectionId);
 
@@ -200,25 +200,7 @@ namespace Mirror
             OnServerDataSent?.Invoke(connectionId, segment, Channels.Reliable);
         }
         public override void ServerDisconnect(int connectionId) => server?.Disconnect(connectionId);
-        public override string ServerGetClientAddress(int connectionId)
-        {
-            try
-            {
-                return server?.GetClientAddress(connectionId);
-            }
-            catch (SocketException)
-            {
-                // using server.listener.LocalEndpoint causes an Exception
-                // in UWP + Unity 2019:
-                //   Exception thrown at 0x00007FF9755DA388 in UWF.exe:
-                //   Microsoft C++ exception: Il2CppExceptionWrapper at memory
-                //   location 0x000000E15A0FCDD0. SocketException: An address
-                //   incompatible with the requested protocol was used at
-                //   System.Net.Sockets.Socket.get_LocalEndPoint ()
-                // so let's at least catch it and recover
-                return "unknown";
-            }
-        }
+        public override string ServerGetClientAddress(int connectionId) => server?.GetClientAddress(connectionId);
         public override void ServerStop()
         {
             server?.Stop();

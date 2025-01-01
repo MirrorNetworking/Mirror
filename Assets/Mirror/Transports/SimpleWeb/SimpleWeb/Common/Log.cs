@@ -67,10 +67,10 @@ namespace Mirror.SimpleWeb
 
 #if UNITY_SERVER || UNITY_WEBGL
             Console.ForegroundColor = ConsoleColor.Gray;
-            logger.Log(LogType.Log, msg);
+            logger.Log(LogType.Log, msg.Trim());
             Console.ResetColor();
 #else
-            logger.Log(LogType.Log, msg);
+            logger.Log(LogType.Log, msg.Trim());
 #endif
         }
 
@@ -126,13 +126,25 @@ namespace Mirror.SimpleWeb
 
 #if DEBUG
             // Debug builds and Unity Editor
-            logger.Log(LogType.Log, msg);
+            logger.Log(LogType.Log, msg.Trim());
 #else
             // Server or WebGL
             Console.ForegroundColor = ConsoleColor.Blue;
-            Console.WriteLine(msg);
+            Console.WriteLine(msg.Trim());
             Console.ResetColor();
 #endif
+        }
+
+        public static void Verbose<T>(string msg, T arg1)
+        {
+            if (minLogLevel > Levels.Verbose) return;
+            Verbose(String.Format(msg, arg1));
+        }
+
+        public static void Verbose<T1, T2>(string msg, T1 arg1, T2 arg2)
+        {
+            if (minLogLevel > Levels.Verbose) return;
+            Verbose(String.Format(msg, arg1, arg2));
         }
 
         /// <summary>
@@ -140,19 +152,29 @@ namespace Mirror.SimpleWeb
         /// </summary>
         /// <param name="msg">Message text to log</param>
         /// <param name="consoleColor">Default Cyan works in server and browser consoles</param>
-        public static void Info(string msg, ConsoleColor consoleColor = ConsoleColor.Cyan)
+        static void Info(string msg, ConsoleColor consoleColor = ConsoleColor.Cyan)
         {
-            if (minLogLevel > Levels.Info) return;
-
 #if DEBUG
             // Debug builds and Unity Editor
-            logger.Log(LogType.Log, msg);
+            logger.Log(LogType.Log, msg.Trim());
 #else
             // Server or WebGL
             Console.ForegroundColor = consoleColor;
-            Console.WriteLine(msg);
+            Console.WriteLine(msg.Trim());
             Console.ResetColor();
 #endif
+        }
+
+        public static void Info<T>(string msg, T arg1, ConsoleColor consoleColor = ConsoleColor.Cyan)
+        {
+            if (minLogLevel > Levels.Info) return;
+            Info(String.Format(msg, arg1), consoleColor);
+        }
+
+        public static void Info<T1, T2>(string msg, T1 arg1, T2 arg2, ConsoleColor consoleColor = ConsoleColor.Cyan)
+        {
+            if (minLogLevel > Levels.Info) return;
+            Info(String.Format(msg, arg1, arg2), consoleColor);
         }
 
         /// <summary>
@@ -184,13 +206,19 @@ namespace Mirror.SimpleWeb
 
 #if DEBUG
             // Debug builds and Unity Editor
-            logger.Log(LogType.Warning, msg);
+            logger.Log(LogType.Warning, msg.Trim());
 #else
             // Server or WebGL
             Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine(msg);
+            Console.WriteLine(msg.Trim());
             Console.ResetColor();
 #endif
+        }
+
+        public static void Warn<T>(string msg, T arg1)
+        {
+            if (minLogLevel > Levels.Warn) return;
+            Warn(String.Format(msg, arg1));
         }
 
         /// <summary>
@@ -203,13 +231,31 @@ namespace Mirror.SimpleWeb
 
 #if DEBUG
             // Debug builds and Unity Editor
-            logger.Log(LogType.Error, msg);
+            logger.Log(LogType.Error, msg.Trim());
 #else
             // Server or WebGL
             Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine(msg);
+            Console.WriteLine(msg.Trim());
             Console.ResetColor();
 #endif
+        }
+
+        public static void Error<T>(string msg, T arg1)
+        {
+            if (minLogLevel > Levels.Error) return;
+            Error(String.Format(msg, arg1));
+        }
+
+        public static void Error<T1, T2>(string msg, T1 arg1, T2 arg2)
+        {
+            if (minLogLevel > Levels.Error) return;
+            Error(String.Format(msg, arg1, arg2));
+        }
+
+        public static void Error<T1, T2, T3>(string msg, T1 arg1, T2 arg2, T3 arg3)
+        {
+            if (minLogLevel > Levels.Error) return;
+            Error(String.Format(msg, arg1, arg2, arg3));
         }
 
         /// <summary>

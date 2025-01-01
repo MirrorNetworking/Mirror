@@ -2,6 +2,7 @@ using UnityEngine;
 
 namespace Mirror.Examples.PredictionBenchmark
 {
+    [AddComponentMenu("")]
     public class NetworkManagerStackedPrediction : NetworkManager
     {
         [Header("Spawns")]
@@ -10,8 +11,9 @@ namespace Mirror.Examples.PredictionBenchmark
         public float interleave = 1;
 
         // 500 objects need around 100 iterations to be stable
-        [Tooltip("Stacked Cubes are only stable if solver iterations are high enough!")]
+        [Tooltip("Stacked Cubes are only stable if solver iterations are high enough!\nDefault is 1, max is 255.")]
         public int solverIterations = 200;
+        public int solverVelocityIterations = 1;
 
         public override void Awake()
         {
@@ -24,6 +26,10 @@ namespace Mirror.Examples.PredictionBenchmark
             int before = Physics.defaultSolverIterations;
             Physics.defaultSolverIterations = solverIterations;
             Debug.Log($"Physics.defaultSolverIterations: {before} -> {Physics.defaultSolverIterations}");
+
+            before = Physics.defaultSolverVelocityIterations;
+            Physics.defaultSolverVelocityIterations = solverVelocityIterations;
+            Debug.Log($"Physics.defaultSolverVelocityIterations: {before} -> {Physics.defaultSolverVelocityIterations}");
         }
 
         void SpawnAll()

@@ -39,11 +39,11 @@ namespace Mirror.Tests.Runtime
             // create spawned player
             CreateNetworkedAndSpawnPlayer(out GameObject player, out _, NetworkServer.localConnection);
 
-            // remove player for connection, wait 1 frame to unspawn
-            NetworkServer.RemovePlayerForConnection(NetworkServer.localConnection, false);
+            // remove player for connection, wait 1 frame for ownership removal
+            NetworkServer.RemovePlayerForConnection(NetworkServer.localConnection, RemovePlayerOptions.KeepActive);
             yield return null;
 
-            Assert.That(player, Is.Not.Null, "Player should be not be destroyed");
+            Assert.That(player, Is.Not.Null, "Player should not be destroyed");
             Assert.That(NetworkServer.localConnection.identity == null, "identity should be null");
 
             // respawn player
@@ -130,7 +130,7 @@ namespace Mirror.Tests.Runtime
             Assert.IsTrue(identity1 != null);
             Assert.IsTrue(identity2 != null);
             Assert.IsFalse(identity1.gameObject.activeSelf);
-            Assert.IsFalse(identity1.gameObject.activeSelf);
+            Assert.IsFalse(identity2.gameObject.activeSelf);
 
             Assert.That(NetworkServer.spawned, Is.Empty);
         }

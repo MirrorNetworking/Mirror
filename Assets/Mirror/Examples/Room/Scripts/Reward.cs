@@ -2,6 +2,7 @@ using UnityEngine;
 
 namespace Mirror.Examples.NetworkRoom
 {
+    [AddComponentMenu("")]
     [RequireComponent(typeof(Common.RandomColor))]
     public class Reward : NetworkBehaviour
     {
@@ -10,47 +11,55 @@ namespace Mirror.Examples.NetworkRoom
 
         [Header("Diagnostics")]
         [ReadOnly, SerializeField]
-        bool available = true;
+        bool available;
 
         protected override void OnValidate()
         {
+            if (Application.isPlaying) return;
+
             base.OnValidate();
+            Reset();
+        }
+
+        void Reset()
+        {
+            // Default position out of reach
+            transform.position = new Vector3(0, -1000, 0);
 
             if (randomColor == null)
                 randomColor = GetComponent<Common.RandomColor>();
         }
 
-        [ServerCallback]
-        void OnTriggerEnter(Collider other)
+        public override void OnStartServer()
         {
-            if (other.gameObject.CompareTag("Player"))
-                ClaimPrize(other.gameObject);
+            available = true;
         }
 
         [ServerCallback]
-        void ClaimPrize(GameObject player)
+        void OnTriggerEnter(Collider other)
         {
-            if (available)
-            {
-                // This is a fast switch to prevent two players claiming the prize in a bang-bang close contest for it.
-                // First hit turns it off, pending the object being destroyed a few frames later.
-                available = false;
+            // Don't process collisions when it's in the pool
+            if (!gameObject.activeSelf) return;
 
-                Color32 color = randomColor.color;
+            // Set up physics layers to prevent this from being called by non-players
+            // and eliminate the need for a tag check here.
+            if (!other.CompareTag("Player")) return;
 
-                // calculate the points from the color ... lighter scores higher as the average approaches 255
-                // UnityEngine.Color RGB values are float fractions of 255
-                uint points = (uint)(((color.r) + (color.g) + (color.b)) / 3);
+            // This is a fast switch to prevent two players claiming the reward in a bang-bang close contest for it.
+            // First to trigger turns it off, pending the object being destroyed a few frames later.
+            if (!available)
+                return;
 
-                // award the points via SyncVar on the PlayerController
-                player.GetComponent<PlayerScore>().score += points;
+            available = false;
 
-                // spawn a replacement
-                Spawner.SpawnReward();
+            // Calculate the points from the color...lighter scores higher as the average approaches 255
+            // UnityEngine.Color RGB values are byte 0 to 255
+            uint points = (uint)((randomColor.color.r + randomColor.color.g + randomColor.color.b) / 3);
 
-                // destroy this one
-                NetworkServer.Destroy(gameObject);
-            }
+            // award the points via SyncVar on Player's PlayerScore
+            other.GetComponent<PlayerScore>().score += points;
+
+            Spawner.RecycleReward(gameObject);
         }
     }
 }
