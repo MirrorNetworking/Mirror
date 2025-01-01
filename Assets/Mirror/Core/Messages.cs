@@ -52,12 +52,7 @@ namespace Mirror
         public ArraySegment<byte> payload;
     }
 
-    [Flags] public enum AuthorityFlags : byte
-    {
-        None = 0,
-        isOwner = 1,
-        isLocalPlayer = 2
-    }
+    [Flags] public enum AuthorityFlags : byte { None, isOwner, isLocalPlayer }
 
     public struct SpawnMessage : NetworkMessage
     {
