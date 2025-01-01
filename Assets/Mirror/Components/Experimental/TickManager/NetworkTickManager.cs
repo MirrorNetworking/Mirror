@@ -413,7 +413,7 @@ namespace Mirror.Components.Experimental{
       }
 
       // Wait until we receive positive tick from server before starting the initial 2 step sync
-      if (clientTick > 0) {
+      if (clientTick > 0 && _isAbsoluteTickSynced) {
         SynchronizeStart(serverTick, clientTick);
         ResetRunningMins();
       }
