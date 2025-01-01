@@ -1401,8 +1401,8 @@ namespace Mirror
                 SpawnMessage message = new SpawnMessage
                 {
                     netId = identity.netId,
-                    authorityFlags = (isOwner ? AuthorityFlags.isOwner : 0)
-                                   | (conn.identity == identity ? AuthorityFlags.isLocalPlayer : 0),
+                    isLocalPlayer = conn.identity == identity,
+                    isOwner = isOwner,
                     sceneId = identity.sceneId,
                     assetId = identity.assetId,
                     // use local values for VR support
@@ -1453,8 +1453,8 @@ namespace Mirror
             conn.Send(new ChangeOwnerMessage
             {
                 netId = identity.netId,
-                authorityFlags = identity.connectionToClient == conn ? AuthorityFlags.isOwner : 0
-                               | (conn.identity == identity && identity.connectionToClient == conn ? AuthorityFlags.isLocalPlayer : 0)
+                isOwner = identity.connectionToClient == conn,
+                isLocalPlayer = (conn.identity == identity && identity.connectionToClient == conn)
             });
         }
 
@@ -1720,6 +1720,9 @@ namespace Mirror
             // in host mode, call OnStopClient/OnStopLocalPlayer manually
             if (NetworkClient.active && activeHost)
             {
+                // fix: #3962 custom unspawn handler for this prefab (for prefab pools etc.)
+                NetworkClient.InvokeUnSpawnHandler(identity.assetId, identity.gameObject);
+
                 if (identity.isLocalPlayer)
                     identity.OnStopLocalPlayer();
 

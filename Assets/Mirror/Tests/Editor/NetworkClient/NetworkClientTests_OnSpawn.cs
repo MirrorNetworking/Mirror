@@ -330,7 +330,8 @@ namespace Mirror.Tests.NetworkClients
             SpawnMessage msg = new SpawnMessage
             {
                 netId = netId,
-                authorityFlags = AuthorityFlags.None,
+                isLocalPlayer = false,
+                isOwner = false,
                 sceneId = 0,
                 assetId = 0,
                 // use local values for VR support
@@ -368,7 +369,8 @@ namespace Mirror.Tests.NetworkClients
             SpawnMessage msg = new SpawnMessage
             {
                 netId = netId,
-                authorityFlags = AuthorityFlags.None,
+                isLocalPlayer = false,
+                isOwner = false,
                 sceneId = 0,
                 assetId = 0,
                 // use local values for VR support
@@ -400,7 +402,8 @@ namespace Mirror.Tests.NetworkClients
             SpawnMessage msg = new SpawnMessage
             {
                 netId = netId,
-                authorityFlags = isOwner ? AuthorityFlags.isOwner : 0,
+                isLocalPlayer = false,
+                isOwner = isOwner,
                 sceneId = 0,
                 assetId = 0,
                 // use local values for VR support
@@ -432,7 +435,8 @@ namespace Mirror.Tests.NetworkClients
             SpawnMessage msg = new SpawnMessage
             {
                 netId = netId,
-                authorityFlags = AuthorityFlags.None,
+                isLocalPlayer = false,
+                isOwner = false,
                 sceneId = 0,
                 assetId = 0,
                 // use local values for VR support
@@ -459,7 +463,8 @@ namespace Mirror.Tests.NetworkClients
             SpawnMessage msg = new SpawnMessage
             {
                 netId = netId,
-                authorityFlags = AuthorityFlags.None,
+                isLocalPlayer = false,
+                isOwner = false,
                 sceneId = 0,
                 assetId = assetId,
                 // use local values for VR support
@@ -489,7 +494,8 @@ namespace Mirror.Tests.NetworkClients
             SpawnMessage msg = new SpawnMessage
             {
                 netId = netId,
-                authorityFlags = AuthorityFlags.None,
+                isLocalPlayer = false,
+                isOwner = false,
                 sceneId = 0,
                 assetId = 0,
                 // use local values for VR support
@@ -516,7 +522,8 @@ namespace Mirror.Tests.NetworkClients
             SpawnMessage msg = new SpawnMessage
             {
                 netId = netId,
-                authorityFlags = AuthorityFlags.isOwner | AuthorityFlags.isLocalPlayer,
+                isLocalPlayer = true,
+                isOwner = true,
                 sceneId = 0,
                 assetId = 0,
                 // use local values for VR support
@@ -546,7 +553,8 @@ namespace Mirror.Tests.NetworkClients
             SpawnMessage msg = new SpawnMessage
             {
                 netId = netId,
-                authorityFlags = AuthorityFlags.isOwner | AuthorityFlags.isLocalPlayer,
+                isLocalPlayer = true,
+                isOwner = true,
                 sceneId = 0,
                 assetId = 0,
                 // use local values for VR support

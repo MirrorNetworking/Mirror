@@ -77,15 +77,12 @@ namespace Mirror
         // ArraySegment to avoid unnecessary allocations
         public ArraySegment<byte> payload;
 
-        // Deprecated 2024-12-22
-        [Obsolete("Use authorityFlags enum instead")]
         public bool isOwner
         {
             get => authorityFlags.HasFlag(AuthorityFlags.isOwner);
             set => authorityFlags = value ? authorityFlags | AuthorityFlags.isOwner : authorityFlags & ~AuthorityFlags.isOwner;
         }
 
-        [Obsolete("Use authorityFlags enum instead")]
         public bool isLocalPlayer
         {
             get => authorityFlags.HasFlag(AuthorityFlags.isLocalPlayer);
@@ -98,15 +95,12 @@ namespace Mirror
         public uint netId;
         public AuthorityFlags authorityFlags;
 
-        // Deprecated 2024-12-22
-        [Obsolete("Use authorityFlags enum instead")]
         public bool isOwner
         {
             get => authorityFlags.HasFlag(AuthorityFlags.isOwner);
             set => authorityFlags = value ? authorityFlags | AuthorityFlags.isOwner : authorityFlags & ~AuthorityFlags.isOwner;
         }
 
-        [Obsolete("Use authorityFlags enum instead")]
         public bool isLocalPlayer
         {
             get => authorityFlags.HasFlag(AuthorityFlags.isLocalPlayer);

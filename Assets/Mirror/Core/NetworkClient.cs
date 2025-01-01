@@ -495,7 +495,8 @@ namespace Mirror
             // 'message id not found' errors.
             if (hostMode)
             {
-                RegisterHandler<ObjectDestroyMessage>(OnHostClientObjectDestroy);
+                // host mode doesn't need destroy messages (see NetworkServer::UnSpawnInternal)
+                RegisterHandler<ObjectDestroyMessage>(_ => { });
                 RegisterHandler<ObjectHideMessage>(OnHostClientObjectHide);
                 RegisterHandler<NetworkPongMessage>(_ => { }, false);
                 RegisterHandler<SpawnMessage>(OnHostClientSpawn);
@@ -1106,13 +1107,14 @@ namespace Mirror
         // spawning ////////////////////////////////////////////////////////////
         internal static void ApplySpawnPayload(NetworkIdentity identity, SpawnMessage message)
         {
+            // add to spawned first because DeserializeClient may need it for SyncVars
+            spawned[message.netId] = identity;
+
             if (message.assetId != 0)
                 identity.assetId = message.assetId;
 
             if (!identity.gameObject.activeSelf)
-            {
                 identity.gameObject.SetActive(true);
-            }
 
             // apply local values for VR support
             identity.transform.localPosition = message.position;
@@ -1123,10 +1125,13 @@ namespace Mirror
             // the below DeserializeClient call invokes SyncVarHooks.
             // flags always need to be initialized before that.
             // fixes: https://github.com/MirrorNetworking/Mirror/issues/3259
-            identity.isOwned = message.authorityFlags.HasFlag(AuthorityFlags.isOwner);
             identity.netId = message.netId;
+            identity.isOwned = message.isOwner;
 
-            if (message.authorityFlags.HasFlag(AuthorityFlags.isLocalPlayer))
+            if (identity.isOwned)
+                connection?.owned.Add(identity);
+
+            if (message.isLocalPlayer)
                 InternalAddPlayer(identity);
 
             // configure isClient/isLocalPlayer flags.
@@ -1146,9 +1151,6 @@ namespace Mirror
                     identity.DeserializeClient(payloadReader, true);
                 }
             }
-
-            spawned[message.netId] = identity;
-            if (identity.isOwned) connection?.owned.Add(identity);
 
             // the initial spawn with OnObjectSpawnStarted/Finished calls all
             // object's OnStartClient/OnStartLocalPlayer after they were all
@@ -1298,8 +1300,11 @@ namespace Mirror
         {
             // Debug.Log("SpawnStarted");
             PrepareToSpawnSceneObjects();
+            pendingSpawns.Clear();
             isSpawnFinished = false;
         }
+
+        static readonly Dictionary<NetworkIdentity, SpawnMessage> pendingSpawns = new Dictionary<NetworkIdentity, SpawnMessage>();
 
         internal static void OnObjectSpawnFinished(ObjectSpawnFinishedMessage _)
         {
@@ -1312,25 +1317,29 @@ namespace Mirror
                 // they are destroyed. for safety, let's double check here.
                 if (identity != null)
                 {
+                    // We may have deferred ApplySpawnPayload in OnSpawn
+                    // to avoid cross-reference race conditions with SyncVars.
+                    // Apply payload before invoking OnStartClient etc. callbacks
+                    // so that all data is there when they are invoked.
+                    // Note that Interest Management may not have updated spawned
+                    // dictionary yet, so not all identities may be in pendingSpawns.
+                    // Generally that's user error in their code, so we don't throw
+                    // a warning here, but keep the warning code for debugging if needed.
+                    if (pendingSpawns.TryGetValue(identity, out SpawnMessage message))
+                        ApplySpawnPayload(identity, message);
+                    //else
+                    //    Debug.LogWarning($"Expected pendingSpawns to contain {identity}: {identity.netId} but didn't");
+
                     BootstrapIdentity(identity);
                 }
                 else Debug.LogWarning("Found null entry in NetworkClient.spawned. This is unexpected. Was the NetworkIdentity not destroyed properly?");
             }
+
+            pendingSpawns.Clear();
             isSpawnFinished = true;
         }
 
         // host mode callbacks /////////////////////////////////////////////////
-        static void OnHostClientObjectDestroy(ObjectDestroyMessage message)
-        {
-            //Debug.Log($"NetworkClient.OnLocalObjectObjDestroy netId:{message.netId}");
-
-            // remove from owned (if any)
-            if (spawned.TryGetValue(message.netId, out NetworkIdentity identity))
-                connection.owned.Remove(identity);
-
-            spawned.Remove(message.netId);
-        }
-
         static void OnHostClientObjectHide(ObjectHideMessage message)
         {
             //Debug.Log($"ClientScene::OnLocalObjectObjHide netId:{message.netId}");
@@ -1349,17 +1358,18 @@ namespace Mirror
             if (NetworkServer.spawned.TryGetValue(message.netId, out NetworkIdentity identity) && identity != null)
             {
                 spawned[message.netId] = identity;
-                if (message.authorityFlags.HasFlag(AuthorityFlags.isOwner)) connection.owned.Add(identity);
+                if (message.isOwner)
+                    connection.owned.Add(identity);
 
                 // now do the actual 'spawning' on host mode
-                if (message.authorityFlags.HasFlag(AuthorityFlags.isLocalPlayer))
+                if (message.isLocalPlayer)
                     InternalAddPlayer(identity);
 
                 // set visibility before invoking OnStartClient etc. callbacks
                 if (aoi != null)
                     aoi.SetHostVisibility(identity, true);
 
-                identity.isOwned = message.authorityFlags.HasFlag(AuthorityFlags.isOwner);
+                identity.isOwned = message.isOwner;
                 BootstrapIdentity(identity);
             }
         }
@@ -1437,7 +1447,18 @@ namespace Mirror
             // Debug.Log($"Client spawn handler instantiating netId={msg.netId} assetID={msg.assetId} sceneId={msg.sceneId:X} pos={msg.position}");
             if (FindOrSpawnObject(message, out NetworkIdentity identity))
             {
-                ApplySpawnPayload(identity, message);
+                if (isSpawnFinished)
+                {
+                    ApplySpawnPayload(identity, message);
+                }
+                else
+                {
+                    // Defer ApplySpawnPayload until OnObjectSpawnFinished
+                    // add to spawned because later when we ApplySpawnPayload
+                    // there may be SyncVars that cross-reference other objects
+                    spawned[message.netId] = identity;
+                    pendingSpawns[identity] = message;
+                }
             }
         }
 
@@ -1457,13 +1478,13 @@ namespace Mirror
         {
             // local player before, but not anymore?
             // call OnStopLocalPlayer before setting new values.
-            if (identity.isLocalPlayer && !message.authorityFlags.HasFlag(AuthorityFlags.isLocalPlayer))
+            if (identity.isLocalPlayer && !message.isLocalPlayer)
             {
                 identity.OnStopLocalPlayer();
             }
 
             // set ownership flag (aka authority)
-            identity.isOwned = message.authorityFlags.HasFlag(AuthorityFlags.isOwner);
+            identity.isOwned = message.isOwner;
 
             // Add / Remove to client's connectionToServer.owned hashset.
             if (identity.isOwned)
@@ -1475,7 +1496,7 @@ namespace Mirror
             identity.NotifyAuthority();
 
             // set localPlayer flag
-            identity.isLocalPlayer = message.authorityFlags.HasFlag(AuthorityFlags.isLocalPlayer);
+            identity.isLocalPlayer = message.isLocalPlayer;
 
             // identity is now local player. set our static helper field to it.
             if (identity.isLocalPlayer)
