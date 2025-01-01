@@ -1358,8 +1358,7 @@ namespace Mirror
             if (NetworkServer.spawned.TryGetValue(message.netId, out NetworkIdentity identity) && identity != null)
             {
                 spawned[message.netId] = identity;
-                if (message.isOwner)
-                    connection.owned.Add(identity);
+                if (message.isOwner) connection.owned.Add(identity);
 
                 // now do the actual 'spawning' on host mode
                 if (message.isLocalPlayer)

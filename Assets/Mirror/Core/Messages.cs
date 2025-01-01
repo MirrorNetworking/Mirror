@@ -77,12 +77,14 @@ namespace Mirror
         // ArraySegment to avoid unnecessary allocations
         public ArraySegment<byte> payload;
 
+        // Backwards compatibility after implementing authorityFlags
         public bool isOwner
         {
             get => authorityFlags.HasFlag(AuthorityFlags.isOwner);
             set => authorityFlags = value ? authorityFlags | AuthorityFlags.isOwner : authorityFlags & ~AuthorityFlags.isOwner;
         }
 
+        // Backwards compatibility after implementing authorityFlags
         public bool isLocalPlayer
         {
             get => authorityFlags.HasFlag(AuthorityFlags.isLocalPlayer);
@@ -95,12 +97,14 @@ namespace Mirror
         public uint netId;
         public AuthorityFlags authorityFlags;
 
+        // Backwards compatibility after implementing authorityFlags
         public bool isOwner
         {
             get => authorityFlags.HasFlag(AuthorityFlags.isOwner);
             set => authorityFlags = value ? authorityFlags | AuthorityFlags.isOwner : authorityFlags & ~AuthorityFlags.isOwner;
         }
 
+        // Backwards compatibility after implementing authorityFlags
         public bool isLocalPlayer
         {
             get => authorityFlags.HasFlag(AuthorityFlags.isLocalPlayer);
