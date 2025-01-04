@@ -102,14 +102,20 @@ namespace Mirror
         public bool isOwner
         {
             get => authorityFlags.HasFlag(AuthorityFlags.isOwner);
-            set => authorityFlags = value ? authorityFlags | AuthorityFlags.isOwner : authorityFlags & ~AuthorityFlags.isOwner;
+            set => authorityFlags = 
+                value 
+                ? authorityFlags | AuthorityFlags.isOwner 
+                : authorityFlags & ~AuthorityFlags.isOwner;
         }
 
         // Backwards compatibility after implementing authorityFlags
         public bool isLocalPlayer
         {
             get => authorityFlags.HasFlag(AuthorityFlags.isLocalPlayer);
-            set => authorityFlags = value ? authorityFlags | AuthorityFlags.isLocalPlayer : authorityFlags & ~AuthorityFlags.isLocalPlayer;
+            set => authorityFlags = 
+                value 
+                ? authorityFlags | AuthorityFlags.isLocalPlayer 
+                : authorityFlags & ~AuthorityFlags.isLocalPlayer;
         }
     }
 
