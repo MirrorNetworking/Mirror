@@ -37,8 +37,12 @@ namespace Mirror.Examples.NetworkRoom
         {
             // Don't initialize the pool for host client because it's
             // already initialized in OnRoomServerSceneChanged
-            if (!NetworkServer.active && networkSceneName == GameplayScene)
-                Spawner.InitializePool(rewardPrefab, 10);
+            if (NetworkServer.active) return;
+
+            if (networkSceneName == GameplayScene)
+                Spawner.InitializePool(rewardPrefab, poolSize);
+            else
+                Spawner.ClearPool();
         }
 
         /// <summary>
