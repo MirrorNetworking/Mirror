@@ -58,6 +58,7 @@ namespace Mirror
     {
         // netId of new or existing object
         public uint netId;
+        // isOwner and isLocalPlayer are merged into one byte via bitwise op
         public AuthorityFlags authorityFlags;
         public ulong sceneId;
         // If sceneId != 0 then it is used instead of assetId
@@ -96,6 +97,7 @@ namespace Mirror
     public struct ChangeOwnerMessage : NetworkMessage
     {
         public uint netId;
+        // isOwner and isLocalPlayer are merged into one byte via bitwise op
         public AuthorityFlags authorityFlags;
 
         // Backwards compatibility after implementing authorityFlags
