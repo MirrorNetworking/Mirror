@@ -1298,7 +1298,7 @@ namespace Mirror
 
         internal static void OnObjectSpawnStarted(ObjectSpawnStartedMessage _)
         {
-            // Debug.Log("SpawnStarted");
+            Debug.Log("SpawnStarted");
             PrepareToSpawnSceneObjects();
             pendingSpawns.Clear();
             isSpawnFinished = false;
@@ -1308,6 +1308,8 @@ namespace Mirror
 
         internal static void OnObjectSpawnFinished(ObjectSpawnFinishedMessage _)
         {
+            Debug.Log("SpawnFinished");
+
             // paul: Initialize the objects in the same order as they were
             // initialized in the server. This is important if spawned objects
             // use data from scene objects

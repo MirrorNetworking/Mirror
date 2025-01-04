@@ -1299,6 +1299,8 @@ namespace Mirror
         // server needs to know in order to disconnect on error.
         internal bool Deserialize(NetworkReader reader, bool initialState)
         {
+            Debug.Log($"Deserialize {name} component={GetType()} netId={netId} Count:{reader.buffer.Count} Pos:{reader.Position}");
+
             // detect errors, but attempt to correct before returning
             bool result = true;
 
@@ -1310,7 +1312,7 @@ namespace Mirror
             // way to mess up another component's deserialization
             try
             {
-                //Debug.Log($"OnDeserializeSafely: {name} component:{GetType()} sceneId:{sceneId:X} length:{contentSize}");
+                Debug.Log($"Try OnDeserialize {name} component:{GetType()} netId={netId} Count:{reader.buffer.Count} Pos:{reader.Position}");
                 OnDeserialize(reader, initialState);
             }
             catch (Exception e)
