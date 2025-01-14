@@ -4,3 +4,6 @@ Notes for Mirror integration:
    because Asset Store doesn't allow Github dependencies.
 
 -> We have a few MIRROR CHANGES in the code for fixes / compatibility.
+
+UPDATING:
+https://github.com/edgegap/edgegap-unity-plugin/tree/partner/mirror-source
