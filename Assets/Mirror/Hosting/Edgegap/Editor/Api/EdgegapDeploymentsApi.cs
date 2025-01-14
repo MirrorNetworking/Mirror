@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
@@ -11,18 +12,16 @@ namespace Edgegap.Editor.Api
 {
     /// <summary>
     /// Wraps the v1/[deploy | status | stop] API endpoints: Deployments Control API.
-    /// - API Doc | https://docs.edgegap.com/api/#tag/Deployments 
+    /// - API Doc | https://docs.edgegap.com/api/#tag/Deployments
     /// </summary>
     public class EdgegapDeploymentsApi : EdgegapApiBase
     {
         public EdgegapDeploymentsApi(
-            ApiEnvironment apiEnvironment, 
-            string apiToken, 
-            EdgegapWindowMetadata.LogLevel logLevel = EdgegapWindowMetadata.LogLevel.Error)
-            : base(apiEnvironment, apiToken, logLevel)
-        {
-        }
-
+            ApiEnvironment apiEnvironment,
+            string apiToken,
+            EdgegapWindowMetadata.LogLevel logLevel = EdgegapWindowMetadata.LogLevel.Error
+        )
+            : base(apiEnvironment, apiToken, logLevel) { }
 
         #region API Methods
         /// <summary>
@@ -35,18 +34,16 @@ namespace Edgegap.Editor.Api
         /// - Success: 200
         /// </returns>
         public async Task<EdgegapHttpResult<CreateDeploymentResult>> CreateDeploymentAsync(
-            CreateDeploymentRequest request)
+            CreateDeploymentRequest request
+        )
         {
             HttpResponseMessage response = await PostAsync("v1/deploy", request.ToString());
-            EdgegapHttpResult<CreateDeploymentResult> result = new EdgegapHttpResult<CreateDeploymentResult>(response); // MIRROR CHANGE: 'new()' not supported in Unity 2020
+            EdgegapHttpResult<CreateDeploymentResult> result =
+                new EdgegapHttpResult<CreateDeploymentResult>(response); // MIRROR CHANGE: 'new()' not supported in Unity 2020
 
-            bool isSuccess = response.StatusCode == HttpStatusCode.OK; // 200
-            if (!isSuccess)
-                return result;
-            
             return result;
         }
-        
+
         /// <summary>
         /// GET v1/status/{requestId}
         /// - Retrieve the information for a deployment.
@@ -59,18 +56,34 @@ namespace Edgegap.Editor.Api
         /// Http info with GetDeploymentStatusResult data model
         /// - Success: 200
         /// </returns>
-        public async Task<EdgegapHttpResult<GetDeploymentStatusResult>> GetDeploymentStatusAsync(string requestId)
+        public async Task<EdgegapHttpResult<GetDeploymentStatusResult>> GetDeploymentStatusAsync(
+            string requestId
+        )
         {
             HttpResponseMessage response = await GetAsync($"v1/status/{requestId}");
-            EdgegapHttpResult<GetDeploymentStatusResult> result = new EdgegapHttpResult<GetDeploymentStatusResult>(response); // MIRROR CHANGE: 'new()' not supported in Unity 2020
+            EdgegapHttpResult<GetDeploymentStatusResult> result =
+                new EdgegapHttpResult<GetDeploymentStatusResult>(response); // MIRROR CHANGE: 'new()' not supported in Unity 2020
 
             bool isSuccess = response.StatusCode == HttpStatusCode.OK; // 200
             if (!isSuccess)
                 return result;
-            
+
             return result;
         }
-        
+
+        public async Task<EdgegapHttpResult<GetDeploymentsResult>> GetDeploymentsAsync()
+        {
+            HttpResponseMessage response = await GetAsync($"v1/deployments");
+            EdgegapHttpResult<GetDeploymentsResult> result =
+                new EdgegapHttpResult<GetDeploymentsResult>(response);
+
+            bool isSuccess = response.StatusCode == HttpStatusCode.OK; // 200
+            if (!isSuccess)
+                return result;
+
+            return result;
+        }
+
         /// <summary>
         /// DELETE v1/stop/{requestId}
         /// - Delete an instance of deployment. It will stop the running container and all its games.
@@ -83,20 +96,23 @@ namespace Edgegap.Editor.Api
         /// Http info with GetDeploymentStatusResult data model
         /// - Success: 200
         /// </returns>
-        public async Task<EdgegapHttpResult<StopActiveDeploymentResult>> StopActiveDeploymentAsync(string requestId)
+        public async Task<EdgegapHttpResult<StopActiveDeploymentResult>> StopActiveDeploymentAsync(
+            string requestId
+        )
         {
             HttpResponseMessage response = await DeleteAsync($"v1/stop/{requestId}");
-            EdgegapHttpResult<StopActiveDeploymentResult> result = new EdgegapHttpResult<StopActiveDeploymentResult>(response); // MIRROR CHANGE: 'new()' not supported in Unity 2020
+            EdgegapHttpResult<StopActiveDeploymentResult> result =
+                new EdgegapHttpResult<StopActiveDeploymentResult>(response); // MIRROR CHANGE: 'new()' not supported in Unity 2020
 
             bool isSuccess = response.StatusCode == HttpStatusCode.OK; // 200
             if (!isSuccess)
                 return result;
-            
+
             return result;
         }
         #endregion // API Methods
-        
-        
+
+
         #region Chained API Methods
         /// <summary>
         /// POST v1/deploy => GET v1/status/{requestId}
@@ -109,16 +125,22 @@ namespace Edgegap.Editor.Api
         /// - Success: 200
         /// - Error: If createResult.HasErr, returns createResult
         /// </returns>
-        public async Task<EdgegapHttpResult<CreateDeploymentResult>> CreateDeploymentAwaitReadyStatusAsync(
-            CreateDeploymentRequest request, TimeSpan pollInterval)
+        public async Task<
+            EdgegapHttpResult<CreateDeploymentResult>
+        > CreateDeploymentAwaitReadyStatusAsync(
+            CreateDeploymentRequest request,
+            TimeSpan pollInterval
+        )
         {
-            EdgegapHttpResult<CreateDeploymentResult> createResponse = await CreateDeploymentAsync(request);
+            EdgegapHttpResult<CreateDeploymentResult> createResponse = await CreateDeploymentAsync(
+                request
+            );
 
             // Create =>
             bool isCreateSuccess = createResponse.StatusCode == HttpStatusCode.OK; // 200
             if (!isCreateSuccess)
                 return createResponse;
-            
+
             // Await Status READY =>
             string requestId = createResponse.Data.RequestId;
             _ = await AwaitReadyStatusAsync(requestId, pollInterval);
@@ -126,21 +148,25 @@ namespace Edgegap.Editor.Api
             // Return no matter what the result; no need to validate
             return createResponse;
         }
-        
+
         /// <summary>If you recently deployed but want to await READY status.</summary>
         /// <param name="requestId"></param>
         /// <param name="pollInterval"></param>
         public async Task<EdgegapHttpResult<GetDeploymentStatusResult>> AwaitReadyStatusAsync(
-            string requestId, 
-            TimeSpan pollInterval)
+            string requestId,
+            TimeSpan pollInterval
+        )
         {
             Assert.IsTrue(!string.IsNullOrEmpty(requestId)); // Validate
-            
+
             EdgegapHttpResult<GetDeploymentStatusResult> statusResponse = null;
-            CancellationTokenSource cts = new CancellationTokenSource (TimeSpan.FromMinutes( // MIRROR CHANGE: 'new()' not supported in Unity 2020
-                EdgegapWindowMetadata.DEPLOYMENT_AWAIT_READY_STATUS_TIMEOUT_MINS));
+            CancellationTokenSource cts = new CancellationTokenSource(
+                TimeSpan.FromMinutes( // MIRROR CHANGE: 'new()' not supported in Unity 2020
+                    EdgegapWindowMetadata.DEPLOYMENT_AWAIT_READY_STATUS_TIMEOUT_MINS
+                )
+            );
             bool isReady = false;
-            
+
             while (!isReady && !cts.Token.IsCancellationRequested)
             {
                 await Task.Delay(pollInterval, cts.Token);
@@ -150,19 +176,22 @@ namespace Edgegap.Editor.Api
 
             return statusResponse;
         }
-        
+
         /// <summary>If you recently stopped a deployment, but want to await TERMINATED (410) status.</summary>
         /// <param name="requestId"></param>
         /// <param name="pollInterval"></param>
-        public async Task<EdgegapHttpResult<StopActiveDeploymentResult>> AwaitTerminatedDeleteStatusAsync(
-            string requestId, 
-            TimeSpan pollInterval)
+        public async Task<
+            EdgegapHttpResult<StopActiveDeploymentResult>
+        > AwaitTerminatedDeleteStatusAsync(string requestId, TimeSpan pollInterval)
         {
             EdgegapHttpResult<StopActiveDeploymentResult> deleteResponse = null;
-            CancellationTokenSource cts = new CancellationTokenSource(TimeSpan.FromMinutes( // MIRROR CHANGE: 'new()' not supported in Unity 2020
-                EdgegapWindowMetadata.DEPLOYMENT_AWAIT_READY_STATUS_TIMEOUT_MINS));
+            CancellationTokenSource cts = new CancellationTokenSource(
+                TimeSpan.FromMinutes( // MIRROR CHANGE: 'new()' not supported in Unity 2020
+                    EdgegapWindowMetadata.DEPLOYMENT_AWAIT_READY_STATUS_TIMEOUT_MINS
+                )
+            );
             bool isStopped = false;
-            
+
             while (!isStopped && !cts.Token.IsCancellationRequested)
             {
                 await Task.Delay(pollInterval, cts.Token);
