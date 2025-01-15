@@ -19,6 +19,9 @@ using UnityEditor.Build.Reporting;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Application = UnityEngine.Application;
+#if !EDGEGAP_PLUGIN_SERVERS
+using UnityEditor.Build;
+#endif
 
 namespace Edgegap.Editor
 {
