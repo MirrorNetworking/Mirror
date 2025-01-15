@@ -19,6 +19,7 @@ using UnityEditor.Build.Reporting;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Application = UnityEngine.Application;
+using HttpUtility = Edgegap.Codice.Utils.HttpUtility; // MIRROR CHANGE for Unity 2023 support
 #if !EDGEGAP_PLUGIN_SERVERS
 using UnityEditor.Build;
 #endif
