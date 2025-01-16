@@ -38,6 +38,14 @@
     color: rgb(144, 190, 109);
 }
 
+.text--link {
+    color: rgb(26, 142, 173);
+}
+
+.text--link:hover {
+    color: rgb(23, 190, 235);
+}
+
 .container {
     padding: 4px 4px;
 }
@@ -90,13 +98,24 @@
     border-bottom-color: rgba(0, 0, 0, 0.35);
     height: 27px;
     -unity-font-style: bold;
-    background-color: rgb(36, 76, 87);
     min-width: 170px;
     max-width: 200px;
 }
 
-.button-edgegap:hover {
+.button-blue {
+    background-color: rgb(36, 76, 87);
+}
+
+.button-blue:hover {
     background-color: rgb(56, 96, 107);
+}
+
+.button-red {
+    background-color: rgb(135, 36, 23);
+}
+
+.button-red:hover {
+    background-color: rgb(156, 58, 45);
 }
 
 .button-purple-hover:hover {
@@ -119,6 +138,7 @@
 .text-edgegap {
     font-size: 11px;
     color: rgb(222, 222, 222);
+    overflow: hidden;
     /* MIRROR CHANGE: disable hardcoded font path
     -unity-font-definition: url('./Fonts/Spartan-Regular%20SDF.asset?fileID=11400000&guid=8b0fb2c68be09174f8ea5057b27a545c&type=2#Spartan-Regular SDF');
     */
@@ -149,26 +169,32 @@ Toggle > #unity-checkmark {
     padding-bottom: 10px;
 }
 
-.unity-text-field {
-    min-width: auto;
-    width: 400px;
-    padding-right: 5px;
-    white-space: normal;
-    -unity-text-align: middle-left;
-    opacity: 1;
-    padding-bottom: 5px;
-    padding-top: 5px;
-    align-items: center;
-}
-
-.unity-text-field > Label {
-}
-
 .container-row {
     background-color: rgb(37, 37, 37);
     padding-top: 0;
     padding-bottom: 0;
+    padding-left: 10px;
+    padding-right: 5px;
     margin-bottom: 3px;
+    justify-content: flex-start;
+    overflow: hidden;
+}
+
+.unity-text-field {
+    min-width: 400px;
+    padding: 5px;
+    white-space: normal;
+    -unity-text-align: middle-left;
+    opacity: 1;
+    align-items: center;
+    align-content: stretch;
+    flex-grow: 10;
+    flex-shrink: 1;
+    overflow: hidden;
+}
+
+#ApiTokenMaskedTxt {
+    flex-shrink: 0;
 }
 
 .checkmark-edgegap {
@@ -177,6 +203,10 @@ Toggle > #unity-checkmark {
 
 .checkmark-edgegap #unity-checkmark {
     margin-right: 15px;
+}
+
+.unity-text-field__input {
+    text-overflow: clip;
 }
 
 .unity-text-field__input > TextElement {
@@ -210,4 +240,59 @@ Toggle > #unity-checkmark {
 }
 
 .button-purple-hover {
+}
+
+.label-right-padding Label {
+    min-width: 220px;
+}
+
+.btn-text-link-blue {
+    background-color: rgba(0, 0, 0, 0);
+    border-top-width: 0px;
+    border-right-width: 0px;
+    border-bottom-width: 0px;
+    border-left-width: 0px;
+    color: rgb(26, 142, 173);
+    height: 27px;
+    -unity-font-style: bold;
+    min-width: 170px;
+    max-width: 500px;
+}
+
+.btn-text-link-blue:hover {
+    color: rgb(23, 190, 235);
+}
+
+.btn-text-link {
+    background-color: rgba(0, 0, 0, 0);
+    border-top-width: 0px;
+    border-right-width: 0px;
+    border-bottom-width: 0px;
+    border-left-width: 0px;
+    color: rgb(200, 200, 200);
+    height: 27px;
+    -unity-font-style: bold;
+    min-width: 170px;
+    max-width: 500px;
+    left: -5px;
+}
+
+.btn-text-link:hover {
+    color: rgb(250, 250, 250);
+}
+
+.btn-show-dropdown {
+    margin-left: 15px;
+    margin-right: 15px;
+    padding: 0;
+    background-color: rgba(0, 0, 0, 0);
+    color: rgb(200, 200, 200);
+    border-top-width: 0px;
+    border-right-width: 0px;
+    border-bottom-width: 0px;
+    border-left-width: 0px;
+}
+
+.btn-show-dropdown:hover {
+    color: rgb(250, 250, 250);
 }
