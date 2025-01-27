@@ -272,8 +272,8 @@ namespace Mirror
             // these can be used to drive animations or other behaviours
             if (!isOwned && Time.deltaTime > 0)
             {
-                velocity = (transform.position - interpolated.position) / Time.deltaTime;
-                angularVelocity = (transform.rotation.eulerAngles - interpolated.rotation.eulerAngles) / Time.deltaTime;
+                velocity = (transform.localPosition - interpolated.position) / Time.deltaTime;
+                angularVelocity = (transform.localRotation.eulerAngles - interpolated.rotation.eulerAngles) / Time.deltaTime;
             }
 
             // interpolate parts
