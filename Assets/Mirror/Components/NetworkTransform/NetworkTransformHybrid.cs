@@ -60,7 +60,7 @@ namespace Mirror
         public bool syncRotation = true;
         public bool syncScale    = false;
 
-        // velocity for covenience (animators etc.)
+        // velocity for convenience (animators etc.)
         // this isn't technically NetworkTransforms job, but it's needed by so many projects that we just provide it anyway.
         public Vector3 velocity { get; private set; }
         public Vector3 angularVelocity { get; private set; }
