@@ -60,6 +60,11 @@ namespace Mirror
         public bool syncRotation = true;
         public bool syncScale    = false;
 
+        // velocity for convenience (animators etc.)
+        // this isn't technically NetworkTransforms job, but it's needed by so many projects that we just provide it anyway.
+        public Vector3 velocity { get; private set; }
+        public Vector3 angularVelocity { get; private set; }
+
         // debugging ///////////////////////////////////////////////////////////
         [Header("Debug")]
         public bool debugDraw;
@@ -102,6 +107,15 @@ namespace Mirror
             // -> we still interpolated
             // -> but simply don't apply it. if the user doesn't want to sync
             //    scale, then we should not touch scale etc.
+
+            // calculate the velocity and angular velocity for the object
+            // these can be used to drive animations or other behaviours
+            if (!isOwned && Time.deltaTime > 0)
+            {
+                velocity = (transform.localPosition - interpolated.position) / Time.deltaTime;
+                angularVelocity = (transform.localRotation.eulerAngles - interpolated.rotation.eulerAngles) / Time.deltaTime;
+            }
+
             if (syncPosition) target.localPosition = interpolated.position;
             if (syncRotation) target.localRotation = interpolated.rotation;
             if (syncScale)    target.localScale    = interpolated.scale;
