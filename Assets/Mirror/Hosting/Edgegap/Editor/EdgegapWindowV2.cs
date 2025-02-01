@@ -5,22 +5,24 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Web;
 using Edgegap.Editor.Api;
 using Edgegap.Editor.Api.Models;
 using Edgegap.Editor.Api.Models.Requests;
 using Edgegap.Editor.Api.Models.Results;
+using Edgegap.Codice.Utils;
 using UnityEditor;
-using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
-using UnityEditor.UIElements;
 using UnityEngine;
-using UnityEngine.Assertions;
 using UnityEngine.UIElements;
 using Application = UnityEngine.Application;
+using HttpUtility = Edgegap.Codice.Utils.HttpUtility; // MIRROR CHANGE for Unity 2023 support
+#if !EDGEGAP_PLUGIN_SERVERS
+using UnityEditor.Build;
+#endif
 
 namespace Edgegap.Editor
 {
@@ -30,105 +32,167 @@ namespace Edgegap.Editor
     public class EdgegapWindowV2 : EditorWindow
     {
         #region Vars
+        #region Filepaths
+        internal string ProjectRootPath => Directory.GetCurrentDirectory();
+        internal string ThisScriptPath =>
+            Directory.GetFiles(
+                ProjectRootPath,
+                GetType().Name + ".cs",
+                SearchOption.AllDirectories
+            )[0];
+        #endregion
+
+        #region State Variables
         public static bool IsLogLevelDebug =>
             EdgegapWindowMetadata.LOG_LEVEL == EdgegapWindowMetadata.LogLevel.Debug;
-        private bool IsInitd;
-        private VisualTreeAsset _visualTree;
         private bool _isApiTokenVerified; // Toggles the rest of the UI
-        private bool _isContainerRegistryReady;
-        private Sprite _appIconSpriteObj;
-        private string _appIconBase64Str;
-        private ApiEnvironment _apiEnvironment; // TODO: Swap out hard-coding with UI element?
+
         private GetRegistryCredentialsResult _credentials;
-        private static readonly Regex _appNameAllowedCharsRegex = new Regex(@"^[a-zA-Z0-9_\-+\.]*$"); // MIRROR CHANGE: 'new()' not supported in Unity 2020
-        private GetCreateAppResult _loadedApp;
-        /// <summary>TODO: Make this a list</summary>
-        private GetDeploymentStatusResult _lastKnownDeployment;
-        private string _deploymentRequestId;
         private string _userExternalIp;
-        private bool _isAwaitingDeploymentReadyStatus;
-        #endregion // Vars
 
+        private string _containerRegistryUrl;
+        private string _containerProject;
+        private string _containerUsername;
+        private string _containerToken;
 
-        #region Vars -> Interactable Elements
+        private List<string> _localImages = null;
+        private List<string> _storedAppNames = null;
+        private List<string> _storedAppVersions = null;
+
+        EdgegapDeploymentsApi _deployAPI;
+        #endregion
+
+        #region UI
+        private float ProgressCounter = 0;
+
+        #region UI / Containers
+        private VisualTreeAsset _visualTree;
+        internal string _stylesheetPath =>
+            Path.GetDirectoryName(
+                AssetDatabase.GetAssetPath(MonoScript.FromScriptableObject(this))
+            );
         private Button _debugBtn;
+        private VisualElement _postAuthContainer;
+        #endregion
 
-        /// <summary>(!) This is saved manually to EditorPrefs via Base64 instead of via UiBuilder</summary>
+        #region UI / Containers / Connect
+        private VisualElement _preAuthContainer;
+        private VisualElement _authContainer;
+        private Button _joinEdgegapDiscordBtn;
+        #endregion
+
+        #region UI / Connect / Pre-Auth
+        private Button _edgegapSignInBtn;
+        #endregion
+
+        #region UI / Connect / Auth
+        private Button _signOutBtn;
         private TextField _apiTokenInput;
-
+        private string _apiToken => _apiTokenInput is null ? "" : _apiTokenInput.value.Trim();
         private Button _apiTokenVerifyBtn;
         private Button _apiTokenGetBtn;
-        private VisualElement _postAuthContainer;
+        #endregion
 
-        private Foldout _appInfoFoldout;
-        private Button _appLoadExistingBtn;
-        private TextField _appNameInput;
-        /// <summary>`Sprite` type</summary>
-        private ObjectField _appIconSpriteObjInput;
-        private Button _appCreateBtn;
-        private Label _appCreateResultLabel;
+        #region UI / Build
+        private Foldout _serverBuildFoldout;
+        private Button _infoLinuxRequirementsBtn;
+        private Button _installLinuxRequirementsBtn;
+        private Label _linuxRequirementsResultLabel;
+        private Button _buildParamsBtn;
+        private TextField _buildFolderNameInput;
+        internal string _buildFolderNameInputDefault => "EdgegapServer";
+        private Button _serverBuildBtn;
+        private Label _serverBuildResultLabel;
+        #endregion
 
-        private Foldout _containerRegistryFoldout;
-        private TextField _containerNewTagVersionInput;
-        private TextField _containerPortNumInput;
+        #region UI / Containerize
+        private Foldout _containerizeFoldout;
+        private Button _infoDockerRequirementsBtn;
+        private Button _validateDockerRequirementsBtn;
+        private Label _dockerRequirementsResultLabel;
+        private TextField _buildPathInput;
+        internal string _buildPathInputDefault => $"Builds/{_buildFolderNameInput.value}";
+        private Button _buildPathResetBtn;
+        private TextField _containerizeImageNameInput;
+        public string _containerizeImageNameInputDefault =>
+            Tokenize(Application.productName.ToLowerInvariant());
+        private TextField _containerizeImageTagInput;
+        internal string _containerizeImageTagInputDefault =>
+            EdgegapWindowMetadata.DEFAULT_VERSION_TAG;
+        internal string nowUTC => $"{DateTime.UtcNow.ToString("yy.MM.dd-HH.mm.ss")}-UTC";
+        private TextField _dockerfilePathInput;
+        internal string _dockerfilePathInputDefault =>
+            $"{Directory.GetParent(ThisScriptPath).FullName}{Path.DirectorySeparatorChar}Dockerfile";
+        private Button _dockerfilePathResetBtn;
+        private TextField _optionalDockerParamsInput;
+        private Button _containerizeServerBtn;
+        private Label _containerizeServerResultLabel;
+        #endregion
 
-        // MIRROR CHANGE: EnumField Port type fails to resolve unless in Assembly-CSharp-Editor.dll. replace with regular Dropdown instead.
-        /// <summary>`ProtocolType` type</summary>
-        // private EnumField _containerTransportTypeEnumInput;
-        private PopupField<string> _containerTransportTypeEnumInput;
-        // END MIRROR CHANGE
+        #region UI / Test
+        private Foldout _localTestFoldout;
+        private TextField _localTestImageInput;
+        private Button _localTestImageShowDropdownBtn;
+        private TextField _localTestDockerRunInput;
+        internal string _localTestDockerRunInputDefault => "-p 7777/udp";
+        private Button _localTestDeployBtn;
+        private Button _localTestTerminateBtn;
+        private Button _localTestDiscordHelpBtn;
+        private Label _localTestResultLabel;
+        private Button _localTestInfoConnectBtn;
+        #endregion
 
-        private Toggle _containerUseCustomRegistryToggle;
-        private VisualElement _containerCustomRegistryWrapper;
-        private TextField _containerRegistryUrlInput;
-        private TextField _containerImageRepositoryInput;
-        private TextField _containerUsernameInput;
-        private TextField _containerTokenInput;
-        private Button _containerBuildAndPushServerBtn;
-        private Label _containerBuildAndPushResultLabel;
+        #region UI / Upload App
+        private Foldout _createAppFoldout;
+        private TextField _createAppNameInput;
+        private static readonly Regex _appNameAllowedCharsRegex = new Regex(
+            @"^[a-zA-Z0-9_\-+\.]*$"
+        );
+        private TextField _serverImageNameInput;
+        private TextField _serverImageTagInput;
+        private Button _portMappingLabelLink;
+        private Button _uploadImageCreateAppBtn;
+        private Button _appInfoLabelLink;
+        private Button _createAppNameShowDropdownBtn;
+        #endregion
 
-        private Foldout _deploymentsFoldout;
-        private Button _deploymentsRefreshBtn;
-        private Button _deploymentsCreateBtn;
-        /// <summary>display:none (since it's on its own line), rather than !visible.</summary>
-        private Label _deploymentsStatusLabel;
-        private VisualElement _deploymentsServerDataContainer;
-        private Button _deploymentConnectionCopyUrlBtn;
-        private TextField _deploymentsConnectionUrlReadonlyInput;
-        private Label _deploymentsConnectionStatusLabel;
-        private Button _deploymentsConnectionStopBtn;
-        private Button _deploymentsConnectionContainerLogsBtn;
+        #region UI / Deploy
+        private Foldout _deployAppFoldout;
+        private TextField _deployAppNameInput;
+        private TextField _deployAppVersionInput;
+        private Button _deployLimitLabelLink;
+        private Button _deployAppBtn;
+        private Button _stopLastDeployBtn;
+        private Button _discordHelpBtn;
+        private Label _deployResultLabel;
+        private Button _deployAppNameShowDropdownBtn;
+        private Button _deployAppVersionShowDropdownBtn;
+        #endregion
 
-        private Button _footerDocumentationBtn;
-        private Button _footerNeedMoreGameServersBtn;
-        #endregion // Vars\
+        #region UI / Next
+        private Foldout _nextStepsFoldout;
+        private Button _serverConnectLink;
+        private Button _gen2MatchmakerLabelLink;
+        private Button _lifecycleManageLabelLink;
+        #endregion
+        #endregion
+        #endregion
 
-        // MIRROR CHANGE
-        // get the path of this .cs file so we don't need to hardcode paths to
-        // the .uxml and .uss files:
-        // https://forum.unity.com/threads/too-many-hard-coded-paths-in-the-templates-and-documentation.728138/
-        // this way users can move this folder without breaking UIToolkit paths.
-        internal string StylesheetPath =>
-            Path.GetDirectoryName(AssetDatabase.GetAssetPath(MonoScript.FromScriptableObject(this)));
-        // END MIRROR CHANGE
-        internal string ProjectRootPath => Directory.GetCurrentDirectory();
-        internal string ThisScriptPath => Directory.GetFiles(ProjectRootPath, GetType().Name + ".cs", SearchOption.AllDirectories)[0];
-        internal string DockerFilePath => $"{Directory.GetParent(ThisScriptPath).FullName}{Path.DirectorySeparatorChar}Dockerfile";
-
-        [MenuItem("Tools/Edgegap Hosting")] // MIRROR CHANGE: more obvious title
+        #region Unity Integration
+        [MenuItem("Tools/Edgegap Hosting")]
         public static void ShowEdgegapToolWindow()
         {
             EdgegapWindowV2 window = GetWindow<EdgegapWindowV2>();
             window.titleContent = new GUIContent("Edgegap Hosting"); // MIRROR CHANGE: 'Edgegap Server Management' is too long for the tab space
-            window.maxSize = new Vector2(635, 900);
+            window.maxSize = new Vector2(600, 900);
             window.minSize = window.maxSize;
         }
 
-        #region Unity Funcs
+        // Compiler symbols can be used by other plugin developers to detect presence of Edgegap plugin
         [InitializeOnLoadMethod]
         public static void AddDefineSymbols()
         {
-// check if defined first, otherwise adding the symbol causes an infinite loop of recompilation
+            // check if defined first, otherwise adding the symbol causes an infinite loop of recompilation
 #if !EDGEGAP_PLUGIN_SERVERS
             // Get data about current target group
             bool standaloneAndServer = false;
@@ -136,7 +200,8 @@ namespace Edgegap.Editor
             BuildTargetGroup buildTargetGroup = BuildPipeline.GetBuildTargetGroup(buildTarget);
             if (buildTargetGroup == BuildTargetGroup.Standalone)
             {
-                StandaloneBuildSubtarget standaloneSubTarget = EditorUserBuildSettings.standaloneBuildSubtarget;
+                StandaloneBuildSubtarget standaloneSubTarget =
+                    EditorUserBuildSettings.standaloneBuildSubtarget;
                 if (standaloneSubTarget == StandaloneBuildSubtarget.Server)
                     standaloneAndServer = true;
             }
@@ -149,7 +214,10 @@ namespace Edgegap.Editor
                 namedBuildTarget = NamedBuildTarget.FromBuildTargetGroup(buildTargetGroup);
 
             // Set universal compiler macro
-            PlayerSettings.SetScriptingDefineSymbols(namedBuildTarget, $"{PlayerSettings.GetScriptingDefineSymbols(namedBuildTarget)};{EdgegapWindowMetadata.KEY_COMPILER_MACRO}");
+            PlayerSettings.SetScriptingDefineSymbols(
+                namedBuildTarget,
+                $"{PlayerSettings.GetScriptingDefineSymbols(namedBuildTarget)};{EdgegapWindowMetadata.KEY_COMPILER_MACRO}"
+            );
 #endif
         }
 
@@ -158,22 +226,26 @@ namespace Edgegap.Editor
 #if UNITY_2021_3_OR_NEWER // only load stylesheet in supported Unity versions, otherwise it shows errors in U2020
             // Set root VisualElement and style: V2 still uses EdgegapWindow.[uxml|uss]
             // BEGIN MIRROR CHANGE
-            _visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>($"{StylesheetPath}{Path.DirectorySeparatorChar}EdgegapWindow.uxml");
-            StyleSheet styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>($"{StylesheetPath}{Path.DirectorySeparatorChar}EdgegapWindow.uss");
+            _visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
+                $"{_stylesheetPath}{Path.DirectorySeparatorChar}EdgegapWindow.uxml"
+            );
+            StyleSheet styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>(
+                $"{_stylesheetPath}{Path.DirectorySeparatorChar}EdgegapWindow.uss"
+            );
             // END MIRROR CHANGE
             rootVisualElement.styleSheets.Add(styleSheet);
 #endif
         }
 
-#pragma warning disable CS1998 // disable async warning in U2020
         public async void CreateGUI()
-#pragma warning restore CS1998
         {
             // the UI requires 'GroupBox', which is not available in Unity 2019/2020.
             // showing it will break all of Unity's Editor UIs, not just this one.
             // instead, show a warning that the Edgegap plugin only works on Unity 2021+
 #if !UNITY_2021_3_OR_NEWER
-            Debug.LogWarning("The Edgegap Hosting plugin requires UIToolkit in Unity 2021.3 or newer. Please upgrade your Unity version to use this.");
+            Debug.LogWarning(
+                "The Edgegap Hosting plugin requires UIToolkit in Unity 2021.3 or newer. Please upgrade your Unity version to use this."
+            );
 #else
             // Get UI elements from UI Builder
             rootVisualElement.Clear();
@@ -181,10 +253,13 @@ namespace Edgegap.Editor
 
             // Register callbacks and sync UI builder elements to fields here
             InitUIElements();
-            syncFormWithObjectStatic();
-            await syncFormWithObjectDynamicAsync(); // API calls
 
-            IsInitd = true;
+            // TODO: Load persistent data?
+
+            // Only show the rest of the form if apiToken is verified
+            _postAuthContainer.SetEnabled(_isApiTokenVerified);
+
+            await InitializeState(); // API calls
 #endif
         }
 
@@ -193,17 +268,12 @@ namespace Edgegap.Editor
         {
 #if UNITY_2021_3_OR_NEWER // only load stylesheet in supported Unity versions, otherwise it shows errors in U2020
             // sometimes this is called without having been registered, throwing NRE
-            if (_debugBtn == null) return;
-
-            unregisterClickEvents();
-            unregisterFieldCallbacks();
-            SyncObjectWithForm();
+            unregisterUICallbacks();
 #endif
         }
         #endregion // Unity Funcs
 
-
-        #region Init
+        #region Init & Cleanup
         /// <summary>
         /// Binds the form inputs to the associated variables and initializes the inputs as required.
         /// Requires the VisualElements to be loaded before this call. Otherwise, the elements cannot be found.
@@ -211,322 +281,445 @@ namespace Edgegap.Editor
         private void InitUIElements()
         {
             setVisualElementsToFields();
-            assertVisualElementKeys();
             closeDisableGroups();
-            registerClickCallbacks();
-            registerFieldCallbacks();
-            initToggleDynamicUi();
-        }
-
-        private void closeDisableGroups()
-        {
-            _appInfoFoldout.value = false;
-            _containerRegistryFoldout.value = false;
-            _deploymentsFoldout.value = false;
-
-            _appInfoFoldout.SetEnabled(false);
-            _containerRegistryFoldout.SetEnabled(false);
-            _deploymentsFoldout.SetEnabled(false);
+            registerUICallbacks();
+            initToggleDynamicUI();
         }
 
         /// <summary>Set fields referencing UI Builder's fields. In order of appearance from top-to-bottom.</summary>
         private void setVisualElementsToFields()
         {
             _debugBtn = rootVisualElement.Q<Button>(EdgegapWindowMetadata.DEBUG_BTN_ID);
+            _postAuthContainer = rootVisualElement.Q<VisualElement>(
+                EdgegapWindowMetadata.POST_AUTH_CONTAINER_ID
+            );
 
+            _preAuthContainer = rootVisualElement.Q<VisualElement>(
+                EdgegapWindowMetadata.SIGN_IN_CONTAINER_ID
+            );
+            _edgegapSignInBtn = rootVisualElement.Q<Button>(EdgegapWindowMetadata.SIGN_IN_BTN_ID);
+
+            _authContainer = rootVisualElement.Q<VisualElement>(
+                EdgegapWindowMetadata.CONNECTED_CONTAINER_ID
+            );
+            _signOutBtn = rootVisualElement.Q<Button>(EdgegapWindowMetadata.SIGN_OUT_BTN_ID);
+            _joinEdgegapDiscordBtn = rootVisualElement.Q<Button>(
+                EdgegapWindowMetadata.JOIN_DISCORD_BTN_ID
+            );
             _apiTokenInput = rootVisualElement.Q<TextField>(EdgegapWindowMetadata.API_TOKEN_TXT_ID);
-            _apiTokenVerifyBtn = rootVisualElement.Q<Button>(EdgegapWindowMetadata.API_TOKEN_VERIFY_BTN_ID);
-            _apiTokenGetBtn = rootVisualElement.Q<Button>(EdgegapWindowMetadata.API_TOKEN_GET_BTN_ID);
-            _postAuthContainer = rootVisualElement.Q<VisualElement>(EdgegapWindowMetadata.POST_AUTH_CONTAINER_ID);
+            _apiTokenVerifyBtn = rootVisualElement.Q<Button>(
+                EdgegapWindowMetadata.API_TOKEN_VERIFY_BTN_ID
+            );
+            _apiTokenGetBtn = rootVisualElement.Q<Button>(
+                EdgegapWindowMetadata.API_TOKEN_GET_BTN_ID
+            );
 
-            _appInfoFoldout = rootVisualElement.Q<Foldout>(EdgegapWindowMetadata.APP_INFO_FOLDOUT_ID);
-            _appNameInput = rootVisualElement.Q<TextField>(EdgegapWindowMetadata.APP_NAME_TXT_ID);
-            _appLoadExistingBtn = rootVisualElement.Q<Button>(EdgegapWindowMetadata.APP_LOAD_EXISTING_BTN_ID);
-            _appIconSpriteObjInput = rootVisualElement.Q<ObjectField>(EdgegapWindowMetadata.APP_ICON_SPRITE_OBJ_ID);
-            _appCreateBtn = rootVisualElement.Q<Button>(EdgegapWindowMetadata.APP_CREATE_BTN_ID);
-            _appCreateResultLabel = rootVisualElement.Q<Label>(EdgegapWindowMetadata.APP_CREATE_RESULT_LABEL_ID);
+            _serverBuildFoldout = rootVisualElement.Q<Foldout>(
+                EdgegapWindowMetadata.SERVER_BUILD_FOLDOUT_ID
+            );
+            _infoLinuxRequirementsBtn = rootVisualElement.Q<Button>(
+                EdgegapWindowMetadata.LINUX_REQUIREMENTS_LINK_ID
+            );
+            _installLinuxRequirementsBtn = rootVisualElement.Q<Button>(
+                EdgegapWindowMetadata.INSTALL_LINUX_BTN_ID
+            );
+            _linuxRequirementsResultLabel = rootVisualElement.Q<Label>(
+                EdgegapWindowMetadata.INSTALL_LINUX_RESULT_LABEL_ID
+            );
+            _buildParamsBtn = rootVisualElement.Q<Button>(
+                EdgegapWindowMetadata.SERVER_BUILD_PARAM_BTN_ID
+            );
+            _buildFolderNameInput = rootVisualElement.Q<TextField>(
+                EdgegapWindowMetadata.SERVER_BUILD_FOLDER_TXT_ID
+            );
+            _serverBuildBtn = rootVisualElement.Q<Button>(
+                EdgegapWindowMetadata.SERVER_BUILD_BTN_ID
+            );
+            _serverBuildResultLabel = rootVisualElement.Q<Label>(
+                EdgegapWindowMetadata.SERVER_BUILD_RESULT_LABEL_ID
+            );
 
-            _containerRegistryFoldout = rootVisualElement.Q<Foldout>(EdgegapWindowMetadata.CONTAINER_REGISTRY_FOLDOUT_ID);
-            _containerNewTagVersionInput = rootVisualElement.Q<TextField>(EdgegapWindowMetadata.CONTAINER_NEW_TAG_VERSION_TXT_ID);
-            _containerPortNumInput = rootVisualElement.Q<TextField>(EdgegapWindowMetadata.CONTAINER_REGISTRY_PORT_NUM_ID);
-            // MIRROR CHANGE: dynamically resolving PortType fails if not in Assembly-CSharp-Editor.dll. Hardcode UDP/TCP/WS instead.
-            // this finds the placeholder and dynamically replaces it with a popup field
-            VisualElement dropdownPlaceholder = rootVisualElement.Q<VisualElement>("MIRROR_CHANGE_PORT_HARDCODED");
-            List<string> options = Enum.GetNames(typeof(ProtocolType)).Cast<string>().ToList();
-            string containerTransportTypeEnum = EditorPrefs.GetString(EdgegapWindowMetadata.CONTAINER_REGISTRY_TRANSPORT_TYPE_ENUM_KEY_STR);
-            Enum.TryParse(containerTransportTypeEnum, out ProtocolType currentProtocolType);
-            _containerTransportTypeEnumInput = new PopupField<string>("Protocol Type", options, (int)currentProtocolType);
-            dropdownPlaceholder.Add(_containerTransportTypeEnumInput);
-            // END MIRROR CHANGE
-            _containerUseCustomRegistryToggle = rootVisualElement.Q<Toggle>(EdgegapWindowMetadata.CONTAINER_USE_CUSTOM_REGISTRY_TOGGLE_ID);
-            _containerCustomRegistryWrapper = rootVisualElement.Q<VisualElement>(EdgegapWindowMetadata.CONTAINER_CUSTOM_REGISTRY_WRAPPER_ID);
-            _containerRegistryUrlInput = rootVisualElement.Q<TextField>(EdgegapWindowMetadata.CONTAINER_REGISTRY_URL_TXT_ID);
-            _containerImageRepositoryInput = rootVisualElement.Q<TextField>(EdgegapWindowMetadata.CONTAINER_IMAGE_REPOSITORY_URL_TXT_ID);
-            _containerUsernameInput = rootVisualElement.Q<TextField>(EdgegapWindowMetadata.CONTAINER_USERNAME_TXT_ID);
-            _containerTokenInput = rootVisualElement.Q<TextField>(EdgegapWindowMetadata.CONTAINER_TOKEN_TXT_ID);
-            _containerBuildAndPushServerBtn = rootVisualElement.Q<Button>(EdgegapWindowMetadata.CONTAINER_BUILD_AND_PUSH_BTN_ID);
-            _containerBuildAndPushResultLabel = rootVisualElement.Q<Label>(EdgegapWindowMetadata.CONTAINER_BUILD_AND_PUSH_RESULT_LABEL_ID);
+            _containerizeFoldout = rootVisualElement.Q<Foldout>(
+                EdgegapWindowMetadata.CONTAINERIZE_SERVER_FOLDOUT_ID
+            );
+            _infoDockerRequirementsBtn = rootVisualElement.Q<Button>(
+                EdgegapWindowMetadata.DOCKER_INSTALL_LINK_ID
+            );
+            _validateDockerRequirementsBtn = rootVisualElement.Q<Button>(
+                EdgegapWindowMetadata.VALIDATE_DOCKER_INSTALL_BTN_ID
+            );
+            _dockerRequirementsResultLabel = rootVisualElement.Q<Label>(
+                EdgegapWindowMetadata.VALIDATE_DOCKER_RESULT_LABEL_ID
+            );
+            _buildPathInput = rootVisualElement.Q<TextField>(
+                EdgegapWindowMetadata.CONTAINERIZE_SERVER_BUILD_PATH_TXT_ID
+            );
+            _buildPathResetBtn = rootVisualElement.Q<Button>(
+                EdgegapWindowMetadata.CONTAINERIZE_BUILD_PATH_RESET_BTN_ID
+            );
+            _containerizeImageNameInput = rootVisualElement.Q<TextField>(
+                EdgegapWindowMetadata.CONTAINERIZE_IMAGE_NAME_TXT_ID
+            );
+            _containerizeImageTagInput = rootVisualElement.Q<TextField>(
+                EdgegapWindowMetadata.CONTAINERIZE_IMAGE_TAG_TXT_ID
+            );
+            _dockerfilePathInput = rootVisualElement.Q<TextField>(
+                EdgegapWindowMetadata.DOCKERFILE_PATH_TXT_ID
+            );
+            _dockerfilePathResetBtn = rootVisualElement.Q<Button>(
+                EdgegapWindowMetadata.DOCKERFILE_PATH_RESET_BTN_ID
+            );
+            _optionalDockerParamsInput = rootVisualElement.Q<TextField>(
+                EdgegapWindowMetadata.DOCKER_BUILD_PARAMS_TXT_ID
+            );
+            _containerizeServerBtn = rootVisualElement.Q<Button>(
+                EdgegapWindowMetadata.CONTAINERIZE_SERVER_BTN_ID
+            );
+            _containerizeServerResultLabel = rootVisualElement.Q<Label>(
+                EdgegapWindowMetadata.CONTAINERIZE_SERVER_RESULT_LABEL_TXT
+            );
 
-            _deploymentsFoldout = rootVisualElement.Q<Foldout>(EdgegapWindowMetadata.DEPLOYMENTS_FOLDOUT_ID);
-            _deploymentsRefreshBtn = rootVisualElement.Q<Button>(EdgegapWindowMetadata.DEPLOYMENTS_REFRESH_BTN_ID);
-            _deploymentsCreateBtn = rootVisualElement.Q<Button>(EdgegapWindowMetadata.DEPLOYMENTS_CREATE_BTN_ID);
-            _deploymentsStatusLabel = rootVisualElement.Q<Label>(EdgegapWindowMetadata.DEPLOYMENTS_STATUS_LABEL_ID);
-            _deploymentsServerDataContainer = rootVisualElement.Q<VisualElement>(EdgegapWindowMetadata.DEPLOYMENTS_CONTAINER_ID); // Dynamic
-            _deploymentConnectionCopyUrlBtn = rootVisualElement.Q<Button>(EdgegapWindowMetadata.DEPLOYMENTS_CONNECTION_COPY_URL_BTN_ID);
-            _deploymentsConnectionUrlReadonlyInput = rootVisualElement.Q<TextField>(EdgegapWindowMetadata.DEPLOYMENTS_CONNECTION_URL_READONLY_TXT_ID);
-            _deploymentsConnectionStatusLabel = rootVisualElement.Q<Label>(EdgegapWindowMetadata.DEPLOYMENTS_CONNECTION_STATUS_LABEL_ID);
-            _deploymentsConnectionStopBtn = rootVisualElement.Q<Button>(EdgegapWindowMetadata.DEPLOYMENTS_CONNECTION_SERVER_ACTION_STOP_BTN_ID);
-            _deploymentsConnectionContainerLogsBtn = rootVisualElement.Q<Button>(EdgegapWindowMetadata.DEPLOYMENTS_CONNECTION_CONTAINER_LOGS_BTN_ID);
+            _localTestFoldout = rootVisualElement.Q<Foldout>(
+                EdgegapWindowMetadata.LOCAL_TEST_FOLDOUT_ID
+            );
+            _localTestImageInput = rootVisualElement.Q<TextField>(
+                EdgegapWindowMetadata.LOCAL_TEST_IMAGE_TXT_ID
+            );
+            ;
+            _localTestImageShowDropdownBtn = rootVisualElement.Q<Button>(
+                EdgegapWindowMetadata.LOCAL_TEST_IMAGE_SHOW_DROPDOWN_BTN_ID
+            );
+            ;
+            _localTestDockerRunInput = rootVisualElement.Q<TextField>(
+                EdgegapWindowMetadata.LOCAL_TEST_DOCKER_RUN_TXT_ID
+            );
+            _localTestDeployBtn = rootVisualElement.Q<Button>(
+                EdgegapWindowMetadata.LOCAL_TEST_DEPLOY_BTN_ID
+            );
+            ;
+            _localTestTerminateBtn = rootVisualElement.Q<Button>(
+                EdgegapWindowMetadata.LOCAL_TEST_TERMINATE_BTN_ID
+            );
+            ;
+            _localTestDiscordHelpBtn = rootVisualElement.Q<Button>(
+                EdgegapWindowMetadata.LOCAL_TEST_DISCORD_HELP_BTN_ID
+            );
+            ;
+            _localTestResultLabel = rootVisualElement.Q<Label>(
+                EdgegapWindowMetadata.LOCAL_TEST_RESULT_LABEL_ID
+            );
+            _localTestInfoConnectBtn = rootVisualElement.Q<Button>(
+                EdgegapWindowMetadata.LOCAL_TEST_CONNECT_LABEL_LINK_ID
+            );
 
-            _footerDocumentationBtn = rootVisualElement.Q<Button>(EdgegapWindowMetadata.FOOTER_DOCUMENTATION_BTN_ID);
-            _footerNeedMoreGameServersBtn = rootVisualElement.Q<Button>(EdgegapWindowMetadata.FOOTER_NEED_MORE_GAME_SERVERS_BTN_ID);
+            _createAppFoldout = rootVisualElement.Q<Foldout>(
+                EdgegapWindowMetadata.CREATE_APP_FOLDOUT_ID
+            );
+            _createAppNameInput = rootVisualElement.Q<TextField>(
+                EdgegapWindowMetadata.CREATE_APP_NAME_TXT_ID
+            );
+            _createAppNameShowDropdownBtn = rootVisualElement.Q<Button>(
+                EdgegapWindowMetadata.CREATE_APP_NAME_SHOW_DROPDOWN_BTN_ID
+            );
+            _serverImageNameInput = rootVisualElement.Q<TextField>(
+                EdgegapWindowMetadata.CREATE_APP_IMAGE_NAME_TXT_ID
+            );
+            _serverImageTagInput = rootVisualElement.Q<TextField>(
+                EdgegapWindowMetadata.CREATE_APP_IMAGE_TAG_TXT_ID
+            );
+            _portMappingLabelLink = rootVisualElement.Q<Button>(
+                EdgegapWindowMetadata.PORT_MAPPING_LABEL_LINK_ID
+            );
+            _uploadImageCreateAppBtn = rootVisualElement.Q<Button>(
+                EdgegapWindowMetadata.PUSH_IMAGE_CREATE_APP_BTN_ID
+            );
+            _appInfoLabelLink = rootVisualElement.Q<Button>(
+                EdgegapWindowMetadata.EDGEGAP_APP_LABEL_LINK_ID
+            );
 
-            _apiEnvironment = EdgegapWindowMetadata.API_ENVIRONMENT; // (!) TODO: Hard-coded while unused in UI
+            _deployAppFoldout = rootVisualElement.Q<Foldout>(
+                EdgegapWindowMetadata.DEPLOY_APP_FOLDOUT_ID
+            );
+            _deployAppNameInput = rootVisualElement.Q<TextField>(
+                EdgegapWindowMetadata.DEPLOY_APP_NAME_TXT_ID
+            );
+            _deployAppVersionInput = rootVisualElement.Q<TextField>(
+                EdgegapWindowMetadata.DEPLOY_APP_TAG_VERSION_TXT_ID
+            );
+            _deployLimitLabelLink = rootVisualElement.Q<Button>(
+                EdgegapWindowMetadata.DEPLOY_LIMIT_LABEL_LINK_ID
+            );
+            _deployAppBtn = rootVisualElement.Q<Button>(EdgegapWindowMetadata.DEPLOY_START_BTN_ID);
+            _stopLastDeployBtn = rootVisualElement.Q<Button>(
+                EdgegapWindowMetadata.DEPLOY_STOP_BTN_ID
+            );
+            _discordHelpBtn = rootVisualElement.Q<Button>(
+                EdgegapWindowMetadata.DEPLOY_DISCORD_HELP_BTN_ID
+            );
+            _deployResultLabel = rootVisualElement.Q<Label>(
+                EdgegapWindowMetadata.DEPLOY_RESULT_LABEL_TXT
+            );
+            _deployAppNameShowDropdownBtn = rootVisualElement.Q<Button>(
+                EdgegapWindowMetadata.DEPLOY_APP_NAME_SHOW_DROPDOWN_BTN_ID
+            );
+            _deployAppVersionShowDropdownBtn = rootVisualElement.Q<Button>(
+                EdgegapWindowMetadata.DEPLOY_APP_VERSION_SHOW_DROPDOWN_BTN_ID
+            );
+
+            _nextStepsFoldout = rootVisualElement.Q<Foldout>(
+                EdgegapWindowMetadata.NEXT_STEPS_FOLDOUT_ID
+            );
+            _serverConnectLink = rootVisualElement.Q<Button>(
+                EdgegapWindowMetadata.NEXT_STEPS_SERVER_CONNECT_LINK_ID
+            );
+            _gen2MatchmakerLabelLink = rootVisualElement.Q<Button>(
+                EdgegapWindowMetadata.NEXT_STEPS_MANAGED_MATCHMAKER_LABEL_LINK_ID
+            );
+            _lifecycleManageLabelLink = rootVisualElement.Q<Button>(
+                EdgegapWindowMetadata.NEXT_STEPS_LIFECYCLE_LABEL_LINK_ID
+            );
         }
 
-        /// <summary>
-        /// Sanity check: If we implicitly changed an #Id, we need to know early so we can update the const.
-        /// In order of appearance seen in setVisualElementsToFields().
-        /// </summary>
-        private void assertVisualElementKeys()
+        private void closeDisableGroups()
         {
-            // MIRROR CHANGE: this doesn't compile in Unity 2019
-            /*
-            try
-            {
-                Assert.IsTrue(_apiTokenInput is { name: EdgegapWindowMetadata.API_TOKEN_TXT_ID },
-                    $"Expected {nameof(_apiTokenInput)} via #{EdgegapWindowMetadata.API_TOKEN_TXT_ID}");
+            _serverBuildFoldout.SetValueWithoutNotify(false);
+            _containerizeFoldout.SetValueWithoutNotify(false);
+            _localTestFoldout.SetValueWithoutNotify(false);
+            _createAppFoldout.SetValueWithoutNotify(false);
+            _deployAppFoldout.SetValueWithoutNotify(false);
+            _nextStepsFoldout.SetValueWithoutNotify(false);
 
-                Assert.IsTrue(_apiTokenVerifyBtn is { name: EdgegapWindowMetadata.API_TOKEN_VERIFY_BTN_ID },
-                    $"Expected {nameof(_apiTokenVerifyBtn)} via #{EdgegapWindowMetadata.API_TOKEN_VERIFY_BTN_ID}");
-
-                Assert.IsTrue(_apiTokenGetBtn is { name: EdgegapWindowMetadata.API_TOKEN_GET_BTN_ID },
-                    $"Expected {nameof(_apiTokenGetBtn)} via #{EdgegapWindowMetadata.API_TOKEN_GET_BTN_ID}");
-
-                Assert.IsTrue(_postAuthContainer is { name: EdgegapWindowMetadata.POST_AUTH_CONTAINER_ID },
-                    $"Expected {nameof(_postAuthContainer)} via #{EdgegapWindowMetadata.POST_AUTH_CONTAINER_ID}");
-
-                Assert.IsTrue(_appInfoFoldout is { name: EdgegapWindowMetadata.APP_INFO_FOLDOUT_ID },
-                    $"Expected {nameof(_appInfoFoldout)} via #{EdgegapWindowMetadata.APP_INFO_FOLDOUT_ID}");
-
-                Assert.IsTrue(_appNameInput is { name: EdgegapWindowMetadata.APP_NAME_TXT_ID },
-                    $"Expected {nameof(_appNameInput)} via #{EdgegapWindowMetadata.APP_NAME_TXT_ID}");
-
-                Assert.IsTrue(_appLoadExistingBtn is { name: EdgegapWindowMetadata.APP_LOAD_EXISTING_BTN_ID },
-                    $"Expected {nameof(_appLoadExistingBtn)} via #{EdgegapWindowMetadata.APP_LOAD_EXISTING_BTN_ID}");
-
-                Assert.IsTrue(_appIconSpriteObjInput is { name: EdgegapWindowMetadata.APP_ICON_SPRITE_OBJ_ID },
-                    $"Expected {nameof(_appIconSpriteObjInput)} via #{EdgegapWindowMetadata.APP_ICON_SPRITE_OBJ_ID}");
-
-                Assert.IsTrue(_appCreateBtn is { name: EdgegapWindowMetadata.APP_CREATE_BTN_ID },
-                    $"Expected {nameof(_appCreateBtn)} via #{EdgegapWindowMetadata.APP_CREATE_BTN_ID}");
-
-                Assert.IsTrue(_appCreateResultLabel is { name: EdgegapWindowMetadata.APP_CREATE_RESULT_LABEL_ID },
-                    $"Expected {nameof(_appCreateResultLabel)} via #{EdgegapWindowMetadata.APP_CREATE_RESULT_LABEL_ID}");
-
-                Assert.IsTrue(_containerRegistryFoldout is { name: EdgegapWindowMetadata.CONTAINER_REGISTRY_FOLDOUT_ID },
-                    $"Expected {nameof(_containerRegistryFoldout)} via #{EdgegapWindowMetadata.CONTAINER_REGISTRY_FOLDOUT_ID}");
-
-                Assert.IsTrue(_containerPortNumInput is { name: EdgegapWindowMetadata.CONTAINER_REGISTRY_PORT_NUM_ID },
-                    $"Expected {nameof(_containerPortNumInput)} via #{EdgegapWindowMetadata.CONTAINER_REGISTRY_PORT_NUM_ID}");
-
-                // MIRROR CHANGE: disable and replaced with hardcoded port type dropdown
-                // Assert.IsTrue(_containerTransportTypeEnumInput is { name: EdgegapWindowMetadata.CONTAINER_REGISTRY_TRANSPORT_TYPE_ENUM_ID },
-                //     $"Expected {nameof(_containerTransportTypeEnumInput)} via #{EdgegapWindowMetadata.CONTAINER_REGISTRY_TRANSPORT_TYPE_ENUM_ID}");
-                // END MIRROR CHANGE
-
-                Assert.IsTrue(_containerUseCustomRegistryToggle is { name: EdgegapWindowMetadata.CONTAINER_USE_CUSTOM_REGISTRY_TOGGLE_ID },
-                    $"Expected {nameof(_containerUseCustomRegistryToggle)} via #{EdgegapWindowMetadata.CONTAINER_USE_CUSTOM_REGISTRY_TOGGLE_ID}");
-
-                Assert.IsTrue(_containerCustomRegistryWrapper is { name: EdgegapWindowMetadata.CONTAINER_CUSTOM_REGISTRY_WRAPPER_ID },
-                    $"Expected {nameof(_containerCustomRegistryWrapper)} via #{EdgegapWindowMetadata.CONTAINER_CUSTOM_REGISTRY_WRAPPER_ID}");
-
-                Assert.IsTrue(_containerRegistryUrlInput is { name: EdgegapWindowMetadata.CONTAINER_REGISTRY_URL_TXT_ID },
-                    $"Expected {nameof(_containerRegistryUrlInput)} via #{EdgegapWindowMetadata.CONTAINER_REGISTRY_URL_TXT_ID}");
-
-                Assert.IsTrue(_containerImageRepositoryInput is { name: EdgegapWindowMetadata.CONTAINER_IMAGE_REPOSITORY_URL_TXT_ID },
-                    $"Expected {nameof(_containerImageRepositoryInput)} via #{EdgegapWindowMetadata.CONTAINER_IMAGE_REPOSITORY_URL_TXT_ID}");
-
-                Assert.IsTrue(_containerUsernameInput is { name: EdgegapWindowMetadata.CONTAINER_USERNAME_TXT_ID },
-                    $"Expected {nameof(_containerUsernameInput)} via #{EdgegapWindowMetadata.CONTAINER_USERNAME_TXT_ID}");
-
-                Assert.IsTrue(_containerTokenInput is { name: EdgegapWindowMetadata.CONTAINER_TOKEN_TXT_ID },
-                    $"Expected {nameof(_containerTokenInput)} via #{EdgegapWindowMetadata.CONTAINER_TOKEN_TXT_ID}");
-
-
-                Assert.IsTrue(_containerTokenInput is { name: EdgegapWindowMetadata.CONTAINER_TOKEN_TXT_ID },
-                    $"Expected {nameof(_containerTokenInput)} via #{EdgegapWindowMetadata.CONTAINER_TOKEN_TXT_ID}");
-
-                Assert.IsTrue(_containerBuildAndPushResultLabel is { name: EdgegapWindowMetadata.CONTAINER_BUILD_AND_PUSH_RESULT_LABEL_ID },
-                    $"Expected {nameof(_containerBuildAndPushResultLabel)} via #{EdgegapWindowMetadata.CONTAINER_BUILD_AND_PUSH_RESULT_LABEL_ID}");
-
-                Assert.IsTrue(_deploymentsFoldout is { name: EdgegapWindowMetadata.DEPLOYMENTS_FOLDOUT_ID },
-                    $"Expected {nameof(_deploymentsFoldout)} via #{EdgegapWindowMetadata.DEPLOYMENTS_FOLDOUT_ID}");
-
-                Assert.IsTrue(_deploymentsRefreshBtn is { name: EdgegapWindowMetadata.DEPLOYMENTS_REFRESH_BTN_ID },
-                    $"Expected {nameof(_deploymentsRefreshBtn)} via #{EdgegapWindowMetadata.DEPLOYMENTS_REFRESH_BTN_ID}");
-
-                Assert.IsTrue(_deploymentsCreateBtn is { name: EdgegapWindowMetadata.DEPLOYMENTS_CREATE_BTN_ID },
-                    $"Expected {nameof(_deploymentsCreateBtn)} via #{EdgegapWindowMetadata.DEPLOYMENTS_CREATE_BTN_ID}");
-
-                Assert.IsTrue(_deploymentsStatusLabel is { name: EdgegapWindowMetadata.DEPLOYMENTS_STATUS_LABEL_ID },
-                    $"Expected {nameof(_deploymentsStatusLabel)} via #{EdgegapWindowMetadata.DEPLOYMENTS_STATUS_LABEL_ID}");
-
-                Assert.IsTrue(_deploymentsServerDataContainer is { name: EdgegapWindowMetadata.DEPLOYMENTS_CONTAINER_ID },
-                    $"Expected {nameof(_deploymentsServerDataContainer)} via #{EdgegapWindowMetadata.DEPLOYMENTS_CONTAINER_ID}");
-
-                Assert.IsTrue(_deploymentConnectionCopyUrlBtn is { name: EdgegapWindowMetadata.DEPLOYMENTS_CONNECTION_COPY_URL_BTN_ID },
-                    $"Expected {nameof(_deploymentConnectionCopyUrlBtn)} via #{EdgegapWindowMetadata.DEPLOYMENTS_CONNECTION_COPY_URL_BTN_ID}");
-
-                Assert.IsTrue(_deploymentsConnectionUrlReadonlyInput is { name: EdgegapWindowMetadata.DEPLOYMENTS_CONNECTION_URL_READONLY_TXT_ID },
-                    $"Expected {nameof(_deploymentsConnectionUrlReadonlyInput)} via #{EdgegapWindowMetadata.DEPLOYMENTS_CONNECTION_URL_READONLY_TXT_ID}");
-
-                Assert.IsTrue(_deploymentsConnectionStatusLabel is { name: EdgegapWindowMetadata.DEPLOYMENTS_CONNECTION_STATUS_LABEL_ID },
-                    $"Expected {nameof(_deploymentsConnectionStatusLabel)} via #{EdgegapWindowMetadata.DEPLOYMENTS_CONNECTION_STATUS_LABEL_ID}");
-
-                Assert.IsTrue(_deploymentsConnectionStopBtn is { name: EdgegapWindowMetadata.DEPLOYMENTS_CONNECTION_SERVER_ACTION_STOP_BTN_ID },
-                    $"Expected {nameof(_deploymentsConnectionStopBtn)} via #{EdgegapWindowMetadata.DEPLOYMENTS_CONNECTION_SERVER_ACTION_STOP_BTN_ID}");
-
-
-                Assert.IsTrue(_footerDocumentationBtn is { name: EdgegapWindowMetadata.FOOTER_DOCUMENTATION_BTN_ID },
-                    $"Expected {nameof(_footerDocumentationBtn)} via #{EdgegapWindowMetadata.FOOTER_DOCUMENTATION_BTN_ID}");
-
-                Assert.IsTrue(_footerNeedMoreGameServersBtn is { name: EdgegapWindowMetadata.FOOTER_NEED_MORE_GAME_SERVERS_BTN_ID },
-                    $"Expected {nameof(_footerNeedMoreGameServersBtn)} via #{EdgegapWindowMetadata.FOOTER_NEED_MORE_GAME_SERVERS_BTN_ID}");
-
-
-                // // TODO: Explicitly set, for now in v2 - but remember to assert later if we stop hard-coding these >>
-                // _apiEnvironment
-                // _appVersionName
-            }
-            catch (Exception e)
-            {
-                Debug.LogError(e.Message);
-                _postAuthContainer.SetEnabled(false);
-            }
-            */ // END MIRROR CHANGE
+            _serverBuildFoldout.SetEnabled(false);
+            _containerizeFoldout.SetEnabled(false);
+            _localTestFoldout.SetEnabled(false);
+            _createAppFoldout.SetEnabled(false);
+            _deployAppFoldout.SetEnabled(false);
+            _nextStepsFoldout.SetEnabled(false);
         }
 
         /// <summary>
-        /// Register non-btn change actionss. We'll want to save for persistence, validate, etc
+        /// Register UI callbacks. We'll want to save for persistence, validate, etc
         /// </summary>
-        private void registerFieldCallbacks()
-        {
-            _apiTokenInput.RegisterValueChangedCallback(onApiTokenInputChanged);
-            _apiTokenInput.RegisterCallback<FocusOutEvent>(onApiTokenInputFocusOut);
-
-            _appNameInput.RegisterValueChangedCallback(onAppNameInputChanged);
-            _containerPortNumInput.RegisterCallback<FocusOutEvent>(onContainerPortNumInputFocusOut);
-            _containerTransportTypeEnumInput.RegisterValueChangedCallback(onContainerTransportTypeEnumInputChanged);
-
-            _containerUseCustomRegistryToggle.RegisterValueChangedCallback(onContainerUseCustomRegistryToggle);
-            _containerNewTagVersionInput.RegisterValueChangedCallback(onContainerNewTagVersionInputChanged);
-        }
-
-        /// <summary>
-        /// Prevents memory leaks, mysterious errors and "ghost" values set from a previous session.
-        /// Should parity the opposute of registerFieldCallbacks().
-        /// </summary>
-        private void unregisterFieldCallbacks()
-        {
-            _apiTokenInput.UnregisterValueChangedCallback(onApiTokenInputChanged);
-            _apiTokenInput.UnregisterCallback<FocusOutEvent>(onApiTokenInputFocusOut);
-
-            _containerUseCustomRegistryToggle.UnregisterValueChangedCallback(onContainerUseCustomRegistryToggle);
-            _containerPortNumInput.UnregisterCallback<FocusOutEvent>(onContainerPortNumInputFocusOut);
-        }
-
-        /// <summary>
-        /// Register click actions, mostly from buttons: Need to -= unregistry them @ OnDisable()
-        /// </summary>
-        private void registerClickCallbacks()
+        private void registerUICallbacks()
         {
             _debugBtn.clickable.clicked += onDebugBtnClick;
 
+            _edgegapSignInBtn.clickable.clicked += OnEdgegapSignInBtnClick;
+            _apiTokenGetBtn.clickable.clicked += OpenGetTokenUrl;
+            _apiTokenInput.RegisterCallback<FocusInEvent>(onApiTokenInputFocusIn);
+            _apiTokenInput.RegisterCallback<FocusOutEvent>(onApiTokenInputFocusOut);
             _apiTokenVerifyBtn.clickable.clicked += onApiTokenVerifyBtnClick;
-            _apiTokenGetBtn.clickable.clicked += onApiTokenGetBtnClick;
+            _signOutBtn.clickable.clicked += OnSignOutBtnClickAsync;
+            _joinEdgegapDiscordBtn.clickable.clicked += OnDiscordBtnClick;
 
-            _appCreateBtn.clickable.clicked += onAppCreateBtnClickAsync;
-            _appLoadExistingBtn.clickable.clicked += onAppLoadExistingBtnClickAsync;
+            _infoLinuxRequirementsBtn.clickable.clicked += OnLinuxInfoClick;
+            _installLinuxRequirementsBtn.clickable.clicked += OnInstallLinuxBtnClick;
+            _buildParamsBtn.clickable.clicked += OnOpenBuildParamsBtnClick;
+            _buildFolderNameInput.RegisterCallback<FocusOutEvent>(OnFolderNameInputFocusOut);
+            _serverBuildBtn.clickable.clicked += OnBuildServerBtnClick;
 
-            _containerBuildAndPushServerBtn.clickable.clicked += onContainerBuildAndPushServerBtnClickAsync;
-            _deploymentConnectionCopyUrlBtn.clickable.clicked += onDeploymentConnectionCopyUrlBtnClick;
+            _infoDockerRequirementsBtn.clickable.clicked += OnDockerInfoClick;
+            _validateDockerRequirementsBtn.clickable.clicked += OnValidateDockerBtnClick;
+            _buildPathInput.RegisterCallback<FocusInEvent>(OnBuildPathInputFocusIn);
+            _buildPathResetBtn.clickable.clicked += OnResetBuildPathBtnClick;
+            _containerizeImageNameInput.RegisterValueChangedCallback(OnContainerizeInputsChanged);
+            _containerizeImageNameInput.RegisterCallback<FocusInEvent>(
+                OnContainerizeImageNameInputFocusIn
+            );
+            _containerizeImageNameInput.RegisterCallback<FocusOutEvent>(
+                OnContainerizeImageNameInputFocusOut
+            );
+            _containerizeImageTagInput.RegisterValueChangedCallback(OnContainerizeInputsChanged);
+            _containerizeImageTagInput.RegisterCallback<FocusInEvent>(
+                OnContainerizeImageTagInputFocusIn
+            );
+            _containerizeImageTagInput.RegisterCallback<FocusOutEvent>(
+                OnContainerizeImageTagInputFocusOut
+            );
+            _dockerfilePathResetBtn.clickable.clicked += OnResetDockerfilePathBtnClick;
+            _dockerfilePathInput.RegisterCallback<FocusInEvent>(OnDockerfilePathInputFocusIn);
+            _containerizeServerBtn.clickable.clicked += OnContainerizeBtnClickAsync;
 
-            _deploymentsRefreshBtn.clickable.clicked += onDeploymentsRefreshBtnClick;
-            _deploymentsCreateBtn.clickable.clicked += onDeploymentCreateBtnClick;
+            _localTestImageInput.RegisterValueChangedCallback(OnLocalTestInputsChanged);
+            _localTestImageShowDropdownBtn.clickable.clicked += OnLocalTestImageDropdownClick;
+            _localTestImageInput.RegisterCallback<FocusInEvent>(OnLocalTestInputFocusIn);
+            _localTestDockerRunInput.RegisterCallback<FocusOutEvent>(
+                OnLocalTestDockerParamsFocusOut
+            );
+            _localTestDeployBtn.clickable.clicked += OnLocalTestDeployClick;
+            _localTestTerminateBtn.clickable.clicked += OnLocalTestTerminateCLick;
+            _localTestDiscordHelpBtn.clickable.clicked += OnDiscordBtnClick;
+            _localTestInfoConnectBtn.clickable.clicked += OnLocalContainerConnectLinkClick;
 
-            _footerDocumentationBtn.clickable.clicked += onFooterDocumentationBtnClick;
-            _footerNeedMoreGameServersBtn.clickable.clicked += onFooterNeedMoreGameServersBtnClick;
+            _createAppNameShowDropdownBtn.clickable.clicked += OnCreateAppNameDropdownClick;
+            _createAppNameInput.RegisterCallback<FocusOutEvent>(OnCreateAppNameInputFocusOut);
+            _serverImageNameInput.RegisterValueChangedCallback(OnCreateInputsChanged);
+            _serverImageTagInput.RegisterValueChangedCallback(OnCreateInputsChanged);
+            _portMappingLabelLink.clickable.clicked += OnPortsMappingLinkClick;
+            _uploadImageCreateAppBtn.clickable.clicked += OnUploadImageCreateAppBtnClickAsync;
+            _appInfoLabelLink.clickable.clicked += OnYourAppLinkClick;
+
+            _deployAppNameInput.RegisterCallback<FocusInEvent>(OnDeployAppNameInputFocusIn);
+            _deployAppNameInput.RegisterValueChangedCallback(OnDeployAppNameInputChanged);
+            _deployAppNameShowDropdownBtn.clickable.clicked += OnDeployAppNameDropdownClick;
+            _deployAppVersionInput.RegisterCallback<FocusInEvent>(OnDeployAppVersionInputFocusIn);
+            _deployAppVersionInput.RegisterValueChangedCallback(OnDeployAppVersionInputChanged);
+            _deployAppVersionShowDropdownBtn.clickable.clicked += OnDeployAppVersionDropdownClick;
+            _deployLimitLabelLink.clickable.clicked += OnDeployLimitLinkClick;
+            _deployAppBtn.clickable.clicked += OnDeploymentCreateBtnClick;
+            _stopLastDeployBtn.clickable.clicked += OnStopLastDeployClick;
+            _discordHelpBtn.clickable.clicked += OnDiscordBtnClick;
+
+            _serverConnectLink.clickable.clicked += OnServerConnectLinkClick;
+            _gen2MatchmakerLabelLink.clickable.clicked += OnGen2MatchmakerLinkClick;
+            _lifecycleManageLabelLink.clickable.clicked += OnScalingLifecycleLinkClick;
         }
 
         /// <summary>
         /// Prevents memory leaks, mysterious errors and "ghost" values set from a previous session.
-        /// Should parity the opposute of registerClickEvents().
+        /// Should parity the opposite of registerUICallbacks().
         /// </summary>
-        private void unregisterClickEvents()
+        private void unregisterUICallbacks()
         {
             _debugBtn.clickable.clicked -= onDebugBtnClick;
 
+            _edgegapSignInBtn.clickable.clicked -= OnEdgegapSignInBtnClick;
+            _apiTokenGetBtn.clickable.clicked -= OpenGetTokenUrl;
+            _apiTokenInput.UnregisterCallback<FocusInEvent>(onApiTokenInputFocusIn);
+            _apiTokenInput.UnregisterCallback<FocusOutEvent>(onApiTokenInputFocusOut);
             _apiTokenVerifyBtn.clickable.clicked -= onApiTokenVerifyBtnClick;
-            _apiTokenGetBtn.clickable.clicked -= onApiTokenGetBtnClick;
+            _signOutBtn.clickable.clicked -= OnSignOutBtnClickAsync;
+            _joinEdgegapDiscordBtn.clickable.clicked -= OnDiscordBtnClick;
 
-            _appCreateBtn.clickable.clicked -= onAppCreateBtnClickAsync;
-            _appLoadExistingBtn.clickable.clicked -= onAppLoadExistingBtnClickAsync;
+            _infoLinuxRequirementsBtn.clickable.clicked -= OnLinuxInfoClick;
+            _installLinuxRequirementsBtn.clickable.clicked -= OnInstallLinuxBtnClick;
+            _buildParamsBtn.clickable.clicked -= OnOpenBuildParamsBtnClick;
+            _buildFolderNameInput.UnregisterCallback<FocusOutEvent>(OnFolderNameInputFocusOut);
+            _serverBuildBtn.clickable.clicked -= OnBuildServerBtnClick;
 
-            _containerBuildAndPushServerBtn.clickable.clicked -= onContainerBuildAndPushServerBtnClickAsync;
-            _deploymentConnectionCopyUrlBtn.clickable.clicked -= onDeploymentConnectionCopyUrlBtnClick;
+            _infoDockerRequirementsBtn.clickable.clicked -= OnDockerInfoClick;
+            _validateDockerRequirementsBtn.clickable.clicked -= OnValidateDockerBtnClick;
+            _buildPathInput.UnregisterCallback<FocusInEvent>(OnBuildPathInputFocusIn);
+            _buildPathResetBtn.clickable.clicked -= OnResetBuildPathBtnClick;
+            _containerizeImageNameInput.UnregisterValueChangedCallback(OnContainerizeInputsChanged);
+            _containerizeImageNameInput.UnregisterCallback<FocusInEvent>(
+                OnContainerizeImageNameInputFocusIn
+            );
+            _containerizeImageNameInput.UnregisterCallback<FocusOutEvent>(
+                OnContainerizeImageNameInputFocusOut
+            );
+            _containerizeImageTagInput.UnregisterValueChangedCallback(OnContainerizeInputsChanged);
+            _containerizeImageTagInput.UnregisterCallback<FocusInEvent>(
+                OnContainerizeImageTagInputFocusIn
+            );
+            _containerizeImageTagInput.UnregisterCallback<FocusOutEvent>(
+                OnContainerizeImageTagInputFocusOut
+            );
+            _dockerfilePathResetBtn.clickable.clicked -= OnResetDockerfilePathBtnClick;
+            _dockerfilePathInput.UnregisterCallback<FocusInEvent>(OnDockerfilePathInputFocusIn);
+            _containerizeServerBtn.clickable.clicked -= OnContainerizeBtnClickAsync;
 
-            _deploymentsRefreshBtn.clickable.clicked -= onDeploymentsRefreshBtnClick;
-            _deploymentsCreateBtn.clickable.clicked -= onDeploymentCreateBtnClick;
+            _localTestImageInput.UnregisterCallback<FocusInEvent>(OnLocalTestInputFocusIn);
+            _localTestImageInput.UnregisterValueChangedCallback(OnLocalTestInputsChanged);
+            _localTestImageShowDropdownBtn.clickable.clicked -= OnLocalTestImageDropdownClick;
+            _localTestDockerRunInput.UnregisterCallback<FocusOutEvent>(
+                OnLocalTestDockerParamsFocusOut
+            );
+            _localTestDeployBtn.clickable.clicked -= OnLocalTestDeployClick;
+            _localTestTerminateBtn.clickable.clicked -= OnLocalTestTerminateCLick;
+            _localTestDiscordHelpBtn.clickable.clicked -= OnDiscordBtnClick;
+            _localTestInfoConnectBtn.clickable.clicked -= OnLocalContainerConnectLinkClick;
 
-            _footerDocumentationBtn.clickable.clicked -= onFooterDocumentationBtnClick;
-            _footerNeedMoreGameServersBtn.clickable.clicked -= onFooterNeedMoreGameServersBtnClick;
+            _createAppNameShowDropdownBtn.clickable.clicked -= OnCreateAppNameDropdownClick;
+            _createAppNameInput.UnregisterCallback<FocusOutEvent>(OnCreateAppNameInputFocusOut);
+            _serverImageNameInput.UnregisterValueChangedCallback(OnCreateInputsChanged);
+            _serverImageTagInput.UnregisterValueChangedCallback(OnCreateInputsChanged);
+            _portMappingLabelLink.clickable.clicked -= OnPortsMappingLinkClick;
+            _uploadImageCreateAppBtn.clickable.clicked -= OnUploadImageCreateAppBtnClickAsync;
+            _appInfoLabelLink.clickable.clicked -= OnYourAppLinkClick;
+
+            _deployAppNameInput.UnregisterCallback<FocusInEvent>(OnDeployAppNameInputFocusIn);
+            _deployAppNameInput.UnregisterValueChangedCallback(OnDeployAppNameInputChanged);
+            _deployAppNameShowDropdownBtn.clickable.clicked -= OnDeployAppNameDropdownClick;
+            _deployAppVersionInput.UnregisterCallback<FocusInEvent>(OnDeployAppVersionInputFocusIn);
+            _deployAppVersionInput.UnregisterValueChangedCallback(OnDeployAppVersionInputChanged);
+            _deployAppVersionShowDropdownBtn.clickable.clicked -= OnDeployAppVersionDropdownClick;
+            _deployLimitLabelLink.clickable.clicked -= OnDeployLimitLinkClick;
+            _deployAppBtn.clickable.clicked -= OnDeploymentCreateBtnClick;
+            _stopLastDeployBtn.clickable.clicked -= OnStopLastDeployClick;
+            _discordHelpBtn.clickable.clicked -= OnDiscordBtnClick;
+
+            _serverConnectLink.clickable.clicked -= OnServerConnectLinkClick;
+            _gen2MatchmakerLabelLink.clickable.clicked -= OnGen2MatchmakerLinkClick;
+            _lifecycleManageLabelLink.clickable.clicked -= OnScalingLifecycleLinkClick;
         }
 
-        private void initToggleDynamicUi()
+        private void initToggleDynamicUI()
         {
             hideResultLabels();
-            _deploymentsRefreshBtn.SetEnabled(false);
-            loadPersistentDataFromEditorPrefs();
-            setDeploymentBtnsFromCache();
+
+            // ApiToken
+            if (string.IsNullOrEmpty(_apiToken))
+            {
+                string apiTokenBase64Str = EditorPrefs.GetString(
+                    EdgegapWindowMetadata.API_TOKEN_KEY_STR,
+                    null
+                );
+
+                if (apiTokenBase64Str == null)
+                    return;
+
+                string decodedApiToken = Base64Decode(apiTokenBase64Str);
+                _apiTokenInput.SetValueWithoutNotify(decodedApiToken);
+            }
+
             _debugBtn.visible = EdgegapWindowMetadata.SHOW_DEBUG_BTN;
         }
 
-        /// <summary>
-        /// Based on existing _deploymentsConnection[Url|Status]Label txt
-        /// </summary>
-        private void setDeploymentBtnsFromCache()
+        private void ResetState()
         {
-            bool showDeploymentConnectionStopBtn = !string.IsNullOrEmpty(_deploymentsConnectionUrlReadonlyInput.text);
-            if (!showDeploymentConnectionStopBtn)
-                return;
+            // reset input values
+            _buildFolderNameInput.SetValueWithoutNotify("");
+            _buildPathInput.SetValueWithoutNotify("");
+            _containerizeImageNameInput.SetValueWithoutNotify("");
+            _containerizeImageTagInput.SetValueWithoutNotify("");
+            _dockerfilePathInput.SetValueWithoutNotify("");
+            _optionalDockerParamsInput.SetValueWithoutNotify("");
+            _createAppNameInput.SetValueWithoutNotify("");
+            _serverImageNameInput.SetValueWithoutNotify("");
+            _serverImageTagInput.SetValueWithoutNotify("");
+            _deployAppNameInput.SetValueWithoutNotify("");
+            _deployAppVersionInput.SetValueWithoutNotify("");
 
-            // We found some leftover connection cache >>
-            _deploymentsConnectionStopBtn.visible = true;
-            _deploymentsConnectionContainerLogsBtn.visible = true;
-            _deploymentsRefreshBtn.SetEnabled(true);
+            _isApiTokenVerified = false;
+            _credentials = null;
+            _userExternalIp = null;
+            _containerRegistryUrl = null;
+            _containerProject = null;
+            _containerUsername = null;
+            _containerToken = null;
+            _localImages = null;
+            _storedAppNames = null;
+            _storedAppVersions = null;
 
-            // Enable stop btn?
-            bool isDeployed = _deploymentsConnectionStatusLabel.text.ToLowerInvariant().Contains("deployed");
-            _deploymentsConnectionStopBtn.SetEnabled(isDeployed);
-            _deploymentsConnectionContainerLogsBtn.SetEnabled(isDeployed);
-            if (isDeployed)
-            {
-                _deploymentsConnectionStopBtn.clickable.clickedWithEventInfo += onDynamicStopServerBtnAsync; // Unsub'd from within
-                _deploymentsConnectionContainerLogsBtn.clickable.clickedWithEventInfo += onDynamicContainerLogsBtnAsync;
-            }
+            hideResultLabels();
+            closeDisableGroups();
+            ToggleIsConnectedContainers(false);
         }
 
         /// <summary>For example, result labels (success/err) should be hidden on init</summary>
         private void hideResultLabels()
         {
-            _appCreateResultLabel.visible = false;
-            _containerBuildAndPushResultLabel.visible = false;
-            _deploymentsStatusLabel.style.display = DisplayStyle.None;
+            _serverBuildResultLabel.visible = false;
+            _containerizeServerResultLabel.visible = false;
+            _localTestResultLabel.style.display = DisplayStyle.None;
+            _deployResultLabel.style.display = DisplayStyle.None;
+            _linuxRequirementsResultLabel.visible = false;
+            _dockerRequirementsResultLabel.visible = false;
         }
+        #endregion
 
-
-        #region Init -> Button clicks
+        #region Fns / Debug
         /// <summary>
         /// Experiment here! You may want to log what you're doing
         /// in case you inadvertently leave it on.
@@ -537,387 +730,126 @@ namespace Edgegap.Editor
         {
             Debug.Log("debugEnableAllGroups");
 
-            _appInfoFoldout.SetEnabled(true);
-            _appInfoFoldout.SetEnabled(true);
-            _containerRegistryFoldout.SetEnabled(true);
-            _deploymentsFoldout.SetEnabled(true);
-
-            if (_containerUseCustomRegistryToggle.value)
-                _containerCustomRegistryWrapper.SetEnabled(true);
+            _serverBuildFoldout.SetEnabled(true);
+            _containerizeFoldout.SetEnabled(true);
+            _localTestFoldout.SetEnabled(true);
+            _createAppFoldout.SetEnabled(true);
+            _deployAppFoldout.SetEnabled(true);
+            _nextStepsFoldout.SetEnabled(true);
         }
+        #endregion
 
-        private void onApiTokenVerifyBtnClick()
-        {
-            _ = verifyApiTokenGetRegistryCredsAsync();
-            _ = checkForUpdates();
-        }
-        private void onApiTokenGetBtnClick() => openGetApiTokenWebsite();
-
-        /// <summary>Process UI + validation before/after API logic</summary>
-        private async void onAppCreateBtnClickAsync()
-        {
-            // Assert data locally before calling API
-            assertAppNameExists();
-
-            _appCreateResultLabel.text = EdgegapWindowMetadata.WrapRichTextInColor("Creating...",
-                EdgegapWindowMetadata.StatusColors.Processing);
-
-            try { await createAppAsync(); }
-            finally
-            {
-                _appCreateBtn.SetEnabled(checkHasAppName());
-                _appCreateResultLabel.visible = _appCreateResultLabel.text != EdgegapWindowMetadata.LOADING_RICH_STR;
-            }
-        }
-
-        /// <summary>Process UI + validation before/after API logic</summary>
-        private async void onAppLoadExistingBtnClickAsync()
-        {
-            // Assert UI data locally before calling API
-            assertAppNameExists();
-
-            try { await GetAppAsync(); }
-            finally
-            {
-                _appLoadExistingBtn.SetEnabled(checkHasAppName());
-                _appCreateResultLabel.visible = _appCreateResultLabel.text != EdgegapWindowMetadata.LOADING_RICH_STR;
-            }
-        }
-
-        /// <summary>Copy url to clipboard</summary>
-        private void onDeploymentConnectionCopyUrlBtnClick()
-        {
-            if (string.IsNullOrEmpty(_deploymentsConnectionUrlReadonlyInput.value))
-                return; // Nothing to copy
-
-            EditorGUIUtility.systemCopyBuffer = _deploymentsConnectionUrlReadonlyInput.value;
-            _deploymentsStatusLabel.text = EdgegapWindowMetadata.WrapRichTextInColor("Copied URL!",
-                EdgegapWindowMetadata.StatusColors.Success);
-            _deploymentsStatusLabel.style.display = DisplayStyle.Flex;
-            _ = clearDeploymentStatusAfterDelay(seconds: 1);
-        }
-
-        private async Task clearDeploymentStatusAfterDelay(int seconds)
-        {
-            await Task.Delay(TimeSpan.FromSeconds(seconds));
-            _deploymentsStatusLabel.style.display = DisplayStyle.None;
-        }
-
-        /// <summary>Process UI + validation before/after API logic</summary>
-        private async void onContainerBuildAndPushServerBtnClickAsync()
-        {
-            // Assert data locally before calling API
-            // Validate custom container registry, app name
-            try
-            {
-                assertAppNameExists();
-                Assert.IsTrue(
-                    !_containerImageRepositoryInput.value.EndsWith("/"),
-                    $"Expected {nameof(_containerImageRepositoryInput)} to !contain " +
-                    "trailing slash (should end with /appName)");
-            }
-            catch (Exception e)
-            {
-                Debug.LogError($"onContainerBuildAndPushServerBtnClickAsync Error: {e}");
-                throw;
-            }
-
-            // Hide previous result labels, disable btns (to reenable when done)
-            hideResultLabels();
-            _containerBuildAndPushServerBtn.SetEnabled(false);
-
-            // Show new loading status
-            _containerBuildAndPushResultLabel.text = EdgegapWindowMetadata.WrapRichTextInColor(
-                EdgegapWindowMetadata.PROCESSING_RICH_STR,
-                EdgegapWindowMetadata.StatusColors.Processing);
-
-            try { await buildAndPushServerAsync(); }
-            finally
-            {
-                _containerBuildAndPushServerBtn.SetEnabled(checkHasAppName());
-                _containerBuildAndPushResultLabel.visible = _containerBuildAndPushResultLabel.text != EdgegapWindowMetadata.PROCESSING_RICH_STR;
-            }
-        }
-
-        private bool checkHasAppName() => _appNameInput.value.Length > 0;
-        private void onDeploymentsRefreshBtnClick() => _ = refreshDeploymentsAsync();
-        private void onFooterDocumentationBtnClick() => openDocumentationWebsite();
-        private void onFooterNeedMoreGameServersBtnClick() => openNeedMoreGameServersWebsite();
-
-        /// <summary>AKA "Create New Deployment" Btn</summary>
-        private void onDeploymentCreateBtnClick() => _ = createDeploymentStartServerAsync();
-        #endregion // Init -> /Button Clicks
-        #endregion // Init
-
-        /// <summary>Throw if !appName val</summary>
-        private void assertAppNameExists() =>
-            Assert.IsTrue(!string.IsNullOrEmpty(_appNameInput.value),
-                $"Expected {nameof(_appNameInput)} val");
-
+        #region Fns / Connect
         /// <summary>
-        /// Save persistent read-only data: If the human didn't type it, it won't save automatically.
+        /// "Sign in" btn click
         /// </summary>
-        private void SyncObjectWithForm()
+        private void OnEdgegapSignInBtnClick()
         {
-            _appIconSpriteObj = _appIconSpriteObjInput.value as Sprite;
-        }
-
-        /// <summary>TODO: Load persistent data?</summary>
-        private void syncFormWithObjectStatic()
-        {
-            // Only show the rest of the form if apiToken is verified
-            _postAuthContainer.SetEnabled(_isApiTokenVerified);
-            _appIconSpriteObjInput.value = _appIconSpriteObj;
-            _containerCustomRegistryWrapper.SetEnabled(_containerUseCustomRegistryToggle.value);
-            _containerUseCustomRegistryToggle.value = _containerUseCustomRegistryToggle.value;
-
-            // Only enable certain elements if appName exists
-            bool hasAppName = checkHasAppName();
-            _appCreateBtn.SetEnabled(hasAppName);
-            _appLoadExistingBtn.SetEnabled(hasAppName);
-        }
-
-        /// <summary>
-        /// Dynamically set form based on API call results.
-        /// => If APIToken is cached via EditorPrefs, verify => gets registry creds.
-        /// => If appName is cached via ViewDataKey, loads the app.
-        /// </summary>
-        private async Task syncFormWithObjectDynamicAsync()
-        {
-            if (string.IsNullOrEmpty(_apiTokenInput.value))
-                return;
-
-            // We found a cached api token: Verify =>
-            if (IsLogLevelDebug) Debug.Log("syncFormWithObjectDynamicAsync: Found apiToken; " +
-                "calling verifyApiTokenGetRegistryCredsAsync =>");
-            await verifyApiTokenGetRegistryCredsAsync();
-
-            // Was the API token verified + we found a cached app name? Load the app =>
-            // But ignore errs, since we're just *assuming* the app exists since the appName was filled
-            if (_isApiTokenVerified && checkHasAppName())
+            if (!_isApiTokenVerified)
             {
-                if (IsLogLevelDebug) Debug.Log("syncFormWithObjectDynamicAsync: Found apiToken && appName; " +
-                    "calling GetAppAsync =>");
-                try { await GetAppAsync(); }
-                finally { _appLoadExistingBtn.SetEnabled(checkHasAppName()); }
+                OpenGetTokenUrl();
             }
+            ToggleIsConnectedContainers(true);
         }
 
-
-        #region Immediate non-button changes
-        /// <summary>
-        /// On change, validate -> update custom container registry suffix.
-        /// Toggle create app btn if 1+ char
-        /// </summary>
-        /// <param name="evt"></param>
-        private void onAppNameInputChanged(ChangeEvent<string> evt)
+        private void OpenGetTokenUrl()
         {
-            // Validate: Only allow alphanumeric, underscore, dash, plus, period
-            if (!_appNameAllowedCharsRegex.IsMatch(evt.newValue))
-                _appNameInput.value = evt.previousValue; // Revert to the previous value
-            else
-                setContainerImageRepositoryVal(); // Valid -> Update the custom container registry suffix
-
-            // Toggle btns on 1+ char entered
-            bool hasAppName = checkHasAppName();
-            _appCreateBtn.SetEnabled(hasAppName);
-            _appLoadExistingBtn.SetEnabled(hasAppName);
+            OpenEdgegapURL(EdgegapWindowMetadata.EDGEGAP_GET_A_TOKEN_URL);
         }
 
-        /// <summary>On focus out, clamp port between 1024~49151</summary>
-        /// <param name="evt"></param>
-        private void onContainerPortNumInputFocusOut(FocusOutEvent evt)
+        private void onApiTokenInputFocusIn(FocusInEvent evt)
         {
-            // Use TryParse to avoid exceptions
-            if (int.TryParse(_containerPortNumInput.value, out int port))
-            {
-                // Clamp the port to the range and set the value back to the TextField
-                _containerPortNumInput.value = Mathf.Clamp(
-                    port,
-                    EdgegapWindowMetadata.PORT_MIN,
-                    EdgegapWindowMetadata.PORT_MAX)
-                    .ToString();
-            }
-            else
-            {
-                // If input is !valid, set to default
-                _containerPortNumInput.value = EdgegapWindowMetadata.PORT_DEFAULT.ToString();
-            }
+            _apiTokenInput.isPasswordField = false;
         }
 
-        /// <summary>
-        /// Save the protocol type after it has been changed.
-        /// </summary>
-        /// <param name="evt"></param>
-        private void onContainerTransportTypeEnumInputChanged(ChangeEvent<string> evt)
+        private void onApiTokenInputFocusOut(FocusOutEvent evt)
         {
-            EditorPrefs.SetString(EdgegapWindowMetadata.CONTAINER_REGISTRY_TRANSPORT_TYPE_ENUM_KEY_STR, evt.newValue);
-        }
+            _apiTokenInput.isPasswordField = true;
 
-        /// <summary>
-        /// While changing the token, we temporarily unmask. On change, set state to !verified.
-        /// </summary>
-        /// <param name="evt"></param>
-        private void onApiTokenInputChanged(ChangeEvent<string> evt)
-        {
-            // Unmask while changing
-            TextField apiTokenTxt = evt.target as TextField;
-            apiTokenTxt.isPasswordField = false;
-
-            // Token changed? Reset form to !verified state and fold all groups
             _isApiTokenVerified = false;
             _postAuthContainer.SetEnabled(false);
             closeDisableGroups();
 
             // Toggle "Verify" btn on 1+ char entered
-            _apiTokenVerifyBtn.SetEnabled(evt.newValue.Length > 0);
+            if (_apiToken.Length > 0)
+            {
+                onApiTokenVerifyBtnClick();
+            }
         }
 
-        /// <summary>Unmask while typing</summary>
-        /// <param name="evt"></param>
-        private void onApiTokenInputFocusOut(FocusOutEvent evt)
+        private void onApiTokenVerifyBtnClick()
         {
-            TextField apiTokenTxt = evt.target as TextField;
-            apiTokenTxt.isPasswordField = true;
+            ResetState();
+            initToggleDynamicUI();
+            _ = verifyApiTokenGetRegistryCreds();
+            _ = InitializeState();
+            _ = checkForUpdates();
         }
-
-        /// <summary>On toggle, enable || disable the custom registry inputs (below the Toggle).</summary>
-        private void onContainerUseCustomRegistryToggle(ChangeEvent<bool> evt) =>
-            _containerCustomRegistryWrapper.SetEnabled(evt.newValue);
-
-        /// <summary>On empty, we fallback to "latest", a fallback val from EdgegapWindowMetadata.cs</summary>
-        /// <param name="evt"></param>
-        private void onContainerNewTagVersionInputChanged(ChangeEvent<string> evt)
-        {
-            if (!string.IsNullOrEmpty(evt.newValue))
-                return;
-
-            // Set fallback value -> select all for UX, since the user may not expect this
-            _containerNewTagVersionInput.value = EdgegapWindowMetadata.DEFAULT_VERSION_TAG;
-            _containerNewTagVersionInput.SelectAll();
-        }
-        #endregion // Immediate non-button changes
-
 
         /// <summary>
-        /// Used for converting a Sprite to a base64 string: By default, textures are !readable,
-        /// and we don't want to have to instruct users how to make it readable for UX.
-        /// Instead, we'll make a copy of that texture -> make it readable.
+        /// Verifies token => apps/container groups -> gets registry creds (if any).
         /// </summary>
-        /// <param name="original"></param>
-        /// <returns></returns>
-        private Texture2D makeTextureReadable(Texture2D original)
+        private async Task verifyApiTokenGetRegistryCreds()
         {
-            RenderTexture rt = RenderTexture.GetTemporary(
-                original.width,
-                original.height
+            if (IsLogLevelDebug)
+                Debug.Log("verifyApiTokenGetRegistryCredsAsync");
+
+            // Disable most ui while we verify
+            _isApiTokenVerified = false;
+            _signOutBtn.SetEnabled(false);
+            UpdateUI();
+            hideResultLabels();
+
+            EdgegapWizardApi wizardApi = new EdgegapWizardApi(
+                EdgegapWindowMetadata.API_ENVIRONMENT,
+                _apiToken,
+                EdgegapWindowMetadata.LOG_LEVEL
             );
+            EdgegapHttpResult initQuickStartResultCode = await wizardApi.InitQuickStart();
 
-            Graphics.Blit(original, rt);
-            Texture2D readableTexture = new Texture2D(original.width, original.height);
+            _signOutBtn.SetEnabled(true);
+            _isApiTokenVerified = initQuickStartResultCode.IsResultCode204;
 
-            Rect rect = new Rect(
-                0,
-                0,
-                rt.width,
-                rt.height);
-
-            readableTexture.ReadPixels(rect, destX: 0, destY: 0);
-            readableTexture.Apply();
-            RenderTexture.ReleaseTemporary(rt);
-
-            return readableTexture;
-        }
-
-        /// <summary>From Base64 string -> to Sprite</summary>
-        /// <param name="imgBase64Str">Edgegap build app requires a max size of 200</param>
-        /// <returns>Sprite</returns>
-        private Sprite getSpriteFromBase64Str(string imgBase64Str)
-        {
-            if (string.IsNullOrEmpty(imgBase64Str))
-                return null;
-
-            try
+            if (!_isApiTokenVerified)
             {
-                byte[] imageBytes = Convert.FromBase64String(imgBase64Str);
-
-                Texture2D texture = new Texture2D(2, 2);
-                texture.LoadImage(imageBytes);
-
-                Rect rect = new Rect( // MIRROR CHANGE: 'new()' not supported in Unity 2020
-                    x: 0.0f,
-                    y: 0.0f,
-                    texture.width,
-                    texture.height);
-
-                return Sprite.Create(
-                    texture,
-                    rect,
-                    pivot: new Vector2(0.5f, 0.5f),
-                    pixelsPerUnit: 100.0f);
+                UpdateUI();
+                return;
             }
-            catch (Exception e)
+
+            // Verified: Let's see if we have active registry credentials // TODO: This will later be a result model
+            EdgegapHttpResult<GetRegistryCredentialsResult> getRegistryCredentialsResult =
+                await wizardApi.GetRegistryCredentials();
+
+            if (getRegistryCredentialsResult.IsResultCode200)
             {
-                Debug.Log($"Warning: getSpriteFromBase64Str failed (returning null) - {e}");
-                return null;
-            }
-        }
-
-        /// <summary>From Sprite -> to Base64 string</summary>
-        /// <param name="sprite"></param>
-        /// <param name="maxKbSize">Edgegap build app requires a max size of 200</param>
-        /// <returns>imageBase64Str</returns>
-        private string getBase64StrFromSprite(Sprite sprite, int maxKbSize = 200)
-        {
-            if (sprite == null)
-                return null;
-
-            try
-            {
-                Texture2D texture = makeTextureReadable(sprite.texture);
-
-                // Crop the texture to the sprite's rectangle (instead of the entire texture)
-                Texture2D croppedTexture = new Texture2D(
-                    (int)sprite.rect.width,
-                    (int)sprite.rect.height);
-
-                Color[] pixels = texture.GetPixels(
-                    (int)sprite.rect.x,
-                    (int)sprite.rect.y,
-                    (int)sprite.rect.width,
-                    (int)sprite.rect.height
+                // Success
+                _credentials = getRegistryCredentialsResult.Data;
+                EditorPrefs.SetString(
+                    EdgegapWindowMetadata.API_TOKEN_KEY_STR,
+                    Base64Encode(_apiToken)
                 );
 
-                croppedTexture.SetPixels(pixels);
-                croppedTexture.Apply();
+                if (IsLogLevelDebug)
+                    Debug.Log("SetContainerRegistryData");
 
-                // Encode to PNG ->
-                byte[] textureBytes = croppedTexture.EncodeToPNG();
+                if (_credentials == null)
+                    throw new Exception($"!{nameof(_credentials)}");
 
-                // Validate size
-                const int oneKb = 1024;
-                int pngTextureSizeKb = textureBytes.Length / oneKb;
-                bool isPngLessThanMaxSize = pngTextureSizeKb < maxKbSize;
-
-                if (!isPngLessThanMaxSize)
-                {
-                    textureBytes = croppedTexture.EncodeToJPG();
-                    int jpgTextureSizeKb = textureBytes.Length / oneKb;
-                    bool isJpgLessThanMaxSize = pngTextureSizeKb < maxKbSize;
-
-                    Assert.IsTrue(isJpgLessThanMaxSize, $"Expected texture PNG to be < {maxKbSize}kb " +
-                        $"in size (but found {jpgTextureSizeKb}kb); then tried JPG, but is still {jpgTextureSizeKb}kb in size");
-                    Debug.LogWarning($"App icon PNG was too large (max {maxKbSize}), so we converted to JPG");
-                }
-
-                string base64ImageString = Convert.ToBase64String(textureBytes); // eg: "Aaabbcc=="
-                return base64ImageString;
+                _containerRegistryUrl = _credentials.RegistryUrl;
+                _containerProject = _credentials.Project;
+                _containerUsername = _credentials.Username;
+                _containerToken = _credentials.Token;
+                Debug.Log("Edgegap API token verified successfully.");
             }
-            catch (Exception e)
+            else
             {
-                Debug.LogError($"Error: {e.Message}");
-                return null;
+                ShowErrorDialog(
+                    $"Couldn't retrieve Edgegap registry credentials, try re-logging.\n\n{getRegistryCredentialsResult.Data.ToString()}"
+                );
             }
+
+            // Unlock the rest of the form, whether we prefill the container registry or not
+            UpdateUI();
         }
 
         /// <summary>
@@ -927,91 +859,1600 @@ namespace Edgegap.Editor
         {
             // get local package.json version
             DirectoryInfo thisScriptDir = new DirectoryInfo(ThisScriptPath);
-            PackageJSON local = PackageJSON.PackageJSONFromJSON($"{thisScriptDir.Parent.Parent.ToString()}{Path.DirectorySeparatorChar}package.json");
+            PackageJSON local = PackageJSON.PackageJSONFromJSON(
+                $"{thisScriptDir.Parent.Parent.ToString()}{Path.DirectorySeparatorChar}package.json"
+            );
 
             // get latest release from github repository
             string releaseJSON = await GithubRelease.GithubReleaseFromAPI();
             GithubRelease latest = GithubRelease.GithubReleaseFromJSON(releaseJSON);
 
-            if (local.version != latest.name) {
-                Debug.LogWarning($"Please update your Edgegap Quickstart plugin - local version `{local.version}` < latest version `{latest.name}`. See https://github.com/edgegap/edgegap-unity-plugin.");
+            if (local.version != latest.name)
+            {
+                Debug.LogWarning(
+                    $"Please update your Edgegap Quickstart plugin - local version `{local.version}` < latest version `{latest.name}`. See https://github.com/edgegap/edgegap-unity-plugin."
+                );
             }
         }
 
         /// <summary>
-        /// Verifies token => apps/container groups -> gets registry creds (if any).
-        /// TODO: UX - Show loading spinner.
+        /// "Sign out" btn click
         /// </summary>
-        private async Task verifyApiTokenGetRegistryCredsAsync()
+        private void OnSignOutBtnClickAsync()
         {
-            if (IsLogLevelDebug) Debug.Log("verifyApiTokenGetRegistryCredsAsync");
+            EditorPrefs.DeleteKey(EdgegapWindowMetadata.API_TOKEN_KEY_STR);
+            _apiTokenInput.SetValueWithoutNotify("");
+            ResetState();
+        }
 
-            // Disable most ui while we verify
-            _isApiTokenVerified = false;
-            _apiTokenVerifyBtn.SetEnabled(false);
-            SyncContainerEnablesToState();
-            hideResultLabels();
+        /// <summary>
+        /// Change between the view when connected or the view when not connected
+        /// </summary>
+        /// <param name="isConnected"></param>
+        private void ToggleIsConnectedContainers(bool isConnected)
+        {
+            _preAuthContainer.SetEnabled(!isConnected);
+            _preAuthContainer.style.display = isConnected ? DisplayStyle.None : DisplayStyle.Flex;
 
-            EdgegapWizardApi wizardApi = getWizardApi();
-            EdgegapHttpResult initQuickStartResultCode = await wizardApi.InitQuickStart();
+            _authContainer.SetEnabled(isConnected);
+            _authContainer.style.display = isConnected ? DisplayStyle.Flex : DisplayStyle.None;
+        }
+        #endregion
 
-            _apiTokenVerifyBtn.SetEnabled(true);
-            _isApiTokenVerified = initQuickStartResultCode.IsResultCode204;
+        #region Fns / Build
+        private void OnLinuxInfoClick() =>
+            OpenEdgegapDocsURL(EdgegapWindowMetadata.EDGEGAP_DOC_PLUGIN_GUIDE_PATH);
 
-            if (!_isApiTokenVerified)
+        /// <summary>
+        /// Linux server build requirements install btn click
+        /// </summary>
+        private async void OnInstallLinuxBtnClick()
+        {
+            if (
+                !BuildPipeline.IsBuildTargetSupported(
+                    BuildTargetGroup.Standalone,
+                    BuildTarget.StandaloneLinux64
+                )
+            )
             {
-                SyncContainerEnablesToState();
-                return;
-            }
+                //ProgressCounter = 0;
 
-            // Verified: Let's see if we have active registry credentials // TODO: This will later be a result model
-            EdgegapHttpResult<GetRegistryCredentialsResult> getRegistryCredentialsResult = await wizardApi.GetRegistryCredentials();
+                //await EdgegapBuildUtils.InstallLinuxModules(Application.unityVersion,
+                //    outputReciever: status => ShowWorkInProgress("Installing linux support modules", status),
+                //    errorReciever: (msg) => OnBuildContainerizeUploadError(msg, _linuxRequirementsResultLabel, "There was a problem.")
+                //);
 
-            if (getRegistryCredentialsResult.IsResultCode200)
-            {
-                // Success
-                _credentials = getRegistryCredentialsResult.Data;
-                persistUnmaskedApiToken(_apiTokenInput.value);
-                prefillContainerRegistryForm(_credentials);
+                //OnBuildContainerizeUploadSuccess(_linuxRequirementsResultLabel, "Requirements installed. Don't forget to restart Unity.");
+
+                ShowErrorDialog(
+                    null,
+                    _linuxRequirementsResultLabel,
+                    "Requirements not currently installed."
+                );
+                await Task.Delay(1);
+                OpenEdgegapDocsURL(EdgegapWindowMetadata.EDGEGAP_DOC_PLUGIN_GUIDE_PATH);
             }
             else
             {
-                // Fail
+                OnBuildContainerizeUploadSuccess(
+                    _linuxRequirementsResultLabel,
+                    "Requirements installed."
+                );
+            }
+        }
+
+        /// <summary>
+        /// Open Unity build settings btn click
+        /// </summary>
+        private void OnOpenBuildParamsBtnClick()
+        {
+#if UNITY_2021_3_OR_NEWER
+            EditorWindow.GetWindow(
+                System.Type.GetType("UnityEditor.BuildPlayerWindow,UnityEditor")
+            );
+#else
+            EditorApplication.ExecuteMenuItem("File/Build Settings...");
+#endif
+        }
+
+        private void OnFolderNameInputFocusOut(FocusOutEvent evt)
+        {
+            if (string.IsNullOrEmpty(_buildFolderNameInput.value))
+            {
+                _buildFolderNameInput.value = _buildFolderNameInputDefault;
+            }
+        }
+
+        /// <summary>
+        /// "Build server" btn click
+        /// Process UI + validation before/after API logic
+        /// </summary>
+        private void OnBuildServerBtnClick()
+        {
+            try
+            {
+                _serverBuildBtn.SetEnabled(false);
+                hideResultLabels();
+
+                // build server
+                if (IsLogLevelDebug)
+                    Debug.Log("buildServer");
+                ProgressCounter = 0;
+
+                if (
+                    !BuildPipeline.IsBuildTargetSupported(
+                        BuildTargetGroup.Standalone,
+                        BuildTarget.StandaloneLinux64
+                    )
+                )
+                {
+                    throw new Exception(
+                        $"Linux Build Support is missing.\n\nPlease install it via the plugin, or open Unity Hub -> Installs -> Unity {Application.unityVersion} -> Add Modules -> Linux Build Support (IL2CPP & Mono & Dedicated Server) -> Install\n\nAfterwards restart Unity!"
+                    );
+                }
+
+                string folderName = !string.IsNullOrEmpty(_buildFolderNameInput.value)
+                    ? _buildFolderNameInput.value
+                    : _buildFolderNameInputDefault;
+
+                BuildReport buildResult = EdgegapBuildUtils.BuildServer(folderName);
+                if (buildResult.summary.result != BuildResult.Succeeded)
+                {
+                    Debug.LogWarning(buildResult.summary.result.ToString());
+                }
+                else
+                {
+                    OnBuildContainerizeUploadSuccess(_serverBuildResultLabel, "Build succeeded.");
+                }
+
+                _containerizeFoldout.SetValueWithoutNotify(true);
+                _buildPathInput.SetValueWithoutNotify(_buildPathInputDefault);
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"OnBuildServerBtnClick Error: {e}");
+                ShowErrorDialog(e.Message, _serverBuildResultLabel, "Build failed (see logs).");
+            }
+            finally
+            {
+                EditorUtility.ClearProgressBar();
+                _serverBuildBtn.SetEnabled(true);
+            }
+        }
+        #endregion
+
+        #region Fns / Containerize
+        private void OnDockerInfoClick() =>
+            OpenEdgegapDocsURL(EdgegapWindowMetadata.EDGEGAP_DOC_USAGE_REQUIREMENTS_PATH);
+
+        /// <summary>
+        /// Validate Docker installation btn click
+        /// </summary>
+        private void OnValidateDockerBtnClick()
+        {
+            _ = ValidateDockerRequirement();
+        }
+
+        private async Task<string> ValidateDockerRequirement()
+        {
+            _validateDockerRequirementsBtn.SetEnabled(false);
+            hideResultLabels();
+            string error;
+            try
+            {
+                error = await EdgegapBuildUtils.DockerSetupAndInstallationCheck(
+                    _dockerfilePathInputDefault
+                );
+            }
+            catch (Exception e)
+            {
+                error = e.Message;
+            }
+            _validateDockerRequirementsBtn.SetEnabled(true);
+
+            if (!string.IsNullOrEmpty(error))
+            {
+                ShowErrorDialog(
+                    error.Contains("docker daemon is not running")
+                    || error.Contains("dockerDesktop")
+                        ? string.Join(
+                            "\n\n",
+                            new string[]
+                            {
+                                "Docker is installed, but the daemon/app (e.g. Docker Desktop) is not running.",
+                                "Please start Docker and try again.",
+                            }
+                        )
+                        : string.Join(
+                            "\n\n",
+                            new string[]
+                            {
+                                "Docker installation not found. Docker can be downloaded from:",
+                                "https://www.docker.com/",
+                            }
+                        ),
+                    _dockerRequirementsResultLabel,
+                    "There was a problem."
+                );
+                return error;
+            }
+            else
+            {
+                OnBuildContainerizeUploadSuccess(
+                    _dockerRequirementsResultLabel,
+                    "Docker is running."
+                );
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// When field gains focus, open File Explorer to select folder path
+        /// </summary>
+        /// <param name="evt"></param>
+        private void OnBuildPathInputFocusIn(FocusInEvent evt)
+        {
+            string selectedPath = EditorUtility.OpenFolderPanel(
+                "Select Build Folder",
+                ProjectRootPath,
+                ""
+            );
+
+            if (!string.IsNullOrEmpty(selectedPath))
+            {
+                if (selectedPath.Contains(ProjectRootPath.Replace('\\', '/')))
+                {
+                    string pathFromProjectRoot = selectedPath.Split(
+                        ProjectRootPath.Replace('\\', '/') + '/'
+                    )[1];
+                    _buildPathInput.value = pathFromProjectRoot;
+                }
+                else
+                {
+                    ShowErrorDialog(
+                        "The selected build folder couldn't be found within the project."
+                    );
+                }
+            }
+        }
+
+        /// <summary>
+        /// Reset Build Path input value btn click
+        /// </summary>
+        private void OnResetBuildPathBtnClick()
+        {
+            _buildPathInput.value = _buildPathInputDefault;
+        }
+
+        /// <summary>
+        /// On change, toggle containerize btn if all required inputs in Containerize section are filled
+        /// </summary>
+        /// <param name="evt"></param>
+        private void OnContainerizeInputsChanged(ChangeEvent<string> evt)
+        {
+            _containerizeServerBtn.SetEnabled(CheckFilledContainerizeServerInputs());
+        }
+
+        private bool CheckFilledContainerizeServerInputs()
+        {
+            return _containerizeImageNameInput.value.Length > 0
+                && _containerizeImageTagInput.value.Length > 0;
+        }
+
+        private void OnContainerizeImageNameInputFocusIn(FocusInEvent evt)
+        {
+            TogglePlaceholder(
+                _containerizeImageNameInput,
+                _containerizeImageNameInputDefault,
+                true
+            );
+        }
+
+        private void OnContainerizeImageNameInputFocusOut(FocusOutEvent evt)
+        {
+            TogglePlaceholder(
+                _containerizeImageNameInput,
+                _containerizeImageNameInputDefault,
+                false
+            );
+        }
+
+        private void OnContainerizeImageTagInputFocusIn(FocusInEvent evt)
+        {
+            TogglePlaceholder(_containerizeImageTagInput, _containerizeImageTagInputDefault, true);
+        }
+
+        private void OnContainerizeImageTagInputFocusOut(FocusOutEvent evt)
+        {
+            TogglePlaceholder(_containerizeImageTagInput, _containerizeImageTagInputDefault, false);
+        }
+
+        /// <summary>
+        /// When field gains focus, open File Explorer to select file path
+        /// </summary>
+        /// <param name="evt"></param>
+        private void OnDockerfilePathInputFocusIn(FocusInEvent evt)
+        {
+            string selectedPath = EditorUtility.OpenFilePanel(
+                "Select Dockerfile",
+                ProjectRootPath,
+                ""
+            );
+
+            if (!string.IsNullOrEmpty(selectedPath))
+            {
+                _dockerfilePathInput.value = selectedPath;
+            }
+        }
+
+        /// <summary>
+        /// Reset Dockerfile Path input value btn click
+        /// </summary>
+        private void OnResetDockerfilePathBtnClick()
+        {
+            _dockerfilePathInput.value = _dockerfilePathInputDefault;
+        }
+
+        /// <summary>
+        /// "Containerize with Docker" btn click
+        /// Process UI + validation before/after API logic
+        /// </summary>
+        private async void OnContainerizeBtnClickAsync()
+        {
+            if (!string.IsNullOrEmpty(await ValidateDockerRequirement()))
+            {
+                return;
+            }
+            try
+            {
+                _containerizeServerBtn.SetEnabled(false);
+                hideResultLabels();
+
+                // build docker image
+                if (IsLogLevelDebug)
+                    Debug.Log("buildDockerImageAsync");
+                ProgressCounter = 0;
+
+                string dockerfilePath =
+                    _dockerfilePathInput.value.Length > 0
+                        ? _dockerfilePathInput.value
+                        : _dockerfilePathInputDefault;
+
+                string extraParams =
+                    _optionalDockerParamsInput.value.Length > 0
+                        ? _optionalDockerParamsInput.value
+                        : null;
+
+                if (_buildPathInput.value.Length > 0)
+                {
+                    if (string.IsNullOrEmpty(extraParams))
+                    {
+                        extraParams = $"--build-arg SERVER_BUILD_PATH=\"{_buildPathInput.value}\"";
+                    }
+                    else
+                    {
+                        extraParams +=
+                            $" --build-arg SERVER_BUILD_PATH=\"{_buildPathInput.value}\"";
+                    }
+                }
+
+                string imageName = Tokenize(_containerizeImageNameInput.value);
+                string imageRepo = $"{_containerProject}/{imageName}";
+                string tag =
+                    _containerizeImageTagInput.value == _containerizeImageTagInputDefault
+                        ? nowUTC
+                        : _containerizeImageTagInput.value;
+
+                await EdgegapBuildUtils.RunCommand_DockerBuild(
+                    dockerfilePath,
+                    _containerRegistryUrl,
+                    imageRepo,
+                    tag,
+                    ProjectRootPath,
+                    status => ShowWorkInProgress("Building Docker Image", status),
+                    extraParams ?? null
+                );
+
+                OnBuildContainerizeUploadSuccess(
+                    _containerizeServerResultLabel,
+                    "Containerization succeeded."
+                );
+
+                string lowercaseImageName = _containerizeImageNameInput.value;
+
+                _localTestFoldout.SetValueWithoutNotify(true);
+                _localTestImageInput.value = $"{lowercaseImageName}:{tag}";
+                _localTestImageShowDropdownBtn.SetEnabled(false);
+                _serverImageNameInput.value = lowercaseImageName;
+                _serverImageTagInput.value = tag;
+
+                await GetLocalDockerImagesAsync();
+
+                if (_localImages is not null && _localImages.Count > 0)
+                {
+                    _localTestImageShowDropdownBtn.SetEnabled(true);
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"Containerization Error: {e}");
+                ShowErrorDialog(
+                    e.Message,
+                    _containerizeServerResultLabel,
+                    "Containerization failed (see logs)."
+                );
+            }
+            finally
+            {
+                EditorUtility.ClearProgressBar();
+                _containerizeServerBtn.SetEnabled(true);
+            }
+        }
+
+        private async Task GetLocalDockerImagesAsync()
+        {
+            if (IsLogLevelDebug)
+                Debug.Log("GetLocalDockerImages");
+
+            _localImages = new List<string>();
+
+            await EdgegapBuildUtils.RunCommand_DockerImage(
+                img =>
+                {
+                    if (img.Contains($"{_containerRegistryUrl}/{_containerProject}/"))
+                    {
+                        string shortImg = img.Split(
+                            $"{_containerRegistryUrl}/{_containerProject}/"
+                        )[1];
+                        _localImages.Add(shortImg);
+                    }
+                },
+                error =>
+                    ShowErrorDialog(
+                        $"Couldn't find local docker images, please ensure Docker is running.\n\n{error}"
+                    )
+            );
+
+            UpdateUI();
+        }
+        #endregion
+
+        #region Fns / Test
+        private void OnLocalTestInputFocusIn(FocusInEvent evt)
+        {
+            OnLocalTestImageDropdownClick();
+        }
+
+        private void OnLocalTestInputsChanged(ChangeEvent<string> evt)
+        {
+            _localTestDeployBtn.SetEnabled(CheckFilledLocalTestInputs());
+        }
+
+        private async void OnLocalTestImageDropdownClick()
+        {
+            await GetLocalDockerImagesAsync();
+            UnityEditor.PopupWindow.Show(
+                _localTestImageShowDropdownBtn.worldBound,
+                new CustomPopupContent(
+                    _localImages,
+                    OnDropdownLocalTestImageSelect,
+                    _containerizeImageNameInputDefault
+                )
+            );
+        }
+
+        private void OnDropdownLocalTestImageSelect(string image)
+        {
+            _localTestImageInput.value = image;
+            _localTestDockerRunInput.Focus();
+        }
+
+        private void OnLocalTestDockerParamsFocusOut(FocusOutEvent evt)
+        {
+            if (string.IsNullOrEmpty(_localTestDockerRunInput.value))
+            {
+                _localTestDockerRunInput.value = _localTestDockerRunInputDefault;
             }
 
-            // Unlock the rest of the form, whether we prefill the container registry or not
-            SyncContainerEnablesToState();
+            _localTestDeployBtn.SetEnabled(CheckFilledLocalTestInputs());
+        }
+
+        private bool CheckFilledLocalTestInputs()
+        {
+            return _localTestImageInput.value.Length > 0;
+        }
+
+        private async void OnLocalTestDeployClick()
+        {
+            try
+            {
+                hideResultLabels();
+
+                if (IsLogLevelDebug)
+                    Debug.Log("RunLocalImageAsync");
+
+                string extraParams;
+
+                if (_localTestDockerRunInput.value.Length > 0)
+                {
+                    if (_localTestDockerRunInput.value.Contains("-p "))
+                    {
+                        extraParams = _localTestDockerRunInput.value;
+                    }
+                    else
+                    {
+                        extraParams =
+                            _localTestDockerRunInput.value + $" {_localTestDockerRunInputDefault}";
+                    }
+                }
+                else
+                {
+                    extraParams = _localTestDockerRunInputDefault;
+                }
+
+                string img =
+                    $"{_containerRegistryUrl}/{_containerProject}/{_localTestImageInput.value}";
+
+                await EdgegapBuildUtils.RunCommand_DockerRun(img, extraParams);
+                OnLocalDeploymentResult(
+                    "Container deployed successfully. See more in Docker Desktop or Docker CLI.",
+                    true
+                );
+                _createAppFoldout.SetValueWithoutNotify(true);
+            }
+            catch (Exception e)
+            {
+                string labelMsg;
+
+                if (e.Message.Contains("Conflict"))
+                {
+                    labelMsg =
+                        "Container already running. Make sure to terminate it before starting a new one.";
+                }
+                else
+                {
+                    labelMsg =
+                        "There was an issue while deploying. See more in Docker Desktop or Docker CLI.";
+                    Debug.LogError($"OnLocalTestDeploy Error: {e}");
+                }
+
+                OnLocalDeploymentResult(labelMsg, false);
+            }
+        }
+
+        private async void OnLocalTestTerminateCLick()
+        {
+            try
+            {
+                hideResultLabels();
+
+                if (IsLogLevelDebug)
+                    Debug.Log("StopLocalImageAsync");
+
+                await EdgegapBuildUtils.RunCommand_DockerStop();
+                OnLocalDeploymentResult("Container terminated successfully.", true);
+
+                _createAppFoldout.SetValueWithoutNotify(true);
+            }
+            catch (Exception e)
+            {
+                if (e.Message.Contains("No such container: edgegap-server-test"))
+                {
+                    OnLocalDeploymentResult("No deployment found.", true);
+                }
+                else
+                {
+                    Debug.LogError($"OnLocalTestTerminate Error: {e}");
+                    OnLocalDeploymentResult(
+                        "There was an issue while terminating. See more in Docker Desktop or Docker CLI.",
+                        false
+                    );
+                }
+            }
+        }
+
+        private void OnLocalDeploymentResult(string msg, bool success)
+        {
+            _localTestResultLabel.text = EdgegapWindowMetadata.WrapRichTextInColor(
+                msg,
+                success
+                    ? EdgegapWindowMetadata.StatusColors.Success
+                    : EdgegapWindowMetadata.StatusColors.Error
+            );
+            _localTestResultLabel.style.display = DisplayStyle.Flex;
+        }
+
+        private void OnLocalContainerConnectLinkClick() =>
+            OpenEdgegapDocsURL(EdgegapWindowMetadata.LOCAL_TEST_CONNECT_INFO_PATH);
+        #endregion
+
+        #region Fns / Upload App
+        /// <summary>
+        /// Show app name dropdown (Create App section) btn click
+        /// </summary>
+        private async void OnCreateAppNameDropdownClick()
+        {
+            try
+            {
+                _storedAppNames.Clear();
+                await GetApps();
+            }
+            catch (Exception e)
+            {
+                ShowErrorDialog($"GetApps Error: {e}");
+            }
+
+            List<string> appNameBtns =
+                !(_storedAppNames is null) || _storedAppNames.Count > 0
+                    ? _storedAppNames
+                        .Prepend(EdgegapWindowMetadata.DEFAULT_NEW_APPLICATION_LABEL)
+                        .ToList()
+                    : new List<string> { EdgegapWindowMetadata.DEFAULT_NEW_APPLICATION_LABEL };
+
+            UnityEditor.PopupWindow.Show(
+                _createAppNameShowDropdownBtn.worldBound,
+                new CustomPopupContent(
+                    appNameBtns,
+                    OnDropdownCreateAppNameSelect,
+                    _containerizeImageNameInputDefault
+                )
+            );
         }
 
         /// <summary>
-        /// We have container registry params; we'll prefill registry container fields.
+        /// Select an app from the Create App section dropdown btn click
         /// </summary>
-        /// <param name="credentials">GetRegistryCredentialsResult</param>
-        private void prefillContainerRegistryForm(GetRegistryCredentialsResult credentials)
+        /// <param name="name"></param>
+        private void OnDropdownCreateAppNameSelect(string name)
         {
-            if (IsLogLevelDebug) Debug.Log("prefillContainerRegistryForm");
-
-            if (credentials == null)
-                throw new Exception($"!{nameof(credentials)}");
-
-            _containerRegistryUrlInput.value = credentials.RegistryUrl;
-
-            setContainerImageRepositoryVal();
-            _containerUsernameInput.value = credentials.Username;
-            _containerTokenInput.value = credentials.Token;
+            string appName = Tokenize(name);
+            _createAppNameInput.value = appName;
+            _serverImageNameInput.Focus();
         }
 
         /// <summary>
-        /// Sets to "{credentials.Project}/{appName}" from cached credentials, forcing lowercased appName.
+        /// On change, validate
+        /// Toggle create app btn if all required inputs are filled
         /// </summary>
-        private void setContainerImageRepositoryVal()
+        /// <param name="evt"></param>
+        private void OnCreateAppNameInputFocusOut(FocusOutEvent evt)
         {
-            // ex: "xblade1-9sa8dfh9sda8hf/mygame1"
-            string project = _credentials?.Project ?? "";
-            string appName = _appNameInput?.value.ToLowerInvariant() ?? "";
-            _containerImageRepositoryInput.value = $"{project}/{appName}";
+            // Validate: Only allow alphanumeric, underscore, dash, plus, period
+            if (!_appNameAllowedCharsRegex.IsMatch(_createAppNameInput.value))
+            {
+                ShowErrorDialog(
+                    "Your app name contains invalid characters. Only characters [a-zA-Z0-9_-+.] are allowed."
+                );
+            }
+
+            _uploadImageCreateAppBtn.SetEnabled(CheckFilledCreateAppInputs());
         }
 
+        /// <summary>
+        /// On change, toggle create app btn if all required inputs in Create App section are filled
+        /// </summary>
+        /// <param name="evt"></param>
+        private void OnCreateInputsChanged(ChangeEvent<string> evt)
+        {
+            _uploadImageCreateAppBtn.SetEnabled(CheckFilledCreateAppInputs());
+        }
+
+        private bool CheckFilledCreateAppInputs()
+        {
+            return _createAppNameInput.value.Length > 0
+                && _serverImageNameInput.value.Length > 0
+                && _serverImageTagInput.value.Length > 0;
+        }
+
+        private void OnPortsMappingLinkClick() =>
+            OpenEdgegapDocsURL(EdgegapWindowMetadata.EDGEGAP_DOC_DEPLOY_GUIDE_PATH);
+
+        /// <summary>
+        /// "Upload image and Create app version" btn click
+        /// Process UI + validation before/after API logic
+        /// </summary>
+        private async void OnUploadImageCreateAppBtnClickAsync()
+        {
+            try
+            {
+                _uploadImageCreateAppBtn.SetEnabled(false);
+                hideResultLabels();
+
+                // upload image
+                if (IsLogLevelDebug)
+                    Debug.Log("uploadDockerImageAsync");
+                ProgressCounter = 0;
+
+                string imageRepo = $"{_containerProject}/{_serverImageNameInput.value}";
+                string tag = _serverImageTagInput.value;
+
+                bool isDockerLoginSuccess = await EdgegapBuildUtils.LoginContainerRegistry(
+                    _containerRegistryUrl,
+                    _containerUsername,
+                    _containerToken,
+                    status => ShowWorkInProgress("Logging into container registry.", status)
+                );
+
+                if (!isDockerLoginSuccess)
+                {
+                    throw new Exception("Docker authorization failed (see logs).");
+                }
+
+                string pushError = await EdgegapBuildUtils.RunCommand_DockerPush(
+                    _containerRegistryUrl,
+                    imageRepo,
+                    tag,
+                    status => ShowWorkInProgress("Pushing Docker Image", status)
+                );
+
+                if (!string.IsNullOrEmpty(pushError.Trim()))
+                {
+                    Debug.LogError(pushError);
+                    throw new Exception("Unable to push docker image to registry (see logs).");
+                }
+
+                ShowWorkInProgress("Create Application", "Updating server info on Edgegap");
+
+                if (IsLogLevelDebug)
+                    Debug.Log("createAppAsync");
+
+                EdgegapAppApi appApi = getAppApi();
+
+                EdgegapHttpResult<GetCreateAppResult> getAppResult = await appApi.GetApp(
+                    _createAppNameInput.value
+                );
+
+                if (!getAppResult.IsResultCode200)
+                {
+                    CreateAppRequest createAppRequest = new CreateAppRequest(
+                        _createAppNameInput.value,
+                        isActive: true,
+                        ""
+                    );
+
+                    EdgegapHttpResult<GetCreateAppResult> createAppResult = await appApi.CreateApp(
+                        createAppRequest
+                    );
+
+                    if (!createAppResult.IsResultCode200)
+                    {
+                        Debug.LogError(createAppResult.HasErr);
+                        throw new Exception(
+                            $"Error {createAppResult.StatusCode}: {createAppResult.ReasonPhrase}"
+                        );
+                    }
+                    else if (!_storedAppNames.Contains(_createAppNameInput.value))
+                    {
+                        _storedAppNames.Add(_createAppNameInput.value);
+                    }
+                }
+
+                OpenEdgegapURL(
+                    string.Join(
+                        "",
+                        new string[]
+                        {
+                            EdgegapWindowMetadata.EDGEGAP_CREATE_APP_BASE_URL,
+                            _createAppNameInput.value,
+                            "/versions/create/",
+                            $"?name={HttpUtility.UrlEncode(_serverImageTagInput.value)}",
+                            $"&imageRepo={HttpUtility.UrlEncode(imageRepo)}",
+                            $"&dockerTag={HttpUtility.UrlEncode(tag)}",
+                            $"&vCPU=1",
+                            $"&memory=1",
+                        }
+                    )
+                );
+                ;
+
+                _deployAppFoldout.SetValueWithoutNotify(true);
+                _deployAppNameInput.SetValueWithoutNotify(_createAppNameInput.value);
+            }
+            catch (Exception e)
+            {
+                if (
+                    e.Message.Contains("Docker authorization failed")
+                    || e.Message.Contains("Unable to push docker image")
+                )
+                {
+                    ShowErrorDialog(e.Message);
+                }
+                else
+                {
+                    Debug.LogError($"OnUploadImageCreateAppBtnClick Error: {e}");
+                    ShowErrorDialog("Image upload and app creation failed (see logs).");
+                }
+            }
+            finally
+            {
+                EditorUtility.ClearProgressBar();
+                _uploadImageCreateAppBtn.SetEnabled(true);
+            }
+        }
+
+        private EdgegapAppApi getAppApi() =>
+            new EdgegapAppApi(
+                EdgegapWindowMetadata.API_ENVIRONMENT,
+                _apiToken,
+                EdgegapWindowMetadata.LOG_LEVEL
+            );
+
+        private void OnBuildContainerizeUploadSuccess(Label displayLabel, string txt)
+        {
+            EditorUtility.ClearProgressBar();
+
+            displayLabel.text = EdgegapWindowMetadata.WrapRichTextInColor(
+                txt,
+                EdgegapWindowMetadata.StatusColors.Success
+            );
+            displayLabel.visible = true;
+        }
+
+        private void OnYourAppLinkClick() =>
+            OpenEdgegapDocsURL(EdgegapWindowMetadata.EDGEGAP_DOC_APP_INFO_PATH);
+        #endregion
+
+        #region Fns / Deploy
+        private void OnDeployAppNameInputFocusIn(FocusInEvent evt)
+        {
+            OnDeployAppNameDropdownClick();
+        }
+
+        /// <summary>
+        /// Show app name dropdown (Deploy section) btn click
+        /// </summary>
+        private async void OnDeployAppNameDropdownClick()
+        {
+            try
+            {
+                _storedAppNames.Clear();
+                await GetApps();
+            }
+            catch (Exception e)
+            {
+                ShowErrorDialog($"GetApps Error: {e}");
+            }
+
+            UnityEditor.PopupWindow.Show(
+                _deployAppNameShowDropdownBtn.worldBound,
+                new CustomPopupContent(
+                    _storedAppNames,
+                    OnDropdownDeployAppNameSelect,
+                    _containerizeImageNameInputDefault
+                )
+            );
+        }
+
+        /// <summary>
+        /// Select an app from the Deploy section dropdown btn click
+        /// </summary>
+        /// <param name="name"></param>
+        private void OnDropdownDeployAppNameSelect(string name)
+        {
+            string appName = Regex.Replace(name, @"\s", "_");
+            _deployAppNameInput.value = appName;
+            _deployAppVersionShowDropdownBtn.Focus();
+        }
+
+        /// <summary>
+        /// On change, validate
+        /// Toggle deploy app btn if all required inputs in Deploy App section are filled
+        /// </summary>
+        /// <param name="evt"></param>
+        private void OnDeployAppNameInputChanged(ChangeEvent<string> evt)
+        {
+            DeployAppNameInputChanged(evt.newValue);
+        }
+
+        private async void DeployAppNameInputChanged(string newValue)
+        {
+            _deployAppBtn.SetEnabled(CheckFilledDeployServerInputs());
+            _deployAppVersionShowDropdownBtn.SetEnabled(false);
+            try
+            {
+                if (_storedAppVersions is not null)
+                {
+                    _storedAppVersions.Clear();
+                }
+
+                if (_storedAppNames is not null && _storedAppNames.Contains(newValue))
+                {
+                    await GetAppVersions();
+                }
+            }
+            catch (Exception e)
+            {
+                ShowErrorDialog($"GetAppVersions Error: {e}");
+            }
+            finally
+            {
+                if (_storedAppVersions is not null && _storedAppVersions.Count > 0)
+                {
+                    _deployAppBtn.SetEnabled(CheckFilledDeployServerInputs());
+                    _deployAppVersionShowDropdownBtn.SetEnabled(true);
+                }
+            }
+        }
+
+        private void OnDeployAppVersionInputFocusIn(FocusInEvent evt)
+        {
+            OnDeployAppVersionDropdownClick();
+        }
+
+        /// <summary>
+        /// Show app version dropdown btn click
+        /// </summary>
+        private async void OnDeployAppVersionDropdownClick()
+        {
+            if (string.IsNullOrEmpty(_deployAppNameInput.value.Trim()))
+                return;
+
+            try
+            {
+                _storedAppVersions?.Clear();
+                await GetAppVersions();
+            }
+            catch (Exception e)
+            {
+                ShowErrorDialog($"GetAppVersions Error: {e}");
+            }
+
+            UnityEditor.PopupWindow.Show(
+                _deployAppVersionShowDropdownBtn.worldBound,
+                new CustomPopupContent(_storedAppVersions, OnDropDownDeployAppVersionSelect, "")
+            );
+        }
+
+        /// <summary>
+        /// Select an app version from the Deploy section dropdown btn click
+        /// </summary>
+        /// <param name="version"></param>
+        private void OnDropDownDeployAppVersionSelect(string version)
+        {
+            _deployAppVersionInput.value = version;
+            _deployAppBtn.Focus();
+        }
+
+        /// <summary>
+        /// On change, toggle deploy app btn if all required inputs in Deploy App section are filled
+        /// </summary>
+        /// <param name="evt"></param>
+        private void OnDeployAppVersionInputChanged(ChangeEvent<string> evt)
+        {
+            _deployAppBtn.SetEnabled(CheckFilledDeployServerInputs());
+        }
+
+        private void OnDeployLimitLinkClick() =>
+            OpenEdgegapURL(EdgegapWindowMetadata.EDGEGAP_FREE_TIER_INFO_URL);
+
+        /// <summary>
+        /// "Deploy to cloud" btn click
+        /// Process UI + validation before/after API logic
+        /// </summary>
+        private async void OnDeploymentCreateBtnClick()
+        {
+            try
+            {
+                hideResultLabels();
+
+                await CreateDeploymentStartServer();
+
+                _nextStepsFoldout.SetValueWithoutNotify(true);
+            }
+            catch (Exception e)
+            {
+                OnCreateDeploymentStartServerFail(e.Message);
+            }
+        }
+
+        /// <summary>
+        /// Starts a new deployment & waits for it to be READY
+        /// </summary>
+        private async Task CreateDeploymentStartServer()
+        {
+            if (IsLogLevelDebug)
+                Debug.Log("createDeploymentStartServerAsync");
+
+            _deployResultLabel.text = EdgegapWindowMetadata.WrapRichTextInColor(
+                EdgegapWindowMetadata.DEPLOY_REQUEST_RICH_STR,
+                EdgegapWindowMetadata.StatusColors.Processing
+            );
+            _deployResultLabel.style.display = DisplayStyle.Flex;
+
+            EdgegapDeploymentsApi deployApi = GetDeployAPI();
+
+            // Get (+cache) external IP async, required to create a deployment. Prioritize cache.
+            if (string.IsNullOrEmpty(_userExternalIp))
+            {
+                EdgegapIpApi ipApi = new EdgegapIpApi(
+                    EdgegapWindowMetadata.API_ENVIRONMENT,
+                    _apiToken,
+                    EdgegapWindowMetadata.LOG_LEVEL
+                );
+                EdgegapHttpResult<GetYourPublicIpResult> getYourPublicIpResponseTask =
+                    await ipApi.GetYourPublicIp();
+
+                _userExternalIp = getYourPublicIpResponseTask?.Data?.PublicIp;
+                if (!string.IsNullOrEmpty(_userExternalIp))
+                {
+                    Debug.LogWarning(
+                        $"Couldn't retrieve your public IP. {getYourPublicIpResponseTask.Error}"
+                    );
+                }
+            }
+
+            CreateDeploymentRequest createDeploymentReq = new CreateDeploymentRequest( // MIRROR CHANGE: 'new()' not supported in Unity 2020
+                _deployAppNameInput.value,
+                _deployAppVersionInput.value,
+                _userExternalIp
+            );
+
+            // Request to deploy (it won't be active, yet) =>
+            EdgegapHttpResult<CreateDeploymentResult> createDeploymentResponse =
+                await deployApi.CreateDeploymentAsync(createDeploymentReq);
+            if (!createDeploymentResponse.IsResultCode200)
+            {
+                OnCreateDeploymentStartServerFail(createDeploymentResponse.Error.ErrorMessage);
+                return;
+            }
+            else
+            {
+                // Update status
+                _deployResultLabel.text = EdgegapWindowMetadata.WrapRichTextInColor(
+                    "Deployment starting, see Dashboard for details.",
+                    EdgegapWindowMetadata.StatusColors.Processing
+                );
+
+                OpenEdgegapURL(EdgegapWindowMetadata.EDGEGAP_DEPLOY_APP_URL);
+            }
+
+            // Check the status of the deployment for READY every 2s =>
+            const int pollIntervalSecs = EdgegapWindowMetadata.DEPLOYMENT_READY_STATUS_POLL_SECONDS;
+            EdgegapHttpResult<GetDeploymentStatusResult> getDeploymentStatusResponse =
+                await deployApi.AwaitReadyStatusAsync(
+                    createDeploymentResponse.Data.RequestId,
+                    TimeSpan.FromSeconds(pollIntervalSecs)
+                );
+
+            // Process create deployment response
+            if (string.IsNullOrEmpty(getDeploymentStatusResponse?.Error?.ErrorMessage))
+            {
+                _deployResultLabel.text = EdgegapWindowMetadata.WrapRichTextInColor(
+                    "Server deployed successfully. Don't forget to remove the deployment after testing.",
+                    EdgegapWindowMetadata.StatusColors.Success
+                );
+                _deployResultLabel.style.display = DisplayStyle.Flex;
+            }
+            else
+            {
+                OnCreateDeploymentStartServerFail(getDeploymentStatusResponse.Error.ErrorMessage);
+            }
+        }
+
+        /// <summary>
+        /// CreateDeployment fail handler.
+        /// </summary>
+        /// <param name="reachedNumDeploymentsHardcap">if maximum number of deployments was reached</param>
+        /// <param name="message">error message to log</param>
+        private void OnCreateDeploymentStartServerFail(string message = null)
+        {
+            ShowErrorDialog(
+                message ?? "Unknown Error, see Unity Console.",
+                _deployResultLabel,
+                "There was an issue, see Unity console for details."
+            );
+            Debug.Log(
+                "See deployments on Dashboard: https://app.edgegap.com/deployment-management/deployments/list"
+            );
+        }
+
+        /// <summary>
+        /// "Stop last deployment" btn click
+        /// Process UI + validation before/after API logic
+        /// </summary>
+        private async void OnStopLastDeployClick()
+        {
+            try
+            {
+                hideResultLabels();
+
+                if (IsLogLevelDebug)
+                    Debug.Log("GetStopLastDeploymentAsync");
+
+                string _deploymentRequestId;
+                EdgegapDeploymentsApi deployApi = GetDeployAPI();
+
+                if (IsLogLevelDebug)
+                    Debug.Log("GetQuickstartDeploymentsAsync");
+
+                List<string> quickstartDeploymentIds = await GetQuickstartDeployments();
+
+                if (quickstartDeploymentIds.Count > 0)
+                {
+                    _deploymentRequestId = quickstartDeploymentIds[0];
+                }
+                else
+                {
+                    OnGetStopLastDeploymentResult("No quickstart deployment found", true);
+                    return;
+                }
+
+                //Stop request
+                EdgegapHttpResult<StopActiveDeploymentResult> stopDeploymentResponse =
+                    await deployApi.StopActiveDeploymentAsync(_deploymentRequestId);
+
+                _deployResultLabel.text = EdgegapWindowMetadata.WrapRichTextInColor(
+                    "Stopping...",
+                    EdgegapWindowMetadata.StatusColors.Warn
+                );
+                _deployResultLabel.style.display = DisplayStyle.Flex;
+
+                if (!stopDeploymentResponse.IsResultCode200)
+                {
+                    OnGetStopLastDeploymentResult(stopDeploymentResponse.Error.ErrorMessage, false);
+                    return;
+                }
+
+                //Check status of deployment for STOPPED every 2s
+                TimeSpan pollIntervalSecs = TimeSpan.FromSeconds(
+                    EdgegapWindowMetadata.DEPLOYMENT_STOP_STATUS_POLL_SECONDS
+                );
+                stopDeploymentResponse = await deployApi.AwaitTerminatedDeleteStatusAsync(
+                    _deploymentRequestId,
+                    pollIntervalSecs
+                );
+
+                //Process response
+                if (!stopDeploymentResponse.IsResultCode410)
+                {
+                    OnGetStopLastDeploymentResult(stopDeploymentResponse.Error.ErrorMessage, false);
+                }
+                else
+                {
+                    OnGetStopLastDeploymentResult("Deployment stopped successfully", true);
+                }
+
+                _nextStepsFoldout.SetValueWithoutNotify(true);
+            }
+            catch (Exception e)
+            {
+                OnGetStopLastDeploymentResult(e.Message, false);
+                OpenEdgegapURL(EdgegapWindowMetadata.EDGEGAP_DEPLOY_APP_URL);
+            }
+        }
+
+        private void OnGetStopLastDeploymentResult(string msg, bool success)
+        {
+            _deployResultLabel.text = EdgegapWindowMetadata.WrapRichTextInColor(
+                msg,
+                success
+                    ? EdgegapWindowMetadata.StatusColors.Success
+                    : EdgegapWindowMetadata.StatusColors.Error
+            );
+            _deployResultLabel.style.display = DisplayStyle.Flex;
+        }
+
+        private bool CheckFilledDeployServerInputs()
+        {
+            return _deployAppNameInput.value.Trim().Length > 0
+                && _deployAppVersionInput.value.Trim().Length > 0;
+        }
+
+        private async Task<List<string>> GetQuickstartDeployments()
+        {
+            EdgegapDeploymentsApi deployApi = GetDeployAPI();
+
+            EdgegapHttpResult<GetDeploymentsResult> getDeploymentsResponse =
+                await deployApi.GetDeploymentsAsync();
+
+            if (!getDeploymentsResponse.IsResultCode200)
+            {
+                return new List<string>();
+            }
+
+            List<GetDeploymentResult> quickstartDeploys = getDeploymentsResponse
+                .Data.Data.Where(deploy =>
+                    deploy.Tags is not null
+                    && deploy.Tags.Contains(EdgegapWindowMetadata.DEFAULT_DEPLOYMENT_TAG)
+                )
+                .ToList();
+            return quickstartDeploys.Select(deploy => deploy.RequestId).ToList();
+        }
+        #endregion
+
+        #region Fns / Next
+        private void OnServerConnectLinkClick() =>
+            OpenEdgegapDocsURL(EdgegapWindowMetadata.CONNECT_TO_DEPLOYMENT_INFO_URL);
+
+        private void OnGen2MatchmakerLinkClick() =>
+            OpenEdgegapDocsURL(EdgegapWindowMetadata.EDGEGAP_DOC_MANAGED_MATCHMAKER_PATH);
+
+        private void OnAdvMatchmakerLinkClick() =>
+            OpenEdgegapDocsURL(EdgegapWindowMetadata.EDGEGAP_DOC_ADV_MATCHMAKER_PATH);
+
+        private void OnScalingLifecycleLinkClick() =>
+            OpenEdgegapDocsURL(EdgegapWindowMetadata.SCALING_LIFECYCLE_INFO_URL);
+        #endregion
+
+        #region Fns / Discord
+        private void OnDiscordBtnClick() =>
+            Application.OpenURL(EdgegapWindowMetadata.EDGEGAP_DISCORD_URL);
+        #endregion
+
+        #region State Management
+        private void ShowErrorDialog(
+            string dialogMsg,
+            Label displayLabel = null,
+            string labelTxt = null
+        )
+        {
+            EditorUtility.ClearProgressBar();
+
+            if (displayLabel is not null && !string.IsNullOrEmpty(labelTxt))
+            {
+                displayLabel.text = EdgegapWindowMetadata.WrapRichTextInColor(
+                    labelTxt,
+                    EdgegapWindowMetadata.StatusColors.Error
+                );
+                displayLabel.visible = true;
+            }
+
+            if (!string.IsNullOrEmpty(dialogMsg))
+            {
+                EditorUtility.DisplayDialog("Error", dialogMsg, "Ok");
+            }
+        }
+
+        private void ShowWorkInProgress(string title, string status)
+        {
+            EditorUtility.DisplayProgressBar(title, status, ProgressCounter++ / 50);
+        }
+
+        private async Task InitializeState()
+        {
+            if (string.IsNullOrEmpty(_apiToken))
+            {
+                //show Sign In btn
+                ToggleIsConnectedContainers(false);
+                return;
+            }
+            else
+            {
+                //show API Token field/btns + Sign Out btn
+                ToggleIsConnectedContainers(true);
+            }
+
+            if (IsLogLevelDebug)
+                Debug.Log(
+                    "syncFormWithObjectDynamicAsync: Found apiToken; "
+                        + "calling verifyApiTokenGetRegistryCredsAsync =>"
+                );
+            await verifyApiTokenGetRegistryCreds();
+
+            if (_isApiTokenVerified)
+            {
+                if (IsLogLevelDebug)
+                    Debug.Log("syncFormWithObjectDynamicAsync: Found apiToken;");
+
+                _signOutBtn.SetEnabled(false);
+
+                _createAppNameShowDropdownBtn.SetEnabled(false);
+                _deployAppNameShowDropdownBtn.SetEnabled(false);
+
+                try
+                {
+                    if (IsLogLevelDebug)
+                        Debug.Log("GetAppsAsync");
+
+                    await GetApps();
+                }
+                finally
+                {
+                    _createAppNameShowDropdownBtn.SetEnabled(true);
+
+                    if (_storedAppNames is not null && _storedAppNames.Count > 0)
+                    {
+                        _deployAppNameShowDropdownBtn.SetEnabled(true);
+                    }
+                }
+
+                if (IsLogLevelDebug)
+                    Debug.Log(
+                        "syncFormWithObjectDynamicAsync: Found apiToken; "
+                            + "calling GetLocalDockerImagesAsync =>"
+                    );
+
+                _localTestImageShowDropdownBtn.SetEnabled(false);
+
+                try
+                {
+                    await GetLocalDockerImagesAsync();
+                }
+                finally
+                {
+                    if (_localImages is not null && _localImages.Count > 0)
+                    {
+                        _localTestImageShowDropdownBtn.SetEnabled(true);
+                    }
+                }
+
+                _signOutBtn.SetEnabled(true);
+                UpdateUI();
+            }
+
+            // Was the API token verified + we found a cached appName in Deploy section? Load the app versions for the dropdown =>
+            // But ignore errs, since we're just *assuming* the app exists since the appName was filled
+            if (_isApiTokenVerified && _deployAppNameInput.value.Length > 0)
+            {
+                if (IsLogLevelDebug)
+                    Debug.Log(
+                        "syncFormWithObjectDynamicAsync: Found apiToken && deployAppName value; "
+                            + "calling GetAppVersionsAsync =>"
+                    );
+
+                _signOutBtn.SetEnabled(false);
+                _deployAppVersionShowDropdownBtn.SetEnabled(false);
+
+                try
+                {
+                    await GetAppVersions();
+                }
+                finally
+                {
+                    if (_storedAppVersions is not null && _storedAppVersions.Count > 0)
+                    {
+                        _deployAppVersionShowDropdownBtn.SetEnabled(true);
+                    }
+                }
+
+                _signOutBtn.SetEnabled(true);
+            }
+
+            // Was the API token verified + found stored deployment ID?
+            // refresh to see if it's still running
+            if (_isApiTokenVerified)
+            {
+                if (IsLogLevelDebug)
+                    Debug.Log(
+                        "syncFormWithObjectDynamicAsync: Found apiToken && _deploymentRequestId; "
+                            + "calling RefreshDeploymentsAsync =>"
+                    );
+            }
+        }
+
+        /// <summary>
+        /// Toggle container groups and foldouts on/off based on:
+        /// - _isApiTokenVerified
+        /// </summary>
+        private void UpdateUI()
+        {
+            _postAuthContainer.SetEnabled(_isApiTokenVerified); // Entire body container
+            _serverBuildFoldout.SetEnabled(_isApiTokenVerified);
+            _containerizeFoldout.SetEnabled(_isApiTokenVerified);
+            _localTestFoldout.SetEnabled(_isApiTokenVerified);
+            _createAppFoldout.SetEnabled(_isApiTokenVerified);
+            _deployAppFoldout.SetEnabled(_isApiTokenVerified);
+            _nextStepsFoldout.SetEnabled(_isApiTokenVerified);
+
+            if (!_isApiTokenVerified)
+            {
+                _serverBuildFoldout.SetValueWithoutNotify(false);
+                _containerizeFoldout.SetValueWithoutNotify(false);
+                _localTestFoldout.SetValueWithoutNotify(false);
+                _createAppFoldout.SetValueWithoutNotify(false);
+                _deployAppFoldout.SetValueWithoutNotify(false);
+                _nextStepsFoldout.SetValueWithoutNotify(false);
+            }
+            else
+            {
+                _serverBuildFoldout.SetValueWithoutNotify(true);
+
+                // Set default values if empty fields
+                TogglePlaceholder(_buildFolderNameInput, _buildFolderNameInputDefault, false);
+                TogglePlaceholder(_buildPathInput, _buildPathInputDefault, false);
+                TogglePlaceholder(
+                    _containerizeImageNameInput,
+                    _containerizeImageNameInputDefault,
+                    false
+                );
+                TogglePlaceholder(
+                    _containerizeImageTagInput,
+                    _containerizeImageTagInputDefault,
+                    false
+                );
+                TogglePlaceholder(_dockerfilePathInput, _dockerfilePathInputDefault, false);
+                if (_localImages is not null && _localImages.Count > 0)
+                {
+                    TogglePlaceholder(_localTestImageInput, _localImages[0], false);
+                    string[] localImageAndVersion = _localImages[0].Split(":");
+
+                    if (_storedAppNames is null || _storedAppNames.Count == 0)
+                    {
+                        _createAppNameInput.SetValueWithoutNotify(localImageAndVersion[0]);
+                        _deployAppNameInput.SetValueWithoutNotify("");
+                        _deployAppVersionInput.SetValueWithoutNotify("");
+                    }
+                    TogglePlaceholder(_serverImageNameInput, localImageAndVersion[0], false);
+                    TogglePlaceholder(_serverImageTagInput, localImageAndVersion[1], false);
+                }
+                else
+                {
+                    _localTestImageInput.SetValueWithoutNotify("");
+                    _createAppNameInput.SetValueWithoutNotify("");
+                    _serverImageNameInput.SetValueWithoutNotify("");
+                    _serverImageTagInput.SetValueWithoutNotify("");
+                }
+                TogglePlaceholder(_localTestDockerRunInput, _localTestDockerRunInputDefault, false);
+
+                if (_storedAppNames is not null && _storedAppNames.Count == 1)
+                {
+                    OnDropdownCreateAppNameSelect(_storedAppNames[0]);
+                    TogglePlaceholder(_deployAppNameInput, _storedAppNames[0], false);
+                }
+
+                //open other foldouts if (non-default) persistent data is found in inputs
+                if (
+                    _buildPathInput.value.Trim().Length > 0
+                    || _containerizeImageNameInput.value.Trim().Length > 0
+                    || _containerizeImageTagInput.value.Trim().Length > 0
+                    || (
+                        _dockerfilePathInput.value.Trim().Length > 0
+                        && _dockerfilePathInput.value != _dockerfilePathInputDefault
+                    )
+                    || _optionalDockerParamsInput.value.Trim().Length > 0
+                )
+                    _containerizeFoldout.SetValueWithoutNotify(true);
+
+                if (
+                    _localTestImageInput.value.Trim().Length > 0
+                    || (
+                        _localTestDockerRunInput.value.Trim().Length > 0
+                        && _localTestDockerRunInput.value != _localTestDockerRunInputDefault
+                    )
+                )
+                    _localTestFoldout.SetValueWithoutNotify(true);
+
+                if (
+                    _createAppNameInput.value.Trim().Length > 0
+                    || _serverImageNameInput.value.Trim().Length > 0
+                    || _serverImageTagInput.value.Trim().Length > 0
+                )
+                    _createAppFoldout.SetValueWithoutNotify(true);
+
+                if (
+                    _deployAppNameInput.value.Trim().Length > 0
+                    || _deployAppVersionInput.value.Trim().Length > 0
+                )
+                    _deployAppFoldout.SetValueWithoutNotify(true);
+            }
+        }
+
+        private async Task GetApps()
+        {
+            EdgegapAppApi appApi = getAppApi();
+            EdgegapHttpResult<GetAppsResult> getAppsResult = await appApi.GetApps();
+
+            if (getAppsResult.IsResultCode200)
+            {
+                GetAppsResult existingApps = getAppsResult.Data;
+                _storedAppNames = existingApps.Applications.Select(app => app.AppName).ToList();
+
+                if (!_storedAppNames.Contains(_deployAppNameInput.value))
+                {
+                    // select if only one option, otherwise clear
+                    if (_storedAppNames.Count == 1)
+                    {
+                        _deployAppNameInput.value = _storedAppNames[0];
+                    }
+                    else
+                    {
+                        _deployAppNameInput.value = "";
+                    }
+                }
+            }
+            else
+            {
+                Debug.LogWarning(
+                    $"Unable to retrieve applications.\n"
+                        + $"Status {getAppsResult.StatusCode}: {getAppsResult.ReasonPhrase}"
+                );
+            }
+        }
+
+        private async Task GetAppVersions()
+        {
+            if (IsLogLevelDebug)
+                Debug.Log("GetAppVersions");
+
+            EdgegapAppApi appApi = getAppApi();
+            EdgegapHttpResult<GetAppVersionsResult> getAppVersionsResult =
+                await appApi.GetAppVersions(_deployAppNameInput.value);
+
+            if (getAppVersionsResult.IsResultCode200)
+            {
+                GetAppVersionsResult appVersionsData = getAppVersionsResult.Data;
+
+                List<VersionData> activeVersions = appVersionsData
+                    .Versions.Where(version => version.IsActive)
+                    .ToList();
+                _storedAppVersions = activeVersions.Select(version => version.Name).ToList();
+
+                // select if only one option, otherwise clear
+                if (_storedAppVersions.Count == 1)
+                {
+                    OnDropDownDeployAppVersionSelect(_storedAppVersions[0]);
+                }
+                else
+                {
+                    OnDropDownDeployAppVersionSelect("");
+                }
+            }
+            else
+            {
+                Debug.LogWarning(
+                    $"Unable to retrieve app versions for application {_deployAppNameInput.value}.\n"
+                        + $"Status {getAppVersionsResult.StatusCode}: {getAppVersionsResult.ReasonPhrase}"
+                );
+            }
+        }
+
+        private EdgegapDeploymentsApi GetDeployAPI()
+        {
+            if (_deployAPI is null)
+            {
+                _deployAPI = new EdgegapDeploymentsApi(
+                    EdgegapWindowMetadata.API_ENVIRONMENT,
+                    _apiToken,
+                    EdgegapWindowMetadata.LOG_LEVEL
+                );
+            }
+            return _deployAPI;
+        }
+        #endregion
+
+        #region Utility / TextField
+        // <summary>
+        // Toggle specified placeholder value, with the option to force state.
+        /// <param name="input">TextField element to toggle state on.</param>
+        /// <param name="placeholder">Placeholder value to use.</param>
+        /// <param name="focus">Input focused or not.</param>
+        // </summary>
+        private void TogglePlaceholder(TextField input, string placeholder, bool focus)
+        {
+            // if custom non-empty value provided, disable placeholder class and do nothing
+            if (input.value.ToString() != placeholder && !string.IsNullOrEmpty(input.value.Trim()))
+            {
+                return;
+            }
+
+            if (focus)
+            {
+                input.SetValueWithoutNotify("");
+            }
+            else
+            {
+                input.SetValueWithoutNotify(placeholder);
+            }
+        }
+
+        private string Tokenize(string input)
+        {
+            return Regex.Replace(input.Trim(), @"[\W]+", "-");
+        }
+        #endregion
+
+        #region Utility / Browser
+        private void OpenEdgegapURL(string URL) =>
+            Application.OpenURL(
+                $"{URL}{(URL.Contains("?") ? "&" : "?")}{EdgegapWindowMetadata.DEFAULT_UTM_TAGS}"
+            );
+
+        private void OpenEdgegapDocsURL(string path) =>
+            // TODO: append "?{EdgegapWindowMetadata.DEFAULT_UTM_TAGS}"
+            Application.OpenURL($"{EdgegapWindowMetadata.EDGEGAP_DOC_BASE_URL}{path}");
+        #endregion
+
+        #region Utility / HTTP
         public static string Base64Encode(string plainText)
         {
             byte[] plainBytes = Encoding.UTF8.GetBytes(plainText);
@@ -1023,821 +2464,9 @@ namespace Edgegap.Editor
             byte[] base64Bytes = Convert.FromBase64String(base64EncodedText);
             return Encoding.UTF8.GetString(base64Bytes);
         }
-
-        /// <summary>
-        /// Toggle container groups and foldouts on/off based on:
-        /// - _isApiTokenVerified
-        /// </summary>
-        private void SyncContainerEnablesToState()
-        {
-            // Requires _isApiTokenVerified
-            _postAuthContainer.SetEnabled(_isApiTokenVerified); // Entire body container
-            _appInfoFoldout.SetEnabled(_isApiTokenVerified);
-            _appInfoFoldout.value = _isApiTokenVerified;
-
-            // + Requires _isContainerRegistryReady
-            bool isApiTokenVerifiedAndContainerReady = _isApiTokenVerified && _isContainerRegistryReady;
-
-            _containerRegistryFoldout.SetEnabled(isApiTokenVerifiedAndContainerReady);
-            _containerRegistryFoldout.value = isApiTokenVerifiedAndContainerReady;
-
-            _deploymentsFoldout.SetEnabled(isApiTokenVerifiedAndContainerReady);
-            _deploymentsFoldout.value = isApiTokenVerifiedAndContainerReady;
-
-            // + Requires _containerUseCustomRegistryToggleBool
-            _containerCustomRegistryWrapper.SetEnabled(isApiTokenVerifiedAndContainerReady &&
-                _containerUseCustomRegistryToggle.value);
-        }
-
-        private void openGetApiTokenWebsite()
-        {
-            if (IsLogLevelDebug) Debug.Log("openGetApiTokenWebsite");
-            Application.OpenURL(EdgegapWindowMetadata.EDGEGAP_GET_A_TOKEN_URL + "&" +
-                                EdgegapWindowMetadata.DEFAULT_UTM_TAGS);
-        }
-
-        /// <returns>isSuccess; sets _isContainerRegistryReady + _loadedApp</returns>
-        private async Task<bool> GetAppAsync()
-        {
-            if (IsLogLevelDebug) Debug.Log("GetAppAsync");
-
-            // Hide previous result labels, disable btns (to reenable when done)
-            hideResultLabels();
-            _appCreateBtn.SetEnabled(false);
-            _apiTokenVerifyBtn.SetEnabled(false);
-
-            // Show new loading status
-            _appCreateResultLabel.text = EdgegapWindowMetadata.WrapRichTextInColor(
-                EdgegapWindowMetadata.LOADING_RICH_STR,
-                EdgegapWindowMetadata.StatusColors.Processing);
-            _appCreateResultLabel.visible = true;
-
-            EdgegapAppApi appApi = getAppApi();
-            EdgegapHttpResult<GetCreateAppResult> getAppResult = await appApi.GetApp(_appNameInput.value);
-            onGetCreateApplicationResult(getAppResult);
-
-            return _isContainerRegistryReady;
-        }
-
-        /// <summary>
-        /// TODO: Add err handling for reaching app limit (max 2 for free tier).
-        /// </summary>
-        private async Task createAppAsync()
-        {
-            if (IsLogLevelDebug) Debug.Log("createAppAsync");
-
-            // Hide previous result labels, disable btns (to reenable when done)
-            hideResultLabels();
-            _appCreateBtn.SetEnabled(false);
-            _apiTokenVerifyBtn.SetEnabled(false);
-
-            EdgegapAppApi appApi = getAppApi();
-            CreateAppRequest createAppRequest = new CreateAppRequest( // MIRROR CHANGE: 'new()' not supported in Unity 2020
-                _appNameInput.value,
-                isActive: true,
-                getBase64StrFromSprite(_appIconSpriteObj) ?? "");
-
-            EdgegapHttpResult<GetCreateAppResult> createAppResult = await appApi.CreateApp(createAppRequest);
-            onGetCreateApplicationResult(createAppResult);
-        }
-
-        /// <summary>Get || Create results both handled here. On success, sets _isContainerRegistryReady + _loadedApp data</summary>
-        /// <param name="result"></param>
-        private void onGetCreateApplicationResult(EdgegapHttpResult<GetCreateAppResult> result)
-        {
-            // Assert the result itself || result's create time exists
-            bool isSuccess = result.IsResultCode200 || result.IsResultCode409; // 409 == app already exists
-            _isContainerRegistryReady = isSuccess;
-            _loadedApp = result.Data;
-
-            _appCreateResultLabel.text = getFriendlyCreateAppResultStr(result);
-            _containerRegistryFoldout.value = _isContainerRegistryReady;
-            _appCreateBtn.SetEnabled(true);
-            _apiTokenVerifyBtn.SetEnabled(true);
-            SyncContainerEnablesToState();
-
-            // Only show status label if we're init'd; otherwise, we auto-tried to get the existing app that
-            // we knew had a chance of not being there
-            _appCreateResultLabel.visible = IsInitd;
-
-            // App base64 img? Parse to sprite, overwrite app image UI/cache
-            if (!string.IsNullOrEmpty(_loadedApp.Image))
-            {
-                _appIconSpriteObj = getSpriteFromBase64Str(_loadedApp.Image);
-                _appIconSpriteObjInput.value = _appIconSpriteObj;
-            }
-
-            // On fail, shake the "Add more game servers" btn // 400 == # of apps limit reached
-            bool isCreate = result.HttpMethod == HttpMethod.Post;
-            bool isCreateFailAppNumCapMaxed = isCreate && !_isContainerRegistryReady && result.IsResultCode400;
-            if (isCreateFailAppNumCapMaxed)
-                shakeNeedMoreGameServersBtn();
-        }
-
-        /// <summary>Slight animation shake</summary>
-        private void shakeNeedMoreGameServersBtn()
-        {
-            ButtonShaker shaker = new ButtonShaker(_footerNeedMoreGameServersBtn);
-            _ = shaker.ApplyShakeAsync();
-        }
-
-        /// <returns>Generally "Success" || "Error: {error}" || "Warning: {error}"</returns>
-        private string getFriendlyCreateAppResultStr(EdgegapHttpResult<GetCreateAppResult> createAppResult)
-        {
-            string coloredResultStr = null;
-
-            if (!_isContainerRegistryReady)
-            {
-                // Error
-                string resultStr = $"<b>Error:</b> {createAppResult?.Error?.ErrorMessage}";
-                coloredResultStr = EdgegapWindowMetadata.WrapRichTextInColor(
-                    resultStr, EdgegapWindowMetadata.StatusColors.Error);
-            }
-            else if (createAppResult.IsResultCode409)
-            {
-                // Warn: App already exists - Still success, but just a warn
-                string resultStr = $"<b>Warning:</b> {createAppResult.Error.ErrorMessage}";
-                coloredResultStr = EdgegapWindowMetadata.WrapRichTextInColor(
-                    resultStr, EdgegapWindowMetadata.StatusColors.Warn);
-            }
-            else
-            {
-                // Success
-                coloredResultStr = EdgegapWindowMetadata.WrapRichTextInColor(
-                    "Success", EdgegapWindowMetadata.StatusColors.Success);
-            }
-
-            return coloredResultStr;
-        }
-
-        /// <summary>Open contact form in desired locale</summary>
-        private void openNeedMoreGameServersWebsite() =>
-            Application.OpenURL(EdgegapWindowMetadata.EDGEGAP_ADD_MORE_GAME_SERVERS_URL + "?" +
-                                EdgegapWindowMetadata.DEFAULT_UTM_TAGS);
-
-        private void openDocumentationWebsite()
-        {
-            string documentationUrl = _apiEnvironment.GetDocumentationUrl() + "?" +
-                                      EdgegapWindowMetadata.DEFAULT_UTM_TAGS;
-
-            if (!string.IsNullOrEmpty(documentationUrl))
-                Application.OpenURL(documentationUrl);
-            else
-            {
-                string apiEnvName = Enum.GetName(typeof(ApiEnvironment), _apiEnvironment);
-                Debug.LogWarning($"Could not open documentation for api environment " +
-                    $"{apiEnvName}: No documentation URL.");
-            }
-        }
-
-        /// <summary>
-        /// Currently only refreshes an existing deployment. AKA "OnRefresh".
-        /// TODO: Consider dynamically adding the entire list via GET all deployments.
-        /// </summary>
-        private async Task refreshDeploymentsAsync()
-        {
-            if (IsLogLevelDebug) Debug.Log("refreshDeploymentsAsync");
-
-            // Sanity check requestId - if refreshBtn is enabled, we *should* have it
-            if (string.IsNullOrEmpty(_deploymentRequestId))
-            {
-                // We must have stale data - reset
-                clearDeploymentConnections();
-                return;
-            }
-
-            hideResultLabels();
-            // clearDeploymentConnections(); // We want to leave the old URL while we only have one
-            _deploymentsConnectionStatusLabel.text = EdgegapWindowMetadata.WrapRichTextInColor(
-                "<i>Refreshing...</i>", EdgegapWindowMetadata.StatusColors.Processing);
-
-            EdgegapDeploymentsApi deployApi = getDeployApi();
-            EdgegapHttpResult<GetDeploymentStatusResult> getDeploymentStatusResponse =
-                await deployApi.GetDeploymentStatusAsync(_deploymentRequestId);
-
-            bool isActiveStatus = getDeploymentStatusResponse?.StatusCode != null &&
-                getDeploymentStatusResponse.Data.CurrentStatus == EdgegapWindowMetadata.READY_STATUS;
-
-            if (isActiveStatus)
-                onCreateDeploymentOrRefreshSuccess(getDeploymentStatusResponse.Data);
-            else
-            {
-                onCreateDeploymentStartServerFail();
-                if (!getDeploymentStatusResponse.HasErr)
-                    onRefreshDeploymentStoppedStatus(); // Only a "soft" fail - not a true err
-            }
-        }
-
-        /// <summary>The deployment simply stopped (a "soft" fail - not an actual err)</summary>
-        private void onRefreshDeploymentStoppedStatus()
-        {
-            // Override to Create fail -- instead, we've simplfy stopped (a "soft" fail)
-            _deploymentsConnectionStatusLabel.text = getConnectionStoppedRichStr();
-            _deploymentsStatusLabel.style.display = DisplayStyle.None;
-            _deploymentsConnectionStopBtn.SetEnabled(false);
-            _deploymentsConnectionStopBtn.visible = true;
-            _deploymentsConnectionContainerLogsBtn.SetEnabled(false);
-            _deploymentsConnectionContainerLogsBtn.visible = true;
-        }
-
-        /// <summary>Don't use this if you want to keep the last-known connection info.</summary>
-        private void clearDeploymentConnections()
-        {
-            _deploymentsConnectionUrlReadonlyInput.value = "";
-            _deploymentsConnectionStatusLabel.text = "";
-            _deploymentsConnectionStopBtn.visible = false;
-            _deploymentsConnectionContainerLogsBtn.visible = false;
-            _deploymentsRefreshBtn.SetEnabled(false);
-        }
-
-        /// <summary>
-        /// V2 Successor to legacy startServerCallbackAsync() from "Create New Deployment" Btn.
-        /// </summary>
-        private async Task createDeploymentStartServerAsync()
-        {
-            // Hide previous result labels, disable btns (to reenable when done)
-            if (IsLogLevelDebug) Debug.Log("createDeploymentStartServerAsync");
-            hideResultLabels();
-            _deploymentsCreateBtn.SetEnabled(false);
-            _deploymentsRefreshBtn.SetEnabled(false);
-            // _deploymentsConnectionUrlReadonlyInput.value = ""; // We currently want to keep the last known connection, even on err
-            _deploymentsConnectionStatusLabel.text = EdgegapWindowMetadata.WrapRichTextInColor(
-                EdgegapWindowMetadata.DEPLOY_REQUEST_RICH_STR,
-                EdgegapWindowMetadata.StatusColors.Processing);
-
-            try
-            {
-                EdgegapDeploymentsApi deployApi = getDeployApi();
-
-                // Get (+cache) external IP async, required to create a deployment. Prioritize cache.
-                _userExternalIp = await getExternalIpAddress();
-
-                CreateDeploymentRequest createDeploymentReq = new CreateDeploymentRequest( // MIRROR CHANGE: 'new()' not supported in Unity 2020
-                    _appNameInput.value,
-                    _containerNewTagVersionInput.value,
-                    _userExternalIp);
-
-                // Request to deploy (it won't be active, yet) =>
-                EdgegapHttpResult<CreateDeploymentResult> createDeploymentResponse =
-                    await deployApi.CreateDeploymentAsync(createDeploymentReq);
-
-                if (!createDeploymentResponse.IsResultCode200)
-                {
-                    onCreateDeploymentStartServerFail(createDeploymentResponse);
-                    return;
-                }
-                else
-                {
-                    // Update status
-                    _deploymentsConnectionStatusLabel.text = EdgegapWindowMetadata.WrapRichTextInColor(
-                        "<i>Deploying...</i>", EdgegapWindowMetadata.StatusColors.Processing);
-                }
-
-                // Check the status of the deployment for READY every 2s =>
-                const int pollIntervalSecs = EdgegapWindowMetadata.DEPLOYMENT_READY_STATUS_POLL_SECONDS;
-                EdgegapHttpResult<GetDeploymentStatusResult> getDeploymentStatusResponse = await deployApi.AwaitReadyStatusAsync(
-                    createDeploymentResponse.Data.RequestId,
-                    TimeSpan.FromSeconds(pollIntervalSecs));
-
-                // Process create deployment response
-                bool isSuccess = createDeploymentResponse.IsResultCode200;
-                if (isSuccess)
-                    onCreateDeploymentOrRefreshSuccess(getDeploymentStatusResponse.Data);
-                else
-                    onCreateDeploymentStartServerFail(createDeploymentResponse);
-
-                _deploymentsStatusLabel.style.display = DisplayStyle.Flex;
-            }
-            finally
-            {
-                _deploymentsCreateBtn.SetEnabled(true);
-            }
-        }
-
-        /// <summary>
-        /// CreateDeployment || RefreshDeployment success handler.
-        /// </summary>
-        /// <param name="getDeploymentStatusResult">Only pass from CreateDeployment</param>
-        private void onCreateDeploymentOrRefreshSuccess(GetDeploymentStatusResult getDeploymentStatusResult)
-        {
-            // Success
-            hideResultLabels();
-            _deploymentsStatusLabel.text = EdgegapWindowMetadata.WrapRichTextInColor(
-                "Success", EdgegapWindowMetadata.StatusColors.Success);
-            _deploymentsStatusLabel.style.display = DisplayStyle.Flex;
-
-            // Cache the deployment result -> persist the requestId
-            _lastKnownDeployment = getDeploymentStatusResult;
-            _deploymentRequestId = getDeploymentStatusResult.RequestId;
-            EditorPrefs.SetString(EdgegapWindowMetadata.DEPLOYMENT_REQUEST_ID_KEY_STR, _deploymentRequestId);
-
-            // ------------
-            // Set the static connection row label data >>
-            // TODO: This will be dynamically inserted via MVC-style template when we support multiple deployments >>
-
-            // Get external port
-            // BUG(WORKAROUND): Expected `ports` to be List<AppPortsData>, but received Dictionary<string, AppPortsData>
-            KeyValuePair<string, DeploymentPortsData> portsDataKvp = getDeploymentStatusResult.PortsDict.FirstOrDefault();
-            Assert.IsNotNull(portsDataKvp.Value, $"Expected ({nameof(portsDataKvp)} from `getDeploymentStatusResult.PortsDict`)");
-            DeploymentPortsData deploymentPortData = portsDataKvp.Value;
-            string externalPortStr = deploymentPortData.External.ToString();
-            string domainWithExternalPort = $"{getDeploymentStatusResult.Fqdn}:{externalPortStr}";
-
-            _deploymentsConnectionUrlReadonlyInput.value = domainWithExternalPort;
-            string newConnectionStatus = EdgegapWindowMetadata.WrapRichTextInColor(
-                "Deployed", EdgegapWindowMetadata.StatusColors.Success);
-
-            // Change + Persist read-only fields (ViewDataKeys only save automatically from human input)
-            setPersistDeploymentsConnectionUrlLabelTxt(domainWithExternalPort);
-            setPersistDeploymentsConnectionStatusLabelTxt(newConnectionStatus);
-
-            // ------------
-            // Configure + show stop button
-            _deploymentsConnectionStopBtn.clickable.clickedWithEventInfo += onDynamicStopServerBtnAsync; // Unsubscribes on click
-            _deploymentsConnectionStopBtn.visible = true;
-            _deploymentsConnectionStopBtn.SetEnabled(true);
-            _deploymentsConnectionContainerLogsBtn.clickable.clickedWithEventInfo -= onDynamicContainerLogsBtnAsync; // Ensures there is only ever one event listener
-            _deploymentsConnectionContainerLogsBtn.clickable.clickedWithEventInfo += onDynamicContainerLogsBtnAsync;
-            _deploymentsConnectionContainerLogsBtn.visible = true;
-            _deploymentsConnectionContainerLogsBtn.SetEnabled(true);
-
-            // Show refresh btn (currently targeting only this one)
-            _deploymentsRefreshBtn.SetEnabled(true);
-        }
-
-        private void onCreateDeploymentStartServerFail(EdgegapHttpResult<CreateDeploymentResult> result = null)
-        {
-            _deploymentsConnectionStatusLabel.text = EdgegapWindowMetadata.WrapRichTextInColor(
-                "Failed to Start", EdgegapWindowMetadata.StatusColors.Error);
-
-            _deploymentsStatusLabel.text = EdgegapWindowMetadata.WrapRichTextInColor(
-                result?.Error.ErrorMessage ?? "Unknown Error",
-                EdgegapWindowMetadata.StatusColors.Error);
-            _deploymentsStatusLabel.style.display = DisplayStyle.Flex;
-            _deploymentsRefreshBtn.SetEnabled(true);
-
-            Debug.Log("(!) Check your deployments here: https://app.edgegap.com/deployment-management/deployments/list");
-
-            // Shake "need more servers" btn on 403
-            bool reachedNumDeploymentsHardcap = result != null && result.IsResultCode403;
-            if (reachedNumDeploymentsHardcap)
-                shakeNeedMoreGameServersBtn();
-        }
-
-        /// <summary>
-        /// This is triggered from a dynamic button, so we need to pass in the event info (TODO: Use evt info later).
-        /// </summary>
-        /// <param name="evt"></param>
-        private void onDynamicStopServerBtnAsync(EventBase evt) =>
-            _ = onDynamicStopServerAsync();
-
-
-        /// <summary>
-        /// Stops the deployment, updating the UI accordingly.
-        /// TODO: Cache a list of deployments and/or store a hidden field for requestId.
-        /// </summary>
-        private async Task onDynamicStopServerAsync()
-        {
-            // Prepare to stop (UI, status flags, callback unsubs)
-            if (IsLogLevelDebug) Debug.Log("onDynamicStopServerAsync");
-            hideResultLabels();
-            _deploymentsConnectionStopBtn.SetEnabled(false);
-            _deploymentsConnectionContainerLogsBtn.SetEnabled(false);
-            _deploymentsRefreshBtn.SetEnabled(false);
-            _deploymentsConnectionStatusLabel.text = EdgegapWindowMetadata.WrapRichTextInColor(
-                "<i>Requesting Stop...</i>", EdgegapWindowMetadata.StatusColors.Processing);
-
-            EdgegapDeploymentsApi deployApi = getDeployApi();
-            EdgegapHttpResult<StopActiveDeploymentResult> stopResponse = null;
-
-            try
-            {
-                stopResponse = await deployApi.StopActiveDeploymentAsync(_deploymentRequestId);
-
-                if (!stopResponse.IsResultCode200)
-                {
-                    onDynamicStopServerAsyncFail(stopResponse.Error.ErrorMessage);
-                    return;
-                }
-
-                // ---------
-                // 200, but only PENDING deleted (if we create a new one before it's deleted,
-                //   user may get hit with max # of deployments reached err)
-                _deploymentsConnectionStatusLabel.text = EdgegapWindowMetadata.WrapRichTextInColor(
-                    "<i>Stopping...</i>", EdgegapWindowMetadata.StatusColors.Warn);
-
-                TimeSpan pollIntervalSecs = TimeSpan.FromSeconds(EdgegapWindowMetadata.DEPLOYMENT_STOP_STATUS_POLL_SECONDS);
-                stopResponse = await deployApi.AwaitTerminatedDeleteStatusAsync(_deploymentRequestId, pollIntervalSecs);
-            }
-            finally
-            {
-                _deploymentsConnectionStopBtn.clickable.clickedWithEventInfo -= onDynamicStopServerBtnAsync;
-                _deploymentsConnectionContainerLogsBtn.clickable.clickedWithEventInfo -= onDynamicContainerLogsBtnAsync;
-            }
-
-            bool isStopSuccess = stopResponse.IsResultCode410;
-            if (!isStopSuccess)
-            {
-                onDynamicStopServerAsyncFail(stopResponse.Error.ErrorMessage);
-                return;
-            }
-
-            // Success: Hide the static row // TODO: Delete the template row, when dynamic
-            // clearDeploymentConnections(); // Use this if you don't want to show the last connection info
-            string stoppedStr = getConnectionStoppedRichStr();
-            _deploymentsStatusLabel.text = ""; // Overrides any previous errs, in case we attempted to created a new deployment while deleting
-            setPersistDeploymentsConnectionStatusLabelTxt(stoppedStr);
-        }
-
-        /// <summary>
-        /// This is triggered from a dynamic button, so we need to pass in the event info (TODO: Use evt info later).
-        /// </summary>
-        /// <param name="evt"></param>
-        private void onDynamicContainerLogsBtnAsync(EventBase evt) =>
-            _ = onDynamicContainerLogsAsync();
-
-        /// <summary>
-        /// Links to the container logs page, updating the UI accordingly.
-        /// </summary>
-        private Task onDynamicContainerLogsAsync()
-        {
-            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
-            {
-                FileName = String.Format("https://app.edgegap.com/deployment-management/deployments/{0}/details?tab=logs", _deploymentRequestId),
-                UseShellExecute = true
-            });
-            return Task.CompletedTask;
-        }
-
-        private string getConnectionStoppedRichStr() =>
-            EdgegapWindowMetadata.WrapRichTextInColor(
-                "Stopped", EdgegapWindowMetadata.StatusColors.Error);
-
-        private void onDynamicStopServerAsyncFail(string friendlyErrMsg)
-        {
-            _deploymentsStatusLabel.text = EdgegapWindowMetadata.WrapRichTextInColor(
-                friendlyErrMsg, EdgegapWindowMetadata.StatusColors.Error);
-        }
-
-        /// <summary>Sets and returns `_userExternalIp`, prioritizing local cache</summary>
-        private async Task<string> getExternalIpAddress()
-        {
-            if (!string.IsNullOrEmpty(_userExternalIp))
-                return _userExternalIp;
-
-            EdgegapIpApi ipApi = getIpApi();
-            EdgegapHttpResult<GetYourPublicIpResult> getYourPublicIpResponseTask = await ipApi.GetYourPublicIp();
-
-            _userExternalIp = getYourPublicIpResponseTask?.Data?.PublicIp;
-            Assert.IsTrue(!string.IsNullOrEmpty(_userExternalIp),
-                $"Expected getYourPublicIpResponseTask.Data.PublicIp");
-
-            return _userExternalIp;
-        }
-
-        #region Api Builders
-        private EdgegapDeploymentsApi getDeployApi() => new EdgegapDeploymentsApi( // MIRROR CHANGE: 'new()' not supported in Unity 2020
-            EdgegapWindowMetadata.API_ENVIRONMENT,
-            _apiTokenInput.value.Trim(),
-            EdgegapWindowMetadata.LOG_LEVEL);
-
-        private EdgegapIpApi getIpApi() => new EdgegapIpApi( // MIRROR CHANGE: 'new()' not supported in Unity 2020
-            EdgegapWindowMetadata.API_ENVIRONMENT,
-            _apiTokenInput.value.Trim(),
-            EdgegapWindowMetadata.LOG_LEVEL);
-
-        private EdgegapWizardApi getWizardApi() => new EdgegapWizardApi( // MIRROR CHANGE: 'new()' not supported in Unity 2020
-            EdgegapWindowMetadata.API_ENVIRONMENT,
-            _apiTokenInput.value.Trim(),
-            EdgegapWindowMetadata.LOG_LEVEL);
-
-        private EdgegapAppApi getAppApi() => new EdgegapAppApi( // MIRROR CHANGE: 'new()' not supported in Unity 2020
-            EdgegapWindowMetadata.API_ENVIRONMENT,
-            _apiTokenInput.value.Trim(),
-            EdgegapWindowMetadata.LOG_LEVEL);
-        #endregion // Api Builders
-
-
-
-        private float ProgressCounter = 0;
-
-        // MIRROR CHANGE: added title parameter for more detailed progress while waiting
-        void ShowBuildWorkInProgress(string title, string status)
-        {
-            EditorUtility.DisplayProgressBar(title, status, ProgressCounter++ / 50);
-        }
-        // END MIRROR CHANGE
-
-        /// <summary>Build & Push - Legacy from v1, modified for v2</summary>
-        private async Task buildAndPushServerAsync()
-        {
-            if (IsLogLevelDebug) Debug.Log("buildAndPushServerAsync");
-
-            // Legacy Code Start >>
-
-            // SetToolUIState(ToolState.Building);
-            SyncObjectWithForm();
-            ProgressCounter = 0;
-
-            try
-            {
-                // check for installation and setup docker file
-                if (!await EdgegapBuildUtils.DockerSetupAndInstallationCheck(DockerFilePath))
-                {
-                    onBuildPushError("Docker installation not found. " +
-                        "Docker can be downloaded from:\n\nhttps://www.docker.com/");
-                    return;
-                }
-
-                // MIRROR CHANGE
-                // make sure Linux build target is installed before attemping to build.
-                // if it's not installed, tell the user about it.
-                if (!BuildPipeline.IsBuildTargetSupported(BuildTargetGroup.Standalone, BuildTarget.StandaloneLinux64))
-                {
-                    onBuildPushError($"Linux Build Support is missing.\n\nPlease open Unity Hub -> Installs -> Unity {Application.unityVersion} -> Add Modules -> Linux Build Support (IL2CPP & Mono & Dedicated Server) -> Install\n\nAfterwards restart Unity!");
-                    return;
-                }
-                // END MIRROR CHANGE
-
-                if (!EdgegapWindowMetadata.SKIP_SERVER_BUILD_WHEN_PUSHING)
-                {
-                    // create server build
-                    BuildReport buildResult = EdgegapBuildUtils.BuildServer();
-                    if (buildResult.summary.result != UnityEditor.Build.Reporting.BuildResult.Succeeded)
-                    {
-                        onBuildPushError("Edgegap build failed");
-                        return;
-                    }
-                }
-                else
-                    Debug.LogWarning(nameof(EdgegapWindowMetadata.SKIP_SERVER_BUILD_WHEN_PUSHING));
-
-                string registry = _containerRegistryUrlInput.value;
-                string imageName = _containerImageRepositoryInput.value;
-                string tag = _containerNewTagVersionInput.value;
-
-                // MIRROR CHANGE ///////////////////////////////////////////////
-                // registry, repository and tag can not contain whitespaces.
-                // otherwise the docker command will throw an error:
-                // "ERROR: "docker buildx build" requires exactly 1 argument."
-                // catch this early and notify the user immediately.
-                if (registry.Contains(" "))
-                {
-                    onBuildPushError($"Container Registry is not allowed to contain whitespace: '{registry}'");
-                    return;
-                }
-
-                if (imageName.Contains(" "))
-                {
-                    onBuildPushError($"Image Repository is not allowed to contain whitespace: '{imageName}'");
-                    return;
-                }
-
-                if (tag.Contains(" "))
-                {
-                    onBuildPushError($"Tag is not allowed to contain whitespace: '{tag}'");
-                    return;
-                }
-                // END MIRROR CHANGE ///////////////////////////////////////////
-
-                // // increment tag for quicker iteration // TODO? `_autoIncrementTag` !exists in V2.
-                // if (_autoIncrementTag)
-                // {
-                //     tag = EdgegapBuildUtils.IncrementTag(tag);
-                // }
-
-                // create docker image
-                if (!EdgegapWindowMetadata.SKIP_DOCKER_IMAGE_BUILD_WHEN_PUSHING)
-                {
-                    // MIRROR CHANGE: CROSS PLATFORM BUILD SUPPORT
-                    // await EdgegapBuildUtils.DockerBuild(
-                    //     registry,
-                    //     imageName,
-                    //     tag,
-                    //     ShowBuildWorkInProgress);
-
-                    await EdgegapBuildUtils.RunCommand_DockerBuild(DockerFilePath, registry, imageName, tag, ProjectRootPath, status => ShowBuildWorkInProgress("Building Docker Image", status));
-
-                }
-                else
-                    Debug.LogWarning(nameof(EdgegapWindowMetadata.SKIP_DOCKER_IMAGE_BUILD_WHEN_PUSHING));
-
-                // (v2) Login to registry
-                bool isContainerLoginSuccess = await EdgegapBuildUtils.LoginContainerRegistry(
-                    _containerRegistryUrlInput.value,
-                    _containerUsernameInput.value,
-                    _containerTokenInput.value,
-                    status => ShowBuildWorkInProgress("Logging into container registry.", status)); // MIRROR CHANGE: DETAILED LOGGING
-
-                if (!isContainerLoginSuccess)
-                {
-                    onBuildPushError("Unable to login to docker registry. " +
-                        "Make sure your registry url + username are correct. " +
-                        $"See doc:\n\n{EdgegapWindowMetadata.EDGEGAP_DOC_BTN_HOW_TO_LOGIN_VIA_CLI_URL}");
-                    return;
-                }
-
-                // MIRROR CHANGE: DETAILED DOCKER PUSH ERROR HANDLING
-                // push docker image
-                (bool isPushSuccess, string error) = await EdgegapBuildUtils.RunCommand_DockerPush(registry, imageName, tag, status => ShowBuildWorkInProgress("Uploading Docker Image (this may take a while)", status));
-                if (!isPushSuccess)
-                {
-                    // catch common issues with detailed solutions
-                    if (error.Contains("Cannot connect to the Docker daemon"))
-                    {
-                        onBuildPushError($"{error}\nTo solve this, you can install and run Docker Desktop from:\n\nhttps://www.docker.com/products/docker-desktop");
-                        return;
-                    }
-
-                    if (error.Contains("unauthorized to access repository"))
-                    {
-                        onBuildPushError($"Docker authorization failed:\n\n{error}\nTo solve this, you can open a terminal and enter 'docker login {registry}', then enter your credentials.");
-                        return;
-                    }
-
-                    // project not found?
-                    if (Regex.IsMatch(error, @".*project .* not found.*", RegexOptions.IgnoreCase))
-                    {
-                        onBuildPushError($"{error}\nTo solve this, make sure that Image Repository is 'project/game' where 'project' is from the Container Registry page on the Edgegap website.");
-                        return;
-                    }
-
-                    // otherwise show generic error message
-                    onBuildPushError("Unable to push docker image to registry. " +
-                        $"Make sure your {registry} registry url + username are correct. " +
-                        $"See doc:\n\n{EdgegapWindowMetadata.EDGEGAP_DOC_BTN_HOW_TO_LOGIN_VIA_CLI_URL}");
-                    return;
-                }
-                // END MIRROR CHANGE
-
-                // update edgegap server settings for new tag
-                ShowBuildWorkInProgress("Build and Push", "Updating server info on Edgegap");
-                EdgegapAppApi appApi = getAppApi();
-
-                AppPortsData[] ports =
-                {
-                    new AppPortsData() // MIRROR CHANGE: 'new()' not supported in Unity 2020
-                    {
-                        Port = int.Parse(_containerPortNumInput.value), // OnInputChange clamps + validates,
-                        ProtocolStr = _containerTransportTypeEnumInput.value.ToString(),
-                        TlsUpgrade = _containerTransportTypeEnumInput.value.ToString() == ProtocolType.WS.ToString() // If the protocol is WebSocket, we seemlessly add tls_upgrade. If we want to add it to other protocols, we need to change this.
-                    },
-                };
-
-                UpdateAppVersionRequest updateAppVerReq = new UpdateAppVersionRequest(_appNameInput.value) // MIRROR CHANGE: 'new()' not supported in Unity 2020
-                {
-                    VersionName = _containerNewTagVersionInput.value,
-                    DockerImage = imageName,
-                    DockerRepository = registry,
-                    DockerTag = tag,
-                    PrivateUsername = _containerUsernameInput.value,
-                    PrivateToken = _containerTokenInput.value,
-                    Ports = ports,
-                };
-
-                EdgegapHttpResult<UpsertAppVersionResult> updateAppVersionResult = await appApi.UpsertAppVersion(updateAppVerReq);
-
-                if (updateAppVersionResult.HasErr)
-                {
-                    onBuildPushError($"Unable to update docker tag/version:\n{updateAppVersionResult.Error.ErrorMessage}");
-                    return;
-                }
-
-                // cleanup
-                onBuildAndPushSuccess(tag);
-            }
-            catch (Exception ex)
-            {
-                EditorUtility.ClearProgressBar();
-                Debug.LogError(ex);
-
-                string errMsg = "Edgegapbuild and push failed";
-                if (ex.Message.Contains("docker daemon is not running"))
-                {
-                    errMsg += ":\nDocker is installed, but the daemon/app (such as `Docker Desktop`) is not running. " +
-                        "Please start Docker Desktop and try again.";
-                }
-                else
-                    errMsg += $":\n{ex.Message}";
-
-                onBuildPushError(errMsg);
-            }
-            // MIRROR CHANGE: always clear otherwise it gets stuck there forever!
-            finally
-            {
-                EditorUtility.ClearProgressBar();
-            }
-            // END MIRROR CHANGE
-        }
-
-        private void onBuildAndPushSuccess(string tag)
-        {
-            // _containerImageTag = tag; // TODO?
-            syncFormWithObjectStatic();
-            EditorUtility.ClearProgressBar();
-
-            _containerBuildAndPushResultLabel.text = $"Success ({tag})";
-            _containerBuildAndPushResultLabel.visible = true;
-
-            Debug.Log("Server built and pushed successfully");
-        }
-
-        /// <summary>(v2) Docker cmd error, detected by "ERROR" in log stream.</summary>
-        private void onBuildPushError(string msg)
-        {
-            EditorUtility.ClearProgressBar();
-            _containerBuildAndPushResultLabel.text = EdgegapWindowMetadata.WrapRichTextInColor(
-                "Error", EdgegapWindowMetadata.StatusColors.Error);
-            EditorUtility.DisplayDialog("Error", msg, "Ok"); // Show this last! It's blocking!
-        }
-
-
-        #region Persistence Helpers
-        /// <summary>
-        /// Load from EditorPrefs, persisting from a previous session, if the field is empty
-        /// - ApiToken; !persisted via ViewDataKey so we don't save plaintext
-        /// - DeploymentRequestId
-        /// - DeploymentConnectionUrl
-        /// - DeploymentConnectionStatus
-        /// </summary>
-        private void loadPersistentDataFromEditorPrefs()
-        {
-            // ApiToken
-            if (string.IsNullOrEmpty(_apiTokenInput.value))
-                setMaskedApiTokenFromEditorPrefs();
-
-            // DeploymentRequestId
-            if (string.IsNullOrEmpty(_deploymentRequestId))
-                _deploymentRequestId = EditorPrefs.GetString(EdgegapWindowMetadata.DEPLOYMENT_REQUEST_ID_KEY_STR);
-
-            // DeploymentConnectionUrl
-            if (string.IsNullOrEmpty(_deploymentsConnectionUrlReadonlyInput.text))
-            {
-                _deploymentsConnectionUrlReadonlyInput.value = getDeploymentsConnectionUrlLabelTxt();
-                bool hasVal = !string.IsNullOrEmpty(_deploymentsConnectionUrlReadonlyInput.value);
-                if (hasVal && string.IsNullOrEmpty(_deploymentRequestId))
-                {
-                    // Fallback -- if no requestId, we can actually get it from the url since we have this (desync)
-                    _deploymentRequestId = _deploymentsConnectionUrlReadonlyInput.value.Split('.')[0];
-                    EditorPrefs.SetString(EdgegapWindowMetadata.DEPLOYMENT_REQUEST_ID_KEY_STR, _deploymentRequestId);
-                }
-                // TODO (Optional): Show a status label to remind these are cached vals; refresh for live?
-            }
-
-            // DeploymentConnectionStatus
-            if (string.IsNullOrEmpty(_deploymentsConnectionStatusLabel.text) || _deploymentsConnectionStatusLabel.text == "Unknown")
-                _deploymentsConnectionStatusLabel.text = getDeploymentsConnectionStatusLabelTxt();
-        }
-
-        /// <summary>Set Label -> Persist to EditorPrefs</summary>
-        /// <param name="newDomainWithPort"></param>
-        private void setPersistDeploymentsConnectionUrlLabelTxt(string newDomainWithPort)
-        {
-            _deploymentsConnectionUrlReadonlyInput.value = newDomainWithPort;
-            EditorPrefs.SetString(EdgegapWindowMetadata.DEPLOYMENT_CONNECTION_URL_KEY_STR, newDomainWithPort);
-        }
-
-        /// <summary>Get persistent data fromEditorPrefs</summary>
-        private string getDeploymentsConnectionUrlLabelTxt() =>
-            EditorPrefs.GetString(EdgegapWindowMetadata.DEPLOYMENT_CONNECTION_URL_KEY_STR);
-
-        /// <summary>Set label -> persist to EditorPrefs</summary>
-        /// <param name="newStatus"></param>
-        private void setPersistDeploymentsConnectionStatusLabelTxt(string newStatus)
-        {
-            _deploymentsConnectionStatusLabel.text = newStatus;
-            EditorPrefs.SetString(EdgegapWindowMetadata.DEPLOYMENT_CONNECTION_STATUS_KEY_STR, newStatus);
-        }
-
-        /// <summary>Get persistent data fromEditorPrefs</summary>
-        private string getDeploymentsConnectionStatusLabelTxt() =>
-            EditorPrefs.GetString(EdgegapWindowMetadata.DEPLOYMENT_CONNECTION_STATUS_KEY_STR);
-
-        /// <summary>Set to base64 -> Save to EditorPrefs</summary>
-        /// <param name="value"></param>
-        private void persistUnmaskedApiToken(string value)
-        {
-            EditorPrefs.SetString(
-                EdgegapWindowMetadata.API_TOKEN_KEY_STR,
-                Base64Encode(value));
-        }
-
-        /// <summary>
-        /// Get apiToken from EditorPrefs -> Base64 Decode -> Set to apiTokenInput
-        /// </summary>
-        private void setMaskedApiTokenFromEditorPrefs()
-        {
-            string apiTokenBase64Str = EditorPrefs.GetString(
-                EdgegapWindowMetadata.API_TOKEN_KEY_STR, null);
-
-            if (apiTokenBase64Str == null)
-                return;
-
-            string decodedApiToken = Base64Decode(apiTokenBase64Str);
-            _apiTokenInput.SetValueWithoutNotify(decodedApiToken);
-        }
-        #endregion // Persistence Helpers
+        #endregion
     }
 }
+
 #endif
 #endif

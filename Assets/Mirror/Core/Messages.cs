@@ -52,14 +52,19 @@ namespace Mirror
         public ArraySegment<byte> payload;
     }
 
-    [Flags] public enum AuthorityFlags : byte { None, isOwner, isLocalPlayer }
+    [Flags] public enum SpawnFlags : byte
+    {
+        None          = 0,
+        isOwner       = 1 << 0,
+        isLocalPlayer = 1 << 1
+    }
 
     public struct SpawnMessage : NetworkMessage
     {
         // netId of new or existing object
         public uint netId;
         // isOwner and isLocalPlayer are merged into one byte via bitwise op
-        public AuthorityFlags authorityFlags;
+        public SpawnFlags spawnFlags;
         public ulong sceneId;
         // If sceneId != 0 then it is used instead of assetId
         public uint assetId;
@@ -73,24 +78,24 @@ namespace Mirror
         // ArraySegment to avoid unnecessary allocations
         public ArraySegment<byte> payload;
 
-        // Backwards compatibility after implementing authorityFlags
+        // Backwards compatibility after implementing spawnFlags
         public bool isOwner
         {
-            get => authorityFlags.HasFlag(AuthorityFlags.isOwner);
-            set => authorityFlags = 
+            get => spawnFlags.HasFlag(SpawnFlags.isOwner);
+            set => spawnFlags = 
                 value 
-                ? authorityFlags | AuthorityFlags.isOwner 
-                : authorityFlags & ~AuthorityFlags.isOwner;
+                ? spawnFlags | SpawnFlags.isOwner 
+                : spawnFlags & ~SpawnFlags.isOwner;
         }
 
-        // Backwards compatibility after implementing authorityFlags
+        // Backwards compatibility after implementing spawnFlags
         public bool isLocalPlayer
         {
-            get => authorityFlags.HasFlag(AuthorityFlags.isLocalPlayer);
-            set => authorityFlags = 
+            get => spawnFlags.HasFlag(SpawnFlags.isLocalPlayer);
+            set => spawnFlags = 
                 value 
-                ? authorityFlags | AuthorityFlags.isLocalPlayer 
-                : authorityFlags & ~AuthorityFlags.isLocalPlayer;
+                ? spawnFlags | SpawnFlags.isLocalPlayer 
+                : spawnFlags & ~SpawnFlags.isLocalPlayer;
         }
     }
 
@@ -98,26 +103,26 @@ namespace Mirror
     {
         public uint netId;
         // isOwner and isLocalPlayer are merged into one byte via bitwise op
-        public AuthorityFlags authorityFlags;
+        public SpawnFlags spawnFlags;
 
-        // Backwards compatibility after implementing authorityFlags
+        // Backwards compatibility after implementing spawnFlags
         public bool isOwner
         {
-            get => authorityFlags.HasFlag(AuthorityFlags.isOwner);
-            set => authorityFlags = 
+            get => spawnFlags.HasFlag(SpawnFlags.isOwner);
+            set => spawnFlags = 
                 value 
-                ? authorityFlags | AuthorityFlags.isOwner 
-                : authorityFlags & ~AuthorityFlags.isOwner;
+                ? spawnFlags | SpawnFlags.isOwner 
+                : spawnFlags & ~SpawnFlags.isOwner;
         }
 
-        // Backwards compatibility after implementing authorityFlags
+        // Backwards compatibility after implementing spawnFlags
         public bool isLocalPlayer
         {
-            get => authorityFlags.HasFlag(AuthorityFlags.isLocalPlayer);
-            set => authorityFlags = 
+            get => spawnFlags.HasFlag(SpawnFlags.isLocalPlayer);
+            set => spawnFlags = 
                 value 
-                ? authorityFlags | AuthorityFlags.isLocalPlayer 
-                : authorityFlags & ~AuthorityFlags.isLocalPlayer;
+                ? spawnFlags | SpawnFlags.isLocalPlayer 
+                : spawnFlags & ~SpawnFlags.isLocalPlayer;
         }
     }
 

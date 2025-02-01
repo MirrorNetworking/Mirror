@@ -10,11 +10,6 @@ namespace Mirror
     {
         public const int LocalConnectionId = 0;
 
-        /// <summary>Unique identifier for this connection that is assigned by the transport layer.</summary>
-        // assigned by transport, this id is unique for every connection on server.
-        // clients don't know their own id and they don't know other client's ids.
-        public readonly int connectionId;
-
         /// <summary>Flag that indicates the client has been authenticated.</summary>
         public bool isAuthenticated;
 
@@ -66,11 +61,6 @@ namespace Mirror
             // set lastTime to current time when creating connection to make
             // sure it isn't instantly kicked for inactivity
             lastMessageTime = Time.time;
-        }
-
-        internal NetworkConnection(int networkConnectionId) : this()
-        {
-            connectionId = networkConnectionId;
         }
 
         // TODO if we only have Reliable/Unreliable, then we could initialize
@@ -213,7 +203,5 @@ namespace Mirror
                 batcher.Clear();
             }
         }
-
-        public override string ToString() => $"connection({connectionId})";
     }
 }

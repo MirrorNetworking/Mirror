@@ -7,18 +7,16 @@ namespace Edgegap.Editor.Api
 {
     /// <summary>
     /// Wraps the v1/ip API endpoint: "IP Lookup" API.
-    /// - API Doc | https://docs.edgegap.com/api/#tag/IP-Lookup 
+    /// - API Doc | https://docs.edgegap.com/api/#tag/IP-Lookup
     /// </summary>
     public class EdgegapIpApi : EdgegapApiBase
     {
         public EdgegapIpApi(
-            ApiEnvironment apiEnvironment, 
-            string apiToken, 
-            EdgegapWindowMetadata.LogLevel logLevel = EdgegapWindowMetadata.LogLevel.Error)
-            : base(apiEnvironment, apiToken, logLevel)
-        {
-        }
-
+            ApiEnvironment apiEnvironment,
+            string apiToken,
+            EdgegapWindowMetadata.LogLevel logLevel = EdgegapWindowMetadata.LogLevel.Error
+        )
+            : base(apiEnvironment, apiToken, logLevel) { }
 
         #region API Methods
         /// <summary>
@@ -34,12 +32,9 @@ namespace Edgegap.Editor.Api
         public async Task<EdgegapHttpResult<GetYourPublicIpResult>> GetYourPublicIp()
         {
             HttpResponseMessage response = await GetAsync("v1/ip");
-            EdgegapHttpResult<GetYourPublicIpResult> result = new EdgegapHttpResult<GetYourPublicIpResult>(response); // MIRROR CHANGE: 'new()' not supported in Unity 2020
+            EdgegapHttpResult<GetYourPublicIpResult> result =
+                new EdgegapHttpResult<GetYourPublicIpResult>(response); // MIRROR CHANGE: 'new()' not supported in Unity 2020
 
-            bool isSuccess = response.StatusCode == HttpStatusCode.OK; // 200
-            if (!isSuccess)
-                return result;
-            
             return result;
         }
         #endregion // API Methods
