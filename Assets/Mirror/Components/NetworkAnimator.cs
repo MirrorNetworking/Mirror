@@ -642,8 +642,8 @@ namespace Mirror
         [ClientRpc(includeOwner = false)]
         void RpcOnAnimationTriggerClientMessage(int hash)
         {
-            // already handled on server in
-            // CmdOnAnimationTriggerServerMessage or SetTrigger
+            // already handled on server in SetTrigger
+            // or CmdOnAnimationTriggerServerMessage
             if (!isServer)
                 HandleAnimTriggerMsg(hash);
         }
@@ -651,8 +651,8 @@ namespace Mirror
         [ClientRpc(includeOwner = false)]
         void RpcOnAnimationResetTriggerClientMessage(int hash)
         {
-            // already handled on server in
-            // CmdOnAnimationResetTriggerServerMessage or ResetTrigger
+            // already handled on server in ResetTrigger
+            // or CmdOnAnimationResetTriggerServerMessage
             if (!isServer)
                 HandleAnimResetTriggerMsg(hash);
         }
