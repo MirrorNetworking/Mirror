@@ -642,13 +642,19 @@ namespace Mirror
         [ClientRpc(includeOwner = false)]
         void RpcOnAnimationTriggerClientMessage(int hash)
         {
-            HandleAnimTriggerMsg(hash);
+            // already handled on server in SetTrigger
+            // or CmdOnAnimationTriggerServerMessage
+            if (!isServer)
+                HandleAnimTriggerMsg(hash);
         }
 
         [ClientRpc(includeOwner = false)]
         void RpcOnAnimationResetTriggerClientMessage(int hash)
         {
-            HandleAnimResetTriggerMsg(hash);
+            // already handled on server in ResetTrigger
+            // or CmdOnAnimationResetTriggerServerMessage
+            if (!isServer)
+                HandleAnimResetTriggerMsg(hash);
         }
 
         #endregion
