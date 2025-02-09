@@ -530,6 +530,7 @@ namespace Mirror
 
             // default to ClientToServer so this works immediately for users
             syncDirection = SyncDirection.ClientToServer;
+            NetworkTime.activeNTs = 0;
 
             // disabled objects aren't updated anymore.
             // so let's clear the buffers.
@@ -548,8 +549,17 @@ namespace Mirror
             // Debug.Log($"[{name}] Reset to baselineTick=0");
         }
 
-        protected virtual void OnDisable() => Reset();
-        protected virtual void OnEnable() => Reset();
+        protected virtual void OnEnable()
+        {
+            Reset();
+            NetworkTime.activeNTs++;
+        }
+
+        protected virtual void OnDisable()
+        {
+            Reset();
+            NetworkTime.activeNTs--;
+        }
 
         public override void OnSerialize(NetworkWriter writer, bool initialState)
         {

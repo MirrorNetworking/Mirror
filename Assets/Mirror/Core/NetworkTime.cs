@@ -19,14 +19,16 @@ namespace Mirror
         /// <summary>Ping message interval, used to calculate latency / RTT and predicted time.</summary>
         // 2s was enough to get a good average RTT.
         // for prediction, we want to react to latency changes more rapidly.
-        const float DefaultPingInterval = 0.1f; // for resets
-        public static float PingInterval = DefaultPingInterval;
+        internal static float DefaultPingInterval = 2.0f; // internal for tests
+        public static float PingInterval => activeNTs > 0 ? 0.1f : DefaultPingInterval;
 
         /// <summary>Average out the last few results from Ping</summary>
         // const because it's used immediately in _rtt constructor.
         public const int PingWindowSize = 50; // average over 50 * 100ms = 5s
 
         static double lastPingTime;
+
+        internal static ulong activeNTs = 0;
 
         static ExponentialMovingAverage _rtt = new ExponentialMovingAverage(PingWindowSize);
 
@@ -129,7 +131,7 @@ namespace Mirror
         [RuntimeInitializeOnLoadMethod]
         public static void ResetStatics()
         {
-            PingInterval = DefaultPingInterval;
+            activeNTs = 0;
             lastPingTime = 0;
             _rtt = new ExponentialMovingAverage(PingWindowSize);
 #if !UNITY_2020_3_OR_NEWER
@@ -147,6 +149,8 @@ namespace Mirror
         // Separate method so we can call it from NetworkClient directly.
         internal static void SendPing()
         {
+            //Debug.Log("NetworkTime SendPing");
+
             // send raw predicted time without the offset applied yet.
             // we then apply the offset to it after.
             NetworkPingMessage pingMessage = new NetworkPingMessage
