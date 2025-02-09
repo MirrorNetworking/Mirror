@@ -145,6 +145,16 @@ namespace Mirror
             positionCorrectionThresholdSqr = positionCorrectionThreshold * positionCorrectionThreshold;
         }
 
+        protected virtual void OnEnable()
+        {
+            NetworkTime.activeNTs++;
+        }
+
+        protected virtual void OnDisable()
+        {
+            NetworkTime.activeNTs--;
+        }
+
         protected virtual void CopyRenderersAsGhost(GameObject destination, Material material)
         {
             // find the MeshRenderer component, which sometimes is on a child.
