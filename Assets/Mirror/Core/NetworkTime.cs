@@ -131,6 +131,7 @@ namespace Mirror
         [RuntimeInitializeOnLoadMethod]
         public static void ResetStatics()
         {
+            DefaultPingInterval = 2.0f;
             activeNTs = 0;
             lastPingTime = 0;
             _rtt = new ExponentialMovingAverage(PingWindowSize);
