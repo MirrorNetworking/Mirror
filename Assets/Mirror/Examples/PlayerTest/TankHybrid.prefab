@@ -145,17 +145,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   syncDirection: 1
   syncMode: 0
-  syncInterval: 0
+  syncInterval: 0.033333335
+  baselineRate: 1
+  unreliableRedundancy: 0
+  baselineIsDelta: 1
+  debugLog: 0
   target: {fileID: 4659514702152478195}
   bufferSizeLimit: 64
   sendRate: 30
-  baselineRate: 1
-  onlySyncOnChange: 1
   positionSensitivity: 0.01
   rotationSensitivity: 0.01
   scaleSensitivity: 0.01
-  unreliableRedundancy: 0
-  baselineIsDelta: 1
   syncPosition: 1
   syncRotation: 1
   syncScale: 0
@@ -228,6 +228,7 @@ MonoBehaviour:
   turret: {fileID: 702109291309605222}
   barrel: {fileID: 702109291309605224}
   projectileMount: {fileID: 5863288529097842480}
+  barrelCollider: {fileID: 7809787874239548118}
   playerObject: {fileID: 3185878892915811175}
   playerColor:
     serializedVersion: 2
@@ -275,17 +276,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   syncDirection: 1
   syncMode: 0
-  syncInterval: 0
+  syncInterval: 0.033333335
+  baselineRate: 1
+  unreliableRedundancy: 0
+  baselineIsDelta: 1
+  debugLog: 0
   target: {fileID: 702109291309605222}
   bufferSizeLimit: 64
   sendRate: 30
-  baselineRate: 1
-  onlySyncOnChange: 1
   positionSensitivity: 0.01
   rotationSensitivity: 0.01
   scaleSensitivity: 0.01
-  unreliableRedundancy: 0
-  baselineIsDelta: 1
   syncPosition: 0
   syncRotation: 1
   syncScale: 0
@@ -307,17 +308,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   syncDirection: 1
   syncMode: 0
-  syncInterval: 0
+  syncInterval: 0.033333335
+  baselineRate: 1
+  unreliableRedundancy: 0
+  baselineIsDelta: 1
+  debugLog: 0
   target: {fileID: 702109291309605224}
   bufferSizeLimit: 64
   sendRate: 30
-  baselineRate: 1
-  onlySyncOnChange: 1
   positionSensitivity: 0.01
   rotationSensitivity: 0.01
   scaleSensitivity: 0.01
-  unreliableRedundancy: 0
-  baselineIsDelta: 1
   syncPosition: 0
   syncRotation: 1
   syncScale: 0
@@ -633,6 +634,12 @@ Transform:
 --- !u!4 &702109291309605224 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3638700596990361455, guid: dad07e68d3659e6439279d0d4110cf4c,
+    type: 3}
+  m_PrefabInstance: {fileID: 4305764793209200135}
+  m_PrefabAsset: {fileID: 0}
+--- !u!136 &7809787874239548118 stripped
+CapsuleCollider:
+  m_CorrespondingSourceObject: {fileID: 6314283028393596113, guid: dad07e68d3659e6439279d0d4110cf4c,
     type: 3}
   m_PrefabInstance: {fileID: 4305764793209200135}
   m_PrefabAsset: {fileID: 0}

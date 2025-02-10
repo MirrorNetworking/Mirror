@@ -110,9 +110,49 @@ namespace Edgegap.Editor.Api
 
             return result;
         }
+
+        /// <summary>
+        /// GET to v1/apps
+        /// - Get all applications.
+        /// - API Doc | https://docs.edgegap.com/api/#tag/Applications/operation/applications-get
+        /// </summary>
+        /// <returns>
+        /// Http info with GetAppsResult data model
+        /// - Success: 200
+        /// </returns>
+        public async Task<EdgegapHttpResult<GetAppsResult>> GetApps()
+        {
+            HttpResponseMessage response = await GetAsync($"v1/apps");
+            EdgegapHttpResult<GetAppsResult> result = new EdgegapHttpResult<GetAppsResult>(response); // MIRROR CHANGE: 'new()' not supported in Unity 2020
+
+            bool isSuccess = response.StatusCode == HttpStatusCode.OK; // 200
+            if (!isSuccess)
+                return result;
+
+            return result;
+        }
+
+        /// <summary>
+        /// GET to v1/app/{appName}/versions
+        /// </summary>
+        /// <returns>
+        /// Http info with GetAppVersionsResult data model
+        /// - Success: 200
+        /// </returns>
+        public async Task<EdgegapHttpResult<GetAppVersionsResult>> GetAppVersions(string appName)
+        {
+            HttpResponseMessage response = await GetAsync($"v1/app/{appName}/versions");
+            EdgegapHttpResult<GetAppVersionsResult> result = new EdgegapHttpResult<GetAppVersionsResult>(response);
+
+            bool isSuccess = response.StatusCode == HttpStatusCode.OK; // 200
+            if (!isSuccess)
+                return result;
+
+            return result;
+        }
         #endregion // API Methods
-        
-        
+
+
         #region Chained API Methods
         /// <summary>
         /// PATCH and/or POST to v1/app/: Upsert an *existing* application version with new specifications.

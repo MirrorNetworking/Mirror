@@ -1,102 +1,163 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" editor-extension-mode="True">
-    <Style src="project://database/Assets/Edgegap/Editor/EdgegapWindow.uss?fileID=7433441132597879392&amp;guid=b1a2e4572c5de8840ac8d98377d409ae&amp;type=3#EdgegapWindow" />
+    <Style src="project://database/Assets/Mirror/Hosting/Edgegap/Editor/EdgegapWindow.uss?fileID=7433441132597879392&amp;guid=b1a2e4572c5de8840ac8d98377d409ae&amp;type=3#EdgegapWindow" />
     <ui:VisualElement class="content" style="padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0;">
         <ui:VisualElement name="HeaderHorizGroup" style="flex-grow: 1; flex-direction: row; height: 100px; background-color: rgb(37, 37, 37); left: 0;">
-            <ui:VisualElement name="header-logo-img" style="height: 67px; width: 100px; flex-direction: row; background-image: url(&apos;./Images/logo_transparent_400_alpha25.png?fileID=2800000&amp;guid=b7012da4ebf9008458abc3ef9a741f3c&amp;type=3#logo_transparent_400_alpha25&apos;); -unity-background-scale-mode: scale-to-fit; -unity-slice-left: 0; -unity-slice-top: 0; -unity-slice-right: 0; -unity-slice-bottom: 0; -unity-background-image-tint-color: rgb(255, 255, 255); -unity-slice-scale: 1px; align-self: center;" />
-            <ui:Label text="EDGEGAP" name="header-logo-txt" class="text__title" style="flex-direction: row; flex-grow: 1; color: rgb(255, 255, 255); font-size: 30px; -unity-text-align: middle-left; -unity-font-style: normal; -unity-font: initial; -unity-font-definition: url(&apos;./Fonts/Spartan-SemiBold%20SDF.asset?fileID=11400000&amp;guid=7b18949555c60224384ab80e57e1fd68&amp;type=2#Spartan-SemiBold SDF&apos;); margin-left: 0; align-items: center; height: 74px;">
+            <ui:VisualElement name="header-logo-img" style="height: 67px; width: 100px; flex-direction: row; background-image: url(&apos;project://database/Assets/Mirror/Hosting/Edgegap/Editor/Images/logo_transparent_400_alpha25.png?fileID=2800000&amp;guid=b7012da4ebf9008458abc3ef9a741f3c&amp;type=3#logo_transparent_400_alpha25&apos;); -unity-background-scale-mode: scale-to-fit; -unity-slice-left: 0; -unity-slice-top: 0; -unity-slice-right: 0; -unity-slice-bottom: 0; -unity-background-image-tint-color: rgb(255, 255, 255); -unity-slice-scale: 1px; align-self: center;" />
+            <ui:Label text="EDGEGAP" name="header-logo-txt" class="text__title" style="flex-direction: row; flex-grow: 1; color: rgb(255, 255, 255); font-size: 30px; -unity-text-align: middle-left; -unity-font-style: normal; -unity-font: initial; -unity-font-definition: url(&apos;project://database/Assets/Mirror/Hosting/Edgegap/Editor/Fonts/Spartan-SemiBold%20SDF.asset?fileID=11400000&amp;guid=7b18949555c60224384ab80e57e1fd68&amp;type=2#Spartan-SemiBold SDF&apos;); margin-left: 0; align-items: center; height: 74px;">
                 <ui:Button text="DEBUG" parse-escape-sequences="true" display-tooltip-when-elided="true" name="DebugBtn" tooltip="Hide me @ EdgegapWindowMetadata.SHOW_DEBUG_BTN" style="-unity-text-align: middle-left; white-space: normal; text-overflow: clip; justify-content: flex-start; align-self: flex-end; position: absolute; right: 0; top: 0; padding-top: 3px;" />
             </ui:Label>
         </ui:VisualElement>
     </ui:VisualElement>
     <ui:ScrollView name="BodyScrollView" style="background-color: rgb(37, 37, 37); height: 1132px; justify-content: flex-end;">
-        <ui:GroupBox name="ApiTokenHorizGroupBox" class="container-row-parent" style="flex-direction: row; margin-left: 0; margin-right: 0; margin-bottom: 10px; align-items: center; justify-content: flex-start; align-self: auto; padding-bottom: 0; padding-top: 0;">
-            <ui:TextField name="ApiTokenMaskedTxt" label="&lt;b&gt;API Token&lt;/b&gt;" tooltip="No token? Click the &quot;Get a Token&quot; button &gt;&gt; Click &quot;Verify&quot; after entered to unlock other features" password="true" class="text-edgegap" style="padding-left: 25px; flex-grow: 0.17;" />
-            <ui:Button name="ApiTokenVerifyPurpleBtn" text="Verify" tooltip="On successful validation, the remaining UI will be unlocked" class="button-edgegap text-edgegap bg-purple" style="min-width: 75px; -unity-font-style: bold; visibility: visible; display: flex; overflow: hidden;" />
-            <ui:Button name="ApiTokenGetBtn" text="Get a Token" class="button-edgegap text-edgegap" style="-unity-font-style: bold; width: 125px; max-width: none; min-width: auto;" />
-        </ui:GroupBox>
-        <ui:VisualElement name="PostAuthContainer" usage-hints="MaskContainer" style="flex-grow: 1; transition-timing-function: ease-in; transition-duration: 0.2s;">
-            <ui:Foldout text="&lt;b&gt;Application Info&lt;/b&gt;" name="ApplicationInfoFoldout" class="text-edgegap container-row-parent" style="margin-left: 0; -unity-font-style: normal;">
-                <ui:VisualElement name="ApplicationNameRow" class="container-row" style="flex-grow: 1; align-items: center; flex-direction: row; justify-content: flex-start; align-self: auto;">
-                    <ui:TextField name="ApplicationNameTxt" label="Application Name" tooltip="Arbitrary name to call your app" password="false" view-data-key="ApplicationNameTxt" class="text-edgegap" />
-                    <ui:Button name="AppLoadExistingBtn" text="Load Existing App" tooltip="Already have an existing application by this name?" class="button-edgegap text-edgegap bg-purple" style="min-width: 75px; -unity-font-style: bold; visibility: visible; display: flex; overflow: hidden;" />
-                </ui:VisualElement>
-                <ui:VisualElement name="ApplicationIconRow" class="container-row" style="flex-grow: 1;">
-                    <ui:VisualElement name="ApplicationIconHorizGroup" class="text-edgegap" style="flex-grow: 1; flex-direction: row; align-items: center; justify-content: flex-start; align-self: stretch; width: 600px;">
-                        <uie:ObjectField label="Application Icon" type="UnityEngine.Sprite, UnityEngine.CoreModule" name="ApplicationIconSprite" tooltip="Choose a Sprite image to use as an app icon" view-data-key="ApplicationIconSprite" style="align-items: center; justify-content: flex-start; align-self: center; width: 409px;" />
-                        <ui:VisualElement name="SelectFileVertGroup" style="flex-grow: 0.7;">
-                            <ui:VisualElement name="SelectFileHorizGroup" style="flex-grow: 1; flex-direction: row; align-items: center;">
-                                <ui:Label tabindex="-1" text="Limit 200kb" parse-escape-sequences="true" display-tooltip-when-elided="true" name="SelectFileSizeLimitTooltipLabel" class="text-edgegap" style="font-size: 11px; color: rgb(147, 147, 147); -unity-text-align: upper-left;" />
-                            </ui:VisualElement>
-                        </ui:VisualElement>
+        <ui:Foldout text="&lt;b&gt;1. Connect your Edgegap Account&lt;/b&gt;" name="EdgegapConnectFoldout" class="text-edgegap container-row-parent" style="margin-left: 0; -unity-font-style: normal; height: auto; padding-bottom: 0;">
+            <ui:VisualElement name="Content" class="container-row" style="flex-grow: 1; align-items: flex-start; flex-direction: column; justify-content: flex-start; align-self: auto; padding-top: 5px; padding-bottom: 0; background-color: rgba(37, 37, 37, 0); margin-left: 0; padding-left: 0; -unity-background-scale-mode: stretch-to-fill; margin-right: 0; margin-bottom: 0;">
+                <ui:VisualElement name="ConnectAccountRow" class="container-row" style="flex-grow: 1; align-items: center; flex-direction: row; justify-content: flex-start; align-self: auto; padding-top: 0; padding-bottom: 0; background-color: rgba(0, 0, 0, 0); margin-bottom: 0;">
+                    <ui:VisualElement name="SignInContainer" view-data-key="SignInSubrow" class="" style="flex-grow: 1; align-items: center; flex-direction: row; justify-content: flex-start; align-self: auto; background-color: rgba(0, 0, 0, 0); margin-right: 15px; margin-top: 3px;">
+                        <ui:Button name="EdgegapSignInBtn" text="Sign in with Edgegap" class="button-edgegap text-edgegap button-blue" style="-unity-font-style: bold; width: auto; max-width: none; min-width: 140px; margin-right: 3px; margin-left: 0;" />
+                    </ui:VisualElement>
+                    <ui:VisualElement name="ConnectedContainer" view-data-key="ConnectedSubrow" class="container-row" style="flex-grow: 1; align-items: center; flex-direction: row; justify-content: flex-start; align-self: auto; background-color: rgb(37, 37, 37); padding-left: 3px;">
+                        <ui:TextField name="ApiTokenMaskedTxt" tooltip="No token? Click the &quot;Get a Token&quot; button &gt;&gt; Click &quot;Verify&quot; after entered to unlock other features" password="true" class="text-edgegap" style="padding-left: 0; flex-grow: 0.17; padding-right: 3px; width: 150px; min-width: auto; margin-left: 0;" />
+                        <ui:Button name="ApiTokenGetBtn" text="Get token" class="button-edgegap text-edgegap" style="-unity-font-style: bold; width: auto; max-width: none; min-width: 100px;" />
+                        <ui:Button name="ApiTokenVerifyBtn" text="Validate token" tooltip="On successful validation, the remaining UI will be unlocked" class="button-edgegap text-edgegap" style="min-width: 100px; -unity-font-style: bold; visibility: visible; display: flex; overflow: hidden; max-width: none;" />
+                        <ui:Button name="SignOutBtn" text="Sign out" class="button-edgegap text-edgegap bg-blue button-red" style="min-width: 100px; -unity-font-style: bold; visibility: visible; display: flex; overflow: hidden; max-width: none;" />
                     </ui:VisualElement>
                 </ui:VisualElement>
-                <ui:VisualElement name="ApplicationCreateHorizRow" style="flex-grow: 1; flex-direction: row;">
-                    <ui:Button name="ApplicationCreateBtn" text="Create Application" class="button-edgegap text-edgegap" style="flex-direction: row; -unity-text-align: middle-center; margin-left: 0;" />
-                    <ui:Label tabindex="-1" text="{ApplicationCreateResultLabel}" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ApplicationCreateResultLabel" class="text-edgegap" style="color: rgb(138, 238, 140); align-items: stretch; justify-content: flex-start; align-self: center;" />
+                <ui:VisualElement name="DiscordBtnRow" class="container-row" style="flex-grow: 1; align-items: center; flex-direction: row; justify-content: flex-start; align-self: auto; padding-top: 5px; padding-bottom: 5px; background-color: rgba(0, 0, 0, 0);">
+                    <ui:Button name="EdgegapDiscordBtn" class="button-edgegap text-edgegap" style="-unity-font-style: bold; width: auto; max-width: none; min-width: 135px; justify-content: center; align-self: flex-start; align-items: center; margin-left: 0; background-image: none; flex-direction: row;">
+                        <ui:Label tabindex="-1" text="Join our Discord" display-tooltip-when-elided="true" name="DiscordTxt" class="text-edgegap" style="margin-right: 5px;" />
+                        <ui:VisualElement name="DiscordLogo" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); background-image: url(&apos;project://database/Assets/Mirror/Hosting/Edgegap/Editor/Images/discord-brands-solid-64px.png?fileID=2800000&amp;guid=63ea01afe23d1364780a447d738b7ebd&amp;type=3#discord-brands-solid-64px&apos;); max-width: 15px; max-height: 12px; min-width: 17px; min-height: 12px;" />
+                    </ui:Button>
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:Foldout>
+        <ui:VisualElement name="PostAuthContainer" usage-hints="MaskContainer" style="flex-grow: 1; transition-timing-function: ease-in; transition-duration: 0.2s;">
+            <ui:Foldout text="&lt;b&gt;2. Build Your Game Server&lt;/b&gt;" name="BuildServerFoldout" class="text-edgegap container-row-parent" style="margin-left: 0; -unity-font-style: normal;">
+                <ui:VisualElement name="Row" class="container-row" style="flex-grow: 1; align-items: center; flex-direction: row; justify-content: flex-start; align-self: auto;" />
+                <ui:VisualElement name="LinuxRequirementsRow" class="container-row" style="flex-grow: 1; align-items: center; flex-direction: row; justify-content: flex-start; align-self: auto; padding-top: 3px; padding-bottom: 3px;">
+                    <ui:Button name="LinuxRequirementsTxtLink" text="Linux Server Build Requirements ⓘ" class="text-edgegap btn-text-link" style="margin-left: 0; max-width: 500px; width: auto; min-width: 220px; padding-left: 0; left: -9px;" />
+                    <ui:Button name="InstallLinuxRequirementsBtn" text="Install" class="button-edgegap text-edgegap" style="min-width: 75px; -unity-font-style: bold; visibility: visible; display: flex; overflow: hidden; width: 100px; max-width: 100px;" />
+                    <ui:Label tabindex="-1" text="{LinuxRequirementsResultLabel}" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ValidateLinuxResultLabel" class="text-edgegap" style="color: rgb(138, 238, 140); align-items: stretch; justify-content: flex-start; align-self: center;" />
+                </ui:VisualElement>
+                <ui:VisualElement name="BuildParametersRow" class="container-row" style="flex-grow: 1; align-items: center; flex-direction: row; justify-content: flex-start; align-self: auto; padding-top: 3px; padding-bottom: 3px;">
+                    <ui:Label tabindex="-1" text="Unity Build Settings" display-tooltip-when-elided="true" name="BuildSettingsLabelTxt" style="margin-left: 3px; margin-right: 3px; margin-top: 3px; margin-bottom: 1px; padding-left: 1px; padding-right: 3px; padding-top: 5px; padding-bottom: 5px; max-width: none; min-width: 216px;" />
+                    <ui:Button name="BuildParametersBtn" text="Edit Settings" class="button-edgegap text-edgegap" style="min-width: 75px; -unity-font-style: bold; visibility: visible; display: flex; overflow: hidden; width: 100px; max-width: 100px;" />
+                </ui:VisualElement>
+                <ui:VisualElement name="BuildFolderRow" class="container-row" style="flex-grow: 1; align-items: center; flex-direction: row; justify-content: flex-start; align-self: auto;">
+                    <ui:TextField name="BuildFolderTxt" label="Build Folder Name" password="false" view-data-key="BuildFolderTxt" class="text-edgegap label-right-padding" />
+                </ui:VisualElement>
+                <ui:VisualElement name="ServerBuildClickRow" style="flex-grow: 1; flex-direction: row;">
+                    <ui:Button name="ServerBuildBtn" text="Build server" class="button-edgegap text-edgegap" style="flex-direction: row; -unity-text-align: middle-center; margin-left: 0; max-width: 250px; min-width: 100px;" />
+                    <ui:Label tabindex="-1" text="{ServerBuildResultLabel}" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ServerBuildResultLabel" class="text-edgegap" style="color: rgb(138, 238, 140); align-items: stretch; justify-content: flex-start; align-self: center;" />
                 </ui:VisualElement>
             </ui:Foldout>
-            <ui:VisualElement name="ContainerRegistryFoldoutHorizRow" class="container-row-parent" style="flex-grow: 1; flex-direction: row;">
-                <ui:Foldout text="&lt;b&gt;Container Registry&lt;/b&gt;" name="ContainerRegistryFoldout" class="text-edgegap" style="flex-grow: 1; padding-bottom: 0; padding-top: 0; padding-right: 0; padding-left: 0;">
-                    <ui:VisualElement name="ContainerPortRow" class="container-row" style="flex-grow: 1; align-items: center; flex-direction: row; justify-content: flex-start; align-self: auto;">
-                        <ui:TextField name="ContainerRegistryPortNumTxt" label="Port" tooltip="1024~49151 (Default `7770`)" value="7770" view-data-key="ContainerRegistryPortNumTxt" keyboard-type="NumberPad" class="text-edgegap" style="width: 250px;" />
-                        <ui:VisualElement name="MIRROR_CHANGE_PORT_HARDCODED" class="MIRROR_CHANGE_PORT_HARDCODED" />
+            <ui:Foldout text="&lt;b&gt;3. Containerize Your Server&lt;/b&gt;" name="ContainerizeServerFoldout" class="text-edgegap container-row-parent" style="margin-left: 0; -unity-font-style: normal;">
+                <ui:VisualElement name="Row" class="container-row" style="flex-grow: 1; align-items: center; flex-direction: row; justify-content: flex-start; align-self: auto;" />
+                <ui:VisualElement name="DockerRequirementRow" class="container-row" style="flex-grow: 1; align-items: center; flex-direction: row; justify-content: flex-start; align-self: auto; padding-top: 3px; padding-bottom: 3px;">
+                    <ui:Button name="DockerRequirementTxtLink" text="Docker Installed And Running ⓘ" class="text-edgegap btn-text-link" style="margin-left: 0; max-width: 500px; width: auto; min-width: 220px; padding-left: 0; left: -17px;" />
+                    <ui:Button name="ValidateDockerRequirementBtn" text="Validate" class="button-edgegap text-edgegap" style="min-width: 75px; -unity-font-style: bold; visibility: visible; display: flex; overflow: hidden;" />
+                    <ui:Label tabindex="-1" text="{DockerRequirementsResultLabel}" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ValidateDockerResultLabel" class="text-edgegap" style="color: rgb(138, 238, 140); align-items: stretch; justify-content: flex-start; align-self: center;" />
+                </ui:VisualElement>
+                <ui:VisualElement name="BuildPathRow" class="container-row" style="flex-grow: 1; align-items: center; flex-direction: row; justify-content: flex-start; align-self: auto;">
+                    <ui:TextField name="ContainerizeBuildPathTxt" label="Relative Build Path" password="false" view-data-key="ContainerizeBuildPathTxt" readonly="true" tooltip="Path to the server build folder inside the project." class="text-edgegap label-right-padding" />
+                    <ui:Button name="ResetBuildPathBtn" text="&lt;b&gt;X&lt;/b&gt;" class="text-edgegap btn-show-dropdown" style="margin-left: 0; max-width: 250px; width: auto; min-width: auto;" />
+                </ui:VisualElement>
+                <ui:VisualElement name="ImageNameRow" class="container-row" style="flex-grow: 1; align-items: center; flex-direction: row; justify-content: flex-start; align-self: auto;">
+                    <ui:TextField name="ContainerizeImageNameTxt" label="Image Name" password="false" view-data-key="ContainerizeImageNameTxt" tooltip="The image name will automatically be formatted to include the registry URL and project." class="text-edgegap label-right-padding" />
+                </ui:VisualElement>
+                <ui:VisualElement name="ImageTagRow" class="container-row" style="flex-grow: 1; align-items: center; flex-direction: row; justify-content: flex-start; align-self: auto;">
+                    <ui:TextField name="ContainerizeImageTagTxt" label="Image Tag (-t, --tag)" password="false" view-data-key="ContainerizeImageTagTxt" class="text-edgegap label-right-padding" />
+                </ui:VisualElement>
+                <ui:VisualElement name="DockerfilePathRow" class="container-row" style="flex-grow: 1; align-items: center; flex-direction: row; justify-content: flex-start; align-self: auto;">
+                    <ui:TextField name="DockerfilePathTxt" label="Path To Dockerfile (-f, --file)" password="false" view-data-key="DockerfilePathTxt" readonly="true" class="text-edgegap label-right-padding" />
+                    <ui:Button name="ResetDockerfilePathBtn" text="&lt;b&gt;X&lt;/b&gt;" class="text-edgegap btn-show-dropdown" style="margin-left: 0; max-width: 250px; width: auto; min-width: auto;" />
+                </ui:VisualElement>
+                <ui:VisualElement name="DockerfileParametersRow" class="container-row" style="flex-grow: 1; align-items: center; flex-direction: row; justify-content: flex-start; align-self: auto;">
+                    <ui:TextField name="DockerfileParametersTxt" label="Optional Docker Build Parameters" password="false" view-data-key="DockerfileParametersTxt" class="text-edgegap label-right-padding" />
+                </ui:VisualElement>
+                <ui:VisualElement name="ContainerizeClickRow" style="flex-grow: 1; flex-direction: row;">
+                    <ui:Button name="ContainerizeServerBtn" text="Containerize with Docker" class="button-edgegap text-edgegap" style="flex-direction: row; -unity-text-align: middle-center; margin-left: 0; max-width: 250px; min-width: 170px;" />
+                    <ui:Label tabindex="-1" text="{ContainerizeResultLabel}" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ContainerizeResultLabel" class="text-edgegap" style="color: rgb(138, 238, 140); align-items: stretch; justify-content: flex-start; align-self: center;" />
+                </ui:VisualElement>
+            </ui:Foldout>
+            <ui:Foldout text="&lt;b&gt;4. Test Your Server Locally&lt;/b&gt;" name="LocalTestFoldout" class="text-edgegap container-row-parent" style="margin-left: 0; -unity-font-style: normal; min-height: auto;">
+                <ui:VisualElement name="Row" class="container-row" style="flex-grow: 1; align-items: center; flex-direction: row; justify-content: flex-start; align-self: auto;" />
+                <ui:VisualElement name="LocalTestImageRow" class="container-row" style="flex-grow: 1; align-items: center; flex-direction: row; justify-content: flex-start; align-self: auto;">
+                    <ui:TextField name="LocalTestImageTxt" label="Server Image Tag" password="false" view-data-key="LocalTestImageTxt" tooltip="The image will automatically be formatted to include the registry URL and project." class="text-edgegap label-right-padding" />
+                    <ui:Button name="LocalTestImageDropdownBtn" text="▼" class="text-edgegap btn-show-dropdown" style="margin-left: 0; max-width: 250px; width: auto; min-width: auto;" />
+                </ui:VisualElement>
+                <ui:VisualElement name="DockerRunParametersRow" class="container-row" style="flex-grow: 1; align-items: center; flex-direction: row; justify-content: flex-start; align-self: auto;">
+                    <ui:TextField name="DockerRunParamsTxt" label="Optional Docker Run Parameters" password="false" view-data-key="DockerRunParamsTxt" class="text-edgegap label-right-padding" />
+                </ui:VisualElement>
+                <ui:VisualElement name="LocalTestBtnRow" style="flex-grow: 1; flex-direction: row;">
+                    <ui:Button name="LocalTestDeployBtn" text="Deploy local container" class="button-edgegap text-edgegap" style="flex-direction: row; -unity-text-align: middle-center; margin-left: 0; max-width: 250px; min-width: 150px;" />
+                    <ui:Button name="LocalTestTerminateBtn" text="Terminate" class="button-edgegap text-edgegap" style="flex-direction: row; -unity-text-align: middle-center; margin-left: 0; max-width: 250px; min-width: 75px;" />
+                    <ui:Button name="LocalTestDiscordHelpBtn" class="button-edgegap text-edgegap" style="flex-grow: 0.5; max-width: 75px; min-width: 100px; flex-direction: row; align-items: center; justify-content: flex-end; align-self: auto;">
+                        <ui:Label tabindex="-1" text="Get help" display-tooltip-when-elided="true" name="DiscordTxt" class="text-edgegap" style="margin-right: 5px;" />
+                        <ui:VisualElement name="DiscordLogo" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); background-image: url(&apos;project://database/Assets/Mirror/Hosting/Edgegap/Editor/Images/discord-brands-solid-64px.png?fileID=2800000&amp;guid=63ea01afe23d1364780a447d738b7ebd&amp;type=3#discord-brands-solid-64px&apos;); max-width: 15px; max-height: 12px; min-width: 17px; min-height: 12px;" />
+                    </ui:Button>
+                </ui:VisualElement>
+                <ui:VisualElement name="TestLocallyResultRow" style="flex-grow: 1; flex-direction: row;">
+                    <ui:Label tabindex="-1" text="{LocalDeployResultLabel}" parse-escape-sequences="true" display-tooltip-when-elided="true" name="LocalDeployResultLabel" class="text-edgegap" style="color: rgb(138, 238, 140); align-items: stretch; justify-content: flex-start; align-self: center; padding-top: 10px; padding-bottom: 5px;" />
+                </ui:VisualElement>
+                <ui:Button name="LocalContainerConnectLink" text="Learn how to connect to your local container using a local IP address. ⓘ" class="text-edgegap btn-text-link" style="margin-left: 5px; width: auto; min-width: 500px; padding-top: 5px; padding-left: 0; left: 0; -unity-text-align: middle-left;" />
+            </ui:Foldout>
+            <ui:VisualElement name="EdgegapAppFoldoutHorizRow" class="container-row-parent" style="flex-grow: 1; flex-direction: row;">
+                <ui:Foldout text="&lt;b&gt;5. Upload to Edgegap&lt;/b&gt;" name="EdgegapAppFoldout" class="text-edgegap" style="flex-grow: 1; padding-bottom: 0; padding-top: 0; padding-right: 0; padding-left: 0; min-width: auto;">
+                    <ui:VisualElement name="Row" class="container-row" style="flex-grow: 1; align-items: center; flex-direction: row; justify-content: flex-start; align-self: auto;" />
+                    <ui:VisualElement name="ApplicationNameRow" class="container-row" style="flex-grow: 1; align-items: center; flex-direction: row; justify-content: flex-start; align-self: auto;">
+                        <ui:TextField name="CreateAppNameTxt" label="Application Name" tooltip="Arbitrary name to call your app" password="false" view-data-key="ApplicationNameTxt" class="text-edgegap label-right-padding" />
+                        <ui:Button name="CreateAppNameDropdownBtn" text="▼" class="text-edgegap btn-show-dropdown" style="margin-left: 0; max-width: 250px; width: auto; min-width: auto;" />
                     </ui:VisualElement>
-                    <ui:VisualElement name="ContainerNewVersionTagRow" class="container-row" style="flex-grow: 1; align-items: center; flex-direction: row; justify-content: flex-start; align-self: auto;">
-                        <ui:TextField name="ContainerNewVersionTagTxt" label="New Version Tag" tooltip="eg: &quot;latest&quot; (default), &quot;v1.0.0&quot;, &quot;1.0.0&quot;" value="latest" view-data-key="ContainerNewVersionTagTxt" class="text-edgegap" />
+                    <ui:VisualElement name="ServerImageNameRow" class="container-row" style="flex-grow: 1; align-items: center; flex-direction: row; justify-content: flex-start; align-self: auto;">
+                        <ui:TextField name="ServerImageNameTxt" label="Server Image Name" password="false" view-data-key="ServerImageNameTxt" tooltip="The image name will automatically be formatted to include the registry URL and project." class="text-edgegap label-right-padding" />
                     </ui:VisualElement>
-                    <ui:VisualElement name="ContainerUseCustomRegistryRow" view-data-key="ContainerUseCustomRegistryRow" class="container-row" style="flex-grow: 1; align-items: center; flex-direction: row; justify-content: flex-start; align-self: auto; padding-top: 5px; padding-bottom: 5px;">
-                        <ui:Toggle name="ContainerUseCustomRegistryToggle" label="Use Custom Container Registry" class="text-edgegap checkmark-edgegap" style="justify-content: flex-start; align-self: center; flex-direction: row-reverse; align-items: center; padding-left: 3px;" />
+                    <ui:VisualElement name="ServerImageTagRow" class="container-row" style="flex-grow: 1; align-items: center; flex-direction: row; justify-content: flex-start; align-self: auto;">
+                        <ui:TextField name="ServerImageTagTxt" label="Server Image Tag" password="false" view-data-key="ServerImageTagTxt" class="text-edgegap label-right-padding" style="height: 39px;" />
                     </ui:VisualElement>
-                    <ui:VisualElement name="ContainerCustomRegistryWrapper" style="flex-grow: 1;">
-                        <ui:VisualElement name="ContainerRegistryUrlRow" class="container-row customContainerRegistryMember" style="flex-grow: 1; align-items: center; flex-direction: row; justify-content: flex-start; align-self: auto;">
-                            <ui:TextField name="ContainerRegistryUrlTxt" label="Registry URL" tooltip="eg: `registry.edgegap.com`, `docker.io`, `harbor.edgegap.net`" class="text-edgegap customContainerChildTxt" />
-                        </ui:VisualElement>
-                        <ui:VisualElement name="ContainerRepositoryRow" class="container-row" style="flex-grow: 1; align-items: center; flex-direction: row; justify-content: flex-start; align-self: auto;">
-                            <ui:TextField name="ContainerImageRepositoryTxt" label="Repository" tooltip="eg: `edgegap-public/tutorial`, `mycompany-someid/mylowercaseapp-`" class="text-edgegap customContainerChildTxt" />
-                        </ui:VisualElement>
-                        <ui:VisualElement name="ContainerUsernameRow" class="container-row" style="flex-grow: 1; align-items: center; flex-direction: row; justify-content: flex-start; align-self: auto;">
-                            <ui:TextField name="ContainerUsernameTxt" label="Username" tooltip="eg: `robot$mycompany-someid+client-push`" class="text-edgegap customContainerChildTxt" />
-                        </ui:VisualElement>
-                        <ui:VisualElement name="ContainerTokenRow" class="container-row" style="flex-grow: 1; align-items: center; flex-direction: row; justify-content: flex-start; align-self: auto;">
-                            <ui:TextField name="ContainerTokenTxt" label="Token" tooltip="Registry pasword/token/secret (different from top-level API Token)" password="true" class="text-edgegap customContainerChildTxt" />
-                        </ui:VisualElement>
-                    </ui:VisualElement>
+                    <ui:Button name="PortMappingLink" text="Port mapping: your external port for clients will be assigned randomly to improve security. ⓘ" class="text-edgegap btn-text-link" style="margin-left: 5px; width: auto; min-width: 600px; padding-left: 0; left: 0; -unity-text-align: middle-left;" />
                     <ui:VisualElement name="ContainerBuildAndPushHorizRow" style="flex-grow: 1; flex-direction: row;">
-                        <ui:Button name="ContainerBuildAndPushBtn" text="Build and Push" class="button-edgegap text-edgegap" style="margin-left: 0;" />
-                        <ui:Label tabindex="-1" text="{ContainerBuildAndPushResultLabel}" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ContainerBuildAndPushResultLabel" class="text-edgegap" style="color: rgb(138, 238, 140); align-items: stretch; justify-content: flex-start; align-self: center; display: none;" />
+                        <ui:Button name="ImagePushAppCreateBtn" text="Upload image and Create app version" class="button-edgegap text-edgegap" style="margin-left: 0; max-width: 250px; width: auto; min-width: 220px;" />
+                        <ui:Button name="EdgegapAppLink" text="Your application on Edgegap. ⓘ" class="text-edgegap btn-text-link" style="margin-left: 0; max-width: 200px; width: auto; min-width: 175px; padding-left: 0; left: auto;" />
                     </ui:VisualElement>
                 </ui:Foldout>
             </ui:VisualElement>
-            <ui:Foldout text="&lt;b&gt;Deployments&lt;/b&gt;" name="DeploymentsFoldout" class="text-edgegap container-row-parent">
+            <ui:Foldout text="&lt;b&gt;6. Deploy a Server on Edgegap&lt;/b&gt;" name="ServerDeploymentFoldout" class="text-edgegap container-row-parent">
                 <ui:VisualElement name="Row" class="container-row" style="flex-grow: 1; align-items: center; flex-direction: row; justify-content: flex-start; align-self: auto;" />
-                <ui:GroupBox name="DeploymentsHorizGroupBox" style="flex-direction: row; justify-content: flex-start; align-items: stretch; align-self: flex-start; margin-left: 0; padding-left: 0;">
-                    <ui:Button name="DeploymentsRefreshBtn" text="Refresh" class="button-edgegap text-edgegap" style="flex-grow: 0.5;" />
-                    <ui:Button name="DeploymentsCreateBtn" text="Create New Deployment" class="button-edgegap text-edgegap" style="flex-grow: 0.5; max-width: 250px; min-width: 200px;" />
+                <ui:VisualElement name="ApplicationNameRow" class="container-row" style="flex-grow: 1; align-items: center; flex-direction: row; justify-content: flex-start; align-self: auto;">
+                    <ui:TextField name="DeployAppNameTxt" label="Application Name" password="false" view-data-key="DeployAppNameTxt" class="text-edgegap label-right-padding" />
+                    <ui:Button name="DeployAppNameDropdownBtn" text="▼" class="text-edgegap btn-show-dropdown" style="margin-left: 0; max-width: 250px; width: auto; min-width: auto;" />
+                </ui:VisualElement>
+                <ui:VisualElement name="ContainerNewVersionTagRow" class="container-row" style="flex-grow: 1; align-items: center; flex-direction: row; justify-content: flex-start; align-self: auto;">
+                    <ui:TextField name="DeployAppVersionTagTxt" label="Application Version" view-data-key="DeployVersionTagTxt" class="text-edgegap label-right-padding" />
+                    <ui:Button name="DeployAppVersionDropdownBtn" text="▼" class="text-edgegap btn-show-dropdown" style="margin-left: 0; max-width: 250px; width: auto; min-width: auto;" />
+                </ui:VisualElement>
+                <ui:Button name="DeployLimitLink" text="You&apos;re limited to 1 deployment and 60 minutes of runtime per instance in Free Tier. ⓘ" class="text-edgegap btn-text-link" style="margin-left: 0; max-width: 462px; width: auto; min-width: 175px; padding-left: 0; left: 0;" />
+                <ui:GroupBox name="DeploymentsHorizGroupBox" style="flex-direction: row; justify-content: flex-start; align-items: stretch; align-self: flex-start; margin-left: 0; padding-left: 0; margin-bottom: 6px;">
+                    <ui:Button name="DeploymentsCreateBtn" text="Deploy to cloud" class="button-edgegap text-edgegap" style="flex-grow: 0.5; max-width: 250px; min-width: 125px; margin-left: 0;" />
+                    <ui:Button name="DeploymentsConnectionServerStopBtn" text="Stop last deployment" class="button-edgegap text-edgegap" style="min-width: 150px; width: auto; max-width: none; visibility: visible; display: flex;" />
+                    <ui:Button name="DeployDiscordHelpBtn" class="button-edgegap text-edgegap" style="flex-grow: 0.5; max-width: 250px; min-width: 100px; align-items: center; justify-content: center; flex-direction: row;">
+                        <ui:Label tabindex="-1" text="Get help" display-tooltip-when-elided="true" name="DiscordTxt" class="text-edgegap" style="margin-right: 5px;" />
+                        <ui:VisualElement name="DiscordLogo" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); background-image: url(&apos;project://database/Assets/Mirror/Hosting/Edgegap/Editor/Images/discord-brands-solid-64px.png?fileID=2800000&amp;guid=63ea01afe23d1364780a447d738b7ebd&amp;type=3#discord-brands-solid-64px&apos;); max-width: 15px; max-height: 12px; min-width: 17px; min-height: 12px;" />
+                    </ui:Button>
                 </ui:GroupBox>
-                <ui:Label tabindex="-1" text="{DeploymentsStatusLabel}" parse-escape-sequences="true" display-tooltip-when-elided="true" name="DeploymentsStatusLabel" class="text-edgegap" style="color: rgb(138, 238, 140); white-space: normal; text-overflow: ellipsis; width: 650px; display: none; margin-left: 3px;" />
-                <ui:GroupBox name="DeploymentsHeadersGroupBox" class="container-row-parent" style="flex-direction: row; padding-top: 6px; padding-right: 0; padding-bottom: 3px; padding-left: 0; margin-bottom: 0; align-self: auto; justify-content: flex-start; align-items: center;">
-                    <ui:Label name="DeploymentsConnectionStatusHeaderLabel" text="Status" style="flex-grow: 0.5; -unity-text-align: upper-left; -unity-font-style: bold; width: 75px; flex-direction: column;" />
-                    <ui:Label name="DeploymentsConnectionURLHeaderLabel" text="URL" style="flex-grow: 1; -unity-font-style: bold; align-items: auto; justify-content: flex-start; align-self: auto;" />
-                    <ui:Label name="DeploymentsConnectionControlHeaderLabel" text="Control" style="flex-grow: 0.08; -unity-text-align: upper-left; -unity-font-style: bold; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0;" />
-                </ui:GroupBox>
-                <ui:GroupBox name="DeploymentsConnectionGroupBox" style="flex-direction: row; padding-left: 0; align-items: center; align-self: stretch; justify-content: flex-start; height: 64px;">
-                    <ui:Label name="DeploymentsConnectionStatusLabel" text="Unknown" class="text--muted" style="flex-grow: 1; flex-direction: column; -unity-text-align: middle-left; justify-content: flex-start; align-items: center; width: 86px; margin-right: 15px;" />
-                    <ui:VisualElement name="DeploymentConnectionUrlHorizGroup" style="flex-grow: 1; flex-direction: row; width: 304px; margin-left: 25px; margin-right: 25px; padding-right: 25px; padding-left: 25px;">
-                        <ui:TextField picking-mode="Ignore" name="DeploymentConnectionUrlReadOnlyTxt" readonly="true" tooltip="Selectable" style="padding-left: 0; -unity-text-align: middle-center; width: 297px; align-items: center;">
-                            <ui:Button name="DeploymentConnectionCopyUrlBtn" tooltip="Copy" class="text-edgegap bg-purple" style="min-width: 15px; visibility: visible; display: flex; overflow: hidden; background-image: url(&apos;./Images/clipboard-128.png?fileID=2800000&amp;guid=caa516cdb721dd143bbc8000ca78d50a&amp;type=3#clipboard-128&apos;); width: 35px; -unity-background-scale-mode: scale-to-fit; min-height: 25px; background-color: rgb(44, 30, 210); -unity-background-image-tint-color: rgb(224, 224, 224); -unity-slice-left: 1; -unity-slice-top: 1; -unity-slice-right: 1; -unity-slice-bottom: 1; translate: -40px 0;" />
-                        </ui:TextField>
-                    </ui:VisualElement>
-                    <ui:VisualElement name="DeploymentsConnectionServerStopHorizBtnHorizGroup" style="flex-grow: 1; flex-direction: column; align-items: center; justify-content: center; align-self: auto;">
-                        <ui:Button name="DeploymentsConnectionServerStopBtn" text="Stop Server" class="button-edgegap text-edgegap" style="min-width: auto; width: 125px; max-width: none; visibility: visible; display: flex;" />
-                        <ui:Button name="DeploymentsConnectionContainerLogsBtn" text="Container Logs" class="button-edgegap text-edgegap" style="min-width: auto; width: 125px; max-width: none; visibility: visible; display: flex;" />
-                    </ui:VisualElement>
-                </ui:GroupBox>
+                <ui:Label tabindex="-1" text="{DeploymentResultLabel}" parse-escape-sequences="true" display-tooltip-when-elided="true" name="DeploymentResultLabel" class="text-edgegap" style="color: rgb(138, 238, 140); align-items: stretch; justify-content: flex-start; align-self: flex-start;" />
+            </ui:Foldout>
+            <ui:Foldout text="&lt;b&gt;7. Matchmaking and Next Steps&lt;/b&gt;" name="NextStepFoldout" class="text-edgegap container-row-parent">
+                <ui:VisualElement name="Row" class="container-row" style="flex-grow: 1; align-items: center; flex-direction: row; justify-content: flex-start; align-self: auto;" />
+                <ui:VisualElement name="ServerConnectRow" class="container-row" style="flex-grow: 1; align-items: flex-start; flex-direction: row; justify-content: flex-start; align-self: auto; background-color: rgb(49, 49, 49); margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0;">
+                    <ui:Label tabindex="-1" text="You may now" display-tooltip-when-elided="true" name="ServerConnectTxt" class="text-edgegap" style="justify-content: center; margin-left: 0; margin-right: 0; margin-top: 10px; margin-bottom: 10px;" />
+                    <ui:Button name="ServerConnectLinkTxt" text="connect to your server via your assigned URL and external port ⓘ." class="text-edgegap btn-text-link-blue" style="-unity-font-style: bold; width: auto; min-width: 355px; justify-content: center; align-self: flex-start; align-items: stretch; margin-left: 5px; padding-top: 5px; left: -5px;" />
+                </ui:VisualElement>
+                <ui:VisualElement name="LobbiesMatchmakerRow" class="container-row" style="flex-grow: 1; align-items: flex-start; flex-direction: row; justify-content: flex-start; align-self: auto; background-color: rgb(49, 49, 49); margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0;">
+                    <ui:Label tabindex="-1" text="Read more about " display-tooltip-when-elided="true" name="LobbiesMatchmakerTxt" class="text-edgegap" style="justify-content: center; margin-left: 0; margin-right: 0; margin-top: 10px; margin-bottom: 10px;" />
+                    <ui:Button name="ManagedMMLinkTxt" text="Gen2 Matchmaker ⓘ." class="text-edgegap btn-text-link-blue" style="-unity-font-style: bold; width: auto; max-width: none; min-width: 50px; justify-content: center; align-self: flex-start; align-items: stretch; margin-left: 0; padding-top: 5px; margin-right: 0; padding-left: 0;" />
+                </ui:VisualElement>
+                <ui:VisualElement name="LifecycleRow" class="container-row" style="flex-grow: 1; align-items: flex-start; flex-direction: row; justify-content: flex-start; align-self: auto; background-color: rgb(49, 49, 49); margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0;">
+                    <ui:Label tabindex="-1" text="Learn about " display-tooltip-when-elided="true" name="LifecycleTxt" class="text-edgegap" style="justify-content: center; margin-left: 0; margin-right: 0; margin-top: 10px; margin-bottom: 0;" />
+                    <ui:Button name="LifecycleManageTxt" text="scaling strategies and deployment ⓘ." class="text-edgegap btn-text-link-blue" style="width: auto; min-width: 210px; padding-left: 0; margin-top: 3px; display: flex;" />
+                </ui:VisualElement>
             </ui:Foldout>
             <ui:VisualElement name="ServerDataContainer" />
         </ui:VisualElement>
-        <ui:GroupBox name="FooterHorizGroup" class="container-row-parent" style="flex-direction: row; justify-content: center; align-items: stretch; align-self: auto; border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; border-top-left-radius: 1px; border-top-right-radius: 1px; border-bottom-right-radius: 1px; border-bottom-left-radius: 1px; border-right-color: rgb(0, 0, 0); border-left-color: rgb(0, 0, 0); padding-right: 135px; padding-left: 150px; padding-top: 15px; padding-bottom: 15px;">
-            <ui:Button text="Documentation" tooltip="Opens the documentation website. The website version changes depending on the selected API environment." name="FooterDocumentationBtn" class="button-edgegap text-edgegap" style="align-items: stretch;" />
-            <ui:Button text="Add More Game Servers!" tooltip="Opens the documentation website. The website version changes depending on the selected API environment." name="FooterNeedMoreGameServersBtn" class="button-edgegap text-edgegap bg-purple" style="width: 220px; max-width: none; min-width: auto;" />
-        </ui:GroupBox>
     </ui:ScrollView>
 </ui:UXML>

@@ -38,21 +38,24 @@ namespace Edgegap.Editor.Api
         protected EdgegapApiBase(
             ApiEnvironment apiEnvironment,
             string apiToken,
-            EdgegapWindowMetadata.LogLevel logLevel = EdgegapWindowMetadata.LogLevel.Error)
+            EdgegapWindowMetadata.LogLevel logLevel = EdgegapWindowMetadata.LogLevel.Error
+        )
         {
             this.SelectedApiEnvironment = apiEnvironment;
 
             this._httpClient.BaseAddress = new Uri($"{GetBaseUrl()}/");
             this._httpClient.DefaultRequestHeaders.Accept.Add(
-                new MediaTypeWithQualityHeaderValue("application/json"));
+                new MediaTypeWithQualityHeaderValue("application/json")
+            );
 
             string cleanedApiToken = apiToken.Replace("token ", ""); // We already prefixed token below
-            this._httpClient.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("token", cleanedApiToken);
+            this._httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(
+                "token",
+                cleanedApiToken
+            );
 
             this.LogLevel = logLevel;
         }
-
 
         #region HTTP Requests
         /// <summary>
@@ -64,7 +67,10 @@ namespace Edgegap.Editor.Api
         /// - Success => returns HttpResponseMessage result
         /// - Error => Catches errs => returns null (no rethrow)
         /// </returns>
-        protected async Task<HttpResponseMessage> PostAsync(string relativePath = "", string json = "{}")
+        protected async Task<HttpResponseMessage> PostAsync(
+            string relativePath = "",
+            string json = "{}"
+        )
         {
             StringContent stringContent = CreateStringContent(json);
             Uri uri = new Uri(_httpClient.BaseAddress, relativePath); // Normalize POST uri: Can't end with `/`.
@@ -92,7 +98,10 @@ namespace Edgegap.Editor.Api
         /// - Success => returns HttpResponseMessage result
         /// - Error => Catches errs => returns null (no rethrow)
         /// </returns>
-        protected async Task<HttpResponseMessage> PatchAsync(string relativePath = "", string json = "{}")
+        protected async Task<HttpResponseMessage> PatchAsync(
+            string relativePath = "",
+            string json = "{}"
+        )
         {
             StringContent stringContent = CreateStringContent(json);
             Uri uri = new Uri(_httpClient.BaseAddress, relativePath); // Normalize PATCH uri: Can't end with `/`.
@@ -129,11 +138,12 @@ namespace Edgegap.Editor.Api
         /// - Success => returns HttpResponseMessage result
         /// - Error => Catches errs => returns null (no rethrow)
         /// </returns>
-        protected async Task<HttpResponseMessage> GetAsync(string relativePath = "", string customQuery = "")
+        protected async Task<HttpResponseMessage> GetAsync(
+            string relativePath = "",
+            string customQuery = ""
+        )
         {
-            string completeRelativeUri = prepareEdgegapUriWithQuery(
-                relativePath,
-                customQuery);
+            string completeRelativeUri = prepareEdgegapUriWithQuery(relativePath, customQuery);
 
             if (IsLogLevelDebug)
                 Debug.Log($"GetAsync to: `{completeRelativeUri} with customQuery: `{customQuery}`");
@@ -160,18 +170,23 @@ namespace Edgegap.Editor.Api
         /// - Success => returns HttpResponseMessage result
         /// - Error => Catches errs => returns null (no rethrow)
         /// </returns>
-        protected async Task<HttpResponseMessage> DeleteAsync(string relativePath = "", string customQuery = "")
+        protected async Task<HttpResponseMessage> DeleteAsync(
+            string relativePath = "",
+            string customQuery = ""
+        )
         {
-            string completeRelativeUri = prepareEdgegapUriWithQuery(
-                relativePath,
-                customQuery);
+            string completeRelativeUri = prepareEdgegapUriWithQuery(relativePath, customQuery);
 
             if (IsLogLevelDebug)
-                Debug.Log($"DeleteAsync to: `{completeRelativeUri} with customQuery: `{customQuery}`");
+                Debug.Log(
+                    $"DeleteAsync to: `{completeRelativeUri} with customQuery: `{customQuery}`"
+                );
 
             try
             {
-                return await ExecuteRequestAsync(() => _httpClient.DeleteAsync(completeRelativeUri));
+                return await ExecuteRequestAsync(
+                    () => _httpClient.DeleteAsync(completeRelativeUri)
+                );
             }
             catch (Exception e)
             {
@@ -186,7 +201,8 @@ namespace Edgegap.Editor.Api
         /// <returns></returns>
         private static async Task<HttpResponseMessage> ExecuteRequestAsync(
             Func<Task<HttpResponseMessage>> requestFunc,
-            CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken = default
+        )
         {
             HttpResponseMessage response = null;
             try
@@ -215,16 +231,18 @@ namespace Edgegap.Editor.Api
             // Check for a successful status code
             if (response == null)
             {
-                Debug.Log("!Success (null response) - returning 500");
+                Debug.Log("Error: (null response) - returning 500");
                 return CreateUnknown500Err();
             }
 
             if (!response.IsSuccessStatusCode)
             {
                 HttpMethod httpMethod = response.RequestMessage.Method;
-                Debug.Log($"!Success: {(short)response.StatusCode} {response.ReasonPhrase} - " +
-                    $"{httpMethod} | {response.RequestMessage.RequestUri}` - " +
-                    $"{response.Content?.ReadAsStringAsync().Result}");
+                Debug.Log(
+                    $"Error: {(short)response.StatusCode} {response.ReasonPhrase} - "
+                        + $"{httpMethod} | {response.RequestMessage.RequestUri}` - "
+                        + $"{response.Content?.ReadAsStringAsync().Result}"
+                );
             }
 
             return response;

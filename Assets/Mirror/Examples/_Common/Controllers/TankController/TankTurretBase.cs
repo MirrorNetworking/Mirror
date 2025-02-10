@@ -55,6 +55,7 @@ namespace Mirror.Examples.Common.Controllers.Tank
         public Transform turret;
         public Transform barrel;
         public Transform projectileMount;
+        public CapsuleCollider barrelCollider;
 
         [Header("Seated Player")]
         public GameObject playerObject;
@@ -208,6 +209,9 @@ namespace Mirror.Examples.Common.Controllers.Tank
 
             if (barrel == null)
                 barrel = FindDeepChild(turret, "Barrel");
+
+            if (barrelCollider == null)
+                barrelCollider = barrel.GetComponent<CapsuleCollider>();
 
             if (projectileMount == null)
                 projectileMount = FindDeepChild(turret, "ProjectileMount");
@@ -412,6 +416,8 @@ namespace Mirror.Examples.Common.Controllers.Tank
 
         #region Shooting
 
+        bool CanShoot => NetworkTime.time >= runtimeData.lastShotTime + cooldownTime;
+
         void HandleShooting()
         {
             if (CanShoot && otherKeys.Shoot != KeyCode.None && Input.GetKeyUp(otherKeys.Shoot))
@@ -420,8 +426,6 @@ namespace Mirror.Examples.Common.Controllers.Tank
                 if (!isServer) DoShoot();
             }
         }
-
-        bool CanShoot => NetworkTime.time >= runtimeData.lastShotTime + cooldownTime;
 
         [Command]
         void CmdShoot()
@@ -440,47 +444,23 @@ namespace Mirror.Examples.Common.Controllers.Tank
             if (!isServer) DoShoot();
         }
 
-        // This has multiple callers in different contexts...don't consolidate, even if it looks like you could.
         void DoShoot()
         {
             //Debug.Log($"DoShoot isServerOnly:{isServerOnly} | isServer:{isServer} | isClientOnly:{isClientOnly}");
 
-            // ProjectileMount.transform.parent.parent is the Barrel object with the Collider
             // Turret
             // - Barrel (with Collider)
             //   - BarrelEnd
             //     - ProjectileMount
 
-            if (isServerOnly)
-            {
-                // Dedicated Server logic - no host client
-                GameObject go = Instantiate(projectilePrefab, projectileMount.position, projectileMount.rotation);
-                Physics.IgnoreCollision(go.GetComponent<Collider>(), projectileMount.transform.parent.parent.GetComponent<Collider>());
+            // Locally instantiate the projectile at the end of the barrel
+            GameObject go = Instantiate(projectilePrefab, projectileMount.position, projectileMount.rotation);
 
-                // Update the last shot time
-                runtimeData.lastShotTime = NetworkTime.time;
-            }
-            else if (isServer)
-            {
-                // Server logic, including host client
-                //animator.SetTrigger("Shoot");
-                GameObject go = Instantiate(projectilePrefab, projectileMount.position, projectileMount.rotation);
-                Physics.IgnoreCollision(go.GetComponent<Collider>(), projectileMount.transform.parent.parent.GetComponent<Collider>());
+            // Ignore collision between the projectile and the barrel collider
+            Physics.IgnoreCollision(go.GetComponent<Collider>(), barrelCollider);
 
-                // Update the last shot time
-                runtimeData.lastShotTime = NetworkTime.time;
-            }
-
-            if (isClientOnly)
-            {
-                // Client-side logic, excluding host client
-                //animator.SetTrigger("Shoot");
-                GameObject go = Instantiate(projectilePrefab, projectileMount.position, projectileMount.rotation);
-                Physics.IgnoreCollision(go.GetComponent<Collider>(), projectileMount.transform.parent.parent.GetComponent<Collider>());
-
-                // Update the last shot time
-                runtimeData.lastShotTime = NetworkTime.time;
-            }
+            // Update the last shot time
+            runtimeData.lastShotTime = NetworkTime.time;
         }
 
         #endregion
