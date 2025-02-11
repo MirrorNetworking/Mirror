@@ -100,7 +100,7 @@ namespace Mirror
                         lastRebuildTime = NetworkTime.localTime;
                     }
 
-                    // no scehe change, so we're done here
+                    // no scene change, so we're done here
                     continue;
                 }
 
