@@ -112,6 +112,9 @@ namespace Mirror.Components.Experimental{
         : value % 2048;
     }
 
+    /// <summary> Returns weather the tick number is set or not. </summary>
+    public bool HasTick => _tickNumber.HasValue;
+
     #endregion
 
     /* Server Tick Offset handling */
