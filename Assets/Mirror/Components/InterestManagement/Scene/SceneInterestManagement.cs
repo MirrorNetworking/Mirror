@@ -47,7 +47,6 @@ namespace Mirror
             }
         }
 
-        // internal so we can update from tests
         [ServerCallback]
         void LateUpdate()
         {
