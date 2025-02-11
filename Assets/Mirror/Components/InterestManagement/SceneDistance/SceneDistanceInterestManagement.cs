@@ -64,10 +64,10 @@ namespace Mirror
         {
             CustomRanges.Remove(identity);
 
-            // Don't RebuildSceneObservers here - that will happen in Update.
+            // Don't RebuildSceneObservers here - that will happen in LateUpdate.
             // Multiple objects could be destroyed in same frame and we don't
-            // want to rebuild for each one...let Update do it once.
-            // We must add the current scene to dirtyScenes for Update to rebuild it.
+            // want to rebuild for each one...let LateUpdate do it once.
+            // We must add the current scene to dirtyScenes for LateUpdate to rebuild it.
             if (lastObjectScene.TryGetValue(identity, out Scene currentScene))
             {
                 lastObjectScene.Remove(identity);
@@ -76,9 +76,8 @@ namespace Mirror
             }
         }
 
-        // internal so we can update from tests
         [ServerCallback]
-        internal void Update()
+        void LateUpdate()
         {
             // for each spawned:
             //   if scene changed:
