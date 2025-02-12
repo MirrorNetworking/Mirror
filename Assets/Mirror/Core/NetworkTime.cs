@@ -26,7 +26,7 @@ namespace Mirror
         // 2s is enough to get a good average RTT.
         // For snapshot interpolation and prediction, we need to react to latency changes more rapidly.
         internal static float defaultPingInterval = 2.0f; // internal for tests
-        public static float PingInterval => highPingComponents > 0 ? highPingInterval : defaultPingInterval;
+        public static float PingInterval => highPingComponents > 0UL ? highPingInterval : defaultPingInterval;
 
         /// <summary>Average out the last few results from Ping</summary>
         // const because it's used immediately in _rtt constructor.
@@ -136,7 +136,7 @@ namespace Mirror
         public static void ResetStatics()
         {
             defaultPingInterval = 2.0f;
-            highPingComponents = 0;
+            highPingComponents = 0UL;
             lastPingTime = 0;
             _rtt = new ExponentialMovingAverage(PingWindowSize);
 #if !UNITY_2020_3_OR_NEWER

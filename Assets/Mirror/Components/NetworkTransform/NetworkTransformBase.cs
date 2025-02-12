@@ -434,7 +434,7 @@ namespace Mirror
             ResetState();
             // default to ClientToServer so this works immediately for users
             syncDirection = SyncDirection.ClientToServer;
-            NetworkTime.highPingComponents = 0;
+            NetworkTime.highPingComponents = 0UL;
         }
 
         protected virtual void OnEnable()

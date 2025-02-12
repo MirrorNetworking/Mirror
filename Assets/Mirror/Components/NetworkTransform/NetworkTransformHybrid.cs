@@ -530,7 +530,7 @@ namespace Mirror
 
             // default to ClientToServer so this works immediately for users
             syncDirection = SyncDirection.ClientToServer;
-            NetworkTime.highPingComponents = 0;
+            NetworkTime.highPingComponents = 0UL;
 
             // disabled objects aren't updated anymore.
             // so let's clear the buffers.
