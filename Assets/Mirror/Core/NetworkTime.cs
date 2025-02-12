@@ -20,12 +20,13 @@ namespace Mirror
         // Also used to determine if we need to send TimeSnapshotMessage by
         // NetworkServer and NetworkClient.
         internal static ulong highPingComponents = 0;
+        const float highPingInterval = 0.1f;
 
         /// <summary>Ping message interval, used to calculate latency / RTT and predicted time.</summary>
         // 2s is enough to get a good average RTT.
         // For snapshot interpolation and prediction, we need to react to latency changes more rapidly.
         internal static float defaultPingInterval = 2.0f; // internal for tests
-        public static float PingInterval => highPingComponents > 0 ? 0.1f : defaultPingInterval;
+        public static float PingInterval => highPingComponents > 0 ? highPingInterval : defaultPingInterval;
 
         /// <summary>Average out the last few results from Ping</summary>
         // const because it's used immediately in _rtt constructor.
