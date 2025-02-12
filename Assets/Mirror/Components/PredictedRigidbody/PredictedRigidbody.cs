@@ -152,7 +152,8 @@ namespace Mirror
 
         protected virtual void OnDisable()
         {
-            NetworkTime.highPingComponents--;
+            if (NetworkTime.highPingComponents > 0UL)
+                NetworkTime.highPingComponents--;
         }
 
         protected virtual void CopyRenderersAsGhost(GameObject destination, Material material)

@@ -558,7 +558,9 @@ namespace Mirror
         protected virtual void OnDisable()
         {
             Reset();
-            NetworkTime.highPingComponents--;
+
+            if (NetworkTime.highPingComponents > 0UL)
+                NetworkTime.highPingComponents--;
         }
 
         public override void OnSerialize(NetworkWriter writer, bool initialState)

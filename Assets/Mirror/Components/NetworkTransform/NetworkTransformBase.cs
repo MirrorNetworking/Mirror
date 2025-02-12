@@ -449,7 +449,9 @@ namespace Mirror
         protected virtual void OnDisable()
         {
             ResetState();
-            NetworkTime.highPingComponents--;
+
+            if (NetworkTime.highPingComponents > 0UL)
+                NetworkTime.highPingComponents--;
 
             if (NetworkServer.active)
                 NetworkIdentity.clientAuthorityCallback -= OnClientAuthorityChanged;
