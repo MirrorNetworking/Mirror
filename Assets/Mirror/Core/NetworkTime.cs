@@ -19,7 +19,7 @@ namespace Mirror
         // Incremented / decremented by components that need higher ping frequency.
         // Also used to determine if we need to send TimeSnapshotMessage by
         // NetworkServer and NetworkClient.
-        internal static ulong highPingComponents = 0;
+        internal static ulong highPingComponents = 0UL;
         const float highPingInterval = 0.1f;
 
         /// <summary>Ping message interval, used to calculate latency / RTT and predicted time.</summary>
