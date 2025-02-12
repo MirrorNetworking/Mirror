@@ -434,13 +434,13 @@ namespace Mirror
             ResetState();
             // default to ClientToServer so this works immediately for users
             syncDirection = SyncDirection.ClientToServer;
-            NetworkTime.activeNTs = 0;
+            NetworkTime.highPingComponents = 0;
         }
 
         protected virtual void OnEnable()
         {
             ResetState();
-            NetworkTime.activeNTs++;
+            NetworkTime.highPingComponents++;
 
             if (NetworkServer.active)
                 NetworkIdentity.clientAuthorityCallback += OnClientAuthorityChanged;
@@ -449,7 +449,7 @@ namespace Mirror
         protected virtual void OnDisable()
         {
             ResetState();
-            NetworkTime.activeNTs--;
+            NetworkTime.highPingComponents--;
 
             if (NetworkServer.active)
                 NetworkIdentity.clientAuthorityCallback -= OnClientAuthorityChanged;

@@ -16,19 +16,22 @@ namespace Mirror
     /// <summary>Synchronizes server time to clients.</summary>
     public static class NetworkTime
     {
+        // Incremented / decremented by components that need higher ping frequency.
+        // Also used to determine if we need to send TimeSnapshotMessage by
+        // NetworkServer and NetworkClient.
+        internal static ulong highPingComponents = 0;
+
         /// <summary>Ping message interval, used to calculate latency / RTT and predicted time.</summary>
-        // 2s was enough to get a good average RTT.
-        // for prediction, we want to react to latency changes more rapidly.
-        internal static float DefaultPingInterval = 2.0f; // internal for tests
-        public static float PingInterval => activeNTs > 0 ? 0.1f : DefaultPingInterval;
+        // 2s is enough to get a good average RTT.
+        // For snapshot interpolation and prediction, we need to react to latency changes more rapidly.
+        internal static float defaultPingInterval = 2.0f; // internal for tests
+        public static float PingInterval => highPingComponents > 0 ? 0.1f : defaultPingInterval;
 
         /// <summary>Average out the last few results from Ping</summary>
         // const because it's used immediately in _rtt constructor.
         public const int PingWindowSize = 50; // average over 50 * 100ms = 5s
 
         static double lastPingTime;
-
-        internal static ulong activeNTs = 0;
 
         static ExponentialMovingAverage _rtt = new ExponentialMovingAverage(PingWindowSize);
 
@@ -131,8 +134,8 @@ namespace Mirror
         [RuntimeInitializeOnLoadMethod]
         public static void ResetStatics()
         {
-            DefaultPingInterval = 2.0f;
-            activeNTs = 0;
+            defaultPingInterval = 2.0f;
+            highPingComponents = 0;
             lastPingTime = 0;
             _rtt = new ExponentialMovingAverage(PingWindowSize);
 #if !UNITY_2020_3_OR_NEWER

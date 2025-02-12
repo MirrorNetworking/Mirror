@@ -147,12 +147,12 @@ namespace Mirror
 
         protected virtual void OnEnable()
         {
-            NetworkTime.activeNTs++;
+            NetworkTime.highPingComponents++;
         }
 
         protected virtual void OnDisable()
         {
-            NetworkTime.activeNTs--;
+            NetworkTime.highPingComponents--;
         }
 
         protected virtual void CopyRenderersAsGhost(GameObject destination, Material material)

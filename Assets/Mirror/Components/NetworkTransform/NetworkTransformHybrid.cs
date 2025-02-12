@@ -530,7 +530,7 @@ namespace Mirror
 
             // default to ClientToServer so this works immediately for users
             syncDirection = SyncDirection.ClientToServer;
-            NetworkTime.activeNTs = 0;
+            NetworkTime.highPingComponents = 0;
 
             // disabled objects aren't updated anymore.
             // so let's clear the buffers.
@@ -552,13 +552,13 @@ namespace Mirror
         protected virtual void OnEnable()
         {
             Reset();
-            NetworkTime.activeNTs++;
+            NetworkTime.highPingComponents++;
         }
 
         protected virtual void OnDisable()
         {
             Reset();
-            NetworkTime.activeNTs--;
+            NetworkTime.highPingComponents--;
         }
 
         public override void OnSerialize(NetworkWriter writer, bool initialState)
