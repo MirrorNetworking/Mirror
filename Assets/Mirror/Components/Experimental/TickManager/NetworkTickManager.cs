@@ -350,12 +350,14 @@ namespace Mirror.Components.Experimental{
     [Client]
     private void Synchronize() {
       var serverTickAdjustment = GetServerAdjustment(true);
-      var clientTickAdjustment = GetServerAdjustment(true);
+      var clientTickAdjustment = GetClientAdjustment(true);
+
       // Apply adjustments on current tick counters
       _networkTick.IncrementClientTick(clientTickAdjustment);
       _networkTick.IncrementClientAbsoluteTick(clientTickAdjustment);
-      _networkTick.IncrementServerTick(-serverTickAdjustment);
-      _networkTick.IncrementServerAbsoluteTick(-serverTickAdjustment);
+      _networkTick.IncrementServerTick(serverTickAdjustment);
+      _networkTick.IncrementServerAbsoluteTick(serverTickAdjustment);
+
       // Set status to synchronized
       _networkTick.SetSynchronized(true);
       _networkTick.SetSynchronizing(false);
@@ -465,15 +467,15 @@ namespace Mirror.Components.Experimental{
     private int GetServerAdjustment(bool absolute = false) {
       // If the received server tick is behind the expected minimum we need to adjust our tick backwards
       if (_serverRunningMin.CurrentMin < _internalMinServerRunaway)
-        return _internalMinServerRunaway - _serverRunningMin.CurrentMin;
+        return _serverRunningMin.CurrentMin - _internalMinServerRunaway;
 
       // If the received server tick is too far forward we need to reduce it to reduce latency
       if (_serverRunningMin.IsFull && _serverRunningMin.CurrentMin > _internalServerRunaway)
-        return absolute ? -_serverRunningMin.CurrentMin : -1;
+        return absolute ? _serverRunningMin.CurrentMin : 1;
 
       // If the received server tick is more than the minimum for an extended period of time its safe to reduce it to reduce latency
       if (_serverLongRunningMin.IsFull && _serverLongRunningMin.CurrentMin > _internalMinServerRunaway)
-        return absolute ? -_serverLongRunningMin.CurrentMin : -1;
+        return absolute ? _serverLongRunningMin.CurrentMin : 1;
       return 0;
     }
 
@@ -482,21 +484,30 @@ namespace Mirror.Components.Experimental{
     /// <returns>The adjusted number of ticks to use for simulation.</returns>
     [Client]
     private int GetAdjustedTicks(int deltaTicks) {
-      int clientAdjustment = GetClientAdjustment();
+      // Get server adjustment value -n for higher ping (execute older server tick) and +n for lower ping ( execute more recent server ping )
       int serverAdjustment = GetServerAdjustment();
+      // since we get the server packet first ( client packets have to do a round trip ) we want to assume that the traffic has worsened both ways
+      // from and to teh server, so we adjust it accordingly, the system will sort out any discrepancies methodically on its own
+      // +n means the client has to predict further forward for the packet to reach the server in time of execution ( higher ping )
+      // -n for less prediction ( lower ping )
+      int clientAdjustment = Math.Max(GetClientAdjustment(), -serverAdjustment);
+
+      // we cant pause of fast-forward the server tick so we adjust it immediatly
       if (serverAdjustment != 0) {
-        _networkTick.IncrementServerTick(-serverAdjustment);
-        _networkTick.IncrementServerAbsoluteTick(-serverAdjustment);
+        _networkTick.IncrementServerTick(serverAdjustment);
+        _networkTick.IncrementServerAbsoluteTick(serverAdjustment);
       }
 
-      // If client or server are adjusting we need to wait for confirmation to avoid oscillating adjusments
+      // If client or server are adjusting we need to wait for confirmation to avoid oscillating adjustments
       if (clientAdjustment != 0 || serverAdjustment != 0)
         SetAdjusting(NetworkTick.IncrementTick(_networkTick.GetClientTick(), deltaTicks + clientAdjustment));
 
-      // // When server tick is skipping forward we want to reconcile the ticks to keep the simulation whole
-      if (serverAdjustment < 0 || clientAdjustment < 0) {
-        var reconcileTarget = NetworkTick.IncrementTick(_networkTick.GetClientTick(), serverAdjustment + clientAdjustment);
-        physicsController.ReconcileFromTick(reconcileTarget);
+      // If the server and client adjustments differ, it indicates the tick values have diverged and require reconciliation.
+      // We also need to trigger a reset state event to ensure the server and client ticks remain sequential.
+      // This preserves full per-tick input data locally while only sending incremental changes across the network.
+      if (clientAdjustment != serverAdjustment) {
+        var delta = Mathf.Min(clientAdjustment - serverAdjustment, 0);
+        physicsController.ReconcileFromTick(NetworkTick.IncrementTick(_networkTick.GetClientTick(), delta));
       }
 
       return deltaTicks + clientAdjustment;
