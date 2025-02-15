@@ -140,8 +140,41 @@ namespace Mirror
         public uint netId;
     }
 
+    // state update for reliable sync
     public struct EntityStateMessage : NetworkMessage
     {
+        public uint netId;
+        // the serialized component data
+        // -> ArraySegment to avoid unnecessary allocations
+        public ArraySegment<byte> payload;
+    }
+
+    // state update for unreliable sync.
+    // baseline is always sent over Reliable channel.
+    public struct EntityStateMessageUnreliableBaseline : NetworkMessage
+    {
+        // baseline messages send their tick number as byte.
+        // delta messages are checked against that tick to avoid applying a
+        // delta on top of the wrong baseline.
+        // (byte is enough, we just need something small to compare against)
+        public byte baselineTick;
+
+        public uint netId;
+        // the serialized component data
+        // -> ArraySegment to avoid unnecessary allocations
+        public ArraySegment<byte> payload;
+    }
+
+    // state update for unreliable sync
+    // delta is always sent over Unreliable channel.
+    public struct EntityStateMessageUnreliableDelta : NetworkMessage
+    {
+        // baseline messages send their tick number as byte.
+        // delta messages are checked against that tick to avoid applying a
+        // delta on top of the wrong baseline.
+        // (byte is enough, we just need something small to compare against)
+        public byte baselineTick;
+
         public uint netId;
         // the serialized component data
         // -> ArraySegment to avoid unnecessary allocations
