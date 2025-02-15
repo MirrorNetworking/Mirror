@@ -238,7 +238,7 @@ namespace Mirror.Components.Experimental{
       // Signal that the client and server are synchronzied
       physicsController.NetworkSynchronized();
 
-      // execute the synchronized tick
+      // execute the initial tick
       physicsController.SimulateTick();
     }
 
@@ -380,8 +380,8 @@ namespace Mirror.Components.Experimental{
       // Signal that the client and server are synchronzied
       physicsController.NetworkSynchronized();
 
-      // execute the synchronized tick
-      physicsController.SimulateTick();
+      // Simulate correct client prediction state
+      SimulateInitialTick();
     }
 
     #endregion
@@ -539,6 +539,28 @@ namespace Mirror.Components.Experimental{
 
     #region Tick Simulation Functions
 
+    /// <summary>
+    /// After synchronization, if the client tick is ahead, rolls it back, replays physics, and
+    /// ensures the client’s prediction state is predicted correctly.
+    /// </summary>
+    private void SimulateInitialTick() {
+      // Get the clinet prediction tick count + current tick (1) in order to simulate the initial state accurately.
+      var clientPredictionTicks = NetworkTick.SubtractTicks(_networkTick.GetClientTick(), _networkTick.GetServerTick()) + 1;
+
+      // validate that the server is not ahead of the client.
+      if (clientPredictionTicks > 0) {
+        // Reset tick to right before the requested reconcile tick.
+        OnTickForwardClient(-clientPredictionTicks);
+        // Run reconcile ticks to ensure correct initial prediction
+        _networkTick.SetReconciling(true);
+        physicsController.RunSimulate(clientPredictionTicks, true);
+        _networkTick.SetReconciling(false);
+      }
+
+      // Ensure that no reconcile is mistakenly queued.
+      physicsController.ResetReconcile();
+    }
+
     /// <summary> Checks for any required reconciliation due to state discrepancies and resimulates physics accordingly. </summary>
     [Client]
     private void CheckReconcile() {
@@ -547,6 +569,7 @@ namespace Mirror.Components.Experimental{
         var reconcileTicks = NetworkTick.SubtractTicks(_networkTick.GetClientTick(), physicsController.GetReconcileStartTick()) + 1;
         // Ensure safety in case developer sends us future tick for... whatever reason
         if (reconcileTicks > 0) {
+          // Reset tick to right before the requested reconcile tick.
           OnTickForwardClient(-reconcileTicks);
           // Run reconcile ticks
           _networkTick.SetReconciling(true);
