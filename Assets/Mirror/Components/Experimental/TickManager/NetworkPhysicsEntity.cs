@@ -7,6 +7,11 @@ namespace Mirror.Components.Experimental{
   /// </summary>
   public interface INetworkedItem{
     /// <summary>
+    /// Called when client and server are synchronized.
+    /// </summary>
+    void OnNetworkSynchronized();
+
+    /// <summary>
     /// Called before the network reconciliation process begins, allowing the item to properly reset state to the last known good state.
     /// </summary>
     void OnResetNetworkState();
@@ -81,6 +86,16 @@ namespace Mirror.Components.Experimental{
     public static void RunResetNetworkState() {
       foreach (var (_, item) in NetworkItems) {
         item.OnResetNetworkState();
+      }
+    }
+
+    /// <summary>
+    /// Runs the OnNetworkSynchronized method on each network item in priority order.
+    /// This method is intended to signal that the network state is synchronized.
+    /// </summary>
+    public static void RunNetworkSynchronized() {
+      foreach (var (_, item) in NetworkItems) {
+        item.OnNetworkSynchronized();
       }
     }
 

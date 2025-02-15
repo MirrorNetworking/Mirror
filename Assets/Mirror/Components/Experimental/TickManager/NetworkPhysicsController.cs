@@ -23,6 +23,12 @@ namespace Mirror.Components.Experimental{
     public static event Action OnResetState;
 
     /// <summary>
+    /// Subscribable callback action to handle synchronized logic.
+    /// Allows external classes to define custom behavior on network synchronization.
+    /// </summary>
+    public static event Action OnSynchronized;
+
+    /// <summary>
     /// Advances the game state by a specified number of ticks.
     /// Invokes the TickForwardCallback to allow external classes to handle tick-forwarding logic.
     /// Typically called with `deltaTicks` = 1 from RunSimulate.
@@ -30,6 +36,14 @@ namespace Mirror.Components.Experimental{
     /// <param name="deltaTicks">The number of ticks to forward.</param>
     public virtual void TickForward(int deltaTicks) {
       TickForwardCallback?.Invoke(deltaTicks);
+    }
+
+    /// <summary>
+    /// Called when network is synchronized. Invokes the <see cref="OnSynchronized"/> if it is not null.
+    /// </summary>
+    public virtual void NetworkSynchronized() {
+      OnSynchronized?.Invoke();
+      NetworkPhysicsEntity.RunNetworkSynchronized();
     }
 
     /// <summary>
@@ -60,16 +74,33 @@ namespace Mirror.Components.Experimental{
     /// <param name="deltaTicks">The number of ticks to simulate forward.</param>
     /// <param name="isReconciling">Is current simulation a reconciliation.</param>
     public void RunSimulate(int deltaTicks, bool isReconciling = false) {
-      var deltaTime = Time.fixedDeltaTime;
-      for (var step = 0; step < deltaTicks; step++) {
+      // ensure that the are ticks to execute in the first place
+      if (deltaTicks<1) return;
+
+      // execute the first tick
+      TickForward(1);
+
+      // If reconciling, reset the network state before simulating.
+      if (isReconciling) ResetNetworkState();
+      SimulateTick();
+
+      // run additional ticks iteration if any left skipping the first step since it was already executed
+      for (var step = 1; step < deltaTicks; step++) {
         TickForward(1);
-        if (isReconciling && step == 0) ResetNetworkState();
-        NetworkPhysicsEntity.RunBeforeNetworkUpdates(1, deltaTime);
-        NetworkPhysicsEntity.RunNetworkUpdates(1, deltaTime);
-        PhysicsTick(deltaTime);
-        NetworkPhysicsEntity.RunAfterNetworkUpdates(1, deltaTime);
+        SimulateTick();
       }
+
+      // If reconciling, run post-reconciliation actions.
       if (isReconciling) NetworkPhysicsEntity.RunAfterReconcile();
+    }
+
+    /// <summary> Performs a single simulation step by invoking pre-updates, network updates, physics simulation, and post-updates for one tick. </summary>
+    public void SimulateTick() {
+      var deltaTime = Time.fixedDeltaTime;
+      NetworkPhysicsEntity.RunBeforeNetworkUpdates(1, deltaTime);
+      NetworkPhysicsEntity.RunNetworkUpdates(1, deltaTime);
+      PhysicsTick(deltaTime);
+      NetworkPhysicsEntity.RunAfterNetworkUpdates(1, deltaTime);
     }
 
     /// <summary> Requests the reconciliation process to start from a specific tick (including the requested tick ) </summary>

@@ -64,6 +64,9 @@ namespace Mirror.Components.Experimental{
       "This defines how much further ahead the client can be from the server beyond the minimum before needing adjustment.")]
     public int acceptableClientRunawayRange = 1;
 
+    [Tooltip("Enables an additional client adjustment for sudden ping spikes.")]
+    public bool pingSpikeCompensation = true;
+
     [Header("Server State Replay Settings")]
     [Min(1)]
     [Tooltip(
@@ -225,9 +228,18 @@ namespace Mirror.Components.Experimental{
     /// <summary> Initializes server-specific settings when the server starts. </summary>
     [Server]
     private void StartServer() {
+      // Set server tick modulus in ticks
       _absoluteServerTickModulus = Mathf.RoundToInt(absoluteTickSyncIntervalSeconds / Time.fixedDeltaTime);
+
+      // Set status to synchronized
       _networkTick.SetSynchronized(true);
       _networkTick.SetSynchronizing(false);
+
+      // Signal that the client and server are synchronzied
+      physicsController.NetworkSynchronized();
+
+      // execute the synchronized tick
+      physicsController.SimulateTick();
     }
 
     /// <summary> Initializes client-specific settings when the client starts. </summary>
@@ -362,7 +374,14 @@ namespace Mirror.Components.Experimental{
       _networkTick.SetSynchronized(true);
       _networkTick.SetSynchronizing(false);
 
+      // ensure no additional adjustment happens until server confirms adjusted ticks
       SetAdjusting(_networkTick.GetClientTick());
+
+      // Signal that the client and server are synchronzied
+      physicsController.NetworkSynchronized();
+
+      // execute the synchronized tick
+      physicsController.SimulateTick();
     }
 
     #endregion
@@ -486,11 +505,12 @@ namespace Mirror.Components.Experimental{
     private int GetAdjustedTicks(int deltaTicks) {
       // Get server adjustment value -n for higher ping (execute older server tick) and +n for lower ping ( execute more recent server ping )
       int serverAdjustment = GetServerAdjustment();
+      // Get client prediction adjustment value -n for higher ping (predict further) and +n for lower ping ( reduce prediction ticks )
+      int clientAdjustment = GetClientAdjustment();
+
       // since we get the server packet first ( client packets have to do a round trip ) we want to assume that the traffic has worsened both ways
-      // from and to teh server, so we adjust it accordingly, the system will sort out any discrepancies methodically on its own
-      // +n means the client has to predict further forward for the packet to reach the server in time of execution ( higher ping )
-      // -n for less prediction ( lower ping )
-      int clientAdjustment = Math.Max(GetClientAdjustment(), -serverAdjustment);
+      // from and to the server, so we adjust client as well to reduce or prevent reconciliation events.
+      if (pingSpikeCompensation && serverAdjustment > 1) clientAdjustment = Math.Max(GetClientAdjustment(), -serverAdjustment);
 
       // we cant pause of fast-forward the server tick so we adjust it immediatly
       if (serverAdjustment != 0) {
