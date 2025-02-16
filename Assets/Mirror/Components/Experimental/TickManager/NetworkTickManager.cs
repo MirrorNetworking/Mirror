@@ -205,8 +205,11 @@ namespace Mirror.Components.Experimental{
     /// </summary>
     /// <param name="conn">The network connection for the connected client.</param>
     [Server]
-    private void OnClientConnected(NetworkConnection conn) => _clients[conn.connectionId] = new ClientData()
-      { ClientNonce = 0, ClientTick = 0, ClientToServerLoss = new PacketLossTracker(packetLossSamples), SentPackets = 0 };
+    private void OnClientConnected(NetworkConnection conn) {
+      _clients[conn.connectionId] = new ClientData() {
+        ClientNonce = 0, ClientTick = 0, ClientToServerLoss = new PacketLossTracker(packetLossSamples), SentPackets = 0 };
+      _networkTick.ClientConnected(conn.connectionId);
+    }
 
     /// <summary>
     /// Called when a client disconnects from the server. Removes the client entry from the _clients dictionary and clears NetworkTick
@@ -216,7 +219,7 @@ namespace Mirror.Components.Experimental{
     [Server]
     private void OnClientDisconnected(NetworkConnection conn) {
       _clients.Remove(conn.connectionId);
-      _networkTick.ServerClearCompensations(conn.connectionId);
+      _networkTick.ClientDisconnected(conn.connectionId);
     }
 
     #endregion

@@ -7,6 +7,12 @@ namespace Mirror.Components.Experimental{
 
     #region Private Definitions
 
+    // On client disconnected callback
+    public static Action<int> OnClientDisconnected;
+
+    // On client connected callback
+    public static Action<int> OnClientConnected;
+
     // Current state flags
     private static bool _isServer = false;
     private static bool _isSynchronizing = false;
@@ -58,10 +64,26 @@ namespace Mirror.Components.Experimental{
         ? Math.Max(compensation, 0)
         : throw new InvalidOperationException("ServerSetServerToClientCompensation is server-only.");
 
-    /// <summary> Removes both server-to-client and client-to-server compensation entries for the specified connection ID on the server. </summary>
-    public void ServerClearCompensations(int connectionId) {
+    /// <summary> call any OnClientConnected callbacks. </summary>
+    public void ClientConnected(int connectionId) {
+      // If is server the call the registered callbacks
+      if (_isServer) OnClientConnected?.Invoke(connectionId);
+      // If is client and callbacks are set that means the developer has probably made a mistake somewhere
+      else if (OnClientConnected?.GetInvocationList().Length > 0)
+        throw new InvalidOperationException("Callbacks are already set on OnClientConnected.");
+    }
+
+    /// <summary> Clear both server-to-client and client-to-server compensation entries and call any OnClientDisconnected callbacks. </summary>
+    public void ClientDisconnected(int connectionId) {
+      // clear data for the client
       ServerToClientCompensations.Remove(connectionId);
       ClientToServerCompensations.Remove(connectionId);
+
+      // If is server the call the registered callbacks
+      if (_isServer) OnClientDisconnected?.Invoke(connectionId);
+      // If is client and callbacks are set that means the developer has probably made a mistake somewhere
+      else if (OnClientDisconnected?.GetInvocationList().Length > 0)
+        throw new InvalidOperationException("Callbacks are already set on OnClientDisconnected.");
     }
 
     #endregion
