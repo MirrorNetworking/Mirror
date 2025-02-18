@@ -54,16 +54,6 @@ namespace Mirror.Examples.MultipleMatch
         #region Client System Callbacks
 
         /// <summary>
-        /// Called on the client when connected to a server.
-        /// <para>The default implementation of this function sets the client as ready and adds a player. Override the function to dictate what happens when the client connects.</para>
-        /// </summary>
-        public override void OnClientConnect()
-        {
-            base.OnClientConnect();
-            canvasController.OnClientConnect();
-        }
-
-        /// <summary>
         /// Called on clients when disconnected from a server.
         /// <para>This is called on the client when it disconnects from the server. Override this function to decide what happens when the client disconnects.</para>
         /// </summary>

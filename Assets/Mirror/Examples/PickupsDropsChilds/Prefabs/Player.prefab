@@ -66,8 +66,6 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
-  sceneObjectPrefab: {fileID: 8373046805013990044, guid: 41c6c51270a8bab40b39ca7962e9ac6c,
-    type: 3}
   rightHand: {fileID: 2456063374502268486}
   ballPrefab: {fileID: 8563961762736836479, guid: 90446831fd6fe7f43ae80c6fb7cb7a0d,
     type: 3}
@@ -75,7 +73,13 @@ MonoBehaviour:
     type: 3}
   boxPrefab: {fileID: 7003386763226572670, guid: a4076fff9676bc243ae6d7d6c08341f3,
     type: 3}
+  sceneObjectPrefab: {fileID: 8373046805013990044, guid: 41c6c51270a8bab40b39ca7962e9ac6c,
+    type: 3}
+  equippedItemConfig:
+    usages: 0
+    maxUsages: 0
   equippedItem: 0
+  equippedObject: {fileID: 0}
 --- !u!114 &68065165359339619
 MonoBehaviour:
   m_ObjectHideFlags: 0
