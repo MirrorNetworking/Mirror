@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 3504059701668173685}
   - component: {fileID: 108821253780875606}
   - component: {fileID: 4059421314684294317}
+  - component: {fileID: 2932435609801465612}
   m_Layer: 0
   m_Name: Bat
   m_TagString: Untagged
@@ -94,3 +95,20 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0.000000059604645, y: 0, z: -0.00000008940697}
+--- !u!114 &2932435609801465612
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6507540558446839548}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35ca3b53a1e608f46ae9195e9d8cae83, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  animator: {fileID: 0}
+  audioSource: {fileID: 0}
+  _equippedItemConfig:
+    usages: 5
+    maxUsages: 5
