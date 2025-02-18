@@ -257,10 +257,10 @@ namespace Mirror
 
             // look for changes every unreliable sendInterval!
             // every reliable interval isn't enough, this would cause MrG's grid issue:
-            //   server start in A1, reliable baseline sent to client
-            //   server moves to A2, unreliabe delta sent to client
-            //   server moves to A1, nothing is sent to client becuase last baseline position == position
-            //   => client wouldn't know we moved back to A1
+            //   server start in A1, reliable baseline sent to clients
+            //   server moves to A2, unreliabe delta sent to clients
+            //   server moves back to A1, nothing is sent to clients because last baseline position == position
+            //   => clients wouldn't know we moved back to A1
             // every update works, but it's unnecessary overhead since sends only happen every sendInterval
             // every unreliable sendInterval is the perfect place to look for changes.
             if (StateChanged()) changedSinceBaseline = true;
@@ -386,10 +386,10 @@ namespace Mirror
 
             // look for changes every unreliable sendInterval!
             // every reliable interval isn't enough, this would cause MrG's grid issue:
-            //   server start in A1, reliable baseline sent to client
-            //   server moves to A2, unreliabe delta sent to client
-            //   server moves to A1, nothing is sent to client becuase last baseline position == position
-            //   => client wouldn't know we moved back to A1
+            //   client start in A1, reliable baseline sent to server and other clients
+            //   client moves to A2, unreliabe delta sent to server and other clients
+            //   client moves back to A1, nothing is sent to server because last baseline position == position
+            //   => server / other clients wouldn't know we moved back to A1
             // every update works, but it's unnecessary overhead since sends only happen every sendInterval
             // every unreliable sendInterval is the perfect place to look for changes.
             if (StateChanged()) changedSinceBaseline = true;
