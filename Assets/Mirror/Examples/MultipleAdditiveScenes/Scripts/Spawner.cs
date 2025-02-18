@@ -95,7 +95,6 @@ namespace Mirror.Examples.MultipleAdditiveScenes
         internal static async void RecycleReward(GameObject reward)
         {
             NetworkServer.UnSpawn(reward);
-            Return(reward);
             await DelayedSpawn(reward.scene);
         }
 

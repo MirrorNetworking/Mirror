@@ -92,7 +92,6 @@ namespace Mirror.Examples.NetworkRoom
         internal static async void RecycleReward(GameObject reward)
         {
             NetworkServer.UnSpawn(reward);
-            Return(reward);
             await DelayedSpawn();
         }
 
