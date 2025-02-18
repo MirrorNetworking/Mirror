@@ -206,9 +206,6 @@ namespace Mirror.Examples.MultipleMatch
         [ServerCallback]
         public void RestartGame()
         {
-            foreach (CellGUI cellGUI in MatchCells.Values)
-                cellGUI.SetPlayer(null);
-
             boardScore = CellValue.None;
 
             NetworkIdentity[] keys = new NetworkIdentity[matchPlayerData.Keys.Count];
