@@ -4,7 +4,7 @@ using UnityEngine.SceneManagement;
 
 namespace Mirror.Examples.MultipleAdditiveScenes
 {
-    internal class Spawner
+    internal static class Spawner
     {
         static GameObject prefab;
         static byte poolSize = 10;

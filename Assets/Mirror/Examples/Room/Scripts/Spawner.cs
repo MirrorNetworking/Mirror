@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Mirror.Examples.NetworkRoom
 {
-    internal class Spawner
+    internal static class Spawner
     {
         static GameObject prefab;
         static byte poolSize = 10;
