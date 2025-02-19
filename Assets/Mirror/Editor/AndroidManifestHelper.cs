@@ -28,7 +28,7 @@ public class AndroidManifestHelper : IPreprocessBuildWithReport, IPostprocessBui
         XmlDocument doc = new XmlDocument();
         doc.Load(sourceFile);
 
-        string androidNamepsaceURI;
+        string androidNamespaceURI;
         XmlElement element = (XmlElement)doc.SelectSingleNode("/manifest");
         if (element == null)
         {
@@ -37,21 +37,21 @@ public class AndroidManifestHelper : IPreprocessBuildWithReport, IPostprocessBui
         }
 
         // Get android namespace URI from the manifest
-        androidNamepsaceURI = element.GetAttribute("xmlns:android");
-        if (string.IsNullOrEmpty(androidNamepsaceURI))
+        androidNamespaceURI = element.GetAttribute("xmlns:android");
+        if (string.IsNullOrEmpty(androidNamespaceURI))
         {
             UnityEngine.Debug.LogError("Could not find Android Namespace in manifest.");
             return;
         }
         AddOrRemoveTag(doc,
-               androidNamepsaceURI,
+               androidNamespaceURI,
                "/manifest",
                "uses-permission",
                "android.permission.CHANGE_WIFI_MULTICAST_STATE",
                true,
                false);
         AddOrRemoveTag(doc,
-               androidNamepsaceURI,
+               androidNamespaceURI,
                "/manifest",
                "uses-permission",
                "android.permission.INTERNET",

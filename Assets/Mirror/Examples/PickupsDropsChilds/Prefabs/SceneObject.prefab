@@ -122,5 +122,9 @@ MonoBehaviour:
   boxPrefab: {fileID: 7003386763226572670, guid: a4076fff9676bc243ae6d7d6c08341f3,
     type: 3}
   force: 1
-  direction: {x: 0, y: 0, z: 0}
+  equippedItemConfig:
+    usages: 0
+    maxUsages: 0
   equippedItem: 0
+  direction: {x: 0, y: 0, z: 0}
+  equippedObject: {fileID: 0}

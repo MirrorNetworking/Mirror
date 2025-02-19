@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Mirror.Examples.NetworkRoom
 {
-    internal class Spawner
+    internal static class Spawner
     {
         static GameObject prefab;
         static byte poolSize = 10;
@@ -92,7 +92,6 @@ namespace Mirror.Examples.NetworkRoom
         internal static async void RecycleReward(GameObject reward)
         {
             NetworkServer.UnSpawn(reward);
-            Return(reward);
             await DelayedSpawn();
         }
 
