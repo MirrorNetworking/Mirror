@@ -1371,13 +1371,13 @@ namespace Mirror
         }
 
         // show / hide for connection //////////////////////////////////////////
-        internal static void ShowForConnection(NetworkIdentity identity, NetworkConnection conn)
+        internal static void ShowForConnection(NetworkIdentity identity, NetworkConnectionToClient conn)
         {
             if (conn.isReady)
                 SendSpawnMessage(identity, conn);
         }
 
-        internal static void HideForConnection(NetworkIdentity identity, NetworkConnection conn)
+        internal static void HideForConnection(NetworkIdentity identity, NetworkConnectionToClient conn)
         {
             ObjectHideMessage msg = new ObjectHideMessage
             {
@@ -1387,7 +1387,7 @@ namespace Mirror
         }
 
         // spawning ////////////////////////////////////////////////////////////
-        internal static void SendSpawnMessage(NetworkIdentity identity, NetworkConnection conn)
+        internal static void SendSpawnMessage(NetworkIdentity identity, NetworkConnectionToClient conn)
         {
             if (identity.serverOnly) return;
 
@@ -1558,14 +1558,14 @@ namespace Mirror
         /// <summary>Spawn the given game object on all clients which are ready.</summary>
         // This will cause a new object to be instantiated from the registered
         // prefab, or from a custom spawn function.
-        public static void Spawn(GameObject obj, NetworkConnection ownerConnection = null)
+        public static void Spawn(GameObject obj, NetworkConnectionToClient ownerConnection = null)
         {
             SpawnObject(obj, ownerConnection);
         }
 
         /// <summary>Spawns an object and also assigns Client Authority to the specified client.</summary>
         // This is the same as calling NetworkIdentity.AssignClientAuthority on the spawned object.
-        public static void Spawn(GameObject obj, uint assetId, NetworkConnection ownerConnection = null)
+        public static void Spawn(GameObject obj, uint assetId, NetworkConnectionToClient ownerConnection = null)
         {
             if (GetNetworkIdentity(obj, out NetworkIdentity identity))
             {
@@ -1574,7 +1574,7 @@ namespace Mirror
             SpawnObject(obj, ownerConnection);
         }
 
-        static void SpawnObject(GameObject obj, NetworkConnection ownerConnection)
+        static void SpawnObject(GameObject obj, NetworkConnectionToClient ownerConnection)
         {
             // verify if we can spawn this
             if (Utils.IsPrefab(obj))
