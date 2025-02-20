@@ -78,14 +78,24 @@ namespace Mirror
 
         protected override void OnValidate()
         {
-            base.OnValidate();
+            // Skip if Editor is in Play mode
+            if (Application.isPlaying) return;
 
+            base.OnValidate();
+            Reset();
+        }
+
+        void Reset()
+        {
             // set target to self if none yet
             if (target == null) target = transform;
 
             // we use sendRate for convenience.
             // but project it to syncInterval for NetworkTransformHybrid to work properly.
             syncInterval = sendInterval;
+
+            // default to ClientToServer so this works immediately for users
+            syncDirection = SyncDirection.ClientToServer;
         }
 
         // apply a snapshot to the Transform.
@@ -412,7 +422,7 @@ namespace Mirror
         protected virtual void OnTeleport(Vector3 destination)
         {
             // reset any in-progress interpolation & buffers
-            Reset();
+            ResetState();
 
             // set the new position.
             // interpolation will automatically continue.
@@ -428,7 +438,7 @@ namespace Mirror
         protected virtual void OnTeleport(Vector3 destination, Quaternion rotation)
         {
             // reset any in-progress interpolation & buffers
-            Reset();
+            ResetState();
 
             // set the new position.
             // interpolation will automatically continue.
@@ -524,15 +534,11 @@ namespace Mirror
             RpcTeleport(destination, rotation);
         }
 
-        public override void Reset()
+        public override void ResetState()
         {
-            base.Reset(); // NetworkBehaviourHybrid
+            base.ResetState(); // NetworkBehaviourHybrid
 
-            // default to ClientToServer so this works immediately for users
-            syncDirection = SyncDirection.ClientToServer;
-
-            // disabled objects aren't updated anymore.
-            // so let's clear the buffers.
+            // disabled objects aren't updated anymore so let's clear the buffers.
             serverSnapshots.Clear();
             clientSnapshots.Clear();
 
@@ -545,11 +551,11 @@ namespace Mirror
             lastDeserializedBaselineRotation = Quaternion.identity;
             lastDeserializedBaselineScale    = Vector3.one;
 
-            // Debug.Log($"[{name}] Reset to baselineTick=0");
+            // Debug.Log($"[{name}] ResetState to baselineTick=0");
         }
 
-        protected virtual void OnDisable() => Reset();
-        protected virtual void OnEnable() => Reset();
+        protected virtual void OnDisable() => ResetState();
+        protected virtual void OnEnable() => ResetState();
 
         public override void OnSerialize(NetworkWriter writer, bool initialState)
         {

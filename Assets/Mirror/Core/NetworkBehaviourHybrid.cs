@@ -45,7 +45,7 @@ namespace Mirror
         [Header("Debug")]
         public bool debugLog = false;
 
-        public virtual void Reset()
+        public virtual void ResetState()
         {
             lastSerializedBaselineTick = 0;
             lastDeserializedBaselineTick = 0;
