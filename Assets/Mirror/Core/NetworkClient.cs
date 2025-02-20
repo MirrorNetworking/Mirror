@@ -1456,13 +1456,13 @@ namespace Mirror
                     // add to spawned because later when we ApplySpawnPayload
                     // there may be SyncVars that cross-reference other objects
 
-                    // When deferring `ApplySpawnPayload` via `pendingSpawns` until `OnObjectSpawnFinished`, 
-                    // simply copying the `SpawnMessage` struct isn’t sufficient. The `payload` is an 
-                    // `ArraySegment<byte>` referencing the original buffer received from the server, 
-                    // managed by the client's `NetworkReaderPooled`. This buffer may be recycled or 
-                    // reused after `OnSpawn` but before `ApplySpawnPayload`, leading to corruption 
-                    // (e.g., `EndOfStreamException` in `NetworkReader.ReadBlittable` when reading past 
-                    // available bytes, as seen with 20+ objects in Benchmark). Deep copying `payload` 
+                    // When deferring ApplySpawnPayload via pendingSpawns until OnObjectSpawnFinished, 
+                    // simply copying the SpawnMessage struct isn’t sufficient. The payload is an 
+                    // ArraySegment<byte> referencing the original buffer received from the server, 
+                    // managed by the client's NetworkReaderPooled. This buffer may be recycled or 
+                    // reused after OnSpawn but before ApplySpawnPayload, leading to corruption 
+                    // (e.g., EndOfStreamException in NetworkReader.ReadBlittable when reading past 
+                    // available bytes, as seen with 20+ objects in Benchmark). Deep copying payload 
                     // ensures the data remains intact and independent of the reader's pooled buffer 
                     // lifecycle, preventing corruption during deferred application.
                     byte[] payloadCopy = new byte[message.payload.Count];
