@@ -427,6 +427,10 @@ namespace Mirror
             // so let's clear the buffers.
             serverSnapshots.Clear();
             clientSnapshots.Clear();
+
+            // Prevent resistance from CharacterController
+            // or non-knematic Rigidbodies when teleporting.
+            Physics.SyncTransforms();
         }
 
         public virtual void Reset()
