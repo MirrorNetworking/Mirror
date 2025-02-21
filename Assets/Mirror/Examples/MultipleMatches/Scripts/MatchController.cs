@@ -250,7 +250,7 @@ namespace Mirror.Examples.MultipleMatch
         }
 
         [ServerCallback]
-        public void OnPlayerDisconnected(NetworkConnectionToClient conn)
+        public void OnPlayerDisconnect(NetworkConnectionToClient conn)
         {
             // Check that the disconnecting client is a player in this match
             if (player1 == conn.identity || player2 == conn.identity)
@@ -262,7 +262,7 @@ namespace Mirror.Examples.MultipleMatch
         {
             RpcExitGame();
 
-            canvasController.OnPlayerDisconnected -= OnPlayerDisconnected;
+            canvasController.OnPlayerDisconnect -= OnPlayerDisconnect;
 
             // Wait for the ClientRpc to get out ahead of object destruction
             yield return new WaitForSeconds(0.1f);
