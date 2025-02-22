@@ -482,23 +482,35 @@ namespace Mirror
             //            DO NOT make this available with a hotkey in release builds
             if (!Debug.isDebugBuild) return;
 
-            // project position to screen
-            Vector3 point = Camera.main.WorldToScreenPoint(target.position);
-
-            // enough alpha, in front of camera and in screen?
-            if (point.z >= 0 && Utils.IsPointInScreen(point))
+            // Create a custom GUI style for larger text
+            GUIStyle largeTextStyle = new GUIStyle(GUI.skin.label)
             {
-                GUI.color = overlayColor;
-                GUILayout.BeginArea(new Rect(point.x, Screen.height - point.y, 200, 100));
+                fontSize = 20, // Adjust this value to make text bigger (default is ~12)
+                alignment = TextAnchor.MiddleCenter // Center the text within its area
+            };
 
-                // always show both client & server buffers so it's super
-                // obvious if we accidentally populate both.
-                GUILayout.Label($"Server Buffer:{serverSnapshots.Count}");
-                GUILayout.Label($"Client Buffer:{clientSnapshots.Count}");
+            //GUI.color = overlayColor;
 
-                GUILayout.EndArea();
-                GUI.color = Color.white;
-            }
+            // Define the centered area (screen width/height divided by 2, minus half the area's size)
+            float areaWidth = 300f;  // Increased width to accommodate larger text
+            float areaHeight = 100f; // Height for two lines
+            Rect centeredArea = new Rect(
+                (Screen.width - areaWidth) / 2,
+                (Screen.height - areaHeight - 60) / 2,
+                areaWidth,
+                areaHeight
+            );
+
+            GUILayout.BeginArea(centeredArea);
+
+            // always show both client & server buffers so it's super
+            // obvious if we accidentally populate both.
+            // Use the custom style for larger, centered text
+            GUILayout.Label($"Server Buffer: {serverSnapshots.Count}", largeTextStyle);
+            GUILayout.Label($"Client Buffer: {clientSnapshots.Count}", largeTextStyle);
+
+            GUILayout.EndArea();
+            GUI.color = Color.white;
         }
 
         protected virtual void DrawGizmos(SortedList<double, TransformSnapshot> buffer)
