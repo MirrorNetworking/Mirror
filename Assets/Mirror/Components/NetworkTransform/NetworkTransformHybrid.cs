@@ -530,6 +530,7 @@ namespace Mirror
 
             // default to ClientToServer so this works immediately for users
             syncDirection = SyncDirection.ClientToServer;
+            NetworkTime.highPingComponents = 0UL;
 
             // disabled objects aren't updated anymore.
             // so let's clear the buffers.
@@ -548,8 +549,19 @@ namespace Mirror
             // Debug.Log($"[{name}] Reset to baselineTick=0");
         }
 
-        protected virtual void OnDisable() => Reset();
-        protected virtual void OnEnable() => Reset();
+        protected virtual void OnEnable()
+        {
+            Reset();
+            NetworkTime.highPingComponents++;
+        }
+
+        protected virtual void OnDisable()
+        {
+            Reset();
+
+            if (NetworkTime.highPingComponents > 0UL)
+                NetworkTime.highPingComponents--;
+        }
 
         public override void OnSerialize(NetworkWriter writer, bool initialState)
         {
