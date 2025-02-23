@@ -1457,7 +1457,7 @@ namespace Mirror
                     // there may be SyncVars that cross-reference other objects
 
                     // When deferring ApplySpawnPayload via pendingSpawns until OnObjectSpawnFinished, 
-                    // simply copying the SpawnMessage struct isn’t sufficient. The payload is an 
+                    // simply copying the SpawnMessage struct isn't sufficient. The payload is an 
                     // ArraySegment<byte> referencing the original buffer received from the server, 
                     // managed by the client's NetworkReaderPooled. This buffer may be recycled or 
                     // reused after OnSpawn but before ApplySpawnPayload, leading to corruption 
