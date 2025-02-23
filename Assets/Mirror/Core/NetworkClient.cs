@@ -1107,13 +1107,14 @@ namespace Mirror
         // spawning ////////////////////////////////////////////////////////////
         internal static void ApplySpawnPayload(NetworkIdentity identity, SpawnMessage message)
         {
+            // add to spawned first because DeserializeClient may need it for SyncVars
+            spawned[message.netId] = identity;
+
             if (message.assetId != 0)
                 identity.assetId = message.assetId;
 
             if (!identity.gameObject.activeSelf)
-            {
                 identity.gameObject.SetActive(true);
-            }
 
             // apply local values for VR support
             identity.transform.localPosition = message.position;
@@ -1124,8 +1125,11 @@ namespace Mirror
             // the below DeserializeClient call invokes SyncVarHooks.
             // flags always need to be initialized before that.
             // fixes: https://github.com/MirrorNetworking/Mirror/issues/3259
-            identity.isOwned = message.isOwner;
             identity.netId = message.netId;
+            identity.isOwned = message.isOwner;
+
+            if (identity.isOwned)
+                connection?.owned.Add(identity);
 
             if (message.isLocalPlayer)
                 InternalAddPlayer(identity);
@@ -1147,9 +1151,6 @@ namespace Mirror
                     identity.DeserializeClient(payloadReader, true);
                 }
             }
-
-            spawned[message.netId] = identity;
-            if (identity.isOwned) connection?.owned.Add(identity);
 
             // the initial spawn with OnObjectSpawnStarted/Finished calls all
             // object's OnStartClient/OnStartLocalPlayer after they were all
@@ -1299,8 +1300,11 @@ namespace Mirror
         {
             // Debug.Log("SpawnStarted");
             PrepareToSpawnSceneObjects();
+            pendingSpawns.Clear();
             isSpawnFinished = false;
         }
+
+        static readonly Dictionary<NetworkIdentity, SpawnMessage> pendingSpawns = new Dictionary<NetworkIdentity, SpawnMessage>();
 
         internal static void OnObjectSpawnFinished(ObjectSpawnFinishedMessage _)
         {
@@ -1313,10 +1317,25 @@ namespace Mirror
                 // they are destroyed. for safety, let's double check here.
                 if (identity != null)
                 {
+                    // We may have deferred ApplySpawnPayload in OnSpawn
+                    // to avoid cross-reference race conditions with SyncVars.
+                    // Apply payload before invoking OnStartClient etc. callbacks
+                    // so that all data is there when they are invoked.
+                    // Note that Interest Management may not have updated spawned
+                    // dictionary yet, so not all identities may be in pendingSpawns.
+                    // Generally that's user error in their code, so we don't throw
+                    // a warning here, but keep the warning code for debugging if needed.
+                    if (pendingSpawns.TryGetValue(identity, out SpawnMessage message))
+                        ApplySpawnPayload(identity, message);
+                    //else
+                    //    Debug.LogWarning($"Expected pendingSpawns to contain {identity}: {identity.netId} but didn't");
+
                     BootstrapIdentity(identity);
                 }
                 else Debug.LogWarning("Found null entry in NetworkClient.spawned. This is unexpected. Was the NetworkIdentity not destroyed properly?");
             }
+
+            pendingSpawns.Clear();
             isSpawnFinished = true;
         }
 
@@ -1427,7 +1446,41 @@ namespace Mirror
             // Debug.Log($"Client spawn handler instantiating netId={msg.netId} assetID={msg.assetId} sceneId={msg.sceneId:X} pos={msg.position}");
             if (FindOrSpawnObject(message, out NetworkIdentity identity))
             {
-                ApplySpawnPayload(identity, message);
+                if (isSpawnFinished)
+                {
+                    ApplySpawnPayload(identity, message);
+                }
+                else
+                {
+                    // Defer ApplySpawnPayload until OnObjectSpawnFinished
+                    // add to spawned because later when we ApplySpawnPayload
+                    // there may be SyncVars that cross-reference other objects
+
+                    // When deferring ApplySpawnPayload via pendingSpawns until OnObjectSpawnFinished, 
+                    // simply copying the SpawnMessage struct isn't sufficient. The payload is an 
+                    // ArraySegment<byte> referencing the original buffer received from the server, 
+                    // managed by the client's NetworkReaderPooled. This buffer may be recycled or 
+                    // reused after OnSpawn but before ApplySpawnPayload, leading to corruption 
+                    // (e.g., EndOfStreamException in NetworkReader.ReadBlittable when reading past 
+                    // available bytes, as seen with 20+ objects in Benchmark). Deep copying payload 
+                    // ensures the data remains intact and independent of the reader's pooled buffer 
+                    // lifecycle, preventing corruption during deferred application.
+                    byte[] payloadCopy = new byte[message.payload.Count];
+                    Array.Copy(message.payload.Array, message.payload.Offset, payloadCopy, 0, message.payload.Count);
+                    SpawnMessage messageCopy = new SpawnMessage
+                    {
+                        netId = message.netId,
+                        spawnFlags = message.spawnFlags, // Preserves isOwner and isLocalPlayer via flags
+                        sceneId = message.sceneId,
+                        assetId = message.assetId,
+                        position = message.position,
+                        rotation = message.rotation,
+                        scale = message.scale,
+                        payload = new ArraySegment<byte>(payloadCopy)
+                    };
+                    spawned[message.netId] = identity;
+                    pendingSpawns[identity] = messageCopy;
+                }
             }
         }
 
