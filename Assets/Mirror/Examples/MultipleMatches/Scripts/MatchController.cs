@@ -39,9 +39,6 @@ namespace Mirror.Examples.MultipleMatch
             // Deprecated in Unity 2023.1
             canvasController = GameObject.FindObjectOfType<CanvasController>();
 #endif
-
-            // Add handler for SyncDictionary changes
-            matchPlayerData.OnChange = UpdateWins;
         }
 
         public override void OnStartServer()
@@ -67,6 +64,9 @@ namespace Mirror.Examples.MultipleMatch
 
             exitButton.gameObject.SetActive(false);
             playAgainButton.gameObject.SetActive(false);
+
+            // Assign handler for SyncDictionary changes
+            matchPlayerData.OnChange = UpdateWins;
         }
 
         [ClientCallback]
