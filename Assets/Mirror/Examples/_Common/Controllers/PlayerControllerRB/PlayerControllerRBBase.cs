@@ -220,7 +220,7 @@ namespace Mirror.Examples.Common.Controllers.Player
             Reset();
         }
 
-        void Reset()
+        public virtual void Reset()
         {
             if (rigidBody == null)
                 rigidBody = GetComponent<Rigidbody>();
@@ -229,7 +229,7 @@ namespace Mirror.Examples.Common.Controllers.Player
 
             // Configure Rigidbody
             rigidBody.useGravity = true;
-            rigidBody.interpolation = RigidbodyInterpolation.Interpolate;
+            rigidBody.interpolation = RigidbodyInterpolation.None;
             rigidBody.collisionDetectionMode = CollisionDetectionMode.ContinuousSpeculative;
             rigidBody.isKinematic = true;
 
@@ -306,6 +306,12 @@ namespace Mirror.Examples.Common.Controllers.Player
         }
 
         #endregion
+
+        void Start()
+        {
+            Application.targetFrameRate = NetworkManager.singleton.sendRate;
+            Time.fixedDeltaTime = 1f / NetworkManager.singleton.sendRate;
+        }
 
         void Update()
         {

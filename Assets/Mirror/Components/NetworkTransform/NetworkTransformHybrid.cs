@@ -17,6 +17,9 @@ namespace Mirror
     [AddComponentMenu("Network/Network Transform Hybrid")]
     public class NetworkTransformHybrid : NetworkBehaviourHybrid
     {
+        public bool useFixedUpdate;
+        TransformSnapshot? pendingSnapshot;
+
         // target transform to sync. can be on a child.
         [Header("Target")]
         [Tooltip("The Transform component to sync. May be on this GameObject, or on a child.")]
@@ -370,7 +373,10 @@ namespace Mirror
 
                     // interpolate & apply
                     TransformSnapshot computed = TransformSnapshot.Interpolate(from, to, t);
-                    ApplySnapshot(computed);
+                    if (useFixedUpdate)
+                        pendingSnapshot = computed;
+                    else
+                        ApplySnapshot(computed);
                 }
             }
         }
@@ -396,7 +402,10 @@ namespace Mirror
 
                 // interpolate & apply
                 TransformSnapshot computed = TransformSnapshot.Interpolate(from, to, t);
-                ApplySnapshot(computed);
+                if (useFixedUpdate)
+                    pendingSnapshot = computed;
+                else
+                    ApplySnapshot(computed);
             }
         }
 
@@ -415,6 +424,17 @@ namespace Mirror
             {
                 // interpolate remote client (and local player if no authority)
                 if (!IsClientWithAuthority) UpdateClientInterpolation();
+            }
+        }
+
+        void FixedUpdate()
+        {
+            if (!useFixedUpdate) return;
+
+            if (pendingSnapshot.HasValue)
+            {
+                ApplySnapshot(pendingSnapshot.Value);
+                pendingSnapshot = null;
             }
         }
 
