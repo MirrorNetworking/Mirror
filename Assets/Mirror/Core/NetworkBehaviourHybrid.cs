@@ -6,6 +6,8 @@ using UnityEngine;
 
 namespace Mirror
 {
+    // DEPRECATED 2025-02-26
+    [Obsolete("Use NetworkTransformHybridCORE instead.\nNetworkTransformHybrid was a bottom-up attempt to solve Hybrid sync.. We keep this around as plan-B for now.")]
     public abstract class NetworkBehaviourHybrid : NetworkBehaviour
     {
         // Is this a client with authority over this transform?
