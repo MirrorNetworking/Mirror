@@ -6,7 +6,7 @@ using Mirror;
 [AddComponentMenu("")]
 public class HexNetworkManager : NetworkManager
 {
-    // Overrides the base singleton so we don'thave to cast to this type everywhere.
+    // Overrides the base singleton so we don't have to cast to this type everywhere.
     public static new HexNetworkManager singleton => (HexNetworkManager)NetworkManager.singleton;
 
     [Header("Spawns")]
