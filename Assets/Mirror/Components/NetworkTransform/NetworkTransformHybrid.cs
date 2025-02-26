@@ -571,6 +571,10 @@ namespace Mirror
             lastDeserializedBaselineRotation = Quaternion.identity;
             lastDeserializedBaselineScale    = Vector3.one;
 
+            // Prevent resistance from CharacterController
+            // or non-knematic Rigidbodies when teleporting.
+            Physics.SyncTransforms();
+
             // Debug.Log($"[{name}] ResetState to baselineTick=0");
         }
 
