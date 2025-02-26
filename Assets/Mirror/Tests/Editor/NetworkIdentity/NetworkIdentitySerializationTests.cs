@@ -120,10 +120,10 @@ namespace Mirror.Tests.NetworkIdentities
             }
 
             // serialize server object
-            serverIdentity.SerializeServer(true, ownerWriter, observersWriter);
+            serverIdentity.SerializeServer_Spawn(ownerWriterReliable, observersWriterReliable);
 
             // deserialize client object with OBSERVERS payload
-            NetworkReader reader = new NetworkReader(observersWriter.ToArray());
+            NetworkReader reader = new NetworkReader(observersWriterReliable.ToArray());
             clientIdentity.DeserializeClient(reader, true);
             for (int i = 0; i < clientNBs.Count; i++)
             {
@@ -143,13 +143,18 @@ namespace Mirror.Tests.NetworkIdentities
                 serverNBs[i].SetDirty();
             }
 
-            ownerWriter.Reset();
-            observersWriter.Reset();
+            ownerWriterReliable.Reset();
+            observersWriterReliable.Reset();
             // serialize server object
-            serverIdentity.SerializeServer(false, ownerWriter, observersWriter);
+            serverIdentity.SerializeServer_Broadcast(
+                ownerWriterReliable, observersWriterReliable,
+                ownerWriterUnreliableBaseline, observersWriterUnreliableBaseline,
+                ownerWriterUnreliableDelta, observersWriterUnreliableDelta,
+                false
+            );
 
             // deserialize client object with OBSERVERS payload
-            reader = new NetworkReader(observersWriter.ToArray());
+            reader = new NetworkReader(observersWriterReliable.ToArray());
             clientIdentity.DeserializeClient(reader, false);
             for (int i = 0; i < clientNBs.Count; i++)
             {
@@ -174,13 +179,18 @@ namespace Mirror.Tests.NetworkIdentities
                 serverNBs[i].value = expected;
                 serverNBs[i].SetDirty();
 
-                ownerWriter.Reset();
-                observersWriter.Reset();
+                ownerWriterReliable.Reset();
+                observersWriterReliable.Reset();
                 // serialize server object
-                serverIdentity.SerializeServer(false, ownerWriter, observersWriter);
+                serverIdentity.SerializeServer_Broadcast(
+                    ownerWriterReliable, observersWriterReliable,
+                    ownerWriterUnreliableBaseline, observersWriterUnreliableBaseline,
+                    ownerWriterUnreliableDelta, observersWriterUnreliableDelta,
+                    false
+                );
 
                 // deserialize client object with OBSERVERS payload
-                reader = new NetworkReader(observersWriter.ToArray());
+                reader = new NetworkReader(observersWriterReliable.ToArray());
                 clientIdentity.DeserializeClient(reader, false);
                 for (int index = 0; index < clientNBs.Count; index++)
                 {
