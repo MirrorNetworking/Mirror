@@ -7,7 +7,7 @@ namespace Mirror.Examples.Hex2D
 {
     [AddComponentMenu("")]
     [DisallowMultipleComponent]
-    public class PlayerCamera : NetworkBehaviour
+    public class Hex2DPlayerCamera : NetworkBehaviour
     {
         Camera mainCam;
 
@@ -20,7 +20,11 @@ namespace Mirror.Examples.Hex2D
         void Awake()
         {
             mainCam = Camera.main;
+#if UNITY_2022_2_OR_NEWER
             checkMethod = FindAnyObjectByType<HexSpatialHash2DInterestManagement>().checkMethod;
+#else
+            checkMethod = FindObjectOfType<HexSpatialHash2DInterestManagement>().checkMethod;
+#endif
         }
 
         public override void OnStartLocalPlayer()

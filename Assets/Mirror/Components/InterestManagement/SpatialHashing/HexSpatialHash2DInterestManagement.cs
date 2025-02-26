@@ -22,9 +22,6 @@ namespace Mirror
         [Tooltip("Spatial Hashing supports XZ for 3D games or XY for 2D games.")]
         public CheckMethod checkMethod = CheckMethod.XZ_FOR_3D;
 
-        [Header("Debug Settings")]
-        public bool showSlider;
-
         double lastRebuildTime;
 
         // Counter for batching static object updates

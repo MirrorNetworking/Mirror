@@ -13,7 +13,11 @@ namespace Mirror.Examples.Hex2D
 
         void Awake()
         {
+#if UNITY_2022_2_OR_NEWER
             checkMethod = FindAnyObjectByType<HexSpatialHash2DInterestManagement>().checkMethod;
+#else
+            checkMethod = FindObjectOfType<HexSpatialHash2DInterestManagement>().checkMethod;
+#endif
         }
 
         void Update()
