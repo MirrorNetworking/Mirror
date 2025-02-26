@@ -67,7 +67,7 @@ public class HexSpatialHash3DInterestManagement : InterestManagement
             cells.Add(null);
     }
 
-    void Update()
+    void LateUpdate()
     {
         if (NetworkTime.time - lastRebuildTime >= rebuildInterval)
         {
