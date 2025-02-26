@@ -101,7 +101,7 @@ namespace Mirror
             // Unreliable sync method: show a warning!
             if (syncMethod.enumValueIndex == (int)SyncMethod.Unreliable)
             {
-                EditorGUILayout.HelpBox("Beware!\nUnreliable is experimental, do not use this yet!", MessageType.Warning);
+                EditorGUILayout.HelpBox("Beware! Unreliable is experimental!\n- Do not use this in production yet!\n- Doesn't support [SyncVars] yet!\n- You need to use OnDe/Serialize manually!", MessageType.Warning);
             }
 
             // sync interval
