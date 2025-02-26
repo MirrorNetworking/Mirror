@@ -4,7 +4,7 @@ namespace Mirror
 {
     // [RequireComponent(typeof(Rigidbody))] <- OnValidate ensures this is on .target
     [AddComponentMenu("Network/Network Rigidbody Hybrid (CORE)")]
-    public class NetworkRigidbodyHybridCORE : NetworkTransformHybridCORE
+    public class NetworkRigidbodyHybridCORE : NetworkTransformHybrid
     {
         bool clientAuthority => syncDirection == SyncDirection.ClientToServer;
 
