@@ -57,6 +57,7 @@ public class HexSpatialHash3DInterestManagement : InterestManagement
     const int MAX_R = 23; // Covers -11 to 11 (~18 km)
     const int LAYER_OFFSET = 18; // Offset for -18 to 17 layers
     const int MAX_LAYERS = 36; // Total layers for ±9 km (18 km)
+    const ushort MAX_AREA = 9000; // Maximum area in meters
 
     void Awake()
     {
@@ -156,7 +157,7 @@ public class HexSpatialHash3DInterestManagement : InterestManagement
         Cell newCell = grid.WorldToCell(position);
 
         // Check if the object is within ±9 km bounds
-        if (Mathf.Abs(position.x) > 9000 || Mathf.Abs(position.y) > 9000 || Mathf.Abs(position.z) > 9000)
+        if (Mathf.Abs(position.x) > MAX_AREA || Mathf.Abs(position.y) > MAX_AREA || Mathf.Abs(position.z) > MAX_AREA)
             return; // Ignore objects outside bounds
 
         // Check if the object was previously tracked
