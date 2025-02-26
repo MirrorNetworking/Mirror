@@ -354,7 +354,7 @@ namespace Mirror.Tests.NetworkIdentities
 
             // some reliable, some unreliable components
             serverComp1.syncMethod = clientComp1.syncMethod = SyncMethod.Reliable;
-            serverComp2.syncMethod = clientComp2.syncMethod = SyncMethod.Unreliable;
+            serverComp2.syncMethod = clientComp2.syncMethod = SyncMethod.Hybrid;
 
             // change nothing
             // serverComp.value = "42";
@@ -388,7 +388,7 @@ namespace Mirror.Tests.NetworkIdentities
 
             // some reliable, some unreliable components
             serverComp1.syncMethod = clientComp1.syncMethod = SyncMethod.Reliable;
-            serverComp2.syncMethod = clientComp2.syncMethod = SyncMethod.Unreliable;
+            serverComp2.syncMethod = clientComp2.syncMethod = SyncMethod.Hybrid;
 
             // client only serializes owned ClientToServer components
             clientIdentity.isOwned = true;
@@ -444,7 +444,7 @@ namespace Mirror.Tests.NetworkIdentities
 
             // one Reliable, one Unreliable component
             comp1.syncMethod = SyncMethod.Reliable;
-            comp2.syncMethod = SyncMethod.Unreliable;
+            comp2.syncMethod = SyncMethod.Hybrid;
 
             // pretend to be owned
             identity.isOwned = true;
@@ -498,7 +498,7 @@ namespace Mirror.Tests.NetworkIdentities
 
             // one Reliable, one Unreliable component
             comp1.syncMethod = SyncMethod.Reliable;
-            comp2.syncMethod = SyncMethod.Unreliable;
+            comp2.syncMethod = SyncMethod.Hybrid;
 
             // pretend to be owned
             identity.isOwned = true;
@@ -550,7 +550,7 @@ namespace Mirror.Tests.NetworkIdentities
 
             // one Reliable, one Unreliable component
             comp1.syncMethod = SyncMethod.Reliable;
-            comp2.syncMethod = SyncMethod.Unreliable;
+            comp2.syncMethod = SyncMethod.Hybrid;
 
             // pretend to be owned
             identity.isOwned = true;
@@ -602,7 +602,7 @@ namespace Mirror.Tests.NetworkIdentities
 
             // one Reliable, one Unreliable component
             comp1.syncMethod = SyncMethod.Reliable;
-            comp2.syncMethod = SyncMethod.Unreliable;
+            comp2.syncMethod = SyncMethod.Hybrid;
 
             // pretend to be owned
             identity.isOwned = true;
@@ -654,7 +654,7 @@ namespace Mirror.Tests.NetworkIdentities
 
             // one Reliable, one Unreliable component
             comp1.syncMethod = SyncMethod.Reliable;
-            comp2.syncMethod = SyncMethod.Unreliable;
+            comp2.syncMethod = SyncMethod.Hybrid;
 
             // pretend to be owned
             identity.isOwned = true;

@@ -99,7 +99,7 @@ namespace Mirror
             EditorGUILayout.PropertyField(syncMethod);
 
             // Unreliable sync method: show a warning!
-            if (syncMethod.enumValueIndex == (int)SyncMethod.Unreliable)
+            if (syncMethod.enumValueIndex == (int)SyncMethod.Hybrid)
             {
                 EditorGUILayout.HelpBox("Beware! Unreliable is experimental!\n- Do not use this in production yet!\n- Doesn't support [SyncVars] yet!\n- You need to use OnDe/Serialize manually!", MessageType.Warning);
             }

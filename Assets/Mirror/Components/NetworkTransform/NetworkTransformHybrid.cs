@@ -61,7 +61,7 @@ namespace Mirror
             base.Configure();
 
             // force syncMethod to unreliable
-            syncMethod = SyncMethod.Unreliable;
+            syncMethod = SyncMethod.Hybrid;
 
             // Unreliable ignores syncInterval. don't need to force anymore:
             // sendIntervalMultiplier = 1;

@@ -959,7 +959,7 @@ namespace Mirror
                     }
                 }
                 // UNRELIABLE COMPONENTS ///////////////////////////////////////
-                else if (component.syncMethod == SyncMethod.Unreliable)
+                else if (component.syncMethod == SyncMethod.Hybrid)
                 {
                     // UNRELIABLE DELTAS ///////////////////////////////////////
                     {
@@ -1050,7 +1050,7 @@ namespace Mirror
                         if (component.IsDirty()) dirtyMaskReliable |= nthBit;
                     }
                     // UNRELIABLE COMPONENTS ///////////////////////////////////////
-                    else if (component.syncMethod == SyncMethod.Unreliable)
+                    else if (component.syncMethod == SyncMethod.Hybrid)
                     {
                         // set the n-th bit if dirty
                         // shifting from small to large numbers is varint-efficient.

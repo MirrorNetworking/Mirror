@@ -8,8 +8,8 @@ namespace Mirror
 {
     // SyncMethod to choose between:
     //   * Reliable: oldschool reliable sync every syncInterval. If nothing changes, nothing is sent.
-    //   * Unreliable: quake style unreliable state sync & delta compression, for fast paced games.
-    public enum SyncMethod { Reliable, Unreliable }
+    //   * Hybrid: quake style unreliable sync ('hybrid' to make it scale).
+    public enum SyncMethod { Reliable, Hybrid }
 
     // SyncMode decides if a component is synced to all observers, or only owner
     public enum SyncMode { Observers, Owner }
