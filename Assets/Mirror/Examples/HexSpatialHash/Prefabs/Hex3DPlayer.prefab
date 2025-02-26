@@ -17,7 +17,7 @@ GameObject:
   - component: {fileID: 7085035185352152729}
   - component: {fileID: 3256206181403686673}
   m_Layer: 0
-  m_Name: HexPlayer
+  m_Name: Hex3DPlayer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
