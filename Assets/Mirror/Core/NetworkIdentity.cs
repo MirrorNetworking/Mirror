@@ -932,7 +932,7 @@ namespace Mirror
             for (int i = 0; i < components.Length; ++i)
             {
                 NetworkBehaviour component = components[i];
-                ulong nthBit = (1u << i);
+                ulong nthBit = 1ul << i;
 
                 // RELIABLE COMPONENTS /////////////////////////////////////////
                 if (component.syncMethod == SyncMethod.Reliable)
