@@ -1466,7 +1466,8 @@ namespace Mirror
                     // ensures the data remains intact and independent of the reader's pooled buffer 
                     // lifecycle, preventing corruption during deferred application.
                     byte[] payloadCopy = new byte[message.payload.Count];
-                    Array.Copy(message.payload.Array, message.payload.Offset, payloadCopy, 0, message.payload.Count);
+                    if (message.payload.Count > 0)
+                        Array.Copy(message.payload.Array, message.payload.Offset, payloadCopy, 0, message.payload.Count);
                     SpawnMessage messageCopy = new SpawnMessage
                     {
                         netId = message.netId,
