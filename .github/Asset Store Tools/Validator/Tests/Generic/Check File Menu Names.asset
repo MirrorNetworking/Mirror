@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d813ff809ae82f643bf975031305d541, type: 3}
+  m_Name: Check File Menu Names
+  m_EditorClassIdentifier: 
+  HasBeenInitialized: 1
+  Id: 21
+  Title: Check File Menu Names
+  Description: File menus should be placed under an existing menu, such as "Window/<PackageName>".
+    If no existing menus are a good fit, they should be placed under a custom menu
+    called "Tools".
+  CategoryInfo:
+    IsFailFilter: 1
+    IsInclusiveFilter: 1
+    AppliesToSubCategories: 1
+    Filter: []
+  TestScript: {fileID: 11500000, guid: d8e3b12ecc1fcd74d9a9f8d2b549fc63, type: 3}

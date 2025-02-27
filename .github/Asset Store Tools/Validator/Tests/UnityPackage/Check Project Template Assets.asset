@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d813ff809ae82f643bf975031305d541, type: 3}
+  m_Name: Check Project Template Assets
+  m_EditorClassIdentifier: 
+  HasBeenInitialized: 1
+  Id: 34
+  Title: Check Project Template Assets
+  Description: 'Assets in your package derived from project template assets should
+    be assigned a new GUID and be located under a different path.
+
+
+    This is to
+    minimize the risk of users accidentally overwriting their own assets when importing
+    your package.
+
+
+    Example commonly used asset: ''Assets/Scenes/SampleScene.unity'''
+  CategoryInfo:
+    IsFailFilter: 0
+    IsInclusiveFilter: 1
+    AppliesToSubCategories: 1
+    Filter:
+    - Essentials
+    - Templates
+  ValidationType: 1
+  TestScript: {fileID: 11500000, guid: f02d52a702c712e4e8089f7c2e65bae7, type: 3}

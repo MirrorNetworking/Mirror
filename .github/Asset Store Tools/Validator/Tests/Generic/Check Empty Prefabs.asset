@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d813ff809ae82f643bf975031305d541, type: 3}
+  m_Name: Check Empty Prefabs
+  m_EditorClassIdentifier: 
+  HasBeenInitialized: 1
+  Id: 5
+  Title: Check Empty Prefabs
+  Description: Prefabs cannot be empty, please make sure that you set up your prefabs.
+    correctly.
+  CategoryInfo:
+    IsFailFilter: 1
+    IsInclusiveFilter: 1
+    AppliesToSubCategories: 1
+    Filter:
+    - 2D
+    - 3D
+    - Animation
+    - Essentials
+    - Templates
+    - VFX
+  TestScript: {fileID: 11500000, guid: 8055bed9373283e4793463b90b42f08f, type: 3}
