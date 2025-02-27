@@ -1465,6 +1465,8 @@ namespace Mirror
                     // available bytes, as seen with 20+ objects in Benchmark). Deep copying payload 
                     // ensures the data remains intact and independent of the reader's pooled buffer 
                     // lifecycle, preventing corruption during deferred application.
+                    // Note that payload.Count is 0 if there are no components to deserialize, which
+                    // means payload.Array is null, so we must skip the deep copy in such cases.
                     byte[] payloadCopy = new byte[message.payload.Count];
                     if (message.payload.Count > 0)
                         Array.Copy(message.payload.Array, message.payload.Offset, payloadCopy, 0, message.payload.Count);
