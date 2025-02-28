@@ -331,7 +331,7 @@ Rigidbody:
   m_AngularDrag: 0.05
   m_UseGravity: 1
   m_IsKinematic: 1
-  m_Interpolate: 1
+  m_Interpolate: 0
   m_Constraints: 112
   m_CollisionDetection: 3
 --- !u!114 &5710847519792162690
@@ -411,11 +411,12 @@ MonoBehaviour:
   interpolateRotation: 1
   interpolateScale: 1
   coordinateSpace: 0
-  timelineOffset: 0
+  timelineOffset: 1
   showGizmos: 0
   showOverlay: 0
   overlayColor: {r: 0, g: 0, b: 0, a: 0.5}
   bufferResetMultiplier: 3
+  useFixedUpdate: 1
   positionSensitivity: 0.01
   rotationSensitivity: 0.01
   scaleSensitivity: 0.01
@@ -450,7 +451,7 @@ MonoBehaviour:
     MouseSteer: 109
     AutoRun: 114
     ToggleUI: 117
-  controlOptions: 4
+  controlOptions: 9
   maxMoveSpeed: 8
   inputSensitivity: 2
   inputGravity: 2
@@ -459,6 +460,8 @@ MonoBehaviour:
   initialJumpSpeed: 2.5
   maxJumpSpeed: 3.5
   jumpAcceleration: 4
+  slopeThreshold: 10
+  speedMultiplier: 10
   runtimeData:
     _horizontal: 0
     _vertical: 0
