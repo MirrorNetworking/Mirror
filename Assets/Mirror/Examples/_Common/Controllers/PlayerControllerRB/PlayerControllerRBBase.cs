@@ -485,27 +485,28 @@ namespace Mirror.Examples.Common.Controllers.Player
             runtimeData.direction = transform.TransformDirection(runtimeData.direction);
             runtimeData.direction *= maxMoveSpeed;
 
-            // Apply horizontal movement
-            rigidBody.MovePosition(rigidBody.position + runtimeData.direction * fixedDeltaTime);
-
-            // Handle vertical movement (jumping and gravity)
+            // Combine horizontal and vertical movement into velocity
 #if UNITY_6000_0_OR_NEWER
-            Vector3 verticalMovement = rigidBody.linearVelocity;
+    Vector3 currentVelocity = rigidBody.linearVelocity;
 #else
-            Vector3 verticalMovement = rigidBody.velocity;
+            Vector3 currentVelocity = rigidBody.velocity;
 #endif
-            verticalMovement.y = runtimeData.jumpSpeed;
+            Vector3 targetVelocity = runtimeData.direction; // Horizontal movement
+            targetVelocity.y = runtimeData.jumpSpeed;       // Vertical movement from jumping
 
-            // Apply gravity
+            // Apply gravity if not grounded
             if (runtimeData.groundState != GroundState.Grounded)
-                verticalMovement.y += Physics.gravity.y * fixedDeltaTime;
+                targetVelocity.y += Physics.gravity.y * fixedDeltaTime;
 
-            // Apply vertical movement
+            // Apply the combined velocity
 #if UNITY_6000_0_OR_NEWER
-            rigidBody.linearVelocity = new Vector3(rigidBody.linearVelocity.x, verticalMovement.y, rigidBody.linearVelocity.z);
+    rigidBody.linearVelocity = targetVelocity;
 #else
-            rigidBody.velocity = new Vector3(rigidBody.velocity.x, verticalMovement.y, rigidBody.velocity.z);
+            rigidBody.velocity = targetVelocity;
 #endif
+
+            // Update velocity for diagnostics
+            runtimeData.velocity = Vector3Int.FloorToInt(targetVelocity);
         }
     }
 }
