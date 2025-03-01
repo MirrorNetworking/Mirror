@@ -331,7 +331,7 @@ Rigidbody:
   m_AngularDrag: 0.05
   m_UseGravity: 1
   m_IsKinematic: 1
-  m_Interpolate: 1
+  m_Interpolate: 0
   m_Constraints: 112
   m_CollisionDetection: 3
 --- !u!114 &6897869481335892641
@@ -400,17 +400,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   syncDirection: 1
   syncMode: 0
-  syncInterval: 0
+  syncInterval: 0.033333335
+  baselineRate: 1
+  unreliableRedundancy: 0
+  baselineIsDelta: 1
+  debugLog: 0
+  useFixedUpdate: 1
   target: {fileID: 5650773562400175449}
   bufferSizeLimit: 64
   sendRate: 30
-  baselineRate: 1
-  onlySyncOnChange: 1
   positionSensitivity: 0.01
   rotationSensitivity: 0.01
   scaleSensitivity: 0.01
-  unreliableRedundancy: 0
-  baselineIsDelta: 1
   syncPosition: 1
   syncRotation: 1
   syncScale: 0
@@ -449,7 +450,7 @@ MonoBehaviour:
     MouseSteer: 109
     AutoRun: 114
     ToggleUI: 117
-  controlOptions: 4
+  controlOptions: 9
   maxMoveSpeed: 8
   inputSensitivity: 2
   inputGravity: 2
@@ -458,6 +459,8 @@ MonoBehaviour:
   initialJumpSpeed: 2.5
   maxJumpSpeed: 3.5
   jumpAcceleration: 4
+  slopeThreshold: 10
+  speedMultiplier: 10
   runtimeData:
     _horizontal: 0
     _vertical: 0

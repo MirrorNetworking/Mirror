@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Mirror.Examples.Common
 {
-    public class Respawn
+    public static class Respawn
     {
         public static void RespawnPlayer(bool respawn, byte respawnTime, NetworkConnectionToClient conn)
         {

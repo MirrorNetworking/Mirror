@@ -274,6 +274,7 @@ MonoBehaviour:
   showOverlay: 0
   overlayColor: {r: 0, g: 0, b: 0, a: 0.5}
   onlySyncOnChangeCorrectionMultiplier: 2
+  useFixedUpdate: 0
   rotationSensitivity: 0.01
   positionPrecision: 0.01
   scalePrecision: 0.01
@@ -830,7 +831,7 @@ MonoBehaviour:
   disconnectInactiveConnections: 0
   disconnectInactiveTimeout: 60
   authenticator: {fileID: 0}
-  playerPrefab: {fileID: 7863680369626900553, guid: 34c79b503a7a04847be9745d119b655d,
+  playerPrefab: {fileID: 7197623925735895267, guid: 26433cf84d806564491a56c685a18f82,
     type: 3}
   autoCreatePlayer: 1
   playerSpawnMethod: 1
