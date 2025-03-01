@@ -35,7 +35,7 @@ namespace Mirror.Examples.Editor
             }
 
             int choice = EditorUtility.DisplayDialogComplex(
-                "Mirror Examples Pipeline Conversion",
+                $"Mirror Examples {currentPipeline} Conversion",
                 $"Mirror examples need to be converted to {currentPipeline}.\n\nThis will only affect {examplesPath} and subfolders.",
                 "Go Ahead",         // 0 - Left (confirm)
                 "Don't Ask Again",  // 1 - Right (cancel)
@@ -104,6 +104,7 @@ namespace Mirror.Examples.Editor
                     if (mat != null)
                     {
                         string shaderName = mat.shader.name;
+
                         // Force conversion for non-URP shaders that won't render correctly
                         bool needsConversion = shaderName.StartsWith("Legacy Shaders/") ||
                                               shaderName == "Standard" ||
@@ -130,7 +131,8 @@ namespace Mirror.Examples.Editor
         }
 
         /// <summary>
-        /// Converts a material to URP-compatible shaders, preserving properties like color, texture, tiling, and transparency.
+        /// Converts a material to URP-compatible shaders, preserving properties like color, texture,
+        /// tiling, transparency, and forward rendering options (specular highlights and reflections).
         /// </summary>
         private static void ConvertToURP(Material material)
         {
@@ -138,7 +140,7 @@ namespace Mirror.Examples.Editor
 
             // Capture all relevant properties before changing the shader
             Color initialColor = material.GetColor("_Color");
-            Debug.Log($"Initial _Color for '{material.name}': {initialColor} (Hex: {ColorUtility.ToHtmlStringRGBA(initialColor)})");
+            Debug.Log($"Initial _Color for '{material.name}': {initialColor} (Hex: {ColorUtility.ToHtmlStringRGBA(initialColor)})", material);
 
             Texture mainTex = null;
             Vector4 mainTexST = Vector4.zero; // x, y = tiling; z, w = offset
@@ -146,27 +148,32 @@ namespace Mirror.Examples.Editor
             {
                 mainTex = material.GetTexture("_MainTex");
                 mainTexST = material.GetVector("_MainTex_ST");
-                Debug.Log($"Initial _MainTex for '{material.name}': {(mainTex != null ? mainTex.name : "null")}, Tiling/Offset: {mainTexST}");
+                Debug.Log($"Initial _MainTex for '{material.name}': {(mainTex != null ? mainTex.name : "null")}, Tiling/Offset: {mainTexST}", material);
             }
             else if (material.mainTexture != null)
             {
                 mainTex = material.mainTexture;
                 mainTexST = new Vector4(material.mainTextureScale.x, material.mainTextureScale.y, material.mainTextureOffset.x, material.mainTextureOffset.y);
-                Debug.Log($"Initial mainTexture fallback for '{material.name}': {mainTex.name}, Tiling/Offset: {mainTexST}");
+                Debug.Log($"Initial mainTexture fallback for '{material.name}': {mainTex.name}, Tiling/Offset: {mainTexST}", material);
             }
 
             Texture bumpMap = null;
             if (material.HasProperty("_BumpMap"))
             {
                 bumpMap = material.GetTexture("_BumpMap");
-                Debug.Log($"Initial _BumpMap for '{material.name}': {(bumpMap != null ? bumpMap.name : "null")}");
+                Debug.Log($"Initial _BumpMap for '{material.name}': {(bumpMap != null ? bumpMap.name : "null")}", material);
             }
 
             float metallic = material.HasProperty("_Metallic") ? material.GetFloat("_Metallic") : 0f;
-            float smoothness = material.HasProperty("_Glossiness") ? material.GetFloat("_Glossiness") : 0.5f;
-            Debug.Log($"Initial Metallic for '{material.name}': {metallic}, Smoothness: {smoothness}");
+            float smoothness = material.HasProperty("_Glossiness") ? material.GetFloat("_Glossiness") : 0f;
+            Debug.Log($"Initial Metallic for '{material.name}': {metallic}, Smoothness: {smoothness}", material);
 
             bool isTransparent = material.renderQueue == (int)UnityEngine.Rendering.RenderQueue.Transparent;
+
+            // Capture Forward Rendering Options (Specular Highlights and Reflections)
+            float specularHighlights = material.HasProperty("_SpecularHighlights") ? material.GetFloat("_SpecularHighlights") : 0f; // Default off
+            float environmentReflections = material.HasProperty("_GlossyReflections") ? material.GetFloat("_GlossyReflections") : 0f; // Default off
+            Debug.Log($"Initial Specular Highlights for '{material.name}': {(specularHighlights > 0 ? "On" : "Off")}, Environment Reflections: {(environmentReflections > 0 ? "On" : "Off")}", material);
 
             // Handle skybox materials
             if (originalShaderName.StartsWith("Skybox/"))
@@ -177,7 +184,7 @@ namespace Mirror.Examples.Editor
                     if (urpSixSidedShader != null && material.shader != urpSixSidedShader)
                     {
                         material.shader = urpSixSidedShader;
-                        Debug.Log($"Converted to URP Skybox/6 Sided: {AssetDatabase.GetAssetPath(material)}");
+                        Debug.Log($"Converted to URP Skybox/6 Sided: {AssetDatabase.GetAssetPath(material)}", material);
                     }
                     return;
                 }
@@ -193,7 +200,7 @@ namespace Mirror.Examples.Editor
                             material.SetTexture("_MainTex", material.GetTexture("_FrontTex"));
                         if (material.HasProperty("_Tint"))
                             material.SetColor("_Tint", material.GetColor("_Tint"));
-                        Debug.Log($"Converted to URP Skybox/Panoramic: {AssetDatabase.GetAssetPath(material)}");
+                        Debug.Log($"Converted to URP Skybox/Panoramic: {AssetDatabase.GetAssetPath(material)}", material);
                     }
                     return;
                 }
@@ -214,29 +221,34 @@ namespace Mirror.Examples.Editor
             {
                 material.SetTexture("_BaseMap", mainTex);
                 material.SetVector("_BaseMap_ST", mainTexST);
-                Debug.Log($"Set _BaseMap for '{material.name}' to: {mainTex.name}, Tiling/Offset: {mainTexST}");
+                Debug.Log($"Set _BaseMap for '{material.name}' to: {mainTex.name}, Tiling/Offset: {mainTexST}", material);
             }
             else
             {
-                Debug.Log($"No albedo texture found for '{material.name}' at {AssetDatabase.GetAssetPath(material)}");
+                Debug.Log($"No albedo texture found for '{material.name}' at {AssetDatabase.GetAssetPath(material)}", material);
             }
 
             // Apply color
             Color baseColor = initialColor == Color.clear ? Color.white : initialColor;
             material.SetColor("_BaseColor", baseColor);
-            Debug.Log($"Set _BaseColor for '{material.name}' to: {baseColor} (Hex: {ColorUtility.ToHtmlStringRGBA(baseColor)})");
+            Debug.Log($"Set _BaseColor for '{material.name}' to: {baseColor} (Hex: {ColorUtility.ToHtmlStringRGBA(baseColor)})", material);
 
             // Apply normal map
             if (bumpMap != null)
             {
                 material.SetTexture("_BumpMap", bumpMap);
-                Debug.Log($"Set _BumpMap for '{material.name}' to: {bumpMap.name}");
+                Debug.Log($"Set _BumpMap for '{material.name}' to: {bumpMap.name}", material);
             }
 
             // Apply metallic and smoothness
             material.SetFloat("_Metallic", metallic);
             material.SetFloat("_Smoothness", smoothness);
-            Debug.Log($"Set Metallic for '{material.name}' to: {metallic}, Smoothness to: {smoothness}");
+            Debug.Log($"Set Metallic for '{material.name}' to: {metallic}, Smoothness to: {smoothness}", material);
+
+            // Apply forward rendering options
+            material.SetFloat("_SpecularHighlights", specularHighlights);
+            material.SetFloat("_EnvironmentReflections", environmentReflections);
+            Debug.Log($"Set Specular Highlights for '{material.name}' to: {(specularHighlights > 0 ? "On" : "Off")}, Environment Reflections to: {(environmentReflections > 0 ? "On" : "Off")}", material);
 
             // Set surface type and blending
             if (isTransparent)
@@ -246,7 +258,7 @@ namespace Mirror.Examples.Editor
                 material.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
                 material.SetInt("_ZWrite", 0);
                 material.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent;
-                Debug.Log($"Set '{material.name}' to Transparent Surface Type");
+                Debug.Log($"Set '{material.name}' to Transparent Surface Type", material);
             }
             else
             {
@@ -255,10 +267,10 @@ namespace Mirror.Examples.Editor
                 material.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.Zero);
                 material.SetInt("_ZWrite", 1);
                 material.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Geometry;
-                Debug.Log($"Set '{material.name}' to Opaque Surface Type");
+                Debug.Log($"Set '{material.name}' to Opaque Surface Type", material);
             }
 
-            Debug.Log($"Converted '{originalShaderName}' to URP Lit: {AssetDatabase.GetAssetPath(material)}");
+            Debug.Log($"Converted '{originalShaderName}' to URP Lit: {AssetDatabase.GetAssetPath(material)}", material);
         }
 
         private static bool HasConvertedFlag()
