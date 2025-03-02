@@ -27,6 +27,16 @@ namespace Mirror
         protected Changed cachedChangedComparison;
         protected bool hasSentUnchangedPosition;
 
+        // validation //////////////////////////////////////////////////////////
+        // Configure is called from OnValidate and Awake
+        protected override void Configure()
+        {
+            base.Configure();
+
+            // force syncMethod to unreliable
+            syncMethod = SyncMethod.Hybrid;
+        }
+
         // update //////////////////////////////////////////////////////////////
         // Update applies interpolation
         void Update()
@@ -456,6 +466,22 @@ namespace Mirror
                 }
 
                 syncData.scale = (syncData.changedDataByte & Changed.Scale) > 0 ? syncData.scale : (snapshots.Count > 0 ? snapshots.Values[snapshots.Count - 1].scale : GetScale());
+            }
+        }
+
+        // This is to extract position/rotation/scale data from payload. Override
+        // Construct and Deconstruct if you are implementing a different SyncData logic.
+        // Note however that snapshot interpolation still requires the basic 3 data
+        // position, rotation and scale, which are computed from here.
+        protected virtual void DeconstructSyncData(System.ArraySegment<byte> receivedPayload, out byte? changedFlagData, out Vector3? position, out Quaternion? rotation, out Vector3? scale)
+        {
+            using (NetworkReaderPooled reader = NetworkReaderPool.Get(receivedPayload))
+            {
+                SyncData syncData = reader.Read<SyncData>();
+                changedFlagData = (byte)syncData.changedDataByte;
+                position = syncData.position;
+                rotation = syncData.quatRotation;
+                scale = syncData.scale;
             }
         }
     }

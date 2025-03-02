@@ -94,6 +94,16 @@ namespace Mirror
             if (syncDirection.enumValueIndex == (int)SyncDirection.ServerToClient)
                 EditorGUILayout.PropertyField(serializedObject.FindProperty("syncMode"));
 
+            // sync method
+            SerializedProperty syncMethod = serializedObject.FindProperty("syncMethod");
+            EditorGUILayout.PropertyField(syncMethod);
+
+            // Unreliable sync method: show a warning!
+            if (syncMethod.enumValueIndex == (int)SyncMethod.Hybrid)
+            {
+                EditorGUILayout.HelpBox("Beware! Hybrid is experimental!\n- Do not use this in production yet!\n- Doesn't support [SyncVars] yet!\n- You need to use OnDe/Serialize manually!", MessageType.Warning);
+            }
+
             // sync interval
             EditorGUILayout.PropertyField(serializedObject.FindProperty("syncInterval"));
 
