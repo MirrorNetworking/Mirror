@@ -85,14 +85,13 @@ namespace Mirror
             if (Application.isPlaying) return;
 
             base.OnValidate();
-            Reset();
+
+            // set target to self if none yet
+            if (target == null) target = transform;
         }
 
         void Reset()
         {
-            // set target to self if none yet
-            if (target == null) target = transform;
-
             // we use sendRate for convenience.
             // but project it to syncInterval for NetworkTransformHybrid to work properly.
             syncInterval = sendInterval;
