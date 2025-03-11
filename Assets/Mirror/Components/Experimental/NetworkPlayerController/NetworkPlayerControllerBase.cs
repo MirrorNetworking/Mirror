@@ -349,13 +349,8 @@ namespace Mirror.Components.Experimental{
     private void OnClientLocalPlayerUpdate(int deltaTicks, float deltaTime) {
       var currentTick = NetworkTick.CurrentTick;
 
-      // If reconciling, rebuild data using the most recent server state.
-      if (NetworkTick.IsReconciling) RebuildReceivedData(currentTick);
-
       // Record player state in history if not pending reset.
-      if (!_isPendingStateReset)
-        _playerStateHistory[currentTick] = GetPlayerStateWithTick(currentTick)
-          .OverrideStateWith(_receivedPlayerStates[currentTick], currentTick, AdditionalStateOverride);
+      if (!_isPendingStateReset) _playerStateHistory[currentTick] = GetPlayerStateWithTick(currentTick);
 
       if (_isPlayerReady && !NetworkTick.IsReconciling) {
         _playerInputsHistory[currentTick] = GetPlayerInputsWithTick(currentTick);
@@ -466,7 +461,7 @@ namespace Mirror.Components.Experimental{
         .OverrideInputsWith(_receivedPlayerInputs[rebuildTick], rebuildTick, AdditionalInputsOverride);
 
       // If sending precise server changes, overlay state changes.
-      if (sendStateChanges && _receivedPlayerStates[rebuildTick].HasTick)
+      if (sendStateChanges)
         _receivedPlayerStates[rebuildTick] = _receivedPlayerStates[previousServerTick]
           .OverrideStateWith(_receivedPlayerStates[rebuildTick], rebuildTick, AdditionalStateOverride);
     }
