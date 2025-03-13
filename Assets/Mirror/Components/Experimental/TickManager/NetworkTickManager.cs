@@ -234,7 +234,7 @@ namespace Mirror.Components.Experimental{
     /// </summary>
     /// <param name="conn">The network connection for the connected client.</param>
     [Server]
-    private void OnConnectedEventHandle(NetworkConnection conn) => _clients[conn.connectionId] = new ClientData() {
+    private void OnConnectedEventHandle(NetworkConnectionToClient conn) => _clients[conn.connectionId] = new ClientData() {
       ClientNonce = 0,
       ClientTick = 0,
       ClientToServerLoss = new RunningMax(Mathf.RoundToInt(packetLossSampleTime / Time.fixedDeltaTime), 0),
@@ -248,7 +248,7 @@ namespace Mirror.Components.Experimental{
     /// </summary>
     /// <param name="conn">The network connection for the disconnected client.</param>
     [Server]
-    private void OnDisconnectedEventHandle(NetworkConnection conn) => _clients.Remove(conn.connectionId);
+    private void OnDisconnectedEventHandle(NetworkConnectionToClient conn) => _clients.Remove(conn.connectionId);
 
     #endregion
 
@@ -478,7 +478,7 @@ namespace Mirror.Components.Experimental{
         return;
       }
 
-      // Wait until we receive positive tick from server before starting the initial 2 step sync  
+      // Wait until we receive positive tick from server before starting the initial 2 step sync
       if (clientTick > 0 && _isAbsoluteTickSynced) {
         SynchronizeStart(serverTick, clientTick);
         ResetRunningMins();
@@ -563,12 +563,12 @@ namespace Mirror.Components.Experimental{
         _networkTick.IncrementServerAbsoluteTick(serverAdjustment);
       }
 
-      // If client or server are adjusting we need to wait for confirmation to avoid oscillating adjustments 
+      // If client or server are adjusting we need to wait for confirmation to avoid oscillating adjustments
       if (clientAdjustment != 0 || serverAdjustment != 0)
         SetAdjusting(NetworkTick.IncrementTick(_networkTick.GetClientTick(), deltaTicks + clientAdjustment));
 
-      // If the server and client adjustments differ, it indicates the tick values have diverged and require reconciliation. 
-      // We also need to trigger a reset state event to ensure the server and client ticks remain sequential. 
+      // If the server and client adjustments differ, it indicates the tick values have diverged and require reconciliation.
+      // We also need to trigger a reset state event to ensure the server and client ticks remain sequential.
       // This preserves full per-tick input data locally while only sending incremental changes across the network.
       if (clientAdjustment != serverAdjustment) {
         var delta = Mathf.Min(clientAdjustment - serverAdjustment, 0);
@@ -585,7 +585,7 @@ namespace Mirror.Components.Experimental{
     #region Tick Simulation Functions
 
     /// <summary>
-    /// After synchronization, if the client tick is ahead, rolls it back, replays physics, and 
+    /// After synchronization, if the client tick is ahead, rolls it back, replays physics, and
     /// ensures the client’s prediction state is predicted correctly.
     /// </summary>
     private void SimulateInitialTick() {
@@ -828,7 +828,7 @@ namespace Mirror.Components.Experimental{
     }
 
     /// <summary>
-    /// Generates the next nonce value by incrementing the current nonce. 
+    /// Generates the next nonce value by incrementing the current nonce.
     /// The nonce is a looping 5-bit variable (0-31), ensuring it wraps around correctly when reaching 31.
     /// </summary>
     /// <param name="startNonce">The starting nonce value to increment.</param>
@@ -837,7 +837,7 @@ namespace Mirror.Components.Experimental{
 
     /// <summary>
     /// Calculates the tick compensation based on packet loss and a predefined compensation factor.
-    /// This is used to adjust for lost packets, smoothing gameplay experience based on the 
+    /// This is used to adjust for lost packets, smoothing gameplay experience based on the
     /// `packetLossCompensationFactor`.
     /// </summary>
     /// <param name="loss">The packet loss percentage used to calculate compensation ticks.</param>
