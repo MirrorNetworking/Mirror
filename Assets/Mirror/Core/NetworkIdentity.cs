@@ -71,7 +71,21 @@ namespace Mirror
         //   we set it, then never change it. that's the user's expectation too.
         //
         //   => fixes https://github.com/vis2k/Mirror/issues/1475
-        public bool isClient { get; internal set; }
+        bool _isClient;
+        public bool isClient
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => _isClient;
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            internal set
+            {
+                // avoid NetworkBehaviour netIdentity=>flag indirection by
+                // manually assigning an inlined flag when changed
+                _isClient = value;
+                foreach (NetworkBehaviour comp in NetworkBehaviours)
+                    comp.isClient = value;
+            }
+        }
 
         /// <summary>Returns true if NetworkServer.active and server is not stopped.</summary>
         //
@@ -86,7 +100,21 @@ namespace Mirror
         //
         //   => fixes https://github.com/vis2k/Mirror/issues/1484
         //   => fixes https://github.com/vis2k/Mirror/issues/2533
-        public bool isServer { get; internal set; }
+        bool _isServer;
+        public bool isServer
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => _isServer;
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            internal set
+            {
+                // avoid NetworkBehaviour netIdentity=>flag indirection by
+                // manually assigning an inlined flag when changed
+                _isServer = value;
+                foreach (NetworkBehaviour comp in NetworkBehaviours)
+                    comp.isServer = value;
+            }
+        }
 
         /// <summary>Return true if this object represents the player on the local machine.</summary>
         //
@@ -100,7 +128,21 @@ namespace Mirror
         //   we set it, then never change it. that's the user's expectation too.
         //
         //   => fixes https://github.com/vis2k/Mirror/issues/2615
-        public bool isLocalPlayer { get; internal set; }
+        bool _isLocalPlayer;
+        public bool isLocalPlayer
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => _isLocalPlayer;
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            internal set
+            {
+                // avoid NetworkBehaviour netIdentity=>flag indirection by
+                // manually assigning an inlined flag when changed
+                _isLocalPlayer = value;
+                foreach (NetworkBehaviour comp in NetworkBehaviours)
+                    comp.isLocalPlayer = value;
+            }
+        }
 
         /// <summary>True if this object only exists on the server</summary>
         public bool isServerOnly => isServer && !isClient;
@@ -110,7 +152,21 @@ namespace Mirror
 
         /// <summary>isOwned is true on the client if this NetworkIdentity is one of the .owned entities of our connection on the server.</summary>
         // for example: main player & pets are owned. monsters & npcs aren't.
-        public bool isOwned { get; internal set; }
+        bool _isOwned;
+        public bool isOwned
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => _isOwned;
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            internal set
+            {
+                // avoid NetworkBehaviour netIdentity=>flag indirection by
+                // manually assigning an inlined flag when changed
+                _isOwned = value;
+                foreach (NetworkBehaviour comp in NetworkBehaviours)
+                    comp.isOwned = value;
+            }
+        }
 
         // internal so NetworkManager can reset it from StopClient.
         internal bool clientStarted;
@@ -120,7 +176,21 @@ namespace Mirror
             new Dictionary<int, NetworkConnectionToClient>();
 
         /// <summary>The unique network Id of this object (unique at runtime).</summary>
-        public uint netId { get; internal set; }
+        uint _netId;
+        public uint netId
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => _netId;
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            internal set
+            {
+                // avoid NetworkBehaviour netIdentity=>flag indirection by
+                // manually assigning an inlined flag when changed
+                _netId = value;
+                foreach (NetworkBehaviour comp in NetworkBehaviours)
+                    comp.netId = value;
+            }
+        }
 
         /// <summary>Unique identifier for NetworkIdentity objects within a scene, used for spawning scene objects.</summary>
         // persistent scene id <sceneHash/32,sceneId/32> (see AssignSceneID comments)
@@ -187,12 +257,21 @@ namespace Mirror
 
         /// <summary>Client's network connection to the server. This is only valid for player objects on the client.</summary>
         // TODO change to NetworkConnectionToServer, but might cause some breaking
-        public NetworkConnection connectionToServer { get; internal set; }
+        public NetworkConnection connectionToServer
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get;
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            internal set;
+        }
 
         /// <summary>Server's network connection to the client. This is only valid for client-owned objects (including the Player object) on the server.</summary>
+        NetworkConnectionToClient _connectionToClient;
         public NetworkConnectionToClient connectionToClient
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => _connectionToClient;
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             internal set
             {
                 _connectionToClient?.RemoveOwnedObject(this);
@@ -200,7 +279,6 @@ namespace Mirror
                 _connectionToClient?.AddOwnedObject(this);
             }
         }
-        NetworkConnectionToClient _connectionToClient;
 
         // get all NetworkBehaviour components
         public NetworkBehaviour[] NetworkBehaviours { get; private set; }
@@ -336,6 +414,14 @@ namespace Mirror
                 NetworkBehaviour component = NetworkBehaviours[i];
                 component.netIdentity = this;
                 component.ComponentIndex = (byte)i;
+
+                // set flags immediately instead of having NetworkBehaviours
+                // go through the netIdentity=>flag indirection. much faster!
+                component.isServer = isServer;
+                component.isClient = isClient;
+                component.isLocalPlayer = isLocalPlayer;
+                component.isOwned = isOwned;
+                component.netId = netId;
             }
         }
 
