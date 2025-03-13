@@ -34,6 +34,7 @@ namespace Mirror.Examples.Hex3D
                 transform.Rotate(Vector3.up, 90 * Time.deltaTime);
         }
 
+#if !UNITY_SERVER
         void OnGUI()
         {
             if (isLocalPlayer)
@@ -43,5 +44,6 @@ namespace Mirror.Examples.Hex3D
                 GUILayout.EndArea();
             }
         }
+#endif
     }
 }

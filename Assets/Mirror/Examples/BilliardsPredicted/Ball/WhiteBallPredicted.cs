@@ -171,6 +171,7 @@ namespace Mirror.Examples.BilliardsPredicted
         }
         */
 
+#if !UNITY_SERVER
         [ClientCallback]
         void OnGUI()
         {
@@ -182,5 +183,6 @@ namespace Mirror.Examples.BilliardsPredicted
                 NetworkClient.localPlayer.GetComponent<PlayerPredicted>().OnDraggedBall(force);
             }
         }
+#endif
     }
 }

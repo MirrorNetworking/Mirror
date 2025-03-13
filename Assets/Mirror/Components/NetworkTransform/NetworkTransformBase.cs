@@ -473,8 +473,8 @@ namespace Mirror
             }
         }
 
+#if !UNITY_SERVER && (UNITY_EDITOR || DEVELOPMENT_BUILD)
         // OnGUI allocates even if it does nothing. avoid in release.
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
         // debug ///////////////////////////////////////////////////////////////
         protected virtual void OnGUI()
         {

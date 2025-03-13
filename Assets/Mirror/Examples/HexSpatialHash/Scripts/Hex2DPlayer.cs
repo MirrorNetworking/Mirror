@@ -36,6 +36,7 @@ namespace Mirror.Examples.Hex2D
             transform.position += dir.normalized * (Time.deltaTime * speed);
         }
 
+#if !UNITY_SERVER
         void OnGUI()
         {
             if (isLocalPlayer)
@@ -45,5 +46,6 @@ namespace Mirror.Examples.Hex2D
                 GUILayout.EndArea();
             }
         }
+#endif
     }
 }

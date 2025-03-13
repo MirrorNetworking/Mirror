@@ -1457,7 +1457,7 @@ namespace Mirror
         /// <summary>This is called when a host is stopped.</summary>
         public virtual void OnStopHost() { }
 
-#if DEBUG
+#if !UNITY_SERVER && DEBUG
         // keep OnGUI even in builds. useful to debug snap interp.
         void OnGUI()
         {

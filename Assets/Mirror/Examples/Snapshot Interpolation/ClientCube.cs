@@ -156,6 +156,7 @@ namespace Mirror.Examples.SnapshotInterpolationDemo
                 render.material.color = defaultColor;
         }
 
+#if !UNITY_SERVER
         void OnGUI()
         {
             // display buffer size as number for easier debugging.
@@ -210,6 +211,7 @@ namespace Mirror.Examples.SnapshotInterpolationDemo
             GUILayout.EndHorizontal();
             GUILayout.EndArea();
         }
+#endif
 
         void OnValidate()
         {
