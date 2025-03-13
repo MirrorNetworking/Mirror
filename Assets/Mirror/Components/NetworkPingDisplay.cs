@@ -16,6 +16,7 @@ namespace Mirror
         public int width = 150;
         public int height = 25;
 
+#if !UNITY_SERVER
         void OnGUI()
         {
             // only while client is active
@@ -35,5 +36,6 @@ namespace Mirror
             GUILayout.EndArea();
             GUI.color = Color.white;
         }
+#endif
     }
 }

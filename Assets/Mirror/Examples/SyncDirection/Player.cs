@@ -42,6 +42,7 @@ namespace Mirror.Examples.SyncDir // ".SyncDirection" would overshadow the enum
             }
         }
 
+#if !UNITY_SERVER
         // show instructions
         void OnGUI()
         {
@@ -54,5 +55,6 @@ namespace Mirror.Examples.SyncDir // ".SyncDirection" would overshadow the enum
                 new Rect(Screen.width / 2 - width / 2, Screen.height / 2 - height / 2, width, height),
                 "Press Space to increase your own health!\nPress L to add to your SyncList!");
         }
+#endif
     }
 }

@@ -18,6 +18,7 @@ namespace Mirror.Examples.MultipleAdditiveScenes
 
         public int clientMatchIndex = -1;
 
+#if !UNITY_SERVER
         void OnGUI()
         {
             if (!isServerOnly && !isLocalPlayer && clientMatchIndex < 0)
@@ -26,5 +27,6 @@ namespace Mirror.Examples.MultipleAdditiveScenes
             if (isLocalPlayer || matchIndex == clientMatchIndex)
                 GUI.Box(new Rect(10f + (scoreIndex * 110), 10f, 100f, 25f), $"P{playerNumber}: {score}");
         }
+#endif
     }
 }

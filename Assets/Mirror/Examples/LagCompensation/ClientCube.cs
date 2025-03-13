@@ -174,6 +174,7 @@ namespace Mirror.Examples.LagCompensationDemo
             r.material.color = originalColor;
         }
 
+#if !UNITY_SERVER
         void OnGUI()
         {
             // display buffer size as number for easier debugging.
@@ -229,6 +230,7 @@ namespace Mirror.Examples.LagCompensationDemo
             GUILayout.EndHorizontal();
             GUILayout.EndArea();
         }
+#endif
 
         void OnValidate()
         {

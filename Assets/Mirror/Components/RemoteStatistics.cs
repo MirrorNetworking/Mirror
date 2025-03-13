@@ -223,6 +223,7 @@ namespace Mirror
             if (isLocalPlayer) UpdateClient();
         }
 
+#if !UNITY_SERVER
         void OnGUI()
         {
             if (!isLocalPlayer) return;
@@ -437,5 +438,6 @@ namespace Mirror
             // dragable window in any case
             GUI.DragWindow(new Rect(0, 0, 10000, 10000));
         }
+#endif
     }
 }
