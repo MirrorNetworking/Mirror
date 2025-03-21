@@ -31,6 +31,9 @@ namespace Mirror.Components.Experimental{
     /// </summary>
     public static event Action OnSynchronized;
 
+    /// <summary> Ensure that auto physics simulations are disabled. </summary>
+    void Awake() => Physics.autoSimulation = false;
+
     /// <summary>
     /// Advances the game state by a specified number of ticks.
     /// Invokes the TickForwardCallback to allow external classes to handle tick-forwarding logic.

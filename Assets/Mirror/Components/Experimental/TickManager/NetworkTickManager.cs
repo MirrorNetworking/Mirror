@@ -74,7 +74,7 @@ namespace Mirror.Components.Experimental{
     [Tooltip(
       "The minimum tick difference required between the server and client when the client replays server states." +
       "If the difference is less than this value, the client must adjust the server replay tick.")]
-    public int minServerRunaway = 0;
+    public int minServerRunaway = 1;
 
     [Min(1)]
     [Tooltip("The allowable tick difference range added on top of the minimum server runaway." +
