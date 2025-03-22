@@ -438,6 +438,9 @@ namespace Mirror
             ResetState();
             // default to ClientToServer so this works immediately for users
             syncDirection = SyncDirection.ClientToServer;
+
+            // default to 20Hz, 20 sends per second if data has changed.
+            syncInterval = 0.05f;
         }
 
         protected virtual void OnEnable()
