@@ -85,7 +85,7 @@ namespace Mirror
             // instead.
             if (isServer || (IsClientWithAuthority && NetworkClient.ready))
             {
-                if (sendIntervalCounter == sendIntervalMultiplier && (!onlySyncOnChange || Changed(Construct())))
+                if (sendIntervalCounter >= sendIntervalMultiplier && (!onlySyncOnChange || Changed(Construct())))
                     SetDirty();
 
                 CheckLastSendTime();
@@ -170,7 +170,7 @@ namespace Mirror
             // timeAsDouble not available in older Unity versions.
             if (AccurateInterval.Elapsed(NetworkTime.localTime, NetworkServer.sendInterval, ref lastSendIntervalTime))
             {
-                if (sendIntervalCounter == sendIntervalMultiplier)
+                if (sendIntervalCounter >= sendIntervalMultiplier)
                     sendIntervalCounter = 0;
                 sendIntervalCounter++;
             }
