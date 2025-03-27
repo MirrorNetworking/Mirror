@@ -1326,14 +1326,11 @@ namespace Mirror
             // paul: Initialize the objects in the same order as they were
             // initialized in the server. This is important if spawned objects
             // use data from scene objects
-            // Nulls shouldn't happen, but we can't spam the warning if they do,
-            // so log the warning once and clear out the null(s) after the foreach
-            HashSet<uint> nulls = new HashSet<uint>();
-            foreach (KeyValuePair<uint, NetworkIdentity> kvp in spawned.OrderBy(uv => uv.Value.netId))
+            foreach (NetworkIdentity identity in spawned.Values.OrderBy(uv => uv.netId))
             {
-                if (kvp.Value != null)
-                    BootstrapIdentity(kvp.Value);
-                else
+                // NetworkIdentities should always be removed from .spawned when
+                // they are destroyed. for safety, let's double check here.
+                if (identity != null)
                 {
                     // We may have deferred ApplySpawnPayload in OnSpawn
                     // to avoid cross-reference race conditions with SyncVars.
@@ -1350,6 +1347,7 @@ namespace Mirror
 
                     BootstrapIdentity(identity);
                 }
+                else Debug.LogWarning("Found null entry in NetworkClient.spawned. This is unexpected. Was the NetworkIdentity not destroyed properly?");
             }
 
             pendingSpawns.Clear();
