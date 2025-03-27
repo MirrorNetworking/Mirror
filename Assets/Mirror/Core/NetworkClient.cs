@@ -1775,8 +1775,8 @@ namespace Mirror
                 if (identity != null)
                 {
                     // 'Reliable' sync: send Reliable components over reliable.
-                    using (NetworkWriterPooled writerReliable           = NetworkWriterPool.Get(),
-                                               writerUnreliableDelta    = NetworkWriterPool.Get(),
+                    using (NetworkWriterPooled writerReliable = NetworkWriterPool.Get(),
+                                               writerUnreliableDelta = NetworkWriterPool.Get(),
                                                writerUnreliableBaseline = NetworkWriterPool.Get())
                     {
                         // serialize reliable and unreliable components in only one iteration.
