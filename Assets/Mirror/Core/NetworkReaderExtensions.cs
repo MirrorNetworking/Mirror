@@ -62,6 +62,8 @@ namespace Mirror
         public static decimal ReadDecimal(this NetworkReader reader) => reader.ReadBlittable<decimal>();
         public static decimal? ReadDecimalNullable(this NetworkReader reader) => reader.ReadBlittableNullable<decimal>();
 
+        public static Half ReadHalf(this NetworkReader reader) => new Half(reader.ReadUShort());
+
         /// <exception cref="T:System.ArgumentException">if an invalid utf8 string is sent</exception>
         public static string ReadString(this NetworkReader reader)
         {
@@ -311,8 +313,6 @@ namespace Mirror
         // structs may have .Set<T> members which weaver needs to be able to
         // fully serialize for NetworkMessages etc.
         // note that Weaver/Readers/GenerateReader() handles this manually.
-        // TODO writer not found. need to adjust weaver first. see tests.
-        /*
         public static HashSet<T> ReadHashSet<T>(this NetworkReader reader)
         {
             // we offset count by '1' to easily support null without writing another byte.
@@ -332,7 +332,6 @@ namespace Mirror
             }
             return result;
         }
-        */
 
         public static T[] ReadArray<T>(this NetworkReader reader)
         {

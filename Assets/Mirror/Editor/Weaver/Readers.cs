@@ -125,6 +125,13 @@ namespace Mirror.Weaver
 
                 return GenerateReadCollection(variableReference, elementType, nameof(NetworkReaderExtensions.ReadList), ref WeavingFailed);
             }
+            else if (variableDefinition.Is(typeof(HashSet<>)))
+            {
+                GenericInstanceType genericInstance = (GenericInstanceType)variableReference;
+                TypeReference elementType = genericInstance.GenericArguments[0];
+
+                return GenerateReadCollection(variableReference, elementType, nameof(NetworkReaderExtensions.ReadHashSet), ref WeavingFailed);
+            }
             // handle both NetworkBehaviour and inheritors.
             // fixes: https://github.com/MirrorNetworking/Mirror/issues/2939
             else if (variableReference.IsDerivedFrom<NetworkBehaviour>() || variableReference.Is<NetworkBehaviour>())

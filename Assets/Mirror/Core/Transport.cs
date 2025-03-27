@@ -197,6 +197,7 @@ namespace Mirror
         public abstract void Shutdown();
 
         /// <summary>Called by Unity when quitting. Inheriting Transports should call base for proper Shutdown.</summary>
+        // (this can't be in OnDestroy: https://github.com/MirrorNetworking/Mirror/issues/3952)
         public virtual void OnApplicationQuit()
         {
             // stop transport (e.g. to shut down threads)

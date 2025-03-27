@@ -6,6 +6,21 @@ namespace Mirror
 {
     public class SyncList<T> : SyncObject, IList<T>, IReadOnlyList<T>
     {
+        /// <summary>This is called after the item is added with index</summary>
+        public Action<int> OnAdd;
+
+        /// <summary>This is called after the item is inserted with index</summary>
+        public Action<int> OnInsert;
+
+        /// <summary>This is called after the item is set with index and OLD Value</summary>
+        public Action<int, T> OnSet;
+
+        /// <summary>This is called after the item is removed with index and OLD Value</summary>
+        public Action<int, T> OnRemove;
+
+        /// <summary>This is called before the list is cleared so the list can be iterated</summary>
+        public Action OnClear;
+
         public enum Operation : byte
         {
             OP_ADD,
@@ -15,28 +30,22 @@ namespace Mirror
             OP_CLEAR
         }
 
-        /// <summary>This is called after the item is added with index</summary>
-        public Action<int> OnAdd;
-
-        /// <summary>This is called after the item is inserted with inedx</summary>
-        public Action<int> OnInsert;
-
-        /// <summary>This is called after the item is set with index and OLD Value</summary>
-        public Action<int, T> OnSet;
-
-        /// <summary>This is called after the item is removed with index and OLD Value</summary>
-        public Action<int, T> OnRemove;
-
         /// <summary>
         /// This is called for all changes to the List.
         /// <para>For OP_ADD and OP_INSERT, T is the NEW value of the entry.</para>
         /// <para>For OP_SET and OP_REMOVE, T is the OLD value of the entry.</para>
         /// <para>For OP_CLEAR, T is default.</para>
         /// </summary>
+        // TODO deprecate in favor of explicit Callback, later rename Callback to OnChange for consistency with other SyncCollections.
         public Action<Operation, int, T> OnChange;
 
-        /// <summary>This is called before the list is cleared so the list can be iterated</summary>
-        public Action OnClear;
+        /// <summary>
+        /// This is called for all changes to the List.
+        /// Parameters: Operation, index, oldItem, newItem.
+        /// Sometimes we need both oldItem and newItem.
+        /// Keep for compatibility since 10 years of projects use this.
+        /// </summary>
+        public Action<Operation, int, T, T> Callback;
 
         readonly IList<T> objects;
         readonly IEqualityComparer<T> comparer;
@@ -111,22 +120,27 @@ namespace Mirror
                 case Operation.OP_ADD:
                     OnAdd?.Invoke(itemIndex);
                     OnChange?.Invoke(op, itemIndex, newItem);
+                    Callback?.Invoke(op, itemIndex, oldItem, newItem);
                     break;
                 case Operation.OP_INSERT:
                     OnInsert?.Invoke(itemIndex);
                     OnChange?.Invoke(op, itemIndex, newItem);
+                    Callback?.Invoke(op, itemIndex, oldItem, newItem);
                     break;
                 case Operation.OP_SET:
                     OnSet?.Invoke(itemIndex, oldItem);
                     OnChange?.Invoke(op, itemIndex, oldItem);
+                    Callback?.Invoke(op, itemIndex, oldItem, newItem);
                     break;
                 case Operation.OP_REMOVEAT:
                     OnRemove?.Invoke(itemIndex, oldItem);
                     OnChange?.Invoke(op, itemIndex, oldItem);
+                    Callback?.Invoke(op, itemIndex, oldItem, newItem);
                     break;
                 case Operation.OP_CLEAR:
                     OnClear?.Invoke();
                     OnChange?.Invoke(op, itemIndex, default);
+                    Callback?.Invoke(op, itemIndex, default, default);
                     break;
             }
         }

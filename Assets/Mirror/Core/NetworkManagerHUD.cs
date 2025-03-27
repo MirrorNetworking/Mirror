@@ -19,6 +19,7 @@ namespace Mirror
             manager = GetComponent<NetworkManager>();
         }
 
+#if !UNITY_SERVER
         void OnGUI()
         {
             // If this width is changed, also change offsetX in GUIConsole::OnGUI
@@ -55,7 +56,7 @@ namespace Mirror
                 // cant be a server in webgl build
                 if (GUILayout.Button("Single Player"))
                 {
-                    NetworkServer.dontListen = true;
+                    NetworkServer.listen = false;
                     manager.StartHost();
                 }
 #else
@@ -158,5 +159,6 @@ namespace Mirror
                     manager.StopServer();
             }
         }
+#endif
     }
 }

@@ -42,6 +42,16 @@ namespace Mirror
         [FormerlySerializedAs("serverTickRate")]
         public int sendRate = 60;
 
+        /// <summary> </summary>
+        [Tooltip("Ocassionally send a full reliable state for unreliable components to delta compress against. This only applies to Components with SyncMethod=Unreliable.")]
+        public int unreliableBaselineRate = 1;
+
+        // quake sends unreliable messages twice to make up for message drops.
+        // this double bandwidth, but allows for smaller buffer time / faster sync.
+        // best to turn this off unless the game is extremely fast paced.
+        [Tooltip("Send unreliable messages twice to make up for message drops. This doubles bandwidth, but allows for smaller buffer time / faster sync.\nBest to turn this off unless your game is extremely fast paced.")]
+        public bool unreliableRedundancy = false;
+
         // client send rate follows server send rate to avoid errors for now
         /// <summary>Client Update frequency, per second. Use around 60Hz for fast paced games like Counter-Strike to minimize latency. Use around 30Hz for games like WoW to minimize computations. Use around 1-10Hz for slow paced games like EVE.</summary>
         // [Tooltip("Client broadcasts 'sendRate' times per second. Use around 60Hz for fast paced games like Counter-Strike to minimize latency. Use around 30Hz for games like WoW to minimize computations. Use around 1-10Hz for slow paced games like EVE.")]
@@ -165,6 +175,11 @@ namespace Mirror
         // virtual so that inheriting classes' OnValidate() can call base.OnValidate() too
         public virtual void OnValidate()
         {
+            // unreliable full send rate needs to be >= 0.
+            // we need to have something to delta compress against.
+            // it should also be <= sendRate otherwise there's no point.
+            unreliableBaselineRate = Mathf.Clamp(unreliableBaselineRate, 1, sendRate);
+
             // always >= 0
             maxConnections = Mathf.Max(maxConnections, 0);
 
@@ -274,6 +289,8 @@ namespace Mirror
         void ApplyConfiguration()
         {
             NetworkServer.tickRate = sendRate;
+            NetworkServer.unreliableBaselineRate = unreliableBaselineRate;
+            NetworkServer.unreliableRedundancy = unreliableRedundancy;
             NetworkClient.snapshotSettings = snapshotSettings;
             NetworkClient.connectionQualityInterval = evaluationInterval;
             NetworkClient.connectionQualityMethod = evaluationMethod;
@@ -637,6 +654,7 @@ namespace Mirror
         // called when quitting the application by closing the window / pressing
         // stop in the editor. virtual so that inheriting classes'
         // OnApplicationQuit() can call base.OnApplicationQuit() too
+        // (this can't be in OnDestroy: https://github.com/MirrorNetworking/Mirror/issues/3952)
         public virtual void OnApplicationQuit()
         {
             // stop client first
@@ -1439,7 +1457,7 @@ namespace Mirror
         /// <summary>This is called when a host is stopped.</summary>
         public virtual void OnStopHost() { }
 
-#if DEBUG
+#if !UNITY_SERVER && DEBUG
         // keep OnGUI even in builds. useful to debug snap interp.
         void OnGUI()
         {

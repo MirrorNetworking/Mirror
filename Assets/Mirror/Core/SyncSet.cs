@@ -12,6 +12,16 @@ namespace Mirror
         /// <summary>This is called after the item is removed. T is the OLD item</summary>
         public Action<T> OnRemove;
 
+        /// <summary>This is called BEFORE the data is cleared</summary>
+        public Action OnClear;
+
+        public enum Operation : byte
+        {
+            OP_ADD,
+            OP_REMOVE,
+            OP_CLEAR
+        }
+
         /// <summary>
         /// This is called for all changes to the Set.
         /// <para>For OP_ADD, T is the NEW value of the entry.</para>
@@ -20,20 +30,10 @@ namespace Mirror
         /// </summary>
         public Action<Operation, T> OnChange;
 
-        /// <summary>This is called BEFORE the data is cleared</summary>
-        public Action OnClear;
-
         protected readonly ISet<T> objects;
 
         public int Count => objects.Count;
         public bool IsReadOnly => !IsWritable();
-
-        public enum Operation : byte
-        {
-            OP_ADD,
-            OP_REMOVE,
-            OP_CLEAR
-        }
 
         struct Change
         {
