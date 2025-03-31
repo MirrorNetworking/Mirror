@@ -61,6 +61,9 @@ namespace Mirror
             foreach (AudioSource audio in identity.GetComponentsInChildren<AudioSource>())
                 audio.enabled = visible;
 
+            foreach (Canvas canvas in identity.GetComponentsInChildren<Canvas>())
+                canvas.enabled = visible;
+
             foreach (Terrain terrain in identity.GetComponentsInChildren<Terrain>())
             {
                 terrain.drawHeightmap = visible;
