@@ -233,16 +233,14 @@ namespace Mirror
 
                 int startPosition = writer.Position;
 
+
                 if (syncPosition) writer.WriteVector3(snapshot.position);
                 if (syncRotation)
                 {
-                    // if smallest-three quaternion compression is enabled,
-                    // then we don't need baseline rotation since delta always
-                    // sends an absolute value.
-                    if (!compressRotation)
-                    {
-                        writer.WriteQuaternion(snapshot.rotation);
-                    }
+                    // note: smallest-three compression sends absolute values.
+                    // technically it doesn't need a baseline, but we still need to sync the initial spawn rotation.
+                    // in other words: alwyas sync the initial rotation as full quaternion.
+                    writer.WriteQuaternion(snapshot.rotation);
                 }
                 if (syncScale) writer.WriteVector3(snapshot.scale);
 
@@ -311,13 +309,7 @@ namespace Mirror
                 }
                 if (syncRotation)
                 {
-                    // if smallest-three quaternion compression is enabled,
-                    // then we don't need baseline rotation since delta always
-                    // sends an absolute value.
-                    if (!compressRotation)
-                    {
-                        rotation = reader.ReadQuaternion();
-                    }
+                    rotation = reader.ReadQuaternion();
                 }
                 if (syncScale) scale = reader.ReadVector3();
 
