@@ -235,13 +235,10 @@ namespace Mirror
 
 
                 if (syncPosition) writer.WriteVector3(snapshot.position);
-                if (syncRotation)
-                {
-                    // note: smallest-three compression sends absolute values.
-                    // technically it doesn't need a baseline, but we still need to sync the initial spawn rotation.
-                    // in other words: alwyas sync the initial rotation as full quaternion.
-                    writer.WriteQuaternion(snapshot.rotation);
-                }
+                // note: smallest-three compression sends absolute values.
+                // technically it doesn't need a baseline, but we still need to sync the initial spawn rotation.
+                // in other words: alwyas sync the initial rotation as full quaternion.
+                if (syncRotation) writer.WriteQuaternion(snapshot.rotation);
                 if (syncScale) writer.WriteVector3(snapshot.scale);
 
                 // save serialized as 'last' for next delta compression.
@@ -307,10 +304,7 @@ namespace Mirror
 
                     if (debugDraw) Debug.DrawLine(position.Value, position.Value + Vector3.up , Color.green, 10.0f);
                 }
-                if (syncRotation)
-                {
-                    rotation = reader.ReadQuaternion();
-                }
+                if (syncRotation) rotation = reader.ReadQuaternion();
                 if (syncScale) scale = reader.ReadVector3();
 
                 // save deserialized as 'last' for next delta compression.
