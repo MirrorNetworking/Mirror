@@ -318,6 +318,12 @@ namespace Mirror
                 if (syncPosition) Compression.ScaleToLong(position.Value, positionPrecision, out lastDeserializedPosition);
                 if (syncRotation && !compressRotation) Compression.ScaleToLong(rotation.Value, rotationPrecision, out lastDeserializedRotation);
                 if (syncScale) Compression.ScaleToLong(scale.Value, scalePrecision, out lastDeserializedScale);
+
+                // apply initial values.
+                // Mirror already syncs spawn position, but NT has a 'target' (i.e. child object)
+                // who's initial position we need to set as well.
+                if (isServer) OnClientToServerSync(position, rotation, scale);
+                else if (isClient) OnServerToClientSync(position, rotation, scale);
             }
             // unreliable delta: decompress against last full reliable state
             else
