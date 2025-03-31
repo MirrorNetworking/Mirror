@@ -233,17 +233,12 @@ namespace Mirror
 
                 int startPosition = writer.Position;
 
+
                 if (syncPosition) writer.WriteVector3(snapshot.position);
-                if (syncRotation)
-                {
-                    // if smallest-three quaternion compression is enabled,
-                    // then we don't need baseline rotation since delta always
-                    // sends an absolute value.
-                    if (!compressRotation)
-                    {
-                        writer.WriteQuaternion(snapshot.rotation);
-                    }
-                }
+                // note: smallest-three compression sends absolute values.
+                // technically it doesn't need a baseline, but we still need to sync the initial spawn rotation.
+                // in other words: alwyas sync the initial rotation as full quaternion.
+                if (syncRotation) writer.WriteQuaternion(snapshot.rotation);
                 if (syncScale) writer.WriteVector3(snapshot.scale);
 
                 // save serialized as 'last' for next delta compression.
@@ -309,16 +304,7 @@ namespace Mirror
 
                     if (debugDraw) Debug.DrawLine(position.Value, position.Value + Vector3.up , Color.green, 10.0f);
                 }
-                if (syncRotation)
-                {
-                    // if smallest-three quaternion compression is enabled,
-                    // then we don't need baseline rotation since delta always
-                    // sends an absolute value.
-                    if (!compressRotation)
-                    {
-                        rotation = reader.ReadQuaternion();
-                    }
-                }
+                if (syncRotation) rotation = reader.ReadQuaternion();
                 if (syncScale) scale = reader.ReadVector3();
 
                 // save deserialized as 'last' for next delta compression.
@@ -326,6 +312,12 @@ namespace Mirror
                 if (syncPosition) Compression.ScaleToLong(position.Value, positionPrecision, out lastDeserializedPosition);
                 if (syncRotation && !compressRotation) Compression.ScaleToLong(rotation.Value, rotationPrecision, out lastDeserializedRotation);
                 if (syncScale) Compression.ScaleToLong(scale.Value, scalePrecision, out lastDeserializedScale);
+
+                // apply initial values.
+                // Mirror already syncs spawn position, but NT has a 'target' (i.e. child object)
+                // who's initial position we need to set as well.
+                if (isServer) OnClientToServerSync(position, rotation, scale);
+                else if (isClient) OnServerToClientSync(position, rotation, scale);
             }
             // unreliable delta: decompress against last full reliable state
             else
