@@ -25,6 +25,7 @@ namespace Mirror.Examples.Common.Controllers.Player
         {
             public Text keyTextMouseSteer;
             public Text keyTextAutoRun;
+            public Text keyTextSliding;
             public Text keyTextToggleUI;
         }
 
@@ -45,6 +46,7 @@ namespace Mirror.Examples.Common.Controllers.Player
             // Options Keys
             optionsTexts.keyTextMouseSteer.text = GetKeyText(optionsKeys.MouseSteer);
             optionsTexts.keyTextAutoRun.text = GetKeyText(optionsKeys.AutoRun);
+            optionsTexts.keyTextAutoRun.text = GetKeyText(optionsKeys.Sliding);
             optionsTexts.keyTextToggleUI.text = GetKeyText(optionsKeys.ToggleUI);
         }
     }

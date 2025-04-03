@@ -94,6 +94,7 @@ namespace Mirror.Examples.NetworkRoom
             }
         }
 
+#if !UNITY_SERVER
         public override void OnGUI()
         {
             base.OnGUI();
@@ -106,5 +107,6 @@ namespace Mirror.Examples.NetworkRoom
                 ServerChangeScene(GameplayScene);
             }
         }
+#endif
     }
 }

@@ -64,6 +64,9 @@ namespace Mirror.Examples.MultipleMatch
 
             exitButton.gameObject.SetActive(false);
             playAgainButton.gameObject.SetActive(false);
+
+            // Assign handler for SyncDictionary changes
+            matchPlayerData.OnChange = UpdateWins;
         }
 
         [ClientCallback]
