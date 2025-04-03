@@ -204,10 +204,6 @@ namespace Mirror
             // get current snapshot for broadcasting.
             TransformSnapshot snapshot = Construct();
 
-            // default to ClientToServer so this works immediately for users
-            syncDirection = SyncDirection.ClientToServer;
-            NetworkTime.highPingComponents = 0UL;
-
             // ClientToServer optimization:
             // for interpolated client owned identities,
             // always broadcast the latest known snapshot so other clients can
