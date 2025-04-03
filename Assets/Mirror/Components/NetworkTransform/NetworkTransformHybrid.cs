@@ -220,37 +220,6 @@ namespace Mirror
 
             // Debug.Log($"NT OnSerialize: initial={initialState} method={syncMethod}");
 
-            lastDeserializedBaselinePosition = Vector3.zero;
-            lastDeserializedBaselineRotation = Quaternion.identity;
-            lastDeserializedBaselineScale    = Vector3.one;
-
-            // Debug.Log($"[{name}] Reset to baselineTick=0");
-        }
-
-        protected virtual void OnEnable()
-        {
-            Reset();
-            NetworkTime.highPingComponents++;
-        }
-
-        protected virtual void OnDisable()
-        {
-            Reset();
-
-            if (NetworkTime.highPingComponents > 0UL)
-                NetworkTime.highPingComponents--;
-        }
-
-        public override void OnSerialize(NetworkWriter writer, bool initialState)
-        {
-            // OnSerialize(initial) is called every time when a player starts observing us.
-            // note this is _not_ called just once on spawn.
-
-            base.OnSerialize(writer, initialState); // NetworkBehaviourHybrid
-
-            // sync target component's position on spawn.
-            // fixes https://github.com/vis2k/Mirror/pull/3051/
-            // (Spawn message wouldn't sync NTChild positions either)
             // reliable full state
             if (initialState)
             {
