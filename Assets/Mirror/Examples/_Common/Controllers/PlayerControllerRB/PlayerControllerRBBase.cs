@@ -32,6 +32,7 @@ namespace Mirror.Examples.Common.Controllers.Player
         {
             public KeyCode MouseSteer;
             public KeyCode AutoRun;
+            public KeyCode Sliding;
             public KeyCode ToggleUI;
         }
 
@@ -39,9 +40,10 @@ namespace Mirror.Examples.Common.Controllers.Player
         public enum ControlOptions : byte
         {
             None,
-            MouseSteer = 1 << 0,
-            AutoRun = 1 << 1,
-            ShowUI = 1 << 2
+            Sliding = 1 << 0,
+            MouseSteer = 1 << 1,
+            AutoRun = 1 << 2,
+            ShowUI = 1 << 3
         }
 
         [Header("Avatar Components")]
@@ -69,11 +71,12 @@ namespace Mirror.Examples.Common.Controllers.Player
         {
             MouseSteer = KeyCode.M,
             AutoRun = KeyCode.R,
+            Sliding = KeyCode.G,
             ToggleUI = KeyCode.U
         };
 
         [Space(5)]
-        public ControlOptions controlOptions = ControlOptions.ShowUI;
+        public ControlOptions controlOptions = ControlOptions.Sliding | ControlOptions.ShowUI;
 
         [Header("Movement")]
         [Range(0, 20)]
@@ -111,6 +114,14 @@ namespace Mirror.Examples.Common.Controllers.Player
         [FormerlySerializedAs("jumpDelta")]
         [Tooltip("Jump acceleration in meters per second squared")]
         public float jumpAcceleration = 4f;
+
+        [Header("Sliding")]
+        [Range(0f, 90f)]
+        [Tooltip("Angle in degrees where sliding begins")]
+        public float slopeThreshold = 10f;
+        [Range(0f, 20f)]
+        [Tooltip("Speed multiplier for sliding down slopes")]
+        public float speedMultiplier = 10f;
 
         // Runtime data in a struct so it can be folded up in inspector
         [Serializable]
@@ -220,7 +231,7 @@ namespace Mirror.Examples.Common.Controllers.Player
             Reset();
         }
 
-        void Reset()
+        public virtual void Reset()
         {
             if (rigidBody == null)
                 rigidBody = GetComponent<Rigidbody>();
@@ -229,7 +240,7 @@ namespace Mirror.Examples.Common.Controllers.Player
 
             // Configure Rigidbody
             rigidBody.useGravity = true;
-            rigidBody.interpolation = RigidbodyInterpolation.Interpolate;
+            rigidBody.interpolation = RigidbodyInterpolation.None;
             rigidBody.collisionDetectionMode = CollisionDetectionMode.ContinuousSpeculative;
             rigidBody.isKinematic = true;
 
@@ -307,6 +318,12 @@ namespace Mirror.Examples.Common.Controllers.Player
 
         #endregion
 
+        void Start()
+        {
+            Application.targetFrameRate = NetworkManager.singleton.sendRate;
+            Time.fixedDeltaTime = 1f / NetworkManager.singleton.sendRate;
+        }
+
         void Update()
         {
             HandleOptions();
@@ -352,6 +369,9 @@ namespace Mirror.Examples.Common.Controllers.Player
 
             if (optionsKeys.AutoRun != KeyCode.None && Input.GetKeyUp(optionsKeys.AutoRun))
                 controlOptions ^= ControlOptions.AutoRun;
+
+            if (optionsKeys.Sliding != KeyCode.None && Input.GetKeyUp(optionsKeys.Sliding))
+                controlOptions ^= ControlOptions.Sliding;
 
             if (optionsKeys.ToggleUI != KeyCode.None && Input.GetKeyUp(optionsKeys.ToggleUI))
             {
@@ -473,33 +493,49 @@ namespace Mirror.Examples.Common.Controllers.Player
 
         void ApplyMove(float fixedDeltaTime)
         {
-            // Handle horizontal movement
             runtimeData.direction = new Vector3(runtimeData.horizontal, 0f, runtimeData.vertical);
             runtimeData.direction = Vector3.ClampMagnitude(runtimeData.direction, 1f);
             runtimeData.direction = transform.TransformDirection(runtimeData.direction);
             runtimeData.direction *= maxMoveSpeed;
 
-            // Apply horizontal movement
-            rigidBody.MovePosition(rigidBody.position + runtimeData.direction * fixedDeltaTime);
+            Vector3 targetVelocity = runtimeData.direction;
+            targetVelocity.y = runtimeData.jumpSpeed;
 
-            // Handle vertical movement (jumping and gravity)
-#if UNITY_6000_0_OR_NEWER
-            Vector3 verticalMovement = rigidBody.linearVelocity;
-#else
-            Vector3 verticalMovement = rigidBody.velocity;
-#endif
-            verticalMovement.y = runtimeData.jumpSpeed;
-
-            // Apply gravity
             if (runtimeData.groundState != GroundState.Grounded)
-                verticalMovement.y += Physics.gravity.y * fixedDeltaTime;
+                targetVelocity.y += Physics.gravity.y * fixedDeltaTime;
+            else if (controlOptions.HasFlag(ControlOptions.Sliding))
+            {
+                if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, capsuleCollider.height / 2 + 0.1f))
+                {
+                    float slopeAngle = Vector3.Angle(hit.normal, Vector3.up);
+                    if (slopeAngle > slopeThreshold && runtimeData.direction.sqrMagnitude < 0.01f)
+                    {
+                        Vector3 gravity = Physics.gravity.normalized;
+                        Vector3 slideDirection = (gravity - Vector3.Dot(gravity, hit.normal) * hit.normal).normalized;
+                        targetVelocity = slideDirection * speedMultiplier * Mathf.Sin(slopeAngle * Mathf.Deg2Rad);
+                        targetVelocity.y = Physics.gravity.y * fixedDeltaTime;
+                    }
+                }
+            }
 
-            // Apply vertical movement
+            // Combined velocity handling
+            Vector3 currentVelocity;
 #if UNITY_6000_0_OR_NEWER
-            rigidBody.linearVelocity = new Vector3(rigidBody.linearVelocity.x, verticalMovement.y, rigidBody.linearVelocity.z);
+            currentVelocity = rigidBody.linearVelocity;
 #else
-            rigidBody.velocity = new Vector3(rigidBody.velocity.x, verticalMovement.y, rigidBody.velocity.z);
+            currentVelocity = rigidBody.velocity;
 #endif
+
+            float smoothingFactor = 10f; // Adjust this for smoother/faster transitions
+            Vector3 smoothedVelocity = Vector3.Lerp(currentVelocity, targetVelocity, smoothingFactor * fixedDeltaTime);
+
+#if UNITY_6000_0_OR_NEWER
+            rigidBody.linearVelocity = smoothedVelocity;
+#else
+            rigidBody.velocity = smoothedVelocity;
+#endif
+
+            runtimeData.velocity = Vector3Int.FloorToInt(smoothedVelocity);
         }
     }
 }

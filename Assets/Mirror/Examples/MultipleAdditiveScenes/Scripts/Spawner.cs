@@ -4,7 +4,7 @@ using UnityEngine.SceneManagement;
 
 namespace Mirror.Examples.MultipleAdditiveScenes
 {
-    internal class Spawner
+    internal static class Spawner
     {
         static GameObject prefab;
         static byte poolSize = 10;
@@ -95,7 +95,6 @@ namespace Mirror.Examples.MultipleAdditiveScenes
         internal static async void RecycleReward(GameObject reward)
         {
             NetworkServer.UnSpawn(reward);
-            Return(reward);
             await DelayedSpawn(reward.scene);
         }
 

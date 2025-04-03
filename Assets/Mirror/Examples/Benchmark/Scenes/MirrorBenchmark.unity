@@ -152,11 +152,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9021b6cc314944290986ab6feb48db79, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  height: 150
+  height: 80
   offsetY: 40
   maxLogCount: 50
   showInEditor: 0
-  hotKey: 293
+  hotKey: 96
 --- !u!20 &88936776
 Camera:
   m_ObjectHideFlags: 0
@@ -337,8 +337,6 @@ MonoBehaviour:
   headlessStartMode: 1
   editorAutoStart: 0
   sendRate: 30
-  autoStartServerBuild: 0
-  autoConnectClientBuild: 0
   offlineScene: 
   onlineScene: 
   offlineSceneLoadDelay: 0

@@ -145,7 +145,7 @@ namespace Mirror.Examples.MultipleAdditiveScenes
             // Don't initialize the pool for host client because it's
             // already initialized in OnRoomServerSceneChanged
             if (!NetworkServer.active && SceneManager.sceneCount > 1)
-                Spawner.InitializePool(rewardPrefab, 10);
+                Spawner.InitializePool(rewardPrefab, poolSize);
 
             base.OnClientSceneChanged();
         }
