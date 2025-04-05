@@ -794,6 +794,7 @@ namespace Mirror
         public virtual void OnDestroy()
         {
             //Debug.Log("NetworkManager destroyed");
+            SceneManager.sceneLoaded -= OnSceneLoaded;
         }
 
         /// <summary>The name of the current network scene.</summary>
