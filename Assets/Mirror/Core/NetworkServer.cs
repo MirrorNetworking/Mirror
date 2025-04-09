@@ -2276,7 +2276,8 @@ namespace Mirror
                     // make sure Broadcast() is only called every sendInterval,
                     // even if targetFrameRate isn't set in host mode (!)
                     // (done via AccurateInterval)
-                    connection.Send(new TimeSnapshotMessage(), Channels.Unreliable);
+                    if (NetworkTime.highPingComponents > 0UL)
+                        connection.Send(new TimeSnapshotMessage(), Channels.Unreliable);
 
                     // broadcast world state to this connection
                     BroadcastToConnection(connection, unreliableBaselineElapsed);
