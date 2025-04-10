@@ -1075,6 +1075,12 @@ namespace Mirror
         // authority set for this connection.
         public static void DestroyPlayerForConnection(NetworkConnectionToClient conn)
         {
+            if (conn == null)
+            {
+                Debug.LogWarning($"No instance of player found when trying to destroy it's connection.");
+                return;    
+            }
+            
             // destroy all objects owned by this connection, including the player object
             conn.DestroyOwnedObjects();
             // remove connection from all of its observing entities observers
