@@ -1,0 +1,51 @@
+name: Unity Publish
+
+on:
+  workflow_dispatch:
+    inputs:
+      unity_username:
+        description: 'Unity Publishing Username'
+        required: true
+      unity_password:
+        description: 'Unity Publishing Password'
+        required: true
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Get Latest Release
+        id: get_release
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const latestRelease = await github.rest.repos.getLatestRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo
+            });
+            const packageAsset = latestRelease.data.assets.find(asset => asset.name.endsWith('.unitypackage'));
+            const version = latestRelease.data.tag_name.replace(/^v/, ''); // Strip leading "v"
+            return {
+              url: packageAsset.browser_download_url,
+              name: packageAsset.name,
+              version: version
+            };
+          result-encoding: json
+
+      - name: Download Unity Package
+        run: |
+          curl -L -o ${{ steps.get_release.outputs.result.name }} ${{ steps.get_release.outputs.result.url }}
+
+      - name: Run UnityPublish.csx
+        env:
+          UNITY_USERNAME: ${{ github.event.inputs.unity_username }}
+          UNITY_PASSWORD: ${{ github.event.inputs.unity_password }}
+          PACKAGE_PATH: ${{ steps.get_release.outputs.result.name }}
+          LICENSE_HASH: ${{ secrets.PUBLISH_LICENSE_HASH }}
+          HARDWARE_HASH: ${{ secrets.PUBLISH_HARDWARE_HASH }}
+          RELEASE_VERSION: ${{ steps.get_release.outputs.result.version }}
+        run: |
+          dotnet script .github/UnityPublish.csx

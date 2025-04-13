@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d813ff809ae82f643bf975031305d541, type: 3}
+  m_Name: Check Missing Components in Assets
+  m_EditorClassIdentifier: 
+  HasBeenInitialized: 1
+  Id: 9
+  Title: Check Missing Components in Assets
+  Description: We do not allow missing or broken material/texture/prefab/script connections
+    in your package. Please make sure none of your assets have missing components.
+  CategoryInfo:
+    IsFailFilter: 1
+    IsInclusiveFilter: 1
+    AppliesToSubCategories: 1
+    Filter: []
+  TestScript: {fileID: 11500000, guid: 22d8f814e2363e34ea220736a4042728, type: 3}
