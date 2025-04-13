@@ -31,7 +31,11 @@ if (string.IsNullOrEmpty(version))
     Environment.Exit(1);
 }
 
-using var client = new HttpClient();
+using (var client = new HttpClient())
+{
+    // Use the client within this block
+    await Main(client);
+}
 
 async Task Main()
 {
@@ -119,5 +123,3 @@ async Task<string> LoginAsync(HttpClient client, string user, string pass, strin
 //        return false;
 //    }
 //}
-
-await Main();
