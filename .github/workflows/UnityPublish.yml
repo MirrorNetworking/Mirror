@@ -17,17 +17,12 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Install jq
-        run: sudo apt-get install jq
-
       - name: Mask sensitive inputs securely
         run: |
-          UNITY_USERNAME=$(jq -r '.inputs.unity_username' $GITHUB_EVENT_PATH)
-          UNITY_PASSWORD=$(jq -r '.inputs.unity_password' $GITHUB_EVENT_PATH)
-          echo "::add-mask::$UNITY_USERNAME"
-          echo "::add-mask::$UNITY_PASSWORD"
-          echo "UNITY_USERNAME=$UNITY_USERNAME" >> $GITHUB_ENV
-          echo "UNITY_PASSWORD=$UNITY_PASSWORD" >> $GITHUB_ENV
+          MASKED_USERNAME="${{ github.event.inputs.unity_username }}"
+          MASKED_PASSWORD="${{ github.event.inputs.unity_password }}"
+          echo "::add-mask::$MASKED_USERNAME"
+          echo "::add-mask::$MASKED_PASSWORD"
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
