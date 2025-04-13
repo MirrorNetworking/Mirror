@@ -26,9 +26,10 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo
             });
+            
             const packageAsset = latestRelease.data.assets.find(asset => asset.name.endsWith('.unitypackage'));
             const version = latestRelease.data.tag_name.replace(/^v/, '');
-      
+            
             # Set individual outputs
             core.setOutput('url', packageAsset.browser_download_url);
             core.setOutput('name', packageAsset.name);
