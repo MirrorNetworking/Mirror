@@ -33,8 +33,6 @@ if (string.IsNullOrEmpty(version))
 
 using var client = new HttpClient();
 
-await Main();
-
 async Task Main()
 {
     Console.WriteLine($"{LOG_PREFIX}Starting Unity publishing process...");
@@ -121,3 +119,5 @@ async Task<string> LoginAsync(HttpClient client, string user, string pass, strin
 //        return false;
 //    }
 //}
+
+await Main();
