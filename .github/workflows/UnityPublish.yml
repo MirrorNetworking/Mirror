@@ -17,6 +17,16 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+  
+      - name: Install dotnet-script
+        run: |
+          dotnet tool install -g dotnet-script
+          dotnet script --version
+
       - name: Get Latest Release
         id: get_release
         uses: actions/github-script@v6
