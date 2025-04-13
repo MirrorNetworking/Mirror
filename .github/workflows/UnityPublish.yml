@@ -27,17 +27,16 @@ jobs:
               repo: context.repo.repo
             });
             const packageAsset = latestRelease.data.assets.find(asset => asset.name.endsWith('.unitypackage'));
-            const version = latestRelease.data.tag_name.replace(/^v/, ''); // Strip leading "v"
-            return {
-              url: packageAsset.browser_download_url,
-              name: packageAsset.name,
-              version: version
-            };
-          result-encoding: json
+            const version = latestRelease.data.tag_name.replace(/^v/, '');
+      
+            # Set individual outputs
+            core.setOutput('url', packageAsset.browser_download_url);
+            core.setOutput('name', packageAsset.name);
+            core.setOutput('version', version);
 
       - name: Download Unity Package
         run: |
-          curl -L -o ${{ steps.get_release.outputs.result.name }} ${{ steps.get_release.outputs.result.url }}
+          curl -L -o "${{ steps.get_release.outputs.name }}" "${{ steps.get_release.outputs.url }}"
 
       - name: Run UnityPublish.csx
         env:
