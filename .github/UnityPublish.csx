@@ -37,7 +37,7 @@ using (var client = new HttpClient())
     await Main(client);
 }
 
-async Task Main()
+async Task Main(HttpClient client)
 {
     Console.WriteLine($"{LOG_PREFIX}Starting Unity publishing process...");
 
