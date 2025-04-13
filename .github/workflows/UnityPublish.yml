@@ -24,11 +24,6 @@ jobs:
           echo "::add-mask::$UNITY_USERNAME"
           echo "::add-mask::$UNITY_PASSWORD"
 
-      # - name: Setup .NET
-      #   uses: actions/setup-dotnet@v4
-      #   with:
-      #     dotnet-version: '8.0.x'
-  
       - name: Install dotnet-script
         run: |
           dotnet tool install -g dotnet-script
