@@ -33,7 +33,8 @@ if (string.IsNullOrEmpty(version))
 
 using (var client = new HttpClient())
 {
-    // Use the client within this block
+    client.DefaultRequestHeaders.ConnectionClose = false;
+    client.DefaultRequestHeaders.Add("Accept", "application/json");
     await Main(client);
 }
 
