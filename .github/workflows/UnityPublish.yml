@@ -17,6 +17,11 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      - name: Mask sensitive inputs
+        run: |
+          echo "::add-mask::${{ github.event.inputs.unity_username }}"
+          echo "::add-mask::${{ github.event.inputs.unity_password }}"
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
@@ -58,8 +63,8 @@ jobs:
           UNITY_USERNAME: ${{ github.event.inputs.unity_username }}
           UNITY_PASSWORD: ${{ github.event.inputs.unity_password }}
           PACKAGE_PATH: ${{ steps.get_release.outputs.name }}
-          LICENSE_HASH: ${{ secrets.PUBLISH_LICENSE_HASH }}
-          HARDWARE_HASH: ${{ secrets.PUBLISH_HARDWARE_HASH }}
+          PUBLISH_LICENSE_HASH: ${{ secrets.PUBLISH_LICENSE_HASH }}
+          PUBLISH_HARDWARE_HASH: ${{ secrets.PUBLISH_HARDWARE_HASH }}
           RELEASE_VERSION: ${{ steps.get_release.outputs.version }}
         run: |
           dotnet script .github/UnityPublish.csx
