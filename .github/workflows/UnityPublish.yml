@@ -44,8 +44,8 @@ jobs:
           UNITY_USERNAME: ${{ github.event.inputs.unity_username }}
           UNITY_PASSWORD: ${{ github.event.inputs.unity_password }}
           PACKAGE_PATH: ${{ steps.get_release.outputs.result.name }}
-          LICENSE_HASH: ${{ secrets.LICENSE_HASH }}
-          HARDWARE_HASH: ${{ secrets.HARDWARE_HASH }}
+          LICENSE_HASH: ${{ secrets.PUBLISH_LICENSE_HASH }}
+          HARDWARE_HASH: ${{ secrets.PUBLISH_HARDWARE_HASH }}
           RELEASE_VERSION: ${{ steps.get_release.outputs.result.version }}
         run: |
           dotnet script .github/UnityPublish.csx

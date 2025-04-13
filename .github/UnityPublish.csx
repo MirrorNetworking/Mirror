@@ -5,14 +5,14 @@ using System.Threading.Tasks;
 using System.Text.Json;
 
 const string LOGIN_URL = "https://api.assetstore.unity3d.com/publisher/v1/session"; // From Constants.Api.SessionUrl
-const string UPLOAD_URL_BASE = "https://api.assetstore.unity3d.com/publisher/v1/package/upload"; // From Constants.Api.UploadUnityPackageUrl
+const string UPLOAD_URL = "https://api.assetstore.unity3d.com/publisher/v1/package/upload"; // From Constants.Api.UploadUnityPackageUrl
 const string LOG_PREFIX = "UnityPublish: ";
 
 var username = Environment.GetEnvironmentVariable("UNITY_USERNAME");
 var password = Environment.GetEnvironmentVariable("UNITY_PASSWORD");
 var packagePath = Environment.GetEnvironmentVariable("PACKAGE_PATH");
-var licenseHash = Environment.GetEnvironmentVariable("LICENSE_HASH");
-var hardwareHash = Environment.GetEnvironmentVariable("HARDWARE_HASH");
+var licenseHash = Environment.GetEnvironmentVariable("PUBLISH_LICENSE_HASH");
+var hardwareHash = Environment.GetEnvironmentVariable("PUBLISH_HARDWARE_HASH");
 var version = Environment.GetEnvironmentVariable("RELEASE_VERSION");
 
 if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password) || string.IsNullOrEmpty(packagePath))
@@ -33,32 +33,37 @@ if (string.IsNullOrEmpty(version))
 
 using var client = new HttpClient();
 
+await Main();
+
 async Task Main()
 {
     Console.WriteLine($"{LOG_PREFIX}Starting Unity publishing process...");
 
     // Step 1: Login
     Console.WriteLine($"{LOG_PREFIX}Attempting login to Unity Publisher...");
-    string sessionToken = await LoginAsync(client, username, password, licenseHash, hardwareHash);
-    if (string.IsNullOrEmpty(sessionToken))
+    string sessionId = await LoginAsync(client, username, password, licenseHash, hardwareHash);
+    if (string.IsNullOrEmpty(sessionId))
     {
         Console.WriteLine($"{LOG_PREFIX}Login failed. Aborting.");
         Environment.Exit(1);
     }
-    Console.WriteLine($"{LOG_PREFIX}Login successful.");
+    Console.WriteLine($"{LOG_PREFIX}Login successful: {sessionId}");
+
+    // Set session ID in headers (mimicking SetSessionId)
+    client.DefaultRequestHeaders.Add("X-Unity-Session", sessionId);
 
     // Step 2: Upload Package
-    Console.WriteLine($"{LOG_PREFIX}Uploading package: {packagePath} (version: {version})");
-    bool uploadSuccess = await UploadPackageAsync(client, sessionToken, packagePath, version);
-    if (uploadSuccess)
-    {
-        Console.WriteLine($"{LOG_PREFIX}Package uploaded successfully!");
-    }
-    else
-    {
-        Console.WriteLine($"{LOG_PREFIX}Upload failed.");
-        Environment.Exit(1);
-    }
+    //Console.WriteLine($"{LOG_PREFIX}Uploading package: {packagePath} (version: {version})");
+    //bool uploadSuccess = await UploadPackageAsync(client, packagePath, version);
+    //if (uploadSuccess)
+    //{
+    //    Console.WriteLine($"{LOG_PREFIX}Package uploaded successfully!");
+    //}
+    //else
+    //{
+    //    Console.WriteLine($"{LOG_PREFIX}Upload failed.");
+    //    Environment.Exit(1);
+    //}
 }
 
 async Task<string> LoginAsync(HttpClient client, string user, string pass, string license, string hardware)
@@ -81,7 +86,7 @@ async Task<string> LoginAsync(HttpClient client, string user, string pass, strin
 
         var responseContent = await response.Content.ReadAsStringAsync();
         var json = JsonSerializer.Deserialize<Dictionary<string, string>>(responseContent);
-        return json.TryGetValue("token", out var token) ? token : null; // Assuming token field
+        return json.TryGetValue("sessionId", out var sessionId) ? sessionId : null; // Updated to sessionId
     }
     catch (Exception ex)
     {
@@ -90,34 +95,29 @@ async Task<string> LoginAsync(HttpClient client, string user, string pass, strin
     }
 }
 
-async Task<bool> UploadPackageAsync(HttpClient client, string sessionToken, string packagePath, string version)
-{
-    try
-    {
-        // Append token as query parameter
-        string uploadUrl = $"{UPLOAD_URL_BASE}?token={Uri.EscapeDataString(sessionToken)}";
+//async Task<bool> UploadPackageAsync(HttpClient client, string packagePath, string version)
+//{
+//    try
+//    {
+//        using var fileStream = File.OpenRead(packagePath);
+//        using var content = new MultipartFormDataContent();
+//        content.Add(new StreamContent(fileStream), "file", Path.GetFileName(packagePath));
+//        content.Add(new StringContent(version), "version");
 
-        using var fileStream = File.OpenRead(packagePath);
-        using var content = new MultipartFormDataContent();
-        content.Add(new StreamContent(fileStream), "file", Path.GetFileName(packagePath));
-        content.Add(new StringContent(version), "version");
-
-        var response = await client.PostAsync(uploadUrl, content);
-        if (response.IsSuccessStatusCode)
-        {
-            return true;
-        }
-        else
-        {
-            Console.WriteLine($"{LOG_PREFIX}Upload failed with status: {response.StatusCode}");
-            return false;
-        }
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine($"{LOG_PREFIX}Upload error: {ex.Message}");
-        return false;
-    }
-}
-
-await Main();
+//        var response = await client.PostAsync(UPLOAD_URL, content);
+//        if (response.IsSuccessStatusCode)
+//        {
+//            return true;
+//        }
+//        else
+//        {
+//            Console.WriteLine($"{LOG_PREFIX}Upload failed with status: {response.StatusCode}");
+//            return false;
+//        }
+//    }
+//    catch (Exception ex)
+//    {
+//        Console.WriteLine($"{LOG_PREFIX}Upload error: {ex.Message}");
+//        return false;
+//    }
+//}
