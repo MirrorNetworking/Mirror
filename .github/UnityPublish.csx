@@ -89,6 +89,8 @@ async Task<string> LoginAsync(HttpClient client, string user, string pass, strin
         }
 
         var responseContent = await response.Content.ReadAsStringAsync();
+        Console.WriteLine($"{LOG_PREFIX}Login response: {responseContent}");
+
         var json = JsonSerializer.Deserialize<Dictionary<string, string>>(responseContent);
         return json.TryGetValue("sessionId", out var sessionId) ? sessionId : null; // Updated to sessionId
     }
