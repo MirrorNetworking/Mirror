@@ -438,6 +438,9 @@ namespace Mirror
             ResetState();
             // default to ClientToServer so this works immediately for users
             syncDirection = SyncDirection.ClientToServer;
+
+            // default to 20Hz, 20 sends per second if data has changed.
+            syncInterval = 0.05f;
         }
 
         protected virtual void OnEnable()
@@ -473,8 +476,8 @@ namespace Mirror
             }
         }
 
+#if !UNITY_SERVER && (UNITY_EDITOR || DEVELOPMENT_BUILD)
         // OnGUI allocates even if it does nothing. avoid in release.
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
         // debug ///////////////////////////////////////////////////////////////
         protected virtual void OnGUI()
         {

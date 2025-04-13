@@ -121,7 +121,7 @@ namespace Mirror.SimpleWeb
             Log.minLogLevel = minimumLogLevel;
         }
 
-        public override string ToString() => $"SWT [{port}]";
+        public override string ToString() => $"SWT [{Port}]";
 
         void OnValidate()
         {

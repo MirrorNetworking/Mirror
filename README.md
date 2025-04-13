@@ -127,7 +127,7 @@ Check out our [Documentation](https://mirror-networking.gitbook.io/) to learn ho
 If you are migrating from UNET, then please check out our [Migration Guide](https://mirror-networking.gitbook.io/docs/general/migration-guide).
 
 ---
-## Mirror Guard
+## Mirror Guard 🔒
 We recently built the first version of our new "Mirror Guard" - Cheat Detection for Multiplayer Games.<br/>
 Mirror Guard is running in a production game today, so we want to make this available to more studios on demand.<br/>
 
@@ -138,7 +138,7 @@ Mirror Guard is built with three core principles in mind:<br/>
 
 🍉 Mirror Guard V1 is able to safely detect Melon Loader, which we've found to be the foundation for the vast majority of cheats that we encountered.
 
-If you are interested, talk to any of our devs or email business at mirror-networking.com.
+If you are interested, Mirror Guard is available for [Business Supporters](https://github.com/sponsors/miwarnec)!
 
 ---
 ## Made with Mirror

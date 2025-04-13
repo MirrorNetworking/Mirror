@@ -36,6 +36,7 @@ namespace Mirror.Discovery
         }
 #endif
 
+#if !UNITY_SERVER
         void OnGUI()
         {
             if (NetworkManager.singleton == null)
@@ -126,6 +127,7 @@ namespace Mirror.Discovery
 
             GUILayout.EndArea();
         }
+#endif
 
         void Connect(ServerResponse info)
         {

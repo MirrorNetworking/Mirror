@@ -32,6 +32,7 @@ namespace Mirror.Examples.Common.Controllers.Player
         {
             public KeyCode MouseSteer;
             public KeyCode AutoRun;
+            public KeyCode Sliding;
             public KeyCode ToggleUI;
         }
 
@@ -70,6 +71,7 @@ namespace Mirror.Examples.Common.Controllers.Player
         {
             MouseSteer = KeyCode.M,
             AutoRun = KeyCode.R,
+            Sliding = KeyCode.G,
             ToggleUI = KeyCode.U
         };
 
@@ -367,6 +369,9 @@ namespace Mirror.Examples.Common.Controllers.Player
 
             if (optionsKeys.AutoRun != KeyCode.None && Input.GetKeyUp(optionsKeys.AutoRun))
                 controlOptions ^= ControlOptions.AutoRun;
+
+            if (optionsKeys.Sliding != KeyCode.None && Input.GetKeyUp(optionsKeys.Sliding))
+                controlOptions ^= ControlOptions.Sliding;
 
             if (optionsKeys.ToggleUI != KeyCode.None && Input.GetKeyUp(optionsKeys.ToggleUI))
             {

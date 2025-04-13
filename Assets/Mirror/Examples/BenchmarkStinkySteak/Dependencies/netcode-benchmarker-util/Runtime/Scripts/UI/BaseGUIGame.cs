@@ -48,6 +48,8 @@ namespace StinkySteak.NetcodeBenchmark
         //     _buttonStartClient.onClick.AddListener(StartClient);
         }
         protected virtual void OnCustomGUI() {}
+
+#if !UNITY_SERVER
         protected virtual void OnGUI()
         {
             GUILayout.BeginArea(new Rect(100, 100, 300, 400));
@@ -71,6 +73,7 @@ namespace StinkySteak.NetcodeBenchmark
 
             GUILayout.EndArea();
         }
+#endif
         // END MIRROR CHANGE
 
         protected virtual void StartClient() { }
