@@ -82,7 +82,9 @@ async Task<string> LoginAsync(HttpClient client, string user, string pass, strin
         var response = await client.PostAsync(LOGIN_URL, loginPayload);
         if (!response.IsSuccessStatusCode)
         {
+            var errorContent = await response.Content.ReadAsStringAsync();
             Console.WriteLine($"{LOG_PREFIX}Login request failed with status: {response.StatusCode}");
+            Console.WriteLine($"-- {errorContent}");
             return null;
         }
 
