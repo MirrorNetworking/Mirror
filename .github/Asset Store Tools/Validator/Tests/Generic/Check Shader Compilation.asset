@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d813ff809ae82f643bf975031305d541, type: 3}
+  m_Name: Check Shader Compilation
+  m_EditorClassIdentifier: 
+  HasBeenInitialized: 1
+  Id: 18
+  Title: Check Shader Compilation
+  Description: Please make sure the shaders inside your package do not have errors
+    and compile successfully.
+  CategoryInfo:
+    IsFailFilter: 1
+    IsInclusiveFilter: 1
+    AppliesToSubCategories: 1
+    Filter: []
+  TestScript: {fileID: 11500000, guid: 7abb278a6082bde4391e0779394cb85b, type: 3}

@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d813ff809ae82f643bf975031305d541, type: 3}
+  m_Name: Check Package Naming
+  m_EditorClassIdentifier: 
+  HasBeenInitialized: 1
+  Id: 33
+  Title: Check Package Naming
+  Description: Your package and its contents should be named appropriately and not
+    artificially force themselves up the hierarchy within commonly used project folders.
+    This can happen when a file or a folder name starts with a special character
+    (such as an underscore).
+  CategoryInfo:
+    IsFailFilter: 1
+    IsInclusiveFilter: 0
+    AppliesToSubCategories: 1
+    Filter:
+    - Essentials
+    - Templates
+  ValidationType: 0
+  TestScript: {fileID: 11500000, guid: afe9e04825c7d904981a54404b222290, type: 3}
