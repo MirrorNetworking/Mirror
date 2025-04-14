@@ -8,6 +8,9 @@ const string LOGIN_URL = "https://api.assetstore.unity3d.com/publisher/v1/sessio
 const string UPLOAD_URL = "https://api.assetstore.unity3d.com/publisher/v1/package/upload"; // From Constants.Api.UploadUnityPackageUrl
 const string LOG_PREFIX = "UnityPublish: ";
 
+const string ApiVersion = "V12.0.1"; // This should be the version of your API
+const string UnityVersion = "2021.3.45f1"; // This should be the version of Unity you are using
+
 var username = Environment.GetEnvironmentVariable("UNITY_USERNAME");
 var password = Environment.GetEnvironmentVariable("UNITY_PASSWORD");
 var packagePath = Environment.GetEnvironmentVariable("PACKAGE_PATH");
@@ -35,6 +38,7 @@ using (var client = new HttpClient())
 {
     client.DefaultRequestHeaders.ConnectionClose = false;
     client.DefaultRequestHeaders.Add("Accept", "application/json");
+    client.Timeout = TimeSpan.FromSeconds(1320);
     await Main(client);
 }
 
@@ -75,11 +79,14 @@ async Task<string> LoginAsync(HttpClient client, string user, string pass, strin
     {
         var loginPayload = new FormUrlEncodedContent(new[]
         {
+            new KeyValuePair<string, string>("unityversion", UnityVersion),
+            new KeyValuePair<string, string>("toolversion", ApiVersion),
             new KeyValuePair<string, string>("username", user),
             new KeyValuePair<string, string>("password", pass),
             new KeyValuePair<string, string>("license_hash", license),
             new KeyValuePair<string, string>("hardware_hash", hardware)
         });
+
         var response = await client.PostAsync(LOGIN_URL, loginPayload);
         if (!response.IsSuccessStatusCode)
         {
