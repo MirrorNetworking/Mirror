@@ -82,9 +82,9 @@ async Task<string> LoginAsync(HttpClient client, string user, string pass, strin
             new KeyValuePair<string, string>("unityversion", UnityVersion),
             new KeyValuePair<string, string>("toolversion", ApiVersion),
             new KeyValuePair<string, string>("license_hash", license),
-            new KeyValuePair<string, string>("hardware_hash", hardware)
+            new KeyValuePair<string, string>("hardware_hash", hardware),
             new KeyValuePair<string, string>("user", user),
-            new KeyValuePair<string, string>("pass", pass),
+            new KeyValuePair<string, string>("pass", pass)
         });
 
         var response = await client.PostAsync(LOGIN_URL, loginPayload);
