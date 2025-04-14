@@ -9,7 +9,7 @@ const string UPLOAD_URL = "https://api.assetstore.unity3d.com/publisher/v1/packa
 const string LOG_PREFIX = "UnityPublish: ";
 
 const string ApiVersion = "V12.0.1"; // This should be the version of your API
-const string UnityVersion = "2021.3.45f1"; // This should be the version of Unity you are using
+const string UnityVersion = "2021.3.35f1"; // This should be the version of Unity you are using
 
 var username = Environment.GetEnvironmentVariable("UNITY_USERNAME");
 var password = Environment.GetEnvironmentVariable("UNITY_PASSWORD");
