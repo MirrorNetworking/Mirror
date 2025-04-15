@@ -9,8 +9,6 @@ namespace Mirror
     [AddComponentMenu("Network/Network Transform Hybrid")]
     public class NetworkTransformHybrid : NetworkTransformBase
     {
-        // FixedUpdate support to fix: https://github.com/MirrorNetworking/Mirror/pull/3989
-        //public bool useFixedUpdate;
         TransformSnapshot? pendingSnapshot;
 
         [Header("Additional Settings")]
