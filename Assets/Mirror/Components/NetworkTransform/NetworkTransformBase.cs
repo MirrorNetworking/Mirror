@@ -23,9 +23,14 @@ using UnityEngine;
 namespace Mirror
 {
     public enum CoordinateSpace { Local, World }
+    public enum UpdateMethod { Update, FixedUpdate, LateUpdate }
 
     public abstract class NetworkTransformBase : NetworkBehaviour
     {
+        [Header("Update Method")]
+        [Tooltip("Select which Update method to use.\nSelect FixedUpdate for non-kinematic rigidbodies.")]
+        public UpdateMethod updateMethod = UpdateMethod.Update;
+
         // target transform to sync. can be on a child.
         // TODO this field is kind of unnecessary since we now support child NetworkBehaviours
         [Header("Target")]
