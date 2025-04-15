@@ -437,7 +437,7 @@ MonoBehaviour:
   syncDirection: 1
   syncMode: 0
   syncInterval: 0
-  updateMethod: 2
+  updateMethod: 1
   target: {fileID: 6814142693731383418}
   syncPosition: 1
   syncRotation: 1
