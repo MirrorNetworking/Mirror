@@ -11,19 +11,19 @@ namespace Mirror
     [AddComponentMenu("Network/ Interest Management/ Spatial Hash/Spatial Hashing Interest Management")]
     public class SpatialHashing3DInterestManagement : InterestManagement
     {
-        [Tooltip("The maximum range that objects will be visible at.")]
-        public int visRange = 30;
+        [Tooltip("The maximum range that objects will be visible.\nSet to 10-20% larger than camera far clip plane")]
+        public int visRange = 1200;
 
         // we use a 9 neighbour grid.
         // so we always see in a distance of 2 grids.
         // for example, our own grid and then one on top / below / left / right.
         //
         // this means that grid resolution needs to be distance / 2.
-        // so for example, for distance = 30 we see 2 cells = 15 * 2 distance.
+        // so for example, for distance = 1200 we see 2 cells = 600 * 2 distance.
         //
         // on first sight, it seems we need distance / 3 (we see left/us/right).
         // but that's not the case.
-        // resolution would be 10, and we only see 1 cell far, so 10+10=20.
+        // resolution would be 400, and we only see 1 cell far, so 400+400=800.
         public int resolution => visRange / 2; // same as XY because if XY is rotated 90 degree for 3D, it's still the same distance
 
         [Tooltip("Rebuild all every 'rebuildInterval' seconds.")]
@@ -77,7 +77,7 @@ namespace Mirror
             // NOTE: unlike Scene/MatchInterestManagement, this rebuilds ALL
             //       entities every INTERVAL. consider the other approach later.
 
-            // IMPORTANT: refresh grid every update!
+            // Old Notes: refresh grid every update!
             // => newly spawned entities get observers assigned via
             //    OnCheckObservers. this can happen any time and we don't want
             //    them broadcast to old (moved or destroyed) connections.
@@ -85,14 +85,33 @@ namespace Mirror
             //    correct grid position.
             // => note that the actual 'rebuildall' doesn't need to happen all
             //    the time.
-            // NOTE: consider refreshing grid only every 'interval' too. but not
-            //       for now. stability & correctness matter.
+
+            // Updated Notes: refresh grid and RebuildAll every interval.
+            // Real world application would have visRange larger than camera
+            // far clip plane, e.g. 1200, and a player movement speed of ~10m/sec
+            // so they typically won't cross cell boundaries quickly. If users notice
+            // flickering or mis-positioning, they can decrease the interval.
 
             // clear old grid results before we update everyone's position.
             // (this way we get rid of destroyed connections automatically)
             //
             // NOTE: keeps allocated HashSets internally.
             //       clearing & populating every frame works without allocations
+
+            // rebuild all spawned entities' observers every 'interval'
+            // this will call OnRebuildObservers which then returns the
+            // observers at grid[position] for each entity.
+            if (NetworkTime.localTime >= lastRebuildTime + rebuildInterval)
+            {
+                RefreshGrid();
+                RebuildAll();
+                lastRebuildTime = NetworkTime.localTime;
+            }
+        }
+
+        // (internal so we can update from tests)
+        internal void RefreshGrid()
+        {
             grid.ClearNonAlloc();
 
             // put every connection into the grid at it's main player's position
@@ -108,15 +127,6 @@ namespace Mirror
                     // put into grid
                     grid.Add(position, connection);
                 }
-            }
-
-            // rebuild all spawned entities' observers every 'interval'
-            // this will call OnRebuildObservers which then returns the
-            // observers at grid[position] for each entity.
-            if (NetworkTime.localTime >= lastRebuildTime + rebuildInterval)
-            {
-                RebuildAll();
-                lastRebuildTime = NetworkTime.localTime;
             }
         }
 
