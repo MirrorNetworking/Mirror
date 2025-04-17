@@ -283,7 +283,7 @@ namespace kcp2k
         }
 
         // OnGUI allocates even if it does nothing. avoid in release.
-#if !UNITY_SERVER && (UNITY_EDITOR || DEVELOPMENT_BUILD)
+#if !UNITY_SERVER && DEBUG
         protected virtual void OnGUI()
         {
             if (statisticsGUI) OnGUIStatistics();
