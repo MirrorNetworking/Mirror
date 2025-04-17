@@ -17,7 +17,7 @@ namespace Mirror.Examples.Common.Controllers.Player
         public override void Reset()
         {
             base.Reset();
-            GetComponent<NetworkTransformUnreliable>().useFixedUpdate = true;
+            GetComponent<NetworkTransformUnreliable>().updateMethod = UpdateMethod.FixedUpdate;
         }
     }
 }

@@ -169,6 +169,7 @@ MonoBehaviour:
   syncDirection: 1
   syncMode: 0
   syncInterval: 0
+  updateMethod: 0
   target: {fileID: 4659514702152478195}
   syncPosition: 1
   syncRotation: 1
@@ -183,7 +184,6 @@ MonoBehaviour:
   showGizmos: 0
   showOverlay: 0
   overlayColor: {r: 0, g: 0, b: 0, a: 0.5}
-  useFixedUpdate: 0
   onlySyncOnChangeCorrectionMultiplier: 2
   rotationSensitivity: 0.01
   positionPrecision: 0.01
@@ -304,6 +304,7 @@ MonoBehaviour:
   syncDirection: 1
   syncMode: 0
   syncInterval: 0
+  updateMethod: 0
   target: {fileID: 702109291309605222}
   syncPosition: 0
   syncRotation: 1
@@ -318,7 +319,6 @@ MonoBehaviour:
   showGizmos: 0
   showOverlay: 0
   overlayColor: {r: 0, g: 0, b: 0, a: 0.5}
-  useFixedUpdate: 0
   onlySyncOnChangeCorrectionMultiplier: 2
   rotationSensitivity: 0.01
   positionPrecision: 0.01
@@ -341,6 +341,7 @@ MonoBehaviour:
   syncDirection: 1
   syncMode: 0
   syncInterval: 0
+  updateMethod: 0
   target: {fileID: 702109291309605224}
   syncPosition: 0
   syncRotation: 1
@@ -355,7 +356,6 @@ MonoBehaviour:
   showGizmos: 0
   showOverlay: 0
   overlayColor: {r: 0, g: 0, b: 0, a: 0.5}
-  useFixedUpdate: 0
   onlySyncOnChangeCorrectionMultiplier: 2
   rotationSensitivity: 0.01
   positionPrecision: 0.01
