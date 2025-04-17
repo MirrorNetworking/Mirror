@@ -79,19 +79,19 @@ namespace Mirror.Examples.NetworkRoom
             is set as DontDestroyOnLoad = true.
         */
 
+#if !UNITY_SERVER
         bool showStartButton;
+#endif
 
         public override void OnRoomServerPlayersReady()
         {
             // calling the base method calls ServerChangeScene as soon as all players are in Ready state.
             if (Utils.IsHeadless())
-            {
                 base.OnRoomServerPlayersReady();
-            }
+#if !UNITY_SERVER
             else
-            {
                 showStartButton = true;
-            }
+#endif
         }
 
 #if !UNITY_SERVER
