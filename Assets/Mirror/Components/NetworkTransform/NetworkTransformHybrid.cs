@@ -9,7 +9,7 @@ namespace Mirror
     [AddComponentMenu("Network/Network Transform Hybrid")]
     public class NetworkTransformHybrid : NetworkTransformBase
     {
-        TransformSnapshot? pendingSnapshot;
+        //TransformSnapshot? pendingSnapshot;
 
         [Header("Additional Settings")]
         [Tooltip("If we only sync on change, then we need to correct old snapshots if more time than sendInterval * multiplier has elapsed.\n\nOtherwise the first move will always start interpolating from the last move sequence's time, which will make it stutter when starting every time.")]

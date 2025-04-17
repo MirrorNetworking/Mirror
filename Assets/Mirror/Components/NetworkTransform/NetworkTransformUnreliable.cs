@@ -9,7 +9,6 @@ namespace Mirror
     {
         uint sendIntervalCounter = 0;
         double lastSendIntervalTime = double.MinValue;
-        TransformSnapshot? pendingSnapshot;
 
         [Header("Additional Settings")]
         // Testing under really bad network conditions, 2%-5% packet loss and 250-1200ms ping, 5 proved to eliminate any twitching, however this should not be the default as it is a rare case Developers may want to cover.
