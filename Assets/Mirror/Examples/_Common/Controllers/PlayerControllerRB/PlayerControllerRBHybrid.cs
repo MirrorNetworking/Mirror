@@ -17,7 +17,7 @@ namespace Mirror.Examples.Common.Controllers.Player
         public override void Reset()
         {
             base.Reset();
-            GetComponent<NetworkTransformHybrid>().useFixedUpdate = true;
+            GetComponent<NetworkTransformHybrid>().updateMethod = UpdateMethod.FixedUpdate;
         }
     }
 }

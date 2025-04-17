@@ -437,6 +437,7 @@ MonoBehaviour:
   syncDirection: 1
   syncMode: 0
   syncInterval: 0
+  updateMethod: 1
   target: {fileID: 5650773562400175449}
   syncPosition: 1
   syncRotation: 1
@@ -451,7 +452,6 @@ MonoBehaviour:
   showGizmos: 0
   showOverlay: 0
   overlayColor: {r: 0, g: 0, b: 0, a: 0.5}
-  useFixedUpdate: 1
   onlySyncOnChangeCorrectionMultiplier: 2
   rotationSensitivity: 0.01
   positionPrecision: 0.01
@@ -488,6 +488,7 @@ MonoBehaviour:
   optionsKeys:
     MouseSteer: 109
     AutoRun: 114
+    Sliding: 103
     ToggleUI: 117
   controlOptions: 9
   maxMoveSpeed: 8

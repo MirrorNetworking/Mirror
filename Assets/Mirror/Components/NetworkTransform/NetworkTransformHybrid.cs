@@ -9,8 +9,6 @@ namespace Mirror
     [AddComponentMenu("Network/Network Transform Hybrid")]
     public class NetworkTransformHybrid : NetworkTransformBase
     {
-        // FixedUpdate support to fix: https://github.com/MirrorNetworking/Mirror/pull/3989
-        public bool useFixedUpdate;
         TransformSnapshot? pendingSnapshot;
 
         [Header("Additional Settings")]
@@ -70,16 +68,14 @@ namespace Mirror
         // update //////////////////////////////////////////////////////////////
         void Update()
         {
-            // if server then always sync to others.
-            if (isServer) UpdateServer();
-            // 'else if' because host mode shouldn't send anything to server.
-            // it is the server. don't overwrite anything there.
-            else if (isClient) UpdateClient();
+            if (updateMethod == UpdateMethod.Update)
+                DoUpdate();
         }
 
         void FixedUpdate()
         {
-            if (!useFixedUpdate) return;
+            if (updateMethod == UpdateMethod.FixedUpdate)
+                DoUpdate();
 
             if (pendingSnapshot.HasValue && !IsClientWithAuthority)
             {
@@ -91,6 +87,9 @@ namespace Mirror
 
         void LateUpdate()
         {
+            if (updateMethod == UpdateMethod.LateUpdate)
+                DoUpdate();
+
             // set dirty to trigger OnSerialize. either always, or only if changed.
             // It has to be checked in LateUpdate() for onlySyncOnChange to avoid
             // the possibility of Update() running first before the object's movement
@@ -101,6 +100,15 @@ namespace Mirror
                 if (!onlySyncOnChange || Changed(Construct()))
                     SetDirty();
             }
+        }
+
+        void DoUpdate()
+        {
+            // if server then always sync to others.
+            if (isServer) UpdateServer();
+            // 'else if' because host mode shouldn't send anything to server.
+            // it is the server. don't overwrite anything there.
+            else if (isClient) UpdateClient();
         }
 
         protected virtual void UpdateServer()
@@ -131,7 +139,7 @@ namespace Mirror
                     // interpolate & apply
                     TransformSnapshot computed = TransformSnapshot.Interpolate(from, to, t);
 
-                    if (useFixedUpdate)
+                    if (updateMethod == UpdateMethod.FixedUpdate)
                         pendingSnapshot = computed;
                     else
                         Apply(computed, to);
@@ -159,7 +167,7 @@ namespace Mirror
                     // interpolate & apply
                     TransformSnapshot computed = TransformSnapshot.Interpolate(from, to, t);
 
-                    if (useFixedUpdate)
+                    if (updateMethod == UpdateMethod.FixedUpdate)
                         pendingSnapshot = computed;
                     else
                         Apply(computed, to);

@@ -23,6 +23,7 @@ using UnityEngine;
 namespace Mirror
 {
     public enum CoordinateSpace { Local, World }
+    public enum UpdateMethod { Update, FixedUpdate, LateUpdate }
 
     public abstract class NetworkTransformBase : NetworkBehaviour
     {
@@ -31,6 +32,10 @@ namespace Mirror
         [Header("Target")]
         [Tooltip("The Transform component to sync. May be on on this GameObject, or on a child.")]
         public Transform target;
+
+        [Header("Base Settings")]
+        [Tooltip("Select which Update method to use.\nSelect FixedUpdate for non-kinematic rigidbodies.")]
+        public UpdateMethod updateMethod = UpdateMethod.Update;
 
         // Is this a client with authority over this transform?
         // This component could be on the player object or any object that has been assigned authority to this client.
