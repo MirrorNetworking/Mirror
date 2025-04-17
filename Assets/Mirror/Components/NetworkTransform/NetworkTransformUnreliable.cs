@@ -50,9 +50,9 @@ namespace Mirror
             if (updateMethod == UpdateMethod.FixedUpdate)
                 DoUpdate();
 
-
             if (pendingSnapshot.HasValue)
             {
+                // Apply via base method, but in FixedUpdate
                 Apply(pendingSnapshot.Value, pendingSnapshot.Value);
                 pendingSnapshot = null;
             }
