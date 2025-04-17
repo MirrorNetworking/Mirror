@@ -28,15 +28,16 @@ namespace Mirror
         [Tooltip("Multiplayer games should always run in the background so the network doesn't time out.")]
         public bool runInBackground = true;
 
-        /// <summary>Should the server auto-start when 'Server Build' is checked in build settings</summary>
         [Header("Auto-Start Options")]
 
+        /// <summary>Should the server auto-start when 'Server Build' is checked in build settings</summary>
         [Tooltip("Choose whether Server or Client should auto-start in headless builds")]
         public HeadlessStartOptions headlessStartMode = HeadlessStartOptions.DoNothing;
 
         [Tooltip("Headless Start Mode in Editor\nwhen enabled, headless start mode will be used in editor as well.")]
         public bool editorAutoStart;
 
+        [Header("Sync Settings")]
         /// <summary>Server Update frequency, per second. Use around 60Hz for fast paced games like Counter-Strike to minimize latency. Use around 30Hz for games like WoW to minimize computations. Use around 1-10Hz for slow paced games like EVE.</summary>
         [Tooltip("Server / Client send rate per second.\nUse 60-100Hz for fast paced games like Counter-Strike to minimize latency.\nUse around 30Hz for games like WoW to minimize computations.\nUse around 1-10Hz for slow paced games like EVE.")]
         [FormerlySerializedAs("serverTickRate")]
@@ -58,21 +59,6 @@ namespace Mirror
         // public int clientSendRate = 30; // 33 ms
 
         /// <summary>Automatically switch to this scene upon going offline (on start / on disconnect / on shutdown).</summary>
-        [Header("Scene Management")]
-        [Scene]
-        [FormerlySerializedAs("m_OfflineScene")]
-        [Tooltip("Scene that Mirror will switch to when the client or server is stopped")]
-        public string offlineScene = "";
-
-        /// <summary>Automatically switch to this scene upon going online (after connect/startserver).</summary>
-        [Scene]
-        [FormerlySerializedAs("m_OnlineScene")]
-        [Tooltip("Scene that Mirror will switch to when the server is started. Clients will recieve a Scene Message to load the server's current scene when they connect.")]
-        public string onlineScene = "";
-
-        [Range(0, 60), Tooltip("Optional delay that can be used after disconnecting to show a 'Connection lost...' message or similar before loading the offline scene, which may take a long time in big projects.")]
-        public float offlineSceneLoadDelay = 0;
-
         // transport layer
         [Header("Network Info")]
         [Tooltip("Transport component attached to this object that server and client will use to connect")]
@@ -88,6 +74,7 @@ namespace Mirror
         [Tooltip("Maximum number of concurrent connections.")]
         public int maxConnections = 100;
 
+        [Header("Security")]
         // Mirror global disconnect inactive option, independent of Transport.
         // not all Transports do this properly, and it's easiest to configure this just once.
         // this is very useful for some projects, keep it.
@@ -97,9 +84,27 @@ namespace Mirror
         [Tooltip("Timeout in seconds for server to automatically disconnect inactive connections if 'disconnectInactiveConnections' is enabled.")]
         public float disconnectInactiveTimeout = 60f;
 
+        [Tooltip("For security, it is recommended to disconnect a player if a networked action triggers an exception\nThis could prevent components being accessed in an undefined state, which may be an attack vector for exploits.\nHowever, some games may want to allow exceptions in order to not interrupt the player's experience.")]
+        public bool exceptionsDisconnect = true; // security by default
+
         [Header("Authentication")]
         [Tooltip("Authentication component attached to this object")]
         public NetworkAuthenticator authenticator;
+
+        [Header("Scene Management")]
+        [Scene]
+        [FormerlySerializedAs("m_OfflineScene")]
+        [Tooltip("Scene that Mirror will switch to when the client or server is stopped")]
+        public string offlineScene = "";
+
+        /// <summary>Automatically switch to this scene upon going online (after connect/startserver).</summary>
+        [Scene]
+        [FormerlySerializedAs("m_OnlineScene")]
+        [Tooltip("Scene that Mirror will switch to when the server is started. Clients will recieve a Scene Message to load the server's current scene when they connect.")]
+        public string onlineScene = "";
+
+        [Range(0, 60), Tooltip("Optional delay that can be used after disconnecting to show a 'Connection lost...' message or similar before loading the offline scene, which may take a long time in big projects.")]
+        public float offlineSceneLoadDelay = 0;
 
         /// <summary>The default prefab to be used to create player objects on the server.</summary>
         // Player objects are created in the default handler for AddPlayer() on
@@ -126,10 +131,6 @@ namespace Mirror
         /// <summary>List of transforms populated by NetworkStartPositions</summary>
         public static List<Transform> startPositions = new List<Transform>();
         public static int startPositionIndex;
-
-        [Header("Security")]
-        [Tooltip("For security, it is recommended to disconnect a player if a networked action triggers an exception\nThis could prevent components being accessed in an undefined state, which may be an attack vector for exploits.\nHowever, some games may want to allow exceptions in order to not interrupt the player's experience.")]
-        public bool exceptionsDisconnect = true; // security by default
 
         [Header("Snapshot Interpolation")]
         public SnapshotInterpolationSettings snapshotSettings = new SnapshotInterpolationSettings();
