@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net;
 using System.Runtime.CompilerServices;
+using UnityEngine;
 
 namespace Mirror
 {
