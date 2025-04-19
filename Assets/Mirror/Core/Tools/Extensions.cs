@@ -3,7 +3,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net;
 using System.Runtime.CompilerServices;
-using UnityEngine;
 
 namespace Mirror
 {
@@ -32,7 +31,17 @@ namespace Mirror
                     hash *= prime;
                 }
 
-                //UnityEngine.Debug.Log($"Created stable hash {(ushort)hash} for {text}");
+                // Uncomment this code to log message hashes and methods for debugging.
+                // There will be one log message per message hash without flooding duplicates.
+                // User should look in the log of the SENDING side for the offending hash.
+                // try-catch to avoid nonsense weaver errors at design time.
+                //try
+                //{
+                //    // cast the hash to ushort to match what user sees in unknown message id warnings
+                //    UnityEngine.Debug.LogFormat(UnityEngine.LogType.Log, UnityEngine.LogOption.NoStacktrace, null, "Created stable hash {0} for {1}", (ushort)hash, text);
+                //}
+                //catch { }
+
                 return (int)hash;
             }
         }
