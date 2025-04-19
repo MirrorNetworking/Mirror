@@ -1575,6 +1575,18 @@ namespace Mirror
             connectionToClient = conn;
         }
 
+        // Do not merge with RemoveClientAuthority
+        // This is called from NetworkConnectionToClient::DestroyOwnedObjects
+        // when a player disconnects to quietly remove ownerhip of scene objects
+        internal void RemoveClientOwner()
+        {
+            if (connectionToClient != null)
+            {
+                clientAuthorityCallback?.Invoke(connectionToClient, this, false);
+                connectionToClient = null;
+            }
+        }
+
         /// <summary>Removes ownership for an object.</summary>
         // Applies to objects that had authority set by AssignClientAuthority,
         // or NetworkServer.Spawn with a NetworkConnection parameter included.
@@ -1595,9 +1607,8 @@ namespace Mirror
 
             if (connectionToClient != null)
             {
-                clientAuthorityCallback?.Invoke(connectionToClient, this, false);
                 NetworkConnectionToClient previousOwner = connectionToClient;
-                connectionToClient = null;
+                RemoveClientOwner();
                 NetworkServer.SendChangeOwnerMessage(this, previousOwner);
             }
         }

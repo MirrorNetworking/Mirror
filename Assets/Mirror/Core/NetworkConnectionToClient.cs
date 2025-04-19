@@ -217,7 +217,7 @@ namespace Mirror
                 {
                     // disown scene objects, destroy instantiated objects.
                     if (netIdentity.sceneId != 0)
-                        NetworkServer.RemovePlayerForConnection(this, RemovePlayerOptions.KeepActive);
+                        identity.RemoveClientOwner();
                     else
                         NetworkServer.Destroy(netIdentity.gameObject);
                 }
