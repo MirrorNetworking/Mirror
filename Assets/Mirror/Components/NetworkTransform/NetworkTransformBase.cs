@@ -27,6 +27,8 @@ namespace Mirror
 
     public abstract class NetworkTransformBase : NetworkBehaviour
     {
+        internal TransformSnapshot? pendingSnapshot;
+
         // target transform to sync. can be on a child.
         // TODO this field is kind of unnecessary since we now support child NetworkBehaviours
         [Header("Target")]
