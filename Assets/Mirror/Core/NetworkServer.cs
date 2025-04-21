@@ -1279,7 +1279,7 @@ namespace Mirror
             return true;
         }
 
-        // Deprecated 2024-008-09
+        // Deprecated 2024-08-09
         [Obsolete("Use ReplacePlayerForConnection(NetworkConnectionToClient conn, GameObject player, uint assetId, ReplacePlayerOptions replacePlayerOptions) instead")]
         public static bool ReplacePlayerForConnection(NetworkConnectionToClient conn, GameObject player, uint assetId, bool keepAuthority = false)
         {
@@ -1289,7 +1289,7 @@ namespace Mirror
             return ReplacePlayerForConnection(conn, player, keepAuthority ? ReplacePlayerOptions.KeepAuthority : ReplacePlayerOptions.KeepActive);
         }
 
-        // Deprecated 2024-008-09
+        // Deprecated 2024-08-09
         [Obsolete("Use ReplacePlayerForConnection(NetworkConnectionToClient conn, GameObject player, ReplacePlayerOptions replacePlayerOptions) instead")]
         public static bool ReplacePlayerForConnection(NetworkConnectionToClient conn, GameObject player, bool keepAuthority = false)
         {
