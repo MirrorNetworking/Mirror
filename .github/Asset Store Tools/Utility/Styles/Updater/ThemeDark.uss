@@ -1,3 +1,0 @@
-﻿.updater-fail-container > Image {
-	--unity-image: resource("console.erroricon@2x");
-}
