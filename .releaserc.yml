@@ -2,13 +2,13 @@ branches:
   - name: master
   
 verifyConditions:
-  - "@MrGadget1024/semantic-release/github"
+  - "@semantic-release/github"
 
 plugins:
   # Determines the type of release to create, if any.
   # See https://github.com/angular/angular.js/blob/master/DEVELOPERS.md#type
   # More types can be added here and in release-notes-generator below.
-  - - '@MrGadget1024/semantic-release/commit-analyzer'
+  - - '@semantic-release/commit-analyzer'
     - preset: "angular"
       releaseRules:
       - type: "release"
@@ -23,7 +23,7 @@ plugins:
   # Extends the behavior of semantic-release to generate release notes.
   # 'fix' and 'feat' are built in and don't need to be defined here.
   # More types can be added to correspond with commit-analyzer above.
-  - - '@MrGadget1024/semantic-release/release-notes-generator'
+  - - '@semantic-release/release-notes-generator'
     - preset: "conventionalcommits"
       presetConfig:
         types:
@@ -47,12 +47,12 @@ plugins:
           hidden: false
 
   # Write the new version in version.txt
-  - - '@MrGadget1024/semantic-release/exec'
+  - - '@semantic-release/exec'
     - prepareCmd: "echo ${nextRelease.version} > Assets/Mirror/version.txt"
 
   # Remove Test folder so it's excluded from Unity package
   # -f: force, -r: recursive
-  - - '@MrGadget1024/semantic-release/exec'
+  - - '@semantic-release/exec'
     - prepareCmd: "rm -f -r Assets/Mirror/Tests && rm -f Assets/Mirror/Tests.meta"
   
   # Remove EdgeGap Hosting folder so it's excluded from Unity package
@@ -62,15 +62,15 @@ plugins:
   
   # Move ScriptTemplates to Mirror folder so they're included in Unity package
   # There's an editor script that moves them back to Assets when imported to Unity
-  - - '@MrGadget1024/semantic-release/exec'
+  - - '@semantic-release/exec'
     - prepareCmd: "mv Assets/ScriptTemplates Assets/Mirror/ && mv Assets/ScriptTemplates.meta Assets/Mirror/"
 
   # Create Unity package with Mirror, ScriptTemplates, and LICENSE
-  - - '@MrGadget1024/semantic-release/exec'
+  - - '@semantic-release/exec'
     - prepareCmd: "dotnet script .github/UnityPack.csx ${nextRelease.version}"
 
   # Create a new release on GitHub
-  - - '@MrGadget1024/semantic-release/github'
+  - - '@semantic-release/github'
     - assets:
       - path: "Mirror.unitypackage"
         label: "Mirror Unity Package"
