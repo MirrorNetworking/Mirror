@@ -17,10 +17,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '8.0.x'
+      # - name: Setup .NET
+      #   uses: actions/setup-dotnet@v4
+      #   with:
+      #     dotnet-version: '8.0.x'
   
       - name: Install dotnet-script
         run: |
@@ -36,7 +36,7 @@ jobs:
         run: npm i -D conventional-changelog-conventionalcommits
 
       - name: Install Plugins
-        run: npm i -D @semantic-release/exec
+        run: npm i -D @MrGadget1024/semantic-release/exec
   
       - name: Release
         run: npx semantic-release
