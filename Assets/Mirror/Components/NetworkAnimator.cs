@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -18,8 +19,11 @@ namespace Mirror
     [HelpURL("https://mirror-networking.gitbook.io/docs/components/network-animator")]
     public class NetworkAnimator : NetworkBehaviour
     {
-        [Header("Authority")]
-        [Tooltip("Set to true if animations come from owner client,  set to false if animations always come from server")]
+        // Deprecated 2025-04-21
+        /// <summary>Deprecated. Use SyncDirection instead.</summary>
+        [Obsolete("clientAuthority was replaced with syncDirection. To enable client authority, set SyncDirection to ClientToServer in the Inspector.")]
+        [Header("[Obsolete - use Sync Direction instead]")] // Unity doesn't show obsolete warning for fields. do it manually.
+        [Tooltip("Obsolete - use Sync Direction instead")]
         public bool clientAuthority;
 
         /// <summary>
@@ -56,7 +60,7 @@ namespace Mirror
             {
                 if (isServer)
                 {
-                    if (!clientAuthority)
+                    if (syncDirection == SyncDirection.ServerToClient)
                         return true;
 
                     // This is a special case where we have client authority but we have not assigned the client who has
@@ -68,7 +72,7 @@ namespace Mirror
                         return true;
                 }
 
-                return (isOwned && clientAuthority);
+                return (isOwned && syncDirection == SyncDirection.ClientToServer);
             }
         }
 
@@ -93,6 +97,24 @@ namespace Mirror
         // in case users call SetActive(false) -> SetActive(true).
         void Awake() => Initialize();
         void OnEnable() => Initialize();
+
+        protected override void OnValidate()
+        {
+            if (Application.isPlaying) return;
+
+            base.OnValidate();
+
+            // obsolete clientAuthority compatibility:
+            // if it was used, then set the new SyncDirection automatically.
+            // if it wasn't used, then don't touch syncDirection.
+#pragma warning disable CS0618
+            if (clientAuthority)
+            {
+                syncDirection = SyncDirection.ClientToServer;
+                Debug.LogWarning($"{name}'s NetworkAnimator component has obsolete .clientAuthority enabled. Please disable it and set SyncDirection to ClientToServer instead.", gameObject);
+            }
+#pragma warning restore CS0618
+        }
 
         public virtual void Reset()
         {
@@ -149,7 +171,7 @@ namespace Mirror
         {
             // skip if host or client with authority
             // they will have already set the speed so don't set again
-            if (isServer || (isOwned && clientAuthority))
+            if (isServer || (isOwned && syncDirection == SyncDirection.ClientToServer))
                 return;
 
             animator.speed = value;
@@ -239,7 +261,7 @@ namespace Mirror
 
         void HandleAnimMsg(int stateHash, float normalizedTime, int layerId, float weight, NetworkReader reader)
         {
-            if (isOwned && clientAuthority)
+            if (isOwned && syncDirection == SyncDirection.ClientToServer)
                 return;
 
             // usually transitions will be triggered by parameters, if not, play anims directly.
@@ -257,7 +279,7 @@ namespace Mirror
 
         void HandleAnimParamsMsg(NetworkReader reader)
         {
-            if (isOwned && clientAuthority)
+            if (isOwned && syncDirection == SyncDirection.ClientToServer)
                 return;
 
             ReadParameters(reader);
@@ -463,7 +485,7 @@ namespace Mirror
         /// <param name="hash">Hash id of trigger (from the Animator).</param>
         public void SetTrigger(int hash)
         {
-            if (clientAuthority)
+            if (syncDirection == SyncDirection.ClientToServer)
             {
                 if (!isClient)
                 {
@@ -510,7 +532,7 @@ namespace Mirror
         /// <param name="hash">Hash id of trigger (from the Animator).</param>
         public void ResetTrigger(int hash)
         {
-            if (clientAuthority)
+            if (syncDirection == SyncDirection.ClientToServer)
             {
                 if (!isClient)
                 {
@@ -549,7 +571,7 @@ namespace Mirror
         void CmdOnAnimationServerMessage(int stateHash, float normalizedTime, int layerId, float weight, byte[] parameters)
         {
             // Ignore messages from client if not in client authority mode
-            if (!clientAuthority)
+            if (syncDirection == SyncDirection.ServerToClient)
                 return;
 
             //Debug.Log($"OnAnimationMessage for netId {netId}");
@@ -566,7 +588,7 @@ namespace Mirror
         void CmdOnAnimationParametersServerMessage(byte[] parameters)
         {
             // Ignore messages from client if not in client authority mode
-            if (!clientAuthority)
+            if (syncDirection == SyncDirection.ServerToClient)
                 return;
 
             // handle and broadcast
@@ -581,7 +603,7 @@ namespace Mirror
         void CmdOnAnimationTriggerServerMessage(int hash)
         {
             // Ignore messages from client if not in client authority mode
-            if (!clientAuthority)
+            if (syncDirection == SyncDirection.ServerToClient)
                 return;
 
             // handle and broadcast
@@ -599,7 +621,7 @@ namespace Mirror
         void CmdOnAnimationResetTriggerServerMessage(int hash)
         {
             // Ignore messages from client if not in client authority mode
-            if (!clientAuthority)
+            if (syncDirection == SyncDirection.ServerToClient)
                 return;
 
             // handle and broadcast
