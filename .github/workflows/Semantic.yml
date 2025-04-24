@@ -35,6 +35,9 @@ jobs:
       - name: Install conventional-changelog-conventionalcommits
         run: npm i -D conventional-changelog-conventionalcommits
 
+      - name: Install semantic-release fork
+        run: npm install --save-dev github:MrGadget1024/semantic-release
+
       - name: Install Plugins
         run: npm i -D @semantic-release/exec
   
