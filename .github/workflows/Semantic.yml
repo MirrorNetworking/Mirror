@@ -33,16 +33,24 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '*'
-  
+        env:
+          DOTNET_ROOT: C:\Program Files\dotnet
+
       - name: Install conventional-changelog-conventionalcommits
         run: npm i -D conventional-changelog-conventionalcommits
+        env:
+          DOTNET_ROOT: C:\Program Files\dotnet
 
       - name: Install semantic-release fork
         run: npm install --save-dev github:MrGadget1024/semantic-release
+        env:
+          DOTNET_ROOT: C:\Program Files\dotnet
 
       - name: Install Plugins
         run: npm i -D @semantic-release/exec --legacy-peer-deps
-  
+        env:
+          DOTNET_ROOT: C:\Program Files\dotnet
+
       - name: Release
         run: npx semantic-release
           --debug
