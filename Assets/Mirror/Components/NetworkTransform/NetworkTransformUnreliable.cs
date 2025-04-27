@@ -44,7 +44,6 @@ namespace Mirror
                 DoUpdate();
         }
 
-
         void FixedUpdate()
         {
             if (updateMethod == UpdateMethod.FixedUpdate)
