@@ -28,6 +28,10 @@ namespace Mirror
         [Tooltip("Multiplayer games should always run in the background so the network doesn't time out.")]
         public bool runInBackground = true;
 
+        /// <summary>If Mirror shall keep the same Network Manager on disconnect, and not make a new one.</summary>
+        Tooltip("If Mirror shall keep the same Network Manager on disconnect, and not make a new one.")]
+        public bool keepOnDisconnect = false; //comment for mirror devs (may delete): set to false by default to not break compatibility for other people.
+
         [Header("Auto-Start Options")]
 
         /// <summary>Should the server auto-start when 'Server Build' is checked in build settings</summary>
@@ -602,11 +606,14 @@ namespace Mirror
             // to avoid collision and let a fresh Network Manager be created.
             // IMPORTANT: .gameObject can be null if StopClient is called from
             //            OnApplicationQuit or from tests!
-            if (gameObject != null
+            if (!keepOnDisconnect)
+            {
+                if (gameObject != null
                 && gameObject.scene.name == "DontDestroyOnLoad"
                 && !string.IsNullOrWhiteSpace(offlineScene)
                 && SceneManager.GetActiveScene().path != offlineScene)
                 SceneManager.MoveGameObjectToScene(gameObject, SceneManager.GetActiveScene());
+            }
 
             OnStopServer();
 
@@ -1296,11 +1303,14 @@ namespace Mirror
             // to avoid collision and let a fresh Network Manager be created.
             // IMPORTANT: .gameObject can be null if StopClient is called from
             //            OnApplicationQuit or from tests!
-            if (gameObject != null
+            if (!keepOnDisconnect)
+            {
+                if (gameObject != null
                 && gameObject.scene.name == "DontDestroyOnLoad"
                 && !string.IsNullOrWhiteSpace(offlineScene)
                 && SceneManager.GetActiveScene().path != offlineScene)
                 SceneManager.MoveGameObjectToScene(gameObject, SceneManager.GetActiveScene());
+            }
 
             // If StopHost called in Host mode, StopServer will change scenes after this.
             // Check loadingSceneAsync to ensure we don't double-invoke the scene change.
