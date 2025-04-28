@@ -10,8 +10,8 @@
     Newtonsoft.Json and Unity Test Framework dependencies.
 */
 
-#r "nuget: SharpZipLib"
-#r "nuget: YamlDotNet"
+#r "nuget: SharpZipLib, 1.4.2"
+#r "nuget: YamlDotNet, 16.3.0"
 
 using System;
 using System.Collections.Generic;
