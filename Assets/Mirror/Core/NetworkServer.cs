@@ -264,6 +264,8 @@ namespace Mirror
             lastSendTime = 0;
             actualTickRate = 0;
 
+            exceptionsDisconnect = true;
+
             localConnection = null;
 
             connections.Clear();
