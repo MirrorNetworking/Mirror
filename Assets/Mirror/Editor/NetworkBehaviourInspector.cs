@@ -95,10 +95,10 @@ namespace Mirror
             if (syncDirection.enumValueIndex == (int)SyncDirection.ServerToClient)
                 EditorGUILayout.PropertyField(serializedObject.FindProperty("syncMode"));
 
-            SerializedProperty syncMethod = serializedObject.FindProperty("syncMethod");
             // sync method: Don't show for NT-based components
             if (!typeof(NetworkTransformBase).IsAssignableFrom(scriptClass))
             {
+                SerializedProperty syncMethod = serializedObject.FindProperty("syncMethod");
                 EditorGUILayout.PropertyField(syncMethod);
 
                 // Hybrid sync method: show a warning!
