@@ -121,6 +121,9 @@ namespace Mirror
         // NetworkBehaviourInspector needs to know if we have SyncObjects
         internal bool HasSyncObjects() => syncObjects.Count > 0;
 
+        // NetworkBehaviourInspector needs to know if it should show SyncMethod dropdown
+        internal virtual bool showSyncMethod() => true;
+
         // NetworkIdentity based values set from NetworkIdentity.Awake(),
         // which is way more simple and way faster than trying to figure out
         // component index from in here by searching all NetworkComponents.

@@ -148,6 +148,9 @@ namespace Mirror
             Configure();
         }
 
+        // For NetworkBehaviourInspector
+        internal override bool showSyncMethod() => false;
+
         // initialization //////////////////////////////////////////////////////
         // forcec configuration of some settings
         protected virtual void Configure()

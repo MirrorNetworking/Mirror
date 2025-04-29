@@ -96,7 +96,7 @@ namespace Mirror
                 EditorGUILayout.PropertyField(serializedObject.FindProperty("syncMode"));
 
             // sync method: Don't show for NT-based components
-            if (!typeof(NetworkTransformBase).IsAssignableFrom(scriptClass))
+            if (((NetworkBehaviour)serializedObject.targetObject).showSyncMethod())
             {
                 SerializedProperty syncMethod = serializedObject.FindProperty("syncMethod");
                 EditorGUILayout.PropertyField(syncMethod);
