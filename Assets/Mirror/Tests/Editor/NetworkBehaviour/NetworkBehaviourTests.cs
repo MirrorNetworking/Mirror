@@ -10,8 +10,8 @@ namespace Mirror.Tests.NetworkBehaviours
     // we need to inherit from networkbehaviour to test protected functions
     public class NetworkBehaviourDelegateComponent : NetworkBehaviour
     {
-        public static void Delegate(NetworkBehaviour comp, NetworkReader reader, NetworkConnection senderConnection) {}
-        public static void Delegate2(NetworkBehaviour comp, NetworkReader reader, NetworkConnection senderConnection) {}
+        public static void Delegate(NetworkBehaviour comp, NetworkReader reader, NetworkConnectionToClient senderConnection) {}
+        public static void Delegate2(NetworkBehaviour comp, NetworkReader reader, NetworkConnectionToClient senderConnection) {}
     }
 
     // we need to inherit from networkbehaviour to test protected functions

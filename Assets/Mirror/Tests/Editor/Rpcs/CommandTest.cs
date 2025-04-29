@@ -26,7 +26,7 @@ namespace Mirror.Tests.Rpcs
 
     class SenderConnectionBehaviour : NetworkBehaviour
     {
-        public event Action<int, NetworkConnection> onSendInt;
+        public event Action<int, NetworkConnectionToClient> onSendInt;
 
         [Command]
         public void CmdSendInt(int someInt, NetworkConnectionToClient conn = null) =>
@@ -35,7 +35,7 @@ namespace Mirror.Tests.Rpcs
 
     class SenderConnectionIgnoreAuthorityBehaviour : NetworkBehaviour
     {
-        public event Action<int, NetworkConnection> onSendInt;
+        public event Action<int, NetworkConnectionToClient> onSendInt;
 
         [Command(requiresAuthority = false)]
         public void CmdSendInt(int someInt, NetworkConnectionToClient conn = null) =>

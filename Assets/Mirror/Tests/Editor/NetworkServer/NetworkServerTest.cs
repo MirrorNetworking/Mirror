@@ -41,7 +41,7 @@ namespace Mirror.Tests.NetworkServers
         public int called;
         // weaver generates this from [Rpc]
         // but for tests we need to add it manually
-        public static void RpcGenerated(NetworkBehaviour comp, NetworkReader reader, NetworkConnection senderConnection)
+        public static void RpcGenerated(NetworkBehaviour comp, NetworkReader reader, NetworkConnectionToClient senderConnection)
         {
             ++((RpcTestNetworkBehaviour)comp).called;
         }
