@@ -272,7 +272,7 @@ namespace Mirror.Tests.NetworkIdentities
 
             // test the callback too
             int callbackCalled = 0;
-            NetworkConnection callbackConnection = null;
+            NetworkConnectionToClient callbackConnection = null;
             NetworkIdentity callbackIdentity = null;
             bool callbackState = false;
             NetworkIdentity.clientAuthorityCallback += (conn, networkIdentity, state) =>
