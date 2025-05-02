@@ -4,8 +4,6 @@ using UnityEngine.Events;
 
 namespace Mirror
 {
-    [Serializable] public class UnityEventNetworkConnection : UnityEvent<NetworkConnectionToClient> {}
-
     /// <summary>Base class for implementing component-based authentication during the Connect phase</summary>
     [HelpURL("https://mirror-networking.gitbook.io/docs/components/network-authenticators")]
     public abstract class NetworkAuthenticator : MonoBehaviour
@@ -13,7 +11,7 @@ namespace Mirror
         /// <summary>Notify subscribers on the server when a client is authenticated</summary>
         [Header("Event Listeners (optional)")]
         [Tooltip("Mirror has an internal subscriber to this event. You can add your own here.")]
-        public UnityEventNetworkConnection OnServerAuthenticated = new UnityEventNetworkConnection();
+        public UnityEvent<NetworkConnectionToClient> OnServerAuthenticated = new UnityEvent<NetworkConnectionToClient>();
 
         /// <summary>Notify subscribers on the client when the client is authenticated</summary>
         [Tooltip("Mirror has an internal subscriber to this event. You can add your own here.")]
