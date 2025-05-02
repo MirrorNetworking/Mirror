@@ -2,7 +2,7 @@
 
 namespace Mirror.Examples.Common.Controllers.Tank
 {
-    [AddComponentMenu("Network/Tank Turret (Hybrid)")]
+    [AddComponentMenu("")]
     [RequireComponent(typeof(TankControllerHybrid))]
     [RequireComponent(typeof(NetworkTransformHybrid))]
     public class TankTurretHybrid : TankTurretBase

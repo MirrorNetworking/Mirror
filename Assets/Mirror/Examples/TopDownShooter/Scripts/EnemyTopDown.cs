@@ -5,6 +5,7 @@ using Mirror;
 
 namespace Mirror.Examples.TopDownShooter
 {
+    [AddComponentMenu("")]
     public class EnemyTopDown : NetworkBehaviour
     {
         private CanvasTopDown canvasTopDown;

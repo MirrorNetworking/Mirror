@@ -2,7 +2,7 @@
 
 namespace Mirror.Examples.Common.Controllers.Flyer
 {
-    [AddComponentMenu("Network/Flyer Controller (Reliable)")]
+    [AddComponentMenu("")]
     [RequireComponent(typeof(NetworkTransformReliable))]
     public class FlyerControllerReliable : FlyerControllerBase { }
 }

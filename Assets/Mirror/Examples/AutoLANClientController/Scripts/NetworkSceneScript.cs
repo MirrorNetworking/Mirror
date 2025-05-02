@@ -6,6 +6,7 @@ using UnityEngine.UI;
 
 namespace Mirror.Examples.AutoLANClientController
 {
+    [AddComponentMenu("")]
     public class NetworkSceneScript : NetworkBehaviour
     {
 
