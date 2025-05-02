@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Mirror
 {
-    [AddComponentMenu("Network/Network Transform Hybrid")]
+    [AddComponentMenu("Network/Network Transform (Hybrid)")]
     public class NetworkTransformHybrid : NetworkTransformBase
     {
         [Header("Additional Settings")]
