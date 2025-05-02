@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace Mirror
 {
-    [AddComponentMenu("Network/ Interest Management/ Spatial Hash/Spatial Hashing Interest Management")]
+    [AddComponentMenu("Network/ Interest Management/ Spatial Hash/Grid Spatial Hash (3D)")]
     public class SpatialHashing3DInterestManagement : InterestManagement
     {
         [Tooltip("The maximum range that objects will be visible at.")]
