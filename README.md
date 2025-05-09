@@ -120,7 +120,7 @@ _The top quote is from Fitzcarraldo, which is quite reminiscent of this project.
 
 ---
 ## Getting Started
-Get **Unity 2019 / 2020 / 2021 / 2022 LTS**, [Download Mirror](https://assetstore.unity.com/packages/tools/network/mirror-129321), open one of the examples & press Play!
+Get **Unity 2019 / 2020 / 2021 / 2022 / 6000 / 6000.1 LTS**, [Download Mirror](https://assetstore.unity.com/packages/tools/network/mirror-129321), open one of the examples & press Play!
 
 Check out our [Documentation](https://mirror-networking.gitbook.io/) to learn how it all works.
 
