@@ -449,6 +449,8 @@ namespace Mirror
             // default to ClientToServer so this works immediately for users
             syncDirection = SyncDirection.ClientToServer;
 
+            NetworkTime.highPingComponents = 0UL;
+
             // default to 20Hz, 20 sends per second if data has changed.
             syncInterval = 0.05f;
         }
@@ -456,6 +458,7 @@ namespace Mirror
         protected virtual void OnEnable()
         {
             ResetState();
+            NetworkTime.highPingComponents++;
 
             if (NetworkServer.active)
                 NetworkIdentity.clientAuthorityCallback += OnClientAuthorityChanged;
@@ -464,6 +467,9 @@ namespace Mirror
         protected virtual void OnDisable()
         {
             ResetState();
+
+            if (NetworkTime.highPingComponents > 0UL)
+                NetworkTime.highPingComponents--;
 
             if (NetworkServer.active)
                 NetworkIdentity.clientAuthorityCallback -= OnClientAuthorityChanged;
