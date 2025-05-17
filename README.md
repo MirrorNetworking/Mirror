@@ -299,10 +299,9 @@ Mirror uses **KCP** (reliable UDP) by default, but you may use any of our commun
 * [LiteNetLib](https://github.com/MirrorNetworking/LiteNetLibTransport/) UDP
 * [FizzySteam](https://github.com/Chykary/FizzySteamworks/): SteamNetwork
 * [FizzyFacepunch](https://github.com/Chykary/FizzyFacepunch/): SteamNetwork
-* [Epic Relay](https://github.com/FakeByte/EpicOnlineTransport): Epic Online Services
+* [Epic Relay](https://github.com/WeLoveJesusChrist/EOSTransport): Epic Online Services
 * [Bubble](https://github.com/Squaresweets/BubbleTransport): Apple GameCenter
 * [Light Reflective Mirror](https://github.com/Derek-R-S/Light-Reflective-Mirror): Self-Hosted Relay
-* [Oculus P2P](https://github.com/hyferg/MirrorOculusP2P): Oculus Platform Service
 
 ## Benchmarks
 * [2022] mischa [400-800 CCU](https://discord.com/channels/343440455738064897/1007519701603205150/1019879180592238603) tests
