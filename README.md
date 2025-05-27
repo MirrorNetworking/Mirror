@@ -127,18 +127,11 @@ Check out our [Documentation](https://mirror-networking.gitbook.io/) to learn ho
 If you are migrating from UNET, then please check out our [Migration Guide](https://mirror-networking.gitbook.io/docs/general/migration-guide).
 
 ---
-## Mirror Guard 🔒
-We recently built the first version of our new "Mirror Guard" - Cheat Detection for Multiplayer Games.<br/>
-Mirror Guard is running in a production game today, so we want to make this available to more studios on demand.<br/>
+## Guard - Anti Cheat 🔒
+![2000x630](https://github.com/user-attachments/assets/34b5dce3-d137-4c36-b7d6-ebed62fadb7e)
+Guard is a high impact, zero risk anti-cheat solution built specifically for Unity games. Unlike most commercial anti-cheats, Guard is embedded on the source code level and compiles with your project.
 
-Mirror Guard is built with three core principles in mind:<br/>
-1️⃣ Detection over Prevention: silently reports cheaters to the server, instead of trying to block them.<br/>
-2️⃣ Zero Risk: Mirror Guard focuses on stability, we never want honest players to encounter issues, ever.<br/>
-3️⃣ Real World Threats: Mirror Guard only blocks cheats which we encountered in production.<br/>
-
-🍉 Mirror Guard V1 is able to safely detect Melon Loader, which we've found to be the foundation for the vast majority of cheats that we encountered.
-
-If you are interested, Mirror Guard is available for [Business Supporters](https://github.com/sponsors/miwarnec)!
+Guard is available on the [Asset Store](https://assetstore.unity.com/packages/tools/network/guard-multiplayer-anti-cheat-321434).
 
 ---
 ## Made with Mirror
