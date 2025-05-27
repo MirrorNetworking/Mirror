@@ -131,7 +131,7 @@ If you are migrating from UNET, then please check out our [Migration Guide](http
 ![2000x630](https://github.com/user-attachments/assets/34b5dce3-d137-4c36-b7d6-ebed62fadb7e)
 Guard is a high impact, zero risk anti-cheat solution built specifically for Unity games. Unlike most commercial anti-cheats, Guard is embedded on the source code level and compiles with your project.
 
-Guard is available on the [Asset Store](https://assetstore.unity.com/packages/tools/network/guard-multiplayer-anti-cheat-321434).
+Guard is available on the [Asset Store](https://assetstore.unity.com/packages/tools/network/guard-multiplayer-anti-cheat-321434) and includes a Mirror Integration!
 
 ---
 ## Made with Mirror
