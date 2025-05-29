@@ -1558,6 +1558,19 @@ namespace Mirror
 
             clientAuthorityCallback?.Invoke(conn, this, true);
 
+            // If the connection is already observing the object we need to sync owner data only:
+            if (conn.observing.Contains(this))
+            {
+                foreach (NetworkBehaviour comp in NetworkBehaviours)
+                    if (comp.syncMode == SyncMode.Owner)
+                        comp.SetDirty();
+            }
+            else
+            {
+                // otherwise rebuild so the owner sees their NI without further delays
+                NetworkServer.RebuildObservers(this, false);
+            }
+            
             return true;
         }
 
