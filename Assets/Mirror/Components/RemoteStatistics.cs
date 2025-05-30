@@ -99,6 +99,8 @@ namespace Mirror
         // this is not perfectly secure. that's why RemoteStatistics is read-only.
         [Header("Authentication")]
         public string passwordFile = "remote_statistics.txt";
+        [Tooltip("Set to false to skip password input and authentication on client and server.")]
+        public bool requiresPasswordAuth = true; // false to skip password input and checks
         protected bool         serverAuthenticated;   // client needs to authenticate
         protected bool         clientAuthenticated;   // show GUI until authenticated
         protected string       serverPassword = null; // null means not found, auth impossible
@@ -146,8 +148,16 @@ namespace Mirror
             NetworkStatistics = NetworkManager.singleton.GetComponent<NetworkStatistics>();
             if (NetworkStatistics == null) throw new Exception($"RemoteStatistics requires a NetworkStatistics component on {NetworkManager.singleton.name}!");
 
-            // server needs to load the password
-            LoadPassword();
+            if (!requiresPasswordAuth)
+            {
+                // auto authenticate if requiring password is false
+                serverAuthenticated = true;
+            }
+            else
+            {
+                // server needs to load the password
+                LoadPassword();
+            }
         }
 
         public override void OnStartLocalPlayer()
@@ -155,6 +165,12 @@ namespace Mirror
             // center the window initially
             windowRect.x = Screen.width  / 2 - windowRect.width  / 2;
             windowRect.y = Screen.height / 2 - windowRect.height / 2;
+
+            if (!requiresPasswordAuth)
+            {
+                // auto authenticate if requiring password is false
+                clientAuthenticated = true;
+            }
         }
 
         [TargetRpc]
@@ -223,6 +239,7 @@ namespace Mirror
             if (isLocalPlayer) UpdateClient();
         }
 
+#if !UNITY_SERVER
         void OnGUI()
         {
             if (!isLocalPlayer) return;
@@ -437,5 +454,6 @@ namespace Mirror
             // dragable window in any case
             GUI.DragWindow(new Rect(0, 0, 10000, 10000));
         }
+#endif
     }
 }

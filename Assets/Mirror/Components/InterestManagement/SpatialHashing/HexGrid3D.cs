@@ -43,19 +43,19 @@ namespace Mirror
         // Precomputed array of neighbor offsets as Cell3D structs (center + 6 per layer x 3 layers)
         static readonly Cell3D[] neighborCellsBase = new Cell3D[]
         {
-        // Center
-        new Cell3D(0, 0, 0),
-        // Upper layer (1) and its 6 neighbors
-        new Cell3D(0, 0, 1),
-        new Cell3D(1, -1, 1), new Cell3D(1, 0, 1), new Cell3D(0, 1, 1),
-        new Cell3D(-1, 1, 1), new Cell3D(-1, 0, 1), new Cell3D(0, -1, 1),
-        // Same layer (0) - 6 neighbors
-        new Cell3D(1, -1, 0), new Cell3D(1, 0, 0), new Cell3D(0, 1, 0),
-        new Cell3D(-1, 1, 0), new Cell3D(-1, 0, 0), new Cell3D(0, -1, 0),
-        // Lower layer (-1) and its 6 neighbors
-        new Cell3D(0, 0, -1),
-        new Cell3D(1, -1, -1), new Cell3D(1, 0, -1), new Cell3D(0, 1, -1),
-        new Cell3D(-1, 1, -1), new Cell3D(-1, 0, -1), new Cell3D(0, -1, -1)
+            // Center
+            new Cell3D(0, 0, 0),
+            // Upper layer (1) and its 6 neighbors
+            new Cell3D(0, 0, 1),
+            new Cell3D(1, -1, 1), new Cell3D(1, 0, 1), new Cell3D(0, 1, 1),
+            new Cell3D(-1, 1, 1), new Cell3D(-1, 0, 1), new Cell3D(0, -1, 1),
+            // Same layer (0) - 6 neighbors
+            new Cell3D(1, -1, 0), new Cell3D(1, 0, 0), new Cell3D(0, 1, 0),
+            new Cell3D(-1, 1, 0), new Cell3D(-1, 0, 0), new Cell3D(0, -1, 0),
+            // Lower layer (-1) and its 6 neighbors
+            new Cell3D(0, 0, -1),
+            new Cell3D(1, -1, -1), new Cell3D(1, 0, -1), new Cell3D(0, 1, -1),
+            new Cell3D(-1, 1, -1), new Cell3D(-1, 0, -1), new Cell3D(0, -1, -1)
         };
 
         // Converts a grid cell (q, r, layer) to a world position (x, y, z)

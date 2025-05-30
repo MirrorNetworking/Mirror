@@ -33,6 +33,17 @@ namespace Mirror
         public static float sendInterval => sendRate < int.MaxValue ? 1f / sendRate : 0; // for 30 Hz, that's 33ms
         static double lastSendTime;
 
+        // ocassionally send a full reliable state for unreliable components to delta compress against.
+        // this only applies to Components with SyncMethod=Unreliable.
+        public static int unreliableBaselineRate => NetworkServer.unreliableBaselineRate;
+        public static float unreliableBaselineInterval => NetworkServer.unreliableBaselineInterval;
+        static double lastUnreliableBaselineTime;
+
+        // quake sends unreliable messages twice to make up for message drops.
+        // this double bandwidth, but allows for smaller buffer time / faster sync.
+        // best to turn this off unless the game is extremely fast paced.
+        public static bool unreliableRedundancy => NetworkServer.unreliableRedundancy;
+
         // For security, it is recommended to disconnect a player if a networked
         // action triggers an exception\nThis could prevent components being
         // accessed in an undefined state, which may be an attack vector for
@@ -506,6 +517,8 @@ namespace Mirror
                 RegisterHandler<ObjectSpawnFinishedMessage>(_ => { });
                 // host mode doesn't need state updates
                 RegisterHandler<EntityStateMessage>(_ => { });
+                RegisterHandler<EntityStateMessageUnreliableBaseline>(_ => { });
+                RegisterHandler<EntityStateMessageUnreliableDelta>(_ => { });
             }
             else
             {
@@ -517,6 +530,8 @@ namespace Mirror
                 RegisterHandler<ObjectSpawnStartedMessage>(OnObjectSpawnStarted);
                 RegisterHandler<ObjectSpawnFinishedMessage>(OnObjectSpawnFinished);
                 RegisterHandler<EntityStateMessage>(OnEntityStateMessage);
+                RegisterHandler<EntityStateMessageUnreliableBaseline>(OnEntityStateMessageUnreliableBaseline);
+                RegisterHandler<EntityStateMessageUnreliableDelta>(OnEntityStateMessageUnreliableDelta);
             }
 
             // These handlers are the same for host and remote clients
@@ -1426,6 +1441,90 @@ namespace Mirror
             else Debug.LogWarning($"Did not find target for sync message for {message.netId}. Were all prefabs added to the NetworkManager's spawnable list?\nNote: this can be completely normal because UDP messages may arrive out of order, so this message might have arrived after a Destroy message.");
         }
 
+        static void OnEntityStateMessageUnreliableBaseline(EntityStateMessageUnreliableBaseline message, int channelId)
+        {
+            // safety check: baseline should always arrive over Reliable channel.
+            if (channelId != Channels.Reliable)
+            {
+                Debug.LogError($"Client OnEntityStateMessageUnreliableBaseline arrived on channel {channelId} instead of Reliable. This should never happen!");
+                return;
+            }
+
+            // Debug.Log($"NetworkClient.OnUpdateVarsMessage {msg.netId}");
+            if (spawned.TryGetValue(message.netId, out NetworkIdentity identity) && identity != null)
+            {
+                // set the last received reliable baseline tick number.
+                identity.lastUnreliableBaselineReceived = message.baselineTick;
+
+                // iniital is always 'true' because unreliable state sync alwasy serializes full
+                using (NetworkReaderPooled reader = NetworkReaderPool.Get(message.payload))
+                {
+                    // full state updates (initial=true) arrive over reliable.
+                    identity.DeserializeClient(reader, true);
+                }
+            }
+            // no warning. unreliable messages often arrive before/after the reliable spawn/despawn messages.
+            // else Debug.LogWarning($"Did not find target for sync message for {message.netId}. Were all prefabs added to the NetworkManager's spawnable list?\nNote: this can be completely normal because UDP messages may arrive out of order, so this message might have arrived after a Destroy message.");
+        }
+
+        static void OnEntityStateMessageUnreliableDelta(EntityStateMessageUnreliableDelta message, int channelId)
+        {
+            // safety check: baseline should always arrive over Reliable channel.
+            if (channelId != Channels.Unreliable)
+            {
+                Debug.LogError($"Client OnEntityStateMessageUnreliableDelta arrived on channel {channelId} instead of Unreliable. This should never happen!");
+                return;
+            }
+
+            // Debug.Log($"NetworkClient.OnUpdateVarsMessage {msg.netId}");
+            if (spawned.TryGetValue(message.netId, out NetworkIdentity identity) && identity != null)
+            {
+                // unreliable state sync messages may arrive out of order.
+                // only ever apply state that's newer than the last received state.
+                // note that we send one EntityStateMessage per Entity,
+                // so there will be multiple with the same == timestamp.
+                //
+                // note that a reliable baseline may arrive before/after a delta.
+                // that is fine.
+                if (connection.remoteTimeStamp < identity.lastUnreliableStateTime)
+                {
+                    // debug log to show that it's working.
+                    // can be tested via LatencySimulation scramble easily.
+                    Debug.Log($"Client caught out of order Unreliable state message for {identity.name}. This is fine.\nIdentity timestamp={identity.lastUnreliableStateTime:F3} batch remoteTimestamp={connection.remoteTimeStamp:F3}");
+                    return;
+                }
+                // UDP messages may accidentally arrive twice.
+                // or even intentionally, if unreliableRedundancy is turned on.
+                else if (connection.remoteTimeStamp == identity.lastUnreliableStateTime)
+                {
+                    // only log this if unreliableRedundancy is disabled.
+                    // otherwise it's expected and will happen a lot.
+                    if (!unreliableRedundancy) Debug.Log($"Client caught duplicate Unreliable state message for {identity.name}. This is fine.\nIdentity timestamp={identity.lastUnreliableStateTime:F3} batch remoteTimestamp={connection.remoteTimeStamp:F3}");
+                    return;
+                }
+
+                // make sure this delta is for the correct baseline.
+                // we don't want to apply an old delta on top of a new baseline.
+                if (message.baselineTick != identity.lastUnreliableBaselineReceived)
+                {
+                    Debug.Log($"Client caught Unreliable state message for old baseline for {identity} with baselineTick={identity.lastUnreliableBaselineReceived} messageBaseline={message.baselineTick}. This is fine.");
+                    return;
+                }
+
+                // set the new last received time for unreliable
+                identity.lastUnreliableStateTime = connection.remoteTimeStamp;
+
+                // iniital is always 'true' because unreliable state sync alwasy serializes full
+                using (NetworkReaderPooled reader = NetworkReaderPool.Get(message.payload))
+                {
+                    // delta state updates (initial=false) arrive over unreliable.
+                    identity.DeserializeClient(reader, false);
+                }
+            }
+            // no warning. unreliable messages often arrive before/after the reliable spawn/despawn messages.
+            // else Debug.LogWarning($"Did not find target for sync message for {message.netId}. Were all prefabs added to the NetworkManager's spawnable list?\nNote: this can be completely normal because UDP messages may arrive out of order, so this message might have arrived after a Destroy message.");
+        }
+
         static void OnRPCMessage(RpcMessage message)
         {
             // Debug.Log($"NetworkClient.OnRPCMessage hash:{message.functionHash} netId:{message.netId}");
@@ -1576,9 +1675,10 @@ namespace Mirror
                 //
                 // Unity 2019 doesn't have Time.timeAsDouble yet
                 bool sendIntervalElapsed = AccurateInterval.Elapsed(NetworkTime.localTime, sendInterval, ref lastSendTime);
+                bool unreliableBaselineElapsed = AccurateInterval.Elapsed(NetworkTime.localTime, unreliableBaselineInterval, ref lastUnreliableBaselineTime);
                 if (!Application.isPlaying || sendIntervalElapsed)
                 {
-                    Broadcast();
+                    Broadcast(unreliableBaselineElapsed);
                 }
 
                 UpdateConnectionQuality();
@@ -1642,7 +1742,9 @@ namespace Mirror
         // broadcast ///////////////////////////////////////////////////////////
         // make sure Broadcast() is only called every sendInterval.
         // calling it every update() would require too much bandwidth.
-        static void Broadcast()
+        //
+        // unreliableFullSendIntervalElapsed: indicates that unreliable sync components need a reliable baseline sync this time.
+        static void Broadcast(bool unreliableBaselineElapsed)
         {
             // joined the world yet?
             if (!connection.isReady) return;
@@ -1654,12 +1756,14 @@ namespace Mirror
             Send(new TimeSnapshotMessage(), Channels.Unreliable);
 
             // broadcast client state to server
-            BroadcastToServer();
+            BroadcastToServer(unreliableBaselineElapsed);
         }
 
         // NetworkServer has BroadcastToConnection.
         // NetworkClient has BroadcastToServer.
-        static void BroadcastToServer()
+        //
+        // unreliableFullSendIntervalElapsed: indicates that unreliable sync components need a reliable baseline sync this time.
+        static void BroadcastToServer(bool unreliableBaselineElapsed)
         {
             // for each entity that the client owns
             foreach (NetworkIdentity identity in connection.owned)
@@ -1670,20 +1774,63 @@ namespace Mirror
                 //  NetworkServer.Destroy)
                 if (identity != null)
                 {
-                    using (NetworkWriterPooled writer = NetworkWriterPool.Get())
+                    // 'Reliable' sync: send Reliable components over reliable.
+                    using (NetworkWriterPooled writerReliable           = NetworkWriterPool.Get(),
+                                               writerUnreliableDelta    = NetworkWriterPool.Get(),
+                                               writerUnreliableBaseline = NetworkWriterPool.Get())
                     {
-                        // get serialization for this entity viewed by this connection
-                        // (if anything was serialized this time)
-                        identity.SerializeClient(writer);
-                        if (writer.Position > 0)
+                        // serialize reliable and unreliable components in only one iteration.
+                        // serializing reliable and unreliable separately in two iterations would be too costly.
+                        identity.SerializeClient(writerReliable, writerUnreliableBaseline, writerUnreliableDelta, unreliableBaselineElapsed);
+
+                        // any reliable components serialization?
+                        if (writerReliable.Position > 0)
                         {
                             // send state update message
                             EntityStateMessage message = new EntityStateMessage
                             {
                                 netId = identity.netId,
-                                payload = writer.ToArraySegment()
+                                payload = writerReliable.ToArraySegment()
                             };
                             Send(message);
+                        }
+
+                        // any unreliable components serialization?
+                        // we always send unreliable deltas to ensure interpolation always has a data point that arrives immediately.
+                        if (writerUnreliableDelta.Position > 0)
+                        {
+                            EntityStateMessageUnreliableDelta message = new EntityStateMessageUnreliableDelta
+                            {
+                                // baselineTick: the last unreliable baseline to compare against
+                                baselineTick = identity.lastUnreliableBaselineSent,
+                                netId = identity.netId,
+                                payload = writerUnreliableDelta.ToArraySegment()
+                            };
+                            Send(message, Channels.Unreliable);
+                        }
+
+                        // time for unreliable baseline sync?
+                        // we always send this after the unreliable delta,
+                        // so there's a higher chance that it arrives after the delta.
+                        // in other words: so that the delta can still be used against previous baseline.
+                        if (unreliableBaselineElapsed)
+                        {
+                            if (writerUnreliableBaseline.Position > 0)
+                            {
+                                // remember last sent baseline tick for this entity.
+                                // (byte) to minimize bandwidth. we don't need the full tick,
+                                // just something small to compare against.
+                                identity.lastUnreliableBaselineSent = (byte)Time.frameCount;
+
+                                // send state update message
+                                EntityStateMessageUnreliableBaseline message = new EntityStateMessageUnreliableBaseline
+                                {
+                                    baselineTick = identity.lastUnreliableBaselineSent,
+                                    netId = identity.netId,
+                                    payload = writerUnreliableBaseline.ToArraySegment()
+                                };
+                                Send(message, Channels.Reliable);
+                            }
                         }
                     }
                 }
@@ -1844,6 +1991,8 @@ namespace Mirror
             isLoadingScene = false;
             lastSendTime = 0;
 
+            exceptionsDisconnect = true;
+
             unbatcher = new Unbatcher();
 
             // clear events. someone might have hooked into them before, but
@@ -1854,6 +2003,7 @@ namespace Mirror
             OnTransportExceptionEvent = null;
         }
 
+#if !UNITY_SERVER
         // GUI /////////////////////////////////////////////////////////////////
         // called from NetworkManager to display timeline interpolation status.
         // useful to indicate catchup / slowdown / dynamic adjustment etc.
@@ -1883,5 +2033,6 @@ namespace Mirror
 
             GUILayout.EndArea();
         }
+#endif
     }
 }

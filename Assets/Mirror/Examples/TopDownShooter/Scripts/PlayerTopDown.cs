@@ -5,6 +5,7 @@ using Mirror;
 
 namespace Mirror.Examples.TopDownShooter
 {
+    [AddComponentMenu("")]
     public class PlayerTopDown : NetworkBehaviour
     {
         public readonly static List<PlayerTopDown> playerList = new List<PlayerTopDown>();

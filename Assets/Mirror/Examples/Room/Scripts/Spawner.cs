@@ -10,6 +10,7 @@ namespace Mirror.Examples.NetworkRoom
         static Pool<GameObject> pool;
         static ushort counter;
 
+        // Called from custom network manager on both server and client
         internal static void InitializePool(GameObject poolPrefab, byte count)
         {
             prefab = poolPrefab;
@@ -19,6 +20,7 @@ namespace Mirror.Examples.NetworkRoom
             pool = new Pool<GameObject>(CreateNew, poolSize);
         }
 
+        // Called from custom network manager on both server and client
         internal static void ClearPool()
         {
             if (prefab == null) return;
@@ -27,7 +29,6 @@ namespace Mirror.Examples.NetworkRoom
 
             if (pool == null) return;
 
-            // destroy all objects in pool
             while (pool.Count > 0)
                 Object.Destroy(pool.Get());
 
@@ -37,32 +38,7 @@ namespace Mirror.Examples.NetworkRoom
 
         static GameObject SpawnHandler(SpawnMessage msg) => Get(msg.position, msg.rotation);
 
-        static void UnspawnHandler(GameObject spawned) => Return(spawned);
-
-        static GameObject CreateNew()
-        {
-            // use this object as parent so that objects dont crowd hierarchy
-            GameObject next = Object.Instantiate(prefab);
-            counter++;
-            next.name = $"{prefab.name}_pooled_{counter:00}";
-            next.SetActive(false);
-            return next;
-        }
-
-        public static GameObject Get(Vector3 position, Quaternion rotation)
-        {
-            GameObject next = pool.Get();
-
-            // set position/rotation and set active
-            next.transform.SetPositionAndRotation(position, rotation);
-            next.SetActive(true);
-            return next;
-        }
-
-        // Used to put object back into pool so they can b
-        // Should be used on server after unspawning an object
-        // Used on client by NetworkClient to unspawn objects
-        public static void Return(GameObject spawned)
+        static void UnspawnHandler(GameObject spawned)
         {
             // disable object
             spawned.SetActive(false);
@@ -74,6 +50,26 @@ namespace Mirror.Examples.NetworkRoom
             pool.Return(spawned);
         }
 
+        static GameObject CreateNew()
+        {
+            GameObject next = Object.Instantiate(prefab);
+            counter++;
+            next.name = $"{prefab.name}_pooled_{counter:00}";
+            next.SetActive(false);
+            return next;
+        }
+
+        static GameObject Get(Vector3 position, Quaternion rotation)
+        {
+            GameObject next = pool.Get();
+
+            // set position/rotation and set active
+            next.transform.SetPositionAndRotation(position, rotation);
+            next.SetActive(true);
+            return next;
+        }
+
+        // Called from custom network manager
         [ServerCallback]
         internal static void InitialSpawn()
         {
@@ -81,13 +77,7 @@ namespace Mirror.Examples.NetworkRoom
                 SpawnReward();
         }
 
-        [ServerCallback]
-        internal static void SpawnReward()
-        {
-            Vector3 spawnPosition = new Vector3(Random.Range(-19, 20), 1, Random.Range(-19, 20));
-            NetworkServer.Spawn(Get(spawnPosition, Quaternion.identity));
-        }
-
+        // Called from the Reward script
         [ServerCallback]
         internal static async void RecycleReward(GameObject reward)
         {
@@ -95,10 +85,18 @@ namespace Mirror.Examples.NetworkRoom
             await DelayedSpawn();
         }
 
+        [ServerCallback]
         static async Task DelayedSpawn()
         {
             await Task.Delay(new System.TimeSpan(0, 0, 1));
             SpawnReward();
+        }
+
+        [ServerCallback]
+        static void SpawnReward()
+        {
+            Vector3 spawnPosition = new Vector3(Random.Range(-19, 20), 1, Random.Range(-19, 20));
+            NetworkServer.Spawn(Get(spawnPosition, Quaternion.identity));
         }
     }
 }

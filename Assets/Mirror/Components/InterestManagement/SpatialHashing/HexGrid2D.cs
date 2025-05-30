@@ -36,13 +36,13 @@ namespace Mirror
         // Precomputed array of neighbor offsets as Cell2D structs (center + 6 neighbors)
         static readonly Cell2D[] neighborCellsBase = new Cell2D[]
         {
-        new Cell2D(0, 0),         // Center
-        new Cell2D(1, -1),        // Top-right
-        new Cell2D(1, 0),         // Right
-        new Cell2D(0, 1),         // Bottom-right
-        new Cell2D(-1, 1),        // Bottom-left
-        new Cell2D(-1, 0),        // Left
-        new Cell2D(0, -1)         // Top-left
+            new Cell2D(0, 0),         // Center
+            new Cell2D(1, -1),        // Top-right
+            new Cell2D(1, 0),         // Right
+            new Cell2D(0, 1),         // Bottom-right
+            new Cell2D(-1, 1),        // Bottom-left
+            new Cell2D(-1, 0),        // Left
+            new Cell2D(0, -1)         // Top-left
         };
 
         // Converts a grid cell (q, r) to a world position (x, z)

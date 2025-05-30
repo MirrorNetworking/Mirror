@@ -23,14 +23,21 @@ using UnityEngine;
 namespace Mirror
 {
     public enum CoordinateSpace { Local, World }
+    public enum UpdateMethod { Update, FixedUpdate, LateUpdate }
 
     public abstract class NetworkTransformBase : NetworkBehaviour
     {
+        internal TransformSnapshot? pendingSnapshot;
+
         // target transform to sync. can be on a child.
         // TODO this field is kind of unnecessary since we now support child NetworkBehaviours
         [Header("Target")]
         [Tooltip("The Transform component to sync. May be on on this GameObject, or on a child.")]
         public Transform target;
+
+        [Header("Base Settings")]
+        [Tooltip("Select which Update method to use.\nSelect FixedUpdate for non-kinematic rigidbodies.")]
+        public UpdateMethod updateMethod = UpdateMethod.Update;
 
         // Is this a client with authority over this transform?
         // This component could be on the player object or any object that has been assigned authority to this client.
@@ -140,6 +147,9 @@ namespace Mirror
             // configure in awake
             Configure();
         }
+
+        // For NetworkBehaviourInspector
+        internal override bool showSyncMethod() => false;
 
         // initialization //////////////////////////////////////////////////////
         // forcec configuration of some settings
@@ -438,6 +448,9 @@ namespace Mirror
             ResetState();
             // default to ClientToServer so this works immediately for users
             syncDirection = SyncDirection.ClientToServer;
+
+            // default to 20Hz, 20 sends per second if data has changed.
+            syncInterval = 0.05f;
         }
 
         protected virtual void OnEnable()
@@ -473,8 +486,8 @@ namespace Mirror
             }
         }
 
+#if !UNITY_SERVER && DEBUG
         // OnGUI allocates even if it does nothing. avoid in release.
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
         // debug ///////////////////////////////////////////////////////////////
         protected virtual void OnGUI()
         {

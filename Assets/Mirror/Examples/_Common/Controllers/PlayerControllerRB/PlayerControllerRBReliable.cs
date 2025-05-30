@@ -2,7 +2,7 @@
 
 namespace Mirror.Examples.Common.Controllers.Player
 {
-    [AddComponentMenu("Network/Player Controller RB (Reliable)")]
+    [AddComponentMenu("")]
     [RequireComponent(typeof(NetworkTransformReliable))]
     public class PlayerControllerRBReliable : PlayerControllerRBBase
     {
@@ -17,7 +17,7 @@ namespace Mirror.Examples.Common.Controllers.Player
         public override void Reset()
         {
             base.Reset();
-            GetComponent<NetworkTransformReliable>().useFixedUpdate = true;
+            GetComponent<NetworkTransformReliable>().updateMethod = UpdateMethod.FixedUpdate;
         }
     }
 }

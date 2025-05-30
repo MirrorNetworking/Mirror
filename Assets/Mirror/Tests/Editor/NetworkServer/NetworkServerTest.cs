@@ -41,7 +41,7 @@ namespace Mirror.Tests.NetworkServers
         public int called;
         // weaver generates this from [Rpc]
         // but for tests we need to add it manually
-        public static void RpcGenerated(NetworkBehaviour comp, NetworkReader reader, NetworkConnection senderConnection)
+        public static void RpcGenerated(NetworkBehaviour comp, NetworkReader reader, NetworkConnectionToClient senderConnection)
         {
             ++((RpcTestNetworkBehaviour)comp).called;
         }
@@ -1172,10 +1172,14 @@ namespace Mirror.Tests.NetworkServers
             Assert.That(NetworkServer.active, Is.False);
             Assert.That(NetworkServer.isLoadingScene, Is.False);
 
+            Assert.That(NetworkServer.exceptionsDisconnect, Is.True);
+
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
             Assert.That(NetworkServer.connectionsCopy.Count, Is.EqualTo(0));
             Assert.That(NetworkServer.handlers.Count, Is.EqualTo(0));
             Assert.That(NetworkServer.spawned.Count, Is.EqualTo(0));
+
+            Assert.That(NetworkServer.actualTickRate, Is.EqualTo(0));
 
             Assert.That(NetworkServer.localConnection, Is.Null);
             Assert.That(NetworkServer.activeHost, Is.False);

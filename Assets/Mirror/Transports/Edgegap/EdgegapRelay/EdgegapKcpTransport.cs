@@ -144,19 +144,22 @@ namespace Edgegap
             GUILayout.EndArea();
         }
 
-        // base OnGUI only shows in editor & development builds.
-        // here we always show it because we need the sessionid & userid buttons.
-#pragma warning disable CS0109
-        new void OnGUI()
+#if !UNITY_SERVER && DEBUG
+        protected override void OnGUI()
         {
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
             base.OnGUI();
-#endif
             if (relayGUI) OnGUIRelay();
         }
+#elif !UNITY_SERVER && !DEBUG
+        // base OnGUI only shows in editor & development builds.
+        // here we always show it because we need the sessionid & userid buttons.
+        void OnGUI()
+        {
+            if (relayGUI) OnGUIRelay();
+        }
+#endif
 
         public override string ToString() => "Edgegap Kcp Transport";
     }
-#pragma warning restore CS0109
 }
 //#endif MIRROR <- commented out because MIRROR isn't defined on first import yet

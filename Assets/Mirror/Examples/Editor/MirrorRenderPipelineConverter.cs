@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using UnityEngine;
 using UnityEditor;
 using System.IO;
@@ -287,3 +288,4 @@ namespace Mirror.Examples.Editor
         }
     }
 }
+#endif

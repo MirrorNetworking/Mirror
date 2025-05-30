@@ -10,12 +10,10 @@ namespace Mirror
     {
         uint sendIntervalCounter = 0;
         double lastSendIntervalTime = double.MinValue;
-        TransformSnapshot? pendingSnapshot;
 
         [Header("Additional Settings")]
         [Tooltip("If we only sync on change, then we need to correct old snapshots if more time than sendInterval * multiplier has elapsed.\n\nOtherwise the first move will always start interpolating from the last move sequence's time, which will make it stutter when starting every time.")]
         public float onlySyncOnChangeCorrectionMultiplier = 2;
-        public bool useFixedUpdate;
 
         [Header("Rotation")]
         [Tooltip("Sensitivity of changes needed before an updated state is sent over the network")]
@@ -44,19 +42,27 @@ namespace Mirror
         // Used to store last sent snapshots
         protected TransformSnapshot last;
 
+        // validation //////////////////////////////////////////////////////////
+        // Configure is called from OnValidate and Awake
+        protected override void Configure()
+        {
+            base.Configure();
+
+            // force syncMethod to reliable
+            syncMethod = SyncMethod.Reliable;
+        }
+
         // update //////////////////////////////////////////////////////////////
         void Update()
         {
-            // if server then always sync to others.
-            if (isServer) UpdateServer();
-            // 'else if' because host mode shouldn't send anything to server.
-            // it is the server. don't overwrite anything there.
-            else if (isClient) UpdateClient();
+            if (updateMethod == UpdateMethod.Update)
+                DoUpdate();
         }
 
         void FixedUpdate()
         {
-            if (!useFixedUpdate) return;
+            if (updateMethod == UpdateMethod.FixedUpdate)
+                DoUpdate();
 
             if (pendingSnapshot.HasValue && !IsClientWithAuthority)
             {
@@ -68,6 +74,9 @@ namespace Mirror
 
         void LateUpdate()
         {
+            if (updateMethod == UpdateMethod.LateUpdate)
+                DoUpdate();
+
             // set dirty to trigger OnSerialize. either always, or only if changed.
             // It has to be checked in LateUpdate() for onlySyncOnChange to avoid
             // the possibility of Update() running first before the object's movement
@@ -75,11 +84,20 @@ namespace Mirror
             // instead.
             if (isServer || (IsClientWithAuthority && NetworkClient.ready))
             {
-                if (sendIntervalCounter == sendIntervalMultiplier && (!onlySyncOnChange || Changed(Construct())))
+                if (sendIntervalCounter >= sendIntervalMultiplier && (!onlySyncOnChange || Changed(Construct())))
                     SetDirty();
 
                 CheckLastSendTime();
             }
+        }
+
+        void DoUpdate()
+        {
+            // if server then always sync to others.
+            if (isServer) UpdateServer();
+            // 'else if' because host mode shouldn't send anything to server.
+            // it is the server. don't overwrite anything there.
+            else if (isClient) UpdateClient();
         }
 
         protected virtual void UpdateServer()
@@ -116,7 +134,7 @@ namespace Mirror
 
         protected virtual void UpdateClient()
         {
-            if (useFixedUpdate)
+            if (updateMethod == UpdateMethod.FixedUpdate)
             {
                 if (!IsClientWithAuthority && clientSnapshots.Count > 0)
                 {
@@ -160,7 +178,7 @@ namespace Mirror
             // timeAsDouble not available in older Unity versions.
             if (AccurateInterval.Elapsed(NetworkTime.localTime, NetworkServer.sendInterval, ref lastSendIntervalTime))
             {
-                if (sendIntervalCounter == sendIntervalMultiplier)
+                if (sendIntervalCounter >= sendIntervalMultiplier)
                     sendIntervalCounter = 0;
                 sendIntervalCounter++;
             }

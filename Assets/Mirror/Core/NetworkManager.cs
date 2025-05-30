@@ -28,19 +28,30 @@ namespace Mirror
         [Tooltip("Multiplayer games should always run in the background so the network doesn't time out.")]
         public bool runInBackground = true;
 
-        /// <summary>Should the server auto-start when 'Server Build' is checked in build settings</summary>
         [Header("Auto-Start Options")]
 
+        /// <summary>Should the server auto-start when 'Server Build' is checked in build settings</summary>
         [Tooltip("Choose whether Server or Client should auto-start in headless builds")]
         public HeadlessStartOptions headlessStartMode = HeadlessStartOptions.DoNothing;
 
         [Tooltip("Headless Start Mode in Editor\nwhen enabled, headless start mode will be used in editor as well.")]
         public bool editorAutoStart;
 
+        [Header("Sync Settings")]
         /// <summary>Server Update frequency, per second. Use around 60Hz for fast paced games like Counter-Strike to minimize latency. Use around 30Hz for games like WoW to minimize computations. Use around 1-10Hz for slow paced games like EVE.</summary>
         [Tooltip("Server / Client send rate per second.\nUse 60-100Hz for fast paced games like Counter-Strike to minimize latency.\nUse around 30Hz for games like WoW to minimize computations.\nUse around 1-10Hz for slow paced games like EVE.")]
         [FormerlySerializedAs("serverTickRate")]
         public int sendRate = 60;
+
+        /// <summary> </summary>
+        [Tooltip("Ocassionally send a full reliable state for unreliable components to delta compress against. This only applies to Components with SyncMethod=Unreliable.")]
+        public int unreliableBaselineRate = 1;
+
+        // quake sends unreliable messages twice to make up for message drops.
+        // this double bandwidth, but allows for smaller buffer time / faster sync.
+        // best to turn this off unless the game is extremely fast paced.
+        [Tooltip("Send unreliable messages twice to make up for message drops. This doubles bandwidth, but allows for smaller buffer time / faster sync.\nBest to turn this off unless your game is extremely fast paced.")]
+        public bool unreliableRedundancy = false;
 
         // client send rate follows server send rate to avoid errors for now
         /// <summary>Client Update frequency, per second. Use around 60Hz for fast paced games like Counter-Strike to minimize latency. Use around 30Hz for games like WoW to minimize computations. Use around 1-10Hz for slow paced games like EVE.</summary>
@@ -48,21 +59,6 @@ namespace Mirror
         // public int clientSendRate = 30; // 33 ms
 
         /// <summary>Automatically switch to this scene upon going offline (on start / on disconnect / on shutdown).</summary>
-        [Header("Scene Management")]
-        [Scene]
-        [FormerlySerializedAs("m_OfflineScene")]
-        [Tooltip("Scene that Mirror will switch to when the client or server is stopped")]
-        public string offlineScene = "";
-
-        /// <summary>Automatically switch to this scene upon going online (after connect/startserver).</summary>
-        [Scene]
-        [FormerlySerializedAs("m_OnlineScene")]
-        [Tooltip("Scene that Mirror will switch to when the server is started. Clients will recieve a Scene Message to load the server's current scene when they connect.")]
-        public string onlineScene = "";
-
-        [Range(0, 60), Tooltip("Optional delay that can be used after disconnecting to show a 'Connection lost...' message or similar before loading the offline scene, which may take a long time in big projects.")]
-        public float offlineSceneLoadDelay = 0;
-
         // transport layer
         [Header("Network Info")]
         [Tooltip("Transport component attached to this object that server and client will use to connect")]
@@ -78,6 +74,7 @@ namespace Mirror
         [Tooltip("Maximum number of concurrent connections.")]
         public int maxConnections = 100;
 
+        [Header("Security")]
         // Mirror global disconnect inactive option, independent of Transport.
         // not all Transports do this properly, and it's easiest to configure this just once.
         // this is very useful for some projects, keep it.
@@ -87,9 +84,27 @@ namespace Mirror
         [Tooltip("Timeout in seconds for server to automatically disconnect inactive connections if 'disconnectInactiveConnections' is enabled.")]
         public float disconnectInactiveTimeout = 60f;
 
+        [Tooltip("For security, it is recommended to disconnect a player if a networked action triggers an exception\nThis could prevent components being accessed in an undefined state, which may be an attack vector for exploits.\nHowever, some games may want to allow exceptions in order to not interrupt the player's experience.")]
+        public bool exceptionsDisconnect = true; // security by default
+
         [Header("Authentication")]
         [Tooltip("Authentication component attached to this object")]
         public NetworkAuthenticator authenticator;
+
+        [Header("Scene Management")]
+        [Scene]
+        [FormerlySerializedAs("m_OfflineScene")]
+        [Tooltip("Scene that Mirror will switch to when the client or server is stopped")]
+        public string offlineScene = "";
+
+        /// <summary>Automatically switch to this scene upon going online (after connect/startserver).</summary>
+        [Scene]
+        [FormerlySerializedAs("m_OnlineScene")]
+        [Tooltip("Scene that Mirror will switch to when the server is started. Clients will recieve a Scene Message to load the server's current scene when they connect.")]
+        public string onlineScene = "";
+
+        [Range(0, 60), Tooltip("Optional delay that can be used after disconnecting to show a 'Connection lost...' message or similar before loading the offline scene, which may take a long time in big projects.")]
+        public float offlineSceneLoadDelay = 0;
 
         /// <summary>The default prefab to be used to create player objects on the server.</summary>
         // Player objects are created in the default handler for AddPlayer() on
@@ -116,10 +131,6 @@ namespace Mirror
         /// <summary>List of transforms populated by NetworkStartPositions</summary>
         public static List<Transform> startPositions = new List<Transform>();
         public static int startPositionIndex;
-
-        [Header("Security")]
-        [Tooltip("For security, it is recommended to disconnect a player if a networked action triggers an exception\nThis could prevent components being accessed in an undefined state, which may be an attack vector for exploits.\nHowever, some games may want to allow exceptions in order to not interrupt the player's experience.")]
-        public bool exceptionsDisconnect = true; // security by default
 
         [Header("Snapshot Interpolation")]
         public SnapshotInterpolationSettings snapshotSettings = new SnapshotInterpolationSettings();
@@ -165,6 +176,11 @@ namespace Mirror
         // virtual so that inheriting classes' OnValidate() can call base.OnValidate() too
         public virtual void OnValidate()
         {
+            // unreliable full send rate needs to be >= 0.
+            // we need to have something to delta compress against.
+            // it should also be <= sendRate otherwise there's no point.
+            unreliableBaselineRate = Mathf.Clamp(unreliableBaselineRate, 1, sendRate);
+
             // always >= 0
             maxConnections = Mathf.Max(maxConnections, 0);
 
@@ -274,6 +290,8 @@ namespace Mirror
         void ApplyConfiguration()
         {
             NetworkServer.tickRate = sendRate;
+            NetworkServer.unreliableBaselineRate = unreliableBaselineRate;
+            NetworkServer.unreliableRedundancy = unreliableRedundancy;
             NetworkClient.snapshotSettings = snapshotSettings;
             NetworkClient.connectionQualityInterval = evaluationInterval;
             NetworkClient.connectionQualityMethod = evaluationMethod;
@@ -777,6 +795,7 @@ namespace Mirror
         public virtual void OnDestroy()
         {
             //Debug.Log("NetworkManager destroyed");
+            SceneManager.sceneLoaded -= OnSceneLoaded;
         }
 
         /// <summary>The name of the current network scene.</summary>
@@ -1440,7 +1459,7 @@ namespace Mirror
         /// <summary>This is called when a host is stopped.</summary>
         public virtual void OnStopHost() { }
 
-#if DEBUG
+#if !UNITY_SERVER && DEBUG
         // keep OnGUI even in builds. useful to debug snap interp.
         void OnGUI()
         {

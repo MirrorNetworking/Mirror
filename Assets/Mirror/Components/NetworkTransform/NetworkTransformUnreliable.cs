@@ -9,13 +9,11 @@ namespace Mirror
     {
         uint sendIntervalCounter = 0;
         double lastSendIntervalTime = double.MinValue;
-        TransformSnapshot? pendingSnapshot;
 
         [Header("Additional Settings")]
         // Testing under really bad network conditions, 2%-5% packet loss and 250-1200ms ping, 5 proved to eliminate any twitching, however this should not be the default as it is a rare case Developers may want to cover.
         [Tooltip("How much time, as a multiple of send interval, has passed before clearing buffers.\nA larger buffer means more delay, but results in smoother movement.\nExample: 1 for faster responses minimal smoothing, 5 covers bad pings but has noticable delay, 3 is recommended for balanced results.")]
         public float bufferResetMultiplier = 3;
-        public bool useFixedUpdate;
 
         [Header("Sensitivity"), Tooltip("Sensitivity of changes needed before an updated state is sent over the network")]
         public float positionSensitivity = 0.01f;
@@ -27,23 +25,33 @@ namespace Mirror
         protected Changed cachedChangedComparison;
         protected bool hasSentUnchangedPosition;
 
+        // validation //////////////////////////////////////////////////////////
+        // Configure is called from OnValidate and Awake
+        protected override void Configure()
+        {
+            base.Configure();
+
+            // NT-U was before SyncMethod. keep using the old default SyncMethod = Reliable.
+            // OnSerialize is only ever called for spawn, deltas are synced manually.
+            syncMethod = SyncMethod.Reliable;
+        }
+
         // update //////////////////////////////////////////////////////////////
         // Update applies interpolation
         void Update()
         {
-            if (isServer) UpdateServerInterpolation();
-            // for all other clients (and for local player if !authority),
-            // we need to apply snapshots from the buffer.
-            // 'else if' because host mode shouldn't interpolate client
-            else if (isClient && !IsClientWithAuthority) UpdateClientInterpolation();
+            if (updateMethod == UpdateMethod.Update)
+                DoUpdate();
         }
 
         void FixedUpdate()
         {
-            if (!useFixedUpdate) return;
+            if (updateMethod == UpdateMethod.FixedUpdate)
+                DoUpdate();
 
             if (pendingSnapshot.HasValue)
             {
+                // Apply via base method, but in FixedUpdate
                 Apply(pendingSnapshot.Value, pendingSnapshot.Value);
                 pendingSnapshot = null;
             }
@@ -56,12 +64,24 @@ namespace Mirror
         // this could cause visible jitter.
         void LateUpdate()
         {
+            if (updateMethod == UpdateMethod.LateUpdate)
+                DoUpdate();
+
             // if server then always sync to others.
             if (isServer) UpdateServerBroadcast();
             // client authority, and local player (= allowed to move myself)?
             // 'else if' because host mode shouldn't send anything to server.
             // it is the server. don't overwrite anything there.
             else if (isClient && IsClientWithAuthority) UpdateClientBroadcast();
+        }
+
+        void DoUpdate()
+        {
+            if (isServer) UpdateServerInterpolation();
+            // for all other clients (and for local player if !authority),
+            // we need to apply snapshots from the buffer.
+            // 'else if' because host mode shouldn't interpolate client
+            else if (isClient && !IsClientWithAuthority) UpdateClientInterpolation();
         }
 
         protected virtual void CheckLastSendTime()
@@ -170,7 +190,7 @@ namespace Mirror
 
                 // interpolate & apply
                 TransformSnapshot computed = TransformSnapshot.Interpolate(from, to, t);
-                if (useFixedUpdate)
+                if (updateMethod == UpdateMethod.FixedUpdate)
                     pendingSnapshot = computed;
                 else
                     Apply(computed, to);
@@ -245,7 +265,7 @@ namespace Mirror
 
             // interpolate & apply
             TransformSnapshot computed = TransformSnapshot.Interpolate(from, to, t);
-            if (useFixedUpdate)
+            if (updateMethod == UpdateMethod.FixedUpdate)
                 pendingSnapshot = computed;
             else
                 Apply(computed, to);
@@ -456,6 +476,22 @@ namespace Mirror
                 }
 
                 syncData.scale = (syncData.changedDataByte & Changed.Scale) > 0 ? syncData.scale : (snapshots.Count > 0 ? snapshots.Values[snapshots.Count - 1].scale : GetScale());
+            }
+        }
+
+        // This is to extract position/rotation/scale data from payload. Override
+        // Construct and Deconstruct if you are implementing a different SyncData logic.
+        // Note however that snapshot interpolation still requires the basic 3 data
+        // position, rotation and scale, which are computed from here.
+        protected virtual void DeconstructSyncData(System.ArraySegment<byte> receivedPayload, out byte? changedFlagData, out Vector3? position, out Quaternion? rotation, out Vector3? scale)
+        {
+            using (NetworkReaderPooled reader = NetworkReaderPool.Get(receivedPayload))
+            {
+                SyncData syncData = reader.Read<SyncData>();
+                changedFlagData = (byte)syncData.changedDataByte;
+                position = syncData.position;
+                rotation = syncData.quatRotation;
+                scale = syncData.scale;
             }
         }
     }
