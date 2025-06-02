@@ -17,6 +17,7 @@ namespace Mirror.Tests.NetworkIdentities
         NetworkWriter observersWriterUnreliableBaseline;
         NetworkWriter ownerWriterUnreliableDelta;
         NetworkWriter observersWriterUnreliableDelta;
+        NetworkConnectionToClient connectionToClient;
 
         [SetUp]
         public override void SetUp()
@@ -33,13 +34,23 @@ namespace Mirror.Tests.NetworkIdentities
             observersWriterUnreliableDelta = new NetworkWriter();
 
             NetworkServer.Listen(1);
-            ConnectClientBlockingAuthenticatedAndReady(out _);
+            ConnectClientBlockingAuthenticatedAndReady(out connectionToClient);
         }
 
         [TearDown]
         public override void TearDown()
         {
             base.TearDown();
+        }
+
+        void ResetWriters()
+        {
+            ownerWriterReliable.Reset();
+            observersWriterReliable.Reset();
+            ownerWriterUnreliableBaseline.Reset();
+            observersWriterUnreliableBaseline.Reset();
+            ownerWriterUnreliableDelta.Reset();
+            observersWriterUnreliableDelta.Reset();
         }
 
         // serialize -> deserialize. multiple components to be sure.
@@ -79,6 +90,98 @@ namespace Mirror.Tests.NetworkIdentities
             clientIdentity.DeserializeClient(reader, true);
             Assert.That(clientOwnerComp.value, Is.EqualTo(null));   // owner mode shouldn't be in data
             Assert.That(clientObserversComp.value, Is.EqualTo(42)); // observers mode should be in data
+        }
+
+
+        // verify owner changes serialize data properly
+        [Test]
+        public void SerializeServer_AssignOwner()
+        {
+            // need two of both versions so we can serialize -> deserialize
+            CreateNetworkedAndSpawn(
+                out _, out NetworkIdentity serverIdentity, out SerializeTest2NetworkBehaviour serverOwnerComp, out SerializeTest1NetworkBehaviour serverObserversComp,
+                out _, out NetworkIdentity clientIdentity, out SerializeTest2NetworkBehaviour clientOwnerComp, out SerializeTest1NetworkBehaviour clientObserversComp
+            );
+
+            // set sync modes
+            serverOwnerComp.syncMode = clientOwnerComp.syncMode = SyncMode.Owner;
+            serverObserversComp.syncMode = clientObserversComp.syncMode = SyncMode.Observers;
+
+            // set unique values on server components
+            serverOwnerComp.value = "42";
+            serverObserversComp.value = 42;
+
+            // serialize server object
+            serverIdentity.SerializeServer_Spawn(ownerWriterReliable, observersWriterReliable);
+
+            // deserialize client object with OWNER payload
+            NetworkReader reader = new NetworkReader(ownerWriterReliable.ToArray());
+            clientIdentity.DeserializeClient(reader, true);
+            Assert.That(clientOwnerComp.value, Is.EqualTo("42"));
+            Assert.That(clientObserversComp.value, Is.EqualTo(42));
+
+            // reset component values
+            clientOwnerComp.value = null;
+            clientObserversComp.value = 0;
+
+            // deserialize client object with OBSERVERS payload
+            reader = new NetworkReader(observersWriterReliable.ToArray());
+            clientIdentity.DeserializeClient(reader, true);
+            Assert.That(clientOwnerComp.value, Is.EqualTo(null));   // owner mode shouldn't be in data
+            Assert.That(clientObserversComp.value, Is.EqualTo(42)); // observers mode should be in data
+
+            // incremental update:
+            ResetWriters();
+            serverIdentity.SerializeServer_Broadcast(
+                ownerWriterReliable,
+                observersWriterReliable,
+                ownerWriterUnreliableBaseline,
+                observersWriterUnreliableBaseline,
+                ownerWriterUnreliableDelta,
+                observersWriterUnreliableDelta,
+                false);
+            // no change!
+            Assert.AreEqual(0, ownerWriterReliable.Position);
+            Assert.AreEqual(0, observersWriterReliable.Position);
+            Assert.AreEqual(0, ownerWriterUnreliableBaseline.Position);
+            Assert.AreEqual(0, observersWriterUnreliableBaseline.Position);
+            Assert.AreEqual(0, ownerWriterUnreliableDelta.Position);
+            Assert.AreEqual(0, observersWriterUnreliableDelta.Position);
+
+            // Now assign authority
+            Assert.AreNotEqual(serverIdentity.connectionToClient, connectionToClient);
+            serverIdentity.AssignClientAuthority(connectionToClient);
+
+            // this should lead to owner data being marked as dirty so it can be sent
+            serverIdentity.SerializeServer_Broadcast(
+                ownerWriterReliable,
+                observersWriterReliable,
+                ownerWriterUnreliableBaseline,
+                observersWriterUnreliableBaseline,
+                ownerWriterUnreliableDelta,
+                observersWriterUnreliableDelta,
+                false);
+
+            Assert.AreNotEqual(0, ownerWriterReliable.Position);
+            Assert.AreEqual(0, observersWriterReliable.Position);
+            Assert.AreEqual(0, ownerWriterUnreliableBaseline.Position);
+            Assert.AreEqual(0, observersWriterUnreliableBaseline.Position);
+            Assert.AreEqual(0, ownerWriterUnreliableDelta.Position);
+            Assert.AreEqual(0, observersWriterUnreliableDelta.Position);
+
+            // client component values still contain the data from observer deserialize, so just the observer value and no owner data set
+            Assert.AreEqual(null, clientOwnerComp.value);
+            Assert.AreEqual(42, clientObserversComp.value);
+            // deserialize client object with owner payload
+            reader = new NetworkReader(ownerWriterReliable.ToArray());
+            clientIdentity.DeserializeClient(reader, true);
+            // Rider doesn't realize the DeserializeClient changes component values and gives false warnings
+            // Disable that inspection for the next two statements:
+            // ReSharper disable once ExpressionIsAlwaysNull
+            Assert.AreEqual("42", clientOwnerComp.value);
+            // ReSharper disable once HeuristicUnreachableCode
+            Assert.That(clientObserversComp.value, Is.EqualTo(42));
+
         }
 
         // test serialize -> deserialize of any supported number of components
@@ -454,7 +557,7 @@ namespace Mirror.Tests.NetworkIdentities
             // set to CLIENT with some unique values
             // and set connection to server to pretend we are the owner.
             comp1.syncDirection = comp2.syncDirection = SyncDirection.ClientToServer;
-            comp1.SetValue(11); // modify with helper function to avoid #3525
+            comp1.SetValue(11);   // modify with helper function to avoid #3525
             comp2.SetValue("22"); // modify with helper function to avoid #3525
 
             // initial: should still write for owner
@@ -465,7 +568,7 @@ namespace Mirror.Tests.NetworkIdentities
             Assert.That(observersWriterReliable.Position, Is.EqualTo(0));
 
             // delta: ClientToServer comes from the client
-            comp1.SetValue(33); // modify with helper function to avoid #3525
+            comp1.SetValue(33);   // modify with helper function to avoid #3525
             comp2.SetValue("44"); // modify with helper function to avoid #3525
             ownerWriterReliable.Position = 0;
             observersWriterReliable.Position = 0;
@@ -508,7 +611,7 @@ namespace Mirror.Tests.NetworkIdentities
             // set to CLIENT with some unique values
             // and set connection to server to pretend we are the owner.
             comp1.syncDirection = comp2.syncDirection = SyncDirection.ClientToServer;
-            comp1.SetValue(11); // modify with helper function to avoid #3525
+            comp1.SetValue(11);   // modify with helper function to avoid #3525
             comp2.SetValue("22"); // modify with helper function to avoid #3525
 
             // initial: should still write for owner AND observers
@@ -519,7 +622,7 @@ namespace Mirror.Tests.NetworkIdentities
             Assert.That(observersWriterReliable.Position, Is.GreaterThan(0));
 
             // delta: should only write for observers
-            comp1.SetValue(33); // modify with helper function to avoid #3525
+            comp1.SetValue(33);   // modify with helper function to avoid #3525
             comp2.SetValue("44"); // modify with helper function to avoid #3525
             ownerWriterReliable.Position = 0;
             observersWriterReliable.Position = 0;
@@ -560,7 +663,7 @@ namespace Mirror.Tests.NetworkIdentities
             // set to CLIENT with some unique values
             // and set connection to server to pretend we are the owner.
             comp1.syncDirection = comp2.syncDirection = SyncDirection.ServerToClient;
-            comp1.SetValue(11); // modify with helper function to avoid #3525
+            comp1.SetValue(11);   // modify with helper function to avoid #3525
             comp2.SetValue("22"); // modify with helper function to avoid #3525
 
             // initial: should still write for owner AND observers
@@ -571,7 +674,7 @@ namespace Mirror.Tests.NetworkIdentities
             Assert.That(observersWriterReliable.Position, Is.GreaterThan(0));
 
             // delta: should write something for all
-            comp1.SetValue(33); // modify with helper function to avoid #3525
+            comp1.SetValue(33);   // modify with helper function to avoid #3525
             comp2.SetValue("44"); // modify with helper function to avoid #3525
             ownerWriterReliable.Position = 0;
             observersWriterReliable.Position = 0;
