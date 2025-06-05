@@ -62,6 +62,7 @@ namespace Mirror
         GUIContent title;
 
         // Lazy-init fixes NullReferenceException from Styles.labelStyle accessing EditorStyles.label before unity initialises EditorStyles.s_Current
+        // https://github.com/MirrorNetworking/Mirror/pull/4034
         Styles _styles;
         Styles styles => _styles ?? (_styles = new Styles());
 
