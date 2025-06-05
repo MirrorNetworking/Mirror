@@ -60,7 +60,11 @@ namespace Mirror
         }
 
         GUIContent title;
-        Styles styles = new Styles();
+
+        // Lazy-init fixes NullReferenceException from Styles.labelStyle accessing EditorStyles.label before unity initialises EditorStyles.s_Current
+        // https://github.com/MirrorNetworking/Mirror/pull/4034
+        Styles _styles;
+        Styles styles => _styles ?? (_styles = new Styles());
 
         public override GUIContent GetPreviewTitle()
         {
@@ -94,10 +98,6 @@ namespace Mirror
 
             if (identity == null)
                 return;
-
-            if (styles == null)
-                styles = new Styles();
-
 
             // padding
             RectOffset previewPadding = new RectOffset(-5, -5, -5, -5);
