@@ -437,8 +437,8 @@ MonoBehaviour:
   syncDirection: 1
   syncMode: 0
   syncInterval: 0
-  updateMethod: 1
   target: {fileID: 5650773562400175449}
+  updateMethod: 1
   syncPosition: 1
   syncRotation: 1
   syncScale: 0
@@ -494,6 +494,7 @@ MonoBehaviour:
   maxMoveSpeed: 8
   inputSensitivity: 2
   inputGravity: 2
+  smoothingFactor: 10
   maxTurnSpeed: 100
   turnAcceleration: 3
   initialJumpSpeed: 2.5
