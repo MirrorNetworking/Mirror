@@ -176,8 +176,6 @@ Nudge Nudge Games' first title: the colorful, post-apocalyptic open world sandbo
 _Soon to be released for PC & mobile!_
 
 ### [Project Z](https://www.projektzgame.com/)
-![projectz]()
-
 [![projectz](https://github.com/user-attachments/assets/50423fa6-982e-41ed-8a43-4823bf111818)](https://www.projektzgame.com/)
 Projekt Z is a first-person coop survival shooter set in a WW2 Zombie scenario on a secret German island. The game focuses on the threat of "Projekt Z", a clandestine program run by the Nazis to turn Zombies, which have been discovered on the island earlier, into weapons to help turn the tide of the war in Nazi Germany's favor.<br/>
 <br/>
