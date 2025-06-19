@@ -175,6 +175,14 @@ Nudge Nudge Games' first title: the colorful, post-apocalyptic open world sandbo
 
 _Soon to be released for PC & mobile!_
 
+### [Project Z](https://www.projektzgame.com/)
+![projectz]()
+
+[![projectz](https://github.com/user-attachments/assets/50423fa6-982e-41ed-8a43-4823bf111818)](https://www.projektzgame.com/)
+Projekt Z is a first-person coop survival shooter set in a WW2 Zombie scenario on a secret German island. The game focuses on the threat of "Projekt Z", a clandestine program run by the Nazis to turn Zombies, which have been discovered on the island earlier, into weapons to help turn the tide of the war in Nazi Germany's favor.<br/>
+<br/>
+_Soon to be released!_
+
 ### [Unleashed](https://www.unleashedgames.io/)
 [![unleashed](https://github.com/MirrorNetworking/Mirror/assets/16416509/ef3bcf74-8fa9-4d22-801d-4d29cb59a013)](https://www.unleashedgames.io/)
 From original devs of **World of Warcraft**, **Kingdoms of Amalur**, and **EverQuest** comes a new family friendly fantasy adventure. Fight against the forces of darkness, explore a world consumed by wild magic, and build a stronghold with your friends to increase your power in a new world.
