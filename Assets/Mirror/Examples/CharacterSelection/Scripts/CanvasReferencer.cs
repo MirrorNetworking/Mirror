@@ -4,7 +4,7 @@ using UnityEngine.UI;
 using static Mirror.Examples.CharacterSelection.NetworkManagerCharacterSelection;
 
 namespace Mirror.Examples.CharacterSelection
-{ 
+{
     public class CanvasReferencer : MonoBehaviour
     {
         // Make sure to attach these Buttons in the Inspector
@@ -25,7 +25,7 @@ namespace Mirror.Examples.CharacterSelection
             characterData = CharacterData.characterDataSingleton;
             if (characterData == null)
             {
-                Debug.Log("Add CharacterData prefab singleton into the scene.");
+                Debug.Log("Add CharacterData prefab Instance into the scene.");
                 return;
             }
 
@@ -73,7 +73,7 @@ namespace Mirror.Examples.CharacterSelection
                 {
                     createCharacterMessage = _characterMessage
                 };
-                NetworkManagerCharacterSelection.singleton.ReplaceCharacter(replaceCharacterMessage);
+                NetworkManagerCharacterSelection.Instance.ReplaceCharacter(replaceCharacterMessage);
                 sceneReferencer.CloseCharacterSelection();
             }
             else

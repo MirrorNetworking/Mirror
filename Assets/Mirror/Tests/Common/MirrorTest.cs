@@ -48,7 +48,7 @@ namespace Mirror.Tests
 
             GameObject.DestroyImmediate(transport.gameObject);
             Transport.active = null;
-            NetworkManager.singleton = null;
+            NetworkManager.Instance = null;
         }
 
         // create a tracked GameObject for tests without Networkidentity

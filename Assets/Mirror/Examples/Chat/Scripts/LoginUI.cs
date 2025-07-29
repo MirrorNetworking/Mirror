@@ -24,22 +24,22 @@ namespace Mirror.Examples.Chat
         void Start()
         {
             // if we don't have a networkAddress, set a default one.
-            if (string.IsNullOrWhiteSpace(NetworkManager.singleton.networkAddress))
-                NetworkManager.singleton.networkAddress = "localhost";
+            if (string.IsNullOrWhiteSpace(NetworkManager.Instance.networkAddress))
+                NetworkManager.Instance.networkAddress = "localhost";
 
             // cache the original networkAddress for resetting if blank.
-            originalNetworkAddress = NetworkManager.singleton.networkAddress;
+            originalNetworkAddress = NetworkManager.Instance.networkAddress;
         }
 
         void Update()
         {
             // bidirectional sync of networkAddressInput and NetworkManager.networkAddress
             // Order of operations is important here...Don't switch the order of these steps.
-            if (string.IsNullOrWhiteSpace(NetworkManager.singleton.networkAddress))
-                NetworkManager.singleton.networkAddress = originalNetworkAddress;
+            if (string.IsNullOrWhiteSpace(NetworkManager.Instance.networkAddress))
+                NetworkManager.Instance.networkAddress = originalNetworkAddress;
 
-            if (networkAddressInput.text != NetworkManager.singleton.networkAddress)
-                networkAddressInput.text = NetworkManager.singleton.networkAddress;
+            if (networkAddressInput.text != NetworkManager.Instance.networkAddress)
+                networkAddressInput.text = NetworkManager.Instance.networkAddress;
         }
 
         // Called by UI element UsernameInput.OnValueChanged
