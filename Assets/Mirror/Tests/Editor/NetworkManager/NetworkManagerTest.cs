@@ -92,7 +92,7 @@ namespace Mirror.Tests.NetworkManagers
             Assert.That(NetworkManager.startPositionIndex, Is.Zero);
             Assert.That(NetworkManager.clientReadyConnection, Is.Null);
             Assert.That(NetworkManager.loadingSceneAsync, Is.Null);
-            Assert.That(NetworkManager.singleton, Is.Null);
+            Assert.That(NetworkManager.Instance, Is.Null);
             Assert.That(NetworkManager.networkSceneName, Is.Empty);
         }
 

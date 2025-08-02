@@ -324,8 +324,8 @@ namespace Mirror.Examples.Common.Controllers.Player
 
         void Start()
         {
-            Application.targetFrameRate = NetworkManager.singleton.sendRate;
-            Time.fixedDeltaTime = 1f / NetworkManager.singleton.sendRate;
+            Application.targetFrameRate = NetworkManager.Instance.sendRate;
+            Time.fixedDeltaTime = 1f / NetworkManager.Instance.sendRate;
         }
 
         void Update()
