@@ -445,6 +445,26 @@ namespace Mirror
             );
         }
 
+        // modify base OnTeleport to NOT reset lastDe/Serialized,
+        // otherwise delta serialization breaks on teleport.
+        protected override void OnTeleport(Vector3 destination)
+        {
+            // set the new position.
+            // interpolation will automatically continue.
+            target.position = destination;
+
+            // reset interpolation to immediately jump to the new position.
+            // do not call Reset() here, this would cause delta compression to
+            // get out of sync for NetworkTransformReliable because NTReliable's
+            // 'override Reset()' resets lastDe/SerializedPosition:
+            // https://github.com/MirrorNetworking/Mirror/issues/3588
+            // because client's next OnSerialize() will delta compress,
+            // but server's last delta will have been reset, causing offsets.
+            //
+            // instead, simply clear snapshots.
+            base.ResetState(); // ! OVERWRITE ! only call base.ResetState, don't reset deltas!
+        }
+
         // reset state for next session.
         // do not ever call this during a session (i.e. after teleport).
         // calling this will break delta compression.
