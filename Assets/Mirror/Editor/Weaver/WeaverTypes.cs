@@ -10,6 +10,8 @@ namespace Mirror.Weaver
     {
         public MethodReference ScriptableObjectCreateInstanceMethod;
 
+        public MethodReference NetworkBehaviourIsClientReference;
+        public MethodReference NetworkBehaviourIsServerReference;
         public FieldReference NetworkBehaviourDirtyBitsReference;
         public MethodReference GetWriterReference;
         public MethodReference ReturnWriterReference;
@@ -89,6 +91,9 @@ namespace Mirror.Weaver
             NetworkClientConnectionReference = Resolvers.ResolveMethod(NetworkClientType, assembly, Log, "get_connection", ref WeavingFailed);
 
             TypeReference NetworkBehaviourType = Import<NetworkBehaviour>();
+
+            NetworkBehaviourIsClientReference = Resolvers.ResolveMethod(NetworkBehaviourType, assembly, Log, "get_isClient", ref WeavingFailed);
+            NetworkBehaviourIsServerReference = Resolvers.ResolveMethod(NetworkBehaviourType, assembly, Log, "get_isServer", ref WeavingFailed);
 
             NetworkBehaviourDirtyBitsReference = Resolvers.ResolveField(NetworkBehaviourType, assembly, Log, "syncVarDirtyBits", ref WeavingFailed);
 
