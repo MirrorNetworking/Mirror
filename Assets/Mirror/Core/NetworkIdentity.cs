@@ -88,6 +88,9 @@ namespace Mirror
         //   => fixes https://github.com/vis2k/Mirror/issues/2533
         public bool isServer { get; internal set; }
 
+        /// <summary>Returns true for spawned objects in host mode.</summary>
+        public bool isHost => isServer && isClient;
+
         /// <summary>Return true if this object represents the player on the local machine.</summary>
         //
         // IMPORTANT:
