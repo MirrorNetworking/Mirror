@@ -10,6 +10,14 @@ namespace Mirror.Weaver
             // generates code like:
             public void CmdThrust(float thrusting, int spin)
             {
+                // on server-only, allow calling the original function directly.
+                if (isServer && !isClient)
+                {
+                    UserCode_CmdThrust(value);
+                    return;
+                }
+
+                // otherwise send a command message over the network
                 NetworkWriterPooled writer = NetworkWriterPool.Get();
                 writer.Write(thrusting);
                 writer.WritePackedUInt32((uint)spin);
@@ -37,6 +45,32 @@ namespace Mirror.Weaver
             ILProcessor worker = md.Body.GetILProcessor();
 
             NetworkBehaviourProcessor.WriteSetupLocals(worker, weaverTypes);
+
+            Instruction skipIfNotServerOnly = worker.Create(OpCodes.Nop);
+
+            // Check if isServer && !isClient
+            // worker.Emit(OpCodes.Ldarg_0); // loads this. for isClient check later
+            worker.Emit(OpCodes.Call, weaverTypes.NetworkServerGetActive); // TODO isServer?
+            worker.Emit(OpCodes.Brfalse, skipIfNotServerOnly);
+
+            // worker.Emit(OpCodes.Ldarg_0); // loads this. for isClient check later
+            worker.Emit(OpCodes.Call, weaverTypes.NetworkClientGetActive); // TODO isClient?
+            worker.Emit(OpCodes.Brtrue, skipIfNotServerOnly);
+
+            // Load 'this' reference (Ldarg_0)
+            worker.Emit(OpCodes.Ldarg_0);
+
+            // Load all the remaining arguments (Ldarg_1, Ldarg_2, ...)
+            for (int i = 1; i < md.Parameters.Count + 1; i++)
+                worker.Emit(OpCodes.Ldarg, i);
+
+            // Call the original function directly (UserCode_CmdTest__Int32)
+            worker.Emit(OpCodes.Call, cmd);
+            worker.Emit(OpCodes.Ret);
+
+            worker.Append(skipIfNotServerOnly);
+
+
 
             // NetworkWriter writer = new NetworkWriter();
             NetworkBehaviourProcessor.WriteGetWriter(worker, weaverTypes);
