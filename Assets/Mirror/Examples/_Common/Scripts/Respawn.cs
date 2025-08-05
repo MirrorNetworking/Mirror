@@ -7,8 +7,8 @@ namespace Mirror.Examples.Common
     {
         public static void RespawnPlayer(bool respawn, byte respawnTime, NetworkConnectionToClient conn)
         {
-            // Use the NetworkManager static singleton to start a coroutine
-            NetworkManager.singleton.StartCoroutine(DoRespawn(respawn, respawnTime, conn));
+            // Use the NetworkManager static instance to start a coroutine
+            NetworkManager.Instance.StartCoroutine(DoRespawn(respawn, respawnTime, conn));
         }
 
         public static IEnumerator DoRespawn(bool respawn, byte respawnTime, NetworkConnectionToClient conn)
@@ -34,7 +34,7 @@ namespace Mirror.Examples.Common
             yield return new WaitForSeconds(respawnTime);
 
             // Respawn Player - fallback to Vector3.up * 5f to avoid spawning on another player.
-            Transform spawnPoint = NetworkManager.singleton.GetStartPosition();
+            Transform spawnPoint = NetworkManager.Instance.GetStartPosition();
             Vector3 position = spawnPoint != null ? spawnPoint.position : Vector3.up * 5f;
             Quaternion rotation = spawnPoint != null ? spawnPoint.rotation : Quaternion.identity;
 

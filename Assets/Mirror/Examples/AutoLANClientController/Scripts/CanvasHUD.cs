@@ -34,7 +34,7 @@ namespace Mirror.Examples.AutoLANClientController
             buttonAuto.onClick.AddListener(ButtonAuto);
 
             //Update the canvas text if you have manually changed network managers address from the game object before starting the game scene
-            inputFieldAddress.text = NetworkManager.singleton.networkAddress;
+            inputFieldAddress.text = NetworkManager.Instance.networkAddress;
 
             //Adds a listener to the input field and invokes a method when the value changes.
             inputFieldAddress.onValueChanged.AddListener(delegate { OnValueChangedAddress(); });
@@ -45,7 +45,7 @@ namespace Mirror.Examples.AutoLANClientController
                 networkDiscovery = GameObject.FindAnyObjectByType<AutoLANNetworkDiscovery>();
 #else
                 // Deprecated in Unity 2023.1
-                networkDiscovery = GameObject.FindObjectOfType<AutoLANNetworkDiscovery>(); 
+                networkDiscovery = GameObject.FindObjectOfType<AutoLANNetworkDiscovery>();
 #endif
             }
 
@@ -75,14 +75,14 @@ namespace Mirror.Examples.AutoLANClientController
                 }
                 yield return new WaitForSeconds(1.0f);
                 discoveredServers.Clear();
-                // NetworkManager.singleton.onlineScene = SceneManager.GetActiveScene().name;
+                // NetworkManager.instance.onlineScene = SceneManager.GetActiveScene().name;
                 if (runAsPlayerHost == true)
                 {
-                    NetworkManager.singleton.StartHost();
+                    NetworkManager.Instance.StartHost();
                 }
                 else
                 {
-                    NetworkManager.singleton.StartServer();
+                    NetworkManager.Instance.StartServer();
                 }
                 networkDiscovery.AdvertiseServer();
             }
@@ -92,7 +92,7 @@ namespace Mirror.Examples.AutoLANClientController
         {
             infoText.text = "Connecting to: " + info.serverId;
             networkDiscovery.StopDiscovery();
-            NetworkManager.singleton.StartClient(info.uri);
+            NetworkManager.Instance.StartClient(info.uri);
         }
 
         public void OnDiscoveredServer(ServerResponse info)
@@ -105,8 +105,8 @@ namespace Mirror.Examples.AutoLANClientController
         {
             SetupInfoText("Starting as host");
             discoveredServers.Clear();
-            //NetworkManager.singleton.onlineScene = SceneManager.GetActiveScene().name;
-            NetworkManager.singleton.StartHost();
+            //NetworkManager.instance.onlineScene = SceneManager.GetActiveScene().name;
+            NetworkManager.Instance.StartHost();
             networkDiscovery.AdvertiseServer();
 
         }
@@ -115,8 +115,8 @@ namespace Mirror.Examples.AutoLANClientController
         {
             SetupInfoText("Starting as server.");
             discoveredServers.Clear();
-            // NetworkManager.singleton.onlineScene = SceneManager.GetActiveScene().name;
-            NetworkManager.singleton.StartServer();
+            // NetworkManager.instance.onlineScene = SceneManager.GetActiveScene().name;
+            NetworkManager.Instance.StartServer();
             networkDiscovery.AdvertiseServer();
 
         }
@@ -134,17 +134,17 @@ namespace Mirror.Examples.AutoLANClientController
             // stop host if host mode
             if (NetworkServer.active && NetworkClient.isConnected)
             {
-                NetworkManager.singleton.StopHost();
+                NetworkManager.Instance.StopHost();
             }
             // stop client if client-only
             else if (NetworkClient.isConnected)
             {
-                NetworkManager.singleton.StopClient();
+                NetworkManager.Instance.StopClient();
             }
             // stop server if server-only
             else if (NetworkServer.active)
             {
-                NetworkManager.singleton.StopServer();
+                NetworkManager.Instance.StopServer();
             }
             networkDiscovery.StopDiscovery();
             // we need to call setup canvas a second time in this function for it to update the abovee changes
@@ -162,7 +162,7 @@ namespace Mirror.Examples.AutoLANClientController
         {
             // Here we will dump majority of the canvas UI
 
-            if (NetworkManager.singleton == null)
+            if (NetworkManager.Instance == null)
             {
                 SetupInfoText("NetworkManager null");
                 return;
@@ -199,7 +199,7 @@ namespace Mirror.Examples.AutoLANClientController
         // Invoked when the value of the text field changes.
         public void OnValueChangedAddress()
         {
-            NetworkManager.singleton.networkAddress = inputFieldAddress.text;
+            NetworkManager.Instance.networkAddress = inputFieldAddress.text;
         }
     }
 }

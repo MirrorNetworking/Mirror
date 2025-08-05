@@ -70,7 +70,7 @@ namespace Mirror.Examples.Chat
         {
             // StopHost calls both StopClient and StopServer
             // StopServer does nothing on remote clients
-            NetworkManager.singleton.StopHost();
+            NetworkManager.Instance.StopHost();
         }
 
         // Called by UI element MessageField.OnValueChanged

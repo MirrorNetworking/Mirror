@@ -15,7 +15,10 @@ namespace Mirror.Examples.PlayerTest
     {
         // Overrides the base singleton so we don't
         // have to cast to this type everywhere.
-        public static new PlayerTestNetMan singleton => (PlayerTestNetMan)NetworkManager.singleton;
+        // DEPRECATED 2025-07-29
+        [Obsolete("Use .instance instead of .singleton")]
+        public static new PlayerTestNetMan singleton => Instance;
+        public static new PlayerTestNetMan Instance => (PlayerTestNetMan)NetworkManager.Instance;
 
         /// <summary>
         /// Runs on both Server and Client
