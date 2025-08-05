@@ -800,20 +800,22 @@ namespace Mirror.Tests.NetworkServers
         {
             // listen & connect
             NetworkServer.Listen(1);
-            ConnectHostClientBlockingAuthenticatedAndReady();
+            ConnectClientBlockingAuthenticatedAndReady(out _);
 
             // add an identity with two networkbehaviour components
             // spawned, otherwise command handler won't find it in .spawned.
             // WITH OWNER = WITH AUTHORITY
-            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity identity, out CommandTestNetworkBehaviour comp, NetworkServer.localConnection);
+            CreateNetworkedAndSpawn(out _, out NetworkIdentity serverIdentity, out CommandTestNetworkBehaviour serverComponent,
+                                    out _, out NetworkIdentity clientIdentity, out CommandTestNetworkBehaviour clientComponent,
+                                    NetworkServer.localConnection);
 
             // change identity's owner connection so we can't call [Commands] on it
-            identity.connectionToClient = new LocalConnectionToClient();
+            serverIdentity.connectionToClient = new LocalConnectionToClient();
 
             // call the command
-            comp.TestCommand();
+            clientComponent.TestCommand();
             ProcessMessages();
-            Assert.That(comp.called, Is.EqualTo(0));
+            Assert.That(serverComponent.called, Is.EqualTo(0));
         }
 
         [Test]
@@ -826,13 +828,13 @@ namespace Mirror.Tests.NetworkServers
             // add an identity with two networkbehaviour components
             // spawned, otherwise command handler won't find it in .spawned.
             // WITHOUT OWNER = WITHOUT AUTHORITY for this test
-            CreateNetworkedAndSpawn(out _, out _, out CommandTestNetworkBehaviour comp,
-                                    out _, out _, out _);
+            CreateNetworkedAndSpawn(out _, out _, out CommandTestNetworkBehaviour serverComponent,
+                                    out _, out _, out CommandTestNetworkBehaviour clientComponent);
 
             // call the command
-            comp.TestCommand();
+            clientComponent.TestCommand();
             ProcessMessages();
-            Assert.That(comp.called, Is.EqualTo(0));
+            Assert.That(serverComponent.called, Is.EqualTo(0));
         }
 
         [Test]
