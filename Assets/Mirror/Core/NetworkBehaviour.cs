@@ -65,7 +65,7 @@ namespace Mirror
         /// <summary>Returns true for spawned objects in host mode.</summary>
         public bool isHost => isServer && isClient;
 
-        /// <summary>True if this object is the the client's own local player.</summary>
+        /// <summary>True if this object is the client's own local player.</summary>
         public bool isLocalPlayer => netIdentity.isLocalPlayer;
 
         /// <summary>True if this object is on the server-only, not host.</summary>
