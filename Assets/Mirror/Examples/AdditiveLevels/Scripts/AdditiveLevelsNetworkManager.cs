@@ -1,4 +1,6 @@
+using System;
 using System.Collections;
+using Mirror.Examples.AssignAuthority;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -7,7 +9,10 @@ namespace Mirror.Examples.AdditiveLevels
     [AddComponentMenu("")]
     public class AdditiveLevelsNetworkManager : NetworkManager
     {
-        public static new AdditiveLevelsNetworkManager singleton => (AdditiveLevelsNetworkManager)NetworkManager.singleton;
+        // DEPRECATED 2025-07-29
+        [Obsolete("Use .instance instead of .singleton")]
+        public static new AdditiveLevelsNetworkManager singleton => Instance;
+        public static new AdditiveLevelsNetworkManager Instance => (AdditiveLevelsNetworkManager)NetworkManager.Instance;
 
         [Header("Additive Scenes - First is start scene")]
 

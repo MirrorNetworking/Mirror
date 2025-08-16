@@ -69,7 +69,7 @@ namespace Mirror.Examples.AdditiveLevels
             conn.Send(new SceneMessage { sceneName = gameObject.scene.path, sceneOperation = SceneOperation.UnloadAdditive, customHandling = true });
 
             // wait for fader to complete.
-            yield return new WaitForSeconds(AdditiveLevelsNetworkManager.singleton.fadeInOut.GetFadeInTime());
+            yield return new WaitForSeconds(AdditiveLevelsNetworkManager.Instance.fadeInOut.GetFadeInTime());
 
             // Remove player after fader has completed
             NetworkServer.RemovePlayerForConnection(conn, RemovePlayerOptions.Unspawn);

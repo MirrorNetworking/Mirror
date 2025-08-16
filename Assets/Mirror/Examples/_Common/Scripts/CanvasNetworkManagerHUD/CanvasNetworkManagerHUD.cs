@@ -28,7 +28,7 @@ namespace Mirror.Examples.Common
         private void Start()
         {
             // Init the input field with Network Manager's network address.
-            inputNetworkAddress.text = NetworkManager.singleton.networkAddress;
+            inputNetworkAddress.text = NetworkManager.Instance.networkAddress;
             GetPort();
 
             RegisterListeners();
@@ -117,7 +117,7 @@ namespace Mirror.Examples.Common
             // Client only
             else if (NetworkClient.isConnected)
             {
-                statusText.text = $"<b>Client</b>: connected to {NetworkManager.singleton.networkAddress} via {Transport.active}";
+                statusText.text = $"<b>Client</b>: connected to {NetworkManager.Instance.networkAddress} via {Transport.active}";
 
                 mainStopButtonText.text = "Stop Client";
             }
@@ -133,23 +133,23 @@ namespace Mirror.Examples.Common
 
             secondaryStopButton.gameObject.SetActive(false);
 
-            statusText.text = "Connecting to " + NetworkManager.singleton.networkAddress + "..";
+            statusText.text = "Connecting to " + NetworkManager.Instance.networkAddress + "..";
             mainStopButtonText.text = "Cancel Connection Attempt";
         }
 
         private void OnClickStartHostButton()
         {
-            NetworkManager.singleton.StartHost();
+            NetworkManager.Instance.StartHost();
         }
 
         private void OnClickStartServerButton()
         {
-            NetworkManager.singleton.StartServer();
+            NetworkManager.Instance.StartServer();
         }
 
         private void OnClickStartClientButton()
         {
-            NetworkManager.singleton.StartClient();
+            NetworkManager.Instance.StartClient();
             //ShowConnectingStatus();
         }
 
@@ -157,22 +157,22 @@ namespace Mirror.Examples.Common
         {
             if (NetworkClient.active)
             {
-                NetworkManager.singleton.StopClient();
+                NetworkManager.Instance.StopClient();
             }
             else
             {
-                NetworkManager.singleton.StopServer();
+                NetworkManager.Instance.StopServer();
             }
         }
 
         private void OnClickSecondaryStopButton()
         {
-            NetworkManager.singleton.StopHost();
+            NetworkManager.Instance.StopHost();
         }
 
         private void OnNetworkAddressChange()
         {
-            NetworkManager.singleton.networkAddress = inputNetworkAddress.text;
+            NetworkManager.Instance.networkAddress = inputNetworkAddress.text;
         }
 
         private void OnPortChange()
