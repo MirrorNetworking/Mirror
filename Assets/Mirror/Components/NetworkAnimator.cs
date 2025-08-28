@@ -661,21 +661,23 @@ namespace Mirror
                 HandleAnimParamsMsg(networkReader);
         }
 
-        [ClientRpc(includeOwner = false)]
+        [ClientRpc]
         void RpcOnAnimationTriggerClientMessage(int hash)
         {
-            // already handled on server in SetTrigger
-            // or CmdOnAnimationTriggerServerMessage
-            if (!isServer)
+            // already handled on server in SetTrigger or CmdOnAnimationTriggerServerMessage
+            // also is handled on client in SetTrigger if isOwned and syncDirection is ClientToServer
+            bool clientHasAuthority = isOwned && syncDirection == SyncDirection.ClientToServer;
+            if (!isServer && !clientHasAuthority)
                 HandleAnimTriggerMsg(hash);
         }
 
-        [ClientRpc(includeOwner = false)]
+        [ClientRpc]
         void RpcOnAnimationResetTriggerClientMessage(int hash)
         {
-            // already handled on server in ResetTrigger
-            // or CmdOnAnimationResetTriggerServerMessage
-            if (!isServer)
+            // already handled on server in ResetTrigger or CmdOnAnimationResetTriggerServerMessage
+            // also is handled on client in ResetTrigger if isOwned and syncDirection is ClientToServer
+            bool clientHasAuthority = isOwned && syncDirection == SyncDirection.ClientToServer;
+            if (!isServer && !clientHasAuthority)
                 HandleAnimResetTriggerMsg(hash);
         }
 
