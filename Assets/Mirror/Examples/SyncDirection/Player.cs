@@ -42,7 +42,7 @@ namespace Mirror.Examples.SyncDir // ".SyncDirection" would overshadow the enum
             }
         }
 
-#if !UNITY_SERVER
+#if !UNITY_SERVER || UNITY_EDITOR
         // show instructions
         void OnGUI()
         {

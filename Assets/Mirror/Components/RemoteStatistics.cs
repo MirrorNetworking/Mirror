@@ -239,7 +239,7 @@ namespace Mirror
             if (isLocalPlayer) UpdateClient();
         }
 
-#if !UNITY_SERVER
+#if !UNITY_SERVER || UNITY_EDITOR
         void OnGUI()
         {
             if (!isLocalPlayer) return;
