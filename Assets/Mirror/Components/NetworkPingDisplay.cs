@@ -16,7 +16,7 @@ namespace Mirror
         public int width = 150;
         public int height = 25;
 
-#if !UNITY_SERVER
+#if !UNITY_SERVER || UNITY_EDITOR
         void OnGUI()
         {
             // only while client is active

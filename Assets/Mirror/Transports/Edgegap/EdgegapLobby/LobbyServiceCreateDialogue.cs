@@ -20,7 +20,7 @@ namespace Edgegap
             titleContent = new GUIContent("Edgegap Lobby Service Setup");
         }
 
-#if !UNITY_SERVER
+#if !UNITY_SERVER || UNITY_EDITOR
         private void OnGUI()
         {
             if (waitingCreate)
