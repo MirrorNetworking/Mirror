@@ -145,8 +145,8 @@ namespace Mirror
         // public so it can also be called from tests (and be overwritten by users)
         public override void OnStartServer()
         {
-            NetworkStatistics = NetworkManager.singleton.GetComponent<NetworkStatistics>();
-            if (NetworkStatistics == null) throw new Exception($"RemoteStatistics requires a NetworkStatistics component on {NetworkManager.singleton.name}!");
+            NetworkStatistics = NetworkManager.Instance.GetComponent<NetworkStatistics>();
+            if (NetworkStatistics == null) throw new Exception($"RemoteStatistics requires a NetworkStatistics component on {NetworkManager.Instance.name}!");
 
             if (!requiresPasswordAuth)
             {

@@ -7,7 +7,10 @@ namespace Mirror.Examples.Hex3D
     public class Hex3DNetworkManager : NetworkManager
     {
         // Overrides the base singleton so we don't have to cast to this type everywhere.
-        public static new Hex3DNetworkManager singleton => (Hex3DNetworkManager)NetworkManager.singleton;
+        // DEPRECATED 2025-07-29
+        [Obsolete("Use .instance instead of .singleton")]
+        public static new Hex3DNetworkManager singleton => Instance;
+        public static new Hex3DNetworkManager Instance => (Hex3DNetworkManager)NetworkManager.Instance;
 
         [Header("Spawns")]
         public GameObject spawnPrefab;

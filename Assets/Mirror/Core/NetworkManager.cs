@@ -147,8 +147,11 @@ namespace Mirror
         [Header("Interpolation UI - Requires Editor / Dev Build")]
         public bool timeInterpolationGui = false;
 
+        // DEPRECATED 2025-07-29
+        [Obsolete("Use .instance instead of .singleton")]
+        public static NetworkManager singleton => Instance;
         /// <summary>The one and only NetworkManager</summary>
-        public static NetworkManager singleton { get; internal set; }
+        public static NetworkManager Instance { get; internal set; }
 
         /// <summary>Number of active player objects across all connections on the server.</summary>
         public int numPlayers => NetworkServer.connections.Count(kv => kv.Value.identity != null);
@@ -692,12 +695,12 @@ namespace Mirror
 
         bool InitializeSingleton()
         {
-            if (singleton != null && singleton == this)
+            if (Instance != null && Instance == this)
                 return true;
 
             if (dontDestroyOnLoad)
             {
-                if (singleton != null)
+                if (Instance != null)
                 {
                     Debug.LogWarning("Multiple NetworkManagers detected in the scene. Only one NetworkManager can exist at a time. The duplicate NetworkManager will be destroyed.");
                     Destroy(gameObject);
@@ -705,8 +708,8 @@ namespace Mirror
                     // Return false to not allow collision-destroyed second instance to continue.
                     return false;
                 }
-                //Debug.Log("NetworkManager created singleton (DontDestroyOnLoad)");
-                singleton = this;
+                //Debug.Log("NetworkManager created instance (DontDestroyOnLoad)");
+                Instance = this;
                 if (Application.isPlaying)
                 {
                     // Force the object to scene root, in case user made it a child of something
@@ -717,8 +720,8 @@ namespace Mirror
             }
             else
             {
-                //Debug.Log("NetworkManager created singleton (ForScene)");
-                singleton = this;
+                //Debug.Log("NetworkManager created instance (ForScene)");
+                Instance = this;
             }
 
             // set active transport AFTER setting singleton.
@@ -777,8 +780,8 @@ namespace Mirror
         public static void ResetStatics()
         {
             // call StopHost if we have a singleton
-            if (singleton)
-                singleton.StopHost();
+            if (Instance)
+                Instance.StopHost();
 
             // reset all statics
             startPositions.Clear();
@@ -788,7 +791,7 @@ namespace Mirror
             networkSceneName = string.Empty;
 
             // and finally (in case it isn't null already)...
-            singleton = null;
+            Instance = null;
         }
 
         // virtual so that inheriting classes' OnDestroy() can call base.OnDestroy() too
