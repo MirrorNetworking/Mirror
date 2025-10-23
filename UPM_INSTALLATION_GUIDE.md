@@ -22,12 +22,12 @@ Your Mirror project has been converted into a proper UPM package with the follow
    
    **From GitHub (if you push to GitHub):**
    ```
-   https://github.com/badjano/MirrorUPM.git?path=/Assets/Mirror
+   https://github.com/MirrorNetworking/Mirror.git?path=/Assets/Mirror
    ```
    
    **From local repository:**
    ```
-   file:.../MirrorUPM/Assets/Mirror
+   file:.../Mirror/Assets/Mirror
    ```
 
 ### Method 2: Install via manifest.json
@@ -39,7 +39,7 @@ Your Mirror project has been converted into a proper UPM package with the follow
    ```json
    {
      "dependencies": {
-       "com.mirror-networking.mirror": "https://github.com/badjano/MirrorUPM.git?path=/Assets/Mirror"
+       "com.mirror-networking.mirror": "https://github.com/MirrorNetworking/Mirror.git?path=/Assets/Mirror"
      }
    }
    ```
@@ -48,7 +48,7 @@ Your Mirror project has been converted into a proper UPM package with the follow
    ```json
    {
      "dependencies": {
-       "com.mirror-networking.mirror": "file:.../MirrorUPM/Assets/Mirror"
+       "com.mirror-networking.mirror": "file:.../Mirror/Assets/Mirror"
      }
    }
    ```
@@ -59,7 +59,7 @@ Your Mirror project has been converted into a proper UPM package with the follow
 
 1. In your Unity project, open Package Manager
 2. Click **'+'** > **"Add package from disk..."**
-3. Navigate to `...\MirrorUPM\Assets\Mirror`
+3. Navigate to `...\Mirror\Assets\Mirror`
 4. Select `package.json`
 
 ## Publishing Your Package
@@ -69,7 +69,7 @@ Your Mirror project has been converted into a proper UPM package with the follow
 1. Create a new GitHub repository or use your existing one
 2. Push your code:
    ```powershell
-   cd "...\MirrorUPM"
+   cd "...\Mirror"
    git add .
    git commit -m "Convert to UPM package"
    git push
@@ -77,7 +77,7 @@ Your Mirror project has been converted into a proper UPM package with the follow
 
 3. Users can then install via:
    ```
-   https://github.com/badjano/MirrorUPM.git?path=/Assets/Mirror
+   https://github.com/MirrorNetworking/Mirror.git?path=/Assets/Mirror
    ```
 
 ### Option 2: Git Tag/Release (Recommended)
@@ -92,7 +92,7 @@ For versioned releases:
 
 2. Users can install a specific version:
    ```
-   https://github.com/badjano/MirrorUPM.git?path=/Assets/Mirror#v89.7.2
+   https://github.com/MirrorNetworking/Mirror.git?path=/Assets/Mirror#v89.7.2
    ```
 
 ### Option 3: OpenUPM or npm Registry
