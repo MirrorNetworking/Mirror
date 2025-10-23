@@ -1,0 +1,39 @@
+{
+  "name": "com.mirror-networking.mirror",
+  "displayName": "Mirror Networking",
+  "version": "89.7.2",
+  "unity": "2019.4",
+  "description": "Mirror is a high-level networking library for Unity. It provides a powerful and flexible framework for multiplayer games with features like SyncVars, RPCs, NetworkIdentity, and more.",
+  "keywords": [
+    "networking",
+    "multiplayer",
+    "mirror",
+    "unet",
+    "online",
+    "mmorpg",
+    "fps",
+    "server",
+    "client"
+  ],
+  "category": "Network",
+  "author": {
+    "name": "Mirror Networking",
+    "url": "https://mirror-networking.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MirrorNetworking/Mirror.git"
+  },
+  "license": "MIT",
+  "homepage": "https://mirror-networking.com",
+  "documentationUrl": "https://mirror-networking.gitbook.io/",
+  "changelogUrl": "https://github.com/MirrorNetworking/Mirror/releases",
+  "licensesUrl": "https://github.com/MirrorNetworking/Mirror/blob/master/LICENSE",
+  "samples": [
+    {
+      "displayName": "Basic Examples",
+      "description": "Basic examples showing how to use Mirror's core features",
+      "path": "Examples~"
+    }
+  ]
+}
