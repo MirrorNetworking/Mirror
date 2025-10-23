@@ -59,7 +59,7 @@ Your Mirror project has been converted into a proper UPM package with the follow
 
 1. In your Unity project, open Package Manager
 2. Click **'+'** > **"Add package from disk..."**
-3. Navigate to `F:\Projects\Mirror\MirrorUPM\Assets\Mirror`
+3. Navigate to `...\MirrorUPM\Assets\Mirror`
 4. Select `package.json`
 
 ## Publishing Your Package
@@ -69,7 +69,7 @@ Your Mirror project has been converted into a proper UPM package with the follow
 1. Create a new GitHub repository or use your existing one
 2. Push your code:
    ```powershell
-   cd "F:\Projects\Mirror\MirrorUPM"
+   cd "...\MirrorUPM"
    git add .
    git commit -m "Convert to UPM package"
    git push
