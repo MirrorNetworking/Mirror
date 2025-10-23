@@ -27,7 +27,7 @@ Your Mirror project has been converted into a proper UPM package with the follow
    
    **From local repository:**
    ```
-   file:F:/Projects/Mirror/MirrorUPM/Assets/Mirror
+   file:.../MirrorUPM/Assets/Mirror
    ```
 
 ### Method 2: Install via manifest.json
@@ -48,7 +48,7 @@ Your Mirror project has been converted into a proper UPM package with the follow
    ```json
    {
      "dependencies": {
-       "com.mirror-networking.mirror": "file:F:/Projects/Mirror/MirrorUPM/Assets/Mirror"
+       "com.mirror-networking.mirror": "file:.../MirrorUPM/Assets/Mirror"
      }
    }
    ```
