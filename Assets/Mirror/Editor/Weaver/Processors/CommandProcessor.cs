@@ -10,7 +10,7 @@ namespace Mirror.Weaver
             // generates code like:
             public void CmdThrust(float thrusting, int spin)
             {
-                // no host, invoke the original function immediately.
+                // on host, invoke the original function immediately.
                 // -> Mirror's Host mode is just a server, we can't simulate an independent client in Unity
                 // -> delaying this for later introduces cooldown & prediction issues in games.
                 //    for example, assume CmdFireWeapon function with 100ms cooldown between shots.
@@ -175,7 +175,7 @@ namespace Mirror.Weaver
             {
                 if (NetworkBehaviourProcessor.IsSenderConnection(param, RemoteCallType.Command))
                 {
-                    // NetworkConnection is 3nd arg (arg0 is "obj" not "this" because method is static)
+                    // NetworkConnection is 3rd arg (arg0 is "obj" not "this" because method is static)
                     // example: static void InvokeCmdCmdSendCommand(NetworkBehaviour obj, NetworkReader reader, NetworkConnection connection)
                     worker.Emit(OpCodes.Ldarg_2);
                 }
