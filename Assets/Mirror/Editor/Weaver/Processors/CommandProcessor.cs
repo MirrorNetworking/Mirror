@@ -84,8 +84,8 @@ namespace Mirror.Weaver
             worker.Emit(OpCodes.Ldarg_0);
 
             // Load all the remaining arguments (Ldarg_1, Ldarg_2, ...)
-            for (int i = 1; i < md.Parameters.Count + 1; i++)
-                worker.Emit(OpCodes.Ldarg, i);
+            for (int i = 0; i < md.Parameters.Count; i++)
+                worker.Emit(OpCodes.Ldarg, i + 1); // Ldarg_0 is for 'this.'
 
             // Call the original function directly (UserCode_CmdTest__Int32)
             worker.Emit(OpCodes.Call, cmd);
