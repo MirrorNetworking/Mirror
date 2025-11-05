@@ -85,7 +85,22 @@ namespace Mirror.Weaver
 
             // Load all the remaining arguments (Ldarg_1, Ldarg_2, ...)
             for (int i = 0; i < md.Parameters.Count; i++)
-                worker.Emit(OpCodes.Ldarg, i + 1); // Ldarg_0 is for 'this.'
+            {
+                // special case: NetworkConnection parameter in command needs to be
+                // filled by the sender's connection on server/host.
+                ParameterDefinition param = md.Parameters[i];
+                if (NetworkBehaviourProcessor.IsSenderConnection(param, RemoteCallType.Command))
+                {
+                    // load 'this.'
+                    worker.Emit(OpCodes.Ldarg_0);
+                    // call get_connectionToClient
+                    worker.Emit(OpCodes.Call, weaverTypes.NetworkBehaviourConnectionToClientReference);
+                }
+                else
+                {
+                    worker.Emit(OpCodes.Ldarg, i + 1); // Ldarg_0 is for 'this.'
+                }
+            }
 
             // Call the original function directly (UserCode_CmdTest__Int32)
             worker.Emit(OpCodes.Call, cmd);

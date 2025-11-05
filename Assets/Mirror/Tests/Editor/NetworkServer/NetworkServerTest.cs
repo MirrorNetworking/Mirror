@@ -35,6 +35,20 @@ namespace Mirror.Tests.NetworkServers
         public void TestCommand() => ++called;
     }
 
+    public class CommandWithConnectionToClientNetworkBehaviour : NetworkBehaviour
+    {
+        // counter to make sure that it's called exactly once
+        public int called;
+        public NetworkConnectionToClient conn;
+
+        [Command]
+        public void TestCommand(NetworkConnectionToClient conn = null)
+        {
+            this.conn = conn;
+            ++called;
+        }
+    }
+
     public class RpcTestNetworkBehaviour : NetworkBehaviour
     {
         // counter to make sure that it's called exactly once
@@ -835,6 +849,30 @@ namespace Mirror.Tests.NetworkServers
             clientComponent.TestCommand();
             ProcessMessages();
             Assert.That(serverComponent.called, Is.EqualTo(0));
+        }
+
+        // [Command] with NetworkConnectionToClient parameter on host should be automatically set to .connectionToClient.
+        // this is what happens in server-only mode too.
+        [Test]
+        public void SendCommand_ConnectionToClient_HostMode()
+        {
+            // listen & connect
+            NetworkServer.Listen(1);
+            ConnectHostClientBlockingAuthenticatedAndReady();
+
+            // add an identity with two networkbehaviour components
+            // spawned, otherwise command handler won't find it in .spawned.
+            // WITH OWNER = WITH AUTHORITY
+            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out CommandWithConnectionToClientNetworkBehaviour comp, NetworkServer.localConnection);
+
+            // call the command, which has a 'NetworkConnectionToClient = null' default parameter
+            comp.TestCommand();
+            ProcessMessages();
+
+            // on server it should be != null
+            Assert.That(comp.conn, !Is.Null);
+            Assert.That(comp.conn, Is.EqualTo(comp.connectionToClient));
+            Assert.That(comp.called, Is.EqualTo(1));
         }
 
         [Test]
