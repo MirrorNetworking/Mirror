@@ -135,6 +135,10 @@ Guard is available on the [Asset Store](https://assetstore.unity.com/packages/to
 
 ---
 ## Made with Mirror
+### Thousands of Steam Games
+Mirror is used by [thousands of steam games](https://steamdb.info/tech/SDK/Mirror/?sort=rating_desc).
+<img width="1968" height="2220" alt="image" src="https://github.com/user-attachments/assets/53db77be-2227-4362-908c-1a650281938c" />
+
 ### [Population: ONE](https://www.populationonevr.com/)
 [![Population: ONE](https://github.com/MirrorNetworking/Mirror/assets/16416509/dddc778b-a97f-452d-b5f8-6ec42c6da4f1)](https://www.populationonevr.com/)
 The [BigBoxVR](https://www.bigboxvr.com/) team started using Mirror in February 2019 for what eventually became one of the most popular Oculus Rift games.
