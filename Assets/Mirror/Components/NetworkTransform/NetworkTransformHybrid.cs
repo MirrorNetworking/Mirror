@@ -27,8 +27,12 @@ namespace Mirror
         [Tooltip("Position is rounded in order to drastically minimize bandwidth.\n\nFor example, a precision of 0.01 rounds to a centimeter. In other words, sub-centimeter movements aren't synced until they eventually exceeded an actual centimeter.\n\nDepending on how important the object is, a precision of 0.01-0.10 (1-10 cm) is recommended.\n\nFor example, even a 1cm precision combined with delta compression cuts the Benchmark demo's bandwidth in half, compared to sending every tiny change.")]
         [Range(0.00_01f, 1f)]                   // disallow 0 division. 1mm to 1m precision is enough range.
         public float positionPrecision = 0.01f; // 1 cm
+
+        [Tooltip("Rotation is rounded in degrees in order to drastically minimize bandwidth.\n\nFor example, a precision of 0.001 rounds to a millidegree. In other words, sub-millidegree movements aren't synced until they eventually exceeded an actual millidegree.\n\nDepending on how important the object is, a precision of 0.001-0.01 (1-10 millidegrees) is recommended.\n\nFor example, even a 1 millidegree precision combined with delta compression cuts the Benchmark demo's bandwidth in half, compared to sending every tiny change.")]
         [Range(0.00_01f, 1f)]                   // disallow 0 division. 1mm to 1m precision is enough range.
         public float rotationPrecision = 0.001f; // this is for the quaternion's components, needs to be small
+
+        [Tooltip("Scale is rounded in order to drastically minimize bandwidth.\n\nFor example, a precision of 0.01 rounds the multiplier to 1/100th. In other words, sub-1/100th scale changes aren't synced until they eventually exceeded an actual 1/100th change.\n\nDepending on how important the object is, a precision of 0.01-0.1 (1-10 hundredths) is recommended.\n\nFor example, even a 1/100th precision combined with delta compression cuts the Benchmark demo's bandwidth in half, compared to sending every tiny change.")]
         [Range(0.00_01f, 1f)]                   // disallow 0 division. 1mm to 1m precision is enough range.
         public float scalePrecision = 0.01f; // 1 cm
 
