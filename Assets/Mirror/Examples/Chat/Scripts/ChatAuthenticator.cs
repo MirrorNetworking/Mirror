@@ -200,7 +200,7 @@ namespace Mirror.Examples.Chat
 
                 // Authentication has been rejected
                 // StopHost works for both host client and remote clients
-                NetworkManager.singleton.StopHost();
+                NetworkManager.Instance.StopHost();
 
                 // Do this AFTER StopHost so it doesn't get cleared / hidden by OnClientDisconnect
                 LoginUI.instance.errorText.text = msg.message;

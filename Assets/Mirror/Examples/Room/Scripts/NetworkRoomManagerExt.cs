@@ -1,3 +1,5 @@
+using System;
+using Mirror.Examples.AssignAuthority;
 using UnityEngine;
 
 /*
@@ -15,7 +17,10 @@ namespace Mirror.Examples.NetworkRoom
         public GameObject rewardPrefab;
         public byte poolSize = 10;
 
-        public static new NetworkRoomManagerExt singleton => NetworkManager.singleton as NetworkRoomManagerExt;
+        // DEPRECATED 2025-07-29
+        [Obsolete("Use .instance instead of .singleton")]
+        public static new NetworkRoomManagerExt singleton => Instance;
+        public static new NetworkRoomManagerExt Instance => NetworkManager.Instance as NetworkRoomManagerExt;
 
         /// <summary>
         /// This is called on the server when a networked scene finishes loading.
