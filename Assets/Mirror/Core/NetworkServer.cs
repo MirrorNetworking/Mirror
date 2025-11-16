@@ -1894,8 +1894,8 @@ namespace Mirror
             if (resetState)
             {
                 identity.ResetState();
-                identity.gameObject.SetActive(false);
             }
+            identity.gameObject.SetActive(false);
         }
 
         /// <summary>This takes an object that has been spawned and un-spawns it.</summary>
@@ -1905,7 +1905,7 @@ namespace Mirror
         // Unlike when calling NetworkServer.Destroy(), on the server the object
         // will NOT be destroyed. This allows the server to re-use the object,
         // even spawn it again later.
-        public static void UnSpawn(GameObject obj) => UnSpawnInternal(obj, resetState: true);
+        public static void UnSpawn(GameObject obj) => UnSpawnInternal(obj, resetState: false);
 
         // destroy /////////////////////////////////////////////////////////////
         /// <summary>Destroys this object and corresponding objects on all clients.</summary>
