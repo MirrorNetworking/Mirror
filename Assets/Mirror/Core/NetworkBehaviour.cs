@@ -163,6 +163,13 @@ namespace Mirror
         // hook guard prevents that.
         ulong syncVarHookGuard;
 
+        // [Command(requiresAuthority=false)] on global objects allow any sender.
+        // senders can be verified with optional (NetworkConnectionToClient) parameter.
+        // if a studio forgot to add that parameter, then validating senders would requires a full server + client rebuild.
+        // sometimes that's not possible in time (i.e. urgent exploits), in that case - this field can be used.
+        protected NetworkConnectionToClient lastCommandSender = null;
+        internal void SetLastCommandSender(NetworkConnectionToClient conn) => lastCommandSender = conn;
+
         protected virtual void OnValidate()
         {
             // Skip if Editor is in Play mode

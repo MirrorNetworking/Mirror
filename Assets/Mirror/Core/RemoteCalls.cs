@@ -129,6 +129,9 @@ namespace Mirror.RemoteCalls
             if (GetInvokerForHash(functionHash, remoteCallType, out Invoker invoker) &&
                 invoker.componentType.IsInstanceOfType(component))
             {
+                // set sender in case it's needed
+                component.SetLastCommandSender(senderConnection);
+
                 // invoke function on this component
                 invoker.function(component, reader, senderConnection);
                 return true;
