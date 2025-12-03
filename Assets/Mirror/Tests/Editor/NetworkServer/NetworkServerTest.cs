@@ -851,10 +851,9 @@ namespace Mirror.Tests.NetworkServers
             Assert.That(serverComponent.called, Is.EqualTo(0));
         }
 
-        // [Command] with NetworkConnectionToClient parameter on host should be automatically set to .connectionToClient.
-        // this is what happens in server-only mode too.
+        // Command with NetworkConnectionToClient arg expects a non-null connection arg when called on the client owned object.
         [Test]
-        public void SendCommand_ConnectionToClient_HostMode()
+        public void SendCommand_ClientOwnedObject_ConnectionNotNull()
         {
             // listen & connect
             NetworkServer.Listen(1);
@@ -872,6 +871,29 @@ namespace Mirror.Tests.NetworkServers
             // on server it should be != null
             Assert.That(comp.conn, !Is.Null);
             Assert.That(comp.conn, Is.EqualTo(comp.connectionToClient));
+            Assert.That(comp.called, Is.EqualTo(1));
+        }
+
+        // Command with NetworkConnectionToClient arg expects a non-null connection arg when called on the server owned object.
+        [Test]
+        public void SendCommand_ServerOwnedObject_ConnectionNotNull()
+        {
+            // listen & connect
+            NetworkServer.Listen(1);
+            ConnectHostClientBlockingAuthenticatedAndReady();
+
+            // add an identity with two networkbehaviour components
+            // spawned, otherwise command handler won't find it in .spawned.
+            // WITH OWNER = WITH AUTHORITY
+            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out CommandWithConnectionToClientNetworkBehaviour comp, ownerConnection: null);
+
+            // call the command, which has a 'NetworkConnectionToClient = null' default parameter
+            comp.TestCommand();
+            ProcessMessages();
+
+            // on server it should be != null
+            Assert.That(comp.conn, !Is.Null);
+            Assert.That(comp.conn, Is.EqualTo(NetworkServer.localConnection));
             Assert.That(comp.called, Is.EqualTo(1));
         }
 
