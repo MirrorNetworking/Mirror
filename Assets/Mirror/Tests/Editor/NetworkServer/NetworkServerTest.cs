@@ -884,7 +884,7 @@ namespace Mirror.Tests.NetworkServers
 
             // add an identity with two networkbehaviour components
             // spawned, otherwise command handler won't find it in .spawned.
-            // WITH OWNER = WITH AUTHORITY
+            // WITHOUT OWNER (SERVER-OWNED OBJECT)
             CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out CommandWithConnectionToClientNetworkBehaviour comp, ownerConnection: null);
 
             // call the command, which has a 'NetworkConnectionToClient = null' default parameter
