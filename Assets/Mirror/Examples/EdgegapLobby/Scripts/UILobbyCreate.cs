@@ -13,7 +13,7 @@ namespace Mirror.Examples.EdgegapLobby
         public Slider SlotSlider;
         public Button HostButton;
         public Button ServerButton;
-        private EdgegapLobbyKcpTransport _transport => (EdgegapLobbyKcpTransport)NetworkManager.singleton.transport;
+        private EdgegapLobbyKcpTransport _transport => (EdgegapLobbyKcpTransport)NetworkManager.Instance.transport;
 
         private void Awake()
         {
@@ -35,13 +35,13 @@ namespace Mirror.Examples.EdgegapLobby
             {
                 gameObject.SetActive(false);
                 _transport.SetServerLobbyParams(LobbyName.text, (int)SlotSlider.value);
-                NetworkManager.singleton.StartHost();
+                NetworkManager.Instance.StartHost();
             });
             ServerButton.onClick.AddListener(() =>
             {
                 gameObject.SetActive(false);
                 _transport.SetServerLobbyParams(LobbyName.text, (int)SlotSlider.value);
-                NetworkManager.singleton.StartServer();
+                NetworkManager.Instance.StartServer();
             });
         }
         void ValidateName()

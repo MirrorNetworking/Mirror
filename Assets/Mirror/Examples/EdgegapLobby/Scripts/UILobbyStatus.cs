@@ -28,20 +28,20 @@ namespace Mirror.Examples.EdgegapLobby
             Refresh();
             StopServer.onClick.AddListener(() =>
             {
-                NetworkManager.singleton.StopServer();
+                NetworkManager.Instance.StopServer();
             });
             StopHost.onClick.AddListener(() =>
             {
-                NetworkManager.singleton.StopHost();
+                NetworkManager.Instance.StopHost();
             });
             StopClient.onClick.AddListener(() =>
             {
-                NetworkManager.singleton.StopClient();
+                NetworkManager.Instance.StopClient();
             });
         }
         private void Start()
         {
-            _transport = (EdgegapLobbyKcpTransport)NetworkManager.singleton.transport;
+            _transport = (EdgegapLobbyKcpTransport)NetworkManager.Instance.transport;
         }
         private void Update()
         {

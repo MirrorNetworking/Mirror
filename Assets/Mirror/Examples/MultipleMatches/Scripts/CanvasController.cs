@@ -491,7 +491,7 @@ namespace Mirror.Examples.MultipleMatch
                 {
                     playerConn.Send(new ClientMatchMessage { clientMatchOperation = ClientMatchOperation.Started });
 
-                    GameObject player = Instantiate(NetworkManager.singleton.playerPrefab);
+                    GameObject player = Instantiate(NetworkManager.Instance.playerPrefab);
                     player.GetComponent<NetworkMatch>().matchId = matchId;
                     NetworkServer.AddPlayerForConnection(playerConn, player);
 

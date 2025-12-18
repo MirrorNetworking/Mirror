@@ -39,7 +39,7 @@ namespace Mirror.Discovery
 #if !UNITY_SERVER || UNITY_EDITOR
         void OnGUI()
         {
-            if (NetworkManager.singleton == null)
+            if (NetworkManager.Instance == null)
                 return;
 
             if (!NetworkClient.isConnected && !NetworkServer.active && !NetworkClient.active)
@@ -64,7 +64,7 @@ namespace Mirror.Discovery
             if (GUILayout.Button("Start Host"))
             {
                 discoveredServers.Clear();
-                NetworkManager.singleton.StartHost();
+                NetworkManager.Instance.StartHost();
                 networkDiscovery.AdvertiseServer();
             }
 
@@ -72,7 +72,7 @@ namespace Mirror.Discovery
             if (GUILayout.Button("Start Server"))
             {
                 discoveredServers.Clear();
-                NetworkManager.singleton.StartServer();
+                NetworkManager.Instance.StartServer();
                 networkDiscovery.AdvertiseServer();
             }
 
@@ -102,7 +102,7 @@ namespace Mirror.Discovery
             {
                 if (GUILayout.Button("Stop Host"))
                 {
-                    NetworkManager.singleton.StopHost();
+                    NetworkManager.Instance.StopHost();
                     networkDiscovery.StopDiscovery();
                 }
             }
@@ -111,7 +111,7 @@ namespace Mirror.Discovery
             {
                 if (GUILayout.Button("Stop Client"))
                 {
-                    NetworkManager.singleton.StopClient();
+                    NetworkManager.Instance.StopClient();
                     networkDiscovery.StopDiscovery();
                 }
             }
@@ -120,7 +120,7 @@ namespace Mirror.Discovery
             {
                 if (GUILayout.Button("Stop Server"))
                 {
-                    NetworkManager.singleton.StopServer();
+                    NetworkManager.Instance.StopServer();
                     networkDiscovery.StopDiscovery();
                 }
             }
@@ -132,7 +132,7 @@ namespace Mirror.Discovery
         void Connect(ServerResponse info)
         {
             networkDiscovery.StopDiscovery();
-            NetworkManager.singleton.StartClient(info.uri);
+            NetworkManager.Instance.StartClient(info.uri);
         }
 
         public void OnDiscoveredServer(ServerResponse info)

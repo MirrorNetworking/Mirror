@@ -18,7 +18,7 @@ namespace Mirror.Examples.EdgegapLobby
         public Text Error;
         private List<UILobbyEntry> _entries = new List<UILobbyEntry>();
 
-        private EdgegapLobbyKcpTransport _transport => (EdgegapLobbyKcpTransport)NetworkManager.singleton.transport;
+        private EdgegapLobbyKcpTransport _transport => (EdgegapLobbyKcpTransport)NetworkManager.Instance.transport;
         private void Awake()
         {
             SearchInput.onValueChanged.AddListener(arg0 =>
@@ -49,8 +49,8 @@ namespace Mirror.Examples.EdgegapLobby
 
         public void Join(LobbyBrief lobby)
         {
-            NetworkManager.singleton.networkAddress = lobby.lobby_id;
-            NetworkManager.singleton.StartClient();
+            NetworkManager.Instance.networkAddress = lobby.lobby_id;
+            NetworkManager.Instance.StartClient();
         }
 
         public void SetLobbies(LobbyBrief[] lobbies)

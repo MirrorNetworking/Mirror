@@ -1,4 +1,7 @@
+using System;
+using Mirror.Examples.AssignAuthority;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace Mirror.Examples.CharacterSelection
 {
@@ -11,7 +14,10 @@ namespace Mirror.Examples.CharacterSelection
         // Either of these allow selecting character after spawning in too.
         public bool SpawnAsCharacter = true;
 
-        public static new NetworkManagerCharacterSelection singleton => (NetworkManagerCharacterSelection)NetworkManager.singleton;
+        // DEPRECATED 2025-07-29
+        [Obsolete("Use .instance instead of .singleton")]
+        public static new NetworkManagerCharacterSelection singleton => Instance;
+        public static new NetworkManagerCharacterSelection Instance => (NetworkManagerCharacterSelection)NetworkManager.Instance;
         private CharacterData characterData;
 
         public override void Awake()
