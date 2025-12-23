@@ -48,5 +48,17 @@ namespace Mirror.Examples.Chat
             hostButton.interactable = !string.IsNullOrWhiteSpace(username);
             clientButton.interactable = !string.IsNullOrWhiteSpace(username);
         }
+
+        public void OnAuthSuccess(string _)
+        {
+            errorText.text = string.Empty;
+            errorText.gameObject.SetActive(false);
+        }
+
+        public void OnAuthFailed(string message)
+        {
+            errorText.text = message;
+            errorText.gameObject.SetActive(true);
+        }
     }
 }
