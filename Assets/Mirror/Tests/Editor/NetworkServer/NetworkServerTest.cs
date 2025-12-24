@@ -870,6 +870,7 @@ namespace Mirror.Tests.NetworkServers
 
             // on server it should be != null
             Assert.That(comp.conn, !Is.Null);
+            // Host player-owned object: sender == connectionToClient (host's localConnection).
             Assert.That(comp.conn, Is.EqualTo(comp.connectionToClient));
             Assert.That(comp.called, Is.EqualTo(1));
         }
@@ -893,6 +894,7 @@ namespace Mirror.Tests.NetworkServers
 
             // on server it should be != null
             Assert.That(comp.conn, !Is.Null);
+            // Host mode + server-owned object: connectionToClient is null, so sender must be localConnection.
             Assert.That(comp.conn, Is.EqualTo(NetworkServer.localConnection));
             Assert.That(comp.called, Is.EqualTo(1));
         }
