@@ -93,7 +93,7 @@ namespace Mirror.SimpleWeb
             }
             if (receiveQueue.Count > 0)
                 Log.Verbose("[SWT-SimpleWebClient]: ProcessMessageQueue has {0} remaining. skipEnabled {1} behaviour.enabled {2} processedCount {3}\nThis is usually fine for ConcurrentQueue if Transport slips one in on another thread", 
-                    receiveQueue.Count, skipEnabled, (behaviour == null ? "null" : behaviour.enabled), processedCount);
+                    receiveQueue.Count, skipEnabled, (behaviour == null ? false : behaviour.enabled), processedCount);
         }
     }
 }
