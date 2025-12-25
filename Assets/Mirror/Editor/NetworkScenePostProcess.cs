@@ -12,6 +12,9 @@ namespace Mirror
         [PostProcessScene]
         public static void OnPostProcessScene()
         {
+            Scene lastLoadedScene = SceneManager.GetSceneAt(SceneManager.sceneCount - 1);
+            //Debug.Log($"[Mirror] OnPostProcessScene for scene '{lastLoadedScene.name}'");
+
             // find all NetworkIdentities in all scenes
             // => can't limit it to GetActiveScene() because that wouldn't work
             //    for additive scene loads (the additively loaded scene is never
@@ -30,7 +33,7 @@ namespace Mirror
                 .Where(identity => identity.gameObject.hideFlags != HideFlags.NotEditable &&
                                    identity.gameObject.hideFlags != HideFlags.HideAndDontSave &&
                                    identity.gameObject.scene.name != "DontDestroyOnLoad" &&
-                                   identity.gameObject.scene == SceneManager.GetSceneAt(SceneManager.sceneCount - 1) &&
+                                   identity.gameObject.scene == lastLoadedScene &&
                                    !Utils.IsPrefab(identity.gameObject));
 
             foreach (NetworkIdentity identity in identities)
