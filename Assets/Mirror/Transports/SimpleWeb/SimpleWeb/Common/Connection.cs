@@ -35,7 +35,7 @@ namespace Mirror.SimpleWeb
         public ConcurrentQueue<ArrayBuffer> sendQueue = new ConcurrentQueue<ArrayBuffer>();
 
         public Action<Connection> onDispose;
-        volatile bool hasDisposed;
+        volatile internal bool hasDisposed;
 
         public Connection(TcpClient client, Action<Connection> onDispose)
         {

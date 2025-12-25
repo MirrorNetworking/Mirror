@@ -234,8 +234,9 @@ namespace Mirror.SimpleWeb
 
         public override void ClientDisconnect()
         {
-            // don't set client null here of messages wont be processed
-            client?.Disconnect();
+            // don't set client null here or messages wont be processed
+            if (client != null && client.ConnectionState != ClientState.NotConnected)
+                client.Disconnect();
         }
 
         public override void ClientSend(ArraySegment<byte> segment, int channelId)

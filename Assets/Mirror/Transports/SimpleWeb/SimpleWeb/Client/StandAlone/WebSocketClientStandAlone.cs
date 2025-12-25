@@ -61,7 +61,6 @@ namespace Mirror.SimpleWeb
                 if (!success)
                 {
                     Log.Warn("[SWT-WebSocketClientStandAlone]: Failed to create Stream with {0}", serverAddress);
-                    conn.Dispose();
                     return;
                 }
 
@@ -69,7 +68,6 @@ namespace Mirror.SimpleWeb
                 if (!success)
                 {
                     Log.Warn("[SWT-WebSocketClientStandAlone]: Failed Handshake with {0}", serverAddress);
-                    conn.Dispose();
                     return;
                 }
 
@@ -106,7 +104,8 @@ namespace Mirror.SimpleWeb
             finally
             {
                 // close here in case connect fails
-                conn?.Dispose();
+                if (conn != null && !conn.hasDisposed)
+                    conn.Dispose();
             }
         }
 
@@ -124,8 +123,8 @@ namespace Mirror.SimpleWeb
 
             if (conn == null)
                 state = ClientState.NotConnected;
-            else
-                conn?.Dispose();
+            else if (!conn.hasDisposed)
+                conn.Dispose();
         }
 
         public override void Send(ArraySegment<byte> segment)

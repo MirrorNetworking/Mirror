@@ -121,7 +121,6 @@ namespace Mirror.SimpleWeb
             finally
             {
                 Profiler.EndThreadProfiling();
-                conn.Dispose();
                 maskHelper?.Dispose();
             }
         }

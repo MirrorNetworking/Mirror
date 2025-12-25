@@ -100,7 +100,6 @@ namespace Mirror.SimpleWeb
             finally
             {
                 Profiler.EndThreadProfiling();
-                conn.Dispose();
             }
         }
 
@@ -237,8 +236,6 @@ namespace Mirror.SimpleWeb
             // dump after mask off
             Log.DumpBuffer("[SWT-ReceiveLoop]: Message", buffer, msgOffset, payloadLength);
             Log.Verbose("[SWT-ReceiveLoop]: Close: {0} message:{1}", GetCloseCode(buffer, msgOffset), GetCloseMessage(buffer, msgOffset, payloadLength));
-
-            conn.Dispose();
         }
 
         static string GetCloseMessage(byte[] buffer, int msgOffset, int payloadLength)

@@ -109,7 +109,6 @@ namespace Mirror.SimpleWeb
                 if (!success)
                 {
                     Log.Warn("[SWT-WebSocketServer]: Failed to create SSL Stream {0}", conn);
-                    conn.Dispose();
                     return;
                 }
 
@@ -118,7 +117,6 @@ namespace Mirror.SimpleWeb
                 if (!success)
                 {
                     Log.Warn("[SWT-WebSocketServer]: Handshake failed for connection {0}", conn);
-                    conn.Dispose();
                     return;
                 }
 
