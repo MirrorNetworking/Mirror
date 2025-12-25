@@ -33,7 +33,7 @@ namespace Mirror.SimpleWeb
             if (config.enabled)
             {
                 certificate = new X509Certificate2(config.certPath, config.certPassword);
-                Log.Info($"[SWT-ServerSslHelper]: SSL Certificate {0} loaded with expiration of {1}", certificate.Subject, certificate.GetExpirationDateString());
+                Log.Info("[SWT-ServerSslHelper]: SSL Certificate {0} loaded with expiration of {1}", certificate.Subject, certificate.GetExpirationDateString());
             }
         }
 

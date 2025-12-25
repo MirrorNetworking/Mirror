@@ -100,9 +100,9 @@ namespace Mirror.SimpleWeb
                     bufferPool);
                 ReceiveLoop.Loop(config);
             }
-            catch (ThreadInterruptedException e) { Log.InfoException(e); }
+            catch (ThreadInterruptedException e) { Log.InfoException("[SWT-WebSocketClientStandAlone]", e); }
             catch (ThreadAbortException) { Log.Error("[SWT-WebSocketClientStandAlone]: Thread Abort Exception"); }
-            catch (Exception e) { Log.Exception(e); }
+            catch (Exception e) { Log.Exception("[SWT-WebSocketClientStandAlone]", e); }
             finally
             {
                 // close here in case connect fails

@@ -70,12 +70,7 @@ namespace Mirror.SimpleWeb
             int processedCount = 0;
             bool skipEnabled = behaviour == null;
             // check enabled every time in case behaviour was disabled after data
-            while (
-                (skipEnabled || behaviour.enabled) &&
-                processedCount < maxMessagesPerTick &&
-                // Dequeue last
-                receiveQueue.TryDequeue(out Message next)
-                )
+            while ((skipEnabled || behaviour.enabled) && processedCount < maxMessagesPerTick && receiveQueue.TryDequeue(out Message next))
             {
                 processedCount++;
 
@@ -97,7 +92,8 @@ namespace Mirror.SimpleWeb
                 }
             }
             if (receiveQueue.Count > 0)
-                Log.Warn("[SWT-SimpleWebClient]: ProcessMessageQueue has {0} remaining.", receiveQueue.Count);
+                Log.Verbose("[SWT-SimpleWebClient]: ProcessMessageQueue has {0} remaining. skipEnabled {1} behaviour.enabled {2} processedCount {3}\nThis is usually fine for ConcurrentQueue if Transport slips one in on another thread", 
+                    receiveQueue.Count, skipEnabled, (behaviour == null ? "null" : behaviour.enabled), processedCount);
         }
     }
 }
