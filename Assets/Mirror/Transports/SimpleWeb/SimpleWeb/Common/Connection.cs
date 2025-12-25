@@ -86,7 +86,7 @@ namespace Mirror.SimpleWeb
                 while (sendQueue.TryDequeue(out ArrayBuffer buffer))
                     buffer.Release();
 
-                onDispose.Invoke(this);
+                onDispose?.Invoke(this);
             }
         }
 
