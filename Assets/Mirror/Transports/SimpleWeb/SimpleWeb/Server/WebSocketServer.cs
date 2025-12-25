@@ -196,19 +196,15 @@ namespace Mirror.SimpleWeb
                 Log.Warn("[SWT-WebSocketServer]: Send: cannot send message to {0} because it was not found in dictionary. Maybe it disconnected.", id);
         }
 
-        public bool CloseConnection(int id)
+        public void CloseConnection(int id)
         {
             if (connections.TryGetValue(id, out Connection conn))
             {
                 Log.Info("[SWT-WebSocketServer]: CloseConnection: Disconnecting connection {0}", id);
                 conn.Dispose();
-                return true;
             }
             else
-            {
                 Log.Warn("[SWT-WebSocketServer]: Failed to kick {0} because id not found.", id);
-                return false;
-            }
         }
 
         public string GetClientAddress(int id)

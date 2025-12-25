@@ -56,7 +56,7 @@ namespace Mirror.SimpleWeb
             server.Send(connectionId, buffer);
         }
 
-        public bool KickClient(int connectionId) => server.CloseConnection(connectionId);
+        public void KickClient(int connectionId) => server.CloseConnection(connectionId);
 
         public string GetClientAddress(int connectionId) => server.GetClientAddress(connectionId);
 
