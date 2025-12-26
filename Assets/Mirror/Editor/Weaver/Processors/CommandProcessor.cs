@@ -91,10 +91,10 @@ namespace Mirror.Weaver
                 ParameterDefinition param = md.Parameters[i];
                 if (NetworkBehaviourProcessor.IsSenderConnection(param, RemoteCallType.Command))
                 {
-                    // load 'this.'
-                    worker.Emit(OpCodes.Ldarg_0);
-                    // call get_connectionToClient
-                    worker.Emit(OpCodes.Call, weaverTypes.NetworkBehaviourConnectionToClientReference);
+                    // Server-owned object => no owner connection (connectionToClient is null).
+                    // Host calling [Command] should use NetworkServer.localConnection as sender.
+                    // Load NetworkServer.localConnection
+                    worker.Emit(OpCodes.Call, weaverTypes.NetworkServerLocalConnectionReference);
                 }
                 else
                 {
