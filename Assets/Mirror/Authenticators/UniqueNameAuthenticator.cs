@@ -7,6 +7,12 @@ using UnityEngine.Events;
 
 namespace Mirror.Authenticators
 {
+#if !UNITY_2020_3_OR_NEWER
+    /// <summary>UnityEvent subclass for notifying when a client is authenticated on the server</summary>
+    [Serializable]
+    public class StringEvent : UnityEvent<string> { }
+#endif
+
     public class UniqueNameAuthenticator : NetworkAuthenticator
     {
         readonly HashSet<NetworkConnectionToClient> connectionsPendingDisconnect = new HashSet<NetworkConnectionToClient>();
@@ -16,8 +22,14 @@ namespace Mirror.Authenticators
         public string playerName;
 
         [Header("Events")]
+#if !UNITY_2020_3_OR_NEWER
+        // Unity 2019 compatibility
+        public StringEvent OnAuthSuccess = new StringEvent();
+        public StringEvent OnAuthFailure = new StringEvent();
+#else
         public UnityEvent<string> OnAuthSuccess = new UnityEvent<string>();
         public UnityEvent<string> OnAuthFailure = new UnityEvent<string>();
+#endif
 
         #region Messages
 
