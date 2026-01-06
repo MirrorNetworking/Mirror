@@ -6,7 +6,7 @@ namespace Mirror.Weaver.Tests
     {
         static string OldNewMethodFormat(string hookName, string ValueType)
         {
-            return string.Format("void {0}({1} oldValue, {1} newValue)", hookName, ValueType);
+            return string.Format("void {0}({1} oldValue, {1} newValue), void {0}({1} oldValue) or void {0}()", hookName, ValueType);
         }
 
         [Test]
