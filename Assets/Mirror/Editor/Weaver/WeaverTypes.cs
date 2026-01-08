@@ -17,6 +17,7 @@ namespace Mirror.Weaver
         public MethodReference GetWriterReference;
         public MethodReference ReturnWriterReference;
 
+        public MethodReference NetworkServerLocalConnectionReference;
         public MethodReference NetworkClientConnectionReference;
 
         public MethodReference RemoteCallDelegateConstructor;
@@ -86,6 +87,7 @@ namespace Mirror.Weaver
 
             TypeReference NetworkServerType = Import(typeof(NetworkServer));
             NetworkServerGetActive = Resolvers.ResolveMethod(NetworkServerType, assembly, Log, "get_active", ref WeavingFailed);
+            NetworkServerLocalConnectionReference = Resolvers.ResolveMethod(NetworkServerType, assembly, Log, "get_localConnection", ref WeavingFailed);
 
             TypeReference NetworkClientType = Import(typeof(NetworkClient));
             NetworkClientGetActive = Resolvers.ResolveMethod(NetworkClientType, assembly, Log, "get_active", ref WeavingFailed);
