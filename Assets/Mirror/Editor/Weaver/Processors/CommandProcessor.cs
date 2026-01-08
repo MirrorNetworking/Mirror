@@ -94,6 +94,7 @@ namespace Mirror.Weaver
                     // Server-owned object => no owner connection (connectionToClient is null).
                     // Host calling [Command] should use NetworkServer.localConnection as sender.
                     // Load NetworkServer.localConnection
+                    // Fixes: https://github.com/MirrorNetworking/Mirror/issues/4070
                     worker.Emit(OpCodes.Call, weaverTypes.NetworkServerLocalConnectionReference);
                 }
                 else
