@@ -57,11 +57,12 @@ namespace Mirror.Tests
             // Start the thread
             mirrorThread.Start();
             
-            // Wait for thread to complete
-            Thread.Sleep(100);
+            // Wait for thread to complete gracefully
+            bool stopped = mirrorThread.StopBlocking(1);
             
             // Verify tick was called (thread ran)
             Assert.That(tickCalled, Is.True);
+            Assert.That(stopped, Is.True, "Thread should have stopped gracefully");
             Assert.That(mirrorThread.IsAlive, Is.False);
         }
     }

@@ -5,7 +5,6 @@
 //
 // need to hook into logMessageReceivedThreaded to receive them in builds too.
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Threading;
 using UnityEngine;
 
