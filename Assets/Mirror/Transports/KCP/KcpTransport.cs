@@ -187,10 +187,7 @@ namespace kcp2k
         public override void ClientLateUpdate() => client.TickOutgoing();
 
         // server
-        public override Uri ServerUri()
-        {
-            return TryBuildValidUri(Scheme, Dns.GetHostName(), Port);
-        }
+        public override Uri ServerUri() => TryBuildValidUri(Scheme, Dns.GetHostName(), Port);
         public override bool ServerActive() => server.IsActive();
         public override void ServerStart() => server.Start(Port);
         public override void ServerSend(int connectionId, ArraySegment<byte> segment, int channelId)

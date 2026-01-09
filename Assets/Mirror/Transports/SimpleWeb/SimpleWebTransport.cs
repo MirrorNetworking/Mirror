@@ -277,10 +277,7 @@ namespace Mirror.SimpleWeb
 
         string GetServerScheme() => sslEnabled ? SecureScheme : NormalScheme;
 
-        public override Uri ServerUri()
-        {
-            return TryBuildValidUri(GetServerScheme(), Dns.GetHostName(), port);
-        }
+        public override Uri ServerUri() => TryBuildValidUri(GetServerScheme(), Dns.GetHostName(), port);
 
         public override bool ServerActive()
         {

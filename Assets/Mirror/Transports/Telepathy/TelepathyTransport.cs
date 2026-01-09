@@ -157,10 +157,7 @@ namespace Mirror
         }
 
         // server
-        public override Uri ServerUri()
-        {
-            return TryBuildValidUri(Scheme, Dns.GetHostName(), port);
-        }
+        public override Uri ServerUri() => TryBuildValidUri(Scheme, Dns.GetHostName(), port);
         public override bool ServerActive() => server != null && server.Active;
         public override void ServerStart()
         {
