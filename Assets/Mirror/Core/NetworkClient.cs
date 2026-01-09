@@ -1385,10 +1385,11 @@ namespace Mirror
 
                 identity.isOwned = message.isOwner;
 
-                // Set flag to indicate initial spawn deserialization in host mode.
+                // Set flag to indicate initial spawn deserialization in host mode WITH AOI.
                 // This forces SyncVar hooks to fire even if values haven't changed,
-                // because the field was already set on server but hook wasn't called yet.
-                identity.hostInitialSpawn = true;
+                // because the field was already set on server but hook wasn't called yet (object was out of range).
+                // Only set this flag when AOI is active, otherwise hooks should fire normally via setters.
+                identity.hostInitialSpawn = aoi != null;
 
                 // Configure flags before deserializing
                 InitializeIdentityFlags(identity);
