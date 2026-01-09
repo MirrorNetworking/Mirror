@@ -243,7 +243,8 @@ namespace Mirror
                 
                 // Force URI construction to validate
                 Uri testUri = builder.Uri;
-                if (!string.IsNullOrEmpty(testUri.Host))
+                // Check: host is not empty, port is correct, and no UserInfo corruption
+                if (!string.IsNullOrEmpty(testUri.Host) && testUri.Port == port && string.IsNullOrEmpty(testUri.UserInfo))
                 {
                     return testUri;
                 }
@@ -264,7 +265,8 @@ namespace Mirror
                 };
                 
                 Uri testUri = builder.Uri;
-                if (!string.IsNullOrEmpty(testUri.Host))
+                // Check: host is not empty, port is correct, and no UserInfo corruption
+                if (!string.IsNullOrEmpty(testUri.Host) && testUri.Port == port && string.IsNullOrEmpty(testUri.UserInfo))
                 {
                     return testUri;
                 }
