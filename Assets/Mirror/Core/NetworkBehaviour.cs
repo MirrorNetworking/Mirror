@@ -806,7 +806,8 @@ namespace Mirror
             // in host mode initial spawn, also call hook even if value hasn't changed,
             // because the field was already set on server but hook wasn't called yet.
             bool changed = !SyncVarEqual(previous, ref field);
-            if (OnChanged != null && (changed || netIdentity.hostInitialSpawn))
+            bool hostInitialSpawnInHostMode = NetworkServer.activeHost && netIdentity.hostInitialSpawn;
+            if (OnChanged != null && (changed || hostInitialSpawnInHostMode))
             {
                 OnChanged(previous, field);
             }
@@ -870,7 +871,8 @@ namespace Mirror
             // in host mode initial spawn, also call hook even if value hasn't changed,
             // because the field was already set on server but hook wasn't called yet.
             bool changed = !SyncVarEqual(previousNetId, ref netIdField);
-            if (OnChanged != null && (changed || netIdentity.hostInitialSpawn))
+            bool hostInitialSpawnInHostMode = NetworkServer.activeHost && netIdentity.hostInitialSpawn;
+            if (OnChanged != null && (changed || hostInitialSpawnInHostMode))
             {
                 OnChanged(previousGameObject, field);
             }
@@ -935,7 +937,8 @@ namespace Mirror
             // in host mode initial spawn, also call hook even if value hasn't changed,
             // because the field was already set on server but hook wasn't called yet.
             bool changed = !SyncVarEqual(previousNetId, ref netIdField);
-            if (OnChanged != null && (changed || netIdentity.hostInitialSpawn))
+            bool hostInitialSpawnInHostMode = NetworkServer.activeHost && netIdentity.hostInitialSpawn;
+            if (OnChanged != null && (changed || hostInitialSpawnInHostMode))
             {
                 OnChanged(previousIdentity, field);
             }
@@ -1002,7 +1005,8 @@ namespace Mirror
             // in host mode initial spawn, also call hook even if value hasn't changed,
             // because the field was already set on server but hook wasn't called yet.
             bool changed = !SyncVarEqual(previousNetId, ref netIdField);
-            if (OnChanged != null && (changed || netIdentity.hostInitialSpawn))
+            bool hostInitialSpawnInHostMode = NetworkServer.activeHost && netIdentity.hostInitialSpawn;
+            if (OnChanged != null && (changed || hostInitialSpawnInHostMode))
             {
                 OnChanged(previousBehaviour, field);
             }
