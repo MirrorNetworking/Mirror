@@ -1385,14 +1385,16 @@ namespace Mirror
 
                 identity.isOwned = message.isOwner;
 
-                // Configure flags before deserializing. 
-                // DeserializeClient calls SyncVar hooks, which should have isClient/isLocalPlayer set.
+                // Set flag to indicate initial spawn deserialization in host mode.
+                // This forces SyncVar hooks to fire even if values haven't changed,
+                // because the field was already set on server but hook wasn't called yet.
+                identity.hostInitialSpawn = true;
+
+                // Configure flags before deserializing
                 InitializeIdentityFlags(identity);
 
-                // Deserialize components if any payload
-                // (Count is 0 if there were no components)
-                // This ensures SyncVar hooks fire for host client when entering AOI range.
-                // Fixes host client SyncVar hook AOI bugs
+                // Deserialize components if any payload.
+                // This will trigger SyncVar hooks via GeneratedSyncVarDeserialize.
                 if (message.payload.Count > 0)
                 {
                     using (NetworkReaderPooled payloadReader = NetworkReaderPool.Get(message.payload))
@@ -1401,7 +1403,10 @@ namespace Mirror
                     }
                 }
 
-                // Invoke callbacks AFTER deserializing, so SyncVars are set
+                // Clear flag after deserialization
+                identity.hostInitialSpawn = false;
+
+                // Invoke callbacks after deserializing
                 InvokeIdentityCallbacks(identity);
             }
         }

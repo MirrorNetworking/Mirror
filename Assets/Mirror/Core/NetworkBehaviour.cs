@@ -565,9 +565,7 @@ namespace Mirror
                     // in client-only mode, OnDeserialize would call it.
                     // we use hook guard to protect against deadlock where hook
                     // changes syncvar, calling hook again.
-                    // IMPORTANT: only call hook if object is visible to host client (in AOI range).
-                    // fixes host client SyncVar hook AOI bugs
-                    if (NetworkServer.activeHost && !GetSyncVarHookGuard(dirtyBit) && NetworkClient.spawned.ContainsKey(netIdentity.netId))
+                    if (NetworkServer.activeHost && !GetSyncVarHookGuard(dirtyBit))
                     {
                         SetSyncVarHookGuard(dirtyBit, true);
                         OnChanged(oldValue, value);
@@ -594,9 +592,7 @@ namespace Mirror
                     // in client-only mode, OnDeserialize would call it.
                     // we use hook guard to protect against deadlock where hook
                     // changes syncvar, calling hook again.
-                    // IMPORTANT: only call hook if object is visible to host client (in AOI range).
-                    // fixes host client SyncVar hook AOI bugs
-                    if (NetworkServer.activeHost && !GetSyncVarHookGuard(dirtyBit) && NetworkClient.spawned.ContainsKey(netIdentity.netId))
+                    if (NetworkServer.activeHost && !GetSyncVarHookGuard(dirtyBit))
                     {
                         SetSyncVarHookGuard(dirtyBit, true);
                         OnChanged(oldValue, value);
@@ -623,9 +619,7 @@ namespace Mirror
                     // in client-only mode, OnDeserialize would call it.
                     // we use hook guard to protect against deadlock where hook
                     // changes syncvar, calling hook again.
-                    // IMPORTANT: only call hook if object is visible to host client (in AOI range).
-                    // fixes host client SyncVar hook AOI bugs
-                    if (NetworkServer.activeHost && !GetSyncVarHookGuard(dirtyBit) && NetworkClient.spawned.ContainsKey(netIdentity.netId))
+                    if (NetworkServer.activeHost && !GetSyncVarHookGuard(dirtyBit))
                     {
                         SetSyncVarHookGuard(dirtyBit, true);
                         OnChanged(oldValue, value);
@@ -653,9 +647,7 @@ namespace Mirror
                     // in client-only mode, OnDeserialize would call it.
                     // we use hook guard to protect against deadlock where hook
                     // changes syncvar, calling hook again.
-                    // IMPORTANT: only call hook if object is visible to host client (in AOI range).
-                    // fixes host client SyncVar hook AOI bugs
-                    if (NetworkServer.activeHost && !GetSyncVarHookGuard(dirtyBit) && NetworkClient.spawned.ContainsKey(netIdentity.netId))
+                    if (NetworkServer.activeHost && !GetSyncVarHookGuard(dirtyBit))
                     {
                         SetSyncVarHookGuard(dirtyBit, true);
                         OnChanged(oldValue, value);
@@ -803,7 +795,10 @@ namespace Mirror
             field = value;
 
             // any hook? then call if changed.
-            if (OnChanged != null && !SyncVarEqual(previous, ref field))
+            // in host mode initial spawn, also call hook even if value hasn't changed,
+            // because the field was already set on server but hook wasn't called yet.
+            bool changed = !SyncVarEqual(previous, ref field);
+            if (OnChanged != null && (changed || netIdentity.hostInitialSpawn))
             {
                 OnChanged(previous, field);
             }
@@ -864,7 +859,10 @@ namespace Mirror
             field = GetSyncVarGameObject(netIdField, ref field);
 
             // any hook? then call if changed.
-            if (OnChanged != null && !SyncVarEqual(previousNetId, ref netIdField))
+            // in host mode initial spawn, also call hook even if value hasn't changed,
+            // because the field was already set on server but hook wasn't called yet.
+            bool changed = !SyncVarEqual(previousNetId, ref netIdField);
+            if (OnChanged != null && (changed || netIdentity.hostInitialSpawn))
             {
                 OnChanged(previousGameObject, field);
             }
@@ -926,7 +924,10 @@ namespace Mirror
             field = GetSyncVarNetworkIdentity(netIdField, ref field);
 
             // any hook? then call if changed.
-            if (OnChanged != null && !SyncVarEqual(previousNetId, ref netIdField))
+            // in host mode initial spawn, also call hook even if value hasn't changed,
+            // because the field was already set on server but hook wasn't called yet.
+            bool changed = !SyncVarEqual(previousNetId, ref netIdField);
+            if (OnChanged != null && (changed || netIdentity.hostInitialSpawn))
             {
                 OnChanged(previousIdentity, field);
             }
@@ -990,7 +991,10 @@ namespace Mirror
             field = GetSyncVarNetworkBehaviour(netIdField, ref field);
 
             // any hook? then call if changed.
-            if (OnChanged != null && !SyncVarEqual(previousNetId, ref netIdField))
+            // in host mode initial spawn, also call hook even if value hasn't changed,
+            // because the field was already set on server but hook wasn't called yet.
+            bool changed = !SyncVarEqual(previousNetId, ref netIdField);
+            if (OnChanged != null && (changed || netIdentity.hostInitialSpawn))
             {
                 OnChanged(previousBehaviour, field);
             }
