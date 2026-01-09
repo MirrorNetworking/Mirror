@@ -83,11 +83,10 @@ namespace Mirror
 
             // only enqueue messages from Mirror-managed threads.
             // otherwise we would capture logs from user's application threads too.
-            int threadId = Thread.CurrentThread.ManagedThreadId;
-            if (!mirrorThreadIds.ContainsKey(threadId)) return;
+            if (!mirrorThreadIds.ContainsKey(Thread.CurrentThread.ManagedThreadId)) return;
 
             // queue for logging from main thread later
-            logs.Enqueue(new LogEntry(threadId, type, message, stackTrace));
+            logs.Enqueue(new LogEntry(Thread.CurrentThread.ManagedThreadId, type, message, stackTrace));
         }
 
         static void OnLateUpdate()
