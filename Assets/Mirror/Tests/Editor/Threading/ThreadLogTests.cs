@@ -46,10 +46,10 @@ namespace Mirror.Tests
         {
             // Create a worker thread that just sleeps
             mirrorThread = new WorkerThread("ThreadLogTest");
-            bool tickCalled = false;
+            int tickCalled = 0;
             mirrorThread.Tick = () => 
             { 
-                tickCalled = true;
+                Interlocked.Increment(ref tickCalled);
                 Thread.Sleep(10);
                 return false; // Stop after one tick
             };
@@ -57,11 +57,14 @@ namespace Mirror.Tests
             // Start the thread
             mirrorThread.Start();
             
+            // Give the thread time to start and run
+            Thread.Sleep(50);
+            
             // Wait for thread to complete gracefully
             bool stopped = mirrorThread.StopBlocking(1);
             
             // Verify tick was called (thread ran)
-            Assert.That(tickCalled, Is.True);
+            Assert.That(tickCalled, Is.GreaterThanOrEqualTo(1), "Tick should have been called at least once");
             Assert.That(stopped, Is.True, "Thread should have stopped gracefully");
             Assert.That(mirrorThread.IsAlive, Is.False);
         }
