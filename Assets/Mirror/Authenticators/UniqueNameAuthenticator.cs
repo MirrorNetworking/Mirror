@@ -93,7 +93,7 @@ namespace Mirror.Authenticators
         /// <param name="msg">The message payload</param>
         public void OnAuthRequestMessage(NetworkConnectionToClient conn, AuthRequestMessage msg)
         {
-            Debug.Log($"Authentication Request: {msg.authUsername}");
+            //Debug.Log($"Authentication Request: {msg.authUsername}");
 
             if (connectionsPendingDisconnect.Contains(conn)) return;
 
@@ -200,7 +200,7 @@ namespace Mirror.Authenticators
         {
             if (msg.success)
             {
-                Debug.Log($"Authentication Response: Success: {msg.message}");
+                //Debug.Log($"Authentication Response: Success: {msg.message}");
 
                 // Invoke Success Action
                 OnAuthSuccess.Invoke(msg.message);
@@ -210,7 +210,7 @@ namespace Mirror.Authenticators
             }
             else
             {
-                Debug.LogError($"Authentication Response: Failure: {msg.message}");
+                //Debug.LogError($"Authentication Response: Failure: {msg.message}");
 
                 // Name was not unique, so stop the client
                 // StopHost works for both host client and remote clients
