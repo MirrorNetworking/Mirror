@@ -1119,8 +1119,7 @@ namespace Mirror.Tests.NetworkServers
             Assert.That(NetworkServer.SpawnObjects(), Is.False);
         }
 
-        // Test for the issue: SpawnObjects sends spawn messages to connections without player objects
-        // https://github.com/MirrorNetworking/Mirror/issues/XXXX
+        // Test for: SpawnObjects sends spawn messages to connections without player objects
         [Test]
         public void SpawnObjects_DoesNotAddObserversForConnectionsWithoutIdentity()
         {
