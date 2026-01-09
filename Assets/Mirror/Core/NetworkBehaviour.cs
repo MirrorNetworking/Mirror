@@ -566,7 +566,7 @@ namespace Mirror
                     // we use hook guard to protect against deadlock where hook
                     // changes syncvar, calling hook again.
                     // IMPORTANT: only call hook if object is visible to host client (in AOI range).
-                    // fixes: https://github.com/MirrorNetworking/Mirror/issues/XXXX
+                    // fixes host client SyncVar hook AOI bugs
                     if (NetworkServer.activeHost && !GetSyncVarHookGuard(dirtyBit) && NetworkClient.spawned.ContainsKey(netIdentity.netId))
                     {
                         SetSyncVarHookGuard(dirtyBit, true);
@@ -595,7 +595,7 @@ namespace Mirror
                     // we use hook guard to protect against deadlock where hook
                     // changes syncvar, calling hook again.
                     // IMPORTANT: only call hook if object is visible to host client (in AOI range).
-                    // fixes: https://github.com/MirrorNetworking/Mirror/issues/XXXX
+                    // fixes host client SyncVar hook AOI bugs
                     if (NetworkServer.activeHost && !GetSyncVarHookGuard(dirtyBit) && NetworkClient.spawned.ContainsKey(netIdentity.netId))
                     {
                         SetSyncVarHookGuard(dirtyBit, true);
@@ -624,7 +624,7 @@ namespace Mirror
                     // we use hook guard to protect against deadlock where hook
                     // changes syncvar, calling hook again.
                     // IMPORTANT: only call hook if object is visible to host client (in AOI range).
-                    // fixes: https://github.com/MirrorNetworking/Mirror/issues/XXXX
+                    // fixes host client SyncVar hook AOI bugs
                     if (NetworkServer.activeHost && !GetSyncVarHookGuard(dirtyBit) && NetworkClient.spawned.ContainsKey(netIdentity.netId))
                     {
                         SetSyncVarHookGuard(dirtyBit, true);
@@ -654,7 +654,7 @@ namespace Mirror
                     // we use hook guard to protect against deadlock where hook
                     // changes syncvar, calling hook again.
                     // IMPORTANT: only call hook if object is visible to host client (in AOI range).
-                    // fixes: https://github.com/MirrorNetworking/Mirror/issues/XXXX
+                    // fixes host client SyncVar hook AOI bugs
                     if (NetworkServer.activeHost && !GetSyncVarHookGuard(dirtyBit) && NetworkClient.spawned.ContainsKey(netIdentity.netId))
                     {
                         SetSyncVarHookGuard(dirtyBit, true);

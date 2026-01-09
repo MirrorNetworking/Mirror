@@ -1392,7 +1392,7 @@ namespace Mirror
                 // deserialize components if any payload
                 // (Count is 0 if there were no components)
                 // This ensures SyncVar hooks fire for host client when entering AOI range.
-                // fixes: https://github.com/MirrorNetworking/Mirror/issues/XXXX
+                // fixes host client SyncVar hook AOI bugs
                 if (message.payload.Count > 0)
                 {
                     using (NetworkReaderPooled payloadReader = NetworkReaderPool.Get(message.payload))
