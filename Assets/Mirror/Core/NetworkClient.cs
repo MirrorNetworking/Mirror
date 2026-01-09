@@ -1385,14 +1385,14 @@ namespace Mirror
 
                 identity.isOwned = message.isOwner;
 
-                // configure flags before deserializing. 
+                // Configure flags before deserializing. 
                 // DeserializeClient calls SyncVar hooks, which should have isClient/isLocalPlayer set.
                 InitializeIdentityFlags(identity);
 
-                // deserialize components if any payload
+                // Deserialize components if any payload
                 // (Count is 0 if there were no components)
                 // This ensures SyncVar hooks fire for host client when entering AOI range.
-                // fixes host client SyncVar hook AOI bugs
+                // Fixes host client SyncVar hook AOI bugs
                 if (message.payload.Count > 0)
                 {
                     using (NetworkReaderPooled payloadReader = NetworkReaderPool.Get(message.payload))
@@ -1401,7 +1401,7 @@ namespace Mirror
                     }
                 }
 
-                // invoke callbacks AFTER deserializing, so SyncVars are set
+                // Invoke callbacks AFTER deserializing, so SyncVars are set
                 InvokeIdentityCallbacks(identity);
             }
         }
