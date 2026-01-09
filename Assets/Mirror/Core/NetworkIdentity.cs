@@ -118,6 +118,11 @@ namespace Mirror
         // internal so NetworkManager can reset it from StopClient.
         internal bool clientStarted;
 
+        // flag to indicate we're deserializing initial spawn in host mode.
+        // used to force SyncVar hooks to fire even if value hasn't changed.
+        // only set temporarily during OnHostClientSpawn deserialization.
+        internal bool hostInitialSpawn;
+
         /// <summary>The set of network connections (players) that can see this object.</summary>
         public readonly Dictionary<int, NetworkConnectionToClient> observers =
             new Dictionary<int, NetworkConnectionToClient>();
