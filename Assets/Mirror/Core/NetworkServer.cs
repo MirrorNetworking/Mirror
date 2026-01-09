@@ -1998,13 +1998,12 @@ namespace Mirror
             foreach (NetworkConnectionToClient conn in connections.Values)
             {
                 // only if authenticated (don't send to people during logins)
-                // and only if player object exists (don't send to connections without players)
-                if (conn.isReady && conn.identity != null)
+                if (conn.isReady)
                     identity.AddObserver(conn);
             }
 
             // add local host connection (if any)
-            if (localConnection != null && localConnection.isReady && localConnection.identity != null)
+            if (localConnection != null && localConnection.isReady)
             {
                 identity.AddObserver(localConnection);
             }

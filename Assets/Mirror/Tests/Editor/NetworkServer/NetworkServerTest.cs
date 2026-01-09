@@ -1119,50 +1119,6 @@ namespace Mirror.Tests.NetworkServers
             Assert.That(NetworkServer.SpawnObjects(), Is.False);
         }
 
-        // Test for: SpawnObjects sends spawn messages to connections without player objects
-        [Test]
-        public void SpawnObjects_DoesNotAddObserversForConnectionsWithoutIdentity()
-        {
-            // start server
-            NetworkServer.Listen(2);
-
-            // create a ready connection WITHOUT a player identity
-            NetworkConnectionToClient readyConnectionWithoutPlayer = new NetworkConnectionToClient(42);
-            NetworkServer.AddConnection(readyConnectionWithoutPlayer);
-            readyConnectionWithoutPlayer.isReady = true;
-            // explicitly ensure identity is null
-            Assert.That(readyConnectionWithoutPlayer.identity, Is.Null);
-
-            // create a ready connection WITH a player identity
-            NetworkConnectionToClient readyConnectionWithPlayer = new NetworkConnectionToClient(43);
-            NetworkServer.AddConnection(readyConnectionWithPlayer);
-            readyConnectionWithPlayer.isReady = true;
-            CreateNetworked(out GameObject playerGo, out NetworkIdentity playerIdentity);
-            readyConnectionWithPlayer.identity = playerIdentity;
-
-            // create a scene object to be spawned
-            CreateNetworked(out GameObject sceneGo, out NetworkIdentity sceneIdentity);
-            sceneIdentity.sceneId = 99;
-            sceneGo.SetActive(false);
-
-            // spawn scene objects
-            Assert.That(NetworkServer.SpawnObjects(), Is.True);
-
-            // the scene object should be spawned
-            Assert.That(sceneGo.activeSelf, Is.True);
-            Assert.That(sceneIdentity.netId, Is.Not.EqualTo(0));
-
-            // the connection WITH player should be an observer
-            Assert.That(sceneIdentity.observers.ContainsKey(43), Is.True);
-
-            // the connection WITHOUT player should NOT be an observer (this is the fix!)
-            Assert.That(sceneIdentity.observers.ContainsKey(42), Is.False);
-
-            // cleanup
-            sceneIdentity.isServer = false;
-            playerIdentity.isServer = false;
-        }
-
         [Test]
         public void UnSpawn()
         {
