@@ -222,58 +222,56 @@ namespace Mirror
         /// <returns>A valid URI (guaranteed to return a valid URI with localhost fallback)</returns>
         protected static Uri TryBuildValidUri(string scheme, string hostname, int port)
         {
-            // Handle null or empty hostname upfront
-            if (string.IsNullOrWhiteSpace(hostname))
+            // Only work on non-blank hostname
+            if (!string.IsNullOrWhiteSpace(hostname))
             {
-                hostname = "localhost";
-            }
-
-            // Try 1: IDN encode Unicode characters to ASCII (punycode)
-            try
-            {
-                IdnMapping idn = new IdnMapping();
-                string asciiHostname = idn.GetAscii(hostname);
-                
-                UriBuilder builder = new UriBuilder
+                // Try 1: IDN encode Unicode characters to ASCII (punycode)
+                try
                 {
-                    Scheme = scheme,
-                    Host = asciiHostname,
-                    Port = port
-                };
-                
-                // Force URI construction to validate
-                Uri testUri = builder.Uri;
-                // Check: host is not empty, port is correct, and no UserInfo corruption
-                if (!string.IsNullOrEmpty(testUri.Host) && testUri.Port == port && string.IsNullOrEmpty(testUri.UserInfo))
-                {
-                    return testUri;
+                    IdnMapping idn = new IdnMapping();
+                    string asciiHostname = idn.GetAscii(hostname);
+                    
+                    UriBuilder builder = new UriBuilder
+                    {
+                        Scheme = scheme,
+                        Host = asciiHostname,
+                        Port = port
+                    };
+                    
+                    // Force URI construction to validate
+                    Uri testUri = builder.Uri;
+                    // Check: host is not empty, port is correct, and no UserInfo corruption
+                    if (!string.IsNullOrEmpty(testUri.Host) && testUri.Port == port && string.IsNullOrEmpty(testUri.UserInfo))
+                    {
+                        return testUri;
+                    }
                 }
-            }
-            catch
-            {
-                // IDN encoding failed, try next approach
-            }
-
-            // Try 2: Use raw hostname (might work for ASCII-compatible names)
-            try
-            {
-                UriBuilder builder = new UriBuilder
+                catch
                 {
-                    Scheme = scheme,
-                    Host = hostname,
-                    Port = port
-                };
-                
-                Uri testUri = builder.Uri;
-                // Check: host is not empty, port is correct, and no UserInfo corruption
-                if (!string.IsNullOrEmpty(testUri.Host) && testUri.Port == port && string.IsNullOrEmpty(testUri.UserInfo))
-                {
-                    return testUri;
+                    // IDN encoding failed, try next approach
                 }
-            }
-            catch
-            {
-                // Raw hostname failed, use fallback
+
+                // Try 2: Use raw hostname (might work for ASCII-compatible names)
+                try
+                {
+                    UriBuilder builder = new UriBuilder
+                    {
+                        Scheme = scheme,
+                        Host = hostname,
+                        Port = port
+                    };
+                    
+                    Uri testUri = builder.Uri;
+                    // Check: host is not empty, port is correct, and no UserInfo corruption
+                    if (!string.IsNullOrEmpty(testUri.Host) && testUri.Port == port && string.IsNullOrEmpty(testUri.UserInfo))
+                    {
+                        return testUri;
+                    }
+                }
+                catch
+                {
+                    // Raw hostname failed, use fallback
+                }
             }
 
             // Try 3: Fallback to localhost (always succeeds)
