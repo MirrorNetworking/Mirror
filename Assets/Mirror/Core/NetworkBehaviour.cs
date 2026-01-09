@@ -565,7 +565,9 @@ namespace Mirror
                     // in client-only mode, OnDeserialize would call it.
                     // we use hook guard to protect against deadlock where hook
                     // changes syncvar, calling hook again.
-                    if (NetworkServer.activeHost && !GetSyncVarHookGuard(dirtyBit))
+                    // IMPORTANT: only call hook if object is visible to host client (in NetworkClient.spawned).
+                    // This prevents hooks from firing at spawn for objects out of AOI range.
+                    if (NetworkServer.activeHost && !GetSyncVarHookGuard(dirtyBit) && NetworkClient.spawned.ContainsKey(netIdentity.netId))
                     {
                         SetSyncVarHookGuard(dirtyBit, true);
                         OnChanged(oldValue, value);
@@ -592,7 +594,9 @@ namespace Mirror
                     // in client-only mode, OnDeserialize would call it.
                     // we use hook guard to protect against deadlock where hook
                     // changes syncvar, calling hook again.
-                    if (NetworkServer.activeHost && !GetSyncVarHookGuard(dirtyBit))
+                    // IMPORTANT: only call hook if object is visible to host client (in NetworkClient.spawned).
+                    // This prevents hooks from firing at spawn for objects out of AOI range.
+                    if (NetworkServer.activeHost && !GetSyncVarHookGuard(dirtyBit) && NetworkClient.spawned.ContainsKey(netIdentity.netId))
                     {
                         SetSyncVarHookGuard(dirtyBit, true);
                         OnChanged(oldValue, value);
@@ -619,7 +623,9 @@ namespace Mirror
                     // in client-only mode, OnDeserialize would call it.
                     // we use hook guard to protect against deadlock where hook
                     // changes syncvar, calling hook again.
-                    if (NetworkServer.activeHost && !GetSyncVarHookGuard(dirtyBit))
+                    // IMPORTANT: only call hook if object is visible to host client (in NetworkClient.spawned).
+                    // This prevents hooks from firing at spawn for objects out of AOI range.
+                    if (NetworkServer.activeHost && !GetSyncVarHookGuard(dirtyBit) && NetworkClient.spawned.ContainsKey(netIdentity.netId))
                     {
                         SetSyncVarHookGuard(dirtyBit, true);
                         OnChanged(oldValue, value);
@@ -647,7 +653,9 @@ namespace Mirror
                     // in client-only mode, OnDeserialize would call it.
                     // we use hook guard to protect against deadlock where hook
                     // changes syncvar, calling hook again.
-                    if (NetworkServer.activeHost && !GetSyncVarHookGuard(dirtyBit))
+                    // IMPORTANT: only call hook if object is visible to host client (in NetworkClient.spawned).
+                    // This prevents hooks from firing at spawn for objects out of AOI range.
+                    if (NetworkServer.activeHost && !GetSyncVarHookGuard(dirtyBit) && NetworkClient.spawned.ContainsKey(netIdentity.netId))
                     {
                         SetSyncVarHookGuard(dirtyBit, true);
                         OnChanged(oldValue, value);
