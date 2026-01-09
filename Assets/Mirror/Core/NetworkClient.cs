@@ -1384,7 +1384,25 @@ namespace Mirror
                     aoi.SetHostVisibility(identity, true);
 
                 identity.isOwned = message.isOwner;
-                BootstrapIdentity(identity);
+
+                // configure flags before deserializing. 
+                // DeserializeClient calls SyncVar hooks, which should have isClient/isLocalPlayer set.
+                InitializeIdentityFlags(identity);
+
+                // deserialize components if any payload
+                // (Count is 0 if there were no components)
+                // This ensures SyncVar hooks fire for host client when entering AOI range.
+                // fixes: https://github.com/MirrorNetworking/Mirror/issues/XXXX
+                if (message.payload.Count > 0)
+                {
+                    using (NetworkReaderPooled payloadReader = NetworkReaderPool.Get(message.payload))
+                    {
+                        identity.DeserializeClient(payloadReader, true);
+                    }
+                }
+
+                // invoke callbacks AFTER deserializing, so SyncVars are set
+                InvokeIdentityCallbacks(identity);
             }
         }
 
