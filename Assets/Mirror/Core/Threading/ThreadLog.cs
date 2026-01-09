@@ -5,6 +5,7 @@
 //
 // need to hook into logMessageReceivedThreaded to receive them in builds too.
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Threading;
 using UnityEngine;
 
@@ -36,6 +37,11 @@ namespace Mirror
 
         // main thread id
         static int mainThreadId;
+
+        // track Mirror-managed thread IDs
+        // using ConcurrentDictionary as a thread-safe HashSet
+        static readonly ConcurrentDictionary<int, byte> mirrorThreadIds =
+            new ConcurrentDictionary<int, byte>();
 
 #if !UNITY_EDITOR
         // Editor as of Unity 2021 does log threaded messages.
@@ -76,8 +82,13 @@ namespace Mirror
             // as well, causing deadlock.
             if (IsMainThread()) return;
 
+            // only enqueue messages from Mirror-managed threads.
+            // otherwise we would capture logs from user's application threads too.
+            int threadId = Thread.CurrentThread.ManagedThreadId;
+            if (!mirrorThreadIds.ContainsKey(threadId)) return;
+
             // queue for logging from main thread later
-            logs.Enqueue(new LogEntry(Thread.CurrentThread.ManagedThreadId, type, message, stackTrace));
+            logs.Enqueue(new LogEntry(threadId, type, message, stackTrace));
         }
 
         static void OnLateUpdate()
@@ -107,6 +118,18 @@ namespace Mirror
                         break;
                 }
             }
+        }
+
+        // called by WorkerThread to register a Mirror-managed thread
+        internal static void RegisterThread(int threadId)
+        {
+            mirrorThreadIds.TryAdd(threadId, 0);
+        }
+
+        // called by WorkerThread to unregister a Mirror-managed thread
+        internal static void UnregisterThread(int threadId)
+        {
+            mirrorThreadIds.TryRemove(threadId, out _);
         }
     }
 }
