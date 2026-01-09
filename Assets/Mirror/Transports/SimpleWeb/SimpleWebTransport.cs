@@ -279,8 +279,7 @@ namespace Mirror.SimpleWeb
 
         public override Uri ServerUri()
         {
-            TryBuildValidUri(GetServerScheme(), Dns.GetHostName(), port, out Uri result);
-            return result;
+            return TryBuildValidUri(GetServerScheme(), Dns.GetHostName(), port);
         }
 
         public override bool ServerActive()

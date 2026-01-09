@@ -219,12 +219,9 @@ namespace Mirror
         /// <param name="scheme">URI scheme (e.g., "kcp", "tcp4", "ws")</param>
         /// <param name="hostname">Hostname to encode (typically from Dns.GetHostName())</param>
         /// <param name="port">Port number</param>
-        /// <param name="result">The resulting valid URI</param>
-        /// <returns>True if a valid URI was built, false otherwise (though fallback ensures this is always true)</returns>
-        protected static bool TryBuildValidUri(string scheme, string hostname, int port, out Uri result)
+        /// <returns>A valid URI (guaranteed to return a valid URI with localhost fallback)</returns>
+        protected static Uri TryBuildValidUri(string scheme, string hostname, int port)
         {
-            result = null;
-
             // Handle null or empty hostname upfront
             if (string.IsNullOrWhiteSpace(hostname))
             {
@@ -248,8 +245,7 @@ namespace Mirror
                 Uri testUri = builder.Uri;
                 if (!string.IsNullOrEmpty(testUri.Host))
                 {
-                    result = testUri;
-                    return true;
+                    return testUri;
                 }
             }
             catch
@@ -270,8 +266,7 @@ namespace Mirror
                 Uri testUri = builder.Uri;
                 if (!string.IsNullOrEmpty(testUri.Host))
                 {
-                    result = testUri;
-                    return true;
+                    return testUri;
                 }
             }
             catch
@@ -286,8 +281,7 @@ namespace Mirror
                 Host = "localhost",
                 Port = port
             };
-            result = fallbackBuilder.Uri;
-            return true;
+            return fallbackBuilder.Uri;
         }
     }
 }

@@ -189,8 +189,7 @@ namespace kcp2k
         // server
         public override Uri ServerUri()
         {
-            TryBuildValidUri(Scheme, Dns.GetHostName(), Port, out Uri result);
-            return result;
+            return TryBuildValidUri(Scheme, Dns.GetHostName(), Port);
         }
         public override bool ServerActive() => server.IsActive();
         public override void ServerStart() => server.Start(Port);

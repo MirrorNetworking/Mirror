@@ -177,8 +177,7 @@ namespace kcp2k
         // server thread overrides
         public override Uri ServerUri()
         {
-            TryBuildValidUri(Scheme, Dns.GetHostName(), Port, out Uri result);
-            return result;
+            return TryBuildValidUri(Scheme, Dns.GetHostName(), Port);
         }
         protected override void ThreadedServerStart() => server.Start(Port);
         protected override void ThreadedServerSend(int connectionId, ArraySegment<byte> segment, int channelId)
