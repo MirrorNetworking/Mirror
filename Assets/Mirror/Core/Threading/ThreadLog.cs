@@ -120,15 +120,11 @@ namespace Mirror
         }
 
         // called by WorkerThread to register a Mirror-managed thread
-        internal static void RegisterThread(int threadId)
-        {
-            mirrorThreadIds.TryAdd(threadId, 0);
-        }
+        internal static void RegisterThread(int threadId) =>
+            mirrorThreadIds[threadId] = 0;
 
         // called by WorkerThread to unregister a Mirror-managed thread
-        internal static void UnregisterThread(int threadId)
-        {
+        internal static void UnregisterThread(int threadId) =>
             mirrorThreadIds.TryRemove(threadId, out _);
-        }
     }
 }
