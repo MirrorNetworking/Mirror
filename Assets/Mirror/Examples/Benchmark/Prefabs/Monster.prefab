@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 1078519278818213949}
   - component: {fileID: 3679374677650722848}
   - component: {fileID: 8309506939003697769}
+  - component: {fileID: 5581743971519513227}
   m_Layer: 0
   m_Name: Monster
   m_TagString: Untagged
@@ -58,6 +59,7 @@ MeshRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -82,6 +84,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!114 &1078519278818213949
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -111,10 +114,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a553cb17010b2403e8523b558bffbc14, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  syncMethod: 0
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
   target: {fileID: 2697352357490696306}
+  updateMethod: 0
   syncPosition: 1
   syncRotation: 0
   syncScale: 0
@@ -144,9 +149,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9cddc2e496c474e538a494465be0192a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  syncMethod: 0
   syncDirection: 0
   syncMode: 0
   syncInterval: 0.1
   speed: 1
   movementProbability: 0.1
   movementDistance: 20
+--- !u!114 &5581743971519513227
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 449802645721213856}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a91a718a70d01b347b75cb768a6f1a92, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncMethod: 0
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+  color:
+    serializedVersion: 2
+    rgba: 4278190080

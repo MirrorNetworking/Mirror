@@ -15,6 +15,7 @@ namespace Mirror.Examples.Common
 
         void SetColor(Color32 _, Color32 newColor)
         {
+            Debug.Log($"[RandomColor] SetColor: {newColor}", gameObject);
             if (cachedMaterial == null) cachedMaterial = GetComponentInChildren<Renderer>().material;
             cachedMaterial.color = newColor;
         }
