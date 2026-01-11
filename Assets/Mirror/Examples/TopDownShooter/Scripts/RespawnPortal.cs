@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace Mirror.Examples.TopDownShooter
 {
+    [AddComponentMenu("")]
     public class RespawnPortal : MonoBehaviour
     {
         public float rotationSpeed = 360f; // Degrees per second

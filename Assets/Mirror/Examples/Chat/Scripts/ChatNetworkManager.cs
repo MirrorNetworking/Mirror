@@ -1,4 +1,5 @@
 using UnityEngine;
+using Mirror.Authenticators;
 
 namespace Mirror.Examples.Chat
 {
@@ -15,7 +16,7 @@ namespace Mirror.Examples.Chat
         {
             // remove player name from the HashSet
             if (conn.authenticationData != null)
-                ChatAuthenticator.playerNames.Remove((string)conn.authenticationData);
+                UniqueNameAuthenticator.playerNames.Remove((string)conn.authenticationData);
 
             // remove connection from Dictionary of conn > names
             ChatUI.connNames.Remove(conn);

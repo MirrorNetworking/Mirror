@@ -124,7 +124,7 @@ namespace Mirror.SimpleWeb
                 return buffer;
             else
             {
-                Log.Flood($"[SWT-BufferBucket]: BufferBucket({arraySize}) create new");
+                Log.Flood("[SWT-BufferBucket]: BufferBucket({0}) create new", arraySize);
                 return new ArrayBuffer(this, arraySize);
             }
         }
@@ -140,14 +140,14 @@ namespace Mirror.SimpleWeb
         void IncrementCreated()
         {
             int next = Interlocked.Increment(ref _current);
-            Log.Flood($"[SWT-BufferBucket]: BufferBucket({arraySize}) count:{next}");
+            Log.Flood("[SWT-BufferBucket]: BufferBucket({0}) count:{1}", arraySize, next);
         }
 
         [Conditional("DEBUG")]
         void DecrementCreated()
         {
             int next = Interlocked.Decrement(ref _current);
-            Log.Flood($"[SWT-BufferBucket]: BufferBucket({arraySize}) count:{next}");
+            Log.Flood("[SWT-BufferBucket]: BufferBucket({0}) count:{1}", arraySize, next);
         }
     }
 

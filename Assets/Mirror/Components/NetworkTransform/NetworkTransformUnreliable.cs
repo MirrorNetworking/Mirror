@@ -25,15 +25,36 @@ namespace Mirror
         protected Changed cachedChangedComparison;
         protected bool hasSentUnchangedPosition;
 
+        // validation //////////////////////////////////////////////////////////
+        // Configure is called from OnValidate and Awake
+        protected override void Configure()
+        {
+            base.Configure();
+
+            // NT-U was before SyncMethod. keep using the old default SyncMethod = Reliable.
+            // OnSerialize is only ever called for spawn, deltas are synced manually.
+            syncMethod = SyncMethod.Reliable;
+        }
+
         // update //////////////////////////////////////////////////////////////
         // Update applies interpolation
         void Update()
         {
-            if (isServer) UpdateServerInterpolation();
-            // for all other clients (and for local player if !authority),
-            // we need to apply snapshots from the buffer.
-            // 'else if' because host mode shouldn't interpolate client
-            else if (isClient && !IsClientWithAuthority) UpdateClientInterpolation();
+            if (updateMethod == UpdateMethod.Update)
+                DoUpdate();
+        }
+
+        void FixedUpdate()
+        {
+            if (updateMethod == UpdateMethod.FixedUpdate)
+                DoUpdate();
+
+            if (pendingSnapshot.HasValue)
+            {
+                // Apply via base method, but in FixedUpdate
+                Apply(pendingSnapshot.Value, pendingSnapshot.Value);
+                pendingSnapshot = null;
+            }
         }
 
         // LateUpdate broadcasts.
@@ -43,12 +64,24 @@ namespace Mirror
         // this could cause visible jitter.
         void LateUpdate()
         {
+            if (updateMethod == UpdateMethod.LateUpdate)
+                DoUpdate();
+
             // if server then always sync to others.
             if (isServer) UpdateServerBroadcast();
             // client authority, and local player (= allowed to move myself)?
             // 'else if' because host mode shouldn't send anything to server.
             // it is the server. don't overwrite anything there.
             else if (isClient && IsClientWithAuthority) UpdateClientBroadcast();
+        }
+
+        void DoUpdate()
+        {
+            if (isServer) UpdateServerInterpolation();
+            // for all other clients (and for local player if !authority),
+            // we need to apply snapshots from the buffer.
+            // 'else if' because host mode shouldn't interpolate client
+            else if (isClient && !IsClientWithAuthority) UpdateClientInterpolation();
         }
 
         protected virtual void CheckLastSendTime()
@@ -157,7 +190,10 @@ namespace Mirror
 
                 // interpolate & apply
                 TransformSnapshot computed = TransformSnapshot.Interpolate(from, to, t);
-                Apply(computed, to);
+                if (updateMethod == UpdateMethod.FixedUpdate)
+                    pendingSnapshot = computed;
+                else
+                    Apply(computed, to);
             }
         }
 
@@ -229,7 +265,10 @@ namespace Mirror
 
             // interpolate & apply
             TransformSnapshot computed = TransformSnapshot.Interpolate(from, to, t);
-            Apply(computed, to);
+            if (updateMethod == UpdateMethod.FixedUpdate)
+                pendingSnapshot = computed;
+            else
+                Apply(computed, to);
         }
 
         public override void OnSerialize(NetworkWriter writer, bool initialState)
@@ -368,7 +407,6 @@ namespace Mirror
             AddSnapshot(serverSnapshots, connectionToClient.remoteTimeStamp + timeStampAdjustment + offset, syncData.position, syncData.quatRotation, syncData.scale);
         }
 
-
         [ClientRpc(channel = Channels.Unreliable)]
         void RpcServerToClientSync(SyncData syncData) =>
             OnServerToClientSync(syncData);
@@ -438,6 +476,22 @@ namespace Mirror
                 }
 
                 syncData.scale = (syncData.changedDataByte & Changed.Scale) > 0 ? syncData.scale : (snapshots.Count > 0 ? snapshots.Values[snapshots.Count - 1].scale : GetScale());
+            }
+        }
+
+        // This is to extract position/rotation/scale data from payload. Override
+        // Construct and Deconstruct if you are implementing a different SyncData logic.
+        // Note however that snapshot interpolation still requires the basic 3 data
+        // position, rotation and scale, which are computed from here.
+        protected virtual void DeconstructSyncData(System.ArraySegment<byte> receivedPayload, out byte? changedFlagData, out Vector3? position, out Quaternion? rotation, out Vector3? scale)
+        {
+            using (NetworkReaderPooled reader = NetworkReaderPool.Get(receivedPayload))
+            {
+                SyncData syncData = reader.Read<SyncData>();
+                changedFlagData = (byte)syncData.changedDataByte;
+                position = syncData.position;
+                rotation = syncData.quatRotation;
+                scale = syncData.scale;
             }
         }
     }

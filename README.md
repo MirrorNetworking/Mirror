@@ -18,7 +18,7 @@
 ## Mirror Networking 
 The **#1** free **open source** game networking library for **Unity 2019 / 2020 / 2021 / 2022 / 6**.
 
-Used **in production** by major hits like [**Population: ONE**](https://www.populationonevr.com/) and many [**more**](#made-with-mirror).
+Used **in production** by major hits like [**Population: ONE**](https://www.populationonevr.com/) and over [**1000 Steam Games**](https://steamdb.info/tech/SDK/Mirror/?sort=rating_desc).
 
 Originally based on [**UNET**](https://web.archive.org/web/20230915050929/https://blog.unity.com/technology/announcing-unet-new-unity-multiplayer-technology): battle tested **since 2014** for 10 years and counting!
 
@@ -120,28 +120,25 @@ _The top quote is from Fitzcarraldo, which is quite reminiscent of this project.
 
 ---
 ## Getting Started
-Get **Unity 2019 / 2020 / 2021 / 2022 LTS**, [Download Mirror](https://assetstore.unity.com/packages/tools/network/mirror-129321), open one of the examples & press Play!
+Get **Unity 2019 / 2020 / 2021 / 2022 LTS and 6000.1**, [Download Mirror](https://assetstore.unity.com/packages/tools/network/mirror-129321), open one of the examples & press Play!
 
 Check out our [Documentation](https://mirror-networking.gitbook.io/) to learn how it all works.
 
 If you are migrating from UNET, then please check out our [Migration Guide](https://mirror-networking.gitbook.io/docs/general/migration-guide).
 
 ---
-## Mirror Guard
-We recently built the first version of our new "Mirror Guard" - Cheat Detection for Multiplayer Games.<br/>
-Mirror Guard is running in a production game today, so we want to make this available to more studios on demand.<br/>
+## Guard - Anti Cheat 🔒
+![2000x630](https://github.com/user-attachments/assets/34b5dce3-d137-4c36-b7d6-ebed62fadb7e)
+Guard is a high impact, zero risk anti-cheat solution built specifically for Unity games. Unlike most commercial anti-cheats, Guard is embedded on the source code level and compiles with your project.
 
-Mirror Guard is built with three core principles in mind:<br/>
-1️⃣ Detection over Prevention: silently reports cheaters to the server, instead of trying to block them.<br/>
-2️⃣ Zero Risk: Mirror Guard focuses on stability, we never want honest players to encounter issues, ever.<br/>
-3️⃣ Real World Threats: Mirror Guard only blocks cheats which we encountered in production.<br/>
-
-🍉 Mirror Guard V1 is able to safely detect Melon Loader, which we've found to be the foundation for the vast majority of cheats that we encountered.
-
-If you are interested, talk to any of our devs or email business at mirror-networking.com.
+Guard is available on the [Asset Store](https://assetstore.unity.com/packages/tools/network/guard-multiplayer-anti-cheat-321434) and includes a Mirror Integration!
 
 ---
 ## Made with Mirror
+### Thousands of Steam Games
+Mirror is used by [thousands of steam games](https://steamdb.info/tech/SDK/Mirror/?sort=rating_desc).
+<img width="1968" height="2220" alt="image" src="https://github.com/user-attachments/assets/53db77be-2227-4362-908c-1a650281938c" />
+
 ### [Population: ONE](https://www.populationonevr.com/)
 [![Population: ONE](https://github.com/MirrorNetworking/Mirror/assets/16416509/dddc778b-a97f-452d-b5f8-6ec42c6da4f1)](https://www.populationonevr.com/)
 The [BigBoxVR](https://www.bigboxvr.com/) team started using Mirror in February 2019 for what eventually became one of the most popular Oculus Rift games.
@@ -181,6 +178,12 @@ Castaway runs in the Browser, thanks to Mirror's WebGL support.
 Nudge Nudge Games' first title: the colorful, post-apocalyptic open world sandbox game [Nimoyd](https://store.steampowered.com/app/1313210/Nimoyd__Survival_Sandbox/) is being developed with Mirror.
 
 _Soon to be released for PC & mobile!_
+
+### [Project Z](https://www.projektzgame.com/)
+[![projectz](https://github.com/user-attachments/assets/50423fa6-982e-41ed-8a43-4823bf111818)](https://www.projektzgame.com/)
+Projekt Z is a first-person coop survival shooter set in a WW2 Zombie scenario on a secret German island. The game focuses on the threat of "Projekt Z", a clandestine program run by the Nazis to turn Zombies, which have been discovered on the island earlier, into weapons to help turn the tide of the war in Nazi Germany's favor.<br/>
+<br/>
+_Soon to be released!_
 
 ### [Unleashed](https://www.unleashedgames.io/)
 [![unleashed](https://github.com/MirrorNetworking/Mirror/assets/16416509/ef3bcf74-8fa9-4d22-801d-4d29cb59a013)](https://www.unleashedgames.io/)
@@ -287,6 +290,8 @@ The [France based team](https://naicaonline.com/en/news/view/1) was one of Mirro
 <a href="https://store.steampowered.com/app/1955340/Super_Raft_Boat_Together"><img src="https://github.com/MirrorNetworking/Mirror/assets/57072365/0d30b84a-0b2b-4790-8687-d95e2fa23df1" title="Super Raft Boat Together" height="100"/></a>
 <a href="https://store.steampowered.com/app/2585860/Ruins_To_Fortress/"><img src="https://github.com/MirrorNetworking/Mirror/assets/16416509/258ac5cf-d359-46cd-8af4-c7c1844dba9c" title="Ruins to Fortress" height="100"/></a>
 <a href="https://store.steampowered.com/app/2967080/Block_Trucks_Multiplayer_Racing/"><img src="https://github.com/user-attachments/assets/120794c6-81c2-445c-8f9b-b2be2bada376" title="Block Trucks" height="100"/></a>
+<a href="https://nebula-dev.itch.io/drunkonauts"><img src="https://github.com/user-attachments/assets/fef572da-dfd4-49af-8062-c072793a6a26" title="Drunkonauts" height="100"/></a>
+
 
 ## Modular Transports
 Mirror uses **KCP** (reliable UDP) by default, but you may use any of our community transports for low level packet sending:
@@ -297,10 +302,9 @@ Mirror uses **KCP** (reliable UDP) by default, but you may use any of our commun
 * [LiteNetLib](https://github.com/MirrorNetworking/LiteNetLibTransport/) UDP
 * [FizzySteam](https://github.com/Chykary/FizzySteamworks/): SteamNetwork
 * [FizzyFacepunch](https://github.com/Chykary/FizzyFacepunch/): SteamNetwork
-* [Epic Relay](https://github.com/FakeByte/EpicOnlineTransport): Epic Online Services
+* [Epic Relay](https://github.com/WeLoveJesusChrist/EOSTransport): Epic Online Services
 * [Bubble](https://github.com/Squaresweets/BubbleTransport): Apple GameCenter
 * [Light Reflective Mirror](https://github.com/Derek-R-S/Light-Reflective-Mirror): Self-Hosted Relay
-* [Oculus P2P](https://github.com/hyferg/MirrorOculusP2P): Oculus Platform Service
 
 ## Benchmarks
 * [2022] mischa [400-800 CCU](https://discord.com/channels/343440455738064897/1007519701603205150/1019879180592238603) tests

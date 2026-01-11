@@ -9,8 +9,8 @@ using Mirror.Discovery;
 //public class ServerFoundUnityEvent<TResponseType> : UnityEvent<TResponseType> { };
 namespace Mirror.Examples.AutoLANClientController
 {
+    [AddComponentMenu("")]
     [DisallowMultipleComponent]
-    [AddComponentMenu("Network/Network Discovery")]
     public class AutoLANNetworkDiscovery : NetworkDiscoveryBase<ServerRequest, ServerResponse>
     {
         #region Server

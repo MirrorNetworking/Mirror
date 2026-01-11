@@ -5,6 +5,7 @@ using UnityEngine.UI;
 
 namespace Mirror.Examples.TopDownShooter
 {
+    [AddComponentMenu("")]
     public class CanvasTopDown : MonoBehaviour
     {
         public NetworkTopDown networkTopDown;

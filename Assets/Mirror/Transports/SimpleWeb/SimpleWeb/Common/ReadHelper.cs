@@ -60,7 +60,7 @@ namespace Mirror.SimpleWeb
             }
             catch (Exception e)
             {
-                Log.Exception(e);
+                Log.Exception("[SWT-ReadHelper]", e);
                 return false;
             }
         }
@@ -102,12 +102,12 @@ namespace Mirror.SimpleWeb
             }
             catch (IOException e)
             {
-                Log.InfoException(e);
+                Log.InfoException("[SWT-ReadHelper] SafeReadTillMatch", e);
                 return null;
             }
             catch (Exception e)
             {
-                Log.Exception(e);
+                Log.Exception("[SWT-ReadHelper]", e);
                 return null;
             }
         }

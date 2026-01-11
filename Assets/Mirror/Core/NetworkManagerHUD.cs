@@ -19,12 +19,13 @@ namespace Mirror
             manager = GetComponent<NetworkManager>();
         }
 
+#if !UNITY_SERVER || UNITY_EDITOR
         void OnGUI()
         {
             // If this width is changed, also change offsetX in GUIConsole::OnGUI
-            int width = 300;
+            int width = 430;
 
-            GUILayout.BeginArea(new Rect(10 + offsetX, 40 + offsetY, width, 9999));
+            GUILayout.BeginArea(new Rect(10 + offsetX, 10 + offsetY, width, 9999));
 
             if (!NetworkClient.isConnected && !NetworkServer.active)
                 StartButtons();
@@ -158,5 +159,6 @@ namespace Mirror
                     manager.StopServer();
             }
         }
+#endif
     }
 }

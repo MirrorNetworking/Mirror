@@ -175,14 +175,7 @@ namespace kcp2k
         protected override void ThreadedClientLateUpdate() => client.TickOutgoing();
 
         // server thread overrides
-        public override Uri ServerUri()
-        {
-            UriBuilder builder = new UriBuilder();
-            builder.Scheme = Scheme;
-            builder.Host = Dns.GetHostName();
-            builder.Port = Port;
-            return builder.Uri;
-        }
+        public override Uri ServerUri() => TryBuildValidUri(Scheme, Dns.GetHostName(), Port);
         protected override void ThreadedServerStart() => server.Start(Port);
         protected override void ThreadedServerSend(int connectionId, ArraySegment<byte> segment, int channelId)
         {
@@ -282,8 +275,8 @@ namespace kcp2k
             */
         }
 
-// OnGUI allocates even if it does nothing. avoid in release.
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        // OnGUI allocates even if it does nothing. avoid in release.
+#if UNITY_EDITOR || (!UNITY_SERVER && DEBUG)
         protected virtual void OnGUI()
         {
             if (statisticsGUI) OnGUIStatistics();

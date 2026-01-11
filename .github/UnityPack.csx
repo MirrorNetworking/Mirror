@@ -11,7 +11,7 @@
 */
 
 #r "nuget: SharpZipLib, 1.4.2"
-#r "nuget: YamlDotNet, 15.1.6"
+#r "nuget: YamlDotNet, 16.3.0"
 
 using System;
 using System.Collections.Generic;

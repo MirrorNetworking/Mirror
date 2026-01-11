@@ -28,11 +28,13 @@ namespace Mirror.Examples.Common
             }
         }
 
+#if !UNITY_SERVER || UNITY_EDITOR
         protected void OnGUI()
         {
             if (!showGUI) return;
 
             GUI.Label(new Rect(Screen.width - 100, 0, 70, 25), $"FPS: {framesPerSecond}");
         }
+#endif
     }
 }
