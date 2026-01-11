@@ -27,6 +27,8 @@ namespace Mirror
 
     public abstract class NetworkTransformBase : NetworkBehaviour
     {
+        internal TransformSnapshot? pendingSnapshot;
+
         // target transform to sync. can be on a child.
         // TODO this field is kind of unnecessary since we now support child NetworkBehaviours
         [Header("Target")]
@@ -145,6 +147,9 @@ namespace Mirror
             // configure in awake
             Configure();
         }
+
+        // For NetworkBehaviourInspector
+        internal override bool showSyncMethod() => false;
 
         // initialization //////////////////////////////////////////////////////
         // forcec configuration of some settings
@@ -481,7 +486,7 @@ namespace Mirror
             }
         }
 
-#if !UNITY_SERVER && DEBUG
+#if UNITY_EDITOR || (!UNITY_SERVER && DEBUG)
         // OnGUI allocates even if it does nothing. avoid in release.
         // debug ///////////////////////////////////////////////////////////////
         protected virtual void OnGUI()

@@ -234,8 +234,9 @@ namespace Mirror.SimpleWeb
 
         public override void ClientDisconnect()
         {
-            // don't set client null here of messages wont be processed
-            client?.Disconnect();
+            // don't set client null here or messages wont be processed
+            if (client != null && client.ConnectionState != ClientState.NotConnected)
+                client.Disconnect();
         }
 
         public override void ClientSend(ArraySegment<byte> segment, int channelId)
@@ -276,16 +277,7 @@ namespace Mirror.SimpleWeb
 
         string GetServerScheme() => sslEnabled ? SecureScheme : NormalScheme;
 
-        public override Uri ServerUri()
-        {
-            UriBuilder builder = new UriBuilder
-            {
-                Scheme = GetServerScheme(),
-                Host = Dns.GetHostName(),
-                Port = port
-            };
-            return builder.Uri;
-        }
+        public override Uri ServerUri() => TryBuildValidUri(GetServerScheme(), Dns.GetHostName(), port);
 
         public override bool ServerActive()
         {

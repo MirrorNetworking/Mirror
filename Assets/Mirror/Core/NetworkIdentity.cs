@@ -88,6 +88,9 @@ namespace Mirror
         //   => fixes https://github.com/vis2k/Mirror/issues/2533
         public bool isServer { get; internal set; }
 
+        /// <summary>Returns true for spawned objects in host mode.</summary>
+        public bool isHost => isServer && isClient;
+
         /// <summary>Return true if this object represents the player on the local machine.</summary>
         //
         // IMPORTANT:
@@ -1558,6 +1561,19 @@ namespace Mirror
 
             clientAuthorityCallback?.Invoke(conn, this, true);
 
+            // If the connection is already observing the object we need to sync owner data only:
+            if (conn.observing.Contains(this))
+            {
+                foreach (NetworkBehaviour comp in NetworkBehaviours)
+                    if (comp.syncMode == SyncMode.Owner)
+                        comp.SetDirty();
+            }
+            else
+            {
+                // otherwise rebuild so the owner sees their NI without further delays
+                NetworkServer.RebuildObservers(this, false);
+            }
+            
             return true;
         }
 

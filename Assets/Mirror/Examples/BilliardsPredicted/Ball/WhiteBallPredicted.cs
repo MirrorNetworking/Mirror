@@ -171,7 +171,7 @@ namespace Mirror.Examples.BilliardsPredicted
         }
         */
 
-#if !UNITY_SERVER
+#if !UNITY_SERVER || UNITY_EDITOR
         [ClientCallback]
         void OnGUI()
         {

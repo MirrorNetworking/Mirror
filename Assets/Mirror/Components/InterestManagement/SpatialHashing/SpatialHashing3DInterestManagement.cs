@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace Mirror
 {
-    [AddComponentMenu("Network/ Interest Management/ Spatial Hash/Spatial Hashing Interest Management")]
+    [AddComponentMenu("Network/ Interest Management/ Spatial Hash/Grid Spatial Hash (3D)")]
     public class SpatialHashing3DInterestManagement : InterestManagement
     {
         [Tooltip("The maximum range that objects will be visible.\nSet to 10-20% larger than camera far clip plane")]
@@ -130,7 +130,7 @@ namespace Mirror
             }
         }
 
-#if !UNITY_SERVER && DEBUG
+#if UNITY_EDITOR || (!UNITY_SERVER && DEBUG)
         // OnGUI allocates even if it does nothing. avoid in release.
         // slider from dotsnet. it's nice to play around with in the benchmark
         // demo.

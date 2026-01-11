@@ -66,13 +66,11 @@ namespace Mirror.SimpleWeb
 
                 conn.request = new Request(msg);
                 conn.remoteAddress = conn.CalculateAddress();
-                Log.Info($"[SWT-ServerHandshake]: A client connected from {0}", conn);
-
                 return true;
             }
             catch (ArgumentException e)
             {
-                Log.InfoException(e);
+                Log.InfoException("[SWT-ServerHandshake]", e);
                 return false;
             }
         }

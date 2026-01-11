@@ -62,7 +62,10 @@ namespace Mirror
         /// <summary>True if this object is on the client and has been spawned by the server.</summary>
         public bool isClient => netIdentity.isClient;
 
-        /// <summary>True if this object is the the client's own local player.</summary>
+        /// <summary>Returns true for spawned objects in host mode.</summary>
+        public bool isHost => isServer && isClient;
+
+        /// <summary>True if this object is the client's own local player.</summary>
         public bool isLocalPlayer => netIdentity.isLocalPlayer;
 
         /// <summary>True if this object is on the server-only, not host.</summary>
@@ -120,6 +123,9 @@ namespace Mirror
 
         // NetworkBehaviourInspector needs to know if we have SyncObjects
         internal bool HasSyncObjects() => syncObjects.Count > 0;
+
+        // NetworkBehaviourInspector needs to know if it should show SyncMethod dropdown
+        internal virtual bool showSyncMethod() => true;
 
         // NetworkIdentity based values set from NetworkIdentity.Awake(),
         // which is way more simple and way faster than trying to figure out

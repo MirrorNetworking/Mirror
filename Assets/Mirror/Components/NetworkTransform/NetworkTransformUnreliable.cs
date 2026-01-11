@@ -9,7 +9,6 @@ namespace Mirror
     {
         uint sendIntervalCounter = 0;
         double lastSendIntervalTime = double.MinValue;
-        TransformSnapshot? pendingSnapshot;
 
         [Header("Additional Settings")]
         // Testing under really bad network conditions, 2%-5% packet loss and 250-1200ms ping, 5 proved to eliminate any twitching, however this should not be the default as it is a rare case Developers may want to cover.
@@ -32,8 +31,9 @@ namespace Mirror
         {
             base.Configure();
 
-            // force syncMethod to unreliable
-            syncMethod = SyncMethod.Hybrid;
+            // NT-U was before SyncMethod. keep using the old default SyncMethod = Reliable.
+            // OnSerialize is only ever called for spawn, deltas are synced manually.
+            syncMethod = SyncMethod.Reliable;
         }
 
         // update //////////////////////////////////////////////////////////////
@@ -43,7 +43,6 @@ namespace Mirror
             if (updateMethod == UpdateMethod.Update)
                 DoUpdate();
         }
-
 
         void FixedUpdate()
         {

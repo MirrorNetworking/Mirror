@@ -35,13 +35,27 @@ namespace Mirror.Tests.NetworkServers
         public void TestCommand() => ++called;
     }
 
+    public class CommandWithConnectionToClientNetworkBehaviour : NetworkBehaviour
+    {
+        // counter to make sure that it's called exactly once
+        public int called;
+        public NetworkConnectionToClient conn;
+
+        [Command]
+        public void TestCommand(NetworkConnectionToClient conn = null)
+        {
+            this.conn = conn;
+            ++called;
+        }
+    }
+
     public class RpcTestNetworkBehaviour : NetworkBehaviour
     {
         // counter to make sure that it's called exactly once
         public int called;
         // weaver generates this from [Rpc]
         // but for tests we need to add it manually
-        public static void RpcGenerated(NetworkBehaviour comp, NetworkReader reader, NetworkConnection senderConnection)
+        public static void RpcGenerated(NetworkBehaviour comp, NetworkReader reader, NetworkConnectionToClient senderConnection)
         {
             ++((RpcTestNetworkBehaviour)comp).called;
         }
@@ -800,20 +814,22 @@ namespace Mirror.Tests.NetworkServers
         {
             // listen & connect
             NetworkServer.Listen(1);
-            ConnectHostClientBlockingAuthenticatedAndReady();
+            ConnectClientBlockingAuthenticatedAndReady(out _);
 
             // add an identity with two networkbehaviour components
             // spawned, otherwise command handler won't find it in .spawned.
             // WITH OWNER = WITH AUTHORITY
-            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity identity, out CommandTestNetworkBehaviour comp, NetworkServer.localConnection);
+            CreateNetworkedAndSpawn(out _, out NetworkIdentity serverIdentity, out CommandTestNetworkBehaviour serverComponent,
+                                    out _, out NetworkIdentity clientIdentity, out CommandTestNetworkBehaviour clientComponent,
+                                    NetworkServer.localConnection);
 
             // change identity's owner connection so we can't call [Commands] on it
-            identity.connectionToClient = new LocalConnectionToClient();
+            serverIdentity.connectionToClient = new LocalConnectionToClient();
 
             // call the command
-            comp.TestCommand();
+            clientComponent.TestCommand();
             ProcessMessages();
-            Assert.That(comp.called, Is.EqualTo(0));
+            Assert.That(serverComponent.called, Is.EqualTo(0));
         }
 
         [Test]
@@ -826,13 +842,61 @@ namespace Mirror.Tests.NetworkServers
             // add an identity with two networkbehaviour components
             // spawned, otherwise command handler won't find it in .spawned.
             // WITHOUT OWNER = WITHOUT AUTHORITY for this test
-            CreateNetworkedAndSpawn(out _, out _, out CommandTestNetworkBehaviour comp,
-                                    out _, out _, out _);
+            CreateNetworkedAndSpawn(out _, out _, out CommandTestNetworkBehaviour serverComponent,
+                                    out _, out _, out CommandTestNetworkBehaviour clientComponent);
 
             // call the command
+            clientComponent.TestCommand();
+            ProcessMessages();
+            Assert.That(serverComponent.called, Is.EqualTo(0));
+        }
+
+        // Command with NetworkConnectionToClient arg expects a non-null connection arg when called on the client owned object.
+        [Test]
+        public void SendCommand_ClientOwnedObject_ConnectionNotNull()
+        {
+            // listen & connect
+            NetworkServer.Listen(1);
+            ConnectHostClientBlockingAuthenticatedAndReady();
+
+            // add an identity with two networkbehaviour components
+            // spawned, otherwise command handler won't find it in .spawned.
+            // WITH OWNER = WITH AUTHORITY
+            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out CommandWithConnectionToClientNetworkBehaviour comp, NetworkServer.localConnection);
+
+            // call the command, which has a 'NetworkConnectionToClient = null' default parameter
             comp.TestCommand();
             ProcessMessages();
-            Assert.That(comp.called, Is.EqualTo(0));
+
+            // on server it should be != null
+            Assert.That(comp.conn, !Is.Null);
+            // Host player-owned object: sender == connectionToClient (host's localConnection).
+            Assert.That(comp.conn, Is.EqualTo(comp.connectionToClient));
+            Assert.That(comp.called, Is.EqualTo(1));
+        }
+
+        // Command with NetworkConnectionToClient arg expects a non-null connection arg when called on the server owned object.
+        [Test]
+        public void SendCommand_ServerOwnedObject_ConnectionNotNull()
+        {
+            // listen & connect
+            NetworkServer.Listen(1);
+            ConnectHostClientBlockingAuthenticatedAndReady();
+
+            // add an identity with two networkbehaviour components
+            // spawned, otherwise command handler won't find it in .spawned.
+            // WITHOUT OWNER (SERVER-OWNED OBJECT)
+            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out CommandWithConnectionToClientNetworkBehaviour comp, ownerConnection: null);
+
+            // call the command, which has a 'NetworkConnectionToClient = null' default parameter
+            comp.TestCommand();
+            ProcessMessages();
+
+            // on server it should be != null
+            Assert.That(comp.conn, !Is.Null);
+            // Host mode + server-owned object: connectionToClient is null, so sender must be localConnection.
+            Assert.That(comp.conn, Is.EqualTo(NetworkServer.localConnection));
+            Assert.That(comp.called, Is.EqualTo(1));
         }
 
         [Test]
@@ -1172,10 +1236,14 @@ namespace Mirror.Tests.NetworkServers
             Assert.That(NetworkServer.active, Is.False);
             Assert.That(NetworkServer.isLoadingScene, Is.False);
 
+            Assert.That(NetworkServer.exceptionsDisconnect, Is.True);
+
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
             Assert.That(NetworkServer.connectionsCopy.Count, Is.EqualTo(0));
             Assert.That(NetworkServer.handlers.Count, Is.EqualTo(0));
             Assert.That(NetworkServer.spawned.Count, Is.EqualTo(0));
+
+            Assert.That(NetworkServer.actualTickRate, Is.EqualTo(0));
 
             Assert.That(NetworkServer.localConnection, Is.Null);
             Assert.That(NetworkServer.activeHost, Is.False);

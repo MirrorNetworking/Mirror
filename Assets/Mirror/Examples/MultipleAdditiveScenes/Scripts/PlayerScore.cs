@@ -18,7 +18,7 @@ namespace Mirror.Examples.MultipleAdditiveScenes
 
         public int clientMatchIndex = -1;
 
-#if !UNITY_SERVER
+#if !UNITY_SERVER || UNITY_EDITOR
         void OnGUI()
         {
             if (!isServerOnly && !isLocalPlayer && clientMatchIndex < 0)

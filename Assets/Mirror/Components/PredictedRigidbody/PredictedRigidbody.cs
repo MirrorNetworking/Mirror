@@ -214,9 +214,9 @@ namespace Mirror
             Vector3 position = tf.position;
             Quaternion rotation = tf.rotation;
             // Vector3 scale = tf.localScale; // don't change scale for now. causes issues with parenting.
-            // => reset to initial
-            physicsGhostRigidbody.transform.position = tf.position = initialPosition;
-            physicsGhostRigidbody.transform.rotation = tf.rotation = initialRotation;
+            // Instead of setting to the initial position we can set to the transform position this prevents teleporting and correction when the ghosts are created.
+            physicsGhostRigidbody.transform.position = tf.position;// = initialPosition;
+            physicsGhostRigidbody.transform.rotation = tf.rotation;// = initialRotation;
             physicsGhostRigidbody.transform.localScale = tf.lossyScale;// world scale! // = initialScale; // don't change scale for now. causes issues with parenting.
             // => move physics components
             PredictionUtils.MovePhysicsComponents(gameObject, physicsCopy);
@@ -269,9 +269,9 @@ namespace Mirror
                 Vector3 position = tf.position;
                 Quaternion rotation = tf.rotation;
                 Vector3 scale = tf.localScale;
-                // => reset to initial
-                physicsCopy.transform.position = tf.position = initialPosition;
-                physicsCopy.transform.rotation = tf.rotation = initialRotation;
+                // Instead of setting to the initial position we can set to the transform position this prevents teleporting and correction when the ghosts are destroyed.
+                physicsCopy.transform.position = tf.position;// = initialPosition;
+                physicsCopy.transform.rotation = tf.rotation;// = initialRotation;
                 physicsCopy.transform.localScale = tf.lossyScale;// = initialScale;
                 // => move physics components
                 PredictionUtils.MovePhysicsComponents(physicsCopy, gameObject);

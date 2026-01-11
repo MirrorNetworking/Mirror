@@ -2,7 +2,7 @@
 
 namespace Mirror.Examples.Common.Controllers.Player
 {
-    [AddComponentMenu("Network/Player Controller RB (Hybrid)")]
+    [AddComponentMenu("")]
     [RequireComponent(typeof(NetworkTransformHybrid))]
     public class PlayerControllerRBHybrid : PlayerControllerRBBase
     {

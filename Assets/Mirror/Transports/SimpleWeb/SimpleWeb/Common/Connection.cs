@@ -35,7 +35,7 @@ namespace Mirror.SimpleWeb
         public ConcurrentQueue<ArrayBuffer> sendQueue = new ConcurrentQueue<ArrayBuffer>();
 
         public Action<Connection> onDispose;
-        volatile bool hasDisposed;
+        volatile internal bool hasDisposed;
 
         public Connection(TcpClient client, Action<Connection> onDispose)
         {
@@ -53,7 +53,7 @@ namespace Mirror.SimpleWeb
             // check hasDisposed first to stop ThreadInterruptedException on lock
             if (hasDisposed) return;
 
-            Log.Verbose("[SWT-Connection]: Connection Close: {0}", ToString());
+            Log.Info("[SWT-Connection]: Connection Closed: {0}", ToString());
 
             lock (disposedLock)
             {
@@ -61,6 +61,7 @@ namespace Mirror.SimpleWeb
                 if (hasDisposed) return;
 
                 hasDisposed = true;
+                Log.Verbose("[SWT-Connection]: Dispose Connection {0} hasDisposed set true", ToString());
 
                 // stop threads first so they don't try to use disposed objects
                 receiveThread.Interrupt();
@@ -76,7 +77,7 @@ namespace Mirror.SimpleWeb
                 }
                 catch (Exception e)
                 {
-                    Log.Exception(e);
+                    Log.Exception("[SWT-Connection]", e);
                 }
 
                 sendPending.Dispose();
@@ -85,7 +86,7 @@ namespace Mirror.SimpleWeb
                 while (sendQueue.TryDequeue(out ArrayBuffer buffer))
                     buffer.Release();
 
-                onDispose.Invoke(this);
+                onDispose?.Invoke(this);
             }
         }
 

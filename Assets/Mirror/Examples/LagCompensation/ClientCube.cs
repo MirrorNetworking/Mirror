@@ -174,7 +174,7 @@ namespace Mirror.Examples.LagCompensationDemo
             r.material.color = originalColor;
         }
 
-#if !UNITY_SERVER
+#if !UNITY_SERVER || UNITY_EDITOR
         void OnGUI()
         {
             // display buffer size as number for easier debugging.
