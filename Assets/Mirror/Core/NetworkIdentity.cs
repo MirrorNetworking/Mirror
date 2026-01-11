@@ -298,7 +298,7 @@ namespace Mirror
 
         internal static void ResetServerStatics()
         {
-            reuseNetworkIds = true;
+            reuseNetworkIds = false;
             reuseDelay = 1;
 
             netIdQueue.Clear();
