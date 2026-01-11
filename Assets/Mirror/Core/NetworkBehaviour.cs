@@ -805,11 +805,12 @@ namespace Mirror
             // any hook? then call if changed.
             // in host mode initial spawn, also call hook even if value hasn't changed,
             // because the field was already set on server but hook wasn't called yet.
-            bool changed = !SyncVarEqual(previous, ref field);
-            bool hostInitialSpawnInHostMode = NetworkServer.activeHost && netIdentity.hostInitialSpawn;
-            if (OnChanged != null && (changed || hostInitialSpawnInHostMode))
+            if (OnChanged != null)
             {
-                OnChanged(previous, field);
+                bool changed = !SyncVarEqual(previous, ref field);
+                bool hostInitialSpawnInHostMode = NetworkServer.activeHost && netIdentity.hostInitialSpawn;
+                if (changed || hostInitialSpawnInHostMode)
+                    OnChanged(previous, field);
             }
         }
 
@@ -870,11 +871,12 @@ namespace Mirror
             // any hook? then call if changed.
             // in host mode initial spawn, also call hook even if value hasn't changed,
             // because the field was already set on server but hook wasn't called yet.
-            bool changed = !SyncVarEqual(previousNetId, ref netIdField);
-            bool hostInitialSpawnInHostMode = NetworkServer.activeHost && netIdentity.hostInitialSpawn;
-            if (OnChanged != null && (changed || hostInitialSpawnInHostMode))
+            if (OnChanged != null)
             {
-                OnChanged(previousGameObject, field);
+                bool changed = !SyncVarEqual(previousNetId, ref netIdField);
+                bool hostInitialSpawnInHostMode = NetworkServer.activeHost && netIdentity.hostInitialSpawn;
+                if (changed || hostInitialSpawnInHostMode)
+                    OnChanged(previousGameObject, field);
             }
         }
 
@@ -936,11 +938,12 @@ namespace Mirror
             // any hook? then call if changed.
             // in host mode initial spawn, also call hook even if value hasn't changed,
             // because the field was already set on server but hook wasn't called yet.
-            bool changed = !SyncVarEqual(previousNetId, ref netIdField);
-            bool hostInitialSpawnInHostMode = NetworkServer.activeHost && netIdentity.hostInitialSpawn;
-            if (OnChanged != null && (changed || hostInitialSpawnInHostMode))
+            if (OnChanged != null)
             {
-                OnChanged(previousIdentity, field);
+                bool changed = !SyncVarEqual(previousNetId, ref netIdField);
+                bool hostInitialSpawnInHostMode = NetworkServer.activeHost && netIdentity.hostInitialSpawn;
+                if (changed || hostInitialSpawnInHostMode)
+                    OnChanged(previousIdentity, field);
             }
         }
 
@@ -1004,11 +1007,12 @@ namespace Mirror
             // any hook? then call if changed.
             // in host mode initial spawn, also call hook even if value hasn't changed,
             // because the field was already set on server but hook wasn't called yet.
-            bool changed = !SyncVarEqual(previousNetId, ref netIdField);
-            bool hostInitialSpawnInHostMode = NetworkServer.activeHost && netIdentity.hostInitialSpawn;
-            if (OnChanged != null && (changed || hostInitialSpawnInHostMode))
+            if (OnChanged != null)
             {
-                OnChanged(previousBehaviour, field);
+                bool changed = !SyncVarEqual(previousNetId, ref netIdField);
+                bool hostInitialSpawnInHostMode = NetworkServer.activeHost && netIdentity.hostInitialSpawn;
+                if (changed || hostInitialSpawnInHostMode)
+                    OnChanged(previousBehaviour, field);
             }
         }
 
