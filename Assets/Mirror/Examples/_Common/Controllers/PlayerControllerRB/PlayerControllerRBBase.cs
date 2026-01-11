@@ -94,6 +94,10 @@ namespace Mirror.Examples.Common.Controllers.Player
         [Tooltip("Gravity factors into decelleration")]
         public float inputGravity = 2f;
 
+        [Range(2, 20f)]
+        [Tooltip("Smoothing factor for movement velocity\nLower is more affected by physics")]
+        public float smoothingFactor = 10f;
+
         [Header("Turning")]
         [Range(0, 300f)]
         [Tooltip("Max Rotation in degrees per second")]
@@ -526,7 +530,6 @@ namespace Mirror.Examples.Common.Controllers.Player
             currentVelocity = rigidBody.velocity;
 #endif
 
-            float smoothingFactor = 10f; // Adjust this for smoother/faster transitions
             Vector3 smoothedVelocity = Vector3.Lerp(currentVelocity, targetVelocity, smoothingFactor * fixedDeltaTime);
 
 #if UNITY_6000_0_OR_NEWER

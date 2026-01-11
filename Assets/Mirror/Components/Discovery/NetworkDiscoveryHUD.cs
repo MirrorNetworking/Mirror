@@ -36,7 +36,7 @@ namespace Mirror.Discovery
         }
 #endif
 
-#if !UNITY_SERVER
+#if !UNITY_SERVER || UNITY_EDITOR
         void OnGUI()
         {
             if (NetworkManager.singleton == null)

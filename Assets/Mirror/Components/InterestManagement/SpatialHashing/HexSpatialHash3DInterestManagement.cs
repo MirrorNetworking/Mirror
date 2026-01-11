@@ -54,10 +54,10 @@ namespace Mirror
         readonly HashSet<NetworkIdentity> staticObjects = new HashSet<NetworkIdentity>();
 
         // Scene bounds: ±9 km (18 km total) in each dimension
-        const int MAX_Q = 19; // Covers -9 to 9 (~18 km)
-        const int MAX_R = 23; // Covers -11 to 11 (~18 km)
+        const int MAX_Q = 19; // Covers -9 to 9 (~18km)
+        const int MAX_R = 23; // Covers -11 to 11 (~18km)
         const int LAYER_OFFSET = 18; // Offset for -18 to 17 layers
-        const int MAX_LAYERS = 36; // Total layers for ±9 km (18 km)
+        const int MAX_LAYERS = 36; // Total layers for +/-9km (~18km total)
         const ushort MAX_AREA = 9000; // Maximum area in meters
 
         void Awake()
@@ -197,9 +197,8 @@ namespace Mirror
 
             // If the cell doesn't exist in the array yet, fetch or create a new set from the pool
             if (cells[index] == null)
-            {
                 cells[index] = cellPool.Count > 0 ? cellPool.Pop() : new HashSet<NetworkIdentity>();
-            }
+
             cells[index].Add(identity);
         }
 
@@ -247,14 +246,13 @@ namespace Mirror
             lastRebuildTime = 0;
             // Clear and return all cell sets to the pool
             for (int i = 0; i < cells.Count; i++)
-            {
                 if (cells[i] != null)
                 {
                     cells[i].Clear();
                     cellPool.Push(cells[i]);
                     cells[i] = null;
                 }
-            }
+
             lastIdentityPositions.Clear();
             lastConnectionPositions.Clear();
             connectionObservers.Clear();
@@ -298,36 +296,35 @@ namespace Mirror
         // Draws debug gizmos in the Unity Editor to visualize the grid
         void OnDrawGizmos()
         {
+            // Only draw if there's a local player to base the visualization on
+            if (NetworkClient.localPlayer == null) return;
+
             // Initialize the grid if it hasn't been created yet (e.g., before Awake)
             if (grid == null)
                 grid = new HexGrid3D(visRange, cellHeight);
 
-            // Only draw if there's a local player to base the visualization on
-            if (NetworkClient.localPlayer != null)
+            Vector3 playerPosition = NetworkClient.localPlayer.transform.position;
+
+            // Convert to grid cell
+            Cell3D playerCell = grid.WorldToCell(playerPosition);
+
+            // Get all visible cells around the player into the pre-allocated array
+            grid.GetNeighborCells(playerCell, neighborCells);
+
+            // Set default gizmo color (though overridden per cell)
+            Gizmos.color = Color.cyan;
+
+            // Draw each visible cell as a hexagonal prism
+            for (int i = 0; i < neighborCells.Length; i++)
             {
-                Vector3 playerPosition = NetworkClient.localPlayer.transform.position;
+                // Convert cell to world coordinates
+                Vector3 worldPos = grid.CellToWorld(neighborCells[i]);
 
-                // Convert to grid cell
-                Cell3D playerCell = grid.WorldToCell(playerPosition);
+                // Determine the layer relative to the player's cell for color coding
+                int relativeLayer = neighborCells[i].layer - playerCell.layer;
 
-                // Get all visible cells around the player into the pre-allocated array
-                grid.GetNeighborCells(playerCell, neighborCells);
-
-                // Set default gizmo color (though overridden per cell)
-                Gizmos.color = Color.cyan;
-
-                // Draw each visible cell as a hexagonal prism
-                for (int i = 0; i < neighborCells.Length; i++)
-                {
-                    // Convert cell to world coordinates
-                    Vector3 worldPos = grid.CellToWorld(neighborCells[i]);
-
-                    // Determine the layer relative to the player's cell for color coding
-                    int relativeLayer = neighborCells[i].layer - playerCell.layer;
-
-                    // Draw the hexagonal cell with appropriate color based on layer
-                    grid.DrawHexGizmo(worldPos, grid.cellRadius, grid.cellHeight, relativeLayer);
-                }
+                // Draw the hexagonal cell with appropriate color based on layer
+                grid.DrawHexGizmo(worldPos, grid.cellRadius, grid.cellHeight, relativeLayer);
             }
         }
 

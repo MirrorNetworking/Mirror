@@ -6,9 +6,9 @@ namespace WeaverNetworkBehaviourTests.NetworkBehaviourTargetRpcDuplicateName
     {
         // remote call overloads are now supported
         [TargetRpc]
-        public void TargetRpcWithSameName(NetworkConnection monkeyCon, int abc) { }
+        public void TargetRpcWithSameName(NetworkConnectionToClient monkeyCon, int abc) { }
 
         [TargetRpc]
-        public void TargetRpcWithSameName(NetworkConnection monkeyCon, int abc, int def) { }
+        public void TargetRpcWithSameName(NetworkConnectionToClient monkeyCon, int abc, int def) { }
     }
 }

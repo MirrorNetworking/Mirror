@@ -169,6 +169,7 @@ MonoBehaviour:
   syncDirection: 1
   syncMode: 0
   syncInterval: 0
+  updateMethod: 0
   target: {fileID: 4659514702152478195}
   syncPosition: 1
   syncRotation: 1
@@ -302,6 +303,7 @@ MonoBehaviour:
   syncDirection: 1
   syncMode: 0
   syncInterval: 0
+  updateMethod: 0
   target: {fileID: 702109291309605222}
   syncPosition: 0
   syncRotation: 1
@@ -337,6 +339,7 @@ MonoBehaviour:
   syncDirection: 1
   syncMode: 0
   syncInterval: 0
+  updateMethod: 0
   target: {fileID: 702109291309605224}
   syncPosition: 0
   syncRotation: 1

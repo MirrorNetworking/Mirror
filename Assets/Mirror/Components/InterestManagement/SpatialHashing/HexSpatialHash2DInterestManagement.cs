@@ -207,9 +207,8 @@ namespace Mirror
 
             // If the cell doesn't exist in the array yet, fetch or create a new set from the pool
             if (cells[index] == null)
-            {
                 cells[index] = cellPool.Count > 0 ? cellPool.Pop() : new HashSet<NetworkIdentity>();
-            }
+
             cells[index].Add(identity);
         }
 
@@ -257,14 +256,13 @@ namespace Mirror
             lastRebuildTime = 0;
             // Clear and return all cell sets to the pool
             for (int i = 0; i < cells.Count; i++)
-            {
                 if (cells[i] != null)
                 {
                     cells[i].Clear();
                     cellPool.Push(cells[i]);
                     cells[i] = null;
                 }
-            }
+
             lastIdentityPositions.Clear();
             lastConnectionPositions.Clear();
             connectionObservers.Clear();
@@ -306,38 +304,37 @@ namespace Mirror
         // Draws debug gizmos in the Unity Editor to visualize the 2D grid
         void OnDrawGizmos()
         {
+            // Only draw if there’s a local player to base the visualization on
+            if (NetworkClient.localPlayer == null) return;
+
             // Initialize the grid if it hasn’t been created yet (e.g., before Awake)
             if (grid == null)
                 grid = new HexGrid2D(visRange);
 
-            // Only draw if there’s a local player to base the visualization on
-            if (NetworkClient.localPlayer != null)
+            Vector3 playerPosition = NetworkClient.localPlayer.transform.position;
+
+            // Convert to grid cell using the full Vector3 for proper plane projection
+            Vector2 projectedPos = ProjectToGrid(playerPosition);
+            Cell2D playerCell = grid.WorldToCell(projectedPos);
+
+            // Get all visible cells around the player into the pre-allocated array
+            grid.GetNeighborCells(playerCell, neighborCells);
+
+            // Set gizmo color for visibility
+            Gizmos.color = Color.cyan;
+
+            // Draw each visible cell as a 2D hexagon, oriented based on checkMethod
+            for (int i = 0; i < neighborCells.Length; i++)
             {
-                Vector3 playerPosition = NetworkClient.localPlayer.transform.position;
+                // Convert cell to world coordinates (2D)
+                Vector2 worldPos2D = grid.CellToWorld(neighborCells[i]);
 
-                // Convert to grid cell using the full Vector3 for proper plane projection
-                Vector2 projectedPos = ProjectToGrid(playerPosition);
-                Cell2D playerCell = grid.WorldToCell(projectedPos);
+                // Convert to 3D position based on checkMethod
+                Vector3 worldPos = checkMethod == CheckMethod.XZ_FOR_3D
+                    ? new Vector3(worldPos2D.x, 0, worldPos2D.y)  // XZ plane, flat
+                    : new Vector3(worldPos2D.x, worldPos2D.y, 0);  // XY plane, vertical
 
-                // Get all visible cells around the player into the pre-allocated array
-                grid.GetNeighborCells(playerCell, neighborCells);
-
-                // Set gizmo color for visibility
-                Gizmos.color = Color.cyan;
-
-                // Draw each visible cell as a 2D hexagon, oriented based on checkMethod
-                for (int i = 0; i < neighborCells.Length; i++)
-                {
-                    // Convert cell to world coordinates (2D)
-                    Vector2 worldPos2D = grid.CellToWorld(neighborCells[i]);
-
-                    // Convert to 3D position based on checkMethod
-                    Vector3 worldPos = checkMethod == CheckMethod.XZ_FOR_3D
-                        ? new Vector3(worldPos2D.x, 0, worldPos2D.y)  // XZ plane, flat
-                        : new Vector3(worldPos2D.x, worldPos2D.y, 0);  // XY plane, vertical
-
-                    grid.DrawHexGizmo(worldPos, grid.cellRadius, checkMethod);
-                }
+                grid.DrawHexGizmo(worldPos, grid.cellRadius, checkMethod);
             }
         }
 #endif

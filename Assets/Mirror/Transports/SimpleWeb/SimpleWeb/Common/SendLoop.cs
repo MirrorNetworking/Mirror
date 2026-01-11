@@ -115,13 +115,12 @@ namespace Mirror.SimpleWeb
 
                 Log.Verbose("[SWT-SendLoop]: {0} Not Connected", conn);
             }
-            catch (ThreadInterruptedException e) { Log.InfoException(e); }
+            catch (ThreadInterruptedException e) { Log.InfoException("[SWT-SendLoop]", e); }
             catch (ThreadAbortException) { Log.Error("[SWT-SendLoop]: Thread Abort Exception"); }
-            catch (Exception e) { Log.Exception(e); }
+            catch (Exception e) { Log.Exception("[SWT-SendLoop]", e); }
             finally
             {
                 Profiler.EndThreadProfiling();
-                conn.Dispose();
                 maskHelper?.Dispose();
             }
         }

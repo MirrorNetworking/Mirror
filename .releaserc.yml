@@ -11,12 +11,14 @@ plugins:
   - - '@semantic-release/commit-analyzer'
     - preset: "angular"
       releaseRules:
-      - type: "breaking"
-        release: "major"
       - type: "release"
         release: "major"
+      - type: "breaking"
+        release: "minor"
       - type: "feature"
         release: "minor"
+      - type: "fix"
+        release: "patch"
 
   # Extends the behavior of semantic-release to generate release notes.
   # 'fix' and 'feat' are built in and don't need to be defined here.
@@ -73,5 +75,7 @@ plugins:
       - path: "Mirror.unitypackage"
         label: "Mirror Unity Package"
         name: "Mirror-${nextRelease.version}.unitypackage"
+      successComment: "false"
       successCommentCondition: "false"
+      failComment: "false"
       failCommentCondition: "false"

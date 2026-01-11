@@ -28,7 +28,7 @@ namespace Mirror.Examples.Common
             }
         }
 
-#if !UNITY_SERVER
+#if !UNITY_SERVER || UNITY_EDITOR
         protected void OnGUI()
         {
             if (!showGUI) return;

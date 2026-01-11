@@ -3,6 +3,7 @@ using Mirror;
 
 namespace Mirror.Examples.TopDownShooter
 {
+    [AddComponentMenu("")]
     public class NetworkTopDown : NetworkBehaviour
     {
         public CanvasTopDown canvasTopDown;

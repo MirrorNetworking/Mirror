@@ -141,7 +141,7 @@ namespace Mirror
             serverIntervalSentBytes = 0;
         }
 
-#if !UNITY_SERVER
+#if !UNITY_SERVER || UNITY_EDITOR
         void OnGUI()
         {
             // only show if either server or client active

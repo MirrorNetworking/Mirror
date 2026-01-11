@@ -6,13 +6,9 @@ using UnityEngine;
 
 namespace Mirror
 {
-    [AddComponentMenu("Network/Network Transform Hybrid")]
+    [AddComponentMenu("Network/Network Transform (Hybrid)")]
     public class NetworkTransformHybrid : NetworkTransformBase
     {
-        // FixedUpdate support to fix: https://github.com/MirrorNetworking/Mirror/pull/3989
-        public bool useFixedUpdate;
-        TransformSnapshot? pendingSnapshot;
-
         [Header("Additional Settings")]
         [Tooltip("If we only sync on change, then we need to correct old snapshots if more time than sendInterval * multiplier has elapsed.\n\nOtherwise the first move will always start interpolating from the last move sequence's time, which will make it stutter when starting every time.")]
         public float onlySyncOnChangeCorrectionMultiplier = 2;
@@ -31,8 +27,12 @@ namespace Mirror
         [Tooltip("Position is rounded in order to drastically minimize bandwidth.\n\nFor example, a precision of 0.01 rounds to a centimeter. In other words, sub-centimeter movements aren't synced until they eventually exceeded an actual centimeter.\n\nDepending on how important the object is, a precision of 0.01-0.10 (1-10 cm) is recommended.\n\nFor example, even a 1cm precision combined with delta compression cuts the Benchmark demo's bandwidth in half, compared to sending every tiny change.")]
         [Range(0.00_01f, 1f)]                   // disallow 0 division. 1mm to 1m precision is enough range.
         public float positionPrecision = 0.01f; // 1 cm
+
+        [Tooltip("Rotation is rounded in degrees in order to drastically minimize bandwidth.\n\nFor example, a precision of 0.001 rounds to a millidegree. In other words, sub-millidegree movements aren't synced until they eventually exceeded an actual millidegree.\n\nDepending on how important the object is, a precision of 0.001-0.01 (1-10 millidegrees) is recommended.\n\nFor example, even a 1 millidegree precision combined with delta compression cuts the Benchmark demo's bandwidth in half, compared to sending every tiny change.")]
         [Range(0.00_01f, 1f)]                   // disallow 0 division. 1mm to 1m precision is enough range.
         public float rotationPrecision = 0.001f; // this is for the quaternion's components, needs to be small
+
+        [Tooltip("Scale is rounded in order to drastically minimize bandwidth.\n\nFor example, a precision of 0.01 rounds the multiplier to 1/100th. In other words, sub-1/100th scale changes aren't synced until they eventually exceeded an actual 1/100th change.\n\nDepending on how important the object is, a precision of 0.01-0.1 (1-10 hundredths) is recommended.\n\nFor example, even a 1/100th precision combined with delta compression cuts the Benchmark demo's bandwidth in half, compared to sending every tiny change.")]
         [Range(0.00_01f, 1f)]                   // disallow 0 division. 1mm to 1m precision is enough range.
         public float scalePrecision = 0.01f; // 1 cm
 
@@ -70,16 +70,14 @@ namespace Mirror
         // update //////////////////////////////////////////////////////////////
         void Update()
         {
-            // if server then always sync to others.
-            if (isServer) UpdateServer();
-            // 'else if' because host mode shouldn't send anything to server.
-            // it is the server. don't overwrite anything there.
-            else if (isClient) UpdateClient();
+            if (updateMethod == UpdateMethod.Update)
+                DoUpdate();
         }
 
         void FixedUpdate()
         {
-            if (!useFixedUpdate) return;
+            if (updateMethod == UpdateMethod.FixedUpdate)
+                DoUpdate();
 
             if (pendingSnapshot.HasValue && !IsClientWithAuthority)
             {
@@ -91,6 +89,9 @@ namespace Mirror
 
         void LateUpdate()
         {
+            if (updateMethod == UpdateMethod.LateUpdate)
+                DoUpdate();
+
             // set dirty to trigger OnSerialize. either always, or only if changed.
             // It has to be checked in LateUpdate() for onlySyncOnChange to avoid
             // the possibility of Update() running first before the object's movement
@@ -101,6 +102,15 @@ namespace Mirror
                 if (!onlySyncOnChange || Changed(Construct()))
                     SetDirty();
             }
+        }
+
+        void DoUpdate()
+        {
+            // if server then always sync to others.
+            if (isServer) UpdateServer();
+            // 'else if' because host mode shouldn't send anything to server.
+            // it is the server. don't overwrite anything there.
+            else if (isClient) UpdateClient();
         }
 
         protected virtual void UpdateServer()
@@ -131,7 +141,7 @@ namespace Mirror
                     // interpolate & apply
                     TransformSnapshot computed = TransformSnapshot.Interpolate(from, to, t);
 
-                    if (useFixedUpdate)
+                    if (updateMethod == UpdateMethod.FixedUpdate)
                         pendingSnapshot = computed;
                     else
                         Apply(computed, to);
@@ -159,7 +169,7 @@ namespace Mirror
                     // interpolate & apply
                     TransformSnapshot computed = TransformSnapshot.Interpolate(from, to, t);
 
-                    if (useFixedUpdate)
+                    if (updateMethod == UpdateMethod.FixedUpdate)
                         pendingSnapshot = computed;
                     else
                         Apply(computed, to);
@@ -470,6 +480,26 @@ namespace Mirror
                     scale
                 )
             );
+        }
+
+        // modify base OnTeleport to NOT reset lastDe/Serialized,
+        // otherwise delta serialization breaks on teleport.
+        protected override void OnTeleport(Vector3 destination)
+        {
+            // set the new position.
+            // interpolation will automatically continue.
+            target.position = destination;
+
+            // reset interpolation to immediately jump to the new position.
+            // do not call Reset() here, this would cause delta compression to
+            // get out of sync for NetworkTransformReliable because NTReliable's
+            // 'override Reset()' resets lastDe/SerializedPosition:
+            // https://github.com/MirrorNetworking/Mirror/issues/3588
+            // because client's next OnSerialize() will delta compress,
+            // but server's last delta will have been reset, causing offsets.
+            //
+            // instead, simply clear snapshots.
+            base.ResetState(); // ! OVERWRITE ! only call base.ResetState, don't reset deltas!
         }
 
         // reset state for next session.

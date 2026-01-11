@@ -49,7 +49,7 @@ namespace StinkySteak.NetcodeBenchmark
         }
         protected virtual void OnCustomGUI() {}
 
-#if !UNITY_SERVER
+#if !UNITY_SERVER || UNITY_EDITOR
         protected virtual void OnGUI()
         {
             GUILayout.BeginArea(new Rect(100, 100, 300, 400));

@@ -26,7 +26,7 @@ namespace Mirror.Tests.Rpcs
 
     class SenderConnectionBehaviour : NetworkBehaviour
     {
-        public event Action<int, NetworkConnection> onSendInt;
+        public event Action<int, NetworkConnectionToClient> onSendInt;
 
         [Command]
         public void CmdSendInt(int someInt, NetworkConnectionToClient conn = null) =>
@@ -35,7 +35,7 @@ namespace Mirror.Tests.Rpcs
 
     class SenderConnectionIgnoreAuthorityBehaviour : NetworkBehaviour
     {
-        public event Action<int, NetworkConnection> onSendInt;
+        public event Action<int, NetworkConnectionToClient> onSendInt;
 
         [Command(requiresAuthority = false)]
         public void CmdSendInt(int someInt, NetworkConnectionToClient conn = null) =>
@@ -275,6 +275,26 @@ namespace Mirror.Tests.Rpcs
             Assert.That(comp.connectionToServer, Is.Null);
             comp.CmdSendInt(0);
             ProcessMessages();
+            Assert.That(called, Is.EqualTo(1));
+        }
+
+        // cmds must be invoked immediately on host, without processing.
+        // (see Weaver CommandProcessor comments)
+        [Test]
+        public void Command_IsInvokeImmediately()
+        {
+            // spawn without owner (= without connectionToClient)
+            CreateNetworkedAndSpawn(out _, out _, out IgnoreAuthorityBehaviour comp);
+
+            // setup callback
+            int called = 0;
+            comp.onSendInt += _ => { ++called; };
+
+            // call command. don't require authority.
+            // the object doesn't have a .connectionToServer (like a scene object)
+            Assert.That(comp.connectionToServer, Is.Null);
+            comp.CmdSendInt(0);
+            // ProcessMessages(); <- should be invoked IMMEDIATELY without processing
             Assert.That(called, Is.EqualTo(1));
         }
     }

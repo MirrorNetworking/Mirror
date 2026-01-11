@@ -34,7 +34,7 @@ namespace Mirror.Tests.NetworkConnections
             Assert.That(connectionToClient.address, Is.EqualTo("localhost"));
 
             bool invoked = false;
-            void Handler(NetworkConnection conn, TestMessage message)
+            void Handler(NetworkConnectionToClient conn, TestMessage message)
             {
                 invoked = true;
             }

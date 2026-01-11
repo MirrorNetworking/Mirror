@@ -144,14 +144,18 @@ namespace Edgegap
             GUILayout.EndArea();
         }
 
-#if !UNITY_SERVER
+
+#if UNITY_EDITOR || (!UNITY_SERVER && DEBUG)
+        protected override void OnGUI()
+        {
+            base.OnGUI();
+            if (relayGUI) OnGUIRelay();
+        }
+#elif UNITY_EDITOR || (!UNITY_SERVER && !DEBUG)
         // base OnGUI only shows in editor & development builds.
         // here we always show it because we need the sessionid & userid buttons.
-        new void OnGUI()
+        void OnGUI()
         {
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-            base.OnGUI();
-#endif
             if (relayGUI) OnGUIRelay();
         }
 #endif

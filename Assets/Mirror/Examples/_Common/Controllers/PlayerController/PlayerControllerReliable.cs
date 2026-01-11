@@ -2,7 +2,7 @@
 
 namespace Mirror.Examples.Common.Controllers.Player
 {
-    [AddComponentMenu("Network/Player Controller (Reliable)")]
+    [AddComponentMenu("")]
     [RequireComponent(typeof(NetworkTransformReliable))]
     public class PlayerControllerReliable : PlayerControllerBase { }
 }

@@ -1992,6 +1992,8 @@ namespace Mirror
             isLoadingScene = false;
             lastSendTime = 0;
 
+            exceptionsDisconnect = true;
+
             unbatcher = new Unbatcher();
 
             // clear events. someone might have hooked into them before, but
@@ -2002,7 +2004,7 @@ namespace Mirror
             OnTransportExceptionEvent = null;
         }
 
-#if !UNITY_SERVER
+#if !UNITY_SERVER || UNITY_EDITOR
         // GUI /////////////////////////////////////////////////////////////////
         // called from NetworkManager to display timeline interpolation status.
         // useful to indicate catchup / slowdown / dynamic adjustment etc.
