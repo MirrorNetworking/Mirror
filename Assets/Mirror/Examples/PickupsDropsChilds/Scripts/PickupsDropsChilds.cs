@@ -187,7 +187,13 @@ namespace Mirror.Examples.PickupsDropsChilds
             // Instantiate the scene object on the server
             Vector3 pos = rightHand.transform.position;
             Quaternion rot = rightHand.transform.rotation;
-            equippedObject = Instantiate(sceneObjectPrefab, pos, rot);
+
+            // Instantiate the scene object initially parented to the player
+            // transform so it's in the correct additive scene on server
+            equippedObject = Instantiate(sceneObjectPrefab, pos, rot, transform);
+
+            // unparent the scene object immediately
+            equippedObject.transform.SetParent(null);
 
             // set the RigidBody as non-kinematic on the server only (isKinematic = true in prefab)
             equippedObject.GetComponent<Rigidbody>().isKinematic = false;

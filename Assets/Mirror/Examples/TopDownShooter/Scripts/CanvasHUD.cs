@@ -5,6 +5,7 @@ using Mirror;
 namespace Mirror.Examples.TopDownShooter
 {
     // Note: EventSystem is needed in your scene for Unitys UI Canvas
+    [AddComponentMenu("")]
     public class CanvasHUD : MonoBehaviour
     {
         public CanvasTopDown canvasTopDown;

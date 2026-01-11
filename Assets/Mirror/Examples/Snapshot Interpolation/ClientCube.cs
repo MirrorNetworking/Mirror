@@ -156,7 +156,7 @@ namespace Mirror.Examples.SnapshotInterpolationDemo
                 render.material.color = defaultColor;
         }
 
-#if !UNITY_SERVER
+#if !UNITY_SERVER || UNITY_EDITOR
         void OnGUI()
         {
             // display buffer size as number for easier debugging.

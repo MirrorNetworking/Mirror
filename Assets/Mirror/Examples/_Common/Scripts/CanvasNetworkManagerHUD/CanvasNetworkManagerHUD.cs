@@ -7,6 +7,7 @@ using Mirror;
 namespace Mirror.Examples.Common
 {
     // Note: EventSystem is needed in your scene for Unitys UI Canvas
+    [AddComponentMenu("")]
     public class CanvasNetworkManagerHUD : MonoBehaviour
     {
         [SerializeField] private GameObject startButtonsGroup;

@@ -28,6 +28,8 @@ namespace Mirror.SimpleWeb
         // We can't use colors that are close to white or black because
         // they won't show up well in the server console or browser console
 
+        readonly static object consoleLock = new object();
+
         public enum Levels
         {
             Flood,
@@ -45,17 +47,22 @@ namespace Mirror.SimpleWeb
         /// Logs all exceptions to console
         /// </summary>
         /// <param name="e">Exception to log</param>
-        public static void Exception(Exception e)
+        public static void Exception(string msg, Exception e)
         {
             string timeStamp = $"[{DateTime.Now:HH:mm:ss}]";
 
+            lock (consoleLock)
+            {
 #if UNITY_SERVER || UNITY_WEBGL
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine($"{timeStamp} [SWT:Exception] {e.GetType().Name}: {e.Message}\n{e.StackTrace}\n\n");
-            Console.ResetColor();
+                Console.ForegroundColor = ConsoleColor.Red;
+                //Console.WriteLine($"{timeStamp} {msg}: {e.GetType().Name}: {e.Message}\n{e.StackTrace}\n");
+                Console.WriteLine($"{timeStamp} {msg}: {e.GetType().Name}: {e.Message}");
+                Console.ResetColor();
 #else
-            logger.Log(LogType.Exception, $"{timeStamp} [SWT:Exception] {e.GetType().Name}: {e.Message}\n{e.StackTrace}\n\n");
+                //logger.Log(LogType.Exception, $"{timeStamp} {msg}: {e.GetType().Name}: {e.Message}\n{e.StackTrace}\nn");
+                logger.Log(LogType.Exception, $"{timeStamp} {msg}: {e.GetType().Name}: {e.Message}");
 #endif
+            }
         }
 
         /// <summary>
@@ -63,19 +70,22 @@ namespace Mirror.SimpleWeb
         /// </summary>
         /// <param name="msg">Message text to log</param>
         [Conditional("DEBUG")]
-        public static void Flood(string msg)
+        public static void Flood(string msg, params object[] args)
         {
             if (minLogLevel > Levels.Flood) return;
 
-            string timedMessage = $"[{DateTime.Now:HH:mm:ss}] {msg.Trim()}";
+            string timedMessage = $"[{DateTime.Now:HH:mm:ss}] {String.Format(msg, args).Trim()}";
 
+            lock (consoleLock)
+            {
 #if UNITY_SERVER || UNITY_WEBGL
-            Console.ForegroundColor = ConsoleColor.Gray;
-            logger.Log(LogType.Log, timedMessage);
-            Console.ResetColor();
+                Console.ForegroundColor = ConsoleColor.Gray;
+                logger.Log(LogType.Log, timedMessage);
+                Console.ResetColor();
 #else
-            logger.Log(LogType.Log, timedMessage);
+                logger.Log(LogType.Log, timedMessage);
 #endif
+            }
         }
 
         /// <summary>
@@ -93,13 +103,16 @@ namespace Mirror.SimpleWeb
 
             string timeStamp = $"[{DateTime.Now:HH:mm:ss}]";
 
+            lock (consoleLock)
+            {
 #if UNITY_SERVER || UNITY_WEBGL
-            Console.ForegroundColor = ConsoleColor.DarkBlue;
-            logger.Log(LogType.Log, $"{timeStamp} {label}: {BufferToString(buffer, offset, length)}");
-            Console.ResetColor();
+                Console.ForegroundColor = ConsoleColor.DarkBlue;
+                logger.Log(LogType.Log, $"{timeStamp} {label}: {BufferToString(buffer, offset, length)}");
+                Console.ResetColor();
 #else
-            logger.Log(LogType.Log, $"<color=cyan>{timeStamp} {label}: {BufferToString(buffer, offset, length)}</color>");
+                logger.Log(LogType.Log, $"<color=cyan>{timeStamp} {label}: {BufferToString(buffer, offset, length)}</color>");
 #endif
+            }
         }
 
         /// <summary>
@@ -115,13 +128,16 @@ namespace Mirror.SimpleWeb
 
             string timeStamp = $"[{DateTime.Now:HH:mm:ss}]";
 
+            lock (consoleLock)
+            {
 #if UNITY_SERVER || UNITY_WEBGL
-            Console.ForegroundColor = ConsoleColor.DarkBlue;
-            logger.Log(LogType.Log, $"{timeStamp} {label}: {BufferToString(arrayBuffer.array, 0, arrayBuffer.count)}");
-            Console.ResetColor();
+                Console.ForegroundColor = ConsoleColor.DarkBlue;
+                logger.Log(LogType.Log, $"{timeStamp} {label}: {BufferToString(arrayBuffer.array, 0, arrayBuffer.count)}");
+                Console.ResetColor();
 #else
-            logger.Log(LogType.Log, $"<color=cyan>{timeStamp} {label}: {BufferToString(arrayBuffer.array, 0, arrayBuffer.count)}</color>");
+                logger.Log(LogType.Log, $"<color=cyan>{timeStamp} {label}: {BufferToString(arrayBuffer.array, 0, arrayBuffer.count)}</color>");
 #endif
+            }
         }
 
         /// <summary>
@@ -134,27 +150,24 @@ namespace Mirror.SimpleWeb
 
             string timedMessage = $"[{DateTime.Now:HH:mm:ss}] {msg.Trim()}";
 
+            lock (consoleLock)
+            {
 #if DEBUG
-            // Debug builds and Unity Editor
-            logger.Log(LogType.Log, timedMessage);
+                // Debug builds and Unity Editor
+                logger.Log(LogType.Log, timedMessage);
 #else
-            // Server or WebGL
-            Console.ForegroundColor = ConsoleColor.Blue;
-            Console.WriteLine(timedMessage);
-            Console.ResetColor();
+                // Server or WebGL
+                Console.ForegroundColor = ConsoleColor.Blue;
+                Console.WriteLine(timedMessage);
+                Console.ResetColor();
 #endif
+            }
         }
 
-        public static void Verbose<T>(string msg, T arg1)
+        public static void Verbose(string msg, params object[] args)
         {
             if (minLogLevel > Levels.Verbose) return;
-            Verbose(String.Format(msg, arg1));
-        }
-
-        public static void Verbose<T1, T2>(string msg, T1 arg1, T2 arg2)
-        {
-            if (minLogLevel > Levels.Verbose) return;
-            Verbose(String.Format(msg, arg1, arg2));
+            Verbose(String.Format(msg, args));
         }
 
         /// <summary>
@@ -162,54 +175,54 @@ namespace Mirror.SimpleWeb
         /// </summary>
         /// <param name="msg">Message text to log</param>
         /// <param name="consoleColor">Default Cyan works in server and browser consoles</param>
-        static void Info(string msg, ConsoleColor consoleColor = ConsoleColor.Cyan)
+        static void Info(string msg)
         {
             if (minLogLevel > Levels.Info) return;
 
             string timedMessage = $"[{DateTime.Now:HH:mm:ss}] {msg.Trim()}";
 
+            lock (consoleLock)
+            {
 #if DEBUG
-            // Debug builds and Unity Editor
-            logger.Log(LogType.Log, timedMessage);
+                // Debug builds and Unity Editor
+                logger.Log(LogType.Log, timedMessage);
 #else
-            // Server or WebGL
-            Console.ForegroundColor = consoleColor;
-            Console.WriteLine(timedMessage);
-            Console.ResetColor();
+                // Server or WebGL
+                Console.ForegroundColor = ConsoleColor.Cyan;
+                Console.WriteLine(timedMessage);
+                Console.ResetColor();
 #endif
+            }
         }
 
-        public static void Info<T>(string msg, T arg1, ConsoleColor consoleColor = ConsoleColor.Cyan)
+        public static void Info(string msg, params object[] args)
         {
             if (minLogLevel > Levels.Info) return;
-            Info(String.Format(msg, arg1), consoleColor);
-        }
-
-        public static void Info<T1, T2>(string msg, T1 arg1, T2 arg2, ConsoleColor consoleColor = ConsoleColor.Cyan)
-        {
-            if (minLogLevel > Levels.Info) return;
-            Info(String.Format(msg, arg1, arg2), consoleColor);
+            Info(String.Format(msg, args));
         }
 
         /// <summary>
         /// Logs info to console if minLogLevel is set to Info or lower
         /// </summary>
         /// <param name="e">Exception to log</param>
-        public static void InfoException(Exception e)
+        public static void InfoException(string msg, Exception e)
         {
             if (minLogLevel > Levels.Info) return;
 
-            string timedMessage = $"[{DateTime.Now:HH:mm:ss}] {e.Message}";
+            string timedMessage = $"[{DateTime.Now:HH:mm:ss}] {msg}: {e.Message}";
 
+            lock (consoleLock)
+            {
 #if DEBUG
-            // Debug builds and Unity Editor
-            logger.Log(LogType.Exception, timedMessage);
+                // Debug builds and Unity Editor
+                logger.Log(LogType.Exception, timedMessage);
 #else
-            // Server or WebGL
-            Console.ForegroundColor = ConsoleColor.DarkRed;
-            Console.WriteLine(timedMessage);
-            Console.ResetColor();
+                // Server or WebGL
+                Console.ForegroundColor = ConsoleColor.DarkRed;
+                Console.WriteLine(timedMessage);
+                Console.ResetColor();
 #endif
+            }
         }
 
         /// <summary>
@@ -222,21 +235,24 @@ namespace Mirror.SimpleWeb
 
             string timedMessage = $"[{DateTime.Now:HH:mm:ss}] {msg.Trim()}";
 
+            lock (consoleLock)
+            {
 #if DEBUG
-            // Debug builds and Unity Editor
-            logger.Log(LogType.Warning, timedMessage);
+                // Debug builds and Unity Editor
+                logger.Log(LogType.Warning, timedMessage);
 #else
-            // Server or WebGL
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine(timedMessage);
-            Console.ResetColor();
+                // Server or WebGL
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine(timedMessage);
+                Console.ResetColor();
 #endif
+            }
         }
 
-        public static void Warn<T>(string msg, T arg1)
+        public static void Warn(string msg, params object[] args)
         {
             if (minLogLevel > Levels.Warn) return;
-            Warn(String.Format(msg, arg1));
+            Warn(String.Format(msg, args));
         }
 
         /// <summary>
@@ -249,33 +265,24 @@ namespace Mirror.SimpleWeb
 
             string timedMessage = $"[{DateTime.Now:HH:mm:ss}] {msg.Trim()}";
 
+            lock (consoleLock)
+            {
 #if DEBUG
-            // Debug builds and Unity Editor
-            logger.Log(LogType.Error, timedMessage);
+                // Debug builds and Unity Editor
+                logger.Log(LogType.Error, timedMessage);
 #else
-            // Server or WebGL
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine(timedMessage);
-            Console.ResetColor();
+                // Server or WebGL
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine(timedMessage);
+                Console.ResetColor();
 #endif
+            }
         }
 
-        public static void Error<T>(string msg, T arg1)
+        public static void Error(string msg, params object[] args)
         {
             if (minLogLevel > Levels.Error) return;
-            Error(String.Format(msg, arg1));
-        }
-
-        public static void Error<T1, T2>(string msg, T1 arg1, T2 arg2)
-        {
-            if (minLogLevel > Levels.Error) return;
-            Error(String.Format(msg, arg1, arg2));
-        }
-
-        public static void Error<T1, T2, T3>(string msg, T1 arg1, T2 arg2, T3 arg3)
-        {
-            if (minLogLevel > Levels.Error) return;
-            Error(String.Format(msg, arg1, arg2, arg3));
+            Error(String.Format(msg, args));
         }
 
         /// <summary>

@@ -23,6 +23,8 @@
 //   * Transports should only process messages while the component is enabled.
 //
 using System;
+using System.Globalization;
+using System.Net;
 using UnityEngine;
 
 namespace Mirror
@@ -205,6 +207,81 @@ namespace Mirror
             //  until we press Start again. so if Transports use threads, we
             //  really want them to end now and not after next start)
             Shutdown();
+        }
+
+        /// <summary>
+        /// Helper method to safely build a URI from a hostname that may contain
+        /// non-ASCII or invalid URI characters. Uses cascading fallback strategy:
+        /// 1. Try IDN-encoding the hostname (for Unicode characters)
+        /// 2. Try using the raw hostname
+        /// 3. Fallback to "localhost" as last resort
+        /// </summary>
+        /// <param name="scheme">URI scheme (e.g., "kcp", "tcp4", "ws")</param>
+        /// <param name="hostname">Hostname to encode (typically from Dns.GetHostName())</param>
+        /// <param name="port">Port number</param>
+        /// <returns>A valid URI (guaranteed to return a valid URI with localhost fallback)</returns>
+        protected static Uri TryBuildValidUri(string scheme, string hostname, int port)
+        {
+            // Only work on non-blank hostname
+            if (!string.IsNullOrWhiteSpace(hostname))
+            {
+                // Try 1: IDN encode Unicode characters to ASCII (punycode)
+                try
+                {
+                    IdnMapping idn = new IdnMapping();
+                    string asciiHostname = idn.GetAscii(hostname);
+                    
+                    UriBuilder builder = new UriBuilder
+                    {
+                        Scheme = scheme,
+                        Host = asciiHostname,
+                        Port = port
+                    };
+                    
+                    // Force URI construction to validate
+                    Uri testUri = builder.Uri;
+                    // Check: host is not empty, port is correct, and no UserInfo corruption
+                    if (!string.IsNullOrEmpty(testUri.Host) && testUri.Port == port && string.IsNullOrEmpty(testUri.UserInfo))
+                    {
+                        return testUri;
+                    }
+                }
+                catch
+                {
+                    // IDN encoding failed, try next approach
+                }
+
+                // Try 2: Use raw hostname (might work for ASCII-compatible names)
+                try
+                {
+                    UriBuilder builder = new UriBuilder
+                    {
+                        Scheme = scheme,
+                        Host = hostname,
+                        Port = port
+                    };
+                    
+                    Uri testUri = builder.Uri;
+                    // Check: host is not empty, port is correct, and no UserInfo corruption
+                    if (!string.IsNullOrEmpty(testUri.Host) && testUri.Port == port && string.IsNullOrEmpty(testUri.UserInfo))
+                    {
+                        return testUri;
+                    }
+                }
+                catch
+                {
+                    // Raw hostname failed, use fallback
+                }
+            }
+
+            // Try 3: Fallback to localhost (always succeeds)
+            UriBuilder fallbackBuilder = new UriBuilder
+            {
+                Scheme = scheme,
+                Host = "localhost",
+                Port = port
+            };
+            return fallbackBuilder.Uri;
         }
     }
 }

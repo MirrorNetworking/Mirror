@@ -148,6 +148,9 @@ namespace Mirror
             Configure();
         }
 
+        // For NetworkBehaviourInspector
+        internal override bool showSyncMethod() => false;
+
         // initialization //////////////////////////////////////////////////////
         // forcec configuration of some settings
         protected virtual void Configure()
@@ -483,7 +486,7 @@ namespace Mirror
             }
         }
 
-#if !UNITY_SERVER && DEBUG
+#if UNITY_EDITOR || (!UNITY_SERVER && DEBUG)
         // OnGUI allocates even if it does nothing. avoid in release.
         // debug ///////////////////////////////////////////////////////////////
         protected virtual void OnGUI()

@@ -433,12 +433,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a553cb17010b2403e8523b558bffbc14, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  syncMethod: 1
+  syncMethod: 0
   syncDirection: 1
   syncMode: 0
   syncInterval: 0
-  updateMethod: 1
   target: {fileID: 6814142693731383418}
+  updateMethod: 1
   syncPosition: 1
   syncRotation: 1
   syncScale: 0
@@ -453,7 +453,6 @@ MonoBehaviour:
   showOverlay: 0
   overlayColor: {r: 0, g: 0, b: 0, a: 0.5}
   bufferResetMultiplier: 3
-  useFixedUpdate: 1
   positionSensitivity: 0.01
   rotationSensitivity: 0.01
   scaleSensitivity: 0.01
@@ -493,6 +492,7 @@ MonoBehaviour:
   maxMoveSpeed: 8
   inputSensitivity: 2
   inputGravity: 2
+  smoothingFactor: 10
   maxTurnSpeed: 100
   turnAcceleration: 3
   initialJumpSpeed: 2.5

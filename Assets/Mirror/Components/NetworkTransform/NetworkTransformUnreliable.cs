@@ -31,8 +31,9 @@ namespace Mirror
         {
             base.Configure();
 
-            // force syncMethod to unreliable
-            syncMethod = SyncMethod.Hybrid;
+            // NT-U was before SyncMethod. keep using the old default SyncMethod = Reliable.
+            // OnSerialize is only ever called for spawn, deltas are synced manually.
+            syncMethod = SyncMethod.Reliable;
         }
 
         // update //////////////////////////////////////////////////////////////
@@ -42,7 +43,6 @@ namespace Mirror
             if (updateMethod == UpdateMethod.Update)
                 DoUpdate();
         }
-
 
         void FixedUpdate()
         {

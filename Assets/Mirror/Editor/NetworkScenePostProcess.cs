@@ -3,6 +3,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEditor.Callbacks;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Mirror
 {
@@ -11,10 +12,16 @@ namespace Mirror
         [PostProcessScene]
         public static void OnPostProcessScene()
         {
+            Scene lastLoadedScene = SceneManager.GetSceneAt(SceneManager.sceneCount - 1);
+            //Debug.Log($"[Mirror] OnPostProcessScene for scene '{lastLoadedScene.name}'");
+
             // find all NetworkIdentities in all scenes
             // => can't limit it to GetActiveScene() because that wouldn't work
             //    for additive scene loads (the additively loaded scene is never
             //    the active scene)
+            // => Should limit to the last scene loaded per SceneManager.sceneCount index
+            //    so we don't catch instantiated unspawned objects from other scenes
+            //    and only processing a single scene should be faster too.
             // => ignore DontDestroyOnLoad scene! this avoids weird situations
             //    like in NetworkZones when we destroy the local player and
             //    load another scene afterwards, yet the local player is still
@@ -26,6 +33,7 @@ namespace Mirror
                 .Where(identity => identity.gameObject.hideFlags != HideFlags.NotEditable &&
                                    identity.gameObject.hideFlags != HideFlags.HideAndDontSave &&
                                    identity.gameObject.scene.name != "DontDestroyOnLoad" &&
+                                   identity.gameObject.scene == lastLoadedScene &&
                                    !Utils.IsPrefab(identity.gameObject));
 
             foreach (NetworkIdentity identity in identities)

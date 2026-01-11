@@ -80,7 +80,7 @@ namespace Mirror.SimpleWeb
             }
             catch (Exception e)
             {
-                Log.Exception(e);
+                Log.Exception("[SWT-ClientHandshake]", e);
                 return false;
             }
         }

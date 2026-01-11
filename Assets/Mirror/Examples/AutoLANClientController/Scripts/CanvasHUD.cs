@@ -8,6 +8,7 @@ using UnityEngine.SceneManagement;
 
 namespace Mirror.Examples.AutoLANClientController
 {
+    [AddComponentMenu("")]
     public class CanvasHUD : MonoBehaviour
     {
         // this will check for games to join, if non, start host.

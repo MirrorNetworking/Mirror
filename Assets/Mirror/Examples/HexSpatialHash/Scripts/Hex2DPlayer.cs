@@ -36,7 +36,7 @@ namespace Mirror.Examples.Hex2D
             transform.position += dir.normalized * (Time.deltaTime * speed);
         }
 
-#if !UNITY_SERVER
+#if !UNITY_SERVER || UNITY_EDITOR
         void OnGUI()
         {
             if (isLocalPlayer)

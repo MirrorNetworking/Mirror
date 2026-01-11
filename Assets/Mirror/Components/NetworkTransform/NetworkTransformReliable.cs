@@ -29,6 +29,8 @@ namespace Mirror
         [Tooltip("Position is rounded in order to drastically minimize bandwidth.\n\nFor example, a precision of 0.01 rounds to a centimeter. In other words, sub-centimeter movements aren't synced until they eventually exceeded an actual centimeter.\n\nDepending on how important the object is, a precision of 0.01-0.10 (1-10 cm) is recommended.\n\nFor example, even a 1cm precision combined with delta compression cuts the Benchmark demo's bandwidth in half, compared to sending every tiny change.")]
         [Range(0.00_01f, 1f)]                   // disallow 0 division. 1mm to 1m precision is enough range.
         public float positionPrecision = 0.01f; // 1 cm
+
+        [Tooltip("Scale is rounded in order to drastically minimize bandwidth.\n\nFor example, a precision of 0.01 rounds the multiplier to 1/100th. In other words, sub-1/100th scale changes aren't synced until they eventually exceeded an actual 1/100th change.\n\nDepending on how important the object is, a precision of 0.01-0.1 (1-10 hundredths) is recommended.\n\nFor example, even a 1/100th precision combined with delta compression cuts the Benchmark demo's bandwidth in half, compared to sending every tiny change.")]
         [Range(0.00_01f, 1f)]                   // disallow 0 division. 1mm to 1m precision is enough range.
         public float scalePrecision = 0.01f; // 1 cm
 
@@ -443,6 +445,26 @@ namespace Mirror
                     scale
                 )
             );
+        }
+
+        // modify base OnTeleport to NOT reset lastDe/Serialized,
+        // otherwise delta serialization breaks on teleport.
+        protected override void OnTeleport(Vector3 destination)
+        {
+            // set the new position.
+            // interpolation will automatically continue.
+            target.position = destination;
+
+            // reset interpolation to immediately jump to the new position.
+            // do not call Reset() here, this would cause delta compression to
+            // get out of sync for NetworkTransformReliable because NTReliable's
+            // 'override Reset()' resets lastDe/SerializedPosition:
+            // https://github.com/MirrorNetworking/Mirror/issues/3588
+            // because client's next OnSerialize() will delta compress,
+            // but server's last delta will have been reset, causing offsets.
+            //
+            // instead, simply clear snapshots.
+            base.ResetState(); // ! OVERWRITE ! only call base.ResetState, don't reset deltas!
         }
 
         // reset state for next session.

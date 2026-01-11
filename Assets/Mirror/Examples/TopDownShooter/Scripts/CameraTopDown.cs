@@ -2,6 +2,7 @@ using UnityEngine;
 
 namespace Mirror.Examples.TopDownShooter
 {
+    [AddComponentMenu("")]
     public class CameraTopDown : MonoBehaviour
     {
         public Transform playerTransform;
