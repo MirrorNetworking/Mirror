@@ -148,5 +148,39 @@ namespace Mirror.Tests.NetworkManagers
             Assert.That(manager.mode, Is.EqualTo(NetworkManagerMode.ClientOnly));
             Assert.That(manager.networkAddress, Is.EqualTo(uriBuilder.Uri.Host));
         }
+
+        [Test]
+        public void StopHostAfterStartHostFailureDoesNotThrow()
+        {
+            // This test simulates the scenario where StartHost fails (e.g., SocketException)
+            // The mode is set to Host, but localConnection remains null
+            // StopHost/StopClient should not throw NullReferenceException
+            
+            // Manually set mode to Host to simulate the state after StartHost sets mode but before server setup completes
+            typeof(NetworkManager).GetProperty("mode").SetValue(manager, NetworkManagerMode.Host);
+            
+            // At this point, NetworkServer.localConnection is null (simulating failed startup)
+            Assert.That(NetworkServer.localConnection, Is.Null);
+            Assert.That(manager.mode, Is.EqualTo(NetworkManagerMode.Host));
+            
+            // Call StopHost - should not throw NullReferenceException
+            Assert.DoesNotThrow(() => manager.StopHost());
+        }
+
+        [Test]
+        public void StopClientAfterStartHostFailureDoesNotThrow()
+        {
+            // This test simulates calling StopClient directly when in Host mode with null localConnection
+            
+            // Manually set mode to Host to simulate the state after StartHost sets mode but before server setup completes
+            typeof(NetworkManager).GetProperty("mode").SetValue(manager, NetworkManagerMode.Host);
+            
+            // At this point, NetworkServer.localConnection is null (simulating failed startup)
+            Assert.That(NetworkServer.localConnection, Is.Null);
+            Assert.That(manager.mode, Is.EqualTo(NetworkManagerMode.Host));
+            
+            // Call StopClient - should not throw NullReferenceException
+            Assert.DoesNotThrow(() => manager.StopClient());
+        }
     }
 }
