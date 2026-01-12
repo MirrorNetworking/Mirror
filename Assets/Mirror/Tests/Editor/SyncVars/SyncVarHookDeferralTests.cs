@@ -1,347 +1,327 @@
-using System;
-using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
 
-namespace Mirror.Tests.SyncVars
+namespace Mirror.Tests.SyncVarTests
 {
-    // Test components for cross-reference testing
-    class CrossRefBehaviour : NetworkBehaviour
+    public class SyncVarHookDeferralTests : MirrorEditModeTest
     {
-        [SyncVar(hook = nameof(OnTargetChanged))]
-        public NetworkIdentity target;
-
-        public bool targetWasInSpawnedWhenHookFired = false;
-        public int hookCallCount = 0;
-
-        void OnTargetChanged(NetworkIdentity oldValue, NetworkIdentity newValue)
-        {
-            hookCallCount++;
-            
-            // This is THE test - verify target is in spawned when hook fires
-            if (newValue != null)
-            {
-                targetWasInSpawnedWhenHookFired = NetworkClient.spawned.ContainsKey(newValue.netId);
-            }
-        }
-    }
-
-    // Test component for GameObject SyncVar cross-references
-    class GameObjectCrossRefBehaviour : NetworkBehaviour
-    {
-        [SyncVar(hook = nameof(OnTargetChanged))]
-        public GameObject target;
-
-        public bool targetWasInSpawnedWhenHookFired = false;
-
-        void OnTargetChanged(GameObject oldValue, GameObject newValue)
-        {
-            if (newValue != null)
-            {
-                NetworkIdentity identity = newValue.GetComponent<NetworkIdentity>();
-                if (identity != null)
-                {
-                    targetWasInSpawnedWhenHookFired = NetworkClient.spawned.ContainsKey(identity.netId);
-                }
-            }
-        }
-    }
-
-    // Test component for NetworkBehaviour SyncVar cross-references
-    class NetworkBehaviourCrossRefBehaviour : NetworkBehaviour
-    {
-        [SyncVar(hook = nameof(OnTargetChanged))]
-        public NetworkBehaviourCrossRefBehaviour target;
-
-        public bool targetWasInSpawnedWhenHookFired = false;
-
-        void OnTargetChanged(NetworkBehaviourCrossRefBehaviour oldValue, NetworkBehaviourCrossRefBehaviour newValue)
-        {
-            if (newValue != null)
-            {
-                targetWasInSpawnedWhenHookFired = NetworkClient.spawned.ContainsKey(newValue.netIdentity.netId);
-            }
-        }
-    }
-
-    // Test component to verify hook declaration order
-    class MultipleHookBehaviour : NetworkBehaviour
-    {
-        [SyncVar(hook = nameof(OnFirstChanged))]
-        public int first;
-
-        [SyncVar(hook = nameof(OnSecondChanged))]
-        public int second;
-
-        [SyncVar(hook = nameof(OnThirdChanged))]
-        public int third;
-
-        public List<string> hookCallOrder = new List<string>();
-
-        void OnFirstChanged(int oldValue, int newValue)
-        {
-            hookCallOrder.Add("first");
-        }
-
-        void OnSecondChanged(int oldValue, int newValue)
-        {
-            hookCallOrder.Add("second");
-        }
-
-        void OnThirdChanged(int oldValue, int newValue)
-        {
-            hookCallOrder.Add("third");
-        }
-    }
-
-    // Test component for post-spawn updates
-    class PostSpawnUpdateBehaviour : NetworkBehaviour
-    {
-        [SyncVar(hook = nameof(OnValueChanged))]
-        public int value;
-
-        public int hookCallCount = 0;
-
-        void OnValueChanged(int oldValue, int newValue)
-        {
-            hookCallCount++;
-        }
-    }
-
-    public class SyncVarHookDeferralTests : MirrorTest
-    {
-        [SetUp]
-        public override void SetUp()
-        {
-            base.SetUp();
-            
-            // Start server and connect client - non-host mode to test deferral
-            NetworkServer.Listen(1);
-            ConnectClientBlockingAuthenticatedAndReady(out _);
-        }
-
-        [TearDown]
-        public override void TearDown()
-        {
-            base.TearDown();
-        }
-
         [Test]
         public void CrossReferences_HooksCanAccessAllTargets()
         {
-            // This is THE test that validates the fix!
-            // Create two objects that reference each other
-            CreateNetworked(out GameObject serverGO1, out NetworkIdentity serverIdentity1, out CrossRefBehaviour serverComp1);
-            CreateNetworked(out GameObject clientGO1, out NetworkIdentity clientIdentity1, out CrossRefBehaviour clientComp1);
-
-            CreateNetworked(out GameObject serverGO2, out NetworkIdentity serverIdentity2, out CrossRefBehaviour serverComp2);
-            CreateNetworked(out GameObject clientGO2, out NetworkIdentity clientIdentity2, out CrossRefBehaviour clientComp2);
-
-            // Set up cross-references on server
-            serverComp1.target = serverIdentity2;
-            serverComp2.target = serverIdentity1;
-
-            // Give both scene ids and register on client
-            clientIdentity1.sceneId = serverIdentity1.sceneId = (ulong)serverGO1.GetHashCode();
-            clientIdentity2.sceneId = serverIdentity2.sceneId = (ulong)serverGO2.GetHashCode();
-            NetworkClient.spawnableObjects[clientIdentity1.sceneId] = clientIdentity1;
-            NetworkClient.spawnableObjects[clientIdentity2.sceneId] = clientIdentity2;
-
-            // Disconnect and reconnect to simulate initial spawn batch
-            NetworkClient.Disconnect();
-            NetworkServer.RemoveConnection(NetworkServer.connections[0]);
-            UpdateTransport();
-
-            // Reconnect
+            // This tests the core fix:  hooks are deferred until all objects are in spawned
+            NetworkServer.Listen(10);
             ConnectClientBlockingAuthenticatedAndReady(out _);
 
-            // Spawn both objects - they will be in the same spawn batch
-            NetworkServer.Spawn(serverGO1);
-            NetworkServer.Spawn(serverGO2);
+            // Create 3 objects with cross-references on BOTH server and client
+            // (simulates the scenario where multiple objects spawn together)
+            CreateNetworkedAndSpawn(
+                out _, out NetworkIdentity serverIdentity1, out CrossRefBehaviour serverComp1,
+                out _, out NetworkIdentity clientIdentity1, out CrossRefBehaviour clientComp1);
 
-            // Process messages - this triggers initial spawn with deferral
+            CreateNetworkedAndSpawn(
+                out _, out NetworkIdentity serverIdentity2, out CrossRefBehaviour serverComp2,
+                out _, out NetworkIdentity clientIdentity2, out CrossRefBehaviour clientComp2);
+
+            CreateNetworkedAndSpawn(
+                out _, out NetworkIdentity serverIdentity3, out CrossRefBehaviour serverComp3,
+                out _, out NetworkIdentity clientIdentity3, out CrossRefBehaviour clientComp3);
+
+            // Set circular cross-references on server:  1->2, 2->3, 3->1
+            serverComp1.target = serverIdentity2;
+            serverComp2.target = serverIdentity3;
+            serverComp3.target = serverIdentity1;
+
+            // Sync to client
             ProcessMessages();
 
-            // THE CRITICAL ASSERTION - this should PASS with deferral, FAIL without it
+            // Verify hooks fired
+            Assert.That(clientComp1.callCount, Is.EqualTo(1), "Hook 1 should fire");
+            Assert.That(clientComp2.callCount, Is.EqualTo(1), "Hook 2 should fire");
+            Assert.That(clientComp3.callCount, Is.EqualTo(1), "Hook 3 should fire");
+
+            // THE CRITICAL TEST: All targets were accessible during hook execution
+            // Without deferred hooks, some would be false (race condition)
             Assert.That(clientComp1.targetWasInSpawnedWhenHookFired, Is.True,
-                "Target should be in spawned when hook fires - THIS IS THE FIX!");
+                "Target 2 should be in spawned when hook 1 fires - THIS IS THE FIX!");
             Assert.That(clientComp2.targetWasInSpawnedWhenHookFired, Is.True,
-                "Target should be in spawned when hook fires - THIS IS THE FIX!");
+                "Target 3 should be in spawned when hook 2 fires - THIS IS THE FIX!");
+            Assert.That(clientComp3.targetWasInSpawnedWhenHookFired, Is.True,
+                "Target 1 should be in spawned when hook 3 fires - THIS IS THE FIX!");
 
-            // Verify hooks were called
-            Assert.That(clientComp1.hookCallCount, Is.EqualTo(1));
-            Assert.That(clientComp2.hookCallCount, Is.EqualTo(1));
-
-            // Verify final values are correct
+            // Verify references are correct
             Assert.That(clientComp1.target, Is.EqualTo(clientIdentity2));
-            Assert.That(clientComp2.target, Is.EqualTo(clientIdentity1));
+            Assert.That(clientComp2.target, Is.EqualTo(clientIdentity3));
+            Assert.That(clientComp3.target, Is.EqualTo(clientIdentity1));
         }
 
         [Test]
         public void GameObject_CrossReferences_HooksCanAccessTargets()
         {
-            // Test GameObject SyncVar variant
-            CreateNetworked(out GameObject serverGO1, out NetworkIdentity serverIdentity1, out GameObjectCrossRefBehaviour serverComp1);
-            CreateNetworked(out GameObject clientGO1, out NetworkIdentity clientIdentity1, out GameObjectCrossRefBehaviour clientComp1);
-
-            CreateNetworked(out GameObject serverGO2, out NetworkIdentity serverIdentity2);
-            CreateNetworked(out GameObject clientGO2, out NetworkIdentity clientIdentity2);
-
-            // Set up cross-reference on server
-            serverComp1.target = serverGO2;
-
-            // Give both scene ids and register on client
-            clientIdentity1.sceneId = serverIdentity1.sceneId = (ulong)serverGO1.GetHashCode();
-            clientIdentity2.sceneId = serverIdentity2.sceneId = (ulong)serverGO2.GetHashCode();
-            NetworkClient.spawnableObjects[clientIdentity1.sceneId] = clientIdentity1;
-            NetworkClient.spawnableObjects[clientIdentity2.sceneId] = clientIdentity2;
-
-            // Disconnect and reconnect to simulate initial spawn batch
-            NetworkClient.Disconnect();
-            NetworkServer.RemoveConnection(NetworkServer.connections[0]);
-            UpdateTransport();
-
-            // Reconnect
+            NetworkServer.Listen(10);
             ConnectClientBlockingAuthenticatedAndReady(out _);
 
-            // Spawn both objects
-            NetworkServer.Spawn(serverGO1);
-            NetworkServer.Spawn(serverGO2);
+            // Create objects with GameObject SyncVar cross-references
+            CreateNetworkedAndSpawn(
+                out _, out _, out GameObjectCrossRefBehaviour serverComp1,
+                out _, out _, out GameObjectCrossRefBehaviour clientComp1);
 
-            // Process messages
+            CreateNetworkedAndSpawn(
+                out GameObject serverGO2, out _, out GameObjectCrossRefBehaviour _,
+                out GameObject clientGO2, out _, out GameObjectCrossRefBehaviour _);
+
+            CreateNetworkedAndSpawn(
+                out GameObject serverGO3, out _, out GameObjectCrossRefBehaviour _,
+                out GameObject clientGO3, out _, out GameObjectCrossRefBehaviour _);
+
+            // Set circular GameObject references:  1->2, 2->3, 3->1
+            serverComp1.targetGO = serverGO2;
+
+            var serverComp2 = serverGO2.GetComponent<GameObjectCrossRefBehaviour>();
+            serverComp2.targetGO = serverGO3;
+
+            var serverComp3 = serverGO3.GetComponent<GameObjectCrossRefBehaviour>();
+            serverComp3.targetGO = serverComp1.gameObject;
+
             ProcessMessages();
 
-            // Verify target was in spawned when hook fired
+            var clientComp2 = clientGO2.GetComponent<GameObjectCrossRefBehaviour>();
+            var clientComp3 = clientGO3.GetComponent<GameObjectCrossRefBehaviour>();
+
+            // Verify hooks fired
+            Assert.That(clientComp1.callCount, Is.EqualTo(1));
+            Assert.That(clientComp2.callCount, Is.EqualTo(1));
+            Assert.That(clientComp3.callCount, Is.EqualTo(1));
+
+            // Critical: GameObject targets were accessible during hooks
             Assert.That(clientComp1.targetWasInSpawnedWhenHookFired, Is.True,
-                "GameObject target should be in spawned when hook fires");
+                "GameObject target should be spawned when hook fires");
+            Assert.That(clientComp2.targetWasInSpawnedWhenHookFired, Is.True,
+                "GameObject target should be spawned when hook fires");
+            Assert.That(clientComp3.targetWasInSpawnedWhenHookFired, Is.True,
+                "GameObject target should be spawned when hook fires");
 
-            // Verify final value is correct
-            Assert.That(clientComp1.target, Is.EqualTo(clientGO2));
-        }
-
-        [Test]
-        public void NetworkBehaviour_CrossReferences_HooksCanAccessTargets()
-        {
-            // Test NetworkBehaviour SyncVar variant
-            CreateNetworked(out GameObject serverGO1, out NetworkIdentity serverIdentity1, out NetworkBehaviourCrossRefBehaviour serverComp1);
-            CreateNetworked(out GameObject clientGO1, out NetworkIdentity clientIdentity1, out NetworkBehaviourCrossRefBehaviour clientComp1);
-
-            CreateNetworked(out GameObject serverGO2, out NetworkIdentity serverIdentity2, out NetworkBehaviourCrossRefBehaviour serverComp2);
-            CreateNetworked(out GameObject clientGO2, out NetworkIdentity clientIdentity2, out NetworkBehaviourCrossRefBehaviour clientComp2);
-
-            // Set up cross-reference on server
-            serverComp1.target = serverComp2;
-
-            // Give both scene ids and register on client
-            clientIdentity1.sceneId = serverIdentity1.sceneId = (ulong)serverGO1.GetHashCode();
-            clientIdentity2.sceneId = serverIdentity2.sceneId = (ulong)serverGO2.GetHashCode();
-            NetworkClient.spawnableObjects[clientIdentity1.sceneId] = clientIdentity1;
-            NetworkClient.spawnableObjects[clientIdentity2.sceneId] = clientIdentity2;
-
-            // Disconnect and reconnect to simulate initial spawn batch
-            NetworkClient.Disconnect();
-            NetworkServer.RemoveConnection(NetworkServer.connections[0]);
-            UpdateTransport();
-
-            // Reconnect
-            ConnectClientBlockingAuthenticatedAndReady(out _);
-
-            // Spawn both objects
-            NetworkServer.Spawn(serverGO1);
-            NetworkServer.Spawn(serverGO2);
-
-            // Process messages
-            ProcessMessages();
-
-            // Verify target was in spawned when hook fired
-            Assert.That(clientComp1.targetWasInSpawnedWhenHookFired, Is.True,
-                "NetworkBehaviour target should be in spawned when hook fires");
-
-            // Verify final value is correct
-            Assert.That(clientComp1.target, Is.EqualTo(clientComp2));
+            // Verify references are correct
+            Assert.That(clientComp1.targetGO, Is.EqualTo(clientGO2));
+            Assert.That(clientComp2.targetGO, Is.EqualTo(clientGO3));
+            Assert.That(clientComp3.targetGO, Is.EqualTo(clientComp1.gameObject));
         }
 
         [Test]
         public void HostMode_CrossReferences_HooksFireFromSetter_NotDeferred()
         {
-            // Host mode should NOT defer hooks - they should fire immediately from setter
-            NetworkClient.Disconnect();
-            NetworkServer.RemoveConnection(NetworkServer.connections[0]);
-            UpdateTransport();
-
-            // Connect in host mode
+            // Start in HOST mode (server + client together)
+            NetworkServer.Listen(10);
             ConnectHostClientBlockingAuthenticatedAndReady();
 
-            // Create and spawn objects in host mode
-            CreateNetworkedAndSpawn(
-                out GameObject go1, out NetworkIdentity identity1, out CrossRefBehaviour comp1);
-            CreateNetworkedAndSpawn(
-                out GameObject go2, out NetworkIdentity identity2, out CrossRefBehaviour comp2);
+            Assert.That(NetworkServer.activeHost, Is.True, "Should be in host mode");
 
-            // Set cross-reference on host - hook should fire immediately
+            // Create objects with cross-references
+            CreateNetworkedAndSpawn(out _, out _, out CrossRefBehaviour comp1);
+            CreateNetworkedAndSpawn(out _, out NetworkIdentity identity2, out CrossRefBehaviour comp2);
+            CreateNetworkedAndSpawn(out _, out NetworkIdentity identity3, out CrossRefBehaviour comp3);
+
+            // In host mode, there's only one set of objects (not separate server/client)
+            // Set circular references
             comp1.target = identity2;
-            
-            // In host mode, hooks fire immediately, so hook was called during setter
-            Assert.That(comp1.hookCallCount, Is.EqualTo(1),
-                "In host mode, hook should fire immediately from setter");
+            comp2.target = identity3;
+            comp3.target = comp1.netIdentity;
+
+            // In host mode, hooks should fire IMMEDIATELY from setters, NOT deferred
+            Assert.That(comp1.callCount, Is.EqualTo(1),
+                "Host mode:  Hook should fire from setter immediately");
+            Assert.That(comp2.callCount, Is.EqualTo(1),
+                "Host mode: Hook should fire from setter immediately");
+            Assert.That(comp3.callCount, Is.EqualTo(1),
+                "Host mode:  Hook should fire from setter immediately");
+
+            // All targets should be accessible (host mode, everything is local)
+            Assert.That(comp1.targetWasInSpawnedWhenHookFired, Is.True,
+                "Host mode:  Targets always accessible");
+            Assert.That(comp2.targetWasInSpawnedWhenHookFired, Is.True,
+                "Host mode: Targets always accessible");
+            Assert.That(comp3.targetWasInSpawnedWhenHookFired, Is.True,
+                "Host mode: Targets always accessible");
+
+            // Verify no deferred hooks queued (host mode doesn't defer)
+            Assert.That(comp1.deferredSyncVarHooks.Count, Is.EqualTo(0),
+                "Host mode should not defer hooks");
+            Assert.That(comp2.deferredSyncVarHooks.Count, Is.EqualTo(0),
+                "Host mode should not defer hooks");
+            Assert.That(comp3.deferredSyncVarHooks.Count, Is.EqualTo(0),
+                "Host mode should not defer hooks");
         }
 
         [Test]
         public void MultipleHooksOnSameObject_FireInOrder()
         {
-            // Verify hooks fire in declaration order
-            CreateNetworked(out GameObject serverGO, out NetworkIdentity serverIdentity, out MultipleHookBehaviour serverComp);
-            CreateNetworked(out GameObject clientGO, out NetworkIdentity clientIdentity, out MultipleHookBehaviour clientComp);
-
-            // Set values on server
-            serverComp.first = 1;
-            serverComp.second = 2;
-            serverComp.third = 3;
-
-            // Give scene id and register on client
-            clientIdentity.sceneId = serverIdentity.sceneId = (ulong)serverGO.GetHashCode();
-            NetworkClient.spawnableObjects[clientIdentity.sceneId] = clientIdentity;
-
-            // Disconnect and reconnect to simulate initial spawn batch
-            NetworkClient.Disconnect();
-            NetworkServer.RemoveConnection(NetworkServer.connections[0]);
-            UpdateTransport();
-
-            // Reconnect
+            NetworkServer.Listen(10);
             ConnectClientBlockingAuthenticatedAndReady(out _);
 
-            // Spawn object
-            NetworkServer.Spawn(serverGO);
+            CreateNetworkedAndSpawn(
+                out _, out _, out MultiHookBehaviour serverComp,
+                out _, out _, out MultiHookBehaviour clientComp);
 
-            // Process messages
+            // Set all SyncVars
+            serverComp.value1 = 10;
+            serverComp.value2 = 20;
+            serverComp.value3 = 30;
+
             ProcessMessages();
 
-            // Verify hooks fired in declaration order
-            Assert.That(clientComp.hookCallOrder.Count, Is.EqualTo(3));
-            Assert.That(clientComp.hookCallOrder[0], Is.EqualTo("first"));
-            Assert.That(clientComp.hookCallOrder[1], Is.EqualTo("second"));
-            Assert.That(clientComp.hookCallOrder[2], Is.EqualTo("third"));
+            // Verify all hooks fired in declaration order
+            Assert.That(clientComp.callOrder.Count, Is.EqualTo(3));
+            Assert.That(clientComp.callOrder[0], Is.EqualTo("value1"));
+            Assert.That(clientComp.callOrder[1], Is.EqualTo("value2"));
+            Assert.That(clientComp.callOrder[2], Is.EqualTo("value3"));
+        }
+
+        [Test]
+        public void NetworkBehaviour_CrossReferences_HooksCanAccessTargets()
+        {
+            NetworkServer.Listen(10);
+            ConnectClientBlockingAuthenticatedAndReady(out _);
+
+            // Create objects with NetworkBehaviour SyncVar cross-references
+            CreateNetworkedAndSpawn(
+                out _, out _, out NBCrossRefBehaviour serverComp1,
+                out _, out _, out NBCrossRefBehaviour clientComp1);
+
+            CreateNetworkedAndSpawn(
+                out _, out _, out NBCrossRefBehaviour serverComp2,
+                out _, out _, out NBCrossRefBehaviour clientComp2);
+
+            CreateNetworkedAndSpawn(
+                out _, out _, out NBCrossRefBehaviour serverComp3,
+                out _, out _, out NBCrossRefBehaviour clientComp3);
+
+            // Set circular NetworkBehaviour component references
+            serverComp1.targetBehaviour = serverComp2;
+            serverComp2.targetBehaviour = serverComp3;
+            serverComp3.targetBehaviour = serverComp1;
+
+            ProcessMessages();
+
+            // Verify hooks fired
+            Assert.That(clientComp1.callCount, Is.EqualTo(1));
+            Assert.That(clientComp2.callCount, Is.EqualTo(1));
+            Assert.That(clientComp3.callCount, Is.EqualTo(1));
+
+            // Critical: NetworkBehaviour targets were accessible during hooks
+            Assert.That(clientComp1.targetWasInSpawnedWhenHookFired, Is.True,
+                "NetworkBehaviour target should be spawned when hook fires");
+            Assert.That(clientComp2.targetWasInSpawnedWhenHookFired, Is.True,
+                "NetworkBehaviour target should be spawned when hook fires");
+            Assert.That(clientComp3.targetWasInSpawnedWhenHookFired, Is.True,
+                "NetworkBehaviour target should be spawned when hook fires");
+
+            // Verify references are correct
+            Assert.That(clientComp1.targetBehaviour, Is.EqualTo(clientComp2));
+            Assert.That(clientComp2.targetBehaviour, Is.EqualTo(clientComp3));
+            Assert.That(clientComp3.targetBehaviour, Is.EqualTo(clientComp1));
         }
 
         [Test]
         public void UpdateAfterSpawn_HooksFireImmediately()
         {
-            // After initial spawn completes, hooks should fire immediately
+            NetworkServer.Listen(10);
+            ConnectClientBlockingAuthenticatedAndReady(out _);
+
+            // Create and spawn objects
             CreateNetworkedAndSpawn(
-                out GameObject serverGO, out NetworkIdentity serverIdentity, out PostSpawnUpdateBehaviour serverComp,
-                out GameObject clientGO, out NetworkIdentity clientIdentity, out PostSpawnUpdateBehaviour clientComp);
+                out _, out _, out CrossRefBehaviour serverComp1,
+                out _, out _, out CrossRefBehaviour clientComp1);
 
-            // Initial spawn completes, hook was called (or not if value was same)
-            int initialCallCount = clientComp.hookCallCount;
+            CreateNetworkedAndSpawn(
+                out _, out NetworkIdentity serverIdentity2,
+                out _, out NetworkIdentity clientIdentity2);
 
-            // Update value after spawn - hook should fire immediately
-            serverComp.value = 42;
+            // Initial spawn is complete
+            Assert.That(NetworkClient.isSpawnFinished, Is.True);
+
+            // Set target after spawn
+            serverComp1.target = serverIdentity2;
             ProcessMessages();
 
-            // Hook should have been called immediately for post-spawn update
-            Assert.That(clientComp.hookCallCount, Is.EqualTo(initialCallCount + 1),
-                "Post-spawn updates should fire hooks immediately");
-            Assert.That(clientComp.value, Is.EqualTo(42));
+            // Hook should fire immediately (not deferred)
+            Assert.That(clientComp1.callCount, Is.EqualTo(1));
+            Assert.That(clientComp1.target, Is.EqualTo(clientIdentity2));
+            Assert.That(clientComp1.targetWasInSpawnedWhenHookFired, Is.True);
+
+            // Change target
+            serverComp1.target = null;
+            ProcessMessages();
+
+            // Hook fires again immediately
+            Assert.That(clientComp1.callCount, Is.EqualTo(2));
+            Assert.That(clientComp1.target, Is.Null);
+        }
+    }
+
+    public class CrossRefBehaviour : NetworkBehaviour
+    {
+        [SyncVar(hook = nameof(OnTargetChanged))]
+        public NetworkIdentity target;
+
+        public int callCount;
+        public bool targetWasInSpawnedWhenHookFired;
+
+        void OnTargetChanged(NetworkIdentity oldValue, NetworkIdentity newValue)
+        {
+            callCount++;
+
+            if (newValue != null)
+                targetWasInSpawnedWhenHookFired = NetworkClient.spawned.ContainsKey(newValue.netId);
+        }
+    }
+
+    public class GameObjectCrossRefBehaviour : NetworkBehaviour
+    {
+        [SyncVar(hook = nameof(OnTargetChanged))]
+        public GameObject targetGO;
+
+        public int callCount;
+        public bool targetWasInSpawnedWhenHookFired;
+
+        void OnTargetChanged(GameObject oldValue, GameObject newValue)
+        {
+            callCount++;
+
+            if (newValue != null)
+            {
+                NetworkIdentity targetIdentity = newValue.GetComponent<NetworkIdentity>();
+                if (targetIdentity != null)
+                    targetWasInSpawnedWhenHookFired = NetworkClient.spawned.ContainsKey(targetIdentity.netId);
+            }
+        }
+    }
+
+    public class MultiHookBehaviour : NetworkBehaviour
+    {
+        [SyncVar(hook = nameof(OnValue1Changed))] public int value1;
+        [SyncVar(hook = nameof(OnValue2Changed))] public int value2;
+        [SyncVar(hook = nameof(OnValue3Changed))] public int value3;
+
+        public System.Collections.Generic.List<string> callOrder = new System.Collections.Generic.List<string>();
+
+        void OnValue1Changed(int old, int newVal) => callOrder.Add("value1");
+        void OnValue2Changed(int old, int newVal) => callOrder.Add("value2");
+        void OnValue3Changed(int old, int newVal) => callOrder.Add("value3");
+    }
+
+    public class NBCrossRefBehaviour : NetworkBehaviour
+    {
+        [SyncVar(hook = nameof(OnTargetChanged))]
+        public NBCrossRefBehaviour targetBehaviour;
+
+        public int callCount;
+        public bool targetWasInSpawnedWhenHookFired;
+
+        void OnTargetChanged(NBCrossRefBehaviour oldValue, NBCrossRefBehaviour newValue)
+        {
+            callCount++;
+
+            if (newValue != null)
+                targetWasInSpawnedWhenHookFired = NetworkClient.spawned.ContainsKey(newValue.netId);
         }
     }
 }
