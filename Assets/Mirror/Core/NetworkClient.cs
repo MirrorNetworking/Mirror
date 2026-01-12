@@ -1345,6 +1345,17 @@ namespace Mirror
                     //else
                     //    Debug.LogWarning($"Expected pendingSpawns to contain {identity}: {identity.netId} but didn't");
 
+                    // Invoke deferred SyncVar hooks BEFORE OnStartClient callbacks.
+                    // This ensures all objects are in spawned dictionary (cross-references work)
+                    // and hooks fire in declaration order, before user OnStartClient logic runs.
+                    foreach (NetworkBehaviour comp in identity.NetworkBehaviours)
+                    {
+                        foreach (Action hook in comp.deferredSyncVarHooks)
+                            hook?.Invoke();
+                        
+                        comp.deferredSyncVarHooks.Clear();
+                    }
+
                     BootstrapIdentity(identity);
                 }
                 else Debug.LogWarning("Found null entry in NetworkClient.spawned. This is unexpected. Was the NetworkIdentity not destroyed properly?");

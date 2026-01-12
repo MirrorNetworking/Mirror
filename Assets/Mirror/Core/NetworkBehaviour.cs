@@ -163,6 +163,11 @@ namespace Mirror
         // hook guard prevents that.
         ulong syncVarHookGuard;
 
+        // Queue for deferred SyncVar hooks during initial spawn.
+        // Only used on pure client (not host mode) when isSpawnFinished = false.
+        // Hooks are queued during deserialization and invoked in OnObjectSpawnFinished.
+        internal readonly List<Action> deferredSyncVarHooks = new List<Action>();
+
         protected virtual void OnValidate()
         {
             // Skip if Editor is in Play mode
@@ -810,7 +815,23 @@ namespace Mirror
                 bool changed = !SyncVarEqual(previous, ref field);
                 bool hostInitialSpawnInHostMode = NetworkServer.activeHost && netIdentity.hostInitialSpawn;
                 if (changed || hostInitialSpawnInHostMode)
-                    OnChanged(previous, field);
+                {
+                    // Defer hooks during initial spawn on pure client to eliminate
+                    // cross-object reference race conditions. All objects will be in
+                    // NetworkClient.spawned before any hooks fire.
+                    if (NetworkClient.active && !NetworkServer.active && !NetworkClient.isSpawnFinished)
+                    {
+                        // Capture values in closure for deferred execution
+                        T capturedPrevious = previous;
+                        T capturedNew = field;
+                        deferredSyncVarHooks.Add(() => OnChanged(capturedPrevious, capturedNew));
+                    }
+                    else
+                    {
+                        // Normal: invoke immediately (host mode, server, or after spawn finished)
+                        OnChanged(previous, field);
+                    }
+                }
             }
         }
 
@@ -876,7 +897,18 @@ namespace Mirror
                 bool changed = !SyncVarEqual(previousNetId, ref netIdField);
                 bool hostInitialSpawnInHostMode = NetworkServer.activeHost && netIdentity.hostInitialSpawn;
                 if (changed || hostInitialSpawnInHostMode)
-                    OnChanged(previousGameObject, field);
+                {
+                    if (NetworkClient.active && !NetworkServer.active && !NetworkClient.isSpawnFinished)
+                    {
+                        GameObject capturedPrevious = previousGameObject;
+                        GameObject capturedNew = field;
+                        deferredSyncVarHooks.Add(() => OnChanged(capturedPrevious, capturedNew));
+                    }
+                    else
+                    {
+                        OnChanged(previousGameObject, field);
+                    }
+                }
             }
         }
 
@@ -943,7 +975,18 @@ namespace Mirror
                 bool changed = !SyncVarEqual(previousNetId, ref netIdField);
                 bool hostInitialSpawnInHostMode = NetworkServer.activeHost && netIdentity.hostInitialSpawn;
                 if (changed || hostInitialSpawnInHostMode)
-                    OnChanged(previousIdentity, field);
+                {
+                    if (NetworkClient.active && !NetworkServer.active && !NetworkClient.isSpawnFinished)
+                    {
+                        NetworkIdentity capturedPrevious = previousIdentity;
+                        NetworkIdentity capturedNew = field;
+                        deferredSyncVarHooks.Add(() => OnChanged(capturedPrevious, capturedNew));
+                    }
+                    else
+                    {
+                        OnChanged(previousIdentity, field);
+                    }
+                }
             }
         }
 
@@ -1012,7 +1055,18 @@ namespace Mirror
                 bool changed = !SyncVarEqual(previousNetId, ref netIdField);
                 bool hostInitialSpawnInHostMode = NetworkServer.activeHost && netIdentity.hostInitialSpawn;
                 if (changed || hostInitialSpawnInHostMode)
-                    OnChanged(previousBehaviour, field);
+                {
+                    if (NetworkClient.active && !NetworkServer.active && !NetworkClient.isSpawnFinished)
+                    {
+                        T capturedPrevious = previousBehaviour;
+                        T capturedNew = field;
+                        deferredSyncVarHooks.Add(() => OnChanged(capturedPrevious, capturedNew));
+                    }
+                    else
+                    {
+                        OnChanged(previousBehaviour, field);
+                    }
+                }
             }
         }
 
