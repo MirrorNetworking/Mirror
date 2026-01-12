@@ -1384,7 +1384,31 @@ namespace Mirror
                     aoi.SetHostVisibility(identity, true);
 
                 identity.isOwned = message.isOwner;
-                BootstrapIdentity(identity);
+
+                // Set flag to indicate initial spawn deserialization in host mode WITH AOI.
+                // This forces SyncVar hooks to fire even if values haven't changed,
+                // because the field was already set on server but hook wasn't called yet (object was out of range).
+                // Only set this flag when AOI is active, otherwise hooks should fire normally via setters.
+                identity.hostInitialSpawn = aoi != null;
+
+                // Configure flags before deserializing
+                InitializeIdentityFlags(identity);
+
+                // Deserialize components if any payload.
+                // This will trigger SyncVar hooks via GeneratedSyncVarDeserialize.
+                if (message.payload.Count > 0)
+                {
+                    using (NetworkReaderPooled payloadReader = NetworkReaderPool.Get(message.payload))
+                    {
+                        identity.DeserializeClient(payloadReader, true);
+                    }
+                }
+
+                // Clear flag after deserialization
+                identity.hostInitialSpawn = false;
+
+                // Invoke callbacks after deserializing
+                InvokeIdentityCallbacks(identity);
             }
         }
 
