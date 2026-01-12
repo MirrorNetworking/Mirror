@@ -15,6 +15,8 @@ namespace Mirror.Examples.Common
 
         void SetColor(Color32 _, Color32 newColor)
         {
+            if (!isOwned) return;
+
             Debug.Log($"[RandomColor] SetColor: {newColor}", gameObject);
             if (cachedMaterial == null) cachedMaterial = GetComponentInChildren<Renderer>().material;
             cachedMaterial.color = newColor;
@@ -22,6 +24,8 @@ namespace Mirror.Examples.Common
 
         public override void OnStartServer()
         {
+            if (connectionToClient == null) return;
+
             // Only set the color once. Players / objects may be unspawned and
             // respawned and we don't want to keep changing their colors.
             if (color == Color.black)

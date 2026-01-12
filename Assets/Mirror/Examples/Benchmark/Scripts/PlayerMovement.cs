@@ -15,6 +15,7 @@ namespace Mirror.Examples.Benchmark
         public override void OnStartServer()
         {
             name = $"Player[{netId}|server]";
+            NetworkServer.Spawn(Instantiate(BenchmarkNetworkManager.singleton.spawnPrefab), connectionToClient);
         }
 
         void Update()

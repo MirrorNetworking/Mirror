@@ -163,6 +163,11 @@ namespace Mirror
         // hook guard prevents that.
         ulong syncVarHookGuard;
 
+        // Queue for deferred SyncVar hooks during initial spawn. 
+        // Only used on pure client (not host mode) when isSpawnFinished = false. 
+        // Hooks are queued during deserialization and invoked in OnObjectSpawnFinished. 
+        internal readonly List<Action> deferredSyncVarHooks = new List<Action>();
+
         protected virtual void OnValidate()
         {
             // Skip if Editor is in Play mode
@@ -802,7 +807,7 @@ namespace Mirror
             T previous = field;
             field = value;
 
-            // any hook? then call if changed.
+            // any hook? then call if changed. 
             // in host mode initial spawn, also call hook even if value hasn't changed,
             // because the field was already set on server but hook wasn't called yet.
             if (OnChanged != null)
@@ -810,7 +815,23 @@ namespace Mirror
                 bool changed = !SyncVarEqual(previous, ref field);
                 bool hostInitialSpawnInHostMode = NetworkServer.activeHost && netIdentity.hostInitialSpawn;
                 if (changed || hostInitialSpawnInHostMode)
-                    OnChanged(previous, field);
+                {
+                    // Defer hooks during initial spawn on pure client to eliminate
+                    // cross-object reference race conditions.  All objects will be in
+                    // NetworkClient.spawned before any hooks fire.
+                    if (NetworkClient.active && !NetworkServer.active && !NetworkClient.isSpawnFinished)
+                    {
+                        // Capture values in closure for deferred execution
+                        T capturedPrevious = previous;
+                        T capturedNew = field;
+                        deferredSyncVarHooks.Add(() => OnChanged(capturedPrevious, capturedNew));
+                    }
+                    else
+                    {
+                        // Normal:  invoke immediately (host mode, server, or after spawn finished)
+                        OnChanged(previous, field);
+                    }
+                }
             }
         }
 
@@ -870,13 +891,29 @@ namespace Mirror
 
             // any hook? then call if changed.
             // in host mode initial spawn, also call hook even if value hasn't changed,
-            // because the field was already set on server but hook wasn't called yet.
+            // because the field was already set on server but hook wasn't called yet. 
             if (OnChanged != null)
             {
                 bool changed = !SyncVarEqual(previousNetId, ref netIdField);
                 bool hostInitialSpawnInHostMode = NetworkServer.activeHost && netIdentity.hostInitialSpawn;
                 if (changed || hostInitialSpawnInHostMode)
-                    OnChanged(previousGameObject, field);
+                {
+                    // Defer hooks during initial spawn on pure client to eliminate
+                    // cross-object reference race conditions. All objects will be in
+                    // NetworkClient.spawned before any hooks fire.
+                    if (NetworkClient.active && !NetworkServer.active && !NetworkClient.isSpawnFinished)
+                    {
+                        // Capture values in closure for deferred execution
+                        GameObject capturedPrevious = previousGameObject;
+                        GameObject capturedNew = field;
+                        deferredSyncVarHooks.Add(() => OnChanged(capturedPrevious, capturedNew));
+                    }
+                    else
+                    {
+                        // Normal: invoke immediately (host mode, server, or after spawn finished)
+                        OnChanged(previousGameObject, field);
+                    }
+                }
             }
         }
 
@@ -935,7 +972,7 @@ namespace Mirror
             // get the new NetworkIdentity now that netId field is set
             field = GetSyncVarNetworkIdentity(netIdField, ref field);
 
-            // any hook? then call if changed.
+            // any hook? then call if changed. 
             // in host mode initial spawn, also call hook even if value hasn't changed,
             // because the field was already set on server but hook wasn't called yet.
             if (OnChanged != null)
@@ -943,7 +980,23 @@ namespace Mirror
                 bool changed = !SyncVarEqual(previousNetId, ref netIdField);
                 bool hostInitialSpawnInHostMode = NetworkServer.activeHost && netIdentity.hostInitialSpawn;
                 if (changed || hostInitialSpawnInHostMode)
-                    OnChanged(previousIdentity, field);
+                {
+                    // Defer hooks during initial spawn on pure client to eliminate
+                    // cross-object reference race conditions. All objects will be in
+                    // NetworkClient.spawned before any hooks fire.
+                    if (NetworkClient.active && !NetworkServer.active && !NetworkClient.isSpawnFinished)
+                    {
+                        // Capture values in closure for deferred execution
+                        NetworkIdentity capturedPrevious = previousIdentity;
+                        NetworkIdentity capturedNew = field;
+                        deferredSyncVarHooks.Add(() => OnChanged(capturedPrevious, capturedNew));
+                    }
+                    else
+                    {
+                        // Normal: invoke immediately (host mode, server, or after spawn finished)
+                        OnChanged(previousIdentity, field);
+                    }
+                }
             }
         }
 
@@ -994,8 +1047,7 @@ namespace Mirror
         //           GeneratedSyncVarDeserialize_NetworkBehaviour(reader, ref target, OnChangedNB, ref ___targetNetId);
         //       }
         //   }
-        public void GeneratedSyncVarDeserialize_NetworkBehaviour<T>(ref T field, Action<T, T> OnChanged, NetworkReader reader, ref NetworkBehaviourSyncVar netIdField)
-            where T : NetworkBehaviour
+        public void GeneratedSyncVarDeserialize_NetworkBehaviour<T>(ref T field, Action<T, T> OnChanged, NetworkReader reader, ref NetworkBehaviourSyncVar netIdField) where T : NetworkBehaviour
         {
             NetworkBehaviourSyncVar previousNetId = netIdField;
             T previousBehaviour = field;
@@ -1004,7 +1056,7 @@ namespace Mirror
             // get the new NetworkBehaviour now that netId field is set
             field = GetSyncVarNetworkBehaviour(netIdField, ref field);
 
-            // any hook? then call if changed.
+            // any hook? then call if changed. 
             // in host mode initial spawn, also call hook even if value hasn't changed,
             // because the field was already set on server but hook wasn't called yet.
             if (OnChanged != null)
@@ -1012,7 +1064,23 @@ namespace Mirror
                 bool changed = !SyncVarEqual(previousNetId, ref netIdField);
                 bool hostInitialSpawnInHostMode = NetworkServer.activeHost && netIdentity.hostInitialSpawn;
                 if (changed || hostInitialSpawnInHostMode)
-                    OnChanged(previousBehaviour, field);
+                {
+                    // Defer hooks during initial spawn on pure client to eliminate
+                    // cross-object reference race conditions. All objects will be in
+                    // NetworkClient.spawned before any hooks fire.
+                    if (NetworkClient.active && !NetworkServer.active && !NetworkClient.isSpawnFinished)
+                    {
+                        // Capture values in closure for deferred execution
+                        T capturedPrevious = previousBehaviour;
+                        T capturedNew = field;
+                        deferredSyncVarHooks.Add(() => OnChanged(capturedPrevious, capturedNew));
+                    }
+                    else
+                    {
+                        // Normal: invoke immediately (host mode, server, or after spawn finished)
+                        OnChanged(previousBehaviour, field);
+                    }
+                }
             }
         }
 

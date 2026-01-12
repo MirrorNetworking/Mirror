@@ -5,6 +5,8 @@ namespace Mirror.Examples.Benchmark
     [AddComponentMenu("")]
     public class BenchmarkNetworkManager : NetworkManager
     {
+        public static new BenchmarkNetworkManager singleton => (BenchmarkNetworkManager)NetworkManager.singleton;
+
         [Header("Spawns")]
         public GameObject spawnPrefab;
         public int spawnAmount = 5000;
