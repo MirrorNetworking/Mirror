@@ -1,7 +1,7 @@
 using NUnit.Framework;
 using UnityEngine;
 
-namespace Mirror.Tests.SyncVarTests
+namespace Mirror.Tests.SyncVars
 {
     public class SyncVarHookDeferralTests : MirrorEditModeTest
     {
