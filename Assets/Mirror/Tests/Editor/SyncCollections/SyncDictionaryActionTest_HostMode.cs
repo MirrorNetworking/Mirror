@@ -1,23 +1,28 @@
+using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
 
 namespace Mirror.Tests.SyncCollections
 {
+    // Test SyncDictionary Actions in Host Mode with AOI scenarios
     public class SyncDictionaryActionTest_HostMode : MirrorTest
     {
         DistanceInterestManagement aoi;
+        NetworkConnectionToClient connectionToClient;
 
         [SetUp]
         public override void SetUp()
         {
             base.SetUp();
 
+            // setup AOI component
             aoi = holder.AddComponent<DistanceInterestManagement>();
             aoi.visRange = 10;
             NetworkServer.aoi = aoi;
 
-            NetworkServer.Listen(1);
-            ConnectHostClientBlockingAuthenticatedAndReady();
+            // Use client/server, NOT host mode
+            NetworkServer.Listen(10);
+            ConnectClientBlockingAuthenticatedAndReady(out connectionToClient);
         }
 
         [TearDown]
@@ -28,74 +33,94 @@ namespace Mirror.Tests.SyncCollections
         }
 
         [Test]
-        public void HostMode_ActionNotCalledForOutOfRangeObject()
+        public void ClientServer_ActionsRespectAOI()
         {
-            CreateNetworkedAndSpawn(out _, out _, out SyncDictionaryHostModeBehaviour comp);
-            comp.transform.position = Vector3.right * (aoi.visRange + 1);
-            NetworkServer.RebuildObservers(comp.netIdentity, true);
+            // spawn host client
+            CreateNetworkedAndSpawnPlayer(
+                out GameObject serverPlayer, out NetworkIdentity serverNI,
+                out _, out _, connectionToClient);
 
+            // move host client player out of range
+            serverPlayer.transform.position = Vector3.right * (aoi.visRange + 1);
+
+            // spawn object (should be out of range of moved host client)
+            CreateNetworked(out GameObject serverGO, out NetworkIdentity serverIdentity, out SyncDictionaryHostModeBehaviour serverComp);
+            CreateNetworked(out GameObject clientGO, out NetworkIdentity clientIdentity, out SyncDictionaryHostModeBehaviour clientComp);
+
+            // give both a scene id and register it on client for spawnables
+            clientIdentity.sceneId = serverIdentity.sceneId = (ulong)serverGO.GetHashCode();
+            NetworkClient.spawnableObjects[clientIdentity.sceneId] = clientIdentity;
+
+            // IMPORTANT: OnSpawn finds 'sceneId' in .spawnableObjects.
+            // only those who are ConsiderForSpawn() are in there.
+            // for scene objects to be considered, they need to be disabled.
+            // (it'll be active by the time we return here)
+            clientGO.SetActive(false);
+
+            // setup Action tracking
             int actionCallCount = 0;
-            comp.dict.OnAdd += (key) => actionCallCount++;
+            clientComp.dictionary.OnAdd += (key) => actionCallCount++;
 
-            comp.dict.Add(1, "test");
+            // add on server before spawn to include in payload
+            // Action should NOT fire on client because out of AOI range
+            serverComp.dictionary.Add("key1", "first");
 
-            Assert.That(actionCallCount, Is.EqualTo(0));
-        }
+            // spawn
+            NetworkServer.Spawn(serverGO);
+            ProcessMessages();
 
-        [Test]
-        public void HostMode_ActionsCalledWhenEnteringRange()
-        {
-            // Use the same pattern as existing SyncDictionary tests
-            // Create separate server and client dictionaries
-            SyncDictionary<int, string> serverDict = new SyncDictionary<int, string>();
-            SyncDictionary<int, string> clientDict = new SyncDictionary<int, string>();
+            // double check isServer. avoids debugging headaches.
+            Assert.That(serverIdentity.isServer, Is.True);
 
-            // Create a mock NetworkBehaviour to set the networkBehaviour reference
-            CreateNetworked(out _, out NetworkIdentity serverIdentity, out SyncDictionaryHostModeBehaviour serverComp);
-            CreateNetworked(out _, out NetworkIdentity clientIdentity, out SyncDictionaryHostModeBehaviour clientComp);
+            // host client player out of range...thus isClient should be false
+            Assert.That(clientIdentity.isClient, Is.False);
 
-            // Set up the dictionaries' networkBehaviour references
-            serverDict.networkBehaviour = serverComp;
-            clientDict.networkBehaviour = clientComp;
+            // rebuild observers - should not be visible
+            NetworkServer.RebuildObservers(serverNI, true);
+            ProcessMessages();
 
-            // Set writable/recording
-            serverDict.IsWritable = () => true;
-            serverDict.IsRecording = () => true;
-            clientDict.IsWritable = () => false;
+            Assert.That(actionCallCount, Is.EqualTo(0), "Action should not fire for out-of-range object");
 
-            // Simulate host mode for client side
-            //NetworkServer.SetLocalConnection( new LocalConnectionToClient());
+            // add item while out of range
+            serverComp.dictionary.Add("key2", "second");
+            ProcessMessages();
 
-            // Server is not in client spawned (out of range)
-            Assert.That(NetworkClient.spawned.ContainsKey(clientIdentity.netId), Is.False);
+            Assert.That(actionCallCount, Is.EqualTo(0), "Actions should not fire for out-of-range object");
 
-            // Add items on server - Actions should NOT fire because out of range
-            serverDict.Add(1, "test");
-            serverDict.Add(2, "test2");
+            // move host client player into range
+            serverPlayer.transform.position = Vector3.zero;
 
-            // Track Actions on client
-            int addCallCount = 0;
-            clientDict.OnAdd += (key) => addCallCount++;
+            // rebuild observers - should be visible now
+            NetworkServer.RebuildObservers(serverComp.netIdentity, false);
+            ProcessMessages();
 
-            // Simulate entering range: add to spawned
-            NetworkClient.spawned[clientIdentity.netId] = clientIdentity;
-            clientIdentity.hostInitialSpawn = true;
+            Assert.That(clientComp.actionsReceived.Count, Is.EqualTo(2), "Two Actions invoked by OnStartClient");
+            Assert.That(clientComp.actionsReceived[0], Is.EqualTo("Add:key1:first"));
+            Assert.That(clientComp.actionsReceived[1], Is.EqualTo("Add:key2:second"));
 
-            // Serialize from server to client
-            NetworkWriter writer = new NetworkWriter();
-            serverDict.OnSerializeDelta(writer);
-            NetworkReader reader = new NetworkReader(writer.ToArray());
-            clientDict.OnDeserializeDelta(reader);
+            // add item while in range
+            serverComp.dictionary.Add("key3", "third");
+            ProcessMessages();
 
-            clientIdentity.hostInitialSpawn = false;
-            //NetworkServer.RemoveLocalConnection();
-
-            Assert.That(addCallCount, Is.EqualTo(2), "Both Add Actions should fire when entering range");
+            Assert.That(clientComp.actionsReceived.Count, Is.EqualTo(3), "Total of 3 Actions invoked");
+            Assert.That(clientComp.actionsReceived[2], Is.EqualTo("Add:key3:third"));
         }
     }
 
+    // Test NetworkBehaviour with SyncDictionary for host mode testing
     public class SyncDictionaryHostModeBehaviour : NetworkBehaviour
     {
-        public readonly SyncDictionary<int, string> dict = new SyncDictionary<int, string>();
+        internal readonly SyncDictionary<string, string> dictionary = new SyncDictionary<string, string>();
+
+        internal List<string> actionsReceived = new List<string>();
+
+        public override void OnStartClient()
+        {
+            dictionary.OnAdd += (key) => actionsReceived.Add($"Add:{key}:{dictionary[key]}");
+
+            // Invoke OnAdd for all items in dictionary
+            foreach (var kvp in dictionary)
+                dictionary.OnAdd?.Invoke(kvp.Key);
+        }
     }
 }
