@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using NUnit.Framework;
+using UnityEngine;
 
 namespace Mirror.Tests.SyncCollections
 {
@@ -24,58 +25,46 @@ namespace Mirror.Tests.SyncCollections
             base.TearDown();
         }
 
-        [Test, Ignore("")]
+        [Test]
         public void PureClient_ActionsDeferredUntilSpawnFinished()
         {
-            // Track execution order
-            List<string> executionOrder = new List<string>();
+            // create host client player and spawn on server with data
+            CreateNetworked(out GameObject serverGO, out NetworkIdentity serverIdentity, out SyncListDeferralBehaviour serverComp);
+            CreateNetworked(out GameObject clientGO, out NetworkIdentity clientIdentity, out SyncListDeferralBehaviour clientComp);
 
-            // create and spawn on server with data
-            CreateNetworkedAndSpawn(
-                out _, out _, out SyncListDeferralBehaviour serverComp,
-                out _, out _, out SyncListDeferralBehaviour clientComp,
-                connectionToClient);
+            // give both a scene id and register it on client for spawnables
+            clientIdentity.sceneId = serverIdentity.sceneId = (ulong)serverGO.GetHashCode();
+            NetworkClient.spawnableObjects[clientIdentity.sceneId] = clientIdentity;
 
-            // add data on server before spawn finishes on client
+            // IMPORTANT: OnSpawn finds 'sceneId' in .spawnableObjects.
+            // only those who are ConsiderForSpawn() are in there.
+            // for scene objects to be considered, they need to be disabled.
+            // (it'll be active by the time we return here)
+            clientGO.SetActive(false);
+
+            // set up tracking
+            clientComp.onStartClientCalled = () => clientComp.executionOrder.Add("OnStartClient");
+
+            // add data on server before spawn
             serverComp.list.Add("first");
             serverComp.list.Add("second");
 
-            // set up tracking
-            clientComp.list.OnAdd += (index) => executionOrder.Add($"OnAdd:{index}");
-            clientComp.onStartClientCalled = () => executionOrder.Add("OnStartClient");
-
-            // ProcessMessages triggers spawn and deferred Actions
+            // add as player & process spawn message on client.
+            NetworkServer.AddPlayerForConnection(connectionToClient, serverGO);
             ProcessMessages();
 
-            // Actions should fire BEFORE OnStartClient
-            Assert.That(executionOrder.Count, Is.GreaterThanOrEqualTo(3), "Should have OnAdd Actions + OnStartClient");
-            // OnAdd Actions happen first (deferred), then OnStartClient
-            Assert.That(executionOrder[0], Is.EqualTo("OnAdd:0"));
-            Assert.That(executionOrder[1], Is.EqualTo("OnAdd:1"));
-            Assert.That(executionOrder[2], Is.EqualTo("OnStartClient"));
-        }
+            // double check isServer/isClient. avoids debugging headaches.
+            Assert.That(serverIdentity.isServer, Is.True);
+            Assert.That(clientIdentity.isClient, Is.True);
 
-        [Test, Ignore("")]
-        public void PureClient_MultipleCollectionsDeferred()
-        {
-            CreateNetworkedAndSpawn(
-                out _, out _, out MultiSyncListBehaviour serverComp,
-                out _, out _, out MultiSyncListBehaviour clientComp,
-                connectionToClient);
+            // make sure the client really spawned it.
+            Assert.That(clientGO.activeSelf, Is.True);
+            Assert.That(NetworkClient.spawned.ContainsKey(serverIdentity.netId));
 
-            serverComp.listA.Add("A1");
-            serverComp.listB.Add(42);
-
-            List<string> executionOrder = new List<string>();
-            clientComp.listA.OnAdd += (index) => executionOrder.Add($"ListA: Add:{index}");
-            clientComp.listB.OnAdd += (index) => executionOrder.Add($"ListB:Add:{index}");
-
-            ProcessMessages();
-
-            // both Actions should fire
-            Assert.That(executionOrder.Count, Is.EqualTo(2));
-            Assert.That(executionOrder[0], Is.EqualTo("ListA:Add:0"));
-            Assert.That(executionOrder[1], Is.EqualTo("ListB:Add: 0"));
+            Assert.That(clientComp.executionOrder.Count, Is.GreaterThanOrEqualTo(3), $"Should have OnAdd OnStartClient + Actions");
+            Assert.That(clientComp.executionOrder[0], Is.EqualTo("OnStartClient"));
+            Assert.That(clientComp.executionOrder[1], Is.EqualTo("OnAdd:0"));
+            Assert.That(clientComp.executionOrder[2], Is.EqualTo("OnAdd:1"));
         }
 
         [Test]
@@ -109,6 +98,29 @@ namespace Mirror.Tests.SyncCollections
             Assert.That(receivedIdentity, Is.Not.Null, "Should receive NetworkIdentity");
             Assert.That(receivedIdentity.netId, Is.EqualTo(clientIdentityB.netId), "Should reference correct NetworkIdentity");
         }
+
+        [Test]
+        public void PureClient_MultipleCollectionsDeferred()
+        {
+            CreateNetworkedAndSpawn(
+                out _, out _, out MultiSyncListBehaviour serverComp,
+                out _, out _, out MultiSyncListBehaviour clientComp,
+                connectionToClient);
+
+            serverComp.listA.Add("A1");
+            serverComp.listB.Add(42);
+
+            List<string> executionOrder = new List<string>();
+            clientComp.listA.OnAdd += (index) => executionOrder.Add($"ListA:Add:{index}");
+            clientComp.listB.OnAdd += (index) => executionOrder.Add($"ListB:Add:{index}");
+
+            ProcessMessages();
+
+            // both Actions should fire
+            Assert.That(executionOrder.Count, Is.EqualTo(2));
+            Assert.That(executionOrder[0], Is.EqualTo("ListA:Add:0"));
+            Assert.That(executionOrder[1], Is.EqualTo("ListB:Add:0"));
+        }
     }
 
     // Test NetworkBehaviours for deferral testing
@@ -116,10 +128,21 @@ namespace Mirror.Tests.SyncCollections
     {
         public readonly SyncList<string> list = new SyncList<string>();
         public System.Action onStartClientCalled;
+        public int actionCallCount = 0;
+
+        // Track execution order
+        public List<string> executionOrder = new List<string>();
 
         public override void OnStartClient()
         {
+            list.OnAdd += (index) => executionOrder.Add($"OnAdd:{index}");
+
+            actionCallCount++;
             onStartClientCalled?.Invoke();
+
+            // Invoke OnAdd for all items in list
+            for (int index = 0; index < list.Count; index++)
+                list.OnAdd?.Invoke(index);
         }
     }
 
