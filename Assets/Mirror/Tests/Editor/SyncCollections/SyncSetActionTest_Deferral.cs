@@ -4,8 +4,8 @@ using UnityEngine;
 
 namespace Mirror.Tests.SyncCollections
 {
-    // Test SyncList Action deferral to eliminate race conditions
-    public class SyncListActionTest_Deferral : MirrorTest
+    // Test SyncSet Action deferral to eliminate race conditions
+    public class SyncSetActionTest_Deferral : MirrorTest
     {
         NetworkConnectionToClient connectionToClient;
 
@@ -29,16 +29,16 @@ namespace Mirror.Tests.SyncCollections
         public void PureClient_ActionsDeferredUntilSpawnFinished()
         {
             // create host client player and spawn on server with data
-            CreateNetworked(out GameObject serverGO, out NetworkIdentity serverIdentity, out SyncListDeferralBehaviour serverComp);
-            CreateNetworked(out GameObject clientGO, out NetworkIdentity clientIdentity, out SyncListDeferralBehaviour clientComp);
+            CreateNetworked(out GameObject serverGO, out NetworkIdentity serverIdentity, out SyncSetDeferralBehaviour serverComp);
+            CreateNetworked(out GameObject clientGO, out NetworkIdentity clientIdentity, out SyncSetDeferralBehaviour clientComp);
 
             // give both a scene id and register it on client for spawnables
             clientIdentity.sceneId = serverIdentity.sceneId = (ulong)serverGO.GetHashCode();
             NetworkClient.spawnableObjects[clientIdentity.sceneId] = clientIdentity;
 
-            // IMPORTANT: OnSpawn finds 'sceneId' in .spawnableObjects.
+            // IMPORTANT: OnSpawn finds 'sceneId' in .spawnableObjects. 
             // only those who are ConsiderForSpawn() are in there.
-            // for scene objects to be considered, they need to be disabled.
+            // for scene objects to be considered, they need to be disabled. 
             // (it'll be active by the time we return here)
             clientGO.SetActive(false);
 
@@ -46,14 +46,14 @@ namespace Mirror.Tests.SyncCollections
             clientComp.onStartClientCalled = () => clientComp.executionOrder.Add("OnStartClient");
 
             // add data on server before spawn
-            serverComp.list.Add("first");
-            serverComp.list.Add("second");
+            serverComp.set.Add("first");
+            serverComp.set.Add("second");
 
             // add as player & process spawn message on client.
             NetworkServer.AddPlayerForConnection(connectionToClient, serverGO);
             ProcessMessages();
 
-            // double check isServer/isClient. avoids debugging headaches.
+            // double check isServer/isClient.  avoids debugging headaches.
             Assert.That(serverIdentity.isServer, Is.True);
             Assert.That(clientIdentity.isClient, Is.True);
 
@@ -61,10 +61,11 @@ namespace Mirror.Tests.SyncCollections
             Assert.That(clientGO.activeSelf, Is.True);
             Assert.That(NetworkClient.spawned.ContainsKey(serverIdentity.netId));
 
-            Assert.That(clientComp.executionOrder.Count, Is.GreaterThanOrEqualTo(3), $"Should have OnAdd OnStartClient + Actions");
+            Assert.That(clientComp.executionOrder.Count, Is.GreaterThanOrEqualTo(3), $"Should have OnStartClient + Actions");
             Assert.That(clientComp.executionOrder[0], Is.EqualTo("OnStartClient"));
-            Assert.That(clientComp.executionOrder[1], Is.EqualTo("OnAdd:0"));
-            Assert.That(clientComp.executionOrder[2], Is.EqualTo("OnAdd:1"));
+            // Note: SyncSet order isn't guaranteed, so just check they both fired
+            Assert.That(clientComp.executionOrder.Contains("OnAdd:first"));
+            Assert.That(clientComp.executionOrder.Contains("OnAdd:second"));
         }
 
         [Test]
@@ -79,9 +80,9 @@ namespace Mirror.Tests.SyncCollections
             NetworkClient.spawnableObjects[clientIdentityB.sceneId] = clientIdentityB;
             clientGOB.SetActive(false);
 
-            // Create player object A with SyncList
-            CreateNetworked(out GameObject serverGOA, out NetworkIdentity serverIdentityA, out SyncListIdentityBehaviour serverCompA);
-            CreateNetworked(out GameObject clientGOA, out NetworkIdentity clientIdentityA, out SyncListIdentityBehaviour clientCompA);
+            // Create player object A with SyncSet
+            CreateNetworked(out GameObject serverGOA, out NetworkIdentity serverIdentityA, out SyncSetIdentityBehaviour serverCompA);
+            CreateNetworked(out GameObject clientGOA, out NetworkIdentity clientIdentityA, out SyncSetIdentityBehaviour clientCompA);
 
             // give both a scene id and register it on client for spawnables
             clientIdentityA.sceneId = serverIdentityA.sceneId = (ulong)serverGOA.GetHashCode();
@@ -94,7 +95,13 @@ namespace Mirror.Tests.SyncCollections
             {
                 // Check if cross-reference is valid BEFORE wiring up actions
                 if (clientCompA.identities.Count > 0)
-                    foundIdentity = clientCompA.identities[0];
+                {
+                    foreach (var identity in clientCompA.identities)
+                    {
+                        foundIdentity = identity;
+                        break; // just grab the first one
+                    }
+                }
             };
 
             // Spawn B on server
@@ -122,52 +129,50 @@ namespace Mirror.Tests.SyncCollections
         public void PureClient_MultipleCollectionsDeferred()
         {
             CreateNetworkedAndSpawn(
-                out _, out _, out MultiSyncListBehaviour serverComp,
-                out _, out _, out MultiSyncListBehaviour clientComp,
+                out _, out _, out MultiSyncSetBehaviour serverComp,
+                out _, out _, out MultiSyncSetBehaviour clientComp,
                 connectionToClient);
 
-            serverComp.listA.Add("A1");
-            serverComp.listB.Add(42);
+            serverComp.setA.Add("A1");
+            serverComp.setB.Add(42);
 
             List<string> executionOrder = new List<string>();
-            clientComp.listA.OnAdd += (index) => executionOrder.Add($"ListA:Add:{index}");
-            clientComp.listB.OnAdd += (index) => executionOrder.Add($"ListB:Add:{index}");
+            clientComp.setA.OnAdd += (item) => executionOrder.Add($"SetA:Add:{item}");
+            clientComp.setB.OnAdd += (item) => executionOrder.Add($"SetB:Add:{item}");
 
             ProcessMessages();
 
             // both Actions should fire
             Assert.That(executionOrder.Count, Is.EqualTo(2));
-            Assert.That(executionOrder[0], Is.EqualTo("ListA:Add:0"));
-            Assert.That(executionOrder[1], Is.EqualTo("ListB:Add:0"));
+            Assert.That(executionOrder.Contains("SetA:Add:A1"));
+            Assert.That(executionOrder.Contains("SetB:Add:42"));
         }
     }
 
     // Test NetworkBehaviours for deferral testing
-    public class SyncListDeferralBehaviour : NetworkBehaviour
+    public class SyncSetDeferralBehaviour : NetworkBehaviour
     {
-        public readonly SyncList<string> list = new SyncList<string>();
+        public readonly SyncHashSet<string> set = new SyncHashSet<string>();
         public System.Action onStartClientCalled;
-        public int actionCallCount = 0;
 
         // Track execution order
         public List<string> executionOrder = new List<string>();
 
         public override void OnStartClient()
         {
-            list.OnAdd += (index) => executionOrder.Add($"OnAdd:{index}");
+            set.OnAdd += (item) => executionOrder.Add($"OnAdd:{item}");
 
-            actionCallCount++;
             onStartClientCalled?.Invoke();
 
-            // Invoke OnAdd for all items in list
-            for (int index = 0; index < list.Count; index++)
-                list.OnAdd?.Invoke(index);
+            // Invoke OnAdd for all items in set
+            foreach (string item in set)
+                set.OnAdd?.Invoke(item);
         }
     }
 
-    public class SyncListIdentityBehaviour : NetworkBehaviour
+    public class SyncSetIdentityBehaviour : NetworkBehaviour
     {
-        public readonly SyncList<NetworkIdentity> identities = new SyncList<NetworkIdentity>();
+        public readonly SyncHashSet<NetworkIdentity> identities = new SyncHashSet<NetworkIdentity>();
         public System.Action onStartClientCalled;
 
         public override void OnStartClient()
@@ -176,9 +181,9 @@ namespace Mirror.Tests.SyncCollections
         }
     }
 
-    public class MultiSyncListBehaviour : NetworkBehaviour
+    public class MultiSyncSetBehaviour : NetworkBehaviour
     {
-        public readonly SyncList<string> listA = new SyncList<string>();
-        public readonly SyncList<int> listB = new SyncList<int>();
+        public readonly SyncHashSet<string> setA = new SyncHashSet<string>();
+        public readonly SyncHashSet<int> setB = new SyncHashSet<int>();
     }
 }

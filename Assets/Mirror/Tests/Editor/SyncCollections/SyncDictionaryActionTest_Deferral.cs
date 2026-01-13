@@ -4,8 +4,8 @@ using UnityEngine;
 
 namespace Mirror.Tests.SyncCollections
 {
-    // Test SyncList Action deferral to eliminate race conditions
-    public class SyncListActionTest_Deferral : MirrorTest
+    // Test SyncDictionary Action deferral to eliminate race conditions
+    public class SyncDictionaryActionTest_Deferral : MirrorTest
     {
         NetworkConnectionToClient connectionToClient;
 
@@ -29,8 +29,8 @@ namespace Mirror.Tests.SyncCollections
         public void PureClient_ActionsDeferredUntilSpawnFinished()
         {
             // create host client player and spawn on server with data
-            CreateNetworked(out GameObject serverGO, out NetworkIdentity serverIdentity, out SyncListDeferralBehaviour serverComp);
-            CreateNetworked(out GameObject clientGO, out NetworkIdentity clientIdentity, out SyncListDeferralBehaviour clientComp);
+            CreateNetworked(out GameObject serverGO, out NetworkIdentity serverIdentity, out SyncDictionaryDeferralBehaviour serverComp);
+            CreateNetworked(out GameObject clientGO, out NetworkIdentity clientIdentity, out SyncDictionaryDeferralBehaviour clientComp);
 
             // give both a scene id and register it on client for spawnables
             clientIdentity.sceneId = serverIdentity.sceneId = (ulong)serverGO.GetHashCode();
@@ -38,7 +38,7 @@ namespace Mirror.Tests.SyncCollections
 
             // IMPORTANT: OnSpawn finds 'sceneId' in .spawnableObjects.
             // only those who are ConsiderForSpawn() are in there.
-            // for scene objects to be considered, they need to be disabled.
+            // for scene objects to be considered, they need to be disabled. 
             // (it'll be active by the time we return here)
             clientGO.SetActive(false);
 
@@ -46,14 +46,14 @@ namespace Mirror.Tests.SyncCollections
             clientComp.onStartClientCalled = () => clientComp.executionOrder.Add("OnStartClient");
 
             // add data on server before spawn
-            serverComp.list.Add("first");
-            serverComp.list.Add("second");
+            serverComp.dictionary.Add("key1", "first");
+            serverComp.dictionary.Add("key2", "second");
 
             // add as player & process spawn message on client.
             NetworkServer.AddPlayerForConnection(connectionToClient, serverGO);
             ProcessMessages();
 
-            // double check isServer/isClient. avoids debugging headaches.
+            // double check isServer/isClient.  avoids debugging headaches.
             Assert.That(serverIdentity.isServer, Is.True);
             Assert.That(clientIdentity.isClient, Is.True);
 
@@ -61,10 +61,10 @@ namespace Mirror.Tests.SyncCollections
             Assert.That(clientGO.activeSelf, Is.True);
             Assert.That(NetworkClient.spawned.ContainsKey(serverIdentity.netId));
 
-            Assert.That(clientComp.executionOrder.Count, Is.GreaterThanOrEqualTo(3), $"Should have OnAdd OnStartClient + Actions");
+            Assert.That(clientComp.executionOrder.Count, Is.GreaterThanOrEqualTo(3), $"Should have OnStartClient + Actions");
             Assert.That(clientComp.executionOrder[0], Is.EqualTo("OnStartClient"));
-            Assert.That(clientComp.executionOrder[1], Is.EqualTo("OnAdd:0"));
-            Assert.That(clientComp.executionOrder[2], Is.EqualTo("OnAdd:1"));
+            Assert.That(clientComp.executionOrder.Contains("OnAdd:key1"));
+            Assert.That(clientComp.executionOrder.Contains("OnAdd:key2"));
         }
 
         [Test]
@@ -79,9 +79,9 @@ namespace Mirror.Tests.SyncCollections
             NetworkClient.spawnableObjects[clientIdentityB.sceneId] = clientIdentityB;
             clientGOB.SetActive(false);
 
-            // Create player object A with SyncList
-            CreateNetworked(out GameObject serverGOA, out NetworkIdentity serverIdentityA, out SyncListIdentityBehaviour serverCompA);
-            CreateNetworked(out GameObject clientGOA, out NetworkIdentity clientIdentityA, out SyncListIdentityBehaviour clientCompA);
+            // Create player object A with SyncDictionary
+            CreateNetworked(out GameObject serverGOA, out NetworkIdentity serverIdentityA, out SyncDictionaryIdentityBehaviour serverCompA);
+            CreateNetworked(out GameObject clientGOA, out NetworkIdentity clientIdentityA, out SyncDictionaryIdentityBehaviour clientCompA);
 
             // give both a scene id and register it on client for spawnables
             clientIdentityA.sceneId = serverIdentityA.sceneId = (ulong)serverGOA.GetHashCode();
@@ -93,15 +93,15 @@ namespace Mirror.Tests.SyncCollections
             clientCompA.onStartClientCalled = () =>
             {
                 // Check if cross-reference is valid BEFORE wiring up actions
-                if (clientCompA.identities.Count > 0)
-                    foundIdentity = clientCompA.identities[0];
+                if (clientCompA.identities.ContainsKey("objectB"))
+                    foundIdentity = clientCompA.identities["objectB"];
             };
 
             // Spawn B on server
             NetworkServer.Spawn(serverGOB);
 
             // Add reference to B BEFORE spawning player (goes in spawn payload)
-            serverCompA.identities.Add(serverIdentityB);
+            serverCompA.identities.Add("objectB", serverIdentityB);
 
             // Add as player & process spawn messages on client
             NetworkServer.AddPlayerForConnection(connectionToClient, serverGOA);
@@ -122,52 +122,50 @@ namespace Mirror.Tests.SyncCollections
         public void PureClient_MultipleCollectionsDeferred()
         {
             CreateNetworkedAndSpawn(
-                out _, out _, out MultiSyncListBehaviour serverComp,
-                out _, out _, out MultiSyncListBehaviour clientComp,
+                out _, out _, out MultiSyncDictionaryBehaviour serverComp,
+                out _, out _, out MultiSyncDictionaryBehaviour clientComp,
                 connectionToClient);
 
-            serverComp.listA.Add("A1");
-            serverComp.listB.Add(42);
+            serverComp.dictionaryA.Add("keyA", "A1");
+            serverComp.dictionaryB.Add("keyB", 42);
 
             List<string> executionOrder = new List<string>();
-            clientComp.listA.OnAdd += (index) => executionOrder.Add($"ListA:Add:{index}");
-            clientComp.listB.OnAdd += (index) => executionOrder.Add($"ListB:Add:{index}");
+            clientComp.dictionaryA.OnAdd += (key) => executionOrder.Add($"DictA:Add:{key}");
+            clientComp.dictionaryB.OnAdd += (key) => executionOrder.Add($"DictB:Add:{key}");
 
             ProcessMessages();
 
             // both Actions should fire
             Assert.That(executionOrder.Count, Is.EqualTo(2));
-            Assert.That(executionOrder[0], Is.EqualTo("ListA:Add:0"));
-            Assert.That(executionOrder[1], Is.EqualTo("ListB:Add:0"));
+            Assert.That(executionOrder.Contains("DictA:Add:keyA"));
+            Assert.That(executionOrder.Contains("DictB:Add:keyB"));
         }
     }
 
     // Test NetworkBehaviours for deferral testing
-    public class SyncListDeferralBehaviour : NetworkBehaviour
+    public class SyncDictionaryDeferralBehaviour : NetworkBehaviour
     {
-        public readonly SyncList<string> list = new SyncList<string>();
+        public readonly SyncDictionary<string, string> dictionary = new SyncDictionary<string, string>();
         public System.Action onStartClientCalled;
-        public int actionCallCount = 0;
 
         // Track execution order
         public List<string> executionOrder = new List<string>();
 
         public override void OnStartClient()
         {
-            list.OnAdd += (index) => executionOrder.Add($"OnAdd:{index}");
+            dictionary.OnAdd += (key) => executionOrder.Add($"OnAdd:{key}");
 
-            actionCallCount++;
             onStartClientCalled?.Invoke();
 
-            // Invoke OnAdd for all items in list
-            for (int index = 0; index < list.Count; index++)
-                list.OnAdd?.Invoke(index);
+            // Invoke OnAdd for all items in dictionary
+            foreach (var kvp in dictionary)
+                dictionary.OnAdd?.Invoke(kvp.Key);
         }
     }
 
-    public class SyncListIdentityBehaviour : NetworkBehaviour
+    public class SyncDictionaryIdentityBehaviour : NetworkBehaviour
     {
-        public readonly SyncList<NetworkIdentity> identities = new SyncList<NetworkIdentity>();
+        public readonly SyncDictionary<string, NetworkIdentity> identities = new SyncDictionary<string, NetworkIdentity>();
         public System.Action onStartClientCalled;
 
         public override void OnStartClient()
@@ -176,9 +174,9 @@ namespace Mirror.Tests.SyncCollections
         }
     }
 
-    public class MultiSyncListBehaviour : NetworkBehaviour
+    public class MultiSyncDictionaryBehaviour : NetworkBehaviour
     {
-        public readonly SyncList<string> listA = new SyncList<string>();
-        public readonly SyncList<int> listB = new SyncList<int>();
+        public readonly SyncDictionary<string, string> dictionaryA = new SyncDictionary<string, string>();
+        public readonly SyncDictionary<string, int> dictionaryB = new SyncDictionary<string, int>();
     }
 }
