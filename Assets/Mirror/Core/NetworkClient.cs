@@ -1352,8 +1352,14 @@ namespace Mirror
                     {
                         foreach (Action hook in comp.deferredSyncVarHooks)
                             hook?.Invoke();
-                        
+
                         comp.deferredSyncVarHooks.Clear();
+
+                        // Invoke deferred SyncCollection Actions AFTER SyncVar hooks
+                        foreach (Action action in comp.deferredSyncCollectionActions)
+                            action?.Invoke();
+
+                        comp.deferredSyncCollectionActions.Clear();
                     }
 
                     BootstrapIdentity(identity);
