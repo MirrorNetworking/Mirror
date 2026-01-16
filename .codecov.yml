@@ -6,11 +6,14 @@ coverage:
         threshold: 1%     # Allow 1% drop
     patch:
       default:
-        target: 70%       # New code should be 70% covered
+        target: 90%       # New code should be 70% covered
 
 ignore:
   - "Assets/Mirror/Examples/**"
+  - "Assets/Mirror/Hosting/**"
+  - "Assets/Mirror/Plugins/**"
   - "Assets/Mirror/Tests/**"
+  - "Assets/Mirror/Transports/Edgegap/**"
 
 comment:
   layout: "diff, flags, files"
@@ -18,6 +21,6 @@ comment:
   require_changes: false
   
 flags:
-  unittests: 
-    paths: 
+  unittests:
+    paths:
       - Assets/Mirror/

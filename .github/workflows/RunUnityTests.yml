@@ -50,7 +50,7 @@ jobs:
           testMode: editmode
           unityVersion: ${{ matrix.unityVersion }}
           customParameters: -stackTraceLogType None
-          coverageOptions:  'generateAdditionalMetrics;generateHtmlReport;generateBadgeReport;assemblyFilters: +Mirror,+Mirror.*'
+          coverageOptions:  'generateAdditionalMetrics;generateHtmlReport;generateBadgeReport;assemblyFilters:+Mirror,+Mirror.*'
         
       - name: Archive test results
         uses: actions/upload-artifact@v4
@@ -70,7 +70,7 @@ jobs:
         if: matrix.unityVersion == '6000.3.2f1'
         uses: codecov/codecov-action@v4
         with:
-          files:  ./CodeCoverage/**/*. xml
+          files: ./CodeCoverage/**/*.xml
           flags: unittests,unity-${{ matrix.unityVersion }}
           name: mirror-coverage
           token: ${{ secrets.CODECOV_TOKEN }}
