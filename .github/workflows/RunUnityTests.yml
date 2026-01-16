@@ -50,6 +50,7 @@ jobs:
           testMode: editmode
           unityVersion: ${{ matrix.unityVersion }}
           customParameters: -stackTraceLogType None
+          coverageOptions:  'generateAdditionalMetrics;generateHtmlReport;generateBadgeReport;assemblyFilters: +Mirror,+Mirror.*'
         
       - name: Archive test results
         uses: actions/upload-artifact@v4
@@ -57,6 +58,23 @@ jobs:
         with:
           name: Test Results ${{ matrix.unityVersion }}
           path: artifacts
+
+      - name: Archive coverage results
+        uses: actions/upload-artifact@v4
+        if:  always()
+        with:
+          name: Coverage Results ${{ matrix.unityVersion }}
+          path: CodeCoverage/
+
+      - name: Upload coverage to Codecov
+        if: matrix.unityVersion == '6000.3.2f1'
+        uses: codecov/codecov-action@v4
+        with:
+          files:  ./CodeCoverage/**/*. xml
+          flags: unittests,unity-${{ matrix.unityVersion }}
+          name: mirror-coverage
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error:  false
 
       - name: Publish test results
         uses: MirrorNetworking/nunit-reporter@master

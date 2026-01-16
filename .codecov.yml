@@ -1,0 +1,23 @@
+coverage:
+  status:
+    project:
+      default:
+        target: auto      # Maintain current coverage
+        threshold: 1%     # Allow 1% drop
+    patch:
+      default:
+        target: 70%       # New code should be 70% covered
+
+ignore:
+  - "Assets/Mirror/Examples/**"
+  - "Assets/Mirror/Tests/**"
+
+comment:
+  layout: "diff, flags, files"
+  behavior: default
+  require_changes: false
+  
+flags:
+  unittests: 
+    paths: 
+      - Assets/Mirror/
