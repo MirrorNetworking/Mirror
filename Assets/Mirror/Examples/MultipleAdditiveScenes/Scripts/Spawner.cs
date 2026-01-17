@@ -60,7 +60,7 @@ namespace Mirror.Examples.MultipleAdditiveScenes
             return next;
         }
 
-        public static GameObject Get(Vector3 position, Quaternion rotation)
+        static GameObject Get(Vector3 position, Quaternion rotation)
         {
             GameObject next = pool.Get();
 
