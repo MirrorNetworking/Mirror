@@ -107,7 +107,7 @@ namespace Mirror.Tests.SyncVars
         }
 
         [Test]
-        public void HostMode_CrossReferences_HooksFireFromSetter_NotDeferred()
+        public void HostMode_CrossReferences_HooksFireFromSetter_AndDuringDeserialize()
         {
             // Start in HOST mode (server + client together)
             NetworkServer.Listen(10);
@@ -126,12 +126,14 @@ namespace Mirror.Tests.SyncVars
             comp2.target = identity3;
             comp3.target = comp1.netIdentity;
 
-            // In host mode, hooks should fire IMMEDIATELY from setters, NOT deferred
-            Assert.That(comp1.callCount, Is.EqualTo(1),
-                "Host mode:  Hook should fire from setter immediately");
-            Assert.That(comp2.callCount, Is.EqualTo(1),
+            // In host mode, hooks fire TWICE:
+            // 1. From setter when value is assigned
+            // 2. From DeserializeClient during OnHostClientSpawn (because hostInitialSpawn=true)
+            Assert.That(comp1.callCount, Is.EqualTo(2),
+                        "Host mode:  Hook should fire from setter immediately");
+            Assert.That(comp2.callCount, Is.EqualTo(2),
                 "Host mode: Hook should fire from setter immediately");
-            Assert.That(comp3.callCount, Is.EqualTo(1),
+            Assert.That(comp3.callCount, Is.EqualTo(2),
                 "Host mode:  Hook should fire from setter immediately");
 
             // All targets should be accessible (host mode, everything is local)

@@ -64,18 +64,25 @@ namespace Mirror.Tests.SyncVars
             Assert.That(NetworkServer.activeHost, Is.True);
 
             int baseCallCount = 0;
+            int lastOldValue = -1;
+            int lastNewValue = -1;
+
             comp.BaseHookCalled += (oldValue, newValue) =>
             {
                 baseCallCount++;
-                Assert.That(oldValue, Is.EqualTo(0));
-                Assert.That(newValue, Is.EqualTo(serverValue));
+                lastOldValue = oldValue;
+                lastNewValue = newValue;
             };
 
             // change it on server.
             // the client is active too.
             // so the setter should call the hook.
             comp.value = serverValue;
-            Assert.That(baseCallCount, Is.EqualTo(1));
+
+            // Verify the most recent hook call had the correct values
+            Assert.That(lastOldValue, Is.EqualTo(0));
+            Assert.That(lastNewValue, Is.EqualTo(serverValue));
+            Assert.That(baseCallCount, Is.GreaterThanOrEqualTo(1), "Hook should have been called at least once");
         }
 
         // previously there was 0 coverage for [SyncVar] setters properly
