@@ -117,8 +117,8 @@ namespace Mirror.Tests.InterestManagement
             // A and B are too far from each other
             identityB.transform.position = Vector3.right * (aoi.visRange + 1);
 
-            // update grid now that positions were changed
-            aoi.Update();
+            // Refresh the grid
+            aoi.RefreshGrid();
 
             // rebuild for boths
             NetworkServer.RebuildObservers(identityA, true);
@@ -137,8 +137,8 @@ namespace Mirror.Tests.InterestManagement
             // A and B are too far from each other
             identityB.transform.position = Vector3.right * (aoi.visRange + 1);
 
-            // update grid now that positions were changed
-            aoi.Update();
+            // Refresh the grid
+            aoi.RefreshGrid();
 
             // rebuild for boths
             NetworkServer.RebuildObservers(identityA, false);
