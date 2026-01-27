@@ -136,6 +136,8 @@ namespace Mirror
             // localTime (double) instead of Time.time for accuracy over days
             if (NetworkTime.localTime >= lastPingTime + NetworkTime.PingInterval)
             {
+                //Debug.Log("NetworkConnectionToClient SendPing");
+
                 // TODO it would be safer for the server to store the last N
                 // messages' timestamp and only send a message number.
                 // This way client's can't just modify the timestamp.
