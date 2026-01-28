@@ -113,6 +113,8 @@ namespace Mirror
 
             Y = DrawObservers(identity, initialX, Y);
 
+            Y = DrawNetworkIDQueue(initialX, Y);
+
             _ = DrawOwner(identity, initialX, Y);
 
         }
@@ -187,6 +189,25 @@ namespace Mirror
                     GUI.Label(observerRect, $"{kvp.Value.address}:{kvp.Value}", styles.componentName);
                     observerRect.y += observerRect.height;
                     Y = observerRect.y;
+                }
+            }
+
+            return Y;
+        }
+
+        float DrawNetworkIDQueue(float initialX, float Y)
+        {
+            if (NetworkIdentity.netIdQueue.Count > 0)
+            {
+                Rect netIdRect = new Rect(initialX, Y + 10, 200, 20);
+                GUI.Label(netIdRect, new GUIContent("Network ID Queue"), styles.labelStyle);
+                netIdRect.x += 20;
+                netIdRect.y += netIdRect.height;
+                foreach (var entry in NetworkIdentity.netIdQueue)
+                {
+                    GUI.Label(netIdRect, $"[{entry.reusableNetId}] {entry.timeAvailable:0.000}", styles.componentName);
+                    netIdRect.y += netIdRect.height;
+                    Y = netIdRect.y;
                 }
             }
 

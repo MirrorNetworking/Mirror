@@ -303,17 +303,52 @@ namespace Mirror
 
         internal static void ResetServerStatics()
         {
+            reuseNetworkIds = false;
+            reuseDelay = 1;
+
+            netIdQueue.Clear();
             nextNetworkId = 1;
         }
 
         /// <summary>Gets the NetworkIdentity from the sceneIds dictionary with the corresponding id</summary>
         public static NetworkIdentity GetSceneIdentity(ulong id) => sceneIds[id];
 
+        #region Network ID Reuse
+
+        internal static bool reuseNetworkIds = true;
+        internal static byte reuseDelay = 1;
+
+        internal struct ReusableNetworkId
+        {
+            public uint reusableNetId;
+            public double timeAvailable;
+        }
+
+        // pool of NetworkIds that can be reused
+        internal static readonly Queue<ReusableNetworkId> netIdQueue = new Queue<ReusableNetworkId>();
         static uint nextNetworkId = 1;
-        internal static uint GetNextNetworkId() => nextNetworkId++;
+
+        internal static uint GetNextNetworkId()
+        {
+            // Older Unity versions don't have TryPeek.
+            if (reuseNetworkIds && netIdQueue.Count > 0 && netIdQueue.Peek().timeAvailable < NetworkTime.time)
+            {
+                ReusableNetworkId nextNetId = netIdQueue.Dequeue();
+                //Debug.LogFormat(LogType.Log, LogOption.NoStacktrace, null, $"[GetNextNetworkId] Reusing NetworkId {nextNetId.reusableNetId}.");
+                return nextNetId.reusableNetId;
+            }
+
+            return nextNetworkId++;
+        }
 
         /// <summary>Resets nextNetworkId = 1</summary>
-        public static void ResetNextNetworkId() => nextNetworkId = 1;
+        public static void ResetNextNetworkId()
+        {
+            netIdQueue.Clear();
+            nextNetworkId = 1;
+        }
+
+        #endregion
 
         /// <summary>The delegate type for the clientAuthorityCallback.</summary>
         public delegate void ClientAuthorityCallback(NetworkConnectionToClient conn, NetworkIdentity identity, bool authorityState);
@@ -666,6 +701,9 @@ namespace Mirror
                 // Do not add logging to this (see above)
                 NetworkServer.Destroy(gameObject);
             }
+
+            if (isServer && reuseNetworkIds && netId > 0)
+                netIdQueue.Enqueue(new ReusableNetworkId { reusableNetId = netId, timeAvailable = NetworkTime.time + reuseDelay });
 
             if (isLocalPlayer)
             {
@@ -1652,7 +1690,14 @@ namespace Mirror
             isOwned = false;
             NotifyAuthority();
 
-            netId = 0;
+            if (netId > 0)
+            {
+                if (reuseNetworkIds)
+                    netIdQueue.Enqueue(new ReusableNetworkId { reusableNetId = netId, timeAvailable = NetworkTime.time + reuseDelay });
+
+                netId = 0;
+            }
+
             connectionToServer = null;
             connectionToClient = null;
 
