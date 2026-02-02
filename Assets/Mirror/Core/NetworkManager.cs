@@ -485,8 +485,6 @@ namespace Mirror
             // and LoadScene do not finish loading immediately. as long as we
             // have the onlineScene feature, it will be asynchronous!
 
-            if (Utils.IsWebGL) NetworkServer.listen = false;
-
             // setup server first
             SetupServer();
 
