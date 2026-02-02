@@ -8,6 +8,9 @@ namespace Mirror.SimpleWeb
 {
     [DisallowMultipleComponent]
     [HelpURL("https://mirror-networking.gitbook.io/docs/manual/transports/websockets-transport")]
+#if !UNITY_2022_3_OR_NEWER
+    [Obsolete("SimpleWebTransport is not supported for this version of Unity.\nPlease upgrade to Unity 2022.3 LTS or newer for WebGL projects.", true)]
+#endif
     public class SimpleWebTransport : Transport, PortTransport
     {
         public const string NormalScheme = "ws";
