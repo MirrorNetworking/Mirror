@@ -1,7 +1,7 @@
 using NUnit.Framework;
 using UnityEngine;
 
-namespace Mirror.Tests.Editor
+namespace Mirror.Tests
 {
     public class NetworkStartPositionTest : MirrorEditModeTest
     {
