@@ -15,6 +15,7 @@ Unity networking library (Mirror) located at `Assets/Mirror/`.
 
 ## Coding conventions
 - C# with Unity-style naming (PascalCase types/methods, camelCase fields)
+- Private fields must follow camelCase naming as enforced by the `.editorconfig` (e.g., connectingSendQueue, not ConnectingSendQueue).
 - Static classes for core systems (NetworkServer, NetworkClient)
 - IL post-processing via Weaver for [SyncVar], [Command], [ClientRpc] attributes
 - `.editorconfig` at repo root enforces: Allman braces, no `var`, camelCase private fields, no `this.` qualification
