@@ -14,7 +14,14 @@ namespace Mirror.SimpleWeb
 #pragma warning disable CA2101 // Specify marshaling for P/Invoke string arguments
         [DllImport("__Internal")]
 #pragma warning restore CA2101 // Specify marshaling for P/Invoke string arguments
-        internal static extern int Connect(string address, Action<int> openCallback, Action<int> closeCallBack, Action<int, IntPtr, int> messageCallback, Action<int> errorCallback);
+        internal static extern int Connect(string address,
+            Action<int> openCallback,
+            Action<int> closeCallBack,
+            Action<int, IntPtr, int> messageCallback,
+            Action<int> errorCallback,
+            IntPtr incomingDataBuffer,
+            int incomingDataBufferLength
+            );
 
         [DllImport("__Internal")]
         internal static extern void Disconnect(int index);
@@ -24,7 +31,15 @@ namespace Mirror.SimpleWeb
 #else
         internal static bool IsConnected(int index) => throw new NotSupportedException();
 
-        internal static int Connect(string address, Action<int> openCallback, Action<int> closeCallBack, Action<int, IntPtr, int> messageCallback, Action<int> errorCallback) => throw new NotSupportedException();
+        internal static int Connect(string address,
+            Action<int> openCallback,
+            Action<int> closeCallBack,
+            Action<int, IntPtr, int> messageCallback,
+            Action<int> errorCallback,
+            IntPtr incomingDataBuffer,
+            int incomingDataBufferLength
+            )
+            => throw new NotSupportedException();
 
         internal static void Disconnect(int index) => throw new NotSupportedException();
 

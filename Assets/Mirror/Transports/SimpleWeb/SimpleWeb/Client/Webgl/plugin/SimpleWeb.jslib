@@ -29,7 +29,7 @@ function IsConnected(index)
         return false;
 }
 
-function Connect(addressPtr, openCallbackPtr, closeCallBackPtr, messageCallbackPtr, errorCallbackPtr)
+function Connect(addressPtr, openCallbackPtr, closeCallBackPtr, messageCallbackPtr, errorCallbackPtr, incomingDataBuffer, incomingDataBufferLength)
 {
     const address = UTF8ToString(addressPtr);
     console.log("Connecting to " + address);
@@ -39,6 +39,8 @@ function Connect(addressPtr, openCallbackPtr, closeCallBackPtr, messageCallbackP
     webSocket.binaryType = 'arraybuffer';
 
     const index = SimpleWeb.AddNextSocket(webSocket);
+
+    webSocket._incomingDataBufferAlive = true;
 
     // Connection opened
     webSocket.onopen = function(event) 
@@ -51,23 +53,34 @@ function Connect(addressPtr, openCallbackPtr, closeCallBackPtr, messageCallbackP
     webSocket.onclose = function(event) 
     {
         console.log("Disconnected from " + address);
+        webSocket._incomingDataBufferAlive = false;
         // dynCall('vi', closeCallBackPtr, [index]);
         {{{ makeDynCall('vi', 'closeCallBackPtr') }}}(index);
     };
 
     webSocket.onmessage = function(event) 
     {
-        if (event.data instanceof ArrayBuffer) {
+        if (event.data instanceof ArrayBuffer)
+        {
+            if (!webSocket._incomingDataBufferAlive)
+            {
+                console.error(`received message after disconnect`);
+                return;
+            }
+
             var array = new Uint8Array(event.data);
             var arrayLength = array.length;
 
-            var bufferPtr = _malloc(arrayLength) >>> 0;
-            var dataBuffer = new Uint8Array(HEAPU8.buffer, bufferPtr, arrayLength);
-            dataBuffer.set(array);
+            if (arrayLength > incomingDataBufferLength) {
+                console.error(`Incoming message is too large: ${arrayLength} > ${incomingDataBufferLength}`);
+                return;
+            }
+
+            var bufferPtr = incomingDataBuffer >>> 0; // Ensure unsigned 32-bit integer
+            HEAPU8.set(array, bufferPtr);
 
             // dynCall('viii', messageCallbackPtr, [index, bufferPtr, arrayLength]);
             {{{ makeDynCall('viii', 'messageCallbackPtr') }}}(index, bufferPtr, arrayLength);
-            _free(bufferPtr);
         }
         else
         {
@@ -88,7 +101,10 @@ function Connect(addressPtr, openCallbackPtr, closeCallBackPtr, messageCallbackP
 function Disconnect(index) {
     var webSocket = SimpleWeb.GetWebSocket(index);
     if (webSocket)
+    {
+        webSocket._incomingDataBufferAlive = false;
         webSocket.close(1000, "Disconnect Called by Mirror");
+    }
 
     SimpleWeb.RemoveSocket(index);
 }
@@ -99,7 +115,7 @@ function Send(index, arrayPtr, offset, length) {
     {
         const start = (arrayPtr >>> 0) + offset;
         const end = start + length;
-        const data = HEAPU8.buffer.slice(start, end);
+        const data = HEAPU8.slice(start, end);
         webSocket.send(data);
         return true;
     }

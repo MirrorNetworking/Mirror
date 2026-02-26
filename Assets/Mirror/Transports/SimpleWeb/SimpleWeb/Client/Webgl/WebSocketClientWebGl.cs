@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using AOT;
 
 namespace Mirror.SimpleWeb
@@ -36,6 +37,11 @@ namespace Mirror.SimpleWeb
         static void ErrorCallback(int index) => instances[index].onErr();
 
         /// <summary>
+        /// buffer used by jslib to avoid allocations
+        /// </summary>
+        IntPtr incomingDataBuffer;
+
+        /// <summary>
         /// key for instances sent between c# and js
         /// </summary>
         int index;
@@ -47,7 +53,7 @@ namespace Mirror.SimpleWeb
         ///     Without this the JS websocket will give errors.
         /// </para>
         /// </summary>
-        Queue<byte[]> ConnectingSendQueue;
+        Queue<byte[]> connectingSendQueue;
 
         public bool CheckJsConnected() => SimpleWebJSLib.IsConnected(index);
 
@@ -60,7 +66,8 @@ namespace Mirror.SimpleWeb
 
         public override void Connect(Uri serverAddress)
         {
-            index = SimpleWebJSLib.Connect(serverAddress.ToString(), OpenCallback, CloseCallBack, MessageCallback, ErrorCallback);
+            incomingDataBuffer = Marshal.AllocHGlobal(maxMessageSize);
+            index = SimpleWebJSLib.Connect(serverAddress.ToString(), OpenCallback, CloseCallBack, MessageCallback, ErrorCallback, incomingDataBuffer, maxMessageSize);
             instances.Add(index, this);
             state = ClientState.Connecting;
         }
@@ -68,8 +75,10 @@ namespace Mirror.SimpleWeb
         public override void Disconnect()
         {
             state = ClientState.Disconnecting;
+
             // disconnect should cause closeCallback and OnDisconnect to be called
             SimpleWebJSLib.Disconnect(index);
+            SafeFreeDataBuffer();
         }
 
         public override void Send(ArraySegment<byte> segment)
@@ -84,10 +93,12 @@ namespace Mirror.SimpleWeb
             {
                 SimpleWebJSLib.Send(index, segment.Array, segment.Offset, segment.Count);
             }
-            else if (ConnectingSendQueue == null)
+            else
             {
-                ConnectingSendQueue = new Queue<byte[]>();
-                ConnectingSendQueue.Enqueue(segment.ToArray());
+                if (connectingSendQueue == null)
+                    connectingSendQueue = new Queue<byte[]>();
+
+                connectingSendQueue.Enqueue(segment.ToArray());
             }
         }
 
@@ -96,15 +107,15 @@ namespace Mirror.SimpleWeb
             receiveQueue.Enqueue(new Message(EventType.Connected));
             state = ClientState.Connected;
 
-            if (ConnectingSendQueue != null)
+            if (connectingSendQueue != null)
             {
-                while (ConnectingSendQueue.Count > 0)
+                while (connectingSendQueue.Count > 0)
                 {
-                    byte[] next = ConnectingSendQueue.Dequeue();
+                    byte[] next = connectingSendQueue.Dequeue();
                     SimpleWebJSLib.Send(index, next, 0, next.Length);
                 }
 
-                ConnectingSendQueue = null;
+                connectingSendQueue = null;
             }
         }
 
@@ -115,6 +126,18 @@ namespace Mirror.SimpleWeb
             receiveQueue.Enqueue(new Message(EventType.Disconnected));
             state = ClientState.NotConnected;
             instances.Remove(index);
+
+            SafeFreeDataBuffer();
+        }
+
+        // free unmanaged buffer if Disconnect() wasn't the initiator
+        void SafeFreeDataBuffer()
+        {
+            if (incomingDataBuffer != IntPtr.Zero)
+            {
+                Marshal.FreeHGlobal(incomingDataBuffer);
+                incomingDataBuffer = IntPtr.Zero;
+            }
         }
 
         void onMessage(IntPtr bufferPtr, int count)
