@@ -56,18 +56,11 @@ namespace Mirror.SimpleWeb
         internal static unsafe bool Send(int index, byte[] array, int offset, int length)
             => Send(index, new ReadOnlySpan<byte>(array, offset, length));
 #else
-        /// <summary>Pins the array via GCHandle and applies offset — no Span required.</summary>
-        internal static bool Send(int index, byte[] array, int offset, int length)
+        /// <summary>Pins the array via fixed and applies offset — no Span required.</summary>
+        internal static unsafe bool Send(int index, byte[] array, int offset, int length)
         {
-            GCHandle handle = GCHandle.Alloc(array, GCHandleType.Pinned);
-            try
-            {
-                return Send(index, IntPtr.Add(handle.AddrOfPinnedObject(), offset), length);
-            }
-            finally
-            {
-                handle.Free();
-            }
+            fixed (byte* ptr = &array[offset])
+                return Send(index, new IntPtr(ptr), length);
         }
 #endif
     }
