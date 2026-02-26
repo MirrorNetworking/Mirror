@@ -109,11 +109,11 @@ function Disconnect(index) {
     SimpleWeb.RemoveSocket(index);
 }
 
-function Send(index, arrayPtr, offset, length) {
+function Send(index, arrayPtr, length) {
     var webSocket = SimpleWeb.GetWebSocket(index);
     if (webSocket)
     {
-        const start = (arrayPtr >>> 0) + offset;
+        const start = arrayPtr >>> 0; // Ensure unsigned 32-bit integer
         const end = start + length;
         const data = HEAPU8.slice(start, end);
         webSocket.send(data);

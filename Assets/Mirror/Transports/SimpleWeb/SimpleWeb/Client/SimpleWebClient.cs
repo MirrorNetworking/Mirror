@@ -35,7 +35,11 @@ namespace Mirror.SimpleWeb
 
         public abstract void Connect(Uri serverAddress);
         public abstract void Disconnect();
+#if UNITY_2021_3_OR_NEWER
+        public abstract void Send(ReadOnlySpan<byte> span);
+#else
         public abstract void Send(ArraySegment<byte> segment);
+#endif
 
         public static SimpleWebClient Create(int maxMessageSize, int maxMessagesPerTick, TcpConfig tcpConfig)
         {
@@ -92,7 +96,7 @@ namespace Mirror.SimpleWeb
                 }
             }
             if (receiveQueue.Count > 0)
-                Log.Verbose("[SWT-SimpleWebClient]: ProcessMessageQueue has {0} remaining. skipEnabled {1} behaviour.enabled {2} processedCount {3}\nThis is usually fine for ConcurrentQueue if Transport slips one in on another thread", 
+                Log.Verbose("[SWT-SimpleWebClient]: ProcessMessageQueue has {0} remaining. skipEnabled {1} behaviour.enabled {2} processedCount {3}\nThis is usually fine for ConcurrentQueue if Transport slips one in on another thread",
                     receiveQueue.Count, skipEnabled, (behaviour == null ? false : behaviour.enabled), processedCount);
         }
     }

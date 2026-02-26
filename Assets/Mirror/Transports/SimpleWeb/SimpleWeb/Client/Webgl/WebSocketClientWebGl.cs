@@ -81,6 +81,28 @@ namespace Mirror.SimpleWeb
             SafeFreeDataBuffer();
         }
 
+#if UNITY_2021_3_OR_NEWER
+        public override void Send(ReadOnlySpan<byte> span)
+        {
+            if (span.Length > maxMessageSize)
+            {
+                Log.Error("[SWT-WebSocketClientWebGl]: Cant send message with length {0} because it is over the max size of {1}", span.Length, maxMessageSize);
+                return;
+            }
+
+            if (state == ClientState.Connected)
+            {
+                SimpleWebJSLib.Send(index, span);
+            }
+            else
+            {
+                if (connectingSendQueue == null)
+                    connectingSendQueue = new Queue<byte[]>();
+
+                connectingSendQueue.Enqueue(span.ToArray());
+            }
+        }
+#else
         public override void Send(ArraySegment<byte> segment)
         {
             if (segment.Count > maxMessageSize)
@@ -101,6 +123,7 @@ namespace Mirror.SimpleWeb
                 connectingSendQueue.Enqueue(segment.ToArray());
             }
         }
+#endif
 
         void onOpen()
         {
@@ -112,7 +135,11 @@ namespace Mirror.SimpleWeb
                 while (connectingSendQueue.Count > 0)
                 {
                     byte[] next = connectingSendQueue.Dequeue();
+#if UNITY_2021_3_OR_NEWER
+                    SimpleWebJSLib.Send(index, next.AsSpan());
+#else
                     SimpleWebJSLib.Send(index, next, 0, next.Length);
+#endif
                 }
 
                 connectingSendQueue = null;
@@ -145,8 +172,15 @@ namespace Mirror.SimpleWeb
             try
             {
                 ArrayBuffer buffer = bufferPool.Take(count);
+#if UNITY_2021_3_OR_NEWER
+                unsafe
+                {
+                    // wrap the pre-allocated WASM buffer directly — no Marshal.Copy
+                    buffer.CopyFrom(new ReadOnlySpan<byte>(bufferPtr.ToPointer(), count));
+                }
+#else
                 buffer.CopyFrom(bufferPtr, count);
-
+#endif
                 receiveQueue.Enqueue(new Message(buffer));
             }
             catch (Exception e)
