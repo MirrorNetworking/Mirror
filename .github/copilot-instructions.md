@@ -17,3 +17,4 @@ Unity networking library (Mirror) located at `Assets/Mirror/`.
 - C# with Unity-style naming (PascalCase types/methods, camelCase fields)
 - Static classes for core systems (NetworkServer, NetworkClient)
 - IL post-processing via Weaver for [SyncVar], [Command], [ClientRpc] attributes
+- `.editorconfig` at repo root enforces: Allman braces, no `var`, camelCase private fields, no `this.` qualification
