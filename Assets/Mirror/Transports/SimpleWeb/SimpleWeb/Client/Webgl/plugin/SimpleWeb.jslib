@@ -61,7 +61,7 @@ function Connect(addressPtr, openCallbackPtr, closeCallBackPtr, messageCallbackP
             var array = new Uint8Array(event.data);
             var arrayLength = array.length;
 
-            var bufferPtr = _malloc(arrayLength);
+            var bufferPtr = _malloc(arrayLength) >>> 0;
             var dataBuffer = new Uint8Array(HEAPU8.buffer, bufferPtr, arrayLength);
             dataBuffer.set(array);
 
@@ -97,7 +97,7 @@ function Send(index, arrayPtr, offset, length) {
     var webSocket = SimpleWeb.GetWebSocket(index);
     if (webSocket)
     {
-        const start = arrayPtr + offset;
+        const start = (arrayPtr >>> 0) + offset;
         const end = start + length;
         const data = HEAPU8.buffer.slice(start, end);
         webSocket.send(data);
