@@ -277,7 +277,7 @@ namespace Mirror.Tests.NetworkConnections
             // StepInterpolation. In edit mode unscaledDeltaTime is typically 0,
             // so remoteTimeline stays constant, but the branch is fully covered.
             NetworkConnectionToClient connection = new NetworkConnectionToClient(1);
-            NetworkTime.PingInterval = float.MaxValue;
+            NetworkTime.defaultPingInterval = float.MaxValue;
 
             connection.OnTimeSnapshot(new TimeSnapshot(NetworkTime.localTime, NetworkTime.localTime));
             double timescaleAfterSnapshot = connection.remoteTimescale;
