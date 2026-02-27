@@ -308,7 +308,7 @@ namespace Mirror.Tests.NetworkConnections
         public void Cleanup_PreventsQueuedMessageFromBeingSent()
         {
             NetworkConnectionToClient connection = new NetworkConnectionToClient(1);
-            NetworkTime.PingInterval = float.MaxValue; // disable ping for this test
+            NetworkTime.defaultPingInterval = float.MaxValue; // disable ping for this test
 
             byte[] message = {0x01, 0x02};
             connection.Send(new ArraySegment<byte>(message));
