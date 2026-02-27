@@ -44,6 +44,19 @@ namespace Mirror.Tests
             return null;
         }
 
+        // helper: create a PlayerLoopSystem.UpdateFunction delegate for a
+        // private static method on NetworkLoop (used for RuntimeInitializeOnLoad tests).
+        static PlayerLoopSystem.UpdateFunction GetNetworkLoopDelegate(string methodName) =>
+            (PlayerLoopSystem.UpdateFunction)Delegate.CreateDelegate(
+                typeof(PlayerLoopSystem.UpdateFunction),
+                typeof(NetworkLoop).GetMethod(methodName, BindingFlags.Static | BindingFlags.NonPublic));
+
+        // helper: invoke a private static method on NetworkLoop via reflection.
+        static void InvokePrivate(string methodName) =>
+            typeof(NetworkLoop)
+                .GetMethod(methodName, BindingFlags.Static | BindingFlags.NonPublic)
+                .Invoke(null, null);
+
         // =====================================================================
         // FindPlayerLoopEntryIndex
         // =====================================================================
@@ -225,6 +238,91 @@ namespace Mirror.Tests
         }
 
         // =====================================================================
+        // RuntimeInitializeOnLoad
+        // =====================================================================
+
+        // Verifies NetworkEarlyUpdate is appended to the end of EarlyUpdate.
+        // Saves/restores the actual Unity player loop to avoid test pollution.
+        [Test]
+        public void RuntimeInitializeOnLoad_AddsNetworkEarlyUpdate_ToEndOfEarlyUpdate()
+        {
+            PlayerLoopSystem savedLoop = PlayerLoop.GetCurrentPlayerLoop();
+            try
+            {
+                PlayerLoopSystem defaultLoop = PlayerLoop.GetDefaultPlayerLoop();
+                int initialCount = GetSubSystemCount(defaultLoop, typeof(EarlyUpdate)).Value;
+                PlayerLoop.SetPlayerLoop(defaultLoop);
+
+                InvokePrivate("RuntimeInitializeOnLoad");
+
+                int index = NetworkLoop.FindPlayerLoopEntryIndex(
+                    GetNetworkLoopDelegate("NetworkEarlyUpdate"),
+                    PlayerLoop.GetCurrentPlayerLoop(),
+                    typeof(EarlyUpdate));
+
+                Assert.That(index, Is.EqualTo(initialCount)); // appended at end
+            }
+            finally
+            {
+                PlayerLoop.SetPlayerLoop(savedLoop);
+            }
+        }
+
+        // Verifies NetworkLateUpdate is appended to the end of PreLateUpdate.
+        [Test]
+        public void RuntimeInitializeOnLoad_AddsNetworkLateUpdate_ToEndOfPreLateUpdate()
+        {
+            PlayerLoopSystem savedLoop = PlayerLoop.GetCurrentPlayerLoop();
+            try
+            {
+                PlayerLoopSystem defaultLoop = PlayerLoop.GetDefaultPlayerLoop();
+                int initialCount = GetSubSystemCount(defaultLoop, typeof(PreLateUpdate)).Value;
+                PlayerLoop.SetPlayerLoop(defaultLoop);
+
+                InvokePrivate("RuntimeInitializeOnLoad");
+
+                int index = NetworkLoop.FindPlayerLoopEntryIndex(
+                    GetNetworkLoopDelegate("NetworkLateUpdate"),
+                    PlayerLoop.GetCurrentPlayerLoop(),
+                    typeof(PreLateUpdate));
+
+                Assert.That(index, Is.EqualTo(initialCount)); // appended at end
+            }
+            finally
+            {
+                PlayerLoop.SetPlayerLoop(savedLoop);
+            }
+        }
+
+        // =====================================================================
+        // NetworkEarlyUpdate / NetworkLateUpdate – edit mode early-return branch
+        // Application.isPlaying is always false in editor tests, so both methods
+        // must return immediately without invoking any callbacks.
+        // =====================================================================
+
+        [Test]
+        public void NetworkEarlyUpdate_DoesNothing_InEditMode()
+        {
+            bool called = false;
+            NetworkLoop.OnEarlyUpdate += () => called = true;
+
+            InvokePrivate("NetworkEarlyUpdate");
+
+            Assert.That(called, Is.False);
+        }
+
+        [Test]
+        public void NetworkLateUpdate_DoesNothing_InEditMode()
+        {
+            bool called = false;
+            NetworkLoop.OnLateUpdate += () => called = true;
+
+            InvokePrivate("NetworkLateUpdate");
+
+            Assert.That(called, Is.False);
+        }
+
+        // =====================================================================
         // ResetStatics / callbacks
         // =====================================================================
 
@@ -236,9 +334,7 @@ namespace Mirror.Tests
             NetworkLoop.OnEarlyUpdate = () => {};
             NetworkLoop.OnLateUpdate  = () => {};
 
-            typeof(NetworkLoop)
-                .GetMethod("ResetStatics", BindingFlags.Static | BindingFlags.NonPublic)
-                .Invoke(null, null);
+            InvokePrivate("ResetStatics");
 
             Assert.That(NetworkLoop.OnEarlyUpdate, Is.Null);
             Assert.That(NetworkLoop.OnLateUpdate,  Is.Null);
