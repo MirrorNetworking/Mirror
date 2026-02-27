@@ -152,11 +152,12 @@ namespace Mirror
         public static void Listen(int maxConns)
         {
             Initialize();
-            maxConnections = maxConns;
 
             // only start server if we want to listen
-            if (listen)
+            if (listen && !Utils.IsWebGL)
             {
+                maxConnections = maxConns;
+
                 Transport.active.ServerStart();
 
                 if (Transport.active is PortTransport portTransport)
@@ -175,6 +176,8 @@ namespace Mirror
                 else
                     Debug.Log("Server started listening");
             }
+            else
+                maxConnections = 0;
 
             active = true;
             RegisterMessageHandlers();

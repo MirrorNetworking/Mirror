@@ -55,10 +55,7 @@ namespace Mirror
 #if UNITY_WEBGL
                 // cant be a server in webgl build
                 if (GUILayout.Button("Single Player"))
-                {
-                    NetworkServer.listen = false;
                     manager.StartHost();
-                }
 #else
                 // Server + Client
                 if (GUILayout.Button("Host (Server + Client)"))
@@ -89,7 +86,7 @@ namespace Mirror
                 // Server Only
 #if UNITY_WEBGL
                 // cant be a server in webgl build
-                GUILayout.Box("( WebGL cannot be server )");
+                GUILayout.Box("( WebGL cannot be Server Only)");
 #else
                 if (GUILayout.Button("Server Only"))
                     manager.StartServer();

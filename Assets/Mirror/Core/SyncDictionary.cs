@@ -150,6 +150,7 @@ namespace Mirror
                 bool apply = changesAhead == 0;
                 TKey key = default;
                 TValue item = default;
+                TValue oldItem = default;
 
                 switch (operation)
                 {
@@ -159,33 +160,54 @@ namespace Mirror
                         item = reader.Read<TValue>();
                         if (apply)
                         {
-                            // add dirty + changes.
-                            // ClientToServer needs to set dirty in server OnDeserialize.
-                            // no access check: server OnDeserialize can always
-                            // write, even for ClientToServer (for broadcasting).
-                            if (objects.TryGetValue(key, out TValue oldItem))
+                            // Check if key exists to determine if this is ADD or SET
+                            if (objects.TryGetValue(key, out oldItem))
                             {
                                 objects[key] = item; // assign after TryGetValue
-                                AddOperation(Operation.OP_SET, key, item, oldItem, false);
+                                // add dirty + changes.
+                                // ClientToServer needs to set dirty in server OnDeserialize.
+                                // no access check: server OnDeserialize can always
+                                // write, even for ClientToServer (for broadcasting).
+                                // ALWAYS call AddOperation - it decides internally whether to fire Actions
+                                AddOperation(Operation.OP_SET, key, item, oldItem, checkAccess: false, shouldApplyChanges: true);
                             }
                             else
                             {
                                 objects[key] = item; // assign after TryGetValue
-                                AddOperation(Operation.OP_ADD, key, item, default, false);
+                                // add dirty + changes.
+                                // ClientToServer needs to set dirty in server OnDeserialize.
+                                // no access check: server OnDeserialize can always
+                                // write, even for ClientToServer (for broadcasting).
+                                // ALWAYS call AddOperation - it decides internally whether to fire Actions
+                                AddOperation(Operation.OP_ADD, key, item, default, checkAccess: false, shouldApplyChanges: true);
                             }
                         }
-                        break;
-
-                    case Operation.OP_CLEAR:
-                        if (apply)
+                        else
                         {
+                            // Not applying data, but may need to fire Actions for host initial spawn
+                            // Get oldItem if it exists for SET operation Action
+                            objects.TryGetValue(key, out oldItem);
+
                             // add dirty + changes.
                             // ClientToServer needs to set dirty in server OnDeserialize.
                             // no access check: server OnDeserialize can always
                             // write, even for ClientToServer (for broadcasting).
-                            AddOperation(Operation.OP_CLEAR, default, default, default, false);
-                            // clear after invoking the callback so users can iterate the dictionary
-                            // and take appropriate action on the items before they are wiped.
+                            // Fire appropriate Action based on operation read from wire
+                            AddOperation(operation, key, item, oldItem, checkAccess: false, shouldApplyChanges: false);
+                        }
+                        break;
+
+                    case Operation.OP_CLEAR:
+                        // add dirty + changes.
+                        // ClientToServer needs to set dirty in server OnDeserialize.
+                        // no access check: server OnDeserialize can always
+                        // write, even for ClientToServer (for broadcasting).
+                        // IMPORTANT: Call AddOperation BEFORE clearing so users can iterate the dictionary
+                        // in OnClear Action before items are wiped
+                        AddOperation(Operation.OP_CLEAR, default, default, default, checkAccess: false, shouldApplyChanges: apply);
+                        if (apply)
+                        {
+                            // clear after invoking the Action
                             objects.Clear();
                         }
                         break;
@@ -194,15 +216,27 @@ namespace Mirror
                         key = reader.Read<TKey>();
                         if (apply)
                         {
-                            if (objects.TryGetValue(key, out TValue oldItem))
+                            if (objects.TryGetValue(key, out oldItem))
                             {
+                                objects.Remove(key);
                                 // add dirty + changes.
                                 // ClientToServer needs to set dirty in server OnDeserialize.
                                 // no access check: server OnDeserialize can always
                                 // write, even for ClientToServer (for broadcasting).
-                                objects.Remove(key);
-                                AddOperation(Operation.OP_REMOVE, key, oldItem, oldItem, false);
+                                // ALWAYS call AddOperation - it decides internally whether to fire Actions
+                                AddOperation(Operation.OP_REMOVE, key, oldItem, oldItem, checkAccess: false, shouldApplyChanges: true);
                             }
+                        }
+                        else
+                        {
+                            // Not applying, but may need to fire Actions for host initial spawn
+                            // Get oldItem if it exists for Action
+                            objects.TryGetValue(key, out oldItem);
+                            // add dirty + changes.
+                            // ClientToServer needs to set dirty in server OnDeserialize.
+                            // no access check: server OnDeserialize can always
+                            // write, even for ClientToServer (for broadcasting).
+                            AddOperation(Operation.OP_REMOVE, key, oldItem, oldItem, checkAccess: false, shouldApplyChanges: false);
                         }
                         break;
                 }
@@ -235,12 +269,12 @@ namespace Mirror
                 {
                     TValue oldItem = objects[i];
                     objects[i] = value;
-                    AddOperation(Operation.OP_SET, i, value, oldItem, true);
+                    AddOperation(Operation.OP_SET, i, value, oldItem, true, true);
                 }
                 else
                 {
                     objects[i] = value;
-                    AddOperation(Operation.OP_ADD, i, value, default, true);
+                    AddOperation(Operation.OP_ADD, i, value, default, true, true);
                 }
             }
         }
@@ -272,14 +306,14 @@ namespace Mirror
         public void Add(TKey key, TValue value)
         {
             objects.Add(key, value);
-            AddOperation(Operation.OP_ADD, key, value, default, true);
+            AddOperation(Operation.OP_ADD, key, value, default, true, true);
         }
 
         public bool Remove(TKey key)
         {
             if (objects.TryGetValue(key, out TValue oldItem) && objects.Remove(key))
             {
-                AddOperation(Operation.OP_REMOVE, key, oldItem, oldItem, true);
+                AddOperation(Operation.OP_REMOVE, key, oldItem, oldItem, true, true);
                 return true;
             }
             return false;
@@ -289,20 +323,20 @@ namespace Mirror
         {
             bool result = objects.Remove(item.Key);
             if (result)
-                AddOperation(Operation.OP_REMOVE, item.Key, item.Value, item.Value, true);
+                AddOperation(Operation.OP_REMOVE, item.Key, item.Value, item.Value, true, true);
 
             return result;
         }
 
         public void Clear()
         {
-            AddOperation(Operation.OP_CLEAR, default, default, default, true);
+            AddOperation(Operation.OP_CLEAR, default, default, default, true, true);
             // clear after invoking the callback so users can iterate the dictionary
             // and take appropriate action on the items before they are wiped.
             objects.Clear();
         }
 
-        void AddOperation(Operation op, TKey key, TValue item, TValue oldItem, bool checkAccess)
+        void AddOperation(Operation op, TKey key, TValue item, TValue oldItem, bool checkAccess, bool shouldApplyChanges)
         {
             if (checkAccess && IsReadOnly)
                 throw new InvalidOperationException("SyncDictionaries can only be modified by the owner.");
@@ -314,12 +348,50 @@ namespace Mirror
                 item = item
             };
 
-            if (IsRecording())
+            // Only record changes if we actually applied data to the collection
+            if (shouldApplyChanges && IsRecording())
             {
                 changes.Add(change);
                 OnDirty?.Invoke();
             }
 
+            // Decide whether to fire Actions
+            bool hostInitialSpawnInHostMode = NetworkServer.activeHost && networkBehaviour.netIdentity.hostInitialSpawn;
+            bool shouldFireActions = shouldApplyChanges || hostInitialSpawnInHostMode;
+
+            // IMPORTANT:  For ServerToClient mode, only fire Actions if object is visible to host client
+            // This prevents Actions from firing at spawn for objects out of AOI range
+            if (shouldFireActions && NetworkServer.activeHost && networkBehaviour.syncDirection == SyncDirection.ServerToClient)
+            {
+                shouldFireActions = NetworkClient.spawned.ContainsKey(networkBehaviour.netIdentity.netId);
+            }
+
+            if (shouldFireActions)
+            {
+                // Defer Actions during initial spawn on pure client to eliminate
+                // cross-object reference race conditions. All objects will be in
+                // NetworkClient.spawned before any Actions fire.
+                if (NetworkClient.active && !NetworkServer.active && !NetworkClient.isSpawnFinished)
+                {
+                    // Capture values in closure for deferred execution
+                    Operation capturedOp = op;
+                    TKey capturedKey = key;
+                    TValue capturedItem = item;
+                    TValue capturedOld = oldItem;
+
+                    networkBehaviour.deferredSyncCollectionActions.Add(() =>
+                        InvokeActions(capturedOp, capturedKey, capturedItem, capturedOld));
+                }
+                else
+                {
+                    // Normal:  invoke immediately (host mode, server, or after spawn finished)
+                    InvokeActions(op, key, item, oldItem);
+                }
+            }
+        }
+
+        void InvokeActions(Operation op, TKey key, TValue item, TValue oldItem)
+        {
             switch (op)
             {
                 case Operation.OP_ADD:

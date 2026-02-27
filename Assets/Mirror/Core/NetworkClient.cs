@@ -1345,6 +1345,23 @@ namespace Mirror
                     //else
                     //    Debug.LogWarning($"Expected pendingSpawns to contain {identity}: {identity.netId} but didn't");
 
+                    // Invoke deferred SyncVar hooks BEFORE OnStartClient callbacks.
+                    // This ensures all objects are in spawned dictionary (cross-references work)
+                    // and hooks fire in declaration order, before user OnStartClient logic runs.
+                    foreach (NetworkBehaviour comp in identity.NetworkBehaviours)
+                    {
+                        foreach (Action hook in comp.deferredSyncVarHooks)
+                            hook?.Invoke();
+
+                        comp.deferredSyncVarHooks.Clear();
+
+                        // Invoke deferred SyncCollection Actions AFTER SyncVar hooks
+                        foreach (Action action in comp.deferredSyncCollectionActions)
+                            action?.Invoke();
+
+                        comp.deferredSyncCollectionActions.Clear();
+                    }
+
                     BootstrapIdentity(identity);
                 }
                 else Debug.LogWarning("Found null entry in NetworkClient.spawned. This is unexpected. Was the NetworkIdentity not destroyed properly?");
@@ -1384,7 +1401,30 @@ namespace Mirror
                     aoi.SetHostVisibility(identity, true);
 
                 identity.isOwned = message.isOwner;
-                BootstrapIdentity(identity);
+
+                // Ensure SyncVar hooks fire during deserialization for host client initial spawn.
+                // Fields were already set server-side, but hooks haven't fired yet because the
+                // object wasn't in NetworkClient.spawned when setters ran during OnStartServer().
+                identity.hostInitialSpawn = true;
+
+                // Configure flags before deserializing
+                InitializeIdentityFlags(identity);
+
+                // Deserialize components if any payload.
+                // This will trigger SyncVar hooks via GeneratedSyncVarDeserialize.
+                if (message.payload.Count > 0)
+                {
+                    using (NetworkReaderPooled payloadReader = NetworkReaderPool.Get(message.payload))
+                    {
+                        identity.DeserializeClient(payloadReader, true);
+                    }
+                }
+
+                // Clear flag after deserialization
+                identity.hostInitialSpawn = false;
+
+                // Invoke callbacks after deserializing
+                InvokeIdentityCallbacks(identity);
             }
         }
 

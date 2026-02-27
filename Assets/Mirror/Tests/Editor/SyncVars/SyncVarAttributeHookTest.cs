@@ -65,7 +65,7 @@ namespace Mirror.Tests.SyncVars
 
         static void OnValueChanged(int oldValue, int newValue)
         {
-            HookCalled.Invoke(oldValue, newValue);
+            HookCalled?.Invoke(oldValue, newValue);
         }
     }
 
@@ -78,7 +78,7 @@ namespace Mirror.Tests.SyncVars
 
         protected virtual void OnValueChanged(int oldValue, int newValue)
         {
-            BaseHookCalled.Invoke(oldValue, newValue);
+            BaseHookCalled?.Invoke(oldValue, newValue);
         }
     }
 
@@ -88,7 +88,7 @@ namespace Mirror.Tests.SyncVars
 
         protected override void OnValueChanged(int oldValue, int newValue)
         {
-            OverrideHookCalled.Invoke(oldValue, newValue);
+            OverrideHookCalled?.Invoke(oldValue, newValue);
         }
     }
 

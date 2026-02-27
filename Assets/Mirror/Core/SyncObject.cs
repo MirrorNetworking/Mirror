@@ -12,6 +12,9 @@ namespace Mirror
     //   function that throws an exception will be useful for SyncVar<T>
     public abstract class SyncObject
     {
+        // Back-reference to owning NetworkBehaviour for accessing deferred queues
+        internal NetworkBehaviour networkBehaviour;
+
         /// <summary>Used internally to set owner NetworkBehaviour's dirty mask bit when changed.</summary>
         public Action OnDirty;
 

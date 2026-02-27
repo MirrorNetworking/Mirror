@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using AOT;
 
 namespace Mirror.SimpleWeb
@@ -36,6 +37,11 @@ namespace Mirror.SimpleWeb
         static void ErrorCallback(int index) => instances[index].onErr();
 
         /// <summary>
+        /// buffer used by jslib to avoid allocations
+        /// </summary>
+        IntPtr incomingDataBuffer;
+
+        /// <summary>
         /// key for instances sent between c# and js
         /// </summary>
         int index;
@@ -47,7 +53,7 @@ namespace Mirror.SimpleWeb
         ///     Without this the JS websocket will give errors.
         /// </para>
         /// </summary>
-        Queue<byte[]> ConnectingSendQueue;
+        Queue<byte[]> connectingSendQueue;
 
         public bool CheckJsConnected() => SimpleWebJSLib.IsConnected(index);
 
@@ -60,7 +66,8 @@ namespace Mirror.SimpleWeb
 
         public override void Connect(Uri serverAddress)
         {
-            index = SimpleWebJSLib.Connect(serverAddress.ToString(), OpenCallback, CloseCallBack, MessageCallback, ErrorCallback);
+            incomingDataBuffer = Marshal.AllocHGlobal(maxMessageSize);
+            index = SimpleWebJSLib.Connect(serverAddress.ToString(), OpenCallback, CloseCallBack, MessageCallback, ErrorCallback, incomingDataBuffer, maxMessageSize);
             instances.Add(index, this);
             state = ClientState.Connecting;
         }
@@ -68,10 +75,34 @@ namespace Mirror.SimpleWeb
         public override void Disconnect()
         {
             state = ClientState.Disconnecting;
+
             // disconnect should cause closeCallback and OnDisconnect to be called
             SimpleWebJSLib.Disconnect(index);
+            SafeFreeDataBuffer();
         }
 
+#if UNITY_2021_3_OR_NEWER
+        public override void Send(ReadOnlySpan<byte> span)
+        {
+            if (span.Length > maxMessageSize)
+            {
+                Log.Error("[SWT-WebSocketClientWebGl]: Cant send message with length {0} because it is over the max size of {1}", span.Length, maxMessageSize);
+                return;
+            }
+
+            if (state == ClientState.Connected)
+            {
+                SimpleWebJSLib.Send(index, span);
+            }
+            else
+            {
+                if (connectingSendQueue == null)
+                    connectingSendQueue = new Queue<byte[]>();
+
+                connectingSendQueue.Enqueue(span.ToArray());
+            }
+        }
+#else
         public override void Send(ArraySegment<byte> segment)
         {
             if (segment.Count > maxMessageSize)
@@ -84,27 +115,34 @@ namespace Mirror.SimpleWeb
             {
                 SimpleWebJSLib.Send(index, segment.Array, segment.Offset, segment.Count);
             }
-            else if (ConnectingSendQueue == null)
+            else
             {
-                ConnectingSendQueue = new Queue<byte[]>();
-                ConnectingSendQueue.Enqueue(segment.ToArray());
+                if (connectingSendQueue == null)
+                    connectingSendQueue = new Queue<byte[]>();
+
+                connectingSendQueue.Enqueue(segment.ToArray());
             }
         }
+#endif
 
         void onOpen()
         {
             receiveQueue.Enqueue(new Message(EventType.Connected));
             state = ClientState.Connected;
 
-            if (ConnectingSendQueue != null)
+            if (connectingSendQueue != null)
             {
-                while (ConnectingSendQueue.Count > 0)
+                while (connectingSendQueue.Count > 0)
                 {
-                    byte[] next = ConnectingSendQueue.Dequeue();
+                    byte[] next = connectingSendQueue.Dequeue();
+#if UNITY_2021_3_OR_NEWER
+                    SimpleWebJSLib.Send(index, next.AsSpan());
+#else
                     SimpleWebJSLib.Send(index, next, 0, next.Length);
+#endif
                 }
 
-                ConnectingSendQueue = null;
+                connectingSendQueue = null;
             }
         }
 
@@ -115,6 +153,18 @@ namespace Mirror.SimpleWeb
             receiveQueue.Enqueue(new Message(EventType.Disconnected));
             state = ClientState.NotConnected;
             instances.Remove(index);
+
+            SafeFreeDataBuffer();
+        }
+
+        // free unmanaged buffer if Disconnect() wasn't the initiator
+        void SafeFreeDataBuffer()
+        {
+            if (incomingDataBuffer != IntPtr.Zero)
+            {
+                Marshal.FreeHGlobal(incomingDataBuffer);
+                incomingDataBuffer = IntPtr.Zero;
+            }
         }
 
         void onMessage(IntPtr bufferPtr, int count)
@@ -122,8 +172,15 @@ namespace Mirror.SimpleWeb
             try
             {
                 ArrayBuffer buffer = bufferPool.Take(count);
+#if UNITY_2021_3_OR_NEWER
+                unsafe
+                {
+                    // wrap the pre-allocated WASM buffer directly — no Marshal.Copy
+                    buffer.CopyFrom(new ReadOnlySpan<byte>(bufferPtr.ToPointer(), count));
+                }
+#else
                 buffer.CopyFrom(bufferPtr, count);
-
+#endif
                 receiveQueue.Enqueue(new Message(buffer));
             }
             catch (Exception e)

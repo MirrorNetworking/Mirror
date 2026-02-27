@@ -37,6 +37,11 @@ namespace Mirror
         // main thread id
         static int mainThreadId;
 
+        // track Mirror-managed thread IDs
+        // using ConcurrentDictionary as a thread-safe HashSet
+        static readonly ConcurrentDictionary<int, byte> mirrorThreadIds =
+            new ConcurrentDictionary<int, byte>();
+
 #if !UNITY_EDITOR
         // Editor as of Unity 2021 does log threaded messages.
         // only builds don't.
@@ -76,6 +81,10 @@ namespace Mirror
             // as well, causing deadlock.
             if (IsMainThread()) return;
 
+            // only enqueue messages from Mirror-managed threads.
+            // otherwise we would capture logs from user's application threads too.
+            if (!mirrorThreadIds.ContainsKey(Thread.CurrentThread.ManagedThreadId)) return;
+
             // queue for logging from main thread later
             logs.Enqueue(new LogEntry(Thread.CurrentThread.ManagedThreadId, type, message, stackTrace));
         }
@@ -108,5 +117,13 @@ namespace Mirror
                 }
             }
         }
+
+        // called by WorkerThread to register a Mirror-managed thread
+        internal static void RegisterThread(int threadId) =>
+            mirrorThreadIds[threadId] = 0;
+
+        // called by WorkerThread to unregister a Mirror-managed thread
+        internal static void UnregisterThread(int threadId) =>
+            mirrorThreadIds.TryRemove(threadId, out _);
     }
 }

@@ -50,6 +50,8 @@ namespace Mirror
         {
             base.Configure();
 
+            ResetState();
+
             // force syncMethod to reliable
             syncMethod = SyncMethod.Reliable;
         }
@@ -474,15 +476,22 @@ namespace Mirror
         {
             base.ResetState();
 
-            // reset delta
-            lastSerializedPosition = Vector3Long.zero;
-            lastDeserializedPosition = Vector3Long.zero;
-
-            lastSerializedScale = Vector3Long.zero;
-            lastDeserializedScale = Vector3Long.zero;
-
             // reset 'last' for delta too
-            last = new TransformSnapshot(0, 0, Vector3.zero, Quaternion.identity, Vector3.zero);
+            last = new TransformSnapshot(
+                0, 0,
+                GetPosition(),
+                GetRotation(),
+                GetScale()
+            );
+
+            // Initialize delta compression baselines from current transform position.
+            // This prevents false change detection and incorrect delta compression.
+            if (syncPosition) Compression.ScaleToLong(GetPosition(), positionPrecision, out lastSerializedPosition);
+            if (syncScale) Compression.ScaleToLong(GetScale(), scalePrecision, out lastSerializedScale);
+
+            // Also set lastDeserialized to match
+            lastDeserializedPosition = lastSerializedPosition;
+            lastDeserializedScale = lastSerializedScale;
         }
     }
 }

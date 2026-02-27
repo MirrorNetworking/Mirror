@@ -97,7 +97,7 @@ namespace Mirror
             objects.Clear();
         }
 
-        void AddOperation(Operation op, int itemIndex, T oldItem, T newItem, bool checkAccess)
+        void AddOperation(Operation op, int itemIndex, T oldItem, T newItem, bool checkAccess, bool shouldApplyChanges)
         {
             if (checkAccess && IsReadOnly)
                 throw new InvalidOperationException("Synclists can only be modified by the owner.");
@@ -109,12 +109,50 @@ namespace Mirror
                 item = newItem
             };
 
-            if (IsRecording())
+            // Only record changes if we actually applied data to the collection
+            if (shouldApplyChanges && IsRecording())
             {
                 changes.Add(change);
                 OnDirty?.Invoke();
             }
 
+            // Decide whether to fire Actions
+            bool hostInitialSpawnInHostMode = NetworkServer.activeHost && networkBehaviour.netIdentity.hostInitialSpawn;
+            bool shouldFireActions = shouldApplyChanges || hostInitialSpawnInHostMode;
+
+            // IMPORTANT: For ServerToClient mode, only fire Actions if object is visible to host client
+            // This prevents Actions from firing at spawn for objects out of AOI range
+            if (shouldFireActions && NetworkServer.activeHost && networkBehaviour.syncDirection == SyncDirection.ServerToClient)
+            {
+                shouldFireActions = NetworkClient.spawned.ContainsKey(networkBehaviour.netIdentity.netId);
+            }
+
+            if (shouldFireActions)
+            {
+                // Defer Actions during initial spawn on pure client to eliminate
+                // cross-object reference race conditions.  All objects will be in
+                // NetworkClient.spawned before any Actions fire.
+                if (NetworkClient.active && !NetworkServer.active && !NetworkClient.isSpawnFinished)
+                {
+                    // Capture values in closure for deferred execution
+                    Operation capturedOp = op;
+                    int capturedIndex = itemIndex;
+                    T capturedOld = oldItem;
+                    T capturedNew = newItem;
+
+                    networkBehaviour.deferredSyncCollectionActions.Add(() =>
+                        InvokeActions(capturedOp, capturedIndex, capturedOld, capturedNew));
+                }
+                else
+                {
+                    // Normal: invoke immediately (host mode, server, or after spawn finished)
+                    InvokeActions(op, itemIndex, oldItem, newItem);
+                }
+            }
+        }
+
+        void InvokeActions(Operation op, int itemIndex, T oldItem, T newItem)
+        {
             switch (op)
             {
                 case Operation.OP_ADD:
@@ -238,24 +276,31 @@ namespace Mirror
                         {
                             index = objects.Count;
                             objects.Add(newItem);
-                            // add dirty + changes.
-                            // ClientToServer needs to set dirty in server OnDeserialize.
-                            // no access check: server OnDeserialize can always
-                            // write, even for ClientToServer (for broadcasting).
-                            AddOperation(Operation.OP_ADD, objects.Count - 1, default, newItem, false);
                         }
+                        else
+                        {
+                            // Item already exists, calculate index for Action invocation
+                            index = objects.Count - 1;
+                        }
+                        // add dirty + changes.
+                        // ClientToServer needs to set dirty in server OnDeserialize.
+                        // no access check: server OnDeserialize can always
+                        // write, even for ClientToServer (for broadcasting).
+                        // ALWAYS call AddOperation - it decides internally whether to fire Actions
+                        AddOperation(Operation.OP_ADD, index, default, newItem, checkAccess: false, shouldApplyChanges: apply);
                         break;
 
                     case Operation.OP_CLEAR:
+                        // add dirty + changes.
+                        // ClientToServer needs to set dirty in server OnDeserialize.
+                        // no access check: server OnDeserialize can always
+                        // write, even for ClientToServer (for broadcasting).
+                        // IMPORTANT: Call AddOperation BEFORE clearing so users can iterate the list
+                        // in OnClear Action before items are wiped
+                        AddOperation(Operation.OP_CLEAR, 0, default, default, checkAccess: false, shouldApplyChanges: apply);
                         if (apply)
                         {
-                            // add dirty + changes.
-                            // ClientToServer needs to set dirty in server OnDeserialize.
-                            // no access check: server OnDeserialize can always
-                            // write, even for ClientToServer (for broadcasting).
-                            AddOperation(Operation.OP_CLEAR, 0, default, default, false);
-                            // clear after invoking the callback so users can iterate the list
-                            // and take appropriate action on the items before they are wiped.
+                            // clear after invoking the Action
                             objects.Clear();
                         }
                         break;
@@ -266,12 +311,8 @@ namespace Mirror
                         if (apply)
                         {
                             objects.Insert(index, newItem);
-                            // add dirty + changes.
-                            // ClientToServer needs to set dirty in server OnDeserialize.
-                            // no access check: server OnDeserialize can always
-                            // write, even for ClientToServer (for broadcasting).
-                            AddOperation(Operation.OP_INSERT, index, default, newItem, false);
                         }
+                        AddOperation(Operation.OP_INSERT, index, default, newItem, checkAccess: false, shouldApplyChanges: apply);
                         break;
 
                     case Operation.OP_REMOVEAT:
@@ -280,12 +321,17 @@ namespace Mirror
                         {
                             oldItem = objects[index];
                             objects.RemoveAt(index);
-                            // add dirty + changes.
-                            // ClientToServer needs to set dirty in server OnDeserialize.
-                            // no access check: server OnDeserialize can always
-                            // write, even for ClientToServer (for broadcasting).
-                            AddOperation(Operation.OP_REMOVEAT, index, oldItem, default, false);
                         }
+                        else
+                        {
+                            // Need oldItem for Action even though we're not applying
+                            oldItem = index < objects.Count ? objects[index] : default;
+                        }
+                        // add dirty + changes.
+                        // ClientToServer needs to set dirty in server OnDeserialize.
+                        // no access check: server OnDeserialize can always
+                        // write, even for ClientToServer (for broadcasting).
+                        AddOperation(Operation.OP_REMOVEAT, index, oldItem, default, checkAccess: false, shouldApplyChanges: apply);
                         break;
 
                     case Operation.OP_SET:
@@ -295,12 +341,17 @@ namespace Mirror
                         {
                             oldItem = objects[index];
                             objects[index] = newItem;
-                            // add dirty + changes.
-                            // ClientToServer needs to set dirty in server OnDeserialize.
-                            // no access check: server OnDeserialize can always
-                            // write, even for ClientToServer (for broadcasting).
-                            AddOperation(Operation.OP_SET, index, oldItem, newItem, false);
                         }
+                        else
+                        {
+                            // Need oldItem for Action even though we're not applying
+                            oldItem = index < objects.Count ? objects[index] : default;
+                        }
+                        // add dirty + changes.
+                        // ClientToServer needs to set dirty in server OnDeserialize.
+                        // no access check: server OnDeserialize can always
+                        // write, even for ClientToServer (for broadcasting).
+                        AddOperation(Operation.OP_SET, index, oldItem, newItem, checkAccess: false, shouldApplyChanges: apply);
                         break;
                 }
 
@@ -315,7 +366,7 @@ namespace Mirror
         public void Add(T item)
         {
             objects.Add(item);
-            AddOperation(Operation.OP_ADD, objects.Count - 1, default, item, true);
+            AddOperation(Operation.OP_ADD, objects.Count - 1, default, item, true, true);
         }
 
         public void AddRange(IEnumerable<T> range)
@@ -326,7 +377,7 @@ namespace Mirror
 
         public void Clear()
         {
-            AddOperation(Operation.OP_CLEAR, 0, default, default, true);
+            AddOperation(Operation.OP_CLEAR, 0, default, default, true, true);
             // clear after invoking the callback so users can iterate the list
             // and take appropriate action on the items before they are wiped.
             objects.Clear();
@@ -370,7 +421,7 @@ namespace Mirror
         public void Insert(int index, T item)
         {
             objects.Insert(index, item);
-            AddOperation(Operation.OP_INSERT, index, default, item, true);
+            AddOperation(Operation.OP_INSERT, index, default, item, true, true);
         }
 
         public void InsertRange(int index, IEnumerable<T> range)
@@ -396,7 +447,7 @@ namespace Mirror
         {
             T oldItem = objects[index];
             objects.RemoveAt(index);
-            AddOperation(Operation.OP_REMOVEAT, index, oldItem, default, true);
+            AddOperation(Operation.OP_REMOVEAT, index, oldItem, default, true, true);
         }
 
         public int RemoveAll(Predicate<T> match)
@@ -421,7 +472,7 @@ namespace Mirror
                 {
                     T oldItem = objects[i];
                     objects[i] = value;
-                    AddOperation(Operation.OP_SET, i, oldItem, value, true);
+                    AddOperation(Operation.OP_SET, i, oldItem, value, true, true);
                 }
             }
         }

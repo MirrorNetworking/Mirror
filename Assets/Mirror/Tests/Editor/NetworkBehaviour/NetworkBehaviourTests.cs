@@ -247,14 +247,10 @@ namespace Mirror.Tests.NetworkBehaviours
         public void SyncVarGameObjectEqualZeroNetIdAndGOWithoutIdentityComponentIsTrue()
         {
             CreateNetworked(out GameObject _, out NetworkIdentity identity);
-            CreateNetworked(out GameObject go, out NetworkIdentity _);
+            // create a GO with NO NetworkIdentity — matches the test name
+            CreateGameObject(out GameObject go);
 
-            // null and identity.netid==0 returns true (=equal)
-            //
-            // later we should reevaluate if this is so smart or not. might be
-            // better to return false here.
-            // => we possibly return false so that resync doesn't happen when
-            //    GO disappears? or not?
+            // zero netId on both sides == equal (no warning, no NI on go)
             bool result = NetworkBehaviour.SyncVarGameObjectEqual(go, identity.netId);
             Assert.That(result, Is.True);
         }
@@ -264,13 +260,13 @@ namespace Mirror.Tests.NetworkBehaviours
         public void SyncVarGameObjectEqualWithoutIdentityComponent()
         {
             CreateNetworked(out GameObject _, out NetworkIdentity identity);
-
-            // our identity should have a netid for comparing
             identity.netId = 42;
 
-            // gameobject without networkidentity component should return false
-            CreateNetworked(out GameObject go, out NetworkIdentity _);
-            bool result = NetworkBehaviour.SyncVarGameObjectEqual(go, identity.netId);
+            // create a GO with NO NetworkIdentity — matches the test name
+            CreateGameObject(out GameObject test);
+
+            // go has no NI so newNetId stays 0, which != 42 → false
+            bool result = NetworkBehaviour.SyncVarGameObjectEqual(test, identity.netId);
             Assert.That(result, Is.False);
         }
 
@@ -877,77 +873,6 @@ namespace Mirror.Tests.NetworkBehaviours
             // the NetworkBehaviourOnDestroy component has the asset to check isServer..
         }
 
-        [Test]
-        public void AuthorityIsFalseVariations()
-        {
-            // has no authority as client only (both sync directions)
-            CreateNetworked(out _, out NetworkIdentity identity, out EmptyBehaviour emptyBehaviour);
-            identity.isClient = true;
-            identity.isServer = false;
-            identity.isOwned = false;
-            emptyBehaviour.syncDirection = SyncDirection.ClientToServer;
-            Assert.That(!emptyBehaviour.authority, "Client-only isOwned=false syncDirection=ClientToServer should have no authority");
-
-            CreateNetworked(out _, out  identity, out  emptyBehaviour);
-            identity.isClient = true;
-            identity.isServer = false;
-            identity.isOwned = false;
-            emptyBehaviour.syncDirection = SyncDirection.ServerToClient;
-            Assert.That(!emptyBehaviour.authority, "Client-only isOwned=false syncDirection=ServerToClient should have no authority");
-
-            // has no authority as server only
-            CreateNetworked(out _, out identity, out emptyBehaviour);
-            identity.isClient = false;
-            identity.isServer = true;
-            identity.isOwned = false;
-            emptyBehaviour.syncDirection = SyncDirection.ClientToServer;
-            Assert.That(!emptyBehaviour.authority, "Server-only isOwned=false syncDirection=ClientToServer should have no authority");
-
-            // has no authority as host, not owned and client-to-server sync
-            CreateNetworked(out _, out  identity, out  emptyBehaviour);
-            identity.isClient = true;
-            identity.isServer = true;
-            identity.isOwned = false;
-            emptyBehaviour.syncDirection = SyncDirection.ClientToServer;
-            Assert.That(!emptyBehaviour.authority, "Host isOwned=false syncDirection=ClientToServer should have no authority");
-        }
-
-        [Test]
-        public void AuthorityIsTrueVariations()
-        {
-            // has authority as client only
-            CreateNetworked(out _, out NetworkIdentity identity, out EmptyBehaviour emptyBehaviour);
-            identity.isClient = true;
-            identity.isServer = false;
-            identity.isOwned = true;
-            emptyBehaviour.syncDirection = SyncDirection.ClientToServer;
-            Assert.That(emptyBehaviour.authority, "Client-only isOwned=true syncDirection=ClientToServer should have authority");
-
-            // has authority as server only
-            CreateNetworked(out _, out identity, out emptyBehaviour);
-            identity.isClient = false;
-            identity.isServer = true;
-            identity.isOwned = false;
-            emptyBehaviour.syncDirection = SyncDirection.ServerToClient;
-            Assert.That(emptyBehaviour.authority, "Server-only isOwned=false syncDirection=ServerToClient should have authority");
-
-            // has authority as host, owned and client-to-server sync
-            CreateNetworked(out _, out  identity, out  emptyBehaviour);
-            identity.isClient = true;
-            identity.isServer = true;
-            identity.isOwned = true;
-            emptyBehaviour.syncDirection = SyncDirection.ClientToServer;
-            Assert.That(emptyBehaviour.authority, "Host isOwned=true syncDirection=ClientToServer should have authority");
-
-            // has authority as host, not owned and server-to-client sync
-            CreateNetworked(out _, out identity, out emptyBehaviour);
-            identity.isClient = true;
-            identity.isServer = true;
-            identity.isOwned = false;
-            emptyBehaviour.syncDirection = SyncDirection.ServerToClient;
-            Assert.That(emptyBehaviour.authority, "Host isOwned=false syncDirection=ServerToClient should have authority");
-        }
-
         // test for an issue where nested classes wouldn't be weaved.
         // previously Weaver.Weave() would only check ModuleDefinition.Types,
         // which would only get the base types.
@@ -971,6 +896,343 @@ namespace Mirror.Tests.NetworkBehaviours
             go.AddComponent<NetworkIdentity>();
             Parent.Child.GrandChild comp = go.AddComponent<Parent.Child.GrandChild>();
             Assert.That(comp.Weaved(), Is.True);
+        }
+
+        // -------------------------------------------------------------------------
+        // isHost / isLocalPlayer
+        // -------------------------------------------------------------------------
+        public class NetworkBehaviourHostAndLocalPlayerTests : MirrorEditModeTest
+        {
+            [Test]
+            public void IsHost_TrueWhenBothServerAndClient()
+            {
+                CreateNetworked(out _, out NetworkIdentity identity, out EmptyBehaviour comp);
+                identity.isServer = true;
+                identity.isClient = true;
+                Assert.That(comp.isHost, Is.True);
+            }
+
+            [Test]
+            public void IsHost_FalseWhenOnlyServer()
+            {
+                CreateNetworked(out _, out NetworkIdentity identity, out EmptyBehaviour comp);
+                identity.isServer = true;
+                identity.isClient = false;
+                Assert.That(comp.isHost, Is.False);
+            }
+
+            [Test]
+            public void IsHost_FalseWhenOnlyClient()
+            {
+                CreateNetworked(out _, out NetworkIdentity identity, out EmptyBehaviour comp);
+                identity.isServer = false;
+                identity.isClient = true;
+                Assert.That(comp.isHost, Is.False);
+            }
+
+            [Test]
+            public void IsLocalPlayer_FalseByDefault()
+            {
+                CreateNetworked(out _, out _, out EmptyBehaviour comp);
+                Assert.That(comp.isLocalPlayer, Is.False);
+            }
+
+            [Test]
+            public void IsLocalPlayer_PropagatesFromIdentity()
+            {
+                CreateNetworked(out _, out NetworkIdentity identity, out EmptyBehaviour comp);
+                identity.isLocalPlayer = true;
+                Assert.That(comp.isLocalPlayer, Is.True);
+            }
+        }
+
+        // -------------------------------------------------------------------------
+        // Lifecycle callbacks: OnStartServer / OnStopServer /
+        //                      OnStartAuthority / OnStopAuthority
+        // (OnStartClient / OnStopClient / OnStartLocalPlayer / OnStopLocalPlayer are
+        //  already covered in NetworkBehaviourTests.cs)
+        // -------------------------------------------------------------------------
+        public class NetworkBehaviourLifecycleCallbackTests : MirrorEditModeTest
+        {
+            [Test]
+            public void OnStartServer_CallsComponent()
+            {
+                CreateNetworked(out _, out NetworkIdentity identity, out NetworkBehaviourMock comp);
+                identity.OnStartServer();
+                Assert.That(comp.onStartServerCalled, Is.EqualTo(1));
+            }
+
+            [Test]
+            public void OnStartServer_NotCalledBeforeInvocation()
+            {
+                CreateNetworked(out _, out _, out NetworkBehaviourMock comp);
+                Assert.That(comp.onStartServerCalled, Is.EqualTo(0));
+            }
+
+            [Test]
+            public void OnStopServer_CallsComponent()
+            {
+                CreateNetworked(out _, out NetworkIdentity identity, out NetworkBehaviourMock comp);
+                identity.OnStartServer();
+                identity.OnStopServer();
+                Assert.That(comp.onStopServerCalled, Is.EqualTo(1));
+            }
+
+            [Test]
+            public void OnStartAuthority_CallsComponent()
+            {
+                CreateNetworked(out _, out NetworkIdentity identity, out NetworkBehaviourMock comp);
+                identity.OnStartAuthority();
+                Assert.That(comp.onStartAuthorityCalled, Is.EqualTo(1));
+            }
+
+            [Test]
+            public void OnStopAuthority_CallsComponent()
+            {
+                CreateNetworked(out _, out NetworkIdentity identity, out NetworkBehaviourMock comp);
+                identity.OnStopAuthority();
+                Assert.That(comp.onStopAuthorityCalled, Is.EqualTo(1));
+            }
+        }
+
+        // -------------------------------------------------------------------------
+        // ComponentIndex with three components
+        // -------------------------------------------------------------------------
+        public class NetworkBehaviourComponentIndexTests : MirrorEditModeTest
+        {
+            [Test]
+            public void ComponentIndex_ThreeComponents()
+            {
+                CreateNetworked(out _, out _, out EmptyBehaviour first, out EmptyBehaviour second, out EmptyBehaviour third);
+                Assert.That(first.ComponentIndex, Is.EqualTo(0));
+                Assert.That(second.ComponentIndex, Is.EqualTo(1));
+                Assert.That(third.ComponentIndex, Is.EqualTo(2));
+            }
+        }
+
+        // -------------------------------------------------------------------------
+        // authority — replaces the two bundled Variations tests in
+        // NetworkBehaviourTests.cs with one named test per case.
+        //
+        // authority logic (from NetworkBehaviour.cs):
+        //   host  (isClient && isServer):  syncDirection == ServerToClient || isOwned
+        //   client only:                   syncDirection == ClientToServer  && isOwned
+        //   server only:                   syncDirection == ServerToClient
+        // -------------------------------------------------------------------------
+        public class NetworkBehaviourAuthorityTests : MirrorEditModeTest
+        {
+            // --- false cases ---
+
+            [Test]
+            public void Authority_ClientOnly_NotOwned_ClientToServer_IsFalse()
+            {
+                CreateNetworked(out _, out NetworkIdentity identity, out EmptyBehaviour comp);
+                identity.isClient = true;
+                identity.isServer = false;
+                identity.isOwned = false;
+                comp.syncDirection = SyncDirection.ClientToServer;
+                Assert.That(comp.authority, Is.False);
+            }
+
+            [Test]
+            public void Authority_ClientOnly_NotOwned_ServerToClient_IsFalse()
+            {
+                CreateNetworked(out _, out NetworkIdentity identity, out EmptyBehaviour comp);
+                identity.isClient = true;
+                identity.isServer = false;
+                identity.isOwned = false;
+                comp.syncDirection = SyncDirection.ServerToClient;
+                Assert.That(comp.authority, Is.False);
+            }
+
+            // owned but wrong direction — client-only never has ServerToClient authority
+            [Test]
+            public void Authority_ClientOnly_Owned_ServerToClient_IsFalse()
+            {
+                CreateNetworked(out _, out NetworkIdentity identity, out EmptyBehaviour comp);
+                identity.isClient = true;
+                identity.isServer = false;
+                identity.isOwned = true;
+                comp.syncDirection = SyncDirection.ServerToClient;
+                Assert.That(comp.authority, Is.False);
+            }
+
+            [Test]
+            public void Authority_ServerOnly_NotOwned_ClientToServer_IsFalse()
+            {
+                CreateNetworked(out _, out NetworkIdentity identity, out EmptyBehaviour comp);
+                identity.isClient = false;
+                identity.isServer = true;
+                identity.isOwned = false;
+                comp.syncDirection = SyncDirection.ClientToServer;
+                Assert.That(comp.authority, Is.False);
+            }
+
+            [Test]
+            public void Authority_Host_NotOwned_ClientToServer_IsFalse()
+            {
+                CreateNetworked(out _, out NetworkIdentity identity, out EmptyBehaviour comp);
+                identity.isClient = true;
+                identity.isServer = true;
+                identity.isOwned = false;
+                comp.syncDirection = SyncDirection.ClientToServer;
+                Assert.That(comp.authority, Is.False);
+            }
+
+            // --- true cases ---
+
+            [Test]
+            public void Authority_ClientOnly_Owned_ClientToServer_IsTrue()
+            {
+                CreateNetworked(out _, out NetworkIdentity identity, out EmptyBehaviour comp);
+                identity.isClient = true;
+                identity.isServer = false;
+                identity.isOwned = true;
+                comp.syncDirection = SyncDirection.ClientToServer;
+                Assert.That(comp.authority, Is.True);
+            }
+
+            [Test]
+            public void Authority_ServerOnly_NotOwned_ServerToClient_IsTrue()
+            {
+                CreateNetworked(out _, out NetworkIdentity identity, out EmptyBehaviour comp);
+                identity.isClient = false;
+                identity.isServer = true;
+                identity.isOwned = false;
+                comp.syncDirection = SyncDirection.ServerToClient;
+                Assert.That(comp.authority, Is.True);
+            }
+
+            [Test]
+            public void Authority_Host_Owned_ClientToServer_IsTrue()
+            {
+                CreateNetworked(out _, out NetworkIdentity identity, out EmptyBehaviour comp);
+                identity.isClient = true;
+                identity.isServer = true;
+                identity.isOwned = true;
+                comp.syncDirection = SyncDirection.ClientToServer;
+                Assert.That(comp.authority, Is.True);
+            }
+
+            [Test]
+            public void Authority_Host_NotOwned_ServerToClient_IsTrue()
+            {
+                CreateNetworked(out _, out NetworkIdentity identity, out EmptyBehaviour comp);
+                identity.isClient = true;
+                identity.isServer = true;
+                identity.isOwned = false;
+                comp.syncDirection = SyncDirection.ServerToClient;
+                Assert.That(comp.authority, Is.True);
+            }
+        }
+
+        // -------------------------------------------------------------------------
+        // SetDirty() / IsDirty_BitsOnly() / ClearAllDirtyBits(clearSyncTime:false)
+        // -------------------------------------------------------------------------
+        public class NetworkBehaviourDirtyBitsAdditionalTests : MirrorEditModeTest
+        {
+            NetworkConnectionToClient connectionToClient;
+
+            [SetUp]
+            public override void SetUp()
+            {
+                base.SetUp();
+                NetworkServer.Listen(1);
+                ConnectClientBlockingAuthenticatedAndReady(out connectionToClient);
+            }
+
+            // SetDirty() must mark every possible SyncVar bit as dirty (ulong.MaxValue)
+            [Test]
+            public void SetDirty_SetsAllBits()
+            {
+                CreateNetworkedAndSpawn(out _, out _, out NetworkBehaviourSyncVarDirtyBitsExposed comp,
+                                        out _, out _, out _);
+
+                comp.SetDirty();
+
+                Assert.That(comp.syncVarDirtyBitsExposed, Is.EqualTo(ulong.MaxValue));
+            }
+
+            // IsDirty_BitsOnly() must return true as long as any bit is set,
+            // even when syncInterval has not elapsed (unlike IsDirty()).
+            [Test]
+            public void IsDirty_BitsOnly_TrueWhenBitsSet_RegardlessOfSyncInterval()
+            {
+                CreateNetworkedAndSpawn(out _, out _, out NetworkBehaviourSyncVarDirtyBitsExposed comp,
+                                        out _, out _, out _);
+
+                // large interval → IsDirty() returns false due to time check
+                comp.syncInterval = float.MaxValue;
+                comp.SetSyncVarDirtyBit(1UL);
+
+                Assert.That(comp.IsDirty(), Is.False, "IsDirty() should respect syncInterval");
+                Assert.That(comp.IsDirty_BitsOnly(), Is.True, "IsDirty_BitsOnly() must ignore syncInterval");
+            }
+
+            [Test]
+            public void IsDirty_BitsOnly_FalseByDefault()
+            {
+                CreateNetworkedAndSpawn(out _, out _, out NetworkBehaviourWithSyncVarsAndCollections comp,
+                                        out _, out _, out _);
+
+                Assert.That(comp.IsDirty_BitsOnly(), Is.False);
+            }
+
+            // ClearAllDirtyBits(clearSyncTime:false) must NOT update lastSyncTime —
+            // used by the unreliable-baseline path so delta intervals are preserved.
+            [Test]
+            public void ClearAllDirtyBits_PreservesLastSyncTime_WhenFlagFalse()
+            {
+                CreateNetworkedAndSpawn(out _, out _, out NetworkBehaviourWithSyncVarsAndCollections comp,
+                                        out _, out _, out _);
+
+                // anchor lastSyncTime at a known value
+                comp.lastSyncTime = 0;
+                ++comp.health;
+                Assert.That(comp.IsDirty(), Is.True);
+
+                comp.ClearAllDirtyBits(clearSyncTime: false);
+
+                Assert.That(comp.IsDirty_BitsOnly(), Is.False);
+                Assert.That(comp.lastSyncTime, Is.EqualTo(0).Within(0.0001),
+                    "lastSyncTime must NOT change when clearSyncTime=false");
+            }
+
+            // ClearAllDirtyBits() (default) MUST update lastSyncTime.
+            [Test]
+            public void ClearAllDirtyBits_UpdatesLastSyncTime_ByDefault()
+            {
+                CreateNetworkedAndSpawn(out _, out _, out NetworkBehaviourWithSyncVarsAndCollections comp,
+                                        out _, out _, out _);
+
+                // anchor at a clearly-wrong value
+                comp.lastSyncTime = -1;
+                ++comp.health;
+
+                comp.ClearAllDirtyBits();   // clearSyncTime defaults to true
+
+                Assert.That(comp.lastSyncTime, Is.GreaterThanOrEqualTo(0),
+                    "lastSyncTime must be updated after ClearAllDirtyBits()");
+            }
+        }
+
+        // -------------------------------------------------------------------------
+        // InitSyncObject(null) error path
+        // Must extend NetworkBehaviour to reach the protected method.
+        // -------------------------------------------------------------------------
+        public class NetworkBehaviourInitSyncObjectNullTester : NetworkBehaviour
+        {
+            [Test]
+            public void InitSyncObject_Null_LogsError()
+            {
+                LogAssert.Expect(LogType.Error,
+                    "Uninitialized SyncObject. Manually call the constructor on your SyncList, SyncSet, SyncDictionary or SyncField<T>");
+
+                InitSyncObject(null);
+
+                // null must not be added to the list
+                Assert.That(syncObjects.Count, Is.EqualTo(0));
+            }
         }
     }
 

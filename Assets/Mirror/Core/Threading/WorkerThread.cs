@@ -115,6 +115,9 @@ namespace Mirror
         // etc.
         public void Guard(string identifier)
         {
+            // register this thread with ThreadLog so it captures our logs
+            ThreadLog.RegisterThread(Thread.CurrentThread.ManagedThreadId);
+
             try
             {
                 // log when work begins = thread starts.
@@ -163,6 +166,9 @@ namespace Mirror
                 // very important for debugging threads.
                 // 'finally' to log no matter what (even if exceptions)
                 Debug.Log($"{identifier}: ended.");
+
+                // unregister this thread from ThreadLog
+                ThreadLog.UnregisterThread(Thread.CurrentThread.ManagedThreadId);
             }
         }
     }

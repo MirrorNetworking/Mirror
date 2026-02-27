@@ -68,10 +68,35 @@ namespace Mirror.SimpleWeb
             Buffer.BlockCopy(array, 0, target, offset, count);
         }
 
-        public void CopyFrom(ArraySegment<byte> segment)
+#if UNITY_2021_3_OR_NEWER
+        public void CopyTo(Span<byte> target)
         {
-            CopyFrom(segment.Array, segment.Offset, segment.Count);
+            if (count > target.Length)
+                throw new ArgumentException($"Buffer count {count} is greater than target length {target.Length}");
+
+            new ReadOnlySpan<byte>(array, 0, count).CopyTo(target);
         }
+
+        public void CopyFrom(ReadOnlySpan<byte> source)
+        {
+            if (source.Length > array.Length)
+                throw new ArgumentException($"Source length {source.Length} is greater than buffer array length {array.Length}");
+
+            count = source.Length;
+            source.CopyTo(array);
+        }
+
+        // compat overloads — delegate to CopyFrom(ReadOnlySpan<byte>)
+        public void CopyFrom(ArraySegment<byte> segment)
+            => CopyFrom(new ReadOnlySpan<byte>(segment.Array, segment.Offset, segment.Count));
+
+        public void CopyFrom(byte[] source, int offset, int length)
+            => CopyFrom(new ReadOnlySpan<byte>(source, offset, length));
+
+        public Span<byte> ToSpan() => new Span<byte>(array, 0, count);
+#else
+        public void CopyFrom(ArraySegment<byte> segment)
+            => CopyFrom(segment.Array, segment.Offset, segment.Count);
 
         public void CopyFrom(byte[] source, int offset, int length)
         {
@@ -90,6 +115,7 @@ namespace Mirror.SimpleWeb
             count = length;
             Marshal.Copy(bufferPtr, array, 0, length);
         }
+#endif
 
         public ArraySegment<byte> ToSegment() => new ArraySegment<byte>(array, 0, count);
 
