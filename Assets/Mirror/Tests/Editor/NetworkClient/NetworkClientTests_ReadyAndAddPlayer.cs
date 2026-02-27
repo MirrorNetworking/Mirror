@@ -45,7 +45,7 @@ namespace Mirror.Tests.NetworkClients
         [Test]
         public void Ready_ErrorWhenConnectionIsNull()
         {
-            // Never connected � connection stays null.
+            // Never connected — connection stays null.
             LogAssert.Expect(LogType.Error, "Ready() called with invalid connection object: conn=null");
             bool result = NetworkClient.Ready();
             Assert.That(result, Is.False);
@@ -90,6 +90,38 @@ namespace Mirror.Tests.NetworkClients
             NetworkClient.Ready();
             bool result = NetworkClient.AddPlayer();
             Assert.That(result, Is.True);
+        }
+
+        // ── InternalAddPlayer() ───────────────────────────────────────────────
+
+        [Test]
+        public void InternalAddPlayer_WhenReady_SetsLocalPlayerAndConnectionIdentity()
+        {
+            ConnectClientBlocking(out _);
+            NetworkClient.Ready();
+            CreateNetworked(out _, out NetworkIdentity identity);
+
+            NetworkClient.InternalAddPlayer(identity);
+
+            Assert.That(NetworkClient.localPlayer, Is.EqualTo(identity));
+            Assert.That(NetworkClient.connection.identity, Is.EqualTo(identity));
+        }
+
+        [Test]
+        public void InternalAddPlayer_WhenNotReady_SetsLocalPlayerButLogsWarning()
+        {
+            ConnectClientBlocking(out _);
+            // Deliberately skip Ready() — warning branch at line 1090.
+            CreateNetworked(out _, out NetworkIdentity identity);
+
+            LogAssert.Expect(LogType.Warning,
+                "NetworkClient can't AddPlayer before being ready. Please call NetworkClient.Ready() first. Clients are considered ready after joining the game world.");
+            NetworkClient.InternalAddPlayer(identity);
+
+            // localPlayer is always assigned regardless of the ready state.
+            Assert.That(NetworkClient.localPlayer, Is.EqualTo(identity));
+            // connection.identity must NOT be set when not ready.
+            Assert.That(NetworkClient.connection.identity, Is.Null);
         }
     }
 }

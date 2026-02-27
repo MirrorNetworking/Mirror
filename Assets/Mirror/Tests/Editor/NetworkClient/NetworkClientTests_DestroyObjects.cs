@@ -74,6 +74,22 @@ namespace Mirror.Tests.NetworkClients
             NetworkClient.OnObjectDestroy(new ObjectDestroyMessage { netId = 9999 });
         }
 
+        [Test]
+        public void OnObjectDestroy_NonSceneObjectWithNoUnspawnHandler_IsRemovedFromSpawned()
+        {
+            // sceneId == 0 and no unspawn handler → DestroyObject calls GameObject.Destroy.
+            // The tracker's null-guard in TearDown handles the deferred destruction safely.
+            CreateNetworked(out _, out NetworkIdentity identity);
+            const uint netId = 105;
+            identity.netId = netId;
+            // sceneId defaults to 0 — this is the non-scene object path
+            NetworkClient.spawned[netId] = identity;
+
+            NetworkClient.OnObjectDestroy(new ObjectDestroyMessage { netId = netId });
+
+            Assert.That(NetworkClient.spawned.ContainsKey(netId), Is.False);
+        }
+
         // ── DestroyAllClientObjects ───────────────────────────────────────────
 
         [Test]
@@ -120,6 +136,20 @@ namespace Mirror.Tests.NetworkClients
             NetworkClient.DestroyAllClientObjects();
 
             Assert.That(unspawnCalled, Is.True);
+        }
+
+        [Test]
+        public void DestroyAllClientObjects_ClearsConnectionOwned()
+        {
+            CreateNetworked(out _, out NetworkIdentity identity);
+            identity.netId = 205;
+            identity.sceneId = 25; // scene object — disabled rather than destroyed
+            NetworkClient.spawned[205] = identity;
+            NetworkClient.connection.owned.Add(identity);
+
+            NetworkClient.DestroyAllClientObjects();
+
+            Assert.That(NetworkClient.connection.owned, Is.Empty);
         }
     }
 }

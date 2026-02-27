@@ -109,5 +109,27 @@ namespace Mirror.Tests.NetworkClients
             // cleanup
             NetworkClient.spawned.Remove(netId);
         }
+
+        // Spy used only by ChangeOwner_CallsOnStopLocalPlayerWhenLocalPlayerRevoked.
+        class StopLocalPlayerSpy : NetworkBehaviour
+        {
+            public bool called = false;
+            public override void OnStopLocalPlayer() => called = true;
+        }
+
+        [Test]
+        public void ChangeOwner_CallsOnStopLocalPlayerWhenLocalPlayerRevoked()
+        {
+            CreateNetworked(out _, out NetworkIdentity identity, out StopLocalPlayerSpy spy);
+            identity.isLocalPlayer = true;
+
+            NetworkClient.ChangeOwner(identity, new ChangeOwnerMessage
+            {
+                isOwner = false,
+                isLocalPlayer = false
+            });
+
+            Assert.That(spy.called, Is.True);
+        }
     }
 }
