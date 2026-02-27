@@ -411,7 +411,7 @@ namespace Mirror.Tests.NetworkConnections
             // 1400-byte MemoryTransport threshold, so Batcher packs them into
             // one batch and Update() makes exactly one SendToTransport call.
             NetworkConnectionToClient connection = new NetworkConnectionToClient(1);
-            NetworkTime.PingInterval = float.MaxValue; // disable ping for this test
+            NetworkTime.defaultPingInterval = float.MaxValue; // disable ping for this test
 
             connection.Send(new ArraySegment<byte>(new byte[]{0x01}));
             connection.Send(new ArraySegment<byte>(new byte[]{0x02}));
