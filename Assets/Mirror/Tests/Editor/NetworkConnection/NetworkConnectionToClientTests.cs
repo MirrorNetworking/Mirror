@@ -56,6 +56,17 @@ namespace Mirror.Tests.NetworkConnections
         }
 
         [Test]
+        public void InternalConstructor_CreatesInstance()
+        {
+            // internal NetworkConnectionToClient() : base() { } is used by Mirror
+            // internally.  connectionId and address are left at their type defaults
+            // because only the public constructor sets them.
+            NetworkConnectionToClient connection = new NetworkConnectionToClient();
+            Assert.That(connection.connectionId, Is.EqualTo(0));
+            Assert.That(connection.address, Is.Null);
+        }
+
+        [Test]
         public void ToString_ReturnsExpectedFormat()
         {
             NetworkConnectionToClient connection = new NetworkConnectionToClient(42);
@@ -90,6 +101,16 @@ namespace Mirror.Tests.NetworkConnections
         {
             NetworkConnectionToClient connection = new NetworkConnectionToClient(1);
             Assert.That(connection.observing, Is.Empty);
+        }
+
+        // ---- rtt --------------------------------------------------------------------
+
+        [Test]
+        public void Rtt_DefaultsToZero()
+        {
+            // rtt reads _rtt.Value; no pong messages received yet, so it must be 0
+            NetworkConnectionToClient connection = new NetworkConnectionToClient(1);
+            Assert.That(connection.rtt, Is.EqualTo(0.0));
         }
 
         // ---- IsAlive ----------------------------------------------------------------
@@ -154,6 +175,38 @@ namespace Mirror.Tests.NetworkConnections
             connection.AddOwnedObject(identity);
             connection.RemoveOwnedObject(identity);
             Assert.That(connection.owned, Is.Empty);
+        }
+
+        // ---- DestroyOwnedObjects ----------------------------------------------------
+
+        [Test]
+        public void DestroyOwnedObjects_DestroysSpawnedGameObjects()
+        {
+            NetworkServer.Listen(1);
+
+            NetworkConnectionToClient connection = new NetworkConnectionToClient(1);
+            CreateNetworked(out _, out NetworkIdentity identity);
+
+            // In edit-mode tests Application.isPlaying is false, so OnValidate
+            // fires on AddComponent and AssignSceneID() assigns a random non-zero
+            // sceneId.  Force it to 0 so Mirror treats this as a dynamically
+            // instantiated object — exercising the NetworkServer.Destroy path
+            // (NetworkConnectionToClient line 222) instead of the scene-object
+            // KeepActive path.
+            identity.sceneId = 0;
+
+            // Spawn registers the identity in NetworkServer.spawned.
+            NetworkServer.Spawn(identity.gameObject);
+            connection.AddOwnedObject(identity);
+
+            // DestroyOwnedObjects iterates owned; for each identity with
+            // sceneId == 0 it calls NetworkServer.Destroy (line 222), which
+            // synchronously calls UnSpawnInternal -> spawned.Remove, then
+            // DestroyImmediate (edit mode).  owned is cleared afterwards.
+            connection.DestroyOwnedObjects();
+
+            Assert.That(connection.owned, Is.Empty);
+            Assert.That(NetworkServer.spawned, Is.Empty);
         }
 
         // ---- OnTimeSnapshot ---------------------------------------------------------
