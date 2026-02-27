@@ -110,6 +110,31 @@ namespace Mirror.Tests.NetworkConnections
             Assert.That(connection.IsAlive(10f), Is.False);
         }
 
+        // ---- UpdatePing -------------------------------------------------------------
+
+        [Test]
+        public void UpdatePing_SendsPingWhenIntervalElapsed()
+        {
+            // PingInterval = -1f ensures localTime >= lastPingTime + (-1) is always true
+            float savedPingInterval = NetworkTime.PingInterval;
+            try
+            {
+                NetworkTime.PingInterval = -1f;
+                NetworkConnectionToClient connection = new NetworkConnectionToClient(1);
+
+                // Update() calls UpdatePing (fires ping) then flushes the unreliable batcher
+                connection.Update();
+                UpdateTransport();
+
+                // one batch containing the NetworkPingMessage should have arrived
+                Assert.That(clientReceived.Count, Is.EqualTo(1));
+            }
+            finally
+            {
+                NetworkTime.PingInterval = savedPingInterval;
+            }
+        }
+
         // ---- owned set --------------------------------------------------------------
 
         [Test]
@@ -129,6 +154,86 @@ namespace Mirror.Tests.NetworkConnections
             connection.AddOwnedObject(identity);
             connection.RemoveOwnedObject(identity);
             Assert.That(connection.owned, Is.Empty);
+        }
+
+        // ---- OnTimeSnapshot ---------------------------------------------------------
+
+        [Test]
+        public void OnTimeSnapshot_UpdatesRemoteTimescale()
+        {
+            // dynamicAdjustment = true by default, so this exercises that branch too.
+            // InsertAndAdjust sets remoteTimescale via Timescale(); it will be != 0.
+            NetworkConnectionToClient connection = new NetworkConnectionToClient(1);
+            Assert.That(connection.remoteTimescale, Is.EqualTo(0.0)); // default before any snapshot
+
+            connection.OnTimeSnapshot(new TimeSnapshot(NetworkTime.localTime, NetworkTime.localTime));
+
+            Assert.That(connection.remoteTimescale, Is.Not.EqualTo(0.0));
+        }
+
+        [Test]
+        public void OnTimeSnapshot_WithDynamicAdjustmentDisabled_UpdatesRemoteTimescale()
+        {
+            // Explicitly disable dynamic adjustment to cover the branch that skips
+            // bufferTimeMultiplier recalculation and calls InsertAndAdjust directly.
+            NetworkConnectionToClient connection = new NetworkConnectionToClient(1);
+            bool savedDynamicAdjustment = NetworkClient.snapshotSettings.dynamicAdjustment;
+            try
+            {
+                NetworkClient.snapshotSettings.dynamicAdjustment = false;
+                connection.OnTimeSnapshot(new TimeSnapshot(NetworkTime.localTime, NetworkTime.localTime));
+                Assert.That(connection.remoteTimescale, Is.Not.EqualTo(0.0));
+            }
+            finally
+            {
+                NetworkClient.snapshotSettings.dynamicAdjustment = savedDynamicAdjustment;
+            }
+        }
+
+        [Test]
+        public void OnTimeSnapshot_IgnoresSnapshotsWhenBufferFull()
+        {
+            // snapshotBufferSizeLimit = 0 means snapshots.Count (0) >= limit (0) → early return.
+            // remoteTimescale is never touched by InsertAndAdjust, so it stays at default 0.
+            NetworkConnectionToClient connection = new NetworkConnectionToClient(1);
+            connection.snapshotBufferSizeLimit = 0;
+
+            connection.OnTimeSnapshot(new TimeSnapshot(NetworkTime.localTime, NetworkTime.localTime));
+
+            Assert.That(connection.remoteTimescale, Is.EqualTo(0.0));
+        }
+
+        // ---- UpdateTimeInterpolation ------------------------------------------------
+
+        [Test]
+        public void UpdateTimeInterpolation_DoesNothingWithNoSnapshots()
+        {
+            // With no snapshots, the if (snapshots.Count > 0) guard short-circuits.
+            NetworkConnectionToClient connection = new NetworkConnectionToClient(1);
+            double timelineBefore = connection.remoteTimeline;
+
+            connection.UpdateTimeInterpolation();
+
+            Assert.That(connection.remoteTimeline, Is.EqualTo(timelineBefore));
+        }
+
+        [Test]
+        public void UpdateTimeInterpolation_StepsWhenSnapshotsExist()
+        {
+            // Add a snapshot so snapshots.Count > 0, which exercises StepTime +
+            // StepInterpolation. In edit mode unscaledDeltaTime is typically 0,
+            // so remoteTimeline stays constant, but the branch is fully covered.
+            NetworkConnectionToClient connection = new NetworkConnectionToClient(1);
+            NetworkTime.PingInterval = float.MaxValue;
+
+            connection.OnTimeSnapshot(new TimeSnapshot(NetworkTime.localTime, NetworkTime.localTime));
+            double timescaleAfterSnapshot = connection.remoteTimescale;
+            Assert.That(timescaleAfterSnapshot, Is.Not.EqualTo(0.0)); // confirm snapshot was accepted
+
+            // UpdateTimeInterpolation must not throw and must not alter remoteTimescale
+            // (timescale is only ever written by OnTimeSnapshot / InsertAndAdjust)
+            connection.UpdateTimeInterpolation();
+            Assert.That(connection.remoteTimescale, Is.EqualTo(timescaleAfterSnapshot));
         }
 
         // ---- Disconnect -------------------------------------------------------------
