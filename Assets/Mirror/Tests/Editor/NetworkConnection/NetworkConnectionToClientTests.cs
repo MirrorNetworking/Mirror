@@ -152,7 +152,7 @@ namespace Mirror.Tests.NetworkConnections
             }
             finally
             {
-                NetworkTime.PingInterval = savedPingInterval;
+                NetworkTime.defaultPingInterval = savedPingInterval;
             }
         }
 
