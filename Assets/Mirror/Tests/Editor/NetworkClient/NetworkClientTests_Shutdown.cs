@@ -70,8 +70,8 @@ namespace Mirror.Tests.NetworkClients
         {
             NetworkClient.OnConnectedEvent        = () => { };
             NetworkClient.OnDisconnectedEvent     = () => { };
-            NetworkClient.OnErrorEvent            = (_, _) => { };
-            NetworkClient.OnTransportExceptionEvent = _ => { };
+            NetworkClient.OnErrorEvent            = (error, reason) => { };
+            NetworkClient.OnTransportExceptionEvent = ex => { };
 
             NetworkClient.Shutdown();
 
