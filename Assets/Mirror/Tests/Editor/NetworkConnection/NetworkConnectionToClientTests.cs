@@ -140,7 +140,7 @@ namespace Mirror.Tests.NetworkConnections
             float savedPingInterval = NetworkTime.PingInterval;
             try
             {
-                NetworkTime.PingInterval = -1f;
+                NetworkTime.defaultPingInterval = -1f;
                 NetworkConnectionToClient connection = new NetworkConnectionToClient(1);
 
                 // Update() calls UpdatePing (fires ping) then flushes the unreliable batcher
