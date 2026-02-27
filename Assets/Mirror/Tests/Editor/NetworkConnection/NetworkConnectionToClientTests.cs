@@ -390,7 +390,7 @@ namespace Mirror.Tests.NetworkConnections
         public void Send_UnreliableChannel_BatchesUntilUpdate()
         {
             NetworkConnectionToClient connection = new NetworkConnectionToClient(1);
-            NetworkTime.PingInterval = float.MaxValue; // disable ping for this test
+            NetworkTime.defaultPingInterval = float.MaxValue; // disable ping for this test
 
             byte[] message = {0xAA};
             connection.Send(new ArraySegment<byte>(message), Channels.Unreliable);
