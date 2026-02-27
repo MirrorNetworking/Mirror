@@ -1476,7 +1476,7 @@ namespace Mirror.Tests.NetworkServers
             NetworkServer.RegisterHandler<TestMessage1>((conn, msg) => {}, false);
 
             // register again: should log a warning
-            LogAssert.Expect(LogType.Warning, new Regex("NetworkServers.RegisterHandler replacing handler.*"));
+            LogAssert.Expect(LogType.Warning, new Regex("NetworkServer.RegisterHandler replacing handler.*"));
             NetworkServer.RegisterHandler<TestMessage1>((conn, msg) => {}, false);
         }
 
@@ -1548,7 +1548,7 @@ namespace Mirror.Tests.NetworkServers
             ConnectClientBlocking(out NetworkConnectionToClient connectionToClient);
 
             int messageMax = NetworkMessages.MaxContentSize(Channels.Reliable);
-            LogAssert.Expect(LogType.Error, new Regex("NetworkServers.SendToAll: message of type.*larger than the max allowed.*"));
+            LogAssert.Expect(LogType.Error, new Regex("NetworkServer.SendToAll: message of type.*larger than the max allowed.*"));
             NetworkServer.SendToAll(new VariableSizedMessage(messageMax + 1));
             ProcessMessages();
 
@@ -1598,7 +1598,7 @@ namespace Mirror.Tests.NetworkServers
             ConnectClientBlocking(out NetworkConnectionToClient connectionToClient);
 
             NetworkClient.Send(new TestMessage1());
-            LogAssert.Expect(LogType.Warning, new Regex("NetworkServers: failed to unpack and invoke message.*"));
+            LogAssert.Expect(LogType.Warning, new Regex("NetworkServer: failed to unpack and invoke message.*"));
             ProcessMessages();
 
             // connection should still be alive
@@ -1614,7 +1614,7 @@ namespace Mirror.Tests.NetworkServers
             CreateGameObject(out GameObject go);
             go.AddComponent<NetworkIdentity>();
 
-            LogAssert.Expect(LogType.Warning, new Regex("NetworkServers.Destroy\\(\\) called without an active server.*"));
+            LogAssert.Expect(LogType.Warning, new Regex("NetworkServer.Destroy\\(\\) called without an active server.*"));
             NetworkServer.Destroy(go);
         }
 
