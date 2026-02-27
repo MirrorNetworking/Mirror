@@ -2272,7 +2272,7 @@ namespace Mirror
                 //   pull in UpdateVarsMessage for each entity it observes
                 if (connection.isReady)
                 {
-                    // send time for snapshot interpolation every sendInterval.
+                    // send time for snapshot interpolation every sendInterval unless quietMode is enabled.
                     // BroadcastToConnection() may not send if nothing is new.
                     //
                     // sent over unreliable.
@@ -2281,7 +2281,8 @@ namespace Mirror
                     // make sure Broadcast() is only called every sendInterval,
                     // even if targetFrameRate isn't set in host mode (!)
                     // (done via AccurateInterval)
-                    connection.Send(new TimeSnapshotMessage(), Channels.Unreliable);
+                    if (!NetworkTime.quietMode)
+                        connection.Send(new TimeSnapshotMessage(), Channels.Unreliable);
 
                     // broadcast world state to this connection
                     BroadcastToConnection(connection, unreliableBaselineElapsed);
