@@ -1464,5 +1464,367 @@ namespace Mirror.Tests.NetworkServers
             Assert.That(clientPreviousComp.onStopLocalPlayerCalled, Is.EqualTo(1));
             Assert.That(clientNextComp.onStopLocalPlayerCalled, Is.EqualTo(0));
         }
+
+// ── RegisterHandler ──────────────────────────────────────────────────────────
+
+        [Test]
+        public void RegisterHandler_WarnsDuplicateHandler()
+        {
+            NetworkServer.Listen(1);
+
+            // register once: no warning
+            NetworkServer.RegisterHandler<TestMessage1>((conn, msg) => {}, false);
+
+            // register again: should log a warning
+            LogAssert.Expect(LogType.Warning, new Regex("NetworkServers.RegisterHandler replacing handler.*"));
+            NetworkServer.RegisterHandler<TestMessage1>((conn, msg) => {}, false);
+        }
+
+        [Test]
+        public void ReplaceHandler_DoesNotWarnOnReplace()
+        {
+            // listen & connect
+            NetworkServer.Listen(1);
+            ConnectClientBlocking(out _);
+
+            int called = 0;
+            NetworkServer.RegisterHandler<TestMessage1>((conn, msg) => {}, false);
+
+            // ReplaceHandler should NOT log a warning even though a handler exists
+            NetworkServer.ReplaceHandler<TestMessage1>((conn, msg) => ++called, false);
+
+            NetworkClient.Send(new TestMessage1());
+            ProcessMessages();
+
+            Assert.That(called, Is.EqualTo(1));
+        }
+
+// ── SendToReady ───────────────────────────────────────────────────────────────
+
+        [Test]
+        public void SendToReady_OnlySendsToReadyConnections()
+        {
+            // register handler on client
+            int called = 0;
+            NetworkClient.RegisterHandler<TestMessage1>(msg => ++called, false);
+
+            // listen & connect; client starts in ready state via helper
+            NetworkServer.Listen(1);
+            ConnectClientBlockingAuthenticatedAndReady(out NetworkConnectionToClient readyConn);
+
+            // send to ready connections only
+            NetworkServer.SendToReady(new TestMessage1());
+            ProcessMessages();
+
+            Assert.That(called, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void SendToReady_DoesNotSendToNotReadyConnections()
+        {
+            int called = 0;
+            NetworkClient.RegisterHandler<TestMessage1>(msg => ++called, false);
+
+            // connect but do NOT set ready
+            NetworkServer.Listen(1);
+            ConnectClientBlockingAuthenticated(out _);
+
+            NetworkServer.SendToReady(new TestMessage1());
+            ProcessMessages();
+
+            // not ready → should not receive
+            Assert.That(called, Is.EqualTo(0));
+        }
+
+// ── SendToAll oversized ───────────────────────────────────────────────────────
+
+        [Test]
+        public void SendToAll_MessageLargerThanMaxSize_LogsErrorAndDrops()
+        {
+            int called = 0;
+            NetworkClient.RegisterHandler<VariableSizedMessage>(msg => ++called, false);
+
+            NetworkServer.Listen(1);
+            ConnectClientBlocking(out NetworkConnectionToClient connectionToClient);
+
+            int messageMax = NetworkMessages.MaxContentSize(Channels.Reliable);
+            LogAssert.Expect(LogType.Error, new Regex("NetworkServers.SendToAll: message of type.*larger than the max allowed.*"));
+            NetworkServer.SendToAll(new VariableSizedMessage(messageMax + 1));
+            ProcessMessages();
+
+            Assert.That(called, Is.EqualTo(0));
+        }
+
+// ── Transport error / exception events ───────────────────────────────────────
+
+        [Test]
+        public void OnErrorEvent_InvokedOnTransportError()
+        {
+            bool errorEventCalled = false;
+            NetworkServer.OnErrorEvent = (conn, error, reason) => errorEventCalled = true;
+
+            NetworkServer.Listen(1);
+            transport.OnServerConnectedWithAddress.Invoke(42, "");
+
+            // simulate transport error for the connected client
+            transport.OnServerError.Invoke(42, TransportError.Timeout, "test timeout");
+
+            Assert.That(errorEventCalled, Is.True);
+        }
+
+        [Test]
+        public void OnTransportExceptionEvent_InvokedOnTransportException()
+        {
+            bool exceptionEventCalled = false;
+            NetworkServer.OnTransportExceptionEvent = (conn, ex) => exceptionEventCalled = true;
+
+            NetworkServer.Listen(1);
+            transport.OnServerConnectedWithAddress.Invoke(42, "");
+
+            transport.OnServerTransportException.Invoke(42, new Exception("test exception"));
+
+            Assert.That(exceptionEventCalled, Is.True);
+        }
+
+// ── exceptionsDisconnect = false ──────────────────────────────────────────────
+
+        [Test]
+        public void ExceptionsDisconnect_False_DoesNotDisconnectOnUnknownMessage()
+        {
+            // with exceptionsDisconnect=false, an unknown message should warn but NOT disconnect
+            NetworkServer.exceptionsDisconnect = false;
+
+            NetworkServer.Listen(1);
+            ConnectClientBlocking(out NetworkConnectionToClient connectionToClient);
+
+            NetworkClient.Send(new TestMessage1());
+            LogAssert.Expect(LogType.Warning, new Regex("NetworkServers: failed to unpack and invoke message.*"));
+            ProcessMessages();
+
+            // connection should still be alive
+            Assert.That(NetworkServer.connections.ContainsKey(connectionToClient.connectionId), Is.True);
+        }
+
+// ── Destroy ───────────────────────────────────────────────────────────────────
+
+        [Test]
+        public void Destroy_WhileNotActive_LogsWarning()
+        {
+            // server is NOT active
+            CreateGameObject(out GameObject go);
+            go.AddComponent<NetworkIdentity>();
+
+            LogAssert.Expect(LogType.Warning, new Regex("NetworkServers.Destroy\\(\\) called without an active server.*"));
+            NetworkServer.Destroy(go);
+        }
+
+        [Test]
+        public void Destroy_SceneObject_UnspawnsInsteadOfDestroying()
+        {
+            // start server & connect
+            NetworkServer.Listen(1);
+            ConnectClientBlocking(out _);
+
+            // spawn a scene object (sceneId != 0)
+            CreateNetworkedAndSpawn(out _, out NetworkIdentity identity, out NetworkBehaviourMock comp);
+            identity.sceneId = 42; // mark as scene object AFTER spawn for test purposes
+
+            uint netId = identity.netId;
+            Assert.That(NetworkServer.spawned.ContainsKey(netId), Is.True);
+
+            LogAssert.ignoreFailingMessages = true;
+            NetworkServer.Destroy(identity.gameObject);
+            LogAssert.ignoreFailingMessages = false;
+
+            // scene object: should be unspawned (netId reset), NOT Unity-destroyed
+            Assert.That(NetworkServer.spawned.ContainsKey(netId), Is.False);
+            Assert.That(identity != null, Is.True); // GameObject still alive
+        }
+
+// ── AddPlayerForConnection ────────────────────────────────────────────────────
+
+        [Test]
+        public void AddPlayerForConnection_Succeeds()
+        {
+            NetworkServer.Listen(1);
+            ConnectClientBlockingAuthenticated(out NetworkConnectionToClient conn);
+
+            CreateNetworked(out _, out NetworkIdentity identity);
+
+            bool result = NetworkServer.AddPlayerForConnection(conn, identity.gameObject);
+
+            Assert.That(result, Is.True);
+            Assert.That(conn.identity, Is.EqualTo(identity));
+            Assert.That(conn.isReady, Is.True);
+        }
+
+        [Test]
+        public void AddPlayerForConnection_FailsIfConnectionAlreadyHasPlayer()
+        {
+            NetworkServer.Listen(1);
+            ConnectClientBlockingAuthenticated(out NetworkConnectionToClient conn);
+
+            CreateNetworked(out _, out NetworkIdentity first);
+            NetworkServer.AddPlayerForConnection(conn, first.gameObject);
+
+            // try to add a second player on the same connection
+            CreateNetworked(out _, out NetworkIdentity second);
+            bool result = NetworkServer.AddPlayerForConnection(conn, second.gameObject);
+
+            Assert.That(result, Is.False);
+            Assert.That(conn.identity, Is.EqualTo(first)); // unchanged
+        }
+
+        [Test]
+        public void AddPlayerForConnection_FailsIfNoNetworkIdentity()
+        {
+            NetworkServer.Listen(1);
+            ConnectClientBlockingAuthenticated(out NetworkConnectionToClient conn);
+
+            CreateGameObject(out GameObject go); // no NetworkIdentity
+
+            LogAssert.Expect(LogType.Warning, new Regex("AddPlayer: player GameObject has no NetworkIdentity.*"));
+            bool result = NetworkServer.AddPlayerForConnection(conn, go);
+
+            Assert.That(result, Is.False);
+        }
+
+// ── RemovePlayerForConnection options ────────────────────────────────────────
+
+        [Test]
+        public void RemovePlayerForConnection_Unspawn_UnspawnsPlayer()
+        {
+            NetworkServer.Listen(1);
+            ConnectClientBlockingAuthenticatedAndReady(out NetworkConnectionToClient conn);
+
+            // use the non-generic overload: no component parameter needed
+            CreateNetworkedAndSpawnPlayer(
+                out _, out NetworkIdentity serverIdentity,
+                out _, out _,
+                conn);
+
+            uint netId = serverIdentity.netId;
+            Assert.That(NetworkServer.spawned.ContainsKey(netId), Is.True);
+
+            NetworkServer.RemovePlayerForConnection(conn, RemovePlayerOptions.Unspawn);
+            ProcessMessages();
+
+            // unspawned: removed from spawned dict, GameObject still alive
+            Assert.That(NetworkServer.spawned.ContainsKey(netId), Is.False);
+            Assert.That(serverIdentity != null, Is.True);
+            Assert.That(conn.identity, Is.Null);
+        }
+
+        [Test]
+        public void RemovePlayerForConnection_Destroy_DestroysPlayer()
+        {
+            NetworkServer.Listen(1);
+            ConnectClientBlockingAuthenticatedAndReady(out NetworkConnectionToClient conn);
+
+            // use the non-generic overload: no component parameter needed
+            CreateNetworkedAndSpawnPlayer(
+                out _, out NetworkIdentity serverIdentity,
+                out _, out _,
+                conn);
+
+            uint netId = serverIdentity.netId;
+
+            LogAssert.ignoreFailingMessages = true;
+            NetworkServer.RemovePlayerForConnection(conn, RemovePlayerOptions.Destroy);
+            LogAssert.ignoreFailingMessages = false;
+            ProcessMessages();
+
+            Assert.That(NetworkServer.spawned.ContainsKey(netId), Is.False);
+            Assert.That(conn.identity, Is.Null);
+        }
+
+        [Test]
+        public void ReplacePlayerForConnection_Unspawn_UnspawnsPreviousPlayer()
+        {
+            NetworkServer.Listen(1);
+            ConnectClientBlockingAuthenticatedAndReady(out NetworkConnectionToClient conn);
+
+            // use the non-generic overload: no component parameter needed
+            CreateNetworkedAndSpawnPlayer(
+                out _, out NetworkIdentity serverPrev,
+                out _, out _,
+                conn);
+
+            // use the non-generic overload: no component parameter needed
+            CreateNetworkedAndSpawn(
+                out _, out NetworkIdentity serverNext,
+                out _, out _);
+
+            uint prevNetId = serverPrev.netId;
+
+            NetworkServer.ReplacePlayerForConnection(conn, serverNext.gameObject, ReplacePlayerOptions.Unspawn);
+            ProcessMessages();
+
+            // previous player unspawned
+            Assert.That(NetworkServer.spawned.ContainsKey(prevNetId), Is.False);
+            Assert.That(conn.identity, Is.EqualTo(serverNext));
+        }
+
+        [Test]
+        public void ReplacePlayerForConnection_Destroy_DestroysPreviousPlayer()
+        {
+            NetworkServer.Listen(1);
+            ConnectClientBlockingAuthenticatedAndReady(out NetworkConnectionToClient conn);
+
+            // use the non-generic overload: no component parameter needed
+            CreateNetworkedAndSpawnPlayer(
+                out _, out NetworkIdentity serverPrev,
+                out _, out _,
+                conn);
+
+            // use the non-generic overload: no component parameter needed
+            CreateNetworkedAndSpawn(
+                out _, out NetworkIdentity serverNext,
+                out _, out _);
+
+            uint prevNetId = serverPrev.netId;
+
+            LogAssert.ignoreFailingMessages = true;
+            NetworkServer.ReplacePlayerForConnection(conn, serverNext.gameObject, ReplacePlayerOptions.Destroy);
+            LogAssert.ignoreFailingMessages = false;
+            ProcessMessages();
+
+            Assert.That(NetworkServer.spawned.ContainsKey(prevNetId), Is.False);
+            Assert.That(conn.identity, Is.EqualTo(serverNext));
+        }
+
+        // ── SendCommand from not-ready client ────────────────────────────────────────
+
+        [Test]
+        public void SendCommand_WhenClientNotReady_IsIgnored()
+        {
+            // Use a real remote client, NOT host mode.
+            // In host mode the weaver-generated [Command] stub executes the
+            // method body directly on the server (isServer == true), bypassing
+            // OnCommandMessage's !conn.isReady guard entirely.
+            NetworkServer.Listen(1);
+            ConnectClientBlockingAuthenticatedAndReady(out NetworkConnectionToClient conn);
+
+            // create matching server + client objects with the remote conn as
+            // owner so the client side has authority to send the command
+            CreateNetworkedAndSpawn(
+                out _, out _, out CommandTestNetworkBehaviour serverComp,
+                out _, out _, out CommandTestNetworkBehaviour clientComp,
+                conn);
+
+            // mark the server-side connection as not ready;
+            // OnCommandMessage returns early when !conn.isReady
+            conn.isReady = false;
+
+            // send the command from the client side
+            clientComp.TestCommand();
+            // suppress the "Command received when client not ready" warning
+            LogAssert.ignoreFailingMessages = true;
+            ProcessMessages();
+            LogAssert.ignoreFailingMessages = false;
+
+            // the command must not have reached the server handler
+            Assert.That(serverComp.called, Is.EqualTo(0));
+        }
     }
 }
