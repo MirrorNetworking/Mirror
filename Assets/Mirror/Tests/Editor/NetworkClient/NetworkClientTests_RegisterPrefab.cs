@@ -296,5 +296,32 @@ namespace Mirror.Tests.NetworkClients
             LogAssert.Expect(LogType.Error, $"Can not Register null UnSpawnHandler for {assetId}");
             CallRegisterPrefab(validPrefab, overload, unspawnHandler: null);
         }
+
+        [Test]
+        public void Prefab_ErrorWhenPrefabHasEmptyAssetId()
+        {
+            // Create a plain networked object — its assetId is 0 (not a real prefab asset).
+            // Zero sceneId explicitly: RegisterPrefabIdentity checks assetId first, but
+            // being explicit prevents future order-of-checks surprises.
+            CreateNetworked(out GameObject go, out NetworkIdentity identity);
+            identity.sceneId = 0;
+
+            LogAssert.Expect(LogType.Error, $"Can not Register '{go.name}' because it had empty assetid. If this is a scene Object use RegisterSpawnHandler instead");
+            NetworkClient.RegisterPrefab(go);
+        }
+
+        [Test]
+        public void SpawnHandlerDelegate_ErrorWhenPrefabHasEmptyAssetId()
+        {
+            // Create a plain networked object — its assetId is 0 (not a real prefab asset).
+            // The SpawnHandlerDelegate overload checks sceneId BEFORE assetId, and
+            // OnValidate assigns a non-zero sceneId in EditMode — zero it out so the
+            // correct (assetId) error fires.
+            CreateNetworked(out GameObject go, out NetworkIdentity identity);
+            identity.sceneId = 0;
+
+            LogAssert.Expect(LogType.Error, $"Can not Register handler for '{go.name}' because it had empty assetid. If this is a scene Object use RegisterSpawnHandler instead");
+            NetworkClient.RegisterPrefab(go, msg => null, obj => { });
+        }
     }
 }
