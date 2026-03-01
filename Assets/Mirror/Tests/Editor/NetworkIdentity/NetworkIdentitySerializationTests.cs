@@ -479,6 +479,7 @@ namespace Mirror.Tests.NetworkIdentities
             Assert.That(ownerWriterReliable.Position, Is.EqualTo(0));
             Assert.That(observersWriterReliable.Position, Is.EqualTo(0));
 
+            // unreliableBaseline=false: no baseline mask or data should be written
             Assert.That(ownerWriterUnreliableBaseline.Position, Is.EqualTo(0));
             Assert.That(observersWriterUnreliableBaseline.Position, Is.EqualTo(0));
 
@@ -639,19 +640,16 @@ namespace Mirror.Tests.NetworkIdentities
             Assert.That(ownerWriterReliable.Position, Is.EqualTo(0));
             Assert.That(observersWriterReliable.Position, Is.EqualTo(0));
 
-            Assert.That(ownerWriterUnreliableBaseline.Position, Is.GreaterThan(0));
-            Assert.That(observersWriterUnreliableBaseline.Position, Is.GreaterThan(0));
+            // unreliableBaseline=false: no baseline mask or data should be written
+            Assert.That(ownerWriterUnreliableBaseline.Position, Is.EqualTo(0));
+            Assert.That(observersWriterUnreliableBaseline.Position, Is.EqualTo(0));
 
             Assert.That(ownerWriterUnreliableDelta.Position, Is.GreaterThan(0));
             Assert.That(observersWriterUnreliableDelta.Position, Is.GreaterThan(0));
         }
 
         [Test]
-        [Ignore("BUG: NetworkIdentity.SerializeServer_Broadcast() writes baseline dirty mask even when unreliableBaseline=false. " +
-        "This wastes 1-2 bytes per object per frame. " +
-        "Fix: Wrap baseline mask writes in 'if (unreliableBaseline) { ... }' block. " +
-        "See lines ~1150-1153 in NetworkIdentity.cs")]
-        public void UnreliableBaseline_Timing_REVEALS_BUG()
+        public void UnreliableBaseline_Timing()
         {
             CreateNetworkedAndSpawn(
                 out _, out NetworkIdentity serverIdentity, out SerializeTest1NetworkBehaviour serverComp,
@@ -691,11 +689,9 @@ namespace Mirror.Tests.NetworkIdentities
             // Delta should be written
             Assert.That(deltaSize, Is.GreaterThan(0), "Delta should be written");
 
-            // BUG REVEALED: This should be 0 but is actually 1
-            // The baseline mask byte is written even though no data follows
+            // unreliableBaseline=false: only delta is sent, baseline writers stay empty
             Assert.That(deltaOnlyBaselineSize, Is.EqualTo(0),
-                "EXPECTED: No baseline data when unreliableBaseline=false. " +
-                "ACTUAL: Writes 1-byte dirty mask, wasting bandwidth.");
+                "No baseline data when unreliableBaseline=false");
 
             // === SCENARIO 3: Serialize with unreliableBaseline=true ===
             serverComp.value = 200;
@@ -950,10 +946,10 @@ namespace Mirror.Tests.NetworkIdentities
                     $"[Broadcast/Hybrid] Reliable must be empty. SyncMode={syncMode}, SyncDirection={syncDirection}");
 
                 // unreliableBaseline=false: no baseline mask or data should be written
-                Assert.That(ownerWriterUnreliableBaseline.Position, NonZeroIf(expectOwner),
-                    $"[Broadcast/Hybrid] Unreliable baseline mask written (BUG). SyncMode={syncMode}, SyncDirection={syncDirection}");
-                Assert.That(observersWriterUnreliableBaseline.Position, NonZeroIf(expectObservers),
-                    $"[Broadcast/Hybrid] Unreliable baseline mask written (BUG). SyncMode={syncMode}, SyncDirection={syncDirection}");
+                Assert.That(ownerWriterUnreliableBaseline.Position, Is.EqualTo(0),
+                    $"[Broadcast/Hybrid] Unreliable baseline must be empty. SyncMode={syncMode}, SyncDirection={syncDirection}");
+                Assert.That(observersWriterUnreliableBaseline.Position, Is.EqualTo(0),
+                    $"[Broadcast/Hybrid] Unreliable baseline must be empty. SyncMode={syncMode}, SyncDirection={syncDirection}");
             }
         }
 

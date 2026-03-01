@@ -1188,8 +1188,13 @@ namespace Mirror
             if (ownerMaskUnreliableDelta != 0)    Compression.CompressVarUInt(ownerWriterUnreliableDelta, ownerMaskUnreliableDelta);
             if (observerMaskUnreliableDelta != 0) Compression.CompressVarUInt(observersWriterUnreliableDelta, observerMaskUnreliableDelta);
 
-            if (ownerMaskUnreliableBaseline != 0)    Compression.CompressVarUInt(ownerWriterUnreliableBaseline, ownerMaskUnreliableBaseline);
-            if (observerMaskUnreliableBaseline != 0) Compression.CompressVarUInt(observersWriterUnreliableBaseline, observerMaskUnreliableBaseline);
+            // only write baseline mask when actually sending a baseline.
+            // otherwise an orphaned 1-2 byte mask is written with no data following it.
+            if (unreliableBaseline)
+            {
+                if (ownerMaskUnreliableBaseline != 0) Compression.CompressVarUInt(ownerWriterUnreliableBaseline, ownerMaskUnreliableBaseline);
+                if (observerMaskUnreliableBaseline != 0) Compression.CompressVarUInt(observersWriterUnreliableBaseline, observerMaskUnreliableBaseline);
+            }
 
             // serialize all components
             // perf: only iterate if either dirty mask has dirty bits.
@@ -1355,7 +1360,6 @@ namespace Mirror
                         comp.Serialize(writerUnreliableBaseline, true);
 
                         // for unreliable components, only clear dirty bits after the reliable baseline.
-                        // unreliable deltas aren't guaranteed to be delivered, no point in clearing bits.
                         // -> don't clear sync time: that's for delta syncs.
                         comp.ClearAllDirtyBits(false);
                     }
@@ -1640,7 +1644,7 @@ namespace Mirror
         // Marks the identity for future reset, this is because we cant reset
         // the identity during destroy as people might want to be able to read
         // the members inside OnDestroy(), and we have no way of invoking reset
-        // after OnDestroy is called.
+        // after OnDestroy() is called.
         internal void ResetState()
         {
             hasSpawned = false;
