@@ -168,7 +168,7 @@ namespace Mirror
         // Hooks are queued during deserialization and invoked in OnObjectSpawnFinished.
         internal readonly List<Action> deferredSyncVarHooks = new List<Action>();
 
-        // Queue for deferred SyncCollection Actions during initial spawn. 
+        // Queue for deferred SyncCollection Actions during initial spawn.  
         // Only used on pure client (not host mode) when isSpawnFinished = false.
         // Actions are queued during deserialization and invoked in OnObjectSpawnFinished.
         internal readonly List<Action> deferredSyncCollectionActions = new List<Action>();

@@ -714,8 +714,7 @@ namespace Mirror.Weaver
 
             serWorker.Emit(OpCodes.Ldarg_2);
             serWorker.Emit(OpCodes.Brfalse, initialStateLabel);
-
-            // A. initialState 为 true: 直接反序列化所有字段
+            
             foreach (FieldDefinition syncVar in syncVars)
             {
                 DeserializeField(syncVar, serWorker, ref WeavingFailed);
