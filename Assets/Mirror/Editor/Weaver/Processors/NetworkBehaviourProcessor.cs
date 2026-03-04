@@ -681,7 +681,7 @@ namespace Mirror.Weaver
 
             if (syncVars.Count == 0)
             {
-                // 没有 SyncVars，不需要生成自定义反序列化
+                // no synvars,  no need for custom OnDeserialize
                 return;
             }
 
