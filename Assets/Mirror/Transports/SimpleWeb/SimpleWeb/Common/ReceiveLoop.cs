@@ -53,6 +53,8 @@ namespace Mirror.SimpleWeb
             Profiler.BeginThreadProfiling("SimpleWeb", $"ReceiveLoop {conn.connId}");
 
             byte[] readBuffer = new byte[Constants.HeaderSize + (expectMask ? Constants.MaskSize : 0) + maxMessageSize];
+            Queue<ArrayBuffer> fragments = new();
+
             try
             {
                 try
@@ -60,7 +62,7 @@ namespace Mirror.SimpleWeb
                     TcpClient client = conn.client;
 
                     while (client.Connected)
-                        ReadOneMessage(config, readBuffer);
+                        ReadOneMessage(config, readBuffer, fragments);
 
                     Log.Verbose("[SWT-ReceiveLoop]: {0} Not Connected", conn);
                 }
@@ -100,10 +102,13 @@ namespace Mirror.SimpleWeb
             finally
             {
                 Profiler.EndThreadProfiling();
+
+                while (fragments.TryDequeue(out ArrayBuffer fragment))
+                    fragment.Release();
             }
         }
 
-        static void ReadOneMessage(Config config, byte[] buffer)
+        static void ReadOneMessage(Config config, byte[] buffer, Queue<ArrayBuffer> fragments)
         {
             (Connection conn, int maxMessageSize, bool expectMask, ConcurrentQueue<Message> queue, BufferPool bufferPool) = config;
             Stream stream = conn.stream;
@@ -127,8 +132,6 @@ namespace Mirror.SimpleWeb
             }
             else
             {
-                // todo cache this to avoid allocations
-                Queue<ArrayBuffer> fragments = new Queue<ArrayBuffer>();
                 fragments.Enqueue(CopyMessageToBuffer(bufferPool, expectMask, buffer, msgOffset, header.payloadLength));
                 int totalSize = header.payloadLength;
 
