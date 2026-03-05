@@ -46,14 +46,23 @@ namespace Mirror.SimpleWeb
 
             // make copy of array before for each, data sent to each client is the same
             foreach (int id in connectionIds)
-                server.Send(id, buffer);
+            {
+                if (!server.Send(id, buffer))
+                {
+                    buffer.Release();
+                }
+            }
         }
 
         public void SendOne(int connectionId, ArraySegment<byte> source)
         {
             ArrayBuffer buffer = bufferPool.Take(source.Count);
             buffer.CopyFrom(source);
-            server.Send(connectionId, buffer);
+
+            if (!server.Send(connectionId, buffer))
+            {
+                buffer.Release();
+            }
         }
 
         public void KickClient(int connectionId) => server.CloseConnection(connectionId);

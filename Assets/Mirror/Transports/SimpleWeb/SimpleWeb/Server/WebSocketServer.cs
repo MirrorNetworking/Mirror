@@ -183,15 +183,19 @@ namespace Mirror.SimpleWeb
             conn.onDispose = null;
         }
 
-        public void Send(int id, ArrayBuffer buffer)
+        public bool Send(int id, ArrayBuffer buffer)
         {
             if (connections.TryGetValue(id, out Connection conn))
             {
+                if (conn.hasDisposed) return false;
+
                 conn.sendQueue.Enqueue(buffer);
                 conn.sendPending.Set();
+                return true;
             }
-            else
-                Log.Warn("[SWT-WebSocketServer]: Send: cannot send message to {0} because it was not found in dictionary. Maybe it disconnected.", id);
+
+            Log.Warn("[SWT-WebSocketServer]: Send: cannot send message to {0} because it was not found in dictionary. Maybe it disconnected.", id);
+            return false;
         }
 
         public void CloseConnection(int id)
