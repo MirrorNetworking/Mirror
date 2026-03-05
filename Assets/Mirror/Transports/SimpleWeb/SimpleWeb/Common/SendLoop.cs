@@ -44,6 +44,10 @@ namespace Mirror.SimpleWeb
             // create write buffer for this thread
             byte[] writeBuffer = new byte[bufferSize];
             MaskHelper maskHelper = setMask ? new MaskHelper() : null;
+
+            // Thread may block on stream.Write and throw ThreadInterruptedException. Cache msg reference so it can be released in finally block.
+            ArrayBuffer msg = null;
+
             try
             {
                 TcpClient client = conn.client;
@@ -66,13 +70,14 @@ namespace Mirror.SimpleWeb
                     if (SendLoopConfig.batchSend)
                     {
                         int offset = 0;
-                        while (conn.sendQueue.TryDequeue(out ArrayBuffer msg))
+                        while (conn.sendQueue.TryDequeue(out msg))
                         {
                             // check if connected before sending message
                             if (!client.Connected)
                             {
                                 Log.Verbose("[SWT-SendLoop]: SendLoop {0} not connected", conn);
                                 msg.Release();
+                                msg = null;
                                 return;
                             }
 
@@ -87,6 +92,7 @@ namespace Mirror.SimpleWeb
 
                             offset = SendMessage(writeBuffer, offset, msg, setMask, maskHelper);
                             msg.Release();
+                            msg = null;
                         }
 
                         // after no message in queue, send remaining messages
@@ -96,19 +102,21 @@ namespace Mirror.SimpleWeb
                     }
                     else
                     {
-                        while (conn.sendQueue.TryDequeue(out ArrayBuffer msg))
+                        while (conn.sendQueue.TryDequeue(out msg))
                         {
                             // check if connected before sending message
                             if (!client.Connected)
                             {
                                 Log.Verbose("[SWT-SendLoop]: SendLoop {0} not connected", conn);
                                 msg.Release();
+                                msg = null;
                                 return;
                             }
 
                             int length = SendMessage(writeBuffer, 0, msg, setMask, maskHelper);
                             stream.Write(writeBuffer, 0, length);
                             msg.Release();
+                            msg = null;
                         }
                     }
                 }
@@ -122,6 +130,7 @@ namespace Mirror.SimpleWeb
             {
                 Profiler.EndThreadProfiling();
                 maskHelper?.Dispose();
+                msg?.Release();
             }
         }
 
