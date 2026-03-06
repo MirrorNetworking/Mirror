@@ -501,12 +501,12 @@ namespace Mirror.Weaver
             // write dirty bits before the data fields
             // Generates: writer.WritePackedUInt64 (base.get_syncVarDirtyBits ());
             // writer
-            worker.Emit(OpCodes.Ldarg_1);
+            // worker.Emit(OpCodes.Ldarg_1);
             // base
-            worker.Emit(OpCodes.Ldarg_0);
-            worker.Emit(OpCodes.Ldfld, weaverTypes.NetworkBehaviourDirtyBitsReference);
-            MethodReference writeUint64Func = writers.GetWriteFunc(weaverTypes.Import<ulong>(), ref WeavingFailed);
-            worker.Emit(OpCodes.Call, writeUint64Func);
+            // worker.Emit(OpCodes.Ldarg_0);
+            // worker.Emit(OpCodes.Ldfld, weaverTypes.NetworkBehaviourDirtyBitsReference);
+            // MethodReference writeUint64Func = writers.GetWriteFunc(weaverTypes.Import<ulong>(), ref WeavingFailed);
+            // worker.Emit(OpCodes.Call, writeUint64Func);
 
             // generate a writer call for any dirty variable in this class
 
@@ -673,7 +673,7 @@ namespace Mirror.Weaver
             }
         }
 
-        void GenerateDeSerialization(ref bool WeavingFailed)
+       void GenerateDeSerialization(ref bool WeavingFailed)
         {
             const string DeserializeMethodName = "DeserializeSyncVars";
             if (netBehaviourSubclass.GetMethod(DeserializeMethodName) != null)
@@ -685,50 +685,44 @@ namespace Mirror.Weaver
                 return;
             }
 
-            MethodDefinition serialize = new MethodDefinition(DeserializeMethodName,
-                    MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.HideBySig,
-                    weaverTypes.Import(typeof(void)));
+            MethodDefinition deserialize = new MethodDefinition(DeserializeMethodName,
+                MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.HideBySig,
+                weaverTypes.Import(typeof(void)));
 
-            serialize.Parameters.Add(new ParameterDefinition("reader", ParameterAttributes.None, weaverTypes.Import<NetworkReader>()));
-            serialize.Parameters.Add(new ParameterDefinition("initialState", ParameterAttributes.None, weaverTypes.Import<bool>()));
-            ILProcessor serWorker = serialize.Body.GetILProcessor();
+            deserialize.Parameters.Add(new ParameterDefinition("reader", ParameterAttributes.None, weaverTypes.Import<NetworkReader>()));
+            deserialize.Parameters.Add(new ParameterDefinition("initialState", ParameterAttributes.None, weaverTypes.Import<bool>()));
+            ILProcessor serWorker = deserialize.Body.GetILProcessor();
             // setup local for dirty bits
-            serialize.Body.InitLocals = true;
-            VariableDefinition dirtyBitsLocal = new VariableDefinition(weaverTypes.Import<long>());
-            serialize.Body.Variables.Add(dirtyBitsLocal);
+            deserialize.Body.InitLocals = true;
+
+
 
             MethodReference baseDeserialize = Resolvers.TryResolveMethodInParents(netBehaviourSubclass.BaseType, assembly, DeserializeMethodName);
             if (baseDeserialize != null)
             {
                 // base
-                serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
-                // reader
-                serWorker.Append(serWorker.Create(OpCodes.Ldarg_1));
+                serWorker.Emit(OpCodes.Ldarg_0);
+                 // reader
+                serWorker.Emit(OpCodes.Ldarg_1);
                 // initialState
-                serWorker.Append(serWorker.Create(OpCodes.Ldarg_2));
-                serWorker.Append(serWorker.Create(OpCodes.Call, baseDeserialize));
+                serWorker.Emit(OpCodes.Ldarg_2);
+                serWorker.Emit(OpCodes.Call, baseDeserialize);
             }
 
             // Generates: if (initialState);
             Instruction initialStateLabel = serWorker.Create(OpCodes.Nop);
 
-            serWorker.Append(serWorker.Create(OpCodes.Ldarg_2));
-            serWorker.Append(serWorker.Create(OpCodes.Brfalse, initialStateLabel));
-
+            serWorker.Emit(OpCodes.Ldarg_2);
+            serWorker.Emit(OpCodes.Brfalse, initialStateLabel);
+            
             foreach (FieldDefinition syncVar in syncVars)
             {
                 DeserializeField(syncVar, serWorker, ref WeavingFailed);
             }
-
-            serWorker.Append(serWorker.Create(OpCodes.Ret));
+            serWorker.Emit(OpCodes.Ret);
 
             // Generates: end if (initialState);
             serWorker.Append(initialStateLabel);
-
-            // get dirty bits
-            serWorker.Append(serWorker.Create(OpCodes.Ldarg_1));
-            serWorker.Append(serWorker.Create(OpCodes.Call, readers.GetReadFunc(weaverTypes.Import<ulong>(), ref WeavingFailed)));
-            serWorker.Append(serWorker.Create(OpCodes.Stloc_0));
 
             // conditionally read each syncvar
             // start at number of syncvars in parent
@@ -738,23 +732,19 @@ namespace Mirror.Weaver
                 Instruction varLabel = serWorker.Create(OpCodes.Nop);
 
                 // check if dirty bit is set
-                serWorker.Append(serWorker.Create(OpCodes.Ldloc_0));
-                serWorker.Append(serWorker.Create(OpCodes.Ldc_I8, 1L << dirtyBit));
-                serWorker.Append(serWorker.Create(OpCodes.And));
-                serWorker.Append(serWorker.Create(OpCodes.Brfalse, varLabel));
+                serWorker.Emit(OpCodes.Ldarg_0);
+                serWorker.Emit(OpCodes.Ldfld, weaverTypes.NetworkBehaviourDirtyBitsReference);
+                serWorker.Emit(OpCodes.Ldc_I8, 1L << dirtyBit);
+                serWorker.Emit(OpCodes.And);
+                serWorker.Emit(OpCodes.Brfalse, varLabel);
 
                 DeserializeField(syncVar, serWorker, ref WeavingFailed);
 
                 serWorker.Append(varLabel);
                 dirtyBit += 1;
             }
-
-            // add a log message if needed for debugging
-            //serWorker.Append(serWorker.Create(OpCodes.Ldstr, $"Injected Deserialize {netBehaviourSubclass.Name}"));
-            //serWorker.Append(serWorker.Create(OpCodes.Call, WeaverTypes.logErrorReference));
-
-            serWorker.Append(serWorker.Create(OpCodes.Ret));
-            netBehaviourSubclass.Methods.Add(serialize);
+            serWorker.Emit(OpCodes.Ret);
+            netBehaviourSubclass.Methods.Add(deserialize);
         }
 
         public static bool ReadArguments(MethodDefinition method, Readers readers, Logger Log, ILProcessor worker, RemoteCallType callType, ref bool WeavingFailed)

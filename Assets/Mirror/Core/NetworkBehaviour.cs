@@ -287,7 +287,6 @@ namespace Mirror
 
             // Store back-reference to this NetworkBehaviour
             syncObject.networkBehaviour = this;
-            
             // add it, remember the index in list (if Count=0, index=0 etc.)
             int index = syncObjects.Count;
             syncObjects.Add(syncObject);
@@ -1260,24 +1259,28 @@ namespace Mirror
         // USED BY WEAVER
         protected virtual void SerializeSyncVars(NetworkWriter writer, bool initialState)
         {
+            if (!initialState)
+                writer.WriteVarULong(syncVarDirtyBits);
+
             // SyncVar are written here in subclass
 
             // if initialState
             //   write all SyncVars
             // else
-            //   write syncVarDirtyBits
             //   write dirty SyncVars
         }
 
         // USED BY WEAVER
         protected virtual void DeserializeSyncVars(NetworkReader reader, bool initialState)
         {
+            if (!initialState)
+                syncVarDirtyBits = reader.ReadVarULong();
+
             // SyncVars are read here in subclass
 
             // if initialState
             //   read all SyncVars
             // else
-            //   read syncVarDirtyBits
             //   read dirty SyncVars
         }
 
