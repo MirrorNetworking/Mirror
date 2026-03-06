@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.IO;
 using System.Text.RegularExpressions;
 using UnityEngine;
@@ -6,6 +6,7 @@ using UnityEngine.SceneManagement;
 
 namespace Mirror.Examples.AdditiveLevels
 {
+    [RequireComponent(typeof(CapsuleCollider))]
     public class Portal : NetworkBehaviour
     {
         [Scene, Tooltip("Which scene to send player from here")]
@@ -25,12 +26,36 @@ namespace Mirror.Examples.AdditiveLevels
             label.text = labelText;
         }
 
+        protected override void OnValidate()
+        {
+            if (Application.isPlaying) return;
+            base.OnValidate();
+            Reset();
+        }
+
+        void Reset()
+        {
+            // Setup the trigger volume to be smaller than the visibile portal
+            // so players actually get inside it before triggering the scene change.
+            if (TryGetComponent(out CapsuleCollider capsuleCollider))
+            {
+                capsuleCollider.isTrigger = true;
+                capsuleCollider.height = 1f;
+                capsuleCollider.radius = 0.2f;
+            }
+        }
+
         public override void OnStartServer()
         {
             labelText = Path.GetFileNameWithoutExtension(destinationScene).Replace("MirrorAdditiveLevels", "");
 
             // Simple Regex to insert spaces before capitals, numbers
             labelText = Regex.Replace(labelText, @"\B[A-Z0-9]+", " $0");
+
+            // Make the trigger volume a bit larger on the server to ensure players
+            // reliably trigger it before stopping movement on client.
+            if (TryGetComponent(out CapsuleCollider capsuleCollider))
+                capsuleCollider.radius += 0.05f;
         }
 
         public override void OnStartClient()
@@ -43,13 +68,14 @@ namespace Mirror.Examples.AdditiveLevels
         // up in the Physics collision matrix so only Player collides with Portal.
         void OnTriggerEnter(Collider other)
         {
-            if (!(other is CapsuleCollider)) return; // ignore CharacterController colliders
+            if (other is not CapsuleCollider) return; // ignore CharacterController colliders
 
             //Debug.Log($"Portal.OnTriggerEnter {other}");
             // tag check in case you didn't set up the layers and matrix as noted above
             if (!other.CompareTag("Player")) return;
 
             // applies to host client on server and remote clients
+            // controller will be re-enabled when player is respawned in new scene.
             if (other.TryGetComponent(out Common.Controllers.Player.PlayerControllerBase playerController))
                 playerController.enabled = false;
 
@@ -71,14 +97,14 @@ namespace Mirror.Examples.AdditiveLevels
             // wait for fader to complete.
             yield return new WaitForSeconds(AdditiveLevelsNetworkManager.singleton.fadeInOut.GetFadeInTime());
 
-            // Remove player after fader has completed
+            // Remove player after fader has completed. Unspawn keeps it active on server so we can move it.
             NetworkServer.RemovePlayerForConnection(conn, RemovePlayerOptions.Unspawn);
 
             // yield a frame allowing interest management to update
             // and all spawned objects to be destroyed on client
             yield return null;
 
-            // reposition player on server and client
+            // reposition player on server
             player.transform.position = startPosition;
 
             // Rotate player to face center of scene
@@ -92,13 +118,8 @@ namespace Mirror.Examples.AdditiveLevels
             // Tell client to load the new subscene with custom handling (see NetworkManager::OnClientChangeScene).
             conn.Send(new SceneMessage { sceneName = destinationScene, sceneOperation = SceneOperation.LoadAdditive, customHandling = true });
 
-            // Player will be spawned after destination scene is loaded
+            // Player will be spawned after destination scene is loaded and before fader completes its reveal.
             NetworkServer.AddPlayerForConnection(conn, player);
-
-            // host client playerController would have been disabled by OnTriggerEnter above
-            // Remote client players are respawned with playerController already enabled
-            if (NetworkClient.localPlayer != null && NetworkClient.localPlayer.TryGetComponent(out Common.Controllers.Player.PlayerControllerBase playerController))
-                playerController.enabled = true;
         }
     }
 }
