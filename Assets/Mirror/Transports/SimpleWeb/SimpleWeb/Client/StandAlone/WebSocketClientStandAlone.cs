@@ -130,6 +130,8 @@ namespace Mirror.SimpleWeb
 #if UNITY_2021_3_OR_NEWER
         public override void Send(ReadOnlySpan<byte> span)
         {
+            if (conn.hasDisposed) return;
+
             ArrayBuffer buffer = bufferPool.Take(span.Length);
             buffer.CopyFrom(span);
 
@@ -139,6 +141,8 @@ namespace Mirror.SimpleWeb
 #else
         public override void Send(ArraySegment<byte> segment)
         {
+            if (conn.hasDisposed) return;
+
             ArrayBuffer buffer = bufferPool.Take(segment.Count);
             buffer.CopyFrom(segment);
 

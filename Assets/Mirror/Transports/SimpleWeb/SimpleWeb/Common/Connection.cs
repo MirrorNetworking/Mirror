@@ -63,22 +63,30 @@ namespace Mirror.SimpleWeb
                 hasDisposed = true;
                 Log.Verbose("[SWT-Connection]: Dispose Connection {0} hasDisposed set true", ToString());
 
-                // stop threads first so they don't try to use disposed objects
-                receiveThread.Interrupt();
-                sendThread?.Interrupt();
-
+                // stop threads first so they don't try to use disposed objects - Thread.Interrupt can trigger SecurityException
                 try
                 {
-                    // stream 
-                    stream?.Dispose();
-                    stream = null;
-                    client.Dispose();
-                    client = null;
+                    receiveThread.Interrupt();
                 }
                 catch (Exception e)
                 {
-                    Log.Exception("[SWT-Connection]", e);
+                    Log.Exception("[SWT-Connection] receiveThread.Interrupt", e);
                 }
+
+                try
+                {
+                    sendThread?.Interrupt();
+                }
+                catch (Exception e)
+                {
+                    Log.Exception("[SWT-Connection] sendThread.Interrupt", e);
+                }
+
+                stream?.Dispose();
+                stream = null;
+
+                client?.Dispose();
+                client = null;
 
                 sendPending.Dispose();
 
