@@ -88,7 +88,7 @@ namespace Mirror.Tests.Runtime
         public IEnumerator DisconnectTimeoutTest()
         {
             // Set low ping frequency so no NetworkPingMessage is generated
-            NetworkTime.PingInterval = 5f;
+            NetworkTime.defaultPingInterval = float.MaxValue;
 
             // Set a short timeout for this test and enable disconnectInactiveConnections
             NetworkServer.disconnectInactiveConnections = true;

@@ -457,6 +457,9 @@ namespace Mirror
         {
             ResetState();
 
+            if (NetworkTime.quietMode)
+                Debug.LogWarning("NetworkTransform: Quiet Mode is enabled, which will cause issues with interpolation. Please disable Quiet Mode in Network Manager.");
+
             if (NetworkServer.active)
                 NetworkIdentity.clientAuthorityCallback += OnClientAuthorityChanged;
         }

@@ -16,11 +16,16 @@ namespace Mirror
     /// <summary>Synchronizes server time to clients.</summary>
     public static class NetworkTime
     {
+        // Set true from NetworkManager to disable TimeSnapshotMessages and limit PingMessage to 0.5Hz
+        internal static bool quietMode;
+
+        const float highPingInterval = 0.1f;
+
         /// <summary>Ping message interval, used to calculate latency / RTT and predicted time.</summary>
-        // 2s was enough to get a good average RTT.
-        // for prediction, we want to react to latency changes more rapidly.
-        const float DefaultPingInterval = 0.1f; // for resets
-        public static float PingInterval = DefaultPingInterval;
+        // 2s is enough to get a good average RTT.
+        // For snapshot interpolation and prediction, we need to react to latency changes more rapidly.
+        internal static float defaultPingInterval = 2.0f; // internal for tests
+        public static float PingInterval => quietMode ? defaultPingInterval: highPingInterval;
 
         /// <summary>Average out the last few results from Ping</summary>
         // const because it's used immediately in _rtt constructor.
@@ -129,7 +134,8 @@ namespace Mirror
         [RuntimeInitializeOnLoadMethod]
         public static void ResetStatics()
         {
-            PingInterval = DefaultPingInterval;
+            defaultPingInterval = 2.0f;
+            quietMode = false;
             lastPingTime = 0;
             _rtt = new ExponentialMovingAverage(PingWindowSize);
 #if !UNITY_2020_3_OR_NEWER
