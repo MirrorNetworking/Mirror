@@ -89,6 +89,10 @@ namespace Mirror.SimpleWeb
             "If WaitBeforeSend is true then BatchSend Will also be set to true")]
         public bool waitBeforeSend = true;
 
+        [Tooltip("Disconnects clients if their sendQueue Count reaches this value. Disabled if <= 0.\n" +
+            "Prevents hundreds of buffers being allocated and pooled forever if the client stops processing incoming messages without disconnecting")]
+        public int sendQueueMaxMessageCount = 0;
+
         [Header("Client settings")]
 
         [Tooltip("Sets connect scheme to wss. Useful when client needs to connect using wss when TLS is outside of transport.\nNOTE: if sslEnabled is true clientUseWss is also true")]
@@ -293,7 +297,7 @@ namespace Mirror.SimpleWeb
                 Log.Warn("[SWT-ServerStart]: Server Already Started");
 
             SslConfig config = SslConfigLoader.Load(sslEnabled, sslCertJson, sslProtocols);
-            server = new SimpleWebServer(serverMaxMsgsPerTick, TcpConfig, maxMessageSize, maxHandshakeSize, config);
+            server = new SimpleWebServer(serverMaxMsgsPerTick, TcpConfig, maxMessageSize, maxHandshakeSize, config, sendQueueMaxMessageCount);
 
             server.onConnect += OnServerConnectedWithAddress.Invoke;
             server.onDisconnect += OnServerDisconnected.Invoke;

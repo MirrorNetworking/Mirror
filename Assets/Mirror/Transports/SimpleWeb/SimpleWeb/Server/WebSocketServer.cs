@@ -12,6 +12,7 @@ namespace Mirror.SimpleWeb
 
         readonly TcpConfig tcpConfig;
         readonly int maxMessageSize;
+        readonly int sendQueueMaxMessageCount;
 
         TcpListener listener;
         Thread acceptThread;
@@ -23,10 +24,11 @@ namespace Mirror.SimpleWeb
 
         int _idCounter = 0;
 
-        public WebSocketServer(TcpConfig tcpConfig, int maxMessageSize, int handshakeMaxSize, SslConfig sslConfig, BufferPool bufferPool)
+        public WebSocketServer(TcpConfig tcpConfig, int maxMessageSize, int handshakeMaxSize, SslConfig sslConfig, BufferPool bufferPool, int sendQueueMaxMessageCount)
         {
             this.tcpConfig = tcpConfig;
             this.maxMessageSize = maxMessageSize;
+            this.sendQueueMaxMessageCount = sendQueueMaxMessageCount;
             sslHelper = new ServerSslHelper(sslConfig);
             this.bufferPool = bufferPool;
             handShake = new ServerHandshake(this.bufferPool, handshakeMaxSize);
@@ -187,6 +189,13 @@ namespace Mirror.SimpleWeb
         {
             if (connections.TryGetValue(id, out Connection conn))
             {
+                if (sendQueueMaxMessageCount > 0 && conn.sendQueue.Count + 1 >= sendQueueMaxMessageCount)
+                {
+                    Log.Warn("[SWT-WebSocketServer]: Send: cannot send message to {0} because its send queue has reached max count. Disconnecting connection", id);
+                    conn.Dispose();
+                    return;
+                }
+
                 conn.sendQueue.Enqueue(buffer);
                 conn.sendPending.Set();
             }
