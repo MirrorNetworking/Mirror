@@ -103,8 +103,16 @@ namespace Mirror.SimpleWeb
                 Profiler.EndThreadProfiling();
 
                 // release any unprocessed fragments in case ReadOneMessage throws mid loop
+#if UNITY_2022_3_OR_NEWER
                 while (fragments.TryDequeue(out ArrayBuffer buffer))
                     buffer.Release();
+#else
+                while (fragments.Count > 0)
+                {
+                    ArrayBuffer buffer = fragments.Dequeue();
+                    buffer.Release();
+                }
+#endif
             }
         }
 
