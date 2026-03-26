@@ -1,22 +1,28 @@
 // this will create a global object
 const SimpleWeb =
 {
-    webSockets: [],
+    webSockets: null, // unity converts Map to {}, so we have to use new at runtime
     next: 1,
     GetWebSocket: function (index)
     {
-        return SimpleWeb.webSockets[index]
+        if (SimpleWeb.webSockets)
+            return SimpleWeb.webSockets.get(index);
+        else
+            return null;
     },
     AddNextSocket: function (webSocket)
     {
+        if (!SimpleWeb.webSockets)
+            SimpleWeb.webSockets = new Map();
         var index = SimpleWeb.next;
         SimpleWeb.next++;
-        SimpleWeb.webSockets[index] = webSocket;
+        SimpleWeb.webSockets.set(index, webSocket);
         return index;
     },
     RemoveSocket: function (index)
     {
-        SimpleWeb.webSockets[index] = undefined;
+        if (SimpleWeb.webSockets)
+            SimpleWeb.webSockets.delete(index);
     },
 };
 
@@ -56,6 +62,8 @@ function Connect(addressPtr, openCallbackPtr, closeCallBackPtr, messageCallbackP
         webSocket._incomingDataBufferAlive = false;
         // dynCall('vi', closeCallBackPtr, [index]);
         {{{ makeDynCall('vi', 'closeCallBackPtr') }}}(index);
+
+        SimpleWeb.RemoveSocket(index);
     };
 
     webSocket.onmessage = function(event) 
