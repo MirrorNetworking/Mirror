@@ -52,6 +52,7 @@ namespace Mirror.SimpleWeb
 
             Profiler.BeginThreadProfiling("SimpleWeb", $"ReceiveLoop {conn.connId}");
 
+            Queue<ArrayBuffer> fragments = new Queue<ArrayBuffer>(); // create once to avoid allocation each time
             byte[] readBuffer = new byte[Constants.HeaderSize + (expectMask ? Constants.MaskSize : 0) + maxMessageSize];
             try
             {
@@ -60,7 +61,7 @@ namespace Mirror.SimpleWeb
                     TcpClient client = conn.client;
 
                     while (client.Connected)
-                        ReadOneMessage(config, readBuffer);
+                        ReadOneMessage(config, readBuffer, fragments);
 
                     Log.Verbose("[SWT-ReceiveLoop]: {0} Not Connected", conn);
                 }
@@ -100,10 +101,22 @@ namespace Mirror.SimpleWeb
             finally
             {
                 Profiler.EndThreadProfiling();
+
+                // release any unprocessed fragments in case ReadOneMessage throws mid loop
+#if UNITY_2022_3_OR_NEWER
+                while (fragments.TryDequeue(out ArrayBuffer buffer))
+                    buffer.Release();
+#else
+                while (fragments.Count > 0)
+                {
+                    ArrayBuffer buffer = fragments.Dequeue();
+                    buffer.Release();
+                }
+#endif
             }
         }
 
-        static void ReadOneMessage(Config config, byte[] buffer)
+        static void ReadOneMessage(Config config, byte[] buffer, Queue<ArrayBuffer> fragments)
         {
             (Connection conn, int maxMessageSize, bool expectMask, ConcurrentQueue<Message> queue, BufferPool bufferPool) = config;
             Stream stream = conn.stream;
@@ -127,8 +140,6 @@ namespace Mirror.SimpleWeb
             }
             else
             {
-                // todo cache this to avoid allocations
-                Queue<ArrayBuffer> fragments = new Queue<ArrayBuffer>();
                 fragments.Enqueue(CopyMessageToBuffer(bufferPool, expectMask, buffer, msgOffset, header.payloadLength));
                 int totalSize = header.payloadLength;
 

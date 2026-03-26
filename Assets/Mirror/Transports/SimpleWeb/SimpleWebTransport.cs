@@ -31,6 +31,9 @@ namespace Mirror.SimpleWeb
         [Tooltip("Caps the number of messages the client will process per tick. Allows LateUpdate to finish to let the reset of unity continue in case more messages arrive before they are processed")]
         public int clientMaxMsgsPerTick = 1000;
 
+        [Tooltip("Maximum number of messages that can be in the send queue before the connection is closed. This prevents slow connections from using too much memory on the server.")]
+        public int maxSendQueueSize = 1000;
+
         [Tooltip("Send would stall forever if the network is cut off during a send, so we need a timeout (in milliseconds)")]
         public int sendTimeout = 5000;
 
@@ -293,7 +296,7 @@ namespace Mirror.SimpleWeb
                 Log.Warn("[SWT-ServerStart]: Server Already Started");
 
             SslConfig config = SslConfigLoader.Load(sslEnabled, sslCertJson, sslProtocols);
-            server = new SimpleWebServer(serverMaxMsgsPerTick, TcpConfig, maxMessageSize, maxHandshakeSize, config);
+            server = new SimpleWebServer(serverMaxMsgsPerTick, TcpConfig, maxMessageSize, maxHandshakeSize, config, maxSendQueueSize);
 
             server.onConnect += OnServerConnectedWithAddress.Invoke;
             server.onDisconnect += OnServerDisconnected.Invoke;

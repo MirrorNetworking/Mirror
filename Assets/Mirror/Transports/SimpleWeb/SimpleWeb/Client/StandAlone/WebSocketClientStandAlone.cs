@@ -31,7 +31,7 @@ namespace Mirror.SimpleWeb
             tcpConfig.ApplyTo(client);
 
             // create connection object here so dispose correctly disconnects on failed connect
-            conn = new Connection(client, AfterConnectionDisposed);
+            conn = new Connection(client, AfterConnectionDisposed, onSendQueueFull: null, maxSendQueueSize: int.MaxValue);
 
             Thread receiveThread = new Thread(() => ConnectAndReceiveLoop(serverAddress));
             receiveThread.IsBackground = true;
@@ -133,8 +133,7 @@ namespace Mirror.SimpleWeb
             ArrayBuffer buffer = bufferPool.Take(span.Length);
             buffer.CopyFrom(span);
 
-            conn.sendQueue.Enqueue(buffer);
-            conn.sendPending.Set();
+            conn.QueueSend(buffer);
         }
 #else
         public override void Send(ArraySegment<byte> segment)
@@ -142,8 +141,7 @@ namespace Mirror.SimpleWeb
             ArrayBuffer buffer = bufferPool.Take(segment.Count);
             buffer.CopyFrom(segment);
 
-            conn.sendQueue.Enqueue(buffer);
-            conn.sendPending.Set();
+            conn.QueueSend(buffer);
         }
 #endif
     }
