@@ -20,16 +20,20 @@ namespace Mirror.SimpleWeb
         readonly ServerSslHelper sslHelper;
         readonly BufferPool bufferPool;
         readonly ConcurrentDictionary<int, Connection> connections = new ConcurrentDictionary<int, Connection>();
+        readonly int maxSendQueueSize;
 
         int _idCounter = 0;
 
-        public WebSocketServer(TcpConfig tcpConfig, int maxMessageSize, int handshakeMaxSize, SslConfig sslConfig, BufferPool bufferPool)
+        public WebSocketServer(TcpConfig tcpConfig, int maxMessageSize, int handshakeMaxSize, SslConfig sslConfig, BufferPool bufferPool, int maxSendQueueSize = 10000)
         {
+            if (maxSendQueueSize <= 0)
+                throw new ArgumentException("maxSendQueueSize must be greater than 0", nameof(maxSendQueueSize));
             this.tcpConfig = tcpConfig;
             this.maxMessageSize = maxMessageSize;
             sslHelper = new ServerSslHelper(sslConfig);
             this.bufferPool = bufferPool;
             handShake = new ServerHandshake(this.bufferPool, handshakeMaxSize);
+            this.maxSendQueueSize = maxSendQueueSize;
         }
 
         public void Listen(int port)
@@ -77,7 +81,7 @@ namespace Mirror.SimpleWeb
                         // TODO keep track of connections before they are in connections dictionary
                         //      this might not be a problem as HandshakeAndReceiveLoop checks for stop
                         //      and returns/disposes before sending message to queue
-                        Connection conn = new Connection(client, AfterConnectionDisposed);
+                        Connection conn = new Connection(client, AfterConnectionDisposed, SendQueueFull, maxSendQueueSize);
                         Log.Verbose("[SWT-WebSocketServer]: A client connected from {0}", conn);
 
                         // handshake needs its own thread as it needs to wait for message from client
@@ -168,6 +172,11 @@ namespace Mirror.SimpleWeb
             }
         }
 
+        void SendQueueFull(Connection conn)
+        {
+            receiveQueue.Enqueue(new Message(conn.connId, new Exception("Send Queue Full")));
+        }
+
         void AfterConnectionDisposed(Connection conn)
         {
             if (conn.connId != Connection.IdNotSet)
@@ -187,11 +196,13 @@ namespace Mirror.SimpleWeb
         {
             if (connections.TryGetValue(id, out Connection conn))
             {
-                conn.sendQueue.Enqueue(buffer);
-                conn.sendPending.Set();
+                conn.QueueSend(buffer);
             }
             else
+            {
                 Log.Warn("[SWT-WebSocketServer]: Send: cannot send message to {0} because it was not found in dictionary. Maybe it disconnected.", id);
+                buffer.Release();
+            }
         }
 
         public void CloseConnection(int id)
