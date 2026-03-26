@@ -7,7 +7,7 @@ const SimpleWeb =
     {
         if (SimpleWeb.webSockets)
             return SimpleWeb.webSockets.get(index);
-        else 
+        else
             return null;
     },
     AddNextSocket: function (webSocket)
