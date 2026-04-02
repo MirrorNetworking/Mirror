@@ -78,6 +78,12 @@ namespace Mirror.Weaver
 
             syncObjects = SyncObjectProcessor.FindSyncObjectsFields(writers, readers, Log, netBehaviourSubclass, ref WeavingFailed);
 
+            // Generate CaptureHostModeOriginalValues method
+            if (syncVars.Count > 0)
+            {
+                syncVarAttributeProcessor.GenerateCaptureHostModeOriginalValues(netBehaviourSubclass, syncVars, ref WeavingFailed);
+            }
+
             ProcessMethods(ref WeavingFailed);
             if (WeavingFailed)
             {
@@ -576,7 +582,7 @@ namespace Mirror.Weaver
             netBehaviourSubclass.Methods.Add(serialize);
         }
 
-        void DeserializeField(FieldDefinition syncVar, ILProcessor worker, ref bool WeavingFailed)
+        void DeserializeField(FieldDefinition syncVar, ILProcessor worker, int dirtyBit, ref bool WeavingFailed)
         {
             // put 'this.' onto stack for 'this.syncvar' below
             worker.Append(worker.Create(OpCodes.Ldarg_0));
@@ -620,6 +626,10 @@ namespace Mirror.Weaver
                 FieldDefinition netIdField = syncVarNetIds[syncVar];
                 worker.Emit(OpCodes.Ldarg_0);
                 worker.Emit(OpCodes.Ldflda, netIdField);
+
+                // NEW: push dirtyBit
+                worker.Emit(OpCodes.Ldc_I8, 1L << dirtyBit);
+
                 worker.Emit(OpCodes.Call, weaverTypes.generatedSyncVarDeserialize_GameObject);
             }
             else if (syncVar.FieldType.Is<NetworkIdentity>())
@@ -631,6 +641,10 @@ namespace Mirror.Weaver
                 FieldDefinition netIdField = syncVarNetIds[syncVar];
                 worker.Emit(OpCodes.Ldarg_0);
                 worker.Emit(OpCodes.Ldflda, netIdField);
+
+                // NEW: push dirtyBit
+                worker.Emit(OpCodes.Ldc_I8, 1L << dirtyBit);
+
                 worker.Emit(OpCodes.Call, weaverTypes.generatedSyncVarDeserialize_NetworkIdentity);
             }
             // handle both NetworkBehaviour and inheritors.
@@ -645,6 +659,10 @@ namespace Mirror.Weaver
                 FieldDefinition netIdField = syncVarNetIds[syncVar];
                 worker.Emit(OpCodes.Ldarg_0);
                 worker.Emit(OpCodes.Ldflda, netIdField);
+
+                // NEW: push dirtyBit
+                worker.Emit(OpCodes.Ldc_I8, 1L << dirtyBit);
+
                 // make generic version of GeneratedSyncVarSetter_NetworkBehaviour<T>
                 MethodReference getFunc = weaverTypes.generatedSyncVarDeserialize_NetworkBehaviour_T.MakeGeneric(assembly.MainModule, syncVar.FieldType);
                 worker.Emit(OpCodes.Call, getFunc);
@@ -666,6 +684,9 @@ namespace Mirror.Weaver
                 worker.Emit(OpCodes.Ldarg_1);
                 // reader.Read()
                 worker.Emit(OpCodes.Call, readFunc);
+
+                // NEW: push dirtyBit
+                worker.Emit(OpCodes.Ldc_I8, 1L << dirtyBit);
 
                 // make generic version of GeneratedSyncVarDeserialize<T>
                 MethodReference generic = weaverTypes.generatedSyncVarDeserialize.MakeGeneric(assembly.MainModule, syncVar.FieldType);
@@ -715,9 +736,11 @@ namespace Mirror.Weaver
             serWorker.Append(serWorker.Create(OpCodes.Ldarg_2));
             serWorker.Append(serWorker.Create(OpCodes.Brfalse, initialStateLabel));
 
+            int dirtyBit = syncVarAccessLists.GetSyncVarStart(netBehaviourSubclass.BaseType.FullName);
             foreach (FieldDefinition syncVar in syncVars)
             {
-                DeserializeField(syncVar, serWorker, ref WeavingFailed);
+                DeserializeField(syncVar, serWorker, dirtyBit, ref WeavingFailed); // Pass dirtyBit
+                dirtyBit += 1;
             }
 
             serWorker.Append(serWorker.Create(OpCodes.Ret));
@@ -732,7 +755,7 @@ namespace Mirror.Weaver
 
             // conditionally read each syncvar
             // start at number of syncvars in parent
-            int dirtyBit = syncVarAccessLists.GetSyncVarStart(netBehaviourSubclass.BaseType.FullName);
+            dirtyBit = syncVarAccessLists.GetSyncVarStart(netBehaviourSubclass.BaseType.FullName);
             foreach (FieldDefinition syncVar in syncVars)
             {
                 Instruction varLabel = serWorker.Create(OpCodes.Nop);
@@ -743,7 +766,7 @@ namespace Mirror.Weaver
                 serWorker.Append(serWorker.Create(OpCodes.And));
                 serWorker.Append(serWorker.Create(OpCodes.Brfalse, varLabel));
 
-                DeserializeField(syncVar, serWorker, ref WeavingFailed);
+                DeserializeField(syncVar, serWorker, dirtyBit, ref WeavingFailed); // Pass dirtyBit
 
                 serWorker.Append(varLabel);
                 dirtyBit += 1;

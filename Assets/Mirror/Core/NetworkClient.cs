@@ -1425,6 +1425,12 @@ namespace Mirror
 
                 // Invoke callbacks after deserializing
                 InvokeIdentityCallbacks(identity);
+
+                // Clear stored original SyncVar values
+                foreach (NetworkBehaviour comp in identity.NetworkBehaviours)
+                {
+                    comp.hostModeOriginalValues.Clear();
+                }
             }
         }
 
