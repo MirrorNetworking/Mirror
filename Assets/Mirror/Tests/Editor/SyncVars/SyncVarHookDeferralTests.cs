@@ -107,7 +107,7 @@ namespace Mirror.Tests.SyncVars
         }
 
         [Test]
-        public void HostMode_CrossReferences_HooksFireFromSetter_AndDuringDeserialize()
+        public void HostMode_CrossReferences_HooksFireOnceWithCorrectOldValues()
         {
             // Start in HOST mode (server + client together)
             NetworkServer.Listen(10);
@@ -126,31 +126,35 @@ namespace Mirror.Tests.SyncVars
             comp2.target = identity3;
             comp3.target = comp1.netIdentity;
 
-            // In host mode, hooks fire TWICE:
-            // 1. From setter when value is assigned
-            // 2. From DeserializeClient during OnHostClientSpawn (because hostInitialSpawn=true)
-            Assert.That(comp1.callCount, Is.EqualTo(2),
-                        "Host mode:  Hook should fire from setter immediately");
-            Assert.That(comp2.callCount, Is.EqualTo(2),
-                "Host mode: Hook should fire from setter immediately");
-            Assert.That(comp3.callCount, Is.EqualTo(2),
-                "Host mode:  Hook should fire from setter immediately");
+            // After our fix: hooks fire ONCE during client deserialization, not from setters
+            // This provides correct old values (captured originals) and respects AOI
+            Assert.That(comp1.callCount, Is.EqualTo(1),
+                "Host mode: Hook should fire once during deserialization with correct old value");
+            Assert.That(comp2.callCount, Is.EqualTo(1),
+                "Host mode: Hook should fire once during deserialization with correct old value");
+            Assert.That(comp3.callCount, Is.EqualTo(1),
+                "Host mode: Hook should fire once during deserialization with correct old value");
 
-            // All targets should be accessible (host mode, everything is local)
+            // All targets should be accessible (host mode, everything is local and visible per AOI)
             Assert.That(comp1.targetWasInSpawnedWhenHookFired, Is.True,
-                "Host mode:  Targets always accessible");
+                "Host mode: Targets accessible when hooks fire during deserialization");
             Assert.That(comp2.targetWasInSpawnedWhenHookFired, Is.True,
-                "Host mode: Targets always accessible");
+                "Host mode: Targets accessible when hooks fire during deserialization");
             Assert.That(comp3.targetWasInSpawnedWhenHookFired, Is.True,
-                "Host mode: Targets always accessible");
+                "Host mode: Targets accessible when hooks fire during deserialization");
 
-            // Verify no deferred hooks queued (host mode doesn't defer)
+            // Verify no deferred hooks queued (host mode fires immediately during deserialization)
             Assert.That(comp1.deferredSyncVarHooks.Count, Is.EqualTo(0),
                 "Host mode should not defer hooks");
             Assert.That(comp2.deferredSyncVarHooks.Count, Is.EqualTo(0),
                 "Host mode should not defer hooks");
             Assert.That(comp3.deferredSyncVarHooks.Count, Is.EqualTo(0),
                 "Host mode should not defer hooks");
+
+            // Verify references are correct
+            Assert.That(comp1.target, Is.EqualTo(identity2));
+            Assert.That(comp2.target, Is.EqualTo(identity3));
+            Assert.That(comp3.target, Is.EqualTo(comp1.netIdentity));
         }
 
         [Test]
