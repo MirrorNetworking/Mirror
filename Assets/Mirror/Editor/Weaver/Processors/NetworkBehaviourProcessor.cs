@@ -67,10 +67,7 @@ namespace Mirror.Weaver
         {
             // only process once
             if (WasProcessed(netBehaviourSubclass))
-            {
                 return false;
-            }
-
             MarkAsProcessed(netBehaviourSubclass);
 
             // deconstruct tuple and set fields
@@ -80,9 +77,7 @@ namespace Mirror.Weaver
 
             // Generate CaptureHostModeOriginalValues method
             if (syncVars.Count > 0)
-            {
                 syncVarAttributeProcessor.GenerateCaptureHostModeOriginalValues(netBehaviourSubclass, syncVars, ref WeavingFailed);
-            }
 
             ProcessMethods(ref WeavingFailed);
             if (WeavingFailed)

@@ -1429,9 +1429,7 @@ namespace Mirror
 
                 // Clear stored original SyncVar values
                 foreach (NetworkBehaviour comp in identity.NetworkBehaviours)
-                {
                     comp.hostModeOriginalValues.Clear();
-                }
             }
         }
 

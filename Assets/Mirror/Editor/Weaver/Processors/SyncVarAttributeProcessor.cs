@@ -301,9 +301,7 @@ namespace Mirror.Weaver
 
                 // Box value types since dictionary stores object values
                 if (syncVar.FieldType.IsValueType)
-                {
                     worker.Emit(OpCodes.Box, syncVar.FieldType);
-                }
 
                 // Call dictionary setter: dictionary[key] = value
                 worker.Emit(OpCodes.Callvirt, weaverTypes.dictionarySetItemReference);
