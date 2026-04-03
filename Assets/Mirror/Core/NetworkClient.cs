@@ -1374,12 +1374,13 @@ namespace Mirror
         // host mode callbacks /////////////////////////////////////////////////
         static void OnHostClientObjectHide(ObjectHideMessage message)
         {
-            //Debug.Log($"ClientScene::OnLocalObjectObjHide netId:{message.netId}");
-            if (spawned.TryGetValue(message.netId, out NetworkIdentity identity) &&
-                identity != null)
+            //Debug.Log($"NetworkClient::OnHostClientObjectHide netId:{message.netId}");
+            if (spawned.TryGetValue(message.netId, out NetworkIdentity identity) && identity != null)
             {
                 if (aoi != null)
                     aoi.SetHostVisibility(identity, false);
+
+                spawned.Remove(message.netId);
             }
         }
 
