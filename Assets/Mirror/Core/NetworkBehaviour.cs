@@ -206,14 +206,11 @@ namespace Mirror
 #endif
         }
 
-        /// <summary>Capture all current SyncVar values before server initialization in host mode.</summary>
+        // USED BY WEAVER to capture all original SyncVar values before server initialization in host mode.
         internal void CaptureHostModeOriginalValues()
         {
             if (NetworkServer.activeHost)
-            {
                 hostModeOriginalValues.Clear();
-                // This will be populated by individual SyncVar accessors as needed
-            }
         }
 
         // USED BY WEAVER to set syncvars in host mode without deadlocking
@@ -582,9 +579,7 @@ namespace Mirror
         {
             // In host mode, capture original value before any changes
             if (NetworkServer.activeHost && !hostModeOriginalValues.ContainsKey(dirtyBit))
-            {
                 hostModeOriginalValues[dirtyBit] = field;
-            }
 
             if (!SyncVarEqual(value, ref field))
             {
