@@ -145,6 +145,12 @@ namespace Mirror
             positionCorrectionThresholdSqr = positionCorrectionThreshold * positionCorrectionThreshold;
         }
 
+        protected virtual void OnEnable()
+        {
+            if (NetworkTime.quietMode)
+                Debug.LogWarning("PredictedRigidbody: Quiet Mode is enabled, which will cause issues with prediction. Please disable Quiet Mode in Network Manager.");
+        }
+
         protected virtual void CopyRenderersAsGhost(GameObject destination, Material material)
         {
             // find the MeshRenderer component, which sometimes is on a child.

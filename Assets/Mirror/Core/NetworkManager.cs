@@ -38,6 +38,9 @@ namespace Mirror
         public bool editorAutoStart;
 
         [Header("Sync Settings")]
+        [Tooltip("Enable Quiet Mode when not using any NetworkTransform or PredictedRigidBody components.\nThis CANNOT be changed at runtime after server starts!")]
+        public bool quietMode = false;
+
         /// <summary>Server Update frequency, per second. Use around 60Hz for fast paced games like Counter-Strike to minimize latency. Use around 30Hz for games like WoW to minimize computations. Use around 1-10Hz for slow paced games like EVE.</summary>
         [Tooltip("Server / Client send rate per second.\nUse 60-100Hz for fast paced games like Counter-Strike to minimize latency.\nUse around 30Hz for games like WoW to minimize computations.\nUse around 1-10Hz for slow paced games like EVE.")]
         [FormerlySerializedAs("serverTickRate")]
@@ -318,6 +321,8 @@ namespace Mirror
             }
 
             ConfigureHeadlessFrameRate();
+
+            NetworkTime.quietMode = quietMode;
 
             // start listening to network connections
             NetworkServer.Listen(maxConnections);

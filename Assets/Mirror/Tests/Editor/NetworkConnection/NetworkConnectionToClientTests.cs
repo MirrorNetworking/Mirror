@@ -140,7 +140,7 @@ namespace Mirror.Tests.NetworkConnections
             float savedPingInterval = NetworkTime.PingInterval;
             try
             {
-                NetworkTime.PingInterval = -1f;
+                NetworkTime.defaultPingInterval = -1f;
                 NetworkConnectionToClient connection = new NetworkConnectionToClient(1);
 
                 // Update() calls UpdatePing (fires ping) then flushes the unreliable batcher
@@ -152,7 +152,7 @@ namespace Mirror.Tests.NetworkConnections
             }
             finally
             {
-                NetworkTime.PingInterval = savedPingInterval;
+                NetworkTime.defaultPingInterval = savedPingInterval;
             }
         }
 
@@ -277,7 +277,7 @@ namespace Mirror.Tests.NetworkConnections
             // StepInterpolation. In edit mode unscaledDeltaTime is typically 0,
             // so remoteTimeline stays constant, but the branch is fully covered.
             NetworkConnectionToClient connection = new NetworkConnectionToClient(1);
-            NetworkTime.PingInterval = float.MaxValue;
+            NetworkTime.defaultPingInterval = float.MaxValue;
 
             connection.OnTimeSnapshot(new TimeSnapshot(NetworkTime.localTime, NetworkTime.localTime));
             double timescaleAfterSnapshot = connection.remoteTimescale;
@@ -308,7 +308,8 @@ namespace Mirror.Tests.NetworkConnections
         public void Cleanup_PreventsQueuedMessageFromBeingSent()
         {
             NetworkConnectionToClient connection = new NetworkConnectionToClient(1);
-            NetworkTime.PingInterval = float.MaxValue; // disable ping for this test
+            NetworkTime.quietMode = true; // avoid log spam about connectionId mismatch since we're not calling Connect() on this instance
+            NetworkTime.defaultPingInterval = float.MaxValue; // disable ping for this test
 
             byte[] message = {0x01, 0x02};
             connection.Send(new ArraySegment<byte>(message));
@@ -330,7 +331,8 @@ namespace Mirror.Tests.NetworkConnections
         public void Send_BatchesUntilUpdate()
         {
             NetworkConnectionToClient connection = new NetworkConnectionToClient(42);
-            NetworkTime.PingInterval = float.MaxValue; // disable ping for this test
+            NetworkTime.quietMode = true; // avoid log spam about connectionId mismatch
+            NetworkTime.defaultPingInterval = float.MaxValue; // disable ping for this test
 
             byte[] message = {0x01, 0x02};
             connection.Send(new ArraySegment<byte>(message));
@@ -359,7 +361,8 @@ namespace Mirror.Tests.NetworkConnections
             const int BatchHeader = 8;
 
             NetworkConnectionToClient connection = new NetworkConnectionToClient(42);
-            NetworkTime.PingInterval = float.MaxValue; // disable ping for this test
+            NetworkTime.quietMode = true; // avoid log spam about connectionId mismatch
+            NetworkTime.defaultPingInterval = float.MaxValue; // disable ping for this test
 
             // send and update big message
             byte[] message = {0x01, 0x02};
@@ -390,7 +393,7 @@ namespace Mirror.Tests.NetworkConnections
         public void Send_UnreliableChannel_BatchesUntilUpdate()
         {
             NetworkConnectionToClient connection = new NetworkConnectionToClient(1);
-            NetworkTime.PingInterval = float.MaxValue; // disable ping for this test
+            NetworkTime.defaultPingInterval = float.MaxValue; // disable ping for this test
 
             byte[] message = {0xAA};
             connection.Send(new ArraySegment<byte>(message), Channels.Unreliable);
@@ -411,7 +414,8 @@ namespace Mirror.Tests.NetworkConnections
             // 1400-byte MemoryTransport threshold, so Batcher packs them into
             // one batch and Update() makes exactly one SendToTransport call.
             NetworkConnectionToClient connection = new NetworkConnectionToClient(1);
-            NetworkTime.PingInterval = float.MaxValue; // disable ping for this test
+            NetworkTime.quietMode = true; // avoid log spam about connectionId mismatch
+            NetworkTime.defaultPingInterval = float.MaxValue; // disable ping for this test
 
             connection.Send(new ArraySegment<byte>(new byte[]{0x01}));
             connection.Send(new ArraySegment<byte>(new byte[]{0x02}));

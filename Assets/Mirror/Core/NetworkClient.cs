@@ -1793,8 +1793,9 @@ namespace Mirror
             // nothing to do in host mode. server already knows the state.
             if (NetworkServer.active) return;
 
-            // send time snapshot every sendInterval.
-            Send(new TimeSnapshotMessage(), Channels.Unreliable);
+            // send time snapshot every sendInterval unless in quiet mode
+            if (!NetworkTime.quietMode)
+                Send(new TimeSnapshotMessage(), Channels.Unreliable);
 
             // broadcast client state to server
             BroadcastToServer(unreliableBaselineElapsed);
