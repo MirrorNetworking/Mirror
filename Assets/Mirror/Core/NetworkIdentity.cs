@@ -743,6 +743,9 @@ namespace Mirror
                 //    one exception doesn't stop all the other Start() calls!
                 try
                 {
+                    if (NetworkServer.activeHost)
+                        comp.CaptureHostModeOriginalValues();
+
                     comp.OnStartServer();
                 }
                 catch (Exception e)
