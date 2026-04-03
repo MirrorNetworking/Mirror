@@ -298,7 +298,7 @@ namespace Mirror
 
             // Store back-reference to this NetworkBehaviour
             syncObject.networkBehaviour = this;
-            
+
             // add it, remember the index in list (if Count=0, index=0 etc.)
             int index = syncObjects.Count;
             syncObjects.Add(syncObject);
@@ -586,7 +586,7 @@ namespace Mirror
                 T oldValue = field;
                 SetSyncVar(value, ref field, dirtyBit);
 
-                // call hook (if any)  
+                // call hook (if any)
                 if (OnChanged != null)
                 {
                     // Don't fire in host mode during server-side setting
