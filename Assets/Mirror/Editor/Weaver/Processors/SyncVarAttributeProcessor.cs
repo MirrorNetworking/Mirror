@@ -266,7 +266,6 @@ namespace Mirror.Weaver
                 weaverTypes.Import(typeof(void)));
 
             ILProcessor worker = method.Body.GetILProcessor();
-            method.Body.InitLocals = true;
 
             // Generate early return if not in host mode: if (!NetworkServer.activeHost) return;
             // Only capture values in host mode where both server and client are active
@@ -276,35 +275,32 @@ namespace Mirror.Weaver
             worker.Emit(OpCodes.Call, weaverTypes.NetworkClientGetActive);
             worker.Emit(OpCodes.Brfalse, returnLabel);
 
-            // Generate: hostModeOriginalValues.Clear();
-            // Clear the dictionary to start fresh each time
+            // Call helper method to clear dictionary (no complex IL needed!)
             worker.Emit(OpCodes.Ldarg_0);
-            worker.Emit(OpCodes.Ldfld, weaverTypes.hostModeOriginalValuesReference);
-            worker.Emit(OpCodes.Callvirt, weaverTypes.dictionaryClearReference);
+            worker.Emit(OpCodes.Call, weaverTypes.clearHostModeOriginalValuesReference);
 
-            // Generate capture code for each SyncVar: hostModeOriginalValues[dirtyBit] = field;
-            // Start dirtyBit counting from parent class SyncVar count to avoid conflicts
+            // Generate capture code for each SyncVar
             int dirtyBit = syncVarAccessLists.GetSyncVarStart(td.BaseType.FullName);
             foreach (FieldDefinition syncVar in syncVars)
             {
-                // Load the dictionary for indexer access: hostModeOriginalValues
-                worker.Emit(OpCodes.Ldarg_0);
-                worker.Emit(OpCodes.Ldfld, weaverTypes.hostModeOriginalValuesReference);
+                // Call helper method to store value (no complex IL needed!)
+                worker.Emit(OpCodes.Ldarg_0);                 // this
+                worker.Emit(OpCodes.Ldc_I8, 1L << dirtyBit);  // dirtyBit key
 
-                // Load the dirtyBit key as ulong (1L << dirtyBit creates unique bit masks: 1, 2, 4, 8...)
-                // This key will be used later during deserialization to look up the original value
-                worker.Emit(OpCodes.Ldc_I8, 1L << dirtyBit);
-
-                // Load the current field value (this captures the original value before OnStartServer changes it)
+                // Load field value
                 worker.Emit(OpCodes.Ldarg_0);
                 worker.Emit(OpCodes.Ldfld, syncVar);
 
-                // Box value types since dictionary stores object values
+                // Box if needed
                 if (syncVar.FieldType.IsValueType)
-                    worker.Emit(OpCodes.Box, syncVar.FieldType);
+                {
+                    TypeReference boxType = assembly.MainModule.ImportReference(syncVar.FieldType);
+                    worker.Emit(OpCodes.Box, boxType);
+                }
 
-                // Call dictionary setter: dictionary[key] = value
-                worker.Emit(OpCodes.Callvirt, weaverTypes.dictionarySetItemReference);
+                // Call helper method
+                worker.Emit(OpCodes.Call, weaverTypes.storeHostModeOriginalValueReference);
+
 
                 dirtyBit += 1;
             }

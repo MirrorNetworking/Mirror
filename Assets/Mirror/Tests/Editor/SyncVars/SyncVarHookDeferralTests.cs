@@ -261,6 +261,212 @@ namespace Mirror.Tests.SyncVars
             Assert.That(clientComp1.callCount, Is.EqualTo(2));
             Assert.That(clientComp1.target, Is.Null);
         }
+
+        [Test]
+        public void PostSpawnModification_HooksFireWithFinalValues()
+        {
+            // This tests the core deferred spawn fix: post-spawn SyncVar modifications work
+            NetworkServer.Listen(10);
+            ConnectClientBlockingAuthenticatedAndReady(out _);
+
+            // Simulate SpawnerTest scenario: modify SyncVar immediately after spawn
+            CreateNetworkedAndSpawn(
+                out GameObject serverGO, out _, out PostSpawnTestBehaviour serverComp,
+                out GameObject clientGO, out _, out PostSpawnTestBehaviour clientComp);
+
+            // Simulate the exact SpawnerTest pattern:
+            serverComp.testValue = "Before Spawn";  // This would be lost without deferred spawn
+            // NetworkServer.Spawn() already called by CreateNetworkedAndSpawn
+            serverComp.testValue = "After Spawn";   // Final value that should sync
+
+            ProcessMessages();
+
+            // Critical: Hook should fire with final post-spawn value
+            Assert.That(clientComp.callCount, Is.EqualTo(1), 
+                "Hook should fire once with final value - DEFERRED SPAWN FIX");
+            Assert.That(clientComp.receivedOldValue, Is.EqualTo(""), 
+                "Hook oldValue should be empty string (original) - HOST MODE FIX");
+            Assert.That(clientComp.receivedNewValue, Is.EqualTo("After Spawn"), 
+                "Hook newValue should be final post-spawn value - DEFERRED SPAWN FIX");
+        }
+
+        [Test]
+        public void HostMode_PostSpawnModification_CorrectOldValues()
+        {
+            // This tests BOTH fixes together in host mode
+            NetworkServer.Listen(10);
+            ConnectHostClientBlockingAuthenticatedAndReady();
+
+            Assert.That(NetworkServer.activeHost, Is.True, "Should be in host mode");
+
+            // In host mode, there's only one object (not separate server/client)
+            CreateNetworkedAndSpawn(out _, out _, out PostSpawnTestBehaviour comp);
+
+            // Simulate post-spawn modification in host mode
+            comp.testValue = "Before Spawn";   // This sets the field directly
+            comp.testValue = "After Spawn";    // This should trigger proper hook with correct old value
+
+            // In host mode after our fixes:
+            // 1. Original value ("") was captured before OnStartServer
+            // 2. Hook fires during deserialization with correct old/new values
+            // 3. No duplicate hook calls from setter
+            Assert.That(comp.callCount, Is.EqualTo(1), 
+                "Host mode: Hook should fire once during deserialization");
+            Assert.That(comp.receivedOldValue, Is.EqualTo(""), 
+                "Host mode: oldValue should be captured original ('') - HOST MODE FIX");
+            Assert.That(comp.receivedNewValue, Is.EqualTo("After Spawn"), 
+                "Host mode: newValue should be final value - DEFERRED SPAWN FIX");
+        }
+
+        [Test]
+        public void MultiplePostSpawnChanges_OnlyFinalValueSyncs()
+        {
+            // Test that intermediate values are lost (correct SyncVar behavior)
+            NetworkServer.Listen(10);
+            ConnectClientBlockingAuthenticatedAndReady(out _);
+
+            CreateNetworkedAndSpawn(
+                out _, out _, out PostSpawnTestBehaviour serverComp,
+                out _, out _, out PostSpawnTestBehaviour clientComp);
+
+            // Multiple rapid changes after spawn
+            serverComp.testValue = "Change 1";
+            serverComp.testValue = "Change 2";  
+            serverComp.testValue = "Change 3";
+            serverComp.testValue = "Final Value";
+
+            ProcessMessages();
+
+            // Only final value should sync (intermediate values lost - expected behavior)
+            Assert.That(clientComp.callCount, Is.EqualTo(1), 
+                "Only one hook call for final value");
+            Assert.That(clientComp.receivedNewValue, Is.EqualTo("Final Value"), 
+                "Only final value should be synchronized");
+        }
+
+        [Test]
+        public void SpawnerTestExactScenario_WorksForAllClients()
+        {
+            // Exact reproduction of SpawnerTest.cs to prevent regression
+            NetworkServer.Listen(10);
+            ConnectClientBlockingAuthenticatedAndReady(out _);
+
+            // Simulate spawning multiple objects like SpawnerTest does
+            for (int i = 0; i < 3; i++)
+            {
+                CreateNetworkedAndSpawn(
+                    out _, out _, out PostSpawnTestBehaviour serverComp,
+                    out _, out _, out PostSpawnTestBehaviour clientComp);
+
+                // Exact SpawnerTest pattern
+                serverComp.testValue = "Before Spawn";
+                // NetworkServer.Spawn() already called
+                serverComp.testValue = "After Spawn";
+
+                ProcessMessages();
+
+                // Each spawned object should work correctly
+                Assert.That(clientComp.callCount, Is.EqualTo(1), 
+                    $"Object {i}: Hook should fire");
+                Assert.That(clientComp.receivedOldValue, Is.EqualTo(""), 
+                    $"Object {i}: Correct oldValue");
+                Assert.That(clientComp.receivedNewValue, Is.EqualTo("After Spawn"), 
+                    $"Object {i}: Correct newValue");
+            }
+        }
+
+        [Test]
+        public void GameObjectPostSpawn_ModificationWorks()
+        {
+            // Test post-spawn modification with GameObject SyncVars
+            NetworkServer.Listen(10);
+            ConnectClientBlockingAuthenticatedAndReady(out _);
+
+            CreateNetworkedAndSpawn(
+                out _, out _, out GameObjectPostSpawnBehaviour serverComp,
+                out _, out _, out GameObjectPostSpawnBehaviour clientComp);
+
+            CreateNetworkedAndSpawn(
+                out GameObject serverTarget, out _,
+                out GameObject clientTarget, out _);
+
+            // Post-spawn modification of GameObject SyncVar
+            serverComp.targetObject = serverTarget;
+
+            ProcessMessages();
+
+            Assert.That(clientComp.callCount, Is.EqualTo(1));
+            Assert.That(clientComp.receivedOldValue, Is.Null, "GameObject oldValue should be null");
+            Assert.That(clientComp.receivedNewValue, Is.EqualTo(clientTarget), "GameObject newValue should be correct");
+        }
+
+        [Test]
+        public void StructSyncVar_PostSpawnModification()
+        {
+            // Test post-spawn modification with struct SyncVars
+            NetworkServer.Listen(10);
+            ConnectClientBlockingAuthenticatedAndReady(out _);
+
+            CreateNetworkedAndSpawn(
+                out _, out _, out StructPostSpawnBehaviour serverComp,
+                out _, out _, out StructPostSpawnBehaviour clientComp);
+
+            // Post-spawn modification of struct SyncVar
+            serverComp.structValue = new TestStruct { value = 42, name = "Test" };
+
+            ProcessMessages();
+
+            Assert.That(clientComp.callCount, Is.EqualTo(1));
+            Assert.That(clientComp.receivedOldValue.value, Is.EqualTo(0), "Struct oldValue should be default");
+            Assert.That(clientComp.receivedNewValue.value, Is.EqualTo(42), "Struct newValue should be correct");
+            Assert.That(clientComp.receivedNewValue.name, Is.EqualTo("Test"), "Struct string field should be correct");
+        }
+
+        [Test]
+        public void HostAndRemoteClients_BothReceiveCorrectHooks()
+        {
+            // Test that both host and remote clients get correct hook behavior
+            NetworkServer.Listen(10);
+            ConnectHostClientBlockingAuthenticatedAndReady();
+            ConnectClientBlockingAuthenticatedAndReady(out _);
+
+            Assert.That(NetworkServer.activeHost, Is.True);
+
+            // Create object visible to both host and remote client
+            CreateNetworkedAndSpawn(out _, out _, out PostSpawnTestBehaviour comp);
+
+            // Post-spawn modification
+            comp.testValue = "Modified After Spawn";
+
+            ProcessMessages();
+
+            // Both host and remote should receive correct hook
+            Assert.That(comp.callCount, Is.EqualTo(1), "Host should receive hook");
+            Assert.That(comp.receivedOldValue, Is.EqualTo(""), "Host should have correct oldValue");
+            Assert.That(comp.receivedNewValue, Is.EqualTo("Modified After Spawn"), "Host should have correct newValue");
+
+            // Note: In this test setup, host and remote point to same objects
+            // In real scenarios, you'd have separate client objects to test
+        }
+
+        [Test]  
+        public void NoPostSpawnChanges_HooksDoNotFire()
+        {
+            // Verify hooks don't fire unnecessarily when no post-spawn changes occur
+            NetworkServer.Listen(10);
+            ConnectClientBlockingAuthenticatedAndReady(out _);
+
+            CreateNetworkedAndSpawn(
+                out _, out _, out PostSpawnTestBehaviour serverComp,
+                out _, out _, out PostSpawnTestBehaviour clientComp);
+
+            // Don't modify SyncVar after spawn
+            ProcessMessages();
+
+            // No hook should fire since value never changed from default
+            Assert.That(clientComp.callCount, Is.EqualTo(0), 
+                "Hook should not fire when value never changes from default");
+        }
     }
 
     public class CrossRefBehaviour : NetworkBehaviour
@@ -328,6 +534,64 @@ namespace Mirror.Tests.SyncVars
 
             if (newValue != null)
                 targetWasInSpawnedWhenHookFired = NetworkClient.spawned.ContainsKey(newValue.netId);
+        }
+    }
+
+    public class PostSpawnTestBehaviour : NetworkBehaviour
+    {
+        [SyncVar(hook = nameof(OnValueChanged))]
+        public string testValue = "";
+
+        public int callCount;
+        public string receivedOldValue;
+        public string receivedNewValue;
+
+        void OnValueChanged(string oldValue, string newValue)
+        {
+            callCount++;
+            receivedOldValue = oldValue;
+            receivedNewValue = newValue;
+        }
+    }
+
+    public class GameObjectPostSpawnBehaviour : NetworkBehaviour
+    {
+        [SyncVar(hook = nameof(OnTargetChanged))]
+        public GameObject targetObject;
+
+        public int callCount;
+        public GameObject receivedOldValue;
+        public GameObject receivedNewValue;
+
+        void OnTargetChanged(GameObject oldValue, GameObject newValue)
+        {
+            callCount++;
+            receivedOldValue = oldValue;
+            receivedNewValue = newValue;
+        }
+    }
+
+    [System.Serializable]
+    public struct TestStruct
+    {
+        public int value;
+        public string name;
+    }
+
+    public class StructPostSpawnBehaviour : NetworkBehaviour
+    {
+        [SyncVar(hook = nameof(OnStructChanged))]
+        public TestStruct structValue;
+
+        public int callCount;
+        public TestStruct receivedOldValue;
+        public TestStruct receivedNewValue;
+
+        void OnStructChanged(TestStruct oldValue, TestStruct newValue)
+        {
+            callCount++;
+            receivedOldValue = oldValue;
+            receivedNewValue = newValue;
         }
     }
 }

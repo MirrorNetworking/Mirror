@@ -37,8 +37,8 @@ namespace Mirror.Weaver
         public MethodReference ActionT_T;
 
         public FieldReference hostModeOriginalValuesReference;
-        public MethodReference dictionaryClearReference;
-        public MethodReference dictionarySetItemReference;
+        public MethodReference clearHostModeOriginalValuesReference;
+        public MethodReference storeHostModeOriginalValueReference;
 
         // syncvar
         public MethodReference generatedSyncVarSetter;
@@ -103,9 +103,8 @@ namespace Mirror.Weaver
 
             hostModeOriginalValuesReference = Resolvers.ResolveField(NetworkBehaviourType, assembly, Log, "hostModeOriginalValues", ref WeavingFailed);
 
-            TypeReference dictionaryType = Import(typeof(Dictionary<,>)).MakeGenericInstanceType(Import<ulong>(), Import<object>());
-            dictionaryClearReference = Resolvers.ResolveMethod(dictionaryType, assembly, Log, "Clear", ref WeavingFailed);
-            dictionarySetItemReference = Resolvers.ResolveMethod(dictionaryType, assembly, Log, "set_Item", ref WeavingFailed);
+            clearHostModeOriginalValuesReference = Resolvers.ResolveMethod(NetworkBehaviourType, assembly, Log, "ClearHostModeOriginalValues", ref WeavingFailed);
+            storeHostModeOriginalValueReference = Resolvers.ResolveMethod(NetworkBehaviourType, assembly, Log, "StoreHostModeOriginalValue", ref WeavingFailed);
 
             NetworkBehaviourIsClientReference = Resolvers.ResolveMethod(NetworkBehaviourType, assembly, Log, "get_isClient", ref WeavingFailed);
             NetworkBehaviourIsServerReference = Resolvers.ResolveMethod(NetworkBehaviourType, assembly, Log, "get_isServer", ref WeavingFailed);
