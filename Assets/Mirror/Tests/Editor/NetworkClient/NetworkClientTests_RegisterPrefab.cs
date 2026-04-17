@@ -193,7 +193,7 @@ namespace Mirror.Tests.NetworkClients
             uint assetId = AssetIdForOverload(overload);
 
             NetworkClient.spawnHandlers.Add(assetId, x => null);
-            NetworkClient.unspawnHandlers.Add(assetId, x => {});
+            NetworkClient.unspawnHandlers.Add(assetId, x => { });
 
             string msg = OverloadWithHandler(overload)
                 ? $"Replacing existing spawnHandlers for prefab '{validPrefab.name}' with assetId '{assetId}'"
@@ -295,6 +295,133 @@ namespace Mirror.Tests.NetworkClients
             uint assetId = AssetIdForOverload(overload);
             LogAssert.Expect(LogType.Error, $"Can not Register null UnSpawnHandler for {assetId}");
             CallRegisterPrefab(validPrefab, overload, unspawnHandler: null);
+        }
+
+        [Test]
+        public void Prefab_ErrorWhenPrefabHasEmptyAssetId()
+        {
+            CreateNetworked(out GameObject go, out NetworkIdentity identity);
+            identity.sceneId = 0;
+
+            LogAssert.Expect(LogType.Error, $"Can not Register '{go.name}' because it had empty assetid. If this is a scene Object use RegisterSpawnHandler instead");
+            NetworkClient.RegisterPrefab(go);
+        }
+
+        [Test]
+        public void SpawnHandlerDelegate_ErrorWhenPrefabHasEmptyAssetId()
+        {
+            CreateNetworked(out GameObject go, out NetworkIdentity identity);
+            identity.sceneId = 0;
+
+            LogAssert.Expect(LogType.Error, $"Can not Register handler for '{go.name}' because it had empty assetid. If this is a scene Object use RegisterSpawnHandler instead");
+            NetworkClient.RegisterPrefab(go, msg => null, obj => { });
+        }
+
+        // ---- RegisterPrefab(prefab, newAssetId, SpawnHandlerDelegate, UnSpawnDelegate) ----
+        // These tests use real prefab assets (validPrefab / prefabWithChildren) rather than
+        // CreateNetworked objects, because prefab assets are immune to the deferred OnValidate
+        // that AssignSceneID's Undo.RecordObject schedules (the IsPrefab branch in SetupIDs
+        // forces sceneId = 0 and never calls AssignSceneID).
+        //
+        // The assetId conflict guard (check 4) requires identity.assetId == 0 OR == newAssetId.
+        // Since the assetId setter rejects 0 when the field is already non-zero, we set
+        // identity.assetId = anotherAssetId so both sides of the equality match and the guard
+        // is skipped. TearDown restores validPrefabNetworkIdentity.assetId automatically.
+
+        // Branch: identity.sceneId != 0 — returns before assigning the new assetId.
+        [Test]
+        public void SpawnHandlerDelegate_NewAssetId_ErrorForPrefabWithSceneId()
+        {
+            CreateNetworked(out GameObject go, out NetworkIdentity identity);
+            identity.sceneId = 20;
+
+            LogAssert.Expect(LogType.Error,
+                $"Can not Register '{go.name}' because it has a sceneId, make sure you are passing in the original prefab and not an instance in the scene.");
+
+            NetworkClient.RegisterPrefab(go, anotherAssetId, msg => null, obj => { });
+
+            Assert.That(NetworkClient.spawnHandlers.ContainsKey(anotherAssetId), Is.False);
+        }
+
+        // Branch: spawnHandler == null.
+        [Test]
+        public void SpawnHandlerDelegate_NewAssetId_ErrorWhenSpawnHandlerIsNull()
+        {
+            // assetId = anotherAssetId == newAssetId  →  conflict guard evaluates false and passes.
+            // TearDown restores validPrefabNetworkIdentity.assetId = validPrefabAssetId.
+            validPrefabNetworkIdentity.assetId = anotherAssetId;
+
+            LogAssert.Expect(LogType.Error, $"Can not Register null SpawnHandler for {anotherAssetId}");
+
+            NetworkClient.RegisterPrefab(validPrefab, anotherAssetId, (SpawnHandlerDelegate)null, obj => { });
+
+            Assert.That(NetworkClient.spawnHandlers.ContainsKey(anotherAssetId), Is.False);
+        }
+
+        // Branch: unspawnHandler == null.
+        [Test]
+        public void SpawnHandlerDelegate_NewAssetId_ErrorWhenUnspawnHandlerIsNull()
+        {
+            validPrefabNetworkIdentity.assetId = anotherAssetId;
+
+            LogAssert.Expect(LogType.Error, $"Can not Register null UnSpawnHandler for {anotherAssetId}");
+
+            NetworkClient.RegisterPrefab(validPrefab, anotherAssetId, msg => null, (UnSpawnDelegate)null);
+
+            Assert.That(NetworkClient.spawnHandlers.ContainsKey(anotherAssetId), Is.False);
+        }
+
+        // Branch: spawnHandlers already contains the assetId — logs warning then overwrites.
+        [Test]
+        public void SpawnHandlerDelegate_NewAssetId_WarningWhenHandlerAlreadyExists()
+        {
+            validPrefabNetworkIdentity.assetId = anotherAssetId;
+
+            NetworkClient.spawnHandlers[anotherAssetId] = x => null;
+            NetworkClient.unspawnHandlers[anotherAssetId] = x => { };
+
+            LogAssert.Expect(LogType.Warning,
+                $"Replacing existing spawnHandlers for prefab '{validPrefab.name}' with assetId '{anotherAssetId}'");
+
+            NetworkClient.RegisterPrefab(validPrefab, anotherAssetId, msg => null, obj => { });
+        }
+
+        // Branch: prefabs dictionary already contains the assetId — logs error then still registers handlers.
+        [Test]
+        public void SpawnHandlerDelegate_NewAssetId_ErrorWhenAssetIdAlreadyInPrefabsDict()
+        {
+            CreateNetworked(out GameObject existingGo, out _);
+            NetworkClient.prefabs[anotherAssetId] = existingGo;
+
+            validPrefabNetworkIdentity.assetId = anotherAssetId;
+
+            LogAssert.Expect(LogType.Error,
+                $"assetId '{anotherAssetId}' is already used by prefab '{existingGo.name}', unregister the prefab first before trying to add handler");
+
+            NetworkClient.RegisterPrefab(validPrefab, anotherAssetId, msg => null, obj => { });
+        }
+
+        // Branch: prefab has more than one NetworkIdentity component — logs error then still registers handlers.
+        [Test]
+        public void SpawnHandlerDelegate_NewAssetId_ErrorForMultipleNetworkIdentitiesInChildren()
+        {
+            // prefabWithChildren is a prefab asset (sceneId always 0).
+            // TearDown does not cover prefabWithChildren, so save and restore assetId manually.
+            NetworkIdentity identity = prefabWithChildren.GetComponent<NetworkIdentity>();
+            uint savedAssetId = identity.assetId;
+            identity.assetId = anotherAssetId;
+
+            try
+            {
+                LogAssert.Expect(LogType.Error,
+                    $"Prefab '{prefabWithChildren.name}' has multiple NetworkIdentity components. There should only be one NetworkIdentity on a prefab, and it must be on the root object.");
+
+                NetworkClient.RegisterPrefab(prefabWithChildren, anotherAssetId, msg => null, obj => { });
+            }
+            finally
+            {
+                identity.assetId = savedAssetId;
+            }
         }
     }
 }

@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using Mirror.Tests.EditorBehaviours.NetworkIdentities;
 using NUnit.Framework;
 using UnityEngine;
@@ -287,7 +288,7 @@ namespace Mirror.Tests.NetworkIdentities
             Utils.CreateLocalConnections(out LocalConnectionToClient owner, out LocalConnectionToServer clientConnection);
             owner.isReady = true;
 
-            // setup NetworkServer/Client connections so messages are handled
+            // setup NetworkServer/Client connections so messages are handling
             NetworkClient.connection = clientConnection;
             NetworkServer.connections[owner.connectionId] = owner;
 
@@ -653,5 +654,100 @@ namespace Mirror.Tests.NetworkIdentities
 
         [Test, Ignore("RpcTests do it already")]
         public void HandleRpc() {}
+
+        [Test]
+        public void Visibility_ForceHidden_PreventsObserverAdding()
+        {
+            // ForceHidden is NOT checked in AddObserver directly.
+            // It is checked in NetworkServer.RebuildObserversDefault.
+            // AddObserver is a low-level method that always adds regardless of visibility.
+            // This test verifies the correct layer handles the visibility check.
+
+            NetworkServer.Listen(1);
+            ConnectClientBlockingAuthenticatedAndReady(out NetworkConnectionToClient conn);
+
+            CreateNetworked(out GameObject go, out NetworkIdentity identity);
+            identity.visibility = Visibility.ForceHidden;
+
+            // AddObserver itself does NOT check visibility - it always adds
+            identity.OnStartServer();
+            identity.AddObserver(conn);
+            Assert.That(identity.observers.Count, Is.EqualTo(1),
+                "AddObserver is a low-level method and does not check Visibility itself");
+
+            // Clear to test the correct path
+            identity.ClearObservers();
+            Assert.That(identity.observers.Count, Is.EqualTo(0));
+
+            // The visibility check happens in RebuildObserversDefault via Spawn
+            // ForceHidden with no owner = no observers added at all
+            NetworkServer.Spawn(go); // no owner connection
+            Assert.That(identity.observers.Count, Is.EqualTo(0),
+                "ForceHidden with no owner should add zero observers via RebuildObservers");
+        }
+
+        [Test]
+        public void Visibility_ForceHidden_OwnerConnectionStillAdded()
+        {
+            // ForceHidden still adds the owner's connection as an observer
+            // so the owner can see their own object.
+            //
+            // IMPORTANT: owner must be passed to Spawn() directly.
+            // SpawnObject() unconditionally sets identity.connectionToClient = ownerConnection,
+            // so calling SetClientOwner() before Spawn() is overwritten by Spawn(go, null).
+
+            NetworkServer.Listen(1);
+            ConnectClientBlockingAuthenticatedAndReady(out NetworkConnectionToClient conn);
+
+            CreateNetworked(out GameObject go, out NetworkIdentity identity);
+            identity.visibility = Visibility.ForceHidden;
+
+            // Pass the owner connection directly to Spawn so SpawnObject sets it correctly
+            // before RebuildObservers is called internally
+            NetworkServer.Spawn(go, conn);
+
+            // Owner should be the only observer even when ForceHidden
+            Assert.That(identity.observers.Count, Is.EqualTo(1),
+                "ForceHidden should still add the owner connection as observer");
+            Assert.That(identity.observers.ContainsKey(conn.connectionId), Is.True,
+                "The owner connection should be the observer");
+        }
+
+        [Test]
+        public void Visibility_ForceShown_IgnoresInterestManagement()
+        {
+            // ForceShown bypasses interest management and adds ALL ready connections
+            NetworkServer.Listen(1);
+            ConnectClientBlockingAuthenticatedAndReady(out NetworkConnectionToClient conn);
+
+            CreateNetworked(out GameObject go, out NetworkIdentity identity);
+            identity.visibility = Visibility.ForceShown;
+
+            NetworkServer.Spawn(go);
+
+            // All ready connections should be added regardless of any AOI system
+            Assert.That(identity.observers.Count, Is.EqualTo(1),
+                "ForceShown should add all ready connections regardless of interest management");
+            Assert.That(identity.observers.ContainsKey(conn.connectionId), Is.True);
+        }
+
+        [Test]
+        public void Visibility_Default_UsesInterestManagement()
+        {
+            // Default visibility defers to the AOI system if one is set,
+            // or adds all connections if none is set
+            NetworkServer.Listen(1);
+            ConnectClientBlockingAuthenticatedAndReady(out NetworkConnectionToClient conn);
+
+            CreateNetworked(out GameObject go, out NetworkIdentity identity);
+            identity.visibility = Visibility.Default;
+
+            NetworkServer.Spawn(go);
+
+            // With no AOI system, Default adds all ready connections
+            Assert.That(identity.observers.Count, Is.EqualTo(1),
+                "Default visibility with no AOI should add all ready connections");
+            Assert.That(identity.observers.ContainsKey(conn.connectionId), Is.True);
+        }
     }
 }

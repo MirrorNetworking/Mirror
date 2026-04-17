@@ -70,7 +70,7 @@ namespace Mirror.RemoteCalls
         internal static ushort RegisterDelegate(Type componentType, string functionFullName, RemoteCallType remoteCallType, RemoteCallDelegate func, bool cmdRequiresAuthority = true)
         {
             // type+func so Inventory.RpcUse != Equipment.RpcUse
-            ushort hash = (ushort)(functionFullName.GetStableHashCode() & 0xFFFF);
+            ushort hash = functionFullName.GetStableHashCode16();
 
             if (CheckIfDelegateExists(componentType, remoteCallType, func, hash))
                 return hash;

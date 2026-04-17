@@ -511,8 +511,9 @@ namespace Mirror
         // for client's owned ClientToServer components.
         static void OnEntityStateMessageUnreliableDelta(NetworkConnectionToClient connection, EntityStateMessageUnreliableDelta message, int channelId)
         {
-            // safety check: baseline should always arrive over Reliable channel.
-            if (channelId != Channels.Unreliable)
+            // safety check: deltas should always arrive over Unreliable channel.
+            // WebGL forces all messages to Reliable, so don't flood errors or break for that platform.
+            if (!Utils.IsWebGL && channelId != Channels.Unreliable)
             {
                 Debug.LogError($"Server OnEntityStateMessageUnreliableDelta arrived on channel {channelId} instead of Unreliable. This should never happen!");
                 return;

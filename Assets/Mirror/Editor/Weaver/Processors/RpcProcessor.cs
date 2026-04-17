@@ -86,7 +86,7 @@ namespace Mirror.Weaver
             // otherwise each GetStableHash call requires O(N) complexity.
             // noticeable for long function names: 
             // https://github.com/MirrorNetworking/Mirror/issues/3375
-            worker.Emit(OpCodes.Ldc_I4, md.FullName.GetStableHashCode());
+            worker.Emit(OpCodes.Ldc_I4, md.FullName.GetStableHashCode16());
             // writer
             worker.Emit(OpCodes.Ldloc_0);
             worker.Emit(OpCodes.Ldc_I4, channel);

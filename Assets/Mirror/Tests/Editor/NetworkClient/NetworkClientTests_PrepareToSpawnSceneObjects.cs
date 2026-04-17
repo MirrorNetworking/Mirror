@@ -1,5 +1,6 @@
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.TestTools;
 
 namespace Mirror.Tests.NetworkClients
 {
@@ -33,7 +34,7 @@ namespace Mirror.Tests.NetworkClients
 
         // test for https://github.com/MirrorNetworking/Mirror/issues/3541
         [Test]
-        public void DoesAddActiveAndInactiveObjectsToDictionary()
+        public void AddsActiveAndInactiveObjectsToDictionary()
         {
             NetworkIdentity active = CreateSceneObject(30);
             NetworkIdentity inactive = CreateSceneObject(32);
@@ -61,6 +62,23 @@ namespace Mirror.Tests.NetworkClients
 
             Assert.IsTrue(NetworkClient.spawnableObjects.ContainsValue(hasId));
             Assert.IsFalse(NetworkClient.spawnableObjects.ContainsValue(noId));
+        }
+
+        [Test]
+        public void DoesNotAddAlreadySpawnedSceneObjects()
+        {
+            // Objects with a non-zero netId have already been spawned;
+            // PrepareToSpawnSceneObjects should skip them.
+            NetworkIdentity spawned = CreateSceneObject(70);
+            spawned.netId = 999; // simulate already-spawned
+
+            NetworkIdentity unspawned = CreateSceneObject(71);
+            // netId stays 0 (default)
+
+            NetworkClient.PrepareToSpawnSceneObjects();
+
+            Assert.IsFalse(NetworkClient.spawnableObjects.ContainsValue(spawned));
+            Assert.IsTrue(NetworkClient.spawnableObjects.ContainsValue(unspawned));
         }
 
         [Test]
@@ -100,6 +118,23 @@ namespace Mirror.Tests.NetworkClients
             Assert.That(NetworkClient.spawnableObjects, Has.Count.EqualTo(2));
             Assert.IsFalse(NetworkClient.spawnableObjects.ContainsValue(null));
             Assert.IsTrue(NetworkClient.spawnableObjects.ContainsValue(obj2));
+        }
+
+        [Test]
+        public void LogsWarningForDuplicateSceneId()
+        {
+            // Two objects with the same sceneId should trigger a warning;
+            // only the first one should be kept.
+            NetworkIdentity first  = CreateSceneObject(50);
+            NetworkIdentity second = CreateSceneObject(50); // duplicate!
+            first.gameObject.SetActive(false);
+            second.gameObject.SetActive(false);
+
+            LogAssert.Expect(LogType.Warning,
+                new System.Text.RegularExpressions.Regex("NetworkClient: Duplicate sceneId.*"));
+            NetworkClient.PrepareToSpawnSceneObjects();
+
+            Assert.That(NetworkClient.spawnableObjects, Has.Count.EqualTo(1));
         }
     }
 }

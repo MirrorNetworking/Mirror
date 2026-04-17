@@ -572,12 +572,95 @@ namespace Mirror.Tests.NetworkClients
             Assert.That(NetworkClient.localPlayer, Is.EqualTo(identity));
         }
 
-        [Flags]
-        public enum SpawnFinishedState
+        // ── OnObjectSpawnStarted / OnObjectSpawnFinished ──────────────────────
+
+        [Test]
+        public void OnObjectSpawnStarted_SetsIsSpawnFinishedFalse()
         {
-            isSpawnFinished = 1,
-            hasAuthority = 2,
-            isLocalPlayer = 4
+            NetworkClient.isSpawnFinished = true;
+            NetworkClient.OnObjectSpawnStarted(default);
+            Assert.That(NetworkClient.isSpawnFinished, Is.False);
+        }
+
+        [Test]
+        public void OnObjectSpawnFinished_SetsIsSpawnFinishedTrue()
+        {
+            NetworkClient.isSpawnFinished = false;
+            NetworkClient.OnObjectSpawnFinished(default);
+            Assert.That(NetworkClient.isSpawnFinished, Is.True);
+        }
+
+        [Test]
+        public void OnObjectSpawnFinished_InvokesStartClientOnSpawnedObjects()
+        {
+            CreateNetworked(out _, out NetworkIdentity identity, out BehaviourWithEvents behaviour);
+            identity.netId = 3000;
+            spawned[3000] = identity;
+
+            bool startClientCalled = false;
+            behaviour.OnStartClientCalled += () => startClientCalled = true;
+
+            NetworkClient.OnObjectSpawnFinished(default);
+
+            Assert.That(startClientCalled, Is.True);
+
+            // cleanup
+            spawned.Remove(3000);
+        }
+
+        [Test]
+        public void OnSpawn_DeferredWhenIsSpawnNotFinished()
+        {
+            NetworkClient.isSpawnFinished = false;
+
+            const uint netId = 5000;
+
+            // We must NOT use a registered prefab here. In edit mode, Unity does
+            // not call Awake() when Instantiating, so NetworkIdentity.NetworkBehaviours
+            // stays null and OnObjectSpawnFinished throws a NullReferenceException
+            // when it iterates that field at line 1351.
+            // Every other spawning test in this file uses CreateNetworked(), which
+            // calls identity.Awake() explicitly — we do the same via a spawn handler.
+            NetworkIdentity spawnedIdentity = null;
+            NetworkClient.spawnHandlers[validPrefabAssetId] = _ =>
+            {
+                CreateNetworked(out GameObject go, out NetworkIdentity ni);
+                spawnedIdentity = ni;
+                return go;
+            };
+
+            SpawnMessage msg = new SpawnMessage
+            {
+                netId    = netId,
+                assetId  = validPrefabAssetId,
+                rotation = Quaternion.identity,
+                scale    = Vector3.one,
+                isOwner  = true,    // ApplySpawnPayload sets identity.isOwned from this
+                payload  = default,
+            };
+
+            NetworkClient.OnSpawn(msg);
+
+            // Identity is registered in spawned immediately...
+            Assert.That(spawned.ContainsKey(netId), Is.True);
+
+            // ...but ApplySpawnPayload has been deferred: identity.netId and
+            // isOwned are still default — only ApplySpawnPayload sets them,
+            // not FindOrSpawnObject or the spawn handler.
+            Assert.That(spawnedIdentity.netId,   Is.EqualTo(0));
+            Assert.That(spawnedIdentity.isOwned, Is.False);
+
+            // Flush all pending spawns.
+            NetworkClient.OnObjectSpawnFinished(default);
+
+            // Now ApplySpawnPayload has run.
+            Assert.That(spawnedIdentity.netId,   Is.EqualTo(netId));
+            Assert.That(spawnedIdentity.isOwned, Is.True);
+
+            // Cleanup: TearDown calls spawned.Clear() then base.TearDown() which
+            // calls Shutdown() → DestroyAllClientObjects() on an empty spawned dict.
+            // The GameObject is tracked by instantiated (via CreateNetworked) and
+            // destroyed by DestroyImmediate there, so no manual cleanup needed.
         }
 
         [Test]

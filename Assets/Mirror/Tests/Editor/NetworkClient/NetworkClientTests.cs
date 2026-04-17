@@ -1,4 +1,5 @@
 using System;
+using System.Text.RegularExpressions;
 using NUnit.Framework;
 
 namespace Mirror.Tests.NetworkClients
@@ -10,7 +11,7 @@ namespace Mirror.Tests.NetworkClients
         {
             base.SetUp();
             // we need a server to connect to
-            NetworkServer.Listen(10);
+            Mirror.NetworkServer.Listen(10);
         }
 
         [Test]
@@ -31,15 +32,23 @@ namespace Mirror.Tests.NetworkClients
         }
 
         [Test]
+        public void ConnectString()
+        {
+            NetworkClient.Connect("127.0.0.1");
+            UpdateTransport();
+            Assert.That(NetworkClient.isConnected, Is.True);
+        }
+
+        [Test]
         public void DisconnectInHostMode()
         {
             NetworkClient.ConnectHost();
             Assert.That(NetworkClient.isConnected, Is.True);
-            Assert.That(NetworkServer.localConnection, !Is.Null);
+            Assert.That(Mirror.NetworkServer.localConnection, !Is.Null);
 
             NetworkClient.Disconnect();
             Assert.That(NetworkClient.isConnected, Is.False);
-            Assert.That(NetworkServer.localConnection, Is.Null);
+            Assert.That(Mirror.NetworkServer.localConnection, Is.Null);
         }
 
         [Test, Ignore("NetworkServerTest.SendClientToServerMessage does it already")]
@@ -93,15 +102,11 @@ namespace Mirror.Tests.NetworkClients
         [Test]
         public void OwnedObjects()
         {
-            // create a scene object and set inactive before spawning
-            // CreateNetworked(out GameObject go, out NetworkIdentity identity);
-
-            // listen & connect
-            NetworkServer.Listen(1);
+            // SetUp already called Listen(10) — no second Listen needed here.
             ConnectHostClientBlockingAuthenticatedAndReady();
 
             // spawn main player. should be added to .owned.
-            CreateNetworkedAndSpawnPlayer(out _, out NetworkIdentity player, NetworkServer.localConnection);
+            CreateNetworkedAndSpawnPlayer(out _, out NetworkIdentity player, Mirror.NetworkServer.localConnection);
             Assert.That(NetworkClient.connection.owned.Count, Is.EqualTo(1));
             Assert.That(NetworkClient.connection.owned.Contains(NetworkClient.localPlayer));
 
@@ -110,11 +115,11 @@ namespace Mirror.Tests.NetworkClients
             Assert.That(NetworkClient.connection.owned.Count, Is.EqualTo(1));
 
             // spawn an owned object. should add to client's .owned.
-            CreateNetworkedAndSpawn(out _, out NetworkIdentity pet, NetworkServer.localConnection);
+            CreateNetworkedAndSpawn(out _, out NetworkIdentity pet, Mirror.NetworkServer.localConnection);
             Assert.That(NetworkClient.connection.owned.Count, Is.EqualTo(2));
 
             // despawn should remove from .owned
-            NetworkServer.Destroy(pet.gameObject);
+            Mirror.NetworkServer.Destroy(pet.gameObject);
             ProcessMessages();
             Assert.That(NetworkClient.connection.owned.Count, Is.EqualTo(1));
             Assert.That(NetworkClient.connection.owned.Contains(NetworkClient.localPlayer));
@@ -156,8 +161,7 @@ namespace Mirror.Tests.NetworkClients
         [Test]
         public void ConnectHostResetsUnbatcher()
         {
-            // listen & connect host
-            NetworkServer.Listen(1);
+            // SetUp already called Listen(10) — no second Listen needed here.
             ConnectHostClientBlockingAuthenticatedAndReady();
 
             // add some data to unbatcher, disconnect.
@@ -166,13 +170,66 @@ namespace Mirror.Tests.NetworkClients
             byte[] data = new byte[]{1,2,3,4,5,6,7,8};
             NetworkClient.OnTransportData(new ArraySegment<byte>(data), Channels.Reliable);
             NetworkClient.Disconnect();
-            NetworkServer.DisconnectAll();
+            Mirror.NetworkServer.DisconnectAll();
             Assert.That(NetworkClient.unbatcher.BatchesCount, Is.EqualTo(1));
 
             // batches should be cleared when connecting again.
             // otherwise we would get invalid messages from last time.
             ConnectHostClientBlockingAuthenticatedAndReady();
             Assert.That(NetworkClient.unbatcher.BatchesCount, Is.EqualTo(0));
+        }
+
+        // ?? connectState / derived property coverage ?????????????????????????
+
+        [Test]
+        public void Active_TrueWhenConnecting()
+        {
+            NetworkClient.connectState = ConnectState.Connecting;
+            Assert.That(NetworkClient.active, Is.True);
+        }
+
+        [Test]
+        public void Active_TrueWhenConnected()
+        {
+            NetworkClient.ConnectHost();
+            Assert.That(NetworkClient.active, Is.True);
+        }
+
+        [Test]
+        public void Active_FalseWhenNone()
+        {
+            // default state after TearDown/before any connection
+            Assert.That(NetworkClient.active, Is.False);
+        }
+
+        [Test]
+        public void Active_FalseWhenDisconnecting()
+        {
+            NetworkClient.connectState = ConnectState.Disconnecting;
+            Assert.That(NetworkClient.active, Is.False);
+        }
+
+        [Test]
+        public void IsConnecting_TrueOnlyWhenConnectingState()
+        {
+            NetworkClient.connectState = ConnectState.Connecting;
+            Assert.That(NetworkClient.isConnecting, Is.True);
+            Assert.That(NetworkClient.isConnected, Is.False);
+        }
+
+        [Test]
+        public void ActiveHost_TrueInHostMode()
+        {
+            NetworkClient.ConnectHost();
+            Assert.That(NetworkClient.activeHost, Is.True);
+        }
+
+        [Test]
+        public void ActiveHost_FalseInRemoteMode()
+        {
+            NetworkClient.Connect("127.0.0.1");
+            UpdateTransport();
+            Assert.That(NetworkClient.activeHost, Is.False);
         }
     }
 }

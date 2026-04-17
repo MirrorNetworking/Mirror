@@ -16,8 +16,7 @@ jobs:
           - 2021.3.45f2
           - 2022.3.62f3
           - 2023.2.22f1
-          - 6000.0.67f1
-          - 6000.3.2f1
+          - 6000.4.1f1
 
     steps:
       - name: Checkout repository
@@ -67,7 +66,7 @@ jobs:
           path: CodeCoverage/
 
       - name: Upload coverage to Codecov
-        if: matrix.unityVersion == '6000.3.2f1'
+        if: matrix.unityVersion > '6000.4'
         uses: codecov/codecov-action@v4
         with:
           files: ./CodeCoverage/**/*.xml

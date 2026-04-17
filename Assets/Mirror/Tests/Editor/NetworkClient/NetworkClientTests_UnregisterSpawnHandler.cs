@@ -9,7 +9,8 @@ namespace Mirror.Tests.NetworkClients
         {
             NetworkClient.spawnHandlers.Add(validPrefabAssetId, new SpawnHandlerDelegate(x => null));
             NetworkClient.UnregisterSpawnHandler(validPrefabAssetId);
-            Assert.IsFalse(NetworkClient.unspawnHandlers.ContainsKey(validPrefabAssetId));
+            // was asserting unspawnHandlers by mistake — must check spawnHandlers
+            Assert.IsFalse(NetworkClient.spawnHandlers.ContainsKey(validPrefabAssetId));
         }
 
         [Test]
@@ -28,6 +29,5 @@ namespace Mirror.Tests.NetworkClients
             // Should not be removed
             Assert.IsTrue(NetworkClient.prefabs.ContainsKey(validPrefabAssetId));
         }
-
     }
 }

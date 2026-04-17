@@ -322,7 +322,8 @@ namespace Mirror
         public static event ClientAuthorityCallback clientAuthorityCallback;
 
         // hasSpawned should always be false before runtime
-        [SerializeField, HideInInspector] bool hasSpawned;
+        // internal so tests can set it to true to simulate already spawned objects.
+        [SerializeField, HideInInspector] internal bool hasSpawned;
         public bool SpawnedFromInstantiate { get; private set; }
 
         // NetworkBehaviour components are initialized in Awake once.
@@ -651,7 +652,7 @@ namespace Mirror
         // Note: Unity will Destroy all networked objects on Scene Change, so we
         // have to handle that here silently. That means we cannot have any
         // warning or logging in this method.
-        void OnDestroy()
+        internal void OnDestroy()
         {
             // Objects spawned from Instantiate are not allowed so are destroyed right away
             // we don't want to call NetworkServer.Destroy if this is the case
@@ -1187,8 +1188,13 @@ namespace Mirror
             if (ownerMaskUnreliableDelta != 0)    Compression.CompressVarUInt(ownerWriterUnreliableDelta, ownerMaskUnreliableDelta);
             if (observerMaskUnreliableDelta != 0) Compression.CompressVarUInt(observersWriterUnreliableDelta, observerMaskUnreliableDelta);
 
-            if (ownerMaskUnreliableBaseline != 0)    Compression.CompressVarUInt(ownerWriterUnreliableBaseline, ownerMaskUnreliableBaseline);
-            if (observerMaskUnreliableBaseline != 0) Compression.CompressVarUInt(observersWriterUnreliableBaseline, observerMaskUnreliableBaseline);
+            // only write baseline mask when actually sending a baseline.
+            // otherwise an orphaned 1-2 byte mask is written with no data following it.
+            if (unreliableBaseline)
+            {
+                if (ownerMaskUnreliableBaseline != 0) Compression.CompressVarUInt(ownerWriterUnreliableBaseline, ownerMaskUnreliableBaseline);
+                if (observerMaskUnreliableBaseline != 0) Compression.CompressVarUInt(observersWriterUnreliableBaseline, observerMaskUnreliableBaseline);
+            }
 
             // serialize all components
             // perf: only iterate if either dirty mask has dirty bits.
@@ -1354,7 +1360,6 @@ namespace Mirror
                         comp.Serialize(writerUnreliableBaseline, true);
 
                         // for unreliable components, only clear dirty bits after the reliable baseline.
-                        // unreliable deltas aren't guaranteed to be delivered, no point in clearing bits.
                         // -> don't clear sync time: that's for delta syncs.
                         comp.ClearAllDirtyBits(false);
                     }
@@ -1596,6 +1601,18 @@ namespace Mirror
             connectionToClient = conn;
         }
 
+        // Do not merge with RemoveClientAuthority
+        // This is called from NetworkConnectionToClient::DestroyOwnedObjects
+        // when a player disconnects to quietly remove ownerhip of scene objects
+        internal void RemoveClientOwner()
+        {
+            if (connectionToClient != null)
+            {
+                clientAuthorityCallback?.Invoke(connectionToClient, this, false);
+                connectionToClient = null;
+            }
+        }
+
         /// <summary>Removes ownership for an object.</summary>
         // Applies to objects that had authority set by AssignClientAuthority,
         // or NetworkServer.Spawn with a NetworkConnection parameter included.
@@ -1616,9 +1633,8 @@ namespace Mirror
 
             if (connectionToClient != null)
             {
-                clientAuthorityCallback?.Invoke(connectionToClient, this, false);
                 NetworkConnectionToClient previousOwner = connectionToClient;
-                connectionToClient = null;
+                RemoveClientOwner();
                 NetworkServer.SendChangeOwnerMessage(this, previousOwner);
             }
         }
@@ -1639,7 +1655,7 @@ namespace Mirror
         // Marks the identity for future reset, this is because we cant reset
         // the identity during destroy as people might want to be able to read
         // the members inside OnDestroy(), and we have no way of invoking reset
-        // after OnDestroy is called.
+        // after OnDestroy() is called.
         internal void ResetState()
         {
             hasSpawned = false;

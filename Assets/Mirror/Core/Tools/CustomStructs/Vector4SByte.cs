@@ -1,0 +1,123 @@
+#pragma warning disable CS0659 // 'Vector4SByte' overrides Object.Equals(object o) but does not override Object.GetHashCode()
+#pragma warning disable CS0661 // 'Vector4SByte' defines operator == or operator != but does not override Object.GetHashCode()
+
+// Vector4SByte by mischa (based on game engine project)
+using System;
+using System.Runtime.CompilerServices;
+
+namespace Mirror
+{
+    public struct Vector4SByte
+    {
+        public sbyte x;
+        public sbyte y;
+        public sbyte z;
+        public sbyte w;
+
+        public static readonly Vector4SByte zero = new Vector4SByte(0, 0, 0, 0);
+        public static readonly Vector4SByte one = new Vector4SByte(1, 1, 1, 1);
+
+        // constructor /////////////////////////////////////////////////////////
+        public Vector4SByte(sbyte x, sbyte y, sbyte z, sbyte w)
+        {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+            this.w = w;
+        }
+
+        // operators ///////////////////////////////////////////////////////////
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector4SByte operator +(Vector4SByte a, Vector4SByte b) =>
+            new Vector4SByte((sbyte)(a.x + b.x), (sbyte)(a.y + b.y), (sbyte)(a.z + b.z), (sbyte)(a.w + b.w));
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector4SByte operator -(Vector4SByte a, Vector4SByte b) =>
+            new Vector4SByte((sbyte)(a.x - b.x), (sbyte)(a.y - b.y), (sbyte)(a.z - b.z), (sbyte)(a.w - b.w));
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector4SByte operator -(Vector4SByte v) =>
+            new Vector4SByte((sbyte)-v.x, (sbyte)-v.y, (sbyte)-v.z, (sbyte)-v.w);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector4SByte operator *(Vector4SByte a, sbyte n) =>
+            new Vector4SByte((sbyte)(a.x * n), (sbyte)(a.y * n), (sbyte)(a.z * n), (sbyte)(a.w * n));
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector4SByte operator *(sbyte n, Vector4SByte a) =>
+            new Vector4SByte((sbyte)(a.x * n), (sbyte)(a.y * n), (sbyte)(a.z * n), (sbyte)(a.w * n));
+
+        // == returns true if exactly equal
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator ==(Vector4SByte a, Vector4SByte b) =>
+            a.x == b.x &&
+            a.y == b.y &&
+            a.z == b.z &&
+            a.w == b.w;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator !=(Vector4SByte a, Vector4SByte b) => !(a == b);
+
+        // [i] component index. useful for iterating all components etc.
+        public sbyte this[int index]
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get
+            {
+                switch (index)
+                {
+                    case 0: return x;
+                    case 1: return y;
+                    case 2: return z;
+                    case 3: return w;
+                    default: throw new IndexOutOfRangeException($"Vector4SByte[{index}] out of range.");
+                }
+            }
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            set
+            {
+                switch (index)
+                {
+                    case 0:
+                        x = value;
+                        break;
+                    case 1:
+                        y = value;
+                        break;
+                    case 2:
+                        z = value;
+                        break;
+                    case 3:
+                        w = value;
+                        break;
+                    default: throw new IndexOutOfRangeException($"Vector4SByte[{index}] out of range.");
+                }
+            }
+        }
+
+        // instance functions //////////////////////////////////////////////////
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override string ToString() => $"({x} {y} {z} {w})";
+
+        // equality ////////////////////////////////////////////////////////////
+        // implement Equals & HashCode explicitly for performance.
+        // calling .Equals (instead of "==") checks for exact equality.
+        // (API compatibility)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool Equals(Vector4SByte other) =>
+            x == other.x && y == other.y && z == other.z && w == other.w;
+
+        // Equals(object) can reuse Equals(Vector4SByte)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override bool Equals(object other) =>
+            other is Vector4SByte vector4 && Equals(vector4);
+
+#if UNITY_2021_3_OR_NEWER
+        // Unity 2019/2020 don't have HashCode.Combine yet.
+        // this is only to avoid reflection. without defining, it works too.
+        // default generated by rider
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override int GetHashCode() => HashCode.Combine(x, y, z, w);
+#endif
+    }
+}

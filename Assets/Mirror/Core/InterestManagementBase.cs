@@ -62,8 +62,7 @@ namespace Mirror
                 audio.enabled = visible;
 
             foreach (Canvas canvas in identity.GetComponentsInChildren<Canvas>())
-                if (canvas.renderMode == RenderMode.WorldSpace)
-                    canvas.enabled = visible;
+                canvas.enabled = visible;
 
             foreach (Terrain terrain in identity.GetComponentsInChildren<Terrain>())
             {
