@@ -593,19 +593,16 @@ namespace Mirror.Weaver
                 worker.Emit(OpCodes.Ldflda, syncVar);
             }
 
+            bool hasHook = syncVarHookDelegates.TryGetValue(syncVar, out (FieldDefinition hookDelegateField, MethodDefinition) value);
+
             // If a hook exists, then we need to load the hook delegate on the stack
             // The hook delegate is created once in the constructor and stored in an instance field
             // We load the delegate from this instance field to avoid instantiating a new delegate instance every time (drastically reduces allocations)
-            if(syncVarHookDelegates.TryGetValue(syncVar, out (FieldDefinition hookDelegateField, MethodDefinition) value))
+            if (hasHook)
             {
                 // A hook exists. Push this.hookDelegateField onto the stack
                 worker.Emit(OpCodes.Ldarg_0);
                 worker.Emit(OpCodes.Ldfld, value.hookDelegateField);
-            }
-            else
-            {
-                // No hook exists. Push 'null' as hook
-                worker.Emit(OpCodes.Ldnull);
             }
 
             // call GeneratedSyncVarDeserialize<T>.
@@ -620,7 +617,15 @@ namespace Mirror.Weaver
                 FieldDefinition netIdField = syncVarNetIds[syncVar];
                 worker.Emit(OpCodes.Ldarg_0);
                 worker.Emit(OpCodes.Ldflda, netIdField);
-                worker.Emit(OpCodes.Call, weaverTypes.generatedSyncVarDeserialize_GameObject);
+
+                if (hasHook)
+                {
+                    worker.Emit(OpCodes.Call, weaverTypes.generatedSyncVarDeserialize_GameObject);
+                }
+                else
+                {
+                    worker.Emit(OpCodes.Call, weaverTypes.generatedSyncVarDeserialize_GameObject_NoHook);
+                }
             }
             else if (syncVar.FieldType.Is<NetworkIdentity>())
             {
@@ -631,7 +636,15 @@ namespace Mirror.Weaver
                 FieldDefinition netIdField = syncVarNetIds[syncVar];
                 worker.Emit(OpCodes.Ldarg_0);
                 worker.Emit(OpCodes.Ldflda, netIdField);
-                worker.Emit(OpCodes.Call, weaverTypes.generatedSyncVarDeserialize_NetworkIdentity);
+
+                if (hasHook)
+                {
+                    worker.Emit(OpCodes.Call, weaverTypes.generatedSyncVarDeserialize_NetworkIdentity);
+                }
+                else
+                {
+                    worker.Emit(OpCodes.Call, weaverTypes.generatedSyncVarDeserialize_NetworkIdentity_NoHook);
+                }
             }
             // handle both NetworkBehaviour and inheritors.
             // fixes: https://github.com/MirrorNetworking/Mirror/issues/2939
@@ -646,8 +659,16 @@ namespace Mirror.Weaver
                 worker.Emit(OpCodes.Ldarg_0);
                 worker.Emit(OpCodes.Ldflda, netIdField);
                 // make generic version of GeneratedSyncVarSetter_NetworkBehaviour<T>
-                MethodReference getFunc = weaverTypes.generatedSyncVarDeserialize_NetworkBehaviour_T.MakeGeneric(assembly.MainModule, syncVar.FieldType);
-                worker.Emit(OpCodes.Call, getFunc);
+                if (hasHook)
+                {
+                    MethodReference getFunc = weaverTypes.generatedSyncVarDeserialize_NetworkBehaviour_T.MakeGeneric(assembly.MainModule, syncVar.FieldType);
+                    worker.Emit(OpCodes.Call, getFunc);
+                }
+                else
+                {
+                    MethodReference getFunc = weaverTypes.generatedSyncVarDeserialize_NetworkBehaviour_T_NoHook.MakeGeneric(assembly.MainModule, syncVar.FieldType);
+                    worker.Emit(OpCodes.Call, getFunc);
+                }
             }
             else
             {
@@ -668,8 +689,16 @@ namespace Mirror.Weaver
                 worker.Emit(OpCodes.Call, readFunc);
 
                 // make generic version of GeneratedSyncVarDeserialize<T>
-                MethodReference generic = weaverTypes.generatedSyncVarDeserialize.MakeGeneric(assembly.MainModule, syncVar.FieldType);
-                worker.Emit(OpCodes.Call, generic);
+                if (hasHook)
+                {
+                    MethodReference generic = weaverTypes.generatedSyncVarDeserialize.MakeGeneric(assembly.MainModule, syncVar.FieldType);
+                    worker.Emit(OpCodes.Call, generic);
+                }
+                else
+                {
+                    MethodReference generic = weaverTypes.generatedSyncVarDeserialize_NoHook.MakeGeneric(assembly.MainModule, syncVar.FieldType);
+                    worker.Emit(OpCodes.Call, generic);
+                }
             }
         }
 
