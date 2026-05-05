@@ -378,9 +378,7 @@ namespace Mirror
                     TKey capturedKey = key;
                     TValue capturedItem = item;
                     TValue capturedOld = oldItem;
-
-                    networkBehaviour.deferredSyncCollectionActions.Add(() =>
-                        InvokeActions(capturedOp, capturedKey, capturedItem, capturedOld));
+                    AddDeferredOperation(capturedOp, capturedKey, capturedItem, capturedOld);
                 }
                 else
                 {
@@ -388,6 +386,12 @@ namespace Mirror
                     InvokeActions(op, key, item, oldItem);
                 }
             }
+        }
+
+        void AddDeferredOperation(Operation capturedOp, TKey capturedKey, TValue capturedItem, TValue capturedOld)
+        {
+            networkBehaviour.deferredSyncCollectionActions.Add(() =>
+                InvokeActions(capturedOp, capturedKey, capturedItem, capturedOld));
         }
 
         void InvokeActions(Operation op, TKey key, TValue item, TValue oldItem)
