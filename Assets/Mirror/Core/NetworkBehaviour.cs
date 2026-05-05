@@ -832,7 +832,10 @@ namespace Mirror
                         // Capture values in closure for deferred execution
                         T capturedPrevious = previous;
                         T capturedNew = field;
-                        deferredSyncVarHooks.Add(() => OnChanged(capturedPrevious, capturedNew));
+
+                        // Anonymous method instance is instantiated upon entering the method containing it. 
+                        // Add deferred hook in nested method to avoid allocations when not deferring the hook.
+                        AddDeferredSyncVarHook(OnChanged, capturedPrevious, capturedNew);
                     }
                     else
                     {
@@ -841,6 +844,11 @@ namespace Mirror
                     }
                 }
             }
+        }
+
+        void AddDeferredSyncVarHook<T>(Action<T, T> hook, T capturedPrevious, T capturedNew)
+        {
+            deferredSyncVarHooks.Add(() => hook(capturedPrevious, capturedNew));
         }
 
         // move the [SyncVar] generated OnDeserialize C# to avoid much IL.
