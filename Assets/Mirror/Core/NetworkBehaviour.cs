@@ -843,11 +843,6 @@ namespace Mirror
             }
         }
 
-        public void GeneratedSyncVarDeserialize_NoHook<T>(ref T field, T value)
-        {
-            field = value;
-        }
-
         // move the [SyncVar] generated OnDeserialize C# to avoid much IL.
         //
         // before:
@@ -923,12 +918,6 @@ namespace Mirror
                     }
                 }
             }
-        }
-
-        public void GeneratedSyncVarDeserialize_GameObject_NoHook(ref GameObject field, NetworkReader reader, ref uint netIdField)
-        {
-            netIdField = reader.ReadUInt();
-            field = GetSyncVarGameObject(netIdField, ref field);
         }
 
         // move the [SyncVar] generated OnDeserialize C# to avoid much IL.
@@ -1009,12 +998,6 @@ namespace Mirror
             }
         }
 
-        public void GeneratedSyncVarDeserialize_NetworkIdentity_NoHook(ref NetworkIdentity field, NetworkReader reader, ref uint netIdField)
-        {
-            netIdField = reader.ReadUInt();
-            field = GetSyncVarNetworkIdentity(netIdField, ref field);
-        }
-
         // move the [SyncVar] generated OnDeserialize C# to avoid much IL.
         //
         // before:
@@ -1093,13 +1076,6 @@ namespace Mirror
                     }
                 }
             }
-        }
-
-        public void GeneratedSyncVarDeserialize_NetworkBehaviour_NoHook<T>(ref T field, NetworkReader reader, ref NetworkBehaviourSyncVar netIdField)
-            where T : NetworkBehaviour
-        {
-            netIdField = reader.ReadNetworkBehaviourSyncVar();
-            field = GetSyncVarNetworkBehaviour(netIdField, ref field);
         }
 
         // helper function for [SyncVar] NetworkIdentities.
