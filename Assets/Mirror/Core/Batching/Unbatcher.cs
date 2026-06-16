@@ -28,7 +28,7 @@ namespace Mirror
                 NetworkWriterPool.Return(writer);
             }
             // reset reader so it doesn't point to returned batch
-            reader.SetBuffer(new byte[0]);
+            reader.SetBuffer(Array.Empty<byte>());
         }
 
         // NetworkReader is only created once,
