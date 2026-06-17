@@ -18,6 +18,23 @@ namespace Mirror
 
         public int BatchesCount => batches.Count;
 
+        // clear all batches and return writers to pool.
+        // called when a malformed batch is detected or connection disconnects.
+        public void Clear()
+        {
+            while (batches.Count > 0)
+            {
+                NetworkWriterPooled writer = batches.Dequeue();
+                NetworkWriterPool.Return(writer);
+            }
+            // reset reader so it doesn't point to returned batch
+#if UNITY_2021_3_OR_NEWER
+            reader.SetBuffer(Array.Empty<byte>());
+#else
+            reader.SetBuffer(new ArraySegment<byte>(Array.Empty<byte>()));
+#endif
+        }
+
         // NetworkReader is only created once,
         // then pointed to the first batch.
         readonly NetworkReader reader = new NetworkReader(new byte[0]);
@@ -117,9 +134,14 @@ namespace Mirror
             // see Batcher.AddMessage comments for explanation.
             int size = (int)Compression.DecompressVarUInt(reader);
 
-            // validate size prefix, in case attackers send malicious data
+            // validate size prefix, in case attackers send malicious data.
+            // a size larger than remaining bytes means the batch is malformed.
+            // clear all batches and throw so the caller can disconnect.
             if (reader.Remaining < size)
-                return false;
+            {
+                Clear();
+                throw new InvalidOperationException($"GetNextMessage: malformed batch with message size {size} > remaining {reader.Remaining}. All batches cleared.");
+            }
 
             // return the message of size
             message = reader.ReadBytesSegment(size);

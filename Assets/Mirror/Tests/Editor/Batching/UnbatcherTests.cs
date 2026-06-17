@@ -133,5 +133,82 @@ namespace Mirror.Tests.Batching
             Assert.That(reader.ReadByte(), Is.EqualTo(0x04));
             Assert.That(remoteTimeStamp, Is.EqualTo(TimeStamp + 1));
         }
+
+        // malformed batch: message size prefix larger than remaining bytes.
+        // GetNextMessage should throw and clear all batches.
+        [Test]
+        public void GetNextMessage_MalformedBatch_SizeLargerThanRemaining()
+        {
+            // craft a batch with timestamp + varint size prefix claiming 1,000,000 bytes
+            // but only a few bytes actually remaining
+            NetworkWriter writer = new NetworkWriter();
+            writer.WriteDouble(TimeStamp);
+            Compression.CompressVarUInt(writer, 1000000); // claim 1M bytes
+            writer.WriteByte(0xFF); // but only 1 byte of data
+            byte[] batch = writer.ToArray();
+
+            unbatcher.AddBatch(new ArraySegment<byte>(batch));
+            Assert.That(unbatcher.BatchesCount, Is.EqualTo(1));
+
+            // GetNextMessage should throw InvalidOperationException
+            Assert.Throws<InvalidOperationException>(() =>
+            {
+                unbatcher.GetNextMessage(out _, out _);
+            });
+
+            // all batches should be cleared
+            Assert.That(unbatcher.BatchesCount, Is.EqualTo(0));
+        }
+
+        // malformed batch should not allow queue growth when repeated
+        [Test]
+        public void GetNextMessage_MalformedBatch_NoQueueGrowth()
+        {
+            // add multiple malformed batches
+            for (int i = 0; i < 10; i++)
+            {
+                NetworkWriter writer = new NetworkWriter();
+                writer.WriteDouble(TimeStamp);
+                Compression.CompressVarUInt(writer, 1000000);
+                writer.WriteByte(0xFF);
+                byte[] batch = writer.ToArray();
+
+                unbatcher.AddBatch(new ArraySegment<byte>(batch));
+
+                // each GetNextMessage should throw and clear
+                Assert.Throws<InvalidOperationException>(() =>
+                {
+                    unbatcher.GetNextMessage(out _, out _);
+                });
+
+                // batches should be cleared after each malformed batch
+                Assert.That(unbatcher.BatchesCount, Is.EqualTo(0));
+            }
+        }
+
+        [Test]
+        public void Clear()
+        {
+            // add batches
+            byte[] batch1 = BatcherTests.MakeBatch(TimeStamp, new byte[] {0x01, 0x02});
+            byte[] batch2 = BatcherTests.MakeBatch(TimeStamp + 1, new byte[] {0x03, 0x04});
+            unbatcher.AddBatch(new ArraySegment<byte>(batch1));
+            unbatcher.AddBatch(new ArraySegment<byte>(batch2));
+            Assert.That(unbatcher.BatchesCount, Is.EqualTo(2));
+
+            // clear should remove all batches
+            unbatcher.Clear();
+            Assert.That(unbatcher.BatchesCount, Is.EqualTo(0));
+
+            // should be able to add and read new batches after clear
+            byte[] batch3 = BatcherTests.MakeBatch(TimeStamp + 2, new byte[] {0x05, 0x06});
+            unbatcher.AddBatch(new ArraySegment<byte>(batch3));
+            bool result = unbatcher.GetNextMessage(out ArraySegment<byte> message, out double remoteTimeStamp);
+            Assert.That(result, Is.True);
+            NetworkReader reader = new NetworkReader(message);
+            Assert.That(reader.ReadByte(), Is.EqualTo(0x05));
+            Assert.That(reader.ReadByte(), Is.EqualTo(0x06));
+            Assert.That(remoteTimeStamp, Is.EqualTo(TimeStamp + 2));
+        }
     }
 }
