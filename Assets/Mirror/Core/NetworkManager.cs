@@ -38,10 +38,21 @@ namespace Mirror
         public bool editorAutoStart;
 
         [Header("Sync Settings")]
-        /// <summary>Server Update frequency, per second. Use around 60Hz for fast paced games like Counter-Strike to minimize latency. Use around 30Hz for games like WoW to minimize computations. Use around 1-10Hz for slow paced games like EVE.</summary>
-        [Tooltip("Server / Client send rate per second.\nUse 60-100Hz for fast paced games like Counter-Strike to minimize latency.\nUse around 30Hz for games like WoW to minimize computations.\nUse around 1-10Hz for slow paced games like EVE.")]
+        /// <summary>Send frequency in Hz for network snapshots/messages.</summary>
+        [Tooltip("Send rate in Hz for server/client snapshots and messages.")]
+        [Range(1, 60)]
+        public int sendRate = 30;
+
+        /// <summary>Server simulation frequency in Hz.</summary>
         [FormerlySerializedAs("serverTickRate")]
-        public int sendRate = 60;
+        [Tooltip("Tick rate in Hz for server simulation.\nSet this to match Send Rate, or set to 0 if not using NetworkTransform.")]
+        [Range (0, 60)]
+        public int tickRate = 30;
+
+        /// <summary>Ping/Pong frequency in Hz for RTT/prediction updates.</summary>
+        [Tooltip("Ping rate in Hz for RTT/prediction updates.\nSet to 0 to disable ping.\nCan be lower than Send Rate for games not using NetworkTransform.")]
+        [Range(1, 60)]
+        public int pingRate = 10;
 
         /// <summary> </summary>
         [Tooltip("Ocassionally send a full reliable state for unreliable components to delta compress against. This only applies to Components with SyncMethod=Unreliable.")]
@@ -176,10 +187,16 @@ namespace Mirror
         // virtual so that inheriting classes' OnValidate() can call base.OnValidate() too
         public virtual void OnValidate()
         {
-            // unreliable full send rate needs to be >= 0.
-            // we need to have something to delta compress against.
-            // it should also be <= sendRate otherwise there's no point.
-            unreliableBaselineRate = Mathf.Clamp(unreliableBaselineRate, 1, sendRate);
+            sendRate = Mathf.Max(sendRate, 0);
+            tickRate = Mathf.Max(tickRate, 0);
+            pingRate = Mathf.Max(pingRate, 0);
+
+            // tick rate should either match send rate or be disabled.
+            if (tickRate > 0) tickRate = sendRate;
+
+            // unreliable baseline depends on send rate.
+            // if send is disabled, baseline must be disabled too.
+            unreliableBaselineRate = sendRate == 0 ? 0 : Mathf.Clamp(unreliableBaselineRate, 1, sendRate);
 
             // always >= 0
             maxConnections = Mathf.Max(maxConnections, 0);
@@ -289,9 +306,15 @@ namespace Mirror
         // => all exposed settings should be applied at all times if NM exists.
         void ApplyConfiguration()
         {
-            NetworkServer.tickRate = sendRate;
+            NetworkServer.tickRate = tickRate;
+            NetworkServer.sendRate = sendRate;
+            NetworkClient.sendRate = sendRate;
+
             NetworkServer.unreliableBaselineRate = unreliableBaselineRate;
             NetworkServer.unreliableRedundancy = unreliableRedundancy;
+
+            NetworkTime.PingInterval = pingRate > 0 ? 1f / pingRate : 0f;
+
             NetworkClient.snapshotSettings = snapshotSettings;
             NetworkClient.connectionQualityInterval = evaluationInterval;
             NetworkClient.connectionQualityMethod = evaluationMethod;
@@ -686,7 +709,7 @@ namespace Mirror
         {
             if (Utils.IsHeadless())
             {
-                Application.targetFrameRate = sendRate;
+                Application.targetFrameRate = sendRate > 0 ? sendRate : -1;
                 // Debug.Log($"Server Tick Rate set to {Application.targetFrameRate} Hz.");
             }
         }
