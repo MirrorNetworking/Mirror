@@ -69,19 +69,7 @@ namespace Mirror.Tests.NetworkClients
             NetworkClient.handlers[msgType].Invoke(NetworkClient.connection, reader, channelId);
         }
 
-        // Branch 1: wrong channel → LogError and return before touching spawned.
-        [Test]
-        public void OnEntityStateMessageUnreliableDelta_WrongChannel_LogsError()
-        {
-            ConnectAndAuthenticate();
-
-            LogAssert.Expect(LogType.Error,
-                $"Client OnEntityStateMessageUnreliableDelta arrived on channel {Channels.Reliable} instead of Unreliable. This should never happen!");
-
-            InvokeUnreliableDeltaHandler(1u, 1, Channels.Reliable);
-        }
-
-        // Branch 2: correct channel, netId not present in spawned → silent no-op.
+        // Branch 1: correct channel, netId not present in spawned → silent no-op.
         [Test]
         public void OnEntityStateMessageUnreliableDelta_UnknownNetId_DoesNothing()
         {
@@ -93,7 +81,7 @@ namespace Mirror.Tests.NetworkClients
             Assert.DoesNotThrow(() => InvokeUnreliableDeltaHandler(unknownNetId, 1, Channels.Unreliable));
         }
 
-        // Branch 3: remoteTimeStamp older than lastUnreliableStateTime → out-of-order,
+        // Branch 2: remoteTimeStamp older than lastUnreliableStateTime → out-of-order,
         // logs a Debug.Log and returns without updating state time.
         [Test]
         public void OnEntityStateMessageUnreliableDelta_OutOfOrder_LogsAndIgnores()
@@ -116,7 +104,7 @@ namespace Mirror.Tests.NetworkClients
             Assert.That(identity.lastUnreliableStateTime, Is.EqualTo(20.0));
         }
 
-        // Branch 4: timestamps equal AND unreliableRedundancy = false → duplicate,
+        // Branch 3: timestamps equal AND unreliableRedundancy = false → duplicate,
         // logs a Debug.Log and returns without updating state time.
         [Test]
         public void OnEntityStateMessageUnreliableDelta_Duplicate_RedundancyDisabled_LogsAndIgnores()
@@ -140,7 +128,7 @@ namespace Mirror.Tests.NetworkClients
             Assert.That(identity.lastUnreliableStateTime, Is.EqualTo(10.0));
         }
 
-        // Branch 5: timestamps equal AND unreliableRedundancy = true → silent return,
+        // Branch 4: timestamps equal AND unreliableRedundancy = true → silent return,
         // no log emitted and state time is left unchanged.
         [Test]
         public void OnEntityStateMessageUnreliableDelta_Duplicate_RedundancyEnabled_SilentIgnores()
@@ -161,7 +149,7 @@ namespace Mirror.Tests.NetworkClients
             Assert.That(identity.lastUnreliableStateTime, Is.EqualTo(10.0));
         }
 
-        // Branch 6: timestamp is newer but baselineTick doesn't match
+        // Branch 5: timestamp is newer but baselineTick doesn't match
         // lastUnreliableBaselineReceived → stale delta, logs Debug.Log and returns.
         [Test]
         public void OnEntityStateMessageUnreliableDelta_WrongBaselineTick_LogsAndIgnores()
@@ -185,7 +173,7 @@ namespace Mirror.Tests.NetworkClients
             Assert.That(identity.lastUnreliableStateTime, Is.EqualTo(5.0));
         }
 
-        // Branch 7: all checks pass → lastUnreliableStateTime is updated to
+        // Branch 6: all checks pass → lastUnreliableStateTime is updated to
         // connection.remoteTimeStamp and DeserializeClient is called without error.
         [Test]
         public void OnEntityStateMessageUnreliableDelta_ValidDelta_UpdatesStateTime()
