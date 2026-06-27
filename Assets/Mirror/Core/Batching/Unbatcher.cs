@@ -132,18 +132,7 @@ namespace Mirror
 
             // read the size prefix as varint
             // see Batcher.AddMessage comments for explanation.
-            ulong rawSize = Compression.DecompressVarUInt(reader);
-
-            // protect against integer overflow: DecompressVarUInt returns
-            // ulong, casting values > int.MaxValue to int wraps to negative,
-            // which would bypass the reader.Remaining < size check below.
-            if (rawSize > int.MaxValue)
-            {
-                Clear();
-                throw new InvalidOperationException($"GetNextMessage: size prefix {rawSize} exceeds int.MaxValue. All batches cleared.");
-            }
-
-            int size = (int)rawSize;
+            int size = (int)Compression.DecompressVarUInt(reader);
 
             // validate size prefix, in case attackers send malicious data.
             // a size larger than remaining bytes means the batch is malformed.

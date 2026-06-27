@@ -325,15 +325,6 @@ namespace Mirror
             if (length == 0) return null;
             length -= 1;
 
-            // prevent allocation attacks with a reasonable limit.
-            //   server shouldn't allocate too much on client devices.
-            //   client shouldn't allocate too much on server in ClientToServer [SyncVar]s.
-            if (length > NetworkReader.AllocationLimit)
-            {
-                // throw EndOfStream for consistency with ReadBlittable when out of data
-                throw new EndOfStreamException($"NetworkReader attempted to allocate a HashSet<{typeof(T)}> with {length} elements, which is larger than the allowed limit of {NetworkReader.AllocationLimit}.");
-            }
-
             HashSet<T> result = new HashSet<T>();
             for (int i = 0; i < length; i++)
             {
