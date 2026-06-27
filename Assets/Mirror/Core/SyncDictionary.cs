@@ -321,16 +321,11 @@ namespace Mirror
 
         public bool Remove(KeyValuePair<TKey, TValue> item)
         {
-            // IDictionary contract: only remove if both key AND value match.
-            if (objects.TryGetValue(item.Key, out TValue value) &&
-                EqualityComparer<TValue>.Default.Equals(value, item.Value))
-            {
-                objects.Remove(item.Key);
+            bool result = objects.Remove(item.Key);
+            if (result)
                 AddOperation(Operation.OP_REMOVE, item.Key, item.Value, item.Value, true, true);
-                return true;
-            }
 
-            return false;
+            return result;
         }
 
         public void Clear()
