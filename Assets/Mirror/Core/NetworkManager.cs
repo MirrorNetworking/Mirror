@@ -225,6 +225,12 @@ namespace Mirror
             // Don't allow collision-destroyed second instance to continue.
             if (!InitializeSingleton()) return;
 
+            // auto-assign authenticator if one exists on this GameObject
+            if (authenticator == null)
+            {
+                authenticator = GetComponent<NetworkAuthenticator>();
+            }
+
             // Apply configuration in Awake once already
             ApplyConfiguration();
 
