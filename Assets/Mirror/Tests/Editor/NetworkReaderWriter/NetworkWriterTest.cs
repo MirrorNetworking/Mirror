@@ -1486,6 +1486,28 @@ namespace Mirror.Tests.NetworkReaderWriter
         }
 
         [Test]
+        [TestCase(20_000)]
+        [TestCase(int.MaxValue)]
+        [TestCase(int.MaxValue - 1)]
+        public void TestReadHashSet_LengthIsTooBig(int badLength)
+        {
+            // write a VarUInt length that exceeds AllocationLimit.
+            // ReadHashSet uses VarUInt with +1 offset (0=null, so actual length = value-1).
+            NetworkWriter writer = new NetworkWriter();
+            Compression.CompressVarUInt(writer, (ulong)badLength + 1);
+            int[] array = new int[testArraySize] { 1, 2, 3, 4 };
+            for (int i = 0; i < array.Length; i++)
+                writer.Write(array[i]);
+
+            // attempt to read it — should throw due to allocation limit
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+            Assert.Throws<EndOfStreamException>(() =>
+            {
+                _ = reader.ReadHashSet<int>();
+            });
+        }
+
+        [Test]
         public void TestNetworkBehaviour()
         {
             // create spawned because we will look up netId in .spawned
