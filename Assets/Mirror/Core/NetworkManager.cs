@@ -217,6 +217,19 @@ namespace Mirror
                     return;
                 }
             }
+
+#if UNITY_EDITOR
+            // auto-assign authenticator if one exists on this GameObject
+            if (authenticator == null)
+            {
+                NetworkAuthenticator auth = GetComponent<NetworkAuthenticator>();
+                if (auth != null)
+                {
+                    UnityEditor.Undo.RecordObject(this, "Assigned NetworkManager authenticator");
+                    authenticator = auth;
+                }
+            }
+#endif
         }
 
         // virtual so that inheriting classes' Awake() can call base.Awake() too
