@@ -112,15 +112,21 @@ namespace Mirror
             bool hostInitialSpawnInHostMode = NetworkServer.activeHost && networkBehaviour.netIdentity.hostInitialSpawn;
             bool shouldFireActions = shouldApplyChanges || hostInitialSpawnInHostMode;
 
-            // IMPORTANT: For ServerToClient mode, only fire Actions if object is visible to host client
-            // This prevents Actions from firing at spawn for objects out of AOI range
-            if (shouldFireActions && NetworkServer.activeHost && networkBehaviour.syncDirection == SyncDirection.ServerToClient)
-            {
-                shouldFireActions = NetworkClient.spawned.ContainsKey(networkBehaviour.netIdentity.netId);
-            }
-
             if (shouldFireActions)
             {
+                if (NetworkServer.activeHost &&
+                    networkBehaviour.syncDirection == SyncDirection.ServerToClient &&
+                    !networkBehaviour.IsHostClientObserved())
+                {
+                    Operation capturedOp = op;
+                    T capturedOld = oldItem;
+                    T capturedNew = newItem;
+
+                    networkBehaviour.deferredSyncCollectionActions.Add(() =>
+                        InvokeActions(capturedOp, capturedOld, capturedNew));
+                    return;
+                }
+
                 // Defer Actions during initial spawn on pure client to eliminate
                 // cross-object reference race conditions.  All objects will be in
                 // NetworkClient.spawned before any Actions fire.

@@ -1368,18 +1368,7 @@ namespace Mirror
                     // This ensures all objects are in spawned dictionary (cross-references work)
                     // and hooks fire in declaration order, before user OnStartClient logic runs.
                     foreach (NetworkBehaviour comp in identity.NetworkBehaviours)
-                    {
-                        foreach (Action hook in comp.deferredSyncVarHooks)
-                            hook?.Invoke();
-
-                        comp.deferredSyncVarHooks.Clear();
-
-                        // Invoke deferred SyncCollection Actions AFTER SyncVar hooks
-                        foreach (Action action in comp.deferredSyncCollectionActions)
-                            action?.Invoke();
-
-                        comp.deferredSyncCollectionActions.Clear();
-                    }
+                        comp.InvokeDeferredSyncCallbacks();
 
                     BootstrapIdentity(identity);
                 }
@@ -1441,6 +1430,9 @@ namespace Mirror
 
                 // Clear flag after deserialization
                 identity.hostInitialSpawn = false;
+
+                foreach (NetworkBehaviour comp in identity.NetworkBehaviours)
+                    comp.InvokeDeferredSyncCallbacks();
 
                 // Invoke callbacks after deserializing
                 InvokeIdentityCallbacks(identity);
