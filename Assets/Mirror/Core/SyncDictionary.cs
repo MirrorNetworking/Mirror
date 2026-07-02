@@ -376,7 +376,7 @@ namespace Mirror
                 }
 
                 // Defer Actions during initial spawn on pure client to eliminate
-                // cross-object reference race conditions.  All objects will be in
+                // cross-object reference race conditions. All objects will be in
                 // NetworkClient.spawned before any Actions fire.
                 if (NetworkClient.active && !NetworkServer.active && !NetworkClient.isSpawnFinished)
                 {
