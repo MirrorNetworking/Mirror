@@ -172,7 +172,7 @@ namespace Mirror
         // Actions are queued while the object isn't visible to the local client and invoked once it is.
         internal readonly List<Action> deferredSyncCollectionActions = new List<Action>();
 
-        protected bool IsHostClientObserved() =>
+        internal bool IsHostClientObserved() =>
             NetworkServer.activeHost &&
             NetworkServer.localConnection != null &&
             NetworkClient.localPlayer != null &&

@@ -763,11 +763,11 @@ namespace Mirror.Weaver
             serWorker.Append(serWorker.Create(OpCodes.Ldarg_2));
             serWorker.Append(serWorker.Create(OpCodes.Brfalse, initialStateLabel));
 
-            int initialDirtyBit = syncVarAccessLists.GetSyncVarStart(netBehaviourSubclass.BaseType.FullName);
+            int syncVarBitOffset = syncVarAccessLists.GetSyncVarStart(netBehaviourSubclass.BaseType.FullName);
             foreach (FieldDefinition syncVar in syncVars)
             {
-                DeserializeField(syncVar, serWorker, 1L << initialDirtyBit, ref WeavingFailed);
-                initialDirtyBit += 1;
+                DeserializeField(syncVar, serWorker, 1L << syncVarBitOffset, ref WeavingFailed);
+                syncVarBitOffset += 1;
             }
 
             serWorker.Append(serWorker.Create(OpCodes.Ret));
