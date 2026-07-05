@@ -368,10 +368,10 @@ namespace Mirror
                     Operation capturedOp = op;
                     TKey capturedKey = key;
                     TValue capturedOld = oldItem;
-                    TValue capturedNew = newItem;
+                    TValue capturedNew = item;
 
                     networkBehaviour.deferredSyncCollectionActions.Add(() =>
-                        InvokeActions(capturedOp, capturedKey, capturedOld, capturedNew));
+                        InvokeActions(capturedOp, capturedKey, capturedNew, capturedOld));
                     return;
                 }
 
