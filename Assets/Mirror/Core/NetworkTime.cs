@@ -118,6 +118,19 @@ namespace Mirror
         // TODO obsolete later. people shouldn't worry about this.
         public static double offset => localTime - time;
 
+        /// <summary>Server's Time.timeScale, synced to clients via pong messages.</summary>
+        // on server, this is simply Time.timeScale.
+        // on client, this is the last received value from the server.
+        // not applied to client's Time.timeScale yet, just synced.
+        public static float timeScale
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => NetworkServer.active
+                ? Time.timeScale
+                : _timeScale;
+        }
+        static float _timeScale = 1;
+
         /// <summary>Round trip time (in seconds) that it takes a message to go client->server->client.</summary>
         public static double rtt => _rtt.Value;
 
@@ -132,6 +145,7 @@ namespace Mirror
             PingInterval = DefaultPingInterval;
             lastPingTime = 0;
             _rtt = new ExponentialMovingAverage(PingWindowSize);
+            _timeScale = 1;
 #if !UNITY_2020_3_OR_NEWER
             stopwatch.Restart();
 #endif
@@ -181,7 +195,8 @@ namespace Mirror
             (
                 message.localTime,
                 unadjustedError,
-                adjustedError
+                adjustedError,
+                Time.timeScale
             );
             conn.Send(pongMessage, Channels.Unreliable);
         }
@@ -202,6 +217,7 @@ namespace Mirror
             // store adjusted prediction error for debug / GUI purposes
             _predictionErrorUnadjusted.Add(message.predictionErrorUnadjusted);
             predictionErrorAdjusted = message.predictionErrorAdjusted;
+            _timeScale = message.timeScale;
             // Debug.Log($"[Client] predictionError avg={(_predictionErrorUnadjusted.Value*1000):F1} ms");
         }
 
@@ -215,7 +231,8 @@ namespace Mirror
             NetworkPongMessage pongMessage = new NetworkPongMessage
             (
                 message.localTime,
-                0, 0 // server doesn't predict
+                0, 0, // server doesn't predict
+                Time.timeScale
             );
             NetworkClient.Send(pongMessage, Channels.Unreliable);
         }

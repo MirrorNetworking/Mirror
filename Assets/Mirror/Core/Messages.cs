@@ -209,11 +209,15 @@ namespace Mirror
         public double predictionErrorUnadjusted;
         public double predictionErrorAdjusted; // for debug purposes
 
-        public NetworkPongMessage(double localTime, double predictionErrorUnadjusted, double predictionErrorAdjusted)
+        // server's Time.timeScale, synced to clients
+        public float timeScale;
+
+        public NetworkPongMessage(double localTime, double predictionErrorUnadjusted, double predictionErrorAdjusted, float timeScale)
         {
             this.localTime = localTime;
             this.predictionErrorUnadjusted = predictionErrorUnadjusted;
             this.predictionErrorAdjusted = predictionErrorAdjusted;
+            this.timeScale = timeScale;
         }
     }
 }
