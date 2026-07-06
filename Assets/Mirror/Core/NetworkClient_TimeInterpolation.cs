@@ -202,10 +202,10 @@ namespace Mirror
                 // Debug.Log($"NetworkClient SnapshotInterpolation @ {localTimeline:F2} t={t:F2}");
             }
 
-            // scaled time: step with unscaledDeltaTime too (drift adjustment handles rate differences)
+            // scaled time: step with deltaTime to respect Time.timeScale
             if (snapshotsScaled.Count > 0)
             {
-                SnapshotInterpolation.StepTime(Time.unscaledDeltaTime, ref localTimelineScaled, localTimescaleScaled);
+                SnapshotInterpolation.StepTime(Time.deltaTime, ref localTimelineScaled, localTimescaleScaled);
                 SnapshotInterpolation.StepInterpolation(snapshotsScaled, localTimelineScaled, out _, out _, out double t);
             }
         }

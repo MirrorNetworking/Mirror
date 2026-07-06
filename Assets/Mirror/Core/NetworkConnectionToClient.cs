@@ -174,7 +174,7 @@ namespace Mirror
             // scaled time
             if (snapshotsScaled.Count > 0)
             {
-                SnapshotInterpolation.StepTime(Time.unscaledDeltaTime, ref remoteTimelineScaled, remoteTimescaleScaled);
+                SnapshotInterpolation.StepTime(Time.deltaTime, ref remoteTimelineScaled, remoteTimescaleScaled);
                 SnapshotInterpolation.StepInterpolation(snapshotsScaled, remoteTimelineScaled, out _, out _, out _);
             }
         }
