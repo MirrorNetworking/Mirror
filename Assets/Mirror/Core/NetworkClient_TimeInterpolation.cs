@@ -22,6 +22,7 @@ namespace Mirror
         public static double initialBufferTime => NetworkServer.sendInterval * snapshotSettings.bufferTimeMultiplier;
         public static double bufferTime        => NetworkServer.sendInterval * bufferTimeMultiplier;
 
+        // unscaled time ///////////////////////////////////////////////////////
         // <servertime, snaps>
         public static SortedList<double, TimeSnapshot> snapshots = new SortedList<double, TimeSnapshot>();
 
@@ -58,6 +59,15 @@ namespace Mirror
 
         static ExponentialMovingAverage deliveryTimeEma; // average delivery time (standard deviation gives average jitter)
 
+        // scaled time /////////////////////////////////////////////////////////
+        // parallel snapshot interpolation for Time.timeAsDouble (scaled time)
+        public static SortedList<double, TimeSnapshot> snapshotsScaled = new SortedList<double, TimeSnapshot>();
+        internal static double localTimelineScaled;
+        internal static double localTimescaleScaled = 1;
+        static ExponentialMovingAverage driftEmaScaled;
+        static ExponentialMovingAverage deliveryTimeEmaScaled;
+        public static double bufferTimeMultiplierScaled;
+
         // OnValidate: see NetworkClient.cs
         // add snapshot & initialize client interpolation time if needed
 
@@ -70,25 +80,38 @@ namespace Mirror
             localTimescale = 1;
             snapshots.Clear();
 
+            // scaled time
+            bufferTimeMultiplierScaled = snapshotSettings.bufferTimeMultiplier;
+            localTimelineScaled = 0;
+            localTimescaleScaled = 1;
+            snapshotsScaled.Clear();
+
             // initialize EMA with 'emaDuration' seconds worth of history.
             // 1 second holds 'sendRate' worth of values.
             // multiplied by emaDuration gives n-seconds.
             driftEma = new ExponentialMovingAverage(NetworkServer.sendRate * snapshotSettings.driftEmaDuration);
             deliveryTimeEma = new ExponentialMovingAverage(NetworkServer.sendRate * snapshotSettings.deliveryTimeEmaDuration);
+
+            // scaled time
+            driftEmaScaled = new ExponentialMovingAverage(NetworkServer.sendRate * snapshotSettings.driftEmaDuration);
+            deliveryTimeEmaScaled = new ExponentialMovingAverage(NetworkServer.sendRate * snapshotSettings.deliveryTimeEmaDuration);
         }
 
         // server sends TimeSnapshotMessage every sendInterval.
-        // batching already includes the remoteTimestamp.
-        // we simply insert it on-message here.
-        // => only for reliable channel. unreliable would always arrive earlier.
-        static void OnTimeSnapshotMessage(TimeSnapshotMessage _)
+        // batching already includes the remoteTimestamp (unscaled).
+        // the message also includes scaledTime.
+        // we insert both on-message here.
+        static void OnTimeSnapshotMessage(TimeSnapshotMessage message)
         {
-            // insert another snapshot for snapshot interpolation.
+            // insert snapshots for snapshot interpolation.
             // before calling OnDeserialize so components can use
-            // NetworkTime.time and NetworkTime.timeStamp.
+            // NetworkTime.time / NetworkTime.unscaledTime.
 
-            // Unity 2019 doesn't have Time.timeAsDouble yet
+            // unscaled time: from batch header (remoteTimeStamp)
             OnTimeSnapshot(new TimeSnapshot(connection.remoteTimeStamp, NetworkTime.localTime));
+
+            // scaled time: from message body
+            OnTimeSnapshotScaled(new TimeSnapshot(message.scaledTime, NetworkTime.localScaledTime));
         }
 
         // see comments at the top of this file
@@ -127,6 +150,38 @@ namespace Mirror
             // Debug.Log($"inserted TimeSnapshot remote={snap.remoteTime:F2} local={snap.localTime:F2} total={snapshots.Count}");
         }
 
+        // scaled time snapshot interpolation
+        public static void OnTimeSnapshotScaled(TimeSnapshot snap)
+        {
+            // (optional) dynamic adjustment
+            if (snapshotSettings.dynamicAdjustment)
+            {
+                bufferTimeMultiplierScaled = SnapshotInterpolation.DynamicAdjustment(
+                    NetworkServer.sendInterval,
+                    deliveryTimeEmaScaled.StandardDeviation,
+                    snapshotSettings.dynamicAdjustmentTolerance
+                );
+            }
+
+            double bufferTimeScaled = NetworkServer.sendInterval * bufferTimeMultiplierScaled;
+
+            // insert into the buffer & initialize / adjust / catchup
+            SnapshotInterpolation.InsertAndAdjust(
+                snapshotsScaled,
+                snapshotSettings.bufferLimit,
+                snap,
+                ref localTimelineScaled,
+                ref localTimescaleScaled,
+                NetworkServer.sendInterval,
+                bufferTimeScaled,
+                snapshotSettings.catchupSpeed,
+                snapshotSettings.slowdownSpeed,
+                ref driftEmaScaled,
+                snapshotSettings.catchupNegativeThreshold,
+                snapshotSettings.catchupPositiveThreshold,
+                ref deliveryTimeEmaScaled);
+        }
+
         // call this from early update, so the timeline is safe to use in update
         static void UpdateTimeInterpolation()
         {
@@ -145,6 +200,13 @@ namespace Mirror
                 // this is merely to keep removing older snapshots.
                 SnapshotInterpolation.StepInterpolation(snapshots, localTimeline, out _, out _, out double t);
                 // Debug.Log($"NetworkClient SnapshotInterpolation @ {localTimeline:F2} t={t:F2}");
+            }
+
+            // scaled time: step with unscaledDeltaTime too (drift adjustment handles rate differences)
+            if (snapshotsScaled.Count > 0)
+            {
+                SnapshotInterpolation.StepTime(Time.unscaledDeltaTime, ref localTimelineScaled, localTimescaleScaled);
+                SnapshotInterpolation.StepInterpolation(snapshotsScaled, localTimelineScaled, out _, out _, out double t);
             }
         }
     }

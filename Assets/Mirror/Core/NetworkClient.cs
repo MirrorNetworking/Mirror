@@ -472,6 +472,8 @@ namespace Mirror
             ready = false;
             snapshots.Clear();
             localTimeline = 0;
+            snapshotsScaled.Clear();
+            localTimelineScaled = 0;
 
             // now that everything was handled, clear the connection.
             // previously this was done in Disconnect() already, but we still
@@ -1742,9 +1744,9 @@ namespace Mirror
             {
                 // only recalculate every few seconds
                 // we don't want to fire Good->Bad->Good->Bad dozens of times per second.
-                if (connectionQualityInterval > 0 && NetworkTime.time > lastConnectionQualityUpdate + connectionQualityInterval)
+                if (connectionQualityInterval > 0 && NetworkTime.unscaledTime > lastConnectionQualityUpdate + connectionQualityInterval)
                 {
-                    lastConnectionQualityUpdate = NetworkTime.time;
+                    lastConnectionQualityUpdate = NetworkTime.unscaledTime;
 
                     switch (connectionQualityMethod)
                     {
@@ -1805,7 +1807,7 @@ namespace Mirror
             if (NetworkServer.active) return;
 
             // send time snapshot every sendInterval.
-            Send(new TimeSnapshotMessage(), Channels.Unreliable);
+            Send(new TimeSnapshotMessage { scaledTime = NetworkTime.localScaledTime }, Channels.Unreliable);
 
             // broadcast client state to server
             BroadcastToServer(unreliableBaselineElapsed);

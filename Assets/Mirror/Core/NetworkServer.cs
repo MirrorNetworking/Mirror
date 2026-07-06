@@ -582,25 +582,24 @@ namespace Mirror
         }
 
         // client sends TimeSnapshotMessage every sendInterval.
-        // batching already includes the remoteTimestamp.
-        // we simply insert it on-message here.
-        // => only for reliable channel. unreliable would always arrive earlier.
-        static void OnTimeSnapshotMessage(NetworkConnectionToClient connection, TimeSnapshotMessage _)
+        // batching already includes the remoteTimestamp (unscaled).
+        // the message also includes scaledTime.
+        // we insert both on-message here.
+        static void OnTimeSnapshotMessage(NetworkConnectionToClient connection, TimeSnapshotMessage message)
         {
-            // insert another snapshot for snapshot interpolation.
+            // insert snapshots for snapshot interpolation.
             // before calling OnDeserialize so components can use
-            // NetworkTime.time and NetworkTime.timeStamp.
+            // NetworkTime.time / NetworkTime.unscaledTime.
 
             // TODO validation?
             // maybe we shouldn't allow timeline to deviate more than a certain %.
             // for now, this is only used for client authority movement.
 
-            // Unity 2019 doesn't have Time.timeAsDouble yet
-            //
-            // NetworkTime uses unscaled time and ignores Time.timeScale.
-            // fixes Time.timeScale getting server & client time out of sync:
-            // https://github.com/MirrorNetworking/Mirror/issues/3409
+            // unscaled time: from batch header (remoteTimeStamp)
             connection.OnTimeSnapshot(new TimeSnapshot(connection.remoteTimeStamp, NetworkTime.localTime));
+
+            // scaled time: from message body
+            connection.OnTimeSnapshotScaled(new TimeSnapshot(message.scaledTime, NetworkTime.localScaledTime));
         }
 
         // connections /////////////////////////////////////////////////////////
@@ -2293,7 +2292,7 @@ namespace Mirror
                     // make sure Broadcast() is only called every sendInterval,
                     // even if targetFrameRate isn't set in host mode (!)
                     // (done via AccurateInterval)
-                    connection.Send(new TimeSnapshotMessage(), Channels.Unreliable);
+                    connection.Send(new TimeSnapshotMessage { scaledTime = NetworkTime.localScaledTime }, Channels.Unreliable);
 
                     // broadcast world state to this connection
                     BroadcastToConnection(connection, unreliableBaselineElapsed);
