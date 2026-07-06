@@ -1119,6 +1119,7 @@ namespace Mirror
             if (NetworkServer.localConnection == null || localPlayer == null)
                 return;
 
+            // Hooks may change visibility/ownership, so iterate a snapshot.
             List<NetworkIdentity> observed = new List<NetworkIdentity>(NetworkServer.localConnection.observing);
             foreach (NetworkIdentity identity in observed)
             {
