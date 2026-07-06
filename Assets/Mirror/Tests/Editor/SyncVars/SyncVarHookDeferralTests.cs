@@ -126,8 +126,16 @@ namespace Mirror.Tests.SyncVars
             comp2.target = identity3;
             comp3.target = comp1.netIdentity;
 
-            // In host mode, pre-spawn setter changes are deferred until the object
-            // is visible to the local host client and then flushed exactly once.
+            // In host mode, setter changes are deferred until the object is
+            // visible to the local host client.
+            Assert.That(comp1.callCount, Is.EqualTo(0));
+            Assert.That(comp2.callCount, Is.EqualTo(0));
+            Assert.That(comp3.callCount, Is.EqualTo(0));
+
+            // Add a local player so the host client can observe the objects.
+            CreateNetworkedAndSpawnPlayer(out _, out _, NetworkServer.localConnection);
+
+            // Once visible, each deferred hook should flush exactly once.
             Assert.That(comp1.callCount, Is.EqualTo(1));
             Assert.That(comp2.callCount, Is.EqualTo(1));
             Assert.That(comp3.callCount, Is.EqualTo(1));
