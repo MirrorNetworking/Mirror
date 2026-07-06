@@ -1092,6 +1092,8 @@ namespace Mirror
         {
             //Debug.Log("NetworkClient.InternalAddPlayer");
 
+            bool hadLocalPlayer = localPlayer != null;
+
             // NOTE: It can be "normal" when changing scenes for the player to be destroyed and recreated.
             // But, the player structures are not cleaned up, we'll just replace the old player
             localPlayer = identity;
@@ -1107,6 +1109,50 @@ namespace Mirror
                 connection.identity = identity;
             }
             else Debug.LogWarning("NetworkClient can't AddPlayer before being ready. Please call NetworkClient.Ready() first. Clients are considered ready after joining the game world.");
+
+            if (NetworkServer.activeHost && !hadLocalPlayer)
+                FlushHostVisibilityDeferredCallbacks();
+        }
+
+        static void FlushHostVisibilityDeferredCallbacks()
+        {
+            if (NetworkServer.localConnection == null || localPlayer == null)
+                return;
+
+            List<NetworkIdentity> observed = new List<NetworkIdentity>(NetworkServer.localConnection.observing);
+            foreach (NetworkIdentity identity in observed)
+            {
+                if (identity == null || !spawned.ContainsKey(identity.netId))
+                    continue;
+
+                identity.hostInitialSpawn = true;
+                try
+                {
+                    using (NetworkWriterPooled ownerWriter = NetworkWriterPool.Get(), observersWriter = NetworkWriterPool.Get())
+                    {
+                        identity.SerializeServer_Spawn(ownerWriter, observersWriter);
+
+                        ArraySegment<byte> payload = identity.connectionToClient == NetworkServer.localConnection
+                            ? ownerWriter.ToArraySegment()
+                            : observersWriter.ToArraySegment();
+
+                        if (payload.Count > 0)
+                        {
+                            using (NetworkReaderPooled payloadReader = NetworkReaderPool.Get(payload))
+                            {
+                                identity.DeserializeClient(payloadReader, true);
+                            }
+                        }
+                    }
+
+                    foreach (NetworkBehaviour comp in identity.NetworkBehaviours)
+                        comp.InvokeDeferredSyncCallbacks();
+                }
+                finally
+                {
+                    identity.hostInitialSpawn = false;
+                }
+            }
         }
 
         /// <summary>Sends AddPlayer message to the server, indicating that we want to join the world.</summary>
