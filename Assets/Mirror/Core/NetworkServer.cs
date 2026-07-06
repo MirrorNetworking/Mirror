@@ -584,10 +584,10 @@ namespace Mirror
         // client sends TimeSnapshotMessage every sendInterval.
         // batching already includes the remoteTimestamp (unscaled).
         // the message also includes scaledTime.
-        // we insert both on-message here.
+        // both are stored in a single snapshot for interpolation.
         static void OnTimeSnapshotMessage(NetworkConnectionToClient connection, TimeSnapshotMessage message)
         {
-            // insert snapshots for snapshot interpolation.
+            // insert snapshot for snapshot interpolation.
             // before calling OnDeserialize so components can use
             // NetworkTime.time / NetworkTime.unscaledTime.
 
@@ -596,10 +596,8 @@ namespace Mirror
             // for now, this is only used for client authority movement.
 
             // unscaled time: from batch header (remoteTimeStamp)
-            connection.OnTimeSnapshot(new TimeSnapshot(connection.remoteTimeStamp, NetworkTime.localTime));
-
             // scaled time: from message body
-            connection.OnTimeSnapshotScaled(new TimeSnapshot(message.scaledTime, NetworkTime.localScaledTime));
+            connection.OnTimeSnapshot(new TimeSnapshot(connection.remoteTimeStamp, NetworkTime.localTime, message.scaledTime));
         }
 
         // connections /////////////////////////////////////////////////////////

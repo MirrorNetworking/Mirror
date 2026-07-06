@@ -44,14 +44,9 @@ namespace Mirror
         // <clienttime, snaps>
         readonly SortedList<double, TimeSnapshot> snapshots = new SortedList<double, TimeSnapshot>();
 
-        // scaled time: parallel snapshot interpolation
-        ExponentialMovingAverage driftEmaScaled;
-        ExponentialMovingAverage deliveryTimeEmaScaled;
+        // scaled time: derived from single pipeline interpolation.
+        // no separate buffer/EMA needed since network conditions are the same.
         public double remoteTimelineScaled;
-        public double remoteTimescaleScaled;
-        double bufferTimeMultiplierScaled = 2;
-        double bufferTimeScaled => NetworkServer.sendInterval * bufferTimeMultiplierScaled;
-        readonly SortedList<double, TimeSnapshot> snapshotsScaled = new SortedList<double, TimeSnapshot>();
 
         // Snapshot Buffer size limit to avoid ever growing list memory consumption attacks from clients.
         public int snapshotBufferSizeLimit = 64;
@@ -76,10 +71,6 @@ namespace Mirror
             // multiplied by emaDuration gives n-seconds.
             driftEma = new ExponentialMovingAverage(NetworkServer.sendRate * NetworkClient.snapshotSettings.driftEmaDuration);
             deliveryTimeEma = new ExponentialMovingAverage(NetworkServer.sendRate * NetworkClient.snapshotSettings.deliveryTimeEmaDuration);
-
-            // scaled time
-            driftEmaScaled = new ExponentialMovingAverage(NetworkServer.sendRate * NetworkClient.snapshotSettings.driftEmaDuration);
-            deliveryTimeEmaScaled = new ExponentialMovingAverage(NetworkServer.sendRate * NetworkClient.snapshotSettings.deliveryTimeEmaDuration);
 
             // buffer limit should be at least multiplier to have enough in there
             snapshotBufferSizeLimit = Mathf.Max((int)NetworkClient.snapshotSettings.bufferTimeMultiplier, snapshotBufferSizeLimit);
@@ -123,39 +114,6 @@ namespace Mirror
             );
         }
 
-        public void OnTimeSnapshotScaled(TimeSnapshot snapshot)
-        {
-            // protect against ever growing buffer size attacks
-            if (snapshotsScaled.Count >= snapshotBufferSizeLimit) return;
-
-            // (optional) dynamic adjustment
-            if (NetworkClient.snapshotSettings.dynamicAdjustment)
-            {
-                bufferTimeMultiplierScaled = SnapshotInterpolation.DynamicAdjustment(
-                    NetworkServer.sendInterval,
-                    deliveryTimeEmaScaled.StandardDeviation,
-                    NetworkClient.snapshotSettings.dynamicAdjustmentTolerance
-                );
-            }
-
-            // insert into the server buffer & initialize / adjust / catchup
-            SnapshotInterpolation.InsertAndAdjust(
-                snapshotsScaled,
-                NetworkClient.snapshotSettings.bufferLimit,
-                snapshot,
-                ref remoteTimelineScaled,
-                ref remoteTimescaleScaled,
-                NetworkServer.sendInterval,
-                bufferTimeScaled,
-                NetworkClient.snapshotSettings.catchupSpeed,
-                NetworkClient.snapshotSettings.slowdownSpeed,
-                ref driftEmaScaled,
-                NetworkClient.snapshotSettings.catchupNegativeThreshold,
-                NetworkClient.snapshotSettings.catchupPositiveThreshold,
-                ref deliveryTimeEmaScaled
-            );
-        }
-
         public void UpdateTimeInterpolation()
         {
             // timeline starts when the first snapshot arrives.
@@ -167,15 +125,11 @@ namespace Mirror
                 // progress local interpolation.
                 // TimeSnapshot doesn't interpolate anything.
                 // this is merely to keep removing older snapshots.
-                SnapshotInterpolation.StepInterpolation(snapshots, remoteTimeline, out _, out _, out _);
+                SnapshotInterpolation.StepInterpolation(snapshots, remoteTimeline, out TimeSnapshot from, out TimeSnapshot to, out double t);
                 // Debug.Log($"NetworkClient SnapshotInterpolation @ {localTimeline:F2} t={t:F2}");
-            }
 
-            // scaled time
-            if (snapshotsScaled.Count > 0)
-            {
-                SnapshotInterpolation.StepTime(Time.deltaTime, ref remoteTimelineScaled, remoteTimescaleScaled);
-                SnapshotInterpolation.StepInterpolation(snapshotsScaled, remoteTimelineScaled, out _, out _, out _);
+                // derive scaled time from the same interpolation factor.
+                remoteTimelineScaled = Mathd.LerpUnclamped(from.remoteScaledTime, to.remoteScaledTime, t);
             }
         }
 

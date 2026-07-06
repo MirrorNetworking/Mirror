@@ -472,7 +472,6 @@ namespace Mirror
             ready = false;
             snapshots.Clear();
             localTimeline = 0;
-            snapshotsScaled.Clear();
             localTimelineScaled = 0;
 
             // now that everything was handled, clear the connection.
