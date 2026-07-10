@@ -66,6 +66,11 @@ namespace Mirror
         Styles _styles;
         Styles styles => _styles ?? (_styles = new Styles());
 
+        public override void Cleanup()
+        {
+            base.Cleanup();
+        }
+
         public override GUIContent GetPreviewTitle()
         {
             if (title == null)
