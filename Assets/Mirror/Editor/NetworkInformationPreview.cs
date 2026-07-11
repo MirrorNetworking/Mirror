@@ -61,10 +61,6 @@ namespace Mirror
 
         GUIContent title;
 
-        // Fix Unity error:
-        // "Mirror.NetworkInformationPreview was not disposed properly. Make sure that base.Cleanup is called"
-        void OnDisable() => base.Cleanup();
-
         // Lazy-init fixes NullReferenceException from Styles.labelStyle accessing EditorStyles.label before unity initialises EditorStyles.s_Current
         // https://github.com/MirrorNetworking/Mirror/pull/4034
         Styles _styles;
@@ -307,5 +303,9 @@ namespace Mirror
                 value = new GUIContent((value ? "Yes" : "No"))
             };
         }
+
+        // Fix Unity error:
+        // "Mirror.NetworkInformationPreview was not disposed properly. Make sure that base.Cleanup is called"
+        void OnDisable() => base.Cleanup();
     }
 }
