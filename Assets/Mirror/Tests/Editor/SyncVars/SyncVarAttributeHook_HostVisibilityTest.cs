@@ -169,7 +169,7 @@ namespace Mirror.Tests.SyncVars
 
             RebuildLocalObserver(identity, Vector3.zero);
             AssertObserved(identity, true);
-            Assert.That(behaviour.hookValues, Is.EqualTo(new[] { (42, 100) }));
+            Assert.That(behaviour.hookValues, Is.EqualTo(new[] { (42, 200) }));
         }
     }
 }

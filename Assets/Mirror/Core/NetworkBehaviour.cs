@@ -180,8 +180,19 @@ namespace Mirror
 
         internal bool ShouldCaptureHostBaseline() =>
             NetworkServer.activeHost &&
-            !IsHostClientObserved() &&
-            !NetworkClient.spawned.ContainsKey(netIdentity.netId);
+            !IsHostClientObserved();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        void CaptureHostBaseline<T>(T previous, ref T originalValue, ref bool originalValueSet)
+        {
+            if (originalValueSet)
+                return;
+
+            if (!NetworkClient.spawned.ContainsKey(netIdentity.netId))
+                originalValue = previous;
+
+            originalValueSet = true;
+        }
 
         internal void InvokeDeferredSyncCallbacks()
         {
@@ -622,11 +633,8 @@ namespace Mirror
                         OnChanged(previous, value);
                         SetSyncVarHookGuard(dirtyBit, false);
                     }
-                    else if (!originalValueSet && ShouldCaptureHostBaseline())
-                    {
-                        originalValue = previous;
-                        originalValueSet = true;
-                    }
+                    else if (ShouldCaptureHostBaseline())
+                        CaptureHostBaseline(previous, ref originalValue, ref originalValueSet);
                 }
             }
         }
@@ -669,11 +677,8 @@ namespace Mirror
                         OnChanged(previous, value);
                         SetSyncVarHookGuard(dirtyBit, false);
                     }
-                    else if (!originalValueSet && ShouldCaptureHostBaseline())
-                    {
-                        originalValue = previous;
-                        originalValueSet = true;
-                    }
+                    else if (ShouldCaptureHostBaseline())
+                        CaptureHostBaseline(previous, ref originalValue, ref originalValueSet);
                 }
             }
         }
@@ -716,11 +721,8 @@ namespace Mirror
                         OnChanged(previous, value);
                         SetSyncVarHookGuard(dirtyBit, false);
                     }
-                    else if (!originalValueSet && ShouldCaptureHostBaseline())
-                    {
-                        originalValue = previous;
-                        originalValueSet = true;
-                    }
+                    else if (ShouldCaptureHostBaseline())
+                        CaptureHostBaseline(previous, ref originalValue, ref originalValueSet);
                 }
             }
         }
@@ -765,11 +767,8 @@ namespace Mirror
                         OnChanged(previous, value);
                         SetSyncVarHookGuard(dirtyBit, false);
                     }
-                    else if (!originalValueSet && ShouldCaptureHostBaseline())
-                    {
-                        originalValue = previous;
-                        originalValueSet = true;
-                    }
+                    else if (ShouldCaptureHostBaseline())
+                        CaptureHostBaseline(previous, ref originalValue, ref originalValueSet);
                 }
             }
         }
