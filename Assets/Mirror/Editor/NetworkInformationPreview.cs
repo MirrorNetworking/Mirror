@@ -306,6 +306,8 @@ namespace Mirror
 
         // Fix Unity error:
         // "Mirror.NetworkInformationPreview was not disposed properly. Make sure that base.Cleanup is called"
+#if UNITY_2021_3_OR_NEWER
         void OnDisable() => base.Cleanup();
+#endif
     }
 }
