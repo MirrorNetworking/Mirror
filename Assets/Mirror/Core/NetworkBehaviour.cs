@@ -178,7 +178,7 @@ namespace Mirror
             NetworkClient.localPlayer != null &&
             netIdentity.observers.ContainsKey(NetworkServer.localConnection.connectionId);
 
-        internal bool ShouldCaptureHostInitialSyncVarBaseline() =>
+        internal bool ShouldCaptureHostBaseline() =>
             NetworkServer.activeHost &&
             !IsHostClientObserved() &&
             !NetworkClient.spawned.ContainsKey(netIdentity.netId);
@@ -622,7 +622,7 @@ namespace Mirror
                         OnChanged(previous, value);
                         SetSyncVarHookGuard(dirtyBit, false);
                     }
-                    else if (!originalValueSet && ShouldCaptureHostInitialSyncVarBaseline())
+                    else if (!originalValueSet && ShouldCaptureHostBaseline())
                     {
                         originalValue = previous;
                         originalValueSet = true;
@@ -669,7 +669,7 @@ namespace Mirror
                         OnChanged(previous, value);
                         SetSyncVarHookGuard(dirtyBit, false);
                     }
-                    else if (!originalValueSet && ShouldCaptureHostInitialSyncVarBaseline())
+                    else if (!originalValueSet && ShouldCaptureHostBaseline())
                     {
                         originalValue = previous;
                         originalValueSet = true;
@@ -716,7 +716,7 @@ namespace Mirror
                         OnChanged(previous, value);
                         SetSyncVarHookGuard(dirtyBit, false);
                     }
-                    else if (!originalValueSet && ShouldCaptureHostInitialSyncVarBaseline())
+                    else if (!originalValueSet && ShouldCaptureHostBaseline())
                     {
                         originalValue = previous;
                         originalValueSet = true;
@@ -765,7 +765,7 @@ namespace Mirror
                         OnChanged(previous, value);
                         SetSyncVarHookGuard(dirtyBit, false);
                     }
-                    else if (!originalValueSet && ShouldCaptureHostInitialSyncVarBaseline())
+                    else if (!originalValueSet && ShouldCaptureHostBaseline())
                     {
                         originalValue = previous;
                         originalValueSet = true;
