@@ -188,9 +188,7 @@ namespace Mirror
             if (originalValueSet)
                 return;
 
-            if (!NetworkClient.spawned.ContainsKey(netIdentity.netId))
-                originalValue = previous;
-
+            originalValue = previous;
             originalValueSet = true;
         }
 
@@ -629,6 +627,7 @@ namespace Mirror
                 {
                     if (IsHostClientObserved())
                     {
+                        CaptureHostBaseline(previous, ref originalValue, ref originalValueSet);
                         SetSyncVarHookGuard(dirtyBit, true);
                         OnChanged(previous, value);
                         SetSyncVarHookGuard(dirtyBit, false);
@@ -673,6 +672,7 @@ namespace Mirror
                 {
                     if (IsHostClientObserved())
                     {
+                        CaptureHostBaseline(previous, ref originalValue, ref originalValueSet);
                         SetSyncVarHookGuard(dirtyBit, true);
                         OnChanged(previous, value);
                         SetSyncVarHookGuard(dirtyBit, false);
@@ -717,6 +717,7 @@ namespace Mirror
                 {
                     if (IsHostClientObserved())
                     {
+                        CaptureHostBaseline(previous, ref originalValue, ref originalValueSet);
                         SetSyncVarHookGuard(dirtyBit, true);
                         OnChanged(previous, value);
                         SetSyncVarHookGuard(dirtyBit, false);
@@ -763,6 +764,7 @@ namespace Mirror
                 {
                     if (IsHostClientObserved())
                     {
+                        CaptureHostBaseline(previous, ref originalValue, ref originalValueSet);
                         SetSyncVarHookGuard(dirtyBit, true);
                         OnChanged(previous, value);
                         SetSyncVarHookGuard(dirtyBit, false);
@@ -949,7 +951,6 @@ namespace Mirror
                             SetSyncVarHookGuard(dirtyBit, false);
                         }
 
-                        originalValueSet = false;
                     }
                 }
                 else if (!SyncVarEqual(previous, ref field))
@@ -1015,7 +1016,6 @@ namespace Mirror
                             SetSyncVarHookGuard(dirtyBit, false);
                         }
 
-                        originalValueSet = false;
                     }
                 }
                 else if (!SyncVarEqual(previousNetId, ref netIdField))
@@ -1081,7 +1081,6 @@ namespace Mirror
                             SetSyncVarHookGuard(dirtyBit, false);
                         }
 
-                        originalValueSet = false;
                     }
                 }
                 else if (!SyncVarEqual(previousNetId, ref netIdField))
@@ -1149,7 +1148,6 @@ namespace Mirror
                             SetSyncVarHookGuard(dirtyBit, false);
                         }
 
-                        originalValueSet = false;
                     }
                 }
                 else if (!SyncVarEqual(previousNetId, ref netIdField))

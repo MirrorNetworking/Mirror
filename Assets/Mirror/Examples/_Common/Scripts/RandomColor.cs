@@ -17,7 +17,6 @@ namespace Mirror.Examples.Common
         {
             if (cachedMaterial == null) cachedMaterial = GetComponentInChildren<Renderer>().material;
             cachedMaterial.color = newColor;
-            Debug.Log($"SetColor: {newColor} for {gameObject.name}", gameObject);
         }
 
         public override void OnStartServer()
