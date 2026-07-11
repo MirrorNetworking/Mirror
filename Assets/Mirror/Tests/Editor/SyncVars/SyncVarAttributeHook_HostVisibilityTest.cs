@@ -143,7 +143,7 @@ namespace Mirror.Tests.SyncVars
         }
 
         [Test]
-        public void Hook_DoesNotReplayHiddenChangesAfterLeavingAoi()
+        public void Hook_DoesNotReplayHiddenChangesAfterLeavingAOI()
         {
             CreateNetworked(out GameObject go, out NetworkIdentity identity, out HostVisibilityHookBehaviour behaviour);
             go.transform.position = Vector3.zero;
