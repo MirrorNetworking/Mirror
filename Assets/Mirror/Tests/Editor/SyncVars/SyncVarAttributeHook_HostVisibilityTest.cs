@@ -64,6 +64,19 @@ namespace Mirror.Tests.SyncVars
             Assert.That(NetworkClient.localPlayer, Is.EqualTo(identity));
         }
 
+        void RebuildLocalObserver(NetworkIdentity identity, Vector3 localPlayerPosition)
+        {
+            NetworkClient.localPlayer.transform.position = localPlayerPosition;
+            NetworkServer.RebuildObservers(identity, false);
+            ProcessMessages();
+        }
+
+        void AssertObserved(NetworkIdentity identity, bool expected)
+        {
+            Assert.That(NetworkServer.localConnection.observing.Contains(identity), Is.EqualTo(expected));
+            Assert.That(identity.observers.ContainsKey(NetworkServer.localConnection.connectionId), Is.EqualTo(expected));
+        }
+
         [Test]
         public void Hook_UsesDeclarationInitializerBaselineUntilObserved()
         {
@@ -127,6 +140,36 @@ namespace Mirror.Tests.SyncVars
             Assert.That(behaviour.hookValues.Count, Is.EqualTo(1));
             Assert.That(behaviour.hookValues[0].oldValue.value, Is.EqualTo(5));
             Assert.That(behaviour.hookValues[0].newValue.value, Is.EqualTo(9));
+        }
+
+        [Test]
+        public void Hook_UsesLastObservedValueAsBaselineAfterLeavingAoi()
+        {
+            CreateNetworked(out GameObject go, out NetworkIdentity identity, out HostVisibilityHookBehaviour behaviour);
+            go.transform.position = Vector3.zero;
+            NetworkServer.Spawn(go);
+            ProcessMessages();
+
+            behaviour.value = 100;
+
+            AddLocalPlayer(Vector3.right * (aoi.visRange + 1));
+            AssertObserved(identity, false);
+
+            RebuildLocalObserver(identity, Vector3.zero);
+            AssertObserved(identity, true);
+            Assert.That(behaviour.hookValues, Is.EqualTo(new[] { (42, 100) }));
+
+            RebuildLocalObserver(identity, Vector3.right * (aoi.visRange + 1));
+            AssertObserved(identity, false);
+
+            behaviour.value = 150;
+            behaviour.value = 200;
+
+            Assert.That(behaviour.hookValues, Is.EqualTo(new[] { (42, 100) }));
+
+            RebuildLocalObserver(identity, Vector3.zero);
+            AssertObserved(identity, true);
+            Assert.That(behaviour.hookValues, Is.EqualTo(new[] { (42, 100), (100, 200) }));
         }
     }
 }
