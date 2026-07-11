@@ -122,6 +122,13 @@ namespace Mirror
 
             if (shouldFireActions)
             {
+                if (NetworkServer.activeHost &&
+                    networkBehaviour.syncDirection == SyncDirection.ServerToClient &&
+                    !networkBehaviour.IsHostClientObserved())
+                {
+                    return;
+                }
+
                 // Defer Actions during initial spawn on pure client to eliminate
                 // cross-object reference race conditions.  All objects will be in
                 // NetworkClient.spawned before any Actions fire.
