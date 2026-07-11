@@ -188,6 +188,8 @@ namespace Mirror
             if (originalValueSet)
                 return;
 
+            // Re-observation should replay the same hook oldValue as a first
+            // observation again, even after the host has already spawned/seen it.
             originalValue = previous;
             originalValueSet = true;
         }
@@ -627,12 +629,13 @@ namespace Mirror
                 {
                     if (IsHostClientObserved())
                     {
-                        CaptureHostBaseline(previous, ref originalValue, ref originalValueSet);
+                        if (!originalValueSet)
+                            CaptureHostBaseline(previous, ref originalValue, ref originalValueSet);
                         SetSyncVarHookGuard(dirtyBit, true);
                         OnChanged(previous, value);
                         SetSyncVarHookGuard(dirtyBit, false);
                     }
-                    else if (ShouldCaptureHostBaseline())
+                    else if (ShouldCaptureHostBaseline() && !originalValueSet)
                         CaptureHostBaseline(previous, ref originalValue, ref originalValueSet);
                 }
             }
@@ -672,12 +675,13 @@ namespace Mirror
                 {
                     if (IsHostClientObserved())
                     {
-                        CaptureHostBaseline(previous, ref originalValue, ref originalValueSet);
+                        if (!originalValueSet)
+                            CaptureHostBaseline(previous, ref originalValue, ref originalValueSet);
                         SetSyncVarHookGuard(dirtyBit, true);
                         OnChanged(previous, value);
                         SetSyncVarHookGuard(dirtyBit, false);
                     }
-                    else if (ShouldCaptureHostBaseline())
+                    else if (ShouldCaptureHostBaseline() && !originalValueSet)
                         CaptureHostBaseline(previous, ref originalValue, ref originalValueSet);
                 }
             }
@@ -717,12 +721,13 @@ namespace Mirror
                 {
                     if (IsHostClientObserved())
                     {
-                        CaptureHostBaseline(previous, ref originalValue, ref originalValueSet);
+                        if (!originalValueSet)
+                            CaptureHostBaseline(previous, ref originalValue, ref originalValueSet);
                         SetSyncVarHookGuard(dirtyBit, true);
                         OnChanged(previous, value);
                         SetSyncVarHookGuard(dirtyBit, false);
                     }
-                    else if (ShouldCaptureHostBaseline())
+                    else if (ShouldCaptureHostBaseline() && !originalValueSet)
                         CaptureHostBaseline(previous, ref originalValue, ref originalValueSet);
                 }
             }
@@ -764,12 +769,13 @@ namespace Mirror
                 {
                     if (IsHostClientObserved())
                     {
-                        CaptureHostBaseline(previous, ref originalValue, ref originalValueSet);
+                        if (!originalValueSet)
+                            CaptureHostBaseline(previous, ref originalValue, ref originalValueSet);
                         SetSyncVarHookGuard(dirtyBit, true);
                         OnChanged(previous, value);
                         SetSyncVarHookGuard(dirtyBit, false);
                     }
-                    else if (ShouldCaptureHostBaseline())
+                    else if (ShouldCaptureHostBaseline() && !originalValueSet)
                         CaptureHostBaseline(previous, ref originalValue, ref originalValueSet);
                 }
             }
