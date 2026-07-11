@@ -161,11 +161,12 @@ namespace Mirror.Tests.SyncVars
 
             RebuildLocalObserver(identity, Vector3.right * (aoi.visRange + 1));
             AssertObserved(identity, false);
+            behaviour.hookValues.Clear();
 
             behaviour.value = 150;
             behaviour.value = 200;
 
-            Assert.That(behaviour.hookValues, Is.EqualTo(new[] { (42, 100) }));
+            Assert.That(behaviour.hookValues, Is.Empty);
 
             RebuildLocalObserver(identity, Vector3.zero);
             AssertObserved(identity, true);

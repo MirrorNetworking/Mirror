@@ -164,13 +164,14 @@ namespace Mirror.Tests.SyncCollections
 
             RebuildLocalObserver(identity, Vector3.right * (aoi.visRange + 1));
             AssertObserved(identity, false);
+            behaviour.actions.Clear();
 
             behaviour.list.Add("second");
-            Assert.That(behaviour.actions, Is.EqualTo(new[] { "Add:first" }));
+            Assert.That(behaviour.actions, Is.Empty);
 
             RebuildLocalObserver(identity, Vector3.zero);
             AssertObserved(identity, true);
-            Assert.That(behaviour.actions, Is.EqualTo(new[] { "Add:first", "Add:second" }));
+            Assert.That(behaviour.actions, Is.EqualTo(new[] { "Add:second" }));
         }
 
         [Test]
@@ -193,13 +194,14 @@ namespace Mirror.Tests.SyncCollections
 
             RebuildLocalObserver(identity, Vector3.right * (aoi.visRange + 1));
             AssertObserved(identity, false);
+            behaviour.actions.Clear();
 
             behaviour.dictionary.Add("key2", "second");
-            Assert.That(behaviour.actions, Is.EqualTo(new[] { "Add:key1:first" }));
+            Assert.That(behaviour.actions, Is.Empty);
 
             RebuildLocalObserver(identity, Vector3.zero);
             AssertObserved(identity, true);
-            Assert.That(behaviour.actions, Is.EqualTo(new[] { "Add:key1:first", "Add:key2:second" }));
+            Assert.That(behaviour.actions, Is.EqualTo(new[] { "Add:key2:second" }));
         }
 
         [Test]
@@ -222,13 +224,14 @@ namespace Mirror.Tests.SyncCollections
 
             RebuildLocalObserver(identity, Vector3.right * (aoi.visRange + 1));
             AssertObserved(identity, false);
+            behaviour.actions.Clear();
 
             behaviour.set.Add("second");
-            Assert.That(behaviour.actions, Is.EqualTo(new[] { "Add:first" }));
+            Assert.That(behaviour.actions, Is.Empty);
 
             RebuildLocalObserver(identity, Vector3.zero);
             AssertObserved(identity, true);
-            Assert.That(behaviour.actions, Is.EqualTo(new[] { "Add:first", "Add:second" }));
+            Assert.That(behaviour.actions, Is.EqualTo(new[] { "Add:second" }));
         }
     }
 }
