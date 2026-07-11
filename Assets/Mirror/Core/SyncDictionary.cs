@@ -131,6 +131,19 @@ namespace Mirror
                 objects.Add(key, obj);
             }
 
+            if (NetworkServer.activeHost &&
+                networkBehaviour.syncDirection == SyncDirection.ServerToClient &&
+                networkBehaviour.netIdentity.hostInitialSpawn)
+            {
+                foreach (KeyValuePair<TKey, TValue> entry in objects)
+                {
+                    TKey capturedKey = entry.Key;
+                    TValue capturedValue = entry.Value;
+                    networkBehaviour.deferredSyncCollectionActions.Add(() =>
+                        InvokeActions(Operation.OP_ADD, capturedKey, capturedValue, default));
+                }
+            }
+
             // We will need to skip all these changes
             // the next time the list is synchronized
             // because they have already been applied
@@ -361,20 +374,6 @@ namespace Mirror
 
             if (shouldFireActions)
             {
-                if (NetworkServer.activeHost &&
-                    networkBehaviour.syncDirection == SyncDirection.ServerToClient &&
-                    !networkBehaviour.IsHostClientObserved())
-                {
-                    Operation capturedOp = op;
-                    TKey capturedKey = key;
-                    TValue capturedOld = oldItem;
-                    TValue capturedNew = item;
-
-                    networkBehaviour.deferredSyncCollectionActions.Add(() =>
-                        InvokeActions(capturedOp, capturedKey, capturedNew, capturedOld));
-                    return;
-                }
-
                 // Defer Actions during initial spawn on pure client to eliminate
                 // cross-object reference race conditions. All objects will be in
                 // NetworkClient.spawned before any Actions fire.

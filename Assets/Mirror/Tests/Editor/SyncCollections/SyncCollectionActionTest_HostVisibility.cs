@@ -171,7 +171,7 @@ namespace Mirror.Tests.SyncCollections
 
             RebuildLocalObserver(identity, Vector3.zero);
             AssertObserved(identity, true);
-            Assert.That(behaviour.actions, Is.EqualTo(new[] { "Add:second" }));
+            Assert.That(behaviour.actions, Is.EqualTo(new[] { "Add:first", "Add:second" }));
         }
 
         [Test]
@@ -201,7 +201,7 @@ namespace Mirror.Tests.SyncCollections
 
             RebuildLocalObserver(identity, Vector3.zero);
             AssertObserved(identity, true);
-            Assert.That(behaviour.actions, Is.EqualTo(new[] { "Add:key2:second" }));
+            Assert.That(behaviour.actions, Is.EqualTo(new[] { "Add:key1:first", "Add:key2:second" }));
         }
 
         [Test]
@@ -231,7 +231,7 @@ namespace Mirror.Tests.SyncCollections
 
             RebuildLocalObserver(identity, Vector3.zero);
             AssertObserved(identity, true);
-            Assert.That(behaviour.actions, Is.EqualTo(new[] { "Add:second" }));
+            Assert.That(behaviour.actions, Is.EqualTo(new[] { "Add:first", "Add:second" }));
         }
     }
 }

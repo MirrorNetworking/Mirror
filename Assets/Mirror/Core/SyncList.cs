@@ -122,20 +122,6 @@ namespace Mirror
 
             if (shouldFireActions)
             {
-                if (NetworkServer.activeHost &&
-                    networkBehaviour.syncDirection == SyncDirection.ServerToClient &&
-                    !networkBehaviour.IsHostClientObserved())
-                {
-                    Operation capturedOp = op;
-                    int capturedIndex = itemIndex;
-                    T capturedOld = oldItem;
-                    T capturedNew = newItem;
-
-                    networkBehaviour.deferredSyncCollectionActions.Add(() =>
-                        InvokeActions(capturedOp, capturedIndex, capturedOld, capturedNew));
-                    return;
-                }
-
                 // Defer Actions during initial spawn on pure client to eliminate
                 // cross-object reference race conditions.  All objects will be in
                 // NetworkClient.spawned before any Actions fire.
@@ -252,6 +238,19 @@ namespace Mirror
             {
                 T obj = reader.Read<T>();
                 objects.Add(obj);
+            }
+
+            if (NetworkServer.activeHost &&
+                networkBehaviour.syncDirection == SyncDirection.ServerToClient &&
+                networkBehaviour.netIdentity.hostInitialSpawn)
+            {
+                for (int i = 0; i < objects.Count; i++)
+                {
+                    int capturedIndex = i;
+                    T capturedValue = objects[i];
+                    networkBehaviour.deferredSyncCollectionActions.Add(() =>
+                        InvokeActions(Operation.OP_ADD, capturedIndex, default, capturedValue));
+                }
             }
 
             // We will need to skip all these changes
