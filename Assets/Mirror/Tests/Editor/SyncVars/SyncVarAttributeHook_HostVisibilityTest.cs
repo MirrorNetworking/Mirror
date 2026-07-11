@@ -143,7 +143,7 @@ namespace Mirror.Tests.SyncVars
         }
 
         [Test]
-        public void Hook_UsesLastObservedValueAsBaselineAfterLeavingAoi()
+        public void Hook_DoesNotReplayHiddenChangesAfterLeavingAoi()
         {
             CreateNetworked(out GameObject go, out NetworkIdentity identity, out HostVisibilityHookBehaviour behaviour);
             go.transform.position = Vector3.zero;
@@ -169,7 +169,7 @@ namespace Mirror.Tests.SyncVars
 
             RebuildLocalObserver(identity, Vector3.zero);
             AssertObserved(identity, true);
-            Assert.That(behaviour.hookValues, Is.EqualTo(new[] { (42, 100), (100, 200) }));
+            Assert.That(behaviour.hookValues, Is.EqualTo(new[] { (42, 100) }));
         }
     }
 }

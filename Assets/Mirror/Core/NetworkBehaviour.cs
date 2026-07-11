@@ -178,6 +178,11 @@ namespace Mirror
             NetworkClient.localPlayer != null &&
             netIdentity.observers.ContainsKey(NetworkServer.localConnection.connectionId);
 
+        internal bool ShouldCaptureHostInitialSyncVarBaseline() =>
+            NetworkServer.activeHost &&
+            !IsHostClientObserved() &&
+            !NetworkClient.spawned.ContainsKey(netIdentity.netId);
+
         internal void InvokeDeferredSyncCallbacks()
         {
             foreach (Action hook in deferredSyncVarHooks)
@@ -617,7 +622,7 @@ namespace Mirror
                         OnChanged(previous, value);
                         SetSyncVarHookGuard(dirtyBit, false);
                     }
-                    else if (!originalValueSet)
+                    else if (!originalValueSet && ShouldCaptureHostInitialSyncVarBaseline())
                     {
                         originalValue = previous;
                         originalValueSet = true;
@@ -664,7 +669,7 @@ namespace Mirror
                         OnChanged(previous, value);
                         SetSyncVarHookGuard(dirtyBit, false);
                     }
-                    else if (!originalValueSet)
+                    else if (!originalValueSet && ShouldCaptureHostInitialSyncVarBaseline())
                     {
                         originalValue = previous;
                         originalValueSet = true;
@@ -711,7 +716,7 @@ namespace Mirror
                         OnChanged(previous, value);
                         SetSyncVarHookGuard(dirtyBit, false);
                     }
-                    else if (!originalValueSet)
+                    else if (!originalValueSet && ShouldCaptureHostInitialSyncVarBaseline())
                     {
                         originalValue = previous;
                         originalValueSet = true;
@@ -760,7 +765,7 @@ namespace Mirror
                         OnChanged(previous, value);
                         SetSyncVarHookGuard(dirtyBit, false);
                     }
-                    else if (!originalValueSet)
+                    else if (!originalValueSet && ShouldCaptureHostInitialSyncVarBaseline())
                     {
                         originalValue = previous;
                         originalValueSet = true;
