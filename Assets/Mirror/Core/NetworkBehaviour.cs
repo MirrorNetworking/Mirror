@@ -194,6 +194,18 @@ namespace Mirror
             originalValueSet = true;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        T GetClientInitialBaseline<T>(T previous, ref T originalValue, ref bool originalValueSet)
+        {
+            if (!originalValueSet)
+            {
+                originalValue = previous;
+                originalValueSet = true;
+            }
+
+            return originalValue;
+        }
+
         internal void InvokeDeferredSyncCallbacks()
         {
             foreach (Action hook in deferredSyncVarHooks)
@@ -983,6 +995,23 @@ namespace Mirror
 
                     }
                 }
+                else if (NetworkClient.active && !NetworkServer.active && netIdentity.clientInitialSpawn)
+                {
+                    T baseline = GetClientInitialBaseline(previous, ref originalValue, ref originalValueSet);
+                    if (!SyncVarEqual(baseline, ref field))
+                    {
+                        if (!NetworkClient.isSpawnFinished)
+                        {
+                            T capturedPrevious = baseline;
+                            T capturedNew = field;
+                            deferredSyncVarHooks.Add(() => OnChanged(capturedPrevious, capturedNew));
+                        }
+                        else
+                        {
+                            OnChanged(baseline, field);
+                        }
+                    }
+                }
                 else if (!SyncVarEqual(previous, ref field))
                 {
                     if (NetworkClient.active && !NetworkServer.active && !NetworkClient.isSpawnFinished)
@@ -1046,6 +1075,23 @@ namespace Mirror
                             SetSyncVarHookGuard(dirtyBit, false);
                         }
 
+                    }
+                }
+                else if (NetworkClient.active && !NetworkServer.active && netIdentity.clientInitialSpawn)
+                {
+                    GameObject baseline = GetClientInitialBaseline(previousGameObject, ref originalValue, ref originalValueSet);
+                    if (!SyncVarEqual(baseline, ref field))
+                    {
+                        if (!NetworkClient.isSpawnFinished)
+                        {
+                            GameObject capturedPrevious = baseline;
+                            GameObject capturedNew = field;
+                            deferredSyncVarHooks.Add(() => OnChanged(capturedPrevious, capturedNew));
+                        }
+                        else
+                        {
+                            OnChanged(baseline, field);
+                        }
                     }
                 }
                 else if (!SyncVarEqual(previousNetId, ref netIdField))
@@ -1113,6 +1159,23 @@ namespace Mirror
 
                     }
                 }
+                else if (NetworkClient.active && !NetworkServer.active && netIdentity.clientInitialSpawn)
+                {
+                    NetworkIdentity baseline = GetClientInitialBaseline(previousIdentity, ref originalValue, ref originalValueSet);
+                    if (!SyncVarEqual(baseline, ref field))
+                    {
+                        if (!NetworkClient.isSpawnFinished)
+                        {
+                            NetworkIdentity capturedPrevious = baseline;
+                            NetworkIdentity capturedNew = field;
+                            deferredSyncVarHooks.Add(() => OnChanged(capturedPrevious, capturedNew));
+                        }
+                        else
+                        {
+                            OnChanged(baseline, field);
+                        }
+                    }
+                }
                 else if (!SyncVarEqual(previousNetId, ref netIdField))
                 {
                     if (NetworkClient.active && !NetworkServer.active && !NetworkClient.isSpawnFinished)
@@ -1178,6 +1241,23 @@ namespace Mirror
                             SetSyncVarHookGuard(dirtyBit, false);
                         }
 
+                    }
+                }
+                else if (NetworkClient.active && !NetworkServer.active && netIdentity.clientInitialSpawn)
+                {
+                    T baseline = GetClientInitialBaseline(previousBehaviour, ref originalValue, ref originalValueSet);
+                    if (!SyncVarEqual(baseline, ref field))
+                    {
+                        if (!NetworkClient.isSpawnFinished)
+                        {
+                            T capturedPrevious = baseline;
+                            T capturedNew = field;
+                            deferredSyncVarHooks.Add(() => OnChanged(capturedPrevious, capturedNew));
+                        }
+                        else
+                        {
+                            OnChanged(baseline, field);
+                        }
                     }
                 }
                 else if (!SyncVarEqual(previousNetId, ref netIdField))

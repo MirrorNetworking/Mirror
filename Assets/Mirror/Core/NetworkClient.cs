@@ -1212,7 +1212,15 @@ namespace Mirror
             {
                 using (NetworkReaderPooled payloadReader = NetworkReaderPool.Get(message.payload))
                 {
-                    identity.DeserializeClient(payloadReader, true);
+                    identity.clientInitialSpawn = true;
+                    try
+                    {
+                        identity.DeserializeClient(payloadReader, true);
+                    }
+                    finally
+                    {
+                        identity.clientInitialSpawn = false;
+                    }
                 }
             }
 
