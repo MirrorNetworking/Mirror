@@ -49,6 +49,30 @@ namespace Mirror.Tests.NetworkClients
         }
 
         [Test]
+        public void OnObjectHide_SceneObjectCanBeShownAgain()
+        {
+            CreateNetworked(out _, out NetworkIdentity identity);
+            const uint netId = 103;
+            const ulong sceneId = 56;
+            identity.netId = netId;
+            identity.sceneId = sceneId;
+            identity.gameObject.SetActive(true);
+            NetworkClient.spawned[netId] = identity;
+            NetworkClient.isSpawnFinished = true;
+
+            NetworkClient.OnObjectHide(new ObjectHideMessage { netId = netId });
+
+            Assert.That(NetworkClient.spawnableObjects.TryGetValue(sceneId, out NetworkIdentity spawnableIdentity), Is.True);
+            Assert.That(spawnableIdentity, Is.SameAs(identity));
+
+            NetworkClient.OnSpawn(new SpawnMessage { netId = netId, sceneId = sceneId });
+
+            Assert.That(identity.gameObject.activeSelf, Is.True);
+            Assert.That(NetworkClient.spawned.TryGetValue(netId, out NetworkIdentity respawnedIdentity), Is.True);
+            Assert.That(respawnedIdentity, Is.SameAs(identity));
+        }
+
+        [Test]
         public void OnObjectDestroy_CallsUnspawnHandlerWhenRegistered()
         {
             CreateNetworked(out _, out NetworkIdentity identity);

@@ -1984,6 +1984,8 @@ namespace Mirror
             // Debug.Log($"NetworkClient.OnObjDestroy netId: {netId}");
             if (spawned.TryGetValue(netId, out NetworkIdentity identity) && identity != null)
             {
+                ulong sceneId = identity.sceneId;
+
                 if (identity.isLocalPlayer)
                     identity.OnStopLocalPlayer();
 
@@ -1996,7 +1998,7 @@ namespace Mirror
                     identity.ResetState();
                 }
                 // otherwise fall back to default Destroy
-                else if (identity.sceneId == 0)
+                else if (sceneId == 0)
                 {
                     // don't call reset before destroy so that values are still set in OnDestroy
                     GameObject.Destroy(identity.gameObject);
@@ -2005,9 +2007,9 @@ namespace Mirror
                 else
                 {
                     identity.gameObject.SetActive(false);
-                    spawnableObjects[identity.sceneId] = identity;
                     // reset for scene objects
                     identity.ResetState();
+                    spawnableObjects[sceneId] = identity;
                 }
 
                 // remove from dictionary no matter how it is unspawned
