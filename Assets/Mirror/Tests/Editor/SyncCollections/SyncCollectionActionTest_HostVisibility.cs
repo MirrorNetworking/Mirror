@@ -76,7 +76,7 @@ namespace Mirror.Tests.SyncCollections
             ProcessMessages();
         }
 
-        static void InvokeHostVisibilityReplay(NetworkIdentity identity)
+        static void InvokeHostVisibilityDeferredCallbacks(NetworkIdentity identity)
         {
             identity.hostInitialSpawn = true;
             try
@@ -223,7 +223,7 @@ namespace Mirror.Tests.SyncCollections
 
             AddLocalPlayerWithoutProcessing(Vector3.zero);
             AssertObserved(identity, true);
-            InvokeHostVisibilityReplay(identity);
+            InvokeHostVisibilityDeferredCallbacks(identity);
             Assert.That(behaviour.actions, Is.EqualTo(new[] { "Add:first" }));
             Assert.That(GetDeltaChangeCount(behaviour.list), Is.EqualTo(1));
         }
@@ -276,7 +276,7 @@ namespace Mirror.Tests.SyncCollections
 
             AddLocalPlayerWithoutProcessing(Vector3.zero);
             AssertObserved(identity, true);
-            InvokeHostVisibilityReplay(identity);
+            InvokeHostVisibilityDeferredCallbacks(identity);
             Assert.That(behaviour.actions, Is.EqualTo(new[] { "Add:key1:first" }));
             Assert.That(GetDeltaChangeCount(behaviour.dictionary), Is.EqualTo(1));
         }
@@ -329,7 +329,7 @@ namespace Mirror.Tests.SyncCollections
 
             AddLocalPlayerWithoutProcessing(Vector3.zero);
             AssertObserved(identity, true);
-            InvokeHostVisibilityReplay(identity);
+            InvokeHostVisibilityDeferredCallbacks(identity);
             Assert.That(behaviour.actions, Is.EqualTo(new[] { "Add:first" }));
             Assert.That(GetDeltaChangeCount(behaviour.set), Is.EqualTo(1));
         }
