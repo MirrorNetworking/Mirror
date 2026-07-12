@@ -53,7 +53,11 @@ namespace Mirror
         /// <summary>Queues host-mode first-observation Add replay actions without mutating server state.</summary>
         public virtual void QueueHostVisibilityReplay() {}
 
-        /// <summary>Clears any registered callbacks so reused scene objects behave like a fresh client observation.</summary>
+        /// <summary>
+        /// Clears any registered callbacks when a client object is unspawned.
+        /// Reused scene objects keep the same SyncObject instance, so they need
+        /// this reset to re-register handlers cleanly on the next observation.
+        /// </summary>
         public virtual void ResetCallbacks() {}
 
         /// <summary>Resets the SyncObject so that it can be re-used</summary>
