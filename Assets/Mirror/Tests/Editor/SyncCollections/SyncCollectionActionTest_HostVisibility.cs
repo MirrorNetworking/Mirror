@@ -62,11 +62,32 @@ namespace Mirror.Tests.SyncCollections
             ProcessMessages();
         }
 
+        void AddLocalPlayerWithoutProcessing(Vector3 position)
+        {
+            CreateNetworked(out GameObject player, out _);
+            player.transform.position = position;
+            NetworkServer.AddPlayerForConnection(NetworkServer.localConnection, player);
+        }
+
         void RebuildLocalObserver(NetworkIdentity identity, Vector3 localPlayerPosition)
         {
             NetworkClient.localPlayer.transform.position = localPlayerPosition;
             NetworkServer.RebuildObservers(identity, false);
             ProcessMessages();
+        }
+
+        static void InvokeHostVisibilityReplay(NetworkIdentity identity)
+        {
+            identity.hostInitialSpawn = true;
+            try
+            {
+                foreach (NetworkBehaviour component in identity.NetworkBehaviours)
+                    component.InvokeHostVisibilityDeferredCallbacks();
+            }
+            finally
+            {
+                identity.hostInitialSpawn = false;
+            }
         }
 
         void AssertObserved(NetworkIdentity identity, bool expected)
@@ -200,8 +221,9 @@ namespace Mirror.Tests.SyncCollections
             behaviour.list.Add("first");
             Assert.That(GetDeltaChangeCount(behaviour.list), Is.EqualTo(1));
 
-            AddLocalPlayer(Vector3.zero);
+            AddLocalPlayerWithoutProcessing(Vector3.zero);
             AssertObserved(identity, true);
+            InvokeHostVisibilityReplay(identity);
             Assert.That(behaviour.actions, Is.EqualTo(new[] { "Add:first" }));
             Assert.That(GetDeltaChangeCount(behaviour.list), Is.EqualTo(1));
         }
@@ -252,8 +274,9 @@ namespace Mirror.Tests.SyncCollections
             behaviour.dictionary.Add("key1", "first");
             Assert.That(GetDeltaChangeCount(behaviour.dictionary), Is.EqualTo(1));
 
-            AddLocalPlayer(Vector3.zero);
+            AddLocalPlayerWithoutProcessing(Vector3.zero);
             AssertObserved(identity, true);
+            InvokeHostVisibilityReplay(identity);
             Assert.That(behaviour.actions, Is.EqualTo(new[] { "Add:key1:first" }));
             Assert.That(GetDeltaChangeCount(behaviour.dictionary), Is.EqualTo(1));
         }
@@ -304,8 +327,9 @@ namespace Mirror.Tests.SyncCollections
             behaviour.set.Add("first");
             Assert.That(GetDeltaChangeCount(behaviour.set), Is.EqualTo(1));
 
-            AddLocalPlayer(Vector3.zero);
+            AddLocalPlayerWithoutProcessing(Vector3.zero);
             AssertObserved(identity, true);
+            InvokeHostVisibilityReplay(identity);
             Assert.That(behaviour.actions, Is.EqualTo(new[] { "Add:first" }));
             Assert.That(GetDeltaChangeCount(behaviour.set), Is.EqualTo(1));
         }
