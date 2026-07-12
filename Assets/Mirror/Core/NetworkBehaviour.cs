@@ -200,7 +200,7 @@ namespace Mirror
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         void InvokeSyncVarHookAction<T>(Action<T, T> onChanged, T previous, T current)
         {
-            if (NetworkClient.active && !NetworkServer.active && !NetworkClient.isSpawnFinished)
+            if (NetworkClient.active && !NetworkClient.activeHost && !NetworkClient.isSpawnFinished)
             {
                 T capturedPrevious = previous;
                 T capturedNew = current;
@@ -992,7 +992,7 @@ namespace Mirror
 
                     }
                 }
-                else if (NetworkClient.active && !NetworkServer.active && netIdentity.clientInitialSpawnActive)
+                else if (NetworkClient.active && !NetworkClient.activeHost && netIdentity.clientInitialSpawnActive)
                 {
                     T baseline = EnsureInitialHookBaseline(previous, ref originalValue, ref originalValueSet);
                     if (!SyncVarEqual(baseline, ref field))
@@ -1045,7 +1045,7 @@ namespace Mirror
 
                     }
                 }
-                else if (NetworkClient.active && !NetworkServer.active && netIdentity.clientInitialSpawnActive)
+                else if (NetworkClient.active && !NetworkClient.activeHost && netIdentity.clientInitialSpawnActive)
                 {
                     GameObject baseline = EnsureInitialHookBaseline(previousGameObject, ref originalValue, ref originalValueSet);
                     if (!SyncVarEqual(baseline, ref field))
@@ -1098,7 +1098,7 @@ namespace Mirror
 
                     }
                 }
-                else if (NetworkClient.active && !NetworkServer.active && netIdentity.clientInitialSpawnActive)
+                else if (NetworkClient.active && !NetworkClient.activeHost && netIdentity.clientInitialSpawnActive)
                 {
                     NetworkIdentity baseline = EnsureInitialHookBaseline(previousIdentity, ref originalValue, ref originalValueSet);
                     if (!SyncVarEqual(baseline, ref field))
@@ -1153,7 +1153,7 @@ namespace Mirror
 
                     }
                 }
-                else if (NetworkClient.active && !NetworkServer.active && netIdentity.clientInitialSpawnActive)
+                else if (NetworkClient.active && !NetworkClient.activeHost && netIdentity.clientInitialSpawnActive)
                 {
                     T baseline = EnsureInitialHookBaseline(previousBehaviour, ref originalValue, ref originalValueSet);
                     if (!SyncVarEqual(baseline, ref field))
