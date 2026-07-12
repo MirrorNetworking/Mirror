@@ -183,23 +183,11 @@ namespace Mirror
             !IsHostClientObserved();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        void CaptureHostBaseline<T>(T previous, ref T originalValue, ref bool originalValueSet)
-        {
-            if (originalValueSet)
-                return;
-
-            // Re-observation should replay the same hook oldValue as a first
-            // observation again, even after the host has already spawned/seen it.
-            originalValue = previous;
-            originalValueSet = true;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        T GetClientInitialBaseline<T>(T previous, ref T originalValue, ref bool originalValueSet)
+        T EnsureInitialHookBaseline<T>(T previous, ref T originalValue, ref bool originalValueSet)
         {
             // Scene objects are re-used across hide/show cycles on remote clients.
-            // Preserve the very first local baseline so each initial spawn replay
-            // behaves like a fresh first observation again.
+            // Preserve the very first local baseline so each initial spawn replay,
+            // including host re-observation, behaves like a fresh first observation again.
             if (!originalValueSet)
             {
                 originalValue = previous;
@@ -207,6 +195,21 @@ namespace Mirror
             }
 
             return originalValue;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        void InvokeSyncVarHookAction<T>(Action<T, T> onChanged, T previous, T current)
+        {
+            if (NetworkClient.active && !NetworkServer.active && !NetworkClient.isSpawnFinished)
+            {
+                T capturedPrevious = previous;
+                T capturedNew = current;
+                deferredSyncVarHooks.Add(() => onChanged(capturedPrevious, capturedNew));
+            }
+            else
+            {
+                onChanged(previous, current);
+            }
         }
 
         internal void InvokeDeferredSyncCallbacks()
@@ -656,13 +659,13 @@ namespace Mirror
                     if (IsHostClientObserved())
                     {
                         if (!originalValueSet)
-                            CaptureHostBaseline(previous, ref originalValue, ref originalValueSet);
+                            EnsureInitialHookBaseline(previous, ref originalValue, ref originalValueSet);
                         SetSyncVarHookGuard(dirtyBit, true);
                         OnChanged(previous, value);
                         SetSyncVarHookGuard(dirtyBit, false);
                     }
                     else if (ShouldCaptureHostBaseline() && !originalValueSet)
-                        CaptureHostBaseline(previous, ref originalValue, ref originalValueSet);
+                        EnsureInitialHookBaseline(previous, ref originalValue, ref originalValueSet);
                 }
             }
         }
@@ -702,13 +705,13 @@ namespace Mirror
                     if (IsHostClientObserved())
                     {
                         if (!originalValueSet)
-                            CaptureHostBaseline(previous, ref originalValue, ref originalValueSet);
+                            EnsureInitialHookBaseline(previous, ref originalValue, ref originalValueSet);
                         SetSyncVarHookGuard(dirtyBit, true);
                         OnChanged(previous, value);
                         SetSyncVarHookGuard(dirtyBit, false);
                     }
                     else if (ShouldCaptureHostBaseline() && !originalValueSet)
-                        CaptureHostBaseline(previous, ref originalValue, ref originalValueSet);
+                        EnsureInitialHookBaseline(previous, ref originalValue, ref originalValueSet);
                 }
             }
         }
@@ -748,13 +751,13 @@ namespace Mirror
                     if (IsHostClientObserved())
                     {
                         if (!originalValueSet)
-                            CaptureHostBaseline(previous, ref originalValue, ref originalValueSet);
+                            EnsureInitialHookBaseline(previous, ref originalValue, ref originalValueSet);
                         SetSyncVarHookGuard(dirtyBit, true);
                         OnChanged(previous, value);
                         SetSyncVarHookGuard(dirtyBit, false);
                     }
                     else if (ShouldCaptureHostBaseline() && !originalValueSet)
-                        CaptureHostBaseline(previous, ref originalValue, ref originalValueSet);
+                        EnsureInitialHookBaseline(previous, ref originalValue, ref originalValueSet);
                 }
             }
         }
@@ -796,13 +799,13 @@ namespace Mirror
                     if (IsHostClientObserved())
                     {
                         if (!originalValueSet)
-                            CaptureHostBaseline(previous, ref originalValue, ref originalValueSet);
+                            EnsureInitialHookBaseline(previous, ref originalValue, ref originalValueSet);
                         SetSyncVarHookGuard(dirtyBit, true);
                         OnChanged(previous, value);
                         SetSyncVarHookGuard(dirtyBit, false);
                     }
                     else if (ShouldCaptureHostBaseline() && !originalValueSet)
-                        CaptureHostBaseline(previous, ref originalValue, ref originalValueSet);
+                        EnsureInitialHookBaseline(previous, ref originalValue, ref originalValueSet);
                 }
             }
         }
@@ -951,16 +954,7 @@ namespace Mirror
                 bool hostInitialSpawnInHostMode = NetworkServer.activeHost && netIdentity.hostInitialSpawn;
                 if (changed || hostInitialSpawnInHostMode)
                 {
-                    if (NetworkClient.active && !NetworkServer.active && !NetworkClient.isSpawnFinished)
-                    {
-                        T capturedPrevious = previous;
-                        T capturedNew = field;
-                        deferredSyncVarHooks.Add(() => OnChanged(capturedPrevious, capturedNew));
-                    }
-                    else
-                    {
-                        OnChanged(previous, field);
-                    }
+                    InvokeSyncVarHookAction(OnChanged, previous, field);
                 }
             }
         }
@@ -1000,33 +994,13 @@ namespace Mirror
                 }
                 else if (NetworkClient.active && !NetworkServer.active && netIdentity.clientInitialSpawnActive)
                 {
-                    T baseline = GetClientInitialBaseline(previous, ref originalValue, ref originalValueSet);
+                    T baseline = EnsureInitialHookBaseline(previous, ref originalValue, ref originalValueSet);
                     if (!SyncVarEqual(baseline, ref field))
-                    {
-                        if (!NetworkClient.isSpawnFinished)
-                        {
-                            T capturedPrevious = baseline;
-                            T capturedNew = field;
-                            deferredSyncVarHooks.Add(() => OnChanged(capturedPrevious, capturedNew));
-                        }
-                        else
-                        {
-                            OnChanged(baseline, field);
-                        }
-                    }
+                        InvokeSyncVarHookAction(OnChanged, baseline, field);
                 }
                 else if (!SyncVarEqual(previous, ref field))
                 {
-                    if (NetworkClient.active && !NetworkServer.active && !NetworkClient.isSpawnFinished)
-                    {
-                        T capturedPrevious = previous;
-                        T capturedNew = field;
-                        deferredSyncVarHooks.Add(() => OnChanged(capturedPrevious, capturedNew));
-                    }
-                    else
-                    {
-                        OnChanged(previous, field);
-                    }
+                    InvokeSyncVarHookAction(OnChanged, previous, field);
                 }
             }
         }
@@ -1044,16 +1018,7 @@ namespace Mirror
                 bool hostInitialSpawnInHostMode = NetworkServer.activeHost && netIdentity.hostInitialSpawn;
                 if (changed || hostInitialSpawnInHostMode)
                 {
-                    if (NetworkClient.active && !NetworkServer.active && !NetworkClient.isSpawnFinished)
-                    {
-                        GameObject capturedPrevious = previousGameObject;
-                        GameObject capturedNew = field;
-                        deferredSyncVarHooks.Add(() => OnChanged(capturedPrevious, capturedNew));
-                    }
-                    else
-                    {
-                        OnChanged(previousGameObject, field);
-                    }
+                    InvokeSyncVarHookAction(OnChanged, previousGameObject, field);
                 }
             }
         }
@@ -1082,33 +1047,13 @@ namespace Mirror
                 }
                 else if (NetworkClient.active && !NetworkServer.active && netIdentity.clientInitialSpawnActive)
                 {
-                    GameObject baseline = GetClientInitialBaseline(previousGameObject, ref originalValue, ref originalValueSet);
+                    GameObject baseline = EnsureInitialHookBaseline(previousGameObject, ref originalValue, ref originalValueSet);
                     if (!SyncVarEqual(baseline, ref field))
-                    {
-                        if (!NetworkClient.isSpawnFinished)
-                        {
-                            GameObject capturedPrevious = baseline;
-                            GameObject capturedNew = field;
-                            deferredSyncVarHooks.Add(() => OnChanged(capturedPrevious, capturedNew));
-                        }
-                        else
-                        {
-                            OnChanged(baseline, field);
-                        }
-                    }
+                        InvokeSyncVarHookAction(OnChanged, baseline, field);
                 }
                 else if (!SyncVarEqual(previousNetId, ref netIdField))
                 {
-                    if (NetworkClient.active && !NetworkServer.active && !NetworkClient.isSpawnFinished)
-                    {
-                        GameObject capturedPrevious = previousGameObject;
-                        GameObject capturedNew = field;
-                        deferredSyncVarHooks.Add(() => OnChanged(capturedPrevious, capturedNew));
-                    }
-                    else
-                    {
-                        OnChanged(previousGameObject, field);
-                    }
+                    InvokeSyncVarHookAction(OnChanged, previousGameObject, field);
                 }
             }
         }
@@ -1126,16 +1071,7 @@ namespace Mirror
                 bool hostInitialSpawnInHostMode = NetworkServer.activeHost && netIdentity.hostInitialSpawn;
                 if (changed || hostInitialSpawnInHostMode)
                 {
-                    if (NetworkClient.active && !NetworkServer.active && !NetworkClient.isSpawnFinished)
-                    {
-                        NetworkIdentity capturedPrevious = previousIdentity;
-                        NetworkIdentity capturedNew = field;
-                        deferredSyncVarHooks.Add(() => OnChanged(capturedPrevious, capturedNew));
-                    }
-                    else
-                    {
-                        OnChanged(previousIdentity, field);
-                    }
+                    InvokeSyncVarHookAction(OnChanged, previousIdentity, field);
                 }
             }
         }
@@ -1164,33 +1100,13 @@ namespace Mirror
                 }
                 else if (NetworkClient.active && !NetworkServer.active && netIdentity.clientInitialSpawnActive)
                 {
-                    NetworkIdentity baseline = GetClientInitialBaseline(previousIdentity, ref originalValue, ref originalValueSet);
+                    NetworkIdentity baseline = EnsureInitialHookBaseline(previousIdentity, ref originalValue, ref originalValueSet);
                     if (!SyncVarEqual(baseline, ref field))
-                    {
-                        if (!NetworkClient.isSpawnFinished)
-                        {
-                            NetworkIdentity capturedPrevious = baseline;
-                            NetworkIdentity capturedNew = field;
-                            deferredSyncVarHooks.Add(() => OnChanged(capturedPrevious, capturedNew));
-                        }
-                        else
-                        {
-                            OnChanged(baseline, field);
-                        }
-                    }
+                        InvokeSyncVarHookAction(OnChanged, baseline, field);
                 }
                 else if (!SyncVarEqual(previousNetId, ref netIdField))
                 {
-                    if (NetworkClient.active && !NetworkServer.active && !NetworkClient.isSpawnFinished)
-                    {
-                        NetworkIdentity capturedPrevious = previousIdentity;
-                        NetworkIdentity capturedNew = field;
-                        deferredSyncVarHooks.Add(() => OnChanged(capturedPrevious, capturedNew));
-                    }
-                    else
-                    {
-                        OnChanged(previousIdentity, field);
-                    }
+                    InvokeSyncVarHookAction(OnChanged, previousIdentity, field);
                 }
             }
         }
@@ -1209,16 +1125,7 @@ namespace Mirror
                 bool hostInitialSpawnInHostMode = NetworkServer.activeHost && netIdentity.hostInitialSpawn;
                 if (changed || hostInitialSpawnInHostMode)
                 {
-                    if (NetworkClient.active && !NetworkServer.active && !NetworkClient.isSpawnFinished)
-                    {
-                        T capturedPrevious = previousBehaviour;
-                        T capturedNew = field;
-                        deferredSyncVarHooks.Add(() => OnChanged(capturedPrevious, capturedNew));
-                    }
-                    else
-                    {
-                        OnChanged(previousBehaviour, field);
-                    }
+                    InvokeSyncVarHookAction(OnChanged, previousBehaviour, field);
                 }
             }
         }
@@ -1248,33 +1155,13 @@ namespace Mirror
                 }
                 else if (NetworkClient.active && !NetworkServer.active && netIdentity.clientInitialSpawnActive)
                 {
-                    T baseline = GetClientInitialBaseline(previousBehaviour, ref originalValue, ref originalValueSet);
+                    T baseline = EnsureInitialHookBaseline(previousBehaviour, ref originalValue, ref originalValueSet);
                     if (!SyncVarEqual(baseline, ref field))
-                    {
-                        if (!NetworkClient.isSpawnFinished)
-                        {
-                            T capturedPrevious = baseline;
-                            T capturedNew = field;
-                            deferredSyncVarHooks.Add(() => OnChanged(capturedPrevious, capturedNew));
-                        }
-                        else
-                        {
-                            OnChanged(baseline, field);
-                        }
-                    }
+                        InvokeSyncVarHookAction(OnChanged, baseline, field);
                 }
                 else if (!SyncVarEqual(previousNetId, ref netIdField))
                 {
-                    if (NetworkClient.active && !NetworkServer.active && !NetworkClient.isSpawnFinished)
-                    {
-                        T capturedPrevious = previousBehaviour;
-                        T capturedNew = field;
-                        deferredSyncVarHooks.Add(() => OnChanged(capturedPrevious, capturedNew));
-                    }
-                    else
-                    {
-                        OnChanged(previousBehaviour, field);
-                    }
+                    InvokeSyncVarHookAction(OnChanged, previousBehaviour, field);
                 }
             }
         }
