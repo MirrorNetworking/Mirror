@@ -75,6 +75,16 @@ namespace Mirror.Tests.SyncCollections
             Assert.That(identity.observers.ContainsKey(NetworkServer.localConnection.connectionId), Is.EqualTo(expected));
         }
 
+        static int GetDeltaChangeCount(SyncObject syncObject)
+        {
+            using (NetworkWriterPooled writer = NetworkWriterPool.Get())
+            {
+                syncObject.OnSerializeDelta(writer);
+                using (NetworkReaderPooled reader = NetworkReaderPool.Get(writer.ToArraySegment()))
+                    return (int)reader.ReadUInt();
+            }
+        }
+
         [Test]
         public void SyncList_ActionsDeferUntilObserved()
         {
@@ -175,6 +185,28 @@ namespace Mirror.Tests.SyncCollections
         }
 
         [Test]
+        public void SyncList_HostVisibilityReplayPreservesPendingRemoteChanges()
+        {
+            CreateNetworked(out GameObject go, out NetworkIdentity identity, out HostVisibilitySyncListBehaviour behaviour);
+            go.transform.position = Vector3.zero;
+            behaviour.Register();
+            NetworkServer.Spawn(go);
+            ProcessMessages();
+
+            NetworkConnectionToClient remoteConnection = new NetworkConnectionToClient(42);
+            NetworkServer.connections[remoteConnection.connectionId] = remoteConnection;
+            identity.AddObserver(remoteConnection);
+
+            behaviour.list.Add("first");
+            Assert.That(GetDeltaChangeCount(behaviour.list), Is.EqualTo(1));
+
+            AddLocalPlayer(Vector3.zero);
+            AssertObserved(identity, true);
+            Assert.That(behaviour.actions, Is.EqualTo(new[] { "Add:first" }));
+            Assert.That(GetDeltaChangeCount(behaviour.list), Is.EqualTo(1));
+        }
+
+        [Test]
         public void SyncDictionary_ActionsDeferAgainAfterLeavingAoi()
         {
             CreateNetworked(out GameObject go, out NetworkIdentity identity, out HostVisibilitySyncDictionaryBehaviour behaviour);
@@ -205,6 +237,28 @@ namespace Mirror.Tests.SyncCollections
         }
 
         [Test]
+        public void SyncDictionary_HostVisibilityReplayPreservesPendingRemoteChanges()
+        {
+            CreateNetworked(out GameObject go, out NetworkIdentity identity, out HostVisibilitySyncDictionaryBehaviour behaviour);
+            go.transform.position = Vector3.zero;
+            behaviour.Register();
+            NetworkServer.Spawn(go);
+            ProcessMessages();
+
+            NetworkConnectionToClient remoteConnection = new NetworkConnectionToClient(42);
+            NetworkServer.connections[remoteConnection.connectionId] = remoteConnection;
+            identity.AddObserver(remoteConnection);
+
+            behaviour.dictionary.Add("key1", "first");
+            Assert.That(GetDeltaChangeCount(behaviour.dictionary), Is.EqualTo(1));
+
+            AddLocalPlayer(Vector3.zero);
+            AssertObserved(identity, true);
+            Assert.That(behaviour.actions, Is.EqualTo(new[] { "Add:key1:first" }));
+            Assert.That(GetDeltaChangeCount(behaviour.dictionary), Is.EqualTo(1));
+        }
+
+        [Test]
         public void SyncSet_ActionsDeferAgainAfterLeavingAoi()
         {
             CreateNetworked(out GameObject go, out NetworkIdentity identity, out HostVisibilitySyncSetBehaviour behaviour);
@@ -232,6 +286,28 @@ namespace Mirror.Tests.SyncCollections
             RebuildLocalObserver(identity, Vector3.zero);
             AssertObserved(identity, true);
             Assert.That(behaviour.actions, Is.EqualTo(new[] { "Add:first", "Add:second" }));
+        }
+
+        [Test]
+        public void SyncSet_HostVisibilityReplayPreservesPendingRemoteChanges()
+        {
+            CreateNetworked(out GameObject go, out NetworkIdentity identity, out HostVisibilitySyncSetBehaviour behaviour);
+            go.transform.position = Vector3.zero;
+            behaviour.Register();
+            NetworkServer.Spawn(go);
+            ProcessMessages();
+
+            NetworkConnectionToClient remoteConnection = new NetworkConnectionToClient(42);
+            NetworkServer.connections[remoteConnection.connectionId] = remoteConnection;
+            identity.AddObserver(remoteConnection);
+
+            behaviour.set.Add("first");
+            Assert.That(GetDeltaChangeCount(behaviour.set), Is.EqualTo(1));
+
+            AddLocalPlayer(Vector3.zero);
+            AssertObserved(identity, true);
+            Assert.That(behaviour.actions, Is.EqualTo(new[] { "Add:first" }));
+            Assert.That(GetDeltaChangeCount(behaviour.set), Is.EqualTo(1));
         }
     }
 }

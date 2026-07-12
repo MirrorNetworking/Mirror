@@ -247,23 +247,28 @@ namespace Mirror
                 objects.Add(obj);
             }
 
-            if (NetworkServer.activeHost &&
-                networkBehaviour.syncDirection == SyncDirection.ServerToClient &&
-                networkBehaviour.netIdentity.hostInitialSpawn)
-            {
-                for (int i = 0; i < objects.Count; i++)
-                {
-                    int capturedIndex = i;
-                    T capturedValue = objects[i];
-                    networkBehaviour.deferredSyncCollectionActions.Add(() =>
-                        InvokeActions(Operation.OP_ADD, capturedIndex, default, capturedValue));
-                }
-            }
+            QueueHostVisibilityReplay();
 
             // We will need to skip all these changes
             // the next time the list is synchronized
             // because they have already been applied
             changesAhead = (int)reader.ReadUInt();
+        }
+
+        public override void QueueHostVisibilityReplay()
+        {
+            if (!(NetworkServer.activeHost &&
+                  networkBehaviour.syncDirection == SyncDirection.ServerToClient &&
+                  networkBehaviour.netIdentity.hostInitialSpawn))
+                return;
+
+            for (int i = 0; i < objects.Count; i++)
+            {
+                int capturedIndex = i;
+                T capturedValue = objects[i];
+                networkBehaviour.deferredSyncCollectionActions.Add(() =>
+                    InvokeActions(Operation.OP_ADD, capturedIndex, default, capturedValue));
+            }
         }
 
         public override void OnDeserializeDelta(NetworkReader reader)

@@ -131,23 +131,28 @@ namespace Mirror
                 objects.Add(key, obj);
             }
 
-            if (NetworkServer.activeHost &&
-                networkBehaviour.syncDirection == SyncDirection.ServerToClient &&
-                networkBehaviour.netIdentity.hostInitialSpawn)
-            {
-                foreach (KeyValuePair<TKey, TValue> entry in objects)
-                {
-                    TKey capturedKey = entry.Key;
-                    TValue capturedValue = entry.Value;
-                    networkBehaviour.deferredSyncCollectionActions.Add(() =>
-                        InvokeActions(Operation.OP_ADD, capturedKey, capturedValue, default));
-                }
-            }
+            QueueHostVisibilityReplay();
 
             // We will need to skip all these changes
             // the next time the list is synchronized
             // because they have already been applied
             changesAhead = (int)reader.ReadUInt();
+        }
+
+        public override void QueueHostVisibilityReplay()
+        {
+            if (!(NetworkServer.activeHost &&
+                  networkBehaviour.syncDirection == SyncDirection.ServerToClient &&
+                  networkBehaviour.netIdentity.hostInitialSpawn))
+                return;
+
+            foreach (KeyValuePair<TKey, TValue> entry in objects)
+            {
+                TKey capturedKey = entry.Key;
+                TValue capturedValue = entry.Value;
+                networkBehaviour.deferredSyncCollectionActions.Add(() =>
+                    InvokeActions(Operation.OP_ADD, capturedKey, capturedValue, default));
+            }
         }
 
         public override void OnDeserializeDelta(NetworkReader reader)

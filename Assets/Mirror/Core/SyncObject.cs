@@ -50,6 +50,9 @@ namespace Mirror
         /// <summary>Reads the changes made to the object since last sync</summary>
         public abstract void OnDeserializeDelta(NetworkReader reader);
 
+        /// <summary>Queues host-mode first-observation Add replay actions without mutating server state.</summary>
+        public virtual void QueueHostVisibilityReplay() {}
+
         /// <summary>Resets the SyncObject so that it can be re-used</summary>
         public abstract void Reset();
     }

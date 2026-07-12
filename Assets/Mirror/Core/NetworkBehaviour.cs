@@ -207,6 +207,17 @@ namespace Mirror
             deferredSyncCollectionActions.Clear();
         }
 
+        protected virtual void InvokeSyncVarHostVisibilityHooks() {}
+
+        internal void InvokeHostVisibilityDeferredCallbacks()
+        {
+            for (int i = 0; i < syncObjects.Count; ++i)
+                syncObjects[i].QueueHostVisibilityReplay();
+
+            InvokeSyncVarHostVisibilityHooks();
+            InvokeDeferredSyncCallbacks();
+        }
+
         protected virtual void OnValidate()
         {
             // Skip if Editor is in Play mode
@@ -936,6 +947,19 @@ namespace Mirror
                         OnChanged(previous, field);
                     }
                 }
+            }
+        }
+
+        public void GeneratedSyncVarHostVisibilityHook<T>(ref T field, Action<T, T> OnChanged, ulong dirtyBit, ref T originalValue, ref bool originalValueSet)
+        {
+            if (OnChanged != null &&
+                originalValueSet &&
+                !GetSyncVarHookGuard(dirtyBit) &&
+                !SyncVarEqual(originalValue, ref field))
+            {
+                SetSyncVarHookGuard(dirtyBit, true);
+                OnChanged(originalValue, field);
+                SetSyncVarHookGuard(dirtyBit, false);
             }
         }
 

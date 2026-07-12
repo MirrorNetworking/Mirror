@@ -99,6 +99,7 @@ namespace Mirror.Weaver
             }
 
             GenerateDeSerialization(ref WeavingFailed);
+            GenerateHostVisibilityHookInvocation(ref WeavingFailed);
             return true;
         }
 
@@ -805,6 +806,55 @@ namespace Mirror.Weaver
 
             serWorker.Append(serWorker.Create(OpCodes.Ret));
             netBehaviourSubclass.Methods.Add(serialize);
+        }
+
+        void GenerateHostVisibilityHookInvocation(ref bool WeavingFailed)
+        {
+            const string MethodName = "InvokeSyncVarHostVisibilityHooks";
+            if (netBehaviourSubclass.GetMethod(MethodName) != null)
+                return;
+
+            if (syncVarHookDelegates.Count == 0)
+                return;
+
+            MethodDefinition method = new MethodDefinition(MethodName,
+                MethodAttributes.Family | MethodAttributes.Virtual | MethodAttributes.HideBySig,
+                weaverTypes.Import(typeof(void)));
+
+            ILProcessor worker = method.Body.GetILProcessor();
+
+            MethodReference baseMethod = Resolvers.TryResolveMethodInParents(netBehaviourSubclass.BaseType, assembly, MethodName);
+            if (baseMethod != null)
+            {
+                worker.Append(worker.Create(OpCodes.Ldarg_0));
+                worker.Append(worker.Create(OpCodes.Call, baseMethod));
+            }
+
+            int dirtyBit = syncVarAccessLists.GetSyncVarStart(netBehaviourSubclass.BaseType.FullName);
+            foreach (FieldDefinition syncVar in syncVars)
+            {
+                if (syncVarHookDelegates.TryGetValue(syncVar, out SyncVarAttributeProcessor.SyncVarHookData hookData))
+                {
+                    worker.Emit(OpCodes.Ldarg_0);
+                    worker.Emit(OpCodes.Ldarg_0);
+                    worker.Emit(OpCodes.Ldflda, syncVar);
+                    worker.Emit(OpCodes.Ldarg_0);
+                    worker.Emit(OpCodes.Ldfld, hookData.hookDelegateField);
+                    worker.Emit(OpCodes.Ldc_I8, 1L << dirtyBit);
+                    worker.Emit(OpCodes.Ldarg_0);
+                    worker.Emit(OpCodes.Ldflda, hookData.originalValueField);
+                    worker.Emit(OpCodes.Ldarg_0);
+                    worker.Emit(OpCodes.Ldflda, hookData.originalValueSetField);
+
+                    MethodReference generic = weaverTypes.generatedSyncVarHostVisibilityHook.MakeGeneric(assembly.MainModule, syncVar.FieldType);
+                    worker.Emit(OpCodes.Call, generic);
+                }
+
+                dirtyBit += 1;
+            }
+
+            worker.Emit(OpCodes.Ret);
+            netBehaviourSubclass.Methods.Add(method);
         }
 
         public static bool ReadArguments(MethodDefinition method, Readers readers, Logger Log, ILProcessor worker, RemoteCallType callType, ref bool WeavingFailed)

@@ -43,6 +43,7 @@ namespace Mirror.Weaver
         public MethodReference generatedSyncVarSetter_NetworkIdentity_Hook;
         public MethodReference generatedSyncVarSetter_NetworkBehaviour_T;
         public MethodReference generatedSyncVarSetter_NetworkBehaviour_Hook_T;
+        public MethodReference generatedSyncVarHostVisibilityHook;
         public MethodReference generatedSyncVarDeserialize;
         public MethodReference generatedSyncVarDeserialize_Hook;
         public MethodReference generatedSyncVarDeserialize_GameObject;
@@ -118,6 +119,7 @@ namespace Mirror.Weaver
             generatedSyncVarSetter_NetworkIdentity_Hook = Resolvers.ResolveMethod(NetworkBehaviourType, assembly, Log, "GeneratedSyncVarSetter_NetworkIdentity_Hook", ref WeavingFailed);
             generatedSyncVarSetter_NetworkBehaviour_T = Resolvers.ResolveMethod(NetworkBehaviourType, assembly, Log, "GeneratedSyncVarSetter_NetworkBehaviour", ref WeavingFailed);
             generatedSyncVarSetter_NetworkBehaviour_Hook_T = Resolvers.ResolveMethod(NetworkBehaviourType, assembly, Log, "GeneratedSyncVarSetter_NetworkBehaviour_Hook", ref WeavingFailed);
+            generatedSyncVarHostVisibilityHook = Resolvers.ResolveMethod(NetworkBehaviourType, assembly, Log, "GeneratedSyncVarHostVisibilityHook", ref WeavingFailed);
 
             generatedSyncVarDeserialize_GameObject = Resolvers.ResolveMethod(NetworkBehaviourType, assembly, Log, "GeneratedSyncVarDeserialize_GameObject", ref WeavingFailed);
             generatedSyncVarDeserialize_GameObject_Hook = Resolvers.ResolveMethod(NetworkBehaviourType, assembly, Log, "GeneratedSyncVarDeserialize_GameObject_Hook", ref WeavingFailed);

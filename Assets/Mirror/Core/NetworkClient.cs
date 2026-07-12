@@ -1129,25 +1129,8 @@ namespace Mirror
                 identity.hostInitialSpawn = true;
                 try
                 {
-                    using (NetworkWriterPooled ownerWriter = NetworkWriterPool.Get(), observersWriter = NetworkWriterPool.Get())
-                    {
-                        identity.SerializeServer_Spawn(ownerWriter, observersWriter);
-
-                        ArraySegment<byte> payload = identity.connectionToClient == NetworkServer.localConnection
-                            ? ownerWriter.ToArraySegment()
-                            : observersWriter.ToArraySegment();
-
-                        if (payload.Count > 0)
-                        {
-                            using (NetworkReaderPooled payloadReader = NetworkReaderPool.Get(payload))
-                            {
-                                identity.DeserializeClient(payloadReader, true);
-                            }
-                        }
-                    }
-
                     foreach (NetworkBehaviour comp in identity.NetworkBehaviours)
-                        comp.InvokeDeferredSyncCallbacks();
+                        comp.InvokeHostVisibilityDeferredCallbacks();
                 }
                 finally
                 {
@@ -1457,31 +1440,21 @@ namespace Mirror
 
                 identity.isOwned = message.isOwner;
 
-                // Ensure SyncVar hooks fire during deserialization for host client initial spawn.
-                // Fields were already set server-side, but hooks haven't fired yet because the
-                // object wasn't in NetworkClient.spawned when setters ran during OnStartServer().
+                // Ensure host-visible SyncVar hooks and SyncCollection Add replays flush now.
+                // Fields were already set server-side, but host callbacks may have been deferred
+                // until the object was actually visible to the host client.
                 identity.hostInitialSpawn = true;
 
-                // Configure flags before deserializing
+                // Configure flags before invoking host-visible callbacks.
                 InitializeIdentityFlags(identity);
 
-                // Deserialize components if any payload.
-                // This will trigger SyncVar hooks via GeneratedSyncVarDeserialize.
-                if (message.payload.Count > 0)
-                {
-                    using (NetworkReaderPooled payloadReader = NetworkReaderPool.Get(message.payload))
-                    {
-                        identity.DeserializeClient(payloadReader, true);
-                    }
-                }
+                foreach (NetworkBehaviour comp in identity.NetworkBehaviours)
+                    comp.InvokeHostVisibilityDeferredCallbacks();
 
-                // Clear flag after deserialization
+                // Clear flag after host-visible callbacks replay.
                 identity.hostInitialSpawn = false;
 
-                foreach (NetworkBehaviour comp in identity.NetworkBehaviours)
-                    comp.InvokeDeferredSyncCallbacks();
-
-                // Invoke callbacks after deserializing
+                // Invoke callbacks after host-visible state is ready.
                 InvokeIdentityCallbacks(identity);
             }
         }
