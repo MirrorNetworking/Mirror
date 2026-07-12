@@ -1608,7 +1608,7 @@ namespace Mirror
             // Rpcs often can't be applied if interest management unspawned them
         }
 
-        static void OnObjectHide(ObjectHideMessage message) => DestroyObject(message.netId);
+        internal static void OnObjectHide(ObjectHideMessage message) => DestroyObject(message.netId);
 
         internal static void OnObjectDestroy(ObjectDestroyMessage message) => DestroyObject(message.netId);
 
