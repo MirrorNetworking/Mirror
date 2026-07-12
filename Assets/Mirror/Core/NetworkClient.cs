@@ -2007,6 +2007,7 @@ namespace Mirror
                 else
                 {
                     identity.gameObject.SetActive(false);
+                    spawnableObjects[sceneId] = identity;
                     // reset for scene objects
                     identity.ResetState();
                     spawnableObjects[sceneId] = identity;
