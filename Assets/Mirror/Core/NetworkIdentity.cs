@@ -126,7 +126,7 @@ namespace Mirror
         // flag to indicate a remote client is deserializing an initial spawn.
         // scene objects may be re-used across hide/show cycles, so hook logic
         // needs to treat each re-observation like a fresh first observation.
-        internal bool clientInitialSpawn;
+        internal bool clientInitialSpawnActive;
 
         /// <summary>The set of network connections (players) that can see this object.</summary>
         public readonly Dictionary<int, NetworkConnectionToClient> observers =

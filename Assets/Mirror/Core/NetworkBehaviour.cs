@@ -197,6 +197,9 @@ namespace Mirror
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         T GetClientInitialBaseline<T>(T previous, ref T originalValue, ref bool originalValueSet)
         {
+            // Scene objects are re-used across hide/show cycles on remote clients.
+            // Preserve the very first local baseline so each initial spawn replay
+            // behaves like a fresh first observation again.
             if (!originalValueSet)
             {
                 originalValue = previous;
@@ -995,7 +998,7 @@ namespace Mirror
 
                     }
                 }
-                else if (NetworkClient.active && !NetworkServer.active && netIdentity.clientInitialSpawn)
+                else if (NetworkClient.active && !NetworkServer.active && netIdentity.clientInitialSpawnActive)
                 {
                     T baseline = GetClientInitialBaseline(previous, ref originalValue, ref originalValueSet);
                     if (!SyncVarEqual(baseline, ref field))
@@ -1077,7 +1080,7 @@ namespace Mirror
 
                     }
                 }
-                else if (NetworkClient.active && !NetworkServer.active && netIdentity.clientInitialSpawn)
+                else if (NetworkClient.active && !NetworkServer.active && netIdentity.clientInitialSpawnActive)
                 {
                     GameObject baseline = GetClientInitialBaseline(previousGameObject, ref originalValue, ref originalValueSet);
                     if (!SyncVarEqual(baseline, ref field))
@@ -1159,7 +1162,7 @@ namespace Mirror
 
                     }
                 }
-                else if (NetworkClient.active && !NetworkServer.active && netIdentity.clientInitialSpawn)
+                else if (NetworkClient.active && !NetworkServer.active && netIdentity.clientInitialSpawnActive)
                 {
                     NetworkIdentity baseline = GetClientInitialBaseline(previousIdentity, ref originalValue, ref originalValueSet);
                     if (!SyncVarEqual(baseline, ref field))
@@ -1243,7 +1246,7 @@ namespace Mirror
 
                     }
                 }
-                else if (NetworkClient.active && !NetworkServer.active && netIdentity.clientInitialSpawn)
+                else if (NetworkClient.active && !NetworkServer.active && netIdentity.clientInitialSpawnActive)
                 {
                     T baseline = GetClientInitialBaseline(previousBehaviour, ref originalValue, ref originalValueSet);
                     if (!SyncVarEqual(baseline, ref field))
