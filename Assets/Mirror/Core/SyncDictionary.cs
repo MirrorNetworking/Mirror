@@ -278,6 +278,15 @@ namespace Mirror
             objects.Clear();
         }
 
+        public override void ResetCallbacks()
+        {
+            OnAdd = null;
+            OnSet = null;
+            OnRemove = null;
+            OnClear = null;
+            OnChange = null;
+        }
+
         public TValue this[TKey i]
         {
             get => objects[i];

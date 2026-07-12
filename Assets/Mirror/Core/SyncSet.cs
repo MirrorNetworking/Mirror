@@ -66,6 +66,14 @@ namespace Mirror
             objects.Clear();
         }
 
+        public override void ResetCallbacks()
+        {
+            OnAdd = null;
+            OnRemove = null;
+            OnClear = null;
+            OnChange = null;
+        }
+
         // throw away all the changes
         // this should be called after a successful sync
         public override void ClearChanges() => changes.Clear();

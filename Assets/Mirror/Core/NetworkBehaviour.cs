@@ -1550,6 +1550,14 @@ namespace Mirror
             }
         }
 
+        internal void ResetSyncObjectCallbacks()
+        {
+            foreach (SyncObject syncObject in syncObjects)
+            {
+                syncObject.ResetCallbacks();
+            }
+        }
+
         /// <summary>Like Start(), but only called on server and host.</summary>
         public virtual void OnStartServer() {}
 

@@ -1679,6 +1679,9 @@ namespace Mirror
 
             ClearObservers();
 
+            foreach (NetworkBehaviour comp in NetworkBehaviours)
+                comp.ResetSyncObjectCallbacks();
+
             // clear local player if it was the local player,
             // THEN reset isLocalPlayer AFTERWARDS
             if (isLocalPlayer)

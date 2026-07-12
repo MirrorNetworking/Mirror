@@ -97,6 +97,17 @@ namespace Mirror
             objects.Clear();
         }
 
+        public override void ResetCallbacks()
+        {
+            OnAdd = null;
+            OnInsert = null;
+            OnSet = null;
+            OnRemove = null;
+            OnClear = null;
+            OnChange = null;
+            Callback = null;
+        }
+
         void AddOperation(Operation op, int itemIndex, T oldItem, T newItem, bool checkAccess, bool shouldApplyChanges)
         {
             if (checkAccess && IsReadOnly)
