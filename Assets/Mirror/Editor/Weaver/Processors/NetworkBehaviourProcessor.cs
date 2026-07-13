@@ -100,6 +100,7 @@ namespace Mirror.Weaver
 
             GenerateDeSerialization(ref WeavingFailed);
             GenerateHostVisibilityHookInvocation(ref WeavingFailed);
+            GenerateHostVisibilityPendingSetter();
             return true;
         }
 
@@ -845,12 +846,50 @@ namespace Mirror.Weaver
                     worker.Emit(OpCodes.Ldflda, hookData.originalValueField);
                     worker.Emit(OpCodes.Ldarg_0);
                     worker.Emit(OpCodes.Ldflda, hookData.originalValueSetField);
+                    worker.Emit(OpCodes.Ldarg_0);
+                    worker.Emit(OpCodes.Ldflda, hookData.hostVisibilityPendingField);
 
                     MethodReference generic = weaverTypes.generatedSyncVarHostVisibilityHook.MakeGeneric(assembly.MainModule, syncVar.FieldType);
                     worker.Emit(OpCodes.Call, generic);
                 }
 
                 dirtyBit += 1;
+            }
+
+            worker.Emit(OpCodes.Ret);
+            netBehaviourSubclass.Methods.Add(method);
+        }
+
+        void GenerateHostVisibilityPendingSetter()
+        {
+            const string MethodName = "MarkAllSyncVarHostVisibilityReplayPending";
+            if (netBehaviourSubclass.GetMethod(MethodName) != null)
+                return;
+
+            if (syncVarHookDelegates.Count == 0)
+                return;
+
+            MethodDefinition method = new MethodDefinition(MethodName,
+                MethodAttributes.FamORAssem | MethodAttributes.Virtual | MethodAttributes.HideBySig,
+                weaverTypes.Import(typeof(void)));
+
+            ILProcessor worker = method.Body.GetILProcessor();
+
+            MethodReference baseMethod = Resolvers.TryResolveMethodInParents(netBehaviourSubclass.BaseType, assembly, MethodName);
+            if (baseMethod != null)
+            {
+                worker.Append(worker.Create(OpCodes.Ldarg_0));
+                worker.Append(worker.Create(OpCodes.Call, baseMethod));
+            }
+
+            foreach (FieldDefinition syncVar in syncVars)
+            {
+                if (syncVarHookDelegates.TryGetValue(syncVar, out SyncVarAttributeProcessor.SyncVarHookData hookData))
+                {
+                    worker.Emit(OpCodes.Ldarg_0);
+                    worker.Emit(OpCodes.Ldc_I4_1);
+                    worker.Emit(OpCodes.Stfld, hookData.hostVisibilityPendingField);
+                }
             }
 
             worker.Emit(OpCodes.Ret);

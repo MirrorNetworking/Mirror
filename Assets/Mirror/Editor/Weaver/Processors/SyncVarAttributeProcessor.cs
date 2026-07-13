@@ -16,6 +16,7 @@ namespace Mirror.Weaver
             public FieldDefinition hookDelegateField;
             public FieldDefinition originalValueField;
             public FieldDefinition originalValueSetField;
+            public FieldDefinition hostVisibilityPendingField;
             public MethodDefinition hookMethod;
         }
 
@@ -68,6 +69,9 @@ namespace Mirror.Weaver
 
         public FieldDefinition CreateOriginalValueSetFieldDefinition(FieldDefinition syncVarField) =>
             new FieldDefinition($"_Mirror_SyncVarHookOriginalSet_{syncVarField.Name}", FieldAttributes.Private, weaverTypes.Import<bool>());
+
+        public FieldDefinition CreateHostVisibilityPendingFieldDefinition(FieldDefinition syncVarField) =>
+            new FieldDefinition($"_Mirror_SyncVarHookHostVisibilityPending_{syncVarField.Name}", FieldAttributes.Private, weaverTypes.Import<bool>());
 
         // push hook from GetHookMethod() onto the stack as a new Action<T,T>.
         // allows for reuse without handling static/virtual cases every time.
@@ -365,6 +369,8 @@ namespace Mirror.Weaver
                     worker.Emit(OpCodes.Ldflda, hookData.originalValueField);
                     worker.Emit(OpCodes.Ldarg_0);
                     worker.Emit(OpCodes.Ldflda, hookData.originalValueSetField);
+                    worker.Emit(OpCodes.Ldarg_0);
+                    worker.Emit(OpCodes.Ldflda, hookData.hostVisibilityPendingField);
                     worker.Emit(OpCodes.Call, weaverTypes.generatedSyncVarSetter_GameObject_Hook);
                 }
                 else
@@ -384,6 +390,8 @@ namespace Mirror.Weaver
                     worker.Emit(OpCodes.Ldflda, hookData.originalValueField);
                     worker.Emit(OpCodes.Ldarg_0);
                     worker.Emit(OpCodes.Ldflda, hookData.originalValueSetField);
+                    worker.Emit(OpCodes.Ldarg_0);
+                    worker.Emit(OpCodes.Ldflda, hookData.hostVisibilityPendingField);
                     worker.Emit(OpCodes.Call, weaverTypes.generatedSyncVarSetter_NetworkIdentity_Hook);
                 }
                 else
@@ -408,6 +416,8 @@ namespace Mirror.Weaver
                     worker.Emit(OpCodes.Ldflda, hookData.originalValueField);
                     worker.Emit(OpCodes.Ldarg_0);
                     worker.Emit(OpCodes.Ldflda, hookData.originalValueSetField);
+                    worker.Emit(OpCodes.Ldarg_0);
+                    worker.Emit(OpCodes.Ldflda, hookData.hostVisibilityPendingField);
                 }
 
                 worker.Emit(OpCodes.Call, getFunc);
@@ -422,6 +432,8 @@ namespace Mirror.Weaver
                     worker.Emit(OpCodes.Ldflda, hookData.originalValueField);
                     worker.Emit(OpCodes.Ldarg_0);
                     worker.Emit(OpCodes.Ldflda, hookData.originalValueSetField);
+                    worker.Emit(OpCodes.Ldarg_0);
+                    worker.Emit(OpCodes.Ldflda, hookData.hostVisibilityPendingField);
                 }
 
                 worker.Emit(OpCodes.Call, generic);
@@ -473,6 +485,7 @@ namespace Mirror.Weaver
                     hookDelegateField = CreateNewActionFieldDefinitionFromHookMethod(fd),
                     originalValueField = CreateOriginalValueFieldDefinition(fd),
                     originalValueSetField = CreateOriginalValueSetFieldDefinition(fd),
+                    hostVisibilityPendingField = CreateHostVisibilityPendingFieldDefinition(fd),
                     hookMethod = hookMethod
                 };
             }
@@ -566,6 +579,7 @@ namespace Mirror.Weaver
                 td.Fields.Add(entry.hookDelegateField);
                 td.Fields.Add(entry.originalValueField);
                 td.Fields.Add(entry.originalValueSetField);
+                td.Fields.Add(entry.hostVisibilityPendingField);
             }
 
             // include parent class syncvars

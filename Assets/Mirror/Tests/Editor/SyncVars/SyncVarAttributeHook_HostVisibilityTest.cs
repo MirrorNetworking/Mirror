@@ -29,6 +29,20 @@ namespace Mirror.Tests.SyncVars
         void OnValueChanged(HostHookStructValue oldValue, HostHookStructValue newValue) => hookValues.Add((oldValue, newValue));
     }
 
+    class HostVisibilityMultiHookBehaviour : NetworkBehaviour
+    {
+        [SyncVar(hook = nameof(OnFirstChanged))]
+        public int first = 10;
+
+        [SyncVar(hook = nameof(OnSecondChanged))]
+        public int second = 20;
+
+        public readonly List<string> hookCalls = new List<string>();
+
+        void OnFirstChanged(int oldValue, int newValue) => hookCalls.Add($"first:{oldValue}->{newValue}");
+        void OnSecondChanged(int oldValue, int newValue) => hookCalls.Add($"second:{oldValue}->{newValue}");
+    }
+
     public class SyncVarAttributeHook_HostVisibilityTest : MirrorTest
     {
         DistanceInterestManagement aoi;
@@ -202,6 +216,28 @@ namespace Mirror.Tests.SyncVars
 
             Assert.That(NetworkClient.localPlayer, Is.EqualTo(identity));
             Assert.That(behaviour.hookValues, Is.EqualTo(new[] { (42, 100) }));
+        }
+
+        [Test]
+        public void Hook_DoesNotReplayImmediatelyObservedSyncVarBecauseAnotherHookIsPending()
+        {
+            CreateNetworked(out GameObject go, out NetworkIdentity identity, out HostVisibilityMultiHookBehaviour behaviour);
+            go.transform.position = Vector3.zero;
+            NetworkServer.Spawn(go);
+            ProcessMessages();
+
+            behaviour.first = 100;
+            Assert.That(behaviour.hookCalls, Is.Empty);
+
+            AddLocalPlayerWithoutProcessingMessages(Vector3.zero, out HostVisibilityHookBehaviour _);
+            AssertObserved(identity, true);
+
+            behaviour.second = 200;
+            Assert.That(behaviour.hookCalls, Is.EqualTo(new[] { "second:20->200" }));
+
+            ProcessMessages();
+
+            Assert.That(behaviour.hookCalls, Is.EqualTo(new[] { "second:20->200", "first:10->100" }));
         }
     }
 }

@@ -186,6 +186,13 @@ namespace Mirror
         internal void MarkHostVisibilityReplayPending() => hostVisibilityReplayPending = true;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        void MarkSyncVarHostVisibilityReplayPending(ref bool hostVisibilityPending)
+        {
+            hostVisibilityPending = true;
+            hostVisibilityReplayPending = true;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         T EnsureInitialHookBaseline<T>(T previous, ref T originalValue, ref bool originalValueSet)
         {
             // Scene objects are re-used across hide/show cycles on remote clients.
@@ -229,6 +236,7 @@ namespace Mirror
         }
 
         protected virtual void InvokeSyncVarHostVisibilityHooks() {}
+        protected internal virtual void MarkAllSyncVarHostVisibilityReplayPending() {}
 
         internal void InvokeHostVisibilityDeferredCallbacks()
         {
@@ -657,7 +665,7 @@ namespace Mirror
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void GeneratedSyncVarSetter_Hook<T>(T value, ref T field, ulong dirtyBit, Action<T, T> OnChanged, ref T originalValue, ref bool originalValueSet)
+        public void GeneratedSyncVarSetter_Hook<T>(T value, ref T field, ulong dirtyBit, Action<T, T> OnChanged, ref T originalValue, ref bool originalValueSet, ref bool hostVisibilityPending)
         {
             if (!SyncVarEqual(value, ref field))
             {
@@ -670,6 +678,7 @@ namespace Mirror
                     {
                         if (!originalValueSet)
                             EnsureInitialHookBaseline(previous, ref originalValue, ref originalValueSet);
+                        hostVisibilityPending = false;
                         SetSyncVarHookGuard(dirtyBit, true);
                         OnChanged(previous, value);
                         SetSyncVarHookGuard(dirtyBit, false);
@@ -678,7 +687,7 @@ namespace Mirror
                     {
                         if (!originalValueSet)
                             EnsureInitialHookBaseline(previous, ref originalValue, ref originalValueSet);
-                        MarkHostVisibilityReplayPending();
+                        MarkSyncVarHostVisibilityReplayPending(ref hostVisibilityPending);
                     }
                 }
             }
@@ -707,7 +716,7 @@ namespace Mirror
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void GeneratedSyncVarSetter_GameObject_Hook(GameObject value, ref GameObject field, ulong dirtyBit, Action<GameObject, GameObject> OnChanged, ref uint netIdField, ref GameObject originalValue, ref bool originalValueSet)
+        public void GeneratedSyncVarSetter_GameObject_Hook(GameObject value, ref GameObject field, ulong dirtyBit, Action<GameObject, GameObject> OnChanged, ref uint netIdField, ref GameObject originalValue, ref bool originalValueSet, ref bool hostVisibilityPending)
         {
             if (!SyncVarGameObjectEqual(value, netIdField))
             {
@@ -720,6 +729,7 @@ namespace Mirror
                     {
                         if (!originalValueSet)
                             EnsureInitialHookBaseline(previous, ref originalValue, ref originalValueSet);
+                        hostVisibilityPending = false;
                         SetSyncVarHookGuard(dirtyBit, true);
                         OnChanged(previous, value);
                         SetSyncVarHookGuard(dirtyBit, false);
@@ -728,7 +738,7 @@ namespace Mirror
                     {
                         if (!originalValueSet)
                             EnsureInitialHookBaseline(previous, ref originalValue, ref originalValueSet);
-                        MarkHostVisibilityReplayPending();
+                        MarkSyncVarHostVisibilityReplayPending(ref hostVisibilityPending);
                     }
                 }
             }
@@ -757,7 +767,7 @@ namespace Mirror
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void GeneratedSyncVarSetter_NetworkIdentity_Hook(NetworkIdentity value, ref NetworkIdentity field, ulong dirtyBit, Action<NetworkIdentity, NetworkIdentity> OnChanged, ref uint netIdField, ref NetworkIdentity originalValue, ref bool originalValueSet)
+        public void GeneratedSyncVarSetter_NetworkIdentity_Hook(NetworkIdentity value, ref NetworkIdentity field, ulong dirtyBit, Action<NetworkIdentity, NetworkIdentity> OnChanged, ref uint netIdField, ref NetworkIdentity originalValue, ref bool originalValueSet, ref bool hostVisibilityPending)
         {
             if (!SyncVarNetworkIdentityEqual(value, netIdField))
             {
@@ -770,6 +780,7 @@ namespace Mirror
                     {
                         if (!originalValueSet)
                             EnsureInitialHookBaseline(previous, ref originalValue, ref originalValueSet);
+                        hostVisibilityPending = false;
                         SetSyncVarHookGuard(dirtyBit, true);
                         OnChanged(previous, value);
                         SetSyncVarHookGuard(dirtyBit, false);
@@ -778,7 +789,7 @@ namespace Mirror
                     {
                         if (!originalValueSet)
                             EnsureInitialHookBaseline(previous, ref originalValue, ref originalValueSet);
-                        MarkHostVisibilityReplayPending();
+                        MarkSyncVarHostVisibilityReplayPending(ref hostVisibilityPending);
                     }
                 }
             }
@@ -808,7 +819,7 @@ namespace Mirror
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void GeneratedSyncVarSetter_NetworkBehaviour_Hook<T>(T value, ref T field, ulong dirtyBit, Action<T, T> OnChanged, ref NetworkBehaviourSyncVar netIdField, ref T originalValue, ref bool originalValueSet)
+        public void GeneratedSyncVarSetter_NetworkBehaviour_Hook<T>(T value, ref T field, ulong dirtyBit, Action<T, T> OnChanged, ref NetworkBehaviourSyncVar netIdField, ref T originalValue, ref bool originalValueSet, ref bool hostVisibilityPending)
             where T : NetworkBehaviour
         {
             if (!SyncVarNetworkBehaviourEqual(value, netIdField))
@@ -822,6 +833,7 @@ namespace Mirror
                     {
                         if (!originalValueSet)
                             EnsureInitialHookBaseline(previous, ref originalValue, ref originalValueSet);
+                        hostVisibilityPending = false;
                         SetSyncVarHookGuard(dirtyBit, true);
                         OnChanged(previous, value);
                         SetSyncVarHookGuard(dirtyBit, false);
@@ -830,7 +842,7 @@ namespace Mirror
                     {
                         if (!originalValueSet)
                             EnsureInitialHookBaseline(previous, ref originalValue, ref originalValueSet);
-                        MarkHostVisibilityReplayPending();
+                        MarkSyncVarHostVisibilityReplayPending(ref hostVisibilityPending);
                     }
                 }
             }
@@ -985,16 +997,21 @@ namespace Mirror
             }
         }
 
-        public void GeneratedSyncVarHostVisibilityHook<T>(ref T field, Action<T, T> OnChanged, ulong dirtyBit, ref T originalValue, ref bool originalValueSet)
+        public void GeneratedSyncVarHostVisibilityHook<T>(ref T field, Action<T, T> OnChanged, ulong dirtyBit, ref T originalValue, ref bool originalValueSet, ref bool hostVisibilityPending)
         {
-            if (OnChanged != null &&
-                originalValueSet &&
-                !GetSyncVarHookGuard(dirtyBit) &&
-                !SyncVarEqual(originalValue, ref field))
+            if (hostVisibilityPending)
             {
-                SetSyncVarHookGuard(dirtyBit, true);
-                OnChanged(originalValue, field);
-                SetSyncVarHookGuard(dirtyBit, false);
+                hostVisibilityPending = false;
+
+                if (OnChanged != null &&
+                    originalValueSet &&
+                    !GetSyncVarHookGuard(dirtyBit) &&
+                    !SyncVarEqual(originalValue, ref field))
+                {
+                    SetSyncVarHookGuard(dirtyBit, true);
+                    OnChanged(originalValue, field);
+                    SetSyncVarHookGuard(dirtyBit, false);
+                }
             }
         }
 

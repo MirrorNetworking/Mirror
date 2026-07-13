@@ -1425,7 +1425,10 @@ namespace Mirror
                 identity != null)
             {
                 foreach (NetworkBehaviour component in identity.NetworkBehaviours)
+                {
+                    component.MarkAllSyncVarHostVisibilityReplayPending();
                     component.MarkHostVisibilityReplayPending();
+                }
 
                 if (aoi != null)
                     aoi.SetHostVisibility(identity, false);
