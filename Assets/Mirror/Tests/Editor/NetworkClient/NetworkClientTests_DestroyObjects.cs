@@ -3,6 +3,11 @@ using UnityEngine;
 
 namespace Mirror.Tests.NetworkClients
 {
+    class NetworkClientDestroyObjectSyncListBehaviour : NetworkBehaviour
+    {
+        public readonly SyncList<string> list = new SyncList<string>();
+    }
+
     public class NetworkClientTests_DestroyObjects : MirrorEditModeTest
     {
         [SetUp]
@@ -70,6 +75,21 @@ namespace Mirror.Tests.NetworkClients
             Assert.That(identity.gameObject.activeSelf, Is.True);
             Assert.That(NetworkClient.spawned.TryGetValue(netId, out NetworkIdentity respawnedIdentity), Is.True);
             Assert.That(respawnedIdentity, Is.SameAs(identity));
+        }
+
+        [Test]
+        public void OnObjectHide_SceneObjectClearsSyncObjectCallbacks()
+        {
+            CreateNetworked(out _, out NetworkIdentity identity, out NetworkClientDestroyObjectSyncListBehaviour behaviour);
+            const uint netId = 104;
+            identity.netId = netId;
+            identity.sceneId = 57;
+            behaviour.list.OnAdd += _ => {};
+            NetworkClient.spawned[netId] = identity;
+
+            NetworkClient.OnObjectHide(new ObjectHideMessage { netId = netId });
+
+            Assert.That(behaviour.list.OnAdd, Is.Null);
         }
 
         [Test]

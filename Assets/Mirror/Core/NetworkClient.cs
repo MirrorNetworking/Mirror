@@ -1957,6 +1957,7 @@ namespace Mirror
                                 // they always stay in the scene, we don't destroy them.
                                 if (identity.sceneId != 0)
                                 {
+                                    identity.ResetSyncObjectCallbacks();
                                     identity.ResetState();
                                     identity.gameObject.SetActive(false);
                                 }
@@ -2008,6 +2009,7 @@ namespace Mirror
                 {
                     identity.gameObject.SetActive(false);
                     // reset for scene objects
+                    identity.ResetSyncObjectCallbacks();
                     identity.ResetState();
                     spawnableObjects[sceneId] = identity;
                 }
