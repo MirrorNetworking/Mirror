@@ -13,11 +13,11 @@ namespace Mirror.Examples.Basic
         /// <param name="conn">Connection from client.</param>
         public override void OnServerAddPlayer(NetworkConnectionToClient conn)
         {
-            if (conn is LocalConnectionToClient)
-            {
-                StartCoroutine(DelayedAddPlayer(conn));
-                return;
-            }
+            //if (conn is LocalConnectionToClient)
+            //{
+            //    StartCoroutine(DelayedAddPlayer(conn));
+            //    return;
+            //}
             base.OnServerAddPlayer(conn);
             Player.ResetPlayerNumbers();
         }
