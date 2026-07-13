@@ -64,7 +64,7 @@ namespace Mirror.Tests.SyncVars
             Assert.That(NetworkClient.localPlayer, Is.EqualTo(identity));
         }
 
-        NetworkIdentity AddLocalPlayerWithoutProcessing(Vector3 position, out HostVisibilityHookBehaviour behaviour)
+        NetworkIdentity AddLocalPlayerWithoutProcessingMessages(Vector3 position, out HostVisibilityHookBehaviour behaviour)
         {
             CreateNetworked(out GameObject player, out NetworkIdentity identity, out behaviour);
             player.transform.position = position;
@@ -193,7 +193,7 @@ namespace Mirror.Tests.SyncVars
         [Test]
         public void Hook_DoesNotDoubleFireWhenHostPlayerChangesBeforeSpawnProcessed()
         {
-            NetworkIdentity identity = AddLocalPlayerWithoutProcessing(Vector3.zero, out HostVisibilityHookBehaviour behaviour);
+            NetworkIdentity identity = AddLocalPlayerWithoutProcessingMessages(Vector3.zero, out HostVisibilityHookBehaviour behaviour);
 
             behaviour.value = 100;
             Assert.That(behaviour.hookValues, Is.EqualTo(new[] { (42, 100) }));

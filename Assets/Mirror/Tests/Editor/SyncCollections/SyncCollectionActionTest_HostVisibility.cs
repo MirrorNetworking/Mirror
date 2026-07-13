@@ -62,14 +62,14 @@ namespace Mirror.Tests.SyncCollections
             ProcessMessages();
         }
 
-        void AddLocalPlayerWithoutProcessing(Vector3 position)
+        void AddLocalPlayerWithoutProcessingMessages(Vector3 position)
         {
             CreateNetworked(out GameObject player, out _);
             player.transform.position = position;
             NetworkServer.AddPlayerForConnection(NetworkServer.localConnection, player);
         }
 
-        NetworkIdentity AddLocalPlayerWithoutProcessing(Vector3 position, out HostVisibilitySyncListBehaviour behaviour)
+        NetworkIdentity AddLocalPlayerWithoutProcessingMessages(Vector3 position, out HostVisibilitySyncListBehaviour behaviour)
         {
             CreateNetworked(out GameObject player, out NetworkIdentity identity, out behaviour);
             player.transform.position = position;
@@ -229,7 +229,7 @@ namespace Mirror.Tests.SyncCollections
             behaviour.list.Add("first");
             Assert.That(GetDeltaChangeCount(behaviour.list), Is.EqualTo(1));
 
-            AddLocalPlayerWithoutProcessing(Vector3.zero);
+            AddLocalPlayerWithoutProcessingMessages(Vector3.zero);
             AssertObserved(identity, true);
             InvokeHostVisibilityDeferredCallbacks(identity);
             Assert.That(behaviour.actions, Is.EqualTo(new[] { "Add:first" }));
@@ -239,7 +239,7 @@ namespace Mirror.Tests.SyncCollections
         [Test]
         public void SyncList_DoesNotDoubleReplayWhenHostPlayerChangesBeforeSpawnProcessed()
         {
-            NetworkIdentity identity = AddLocalPlayerWithoutProcessing(Vector3.zero, out HostVisibilitySyncListBehaviour behaviour);
+            NetworkIdentity identity = AddLocalPlayerWithoutProcessingMessages(Vector3.zero, out HostVisibilitySyncListBehaviour behaviour);
             behaviour.Register();
 
             behaviour.list.Add("first");
@@ -297,7 +297,7 @@ namespace Mirror.Tests.SyncCollections
             behaviour.dictionary.Add("key1", "first");
             Assert.That(GetDeltaChangeCount(behaviour.dictionary), Is.EqualTo(1));
 
-            AddLocalPlayerWithoutProcessing(Vector3.zero);
+            AddLocalPlayerWithoutProcessingMessages(Vector3.zero);
             AssertObserved(identity, true);
             InvokeHostVisibilityDeferredCallbacks(identity);
             Assert.That(behaviour.actions, Is.EqualTo(new[] { "Add:key1:first" }));
@@ -350,7 +350,7 @@ namespace Mirror.Tests.SyncCollections
             behaviour.set.Add("first");
             Assert.That(GetDeltaChangeCount(behaviour.set), Is.EqualTo(1));
 
-            AddLocalPlayerWithoutProcessing(Vector3.zero);
+            AddLocalPlayerWithoutProcessingMessages(Vector3.zero);
             AssertObserved(identity, true);
             InvokeHostVisibilityDeferredCallbacks(identity);
             Assert.That(behaviour.actions, Is.EqualTo(new[] { "Add:first" }));
