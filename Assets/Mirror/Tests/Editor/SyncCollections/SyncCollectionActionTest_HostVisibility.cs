@@ -69,6 +69,14 @@ namespace Mirror.Tests.SyncCollections
             NetworkServer.AddPlayerForConnection(NetworkServer.localConnection, player);
         }
 
+        NetworkIdentity AddLocalPlayerWithoutProcessing(Vector3 position, out HostVisibilitySyncListBehaviour behaviour)
+        {
+            CreateNetworked(out GameObject player, out NetworkIdentity identity, out behaviour);
+            player.transform.position = position;
+            NetworkServer.AddPlayerForConnection(NetworkServer.localConnection, player);
+            return identity;
+        }
+
         void RebuildLocalObserver(NetworkIdentity identity, Vector3 localPlayerPosition)
         {
             NetworkClient.localPlayer.transform.position = localPlayerPosition;
@@ -226,6 +234,21 @@ namespace Mirror.Tests.SyncCollections
             InvokeHostVisibilityDeferredCallbacks(identity);
             Assert.That(behaviour.actions, Is.EqualTo(new[] { "Add:first" }));
             Assert.That(GetDeltaChangeCount(behaviour.list), Is.EqualTo(1));
+        }
+
+        [Test]
+        public void SyncList_DoesNotDoubleReplayWhenHostPlayerChangesBeforeSpawnProcessed()
+        {
+            NetworkIdentity identity = AddLocalPlayerWithoutProcessing(Vector3.zero, out HostVisibilitySyncListBehaviour behaviour);
+            behaviour.Register();
+
+            behaviour.list.Add("first");
+            Assert.That(behaviour.actions, Is.EqualTo(new[] { "Add:first" }));
+
+            ProcessMessages();
+
+            Assert.That(NetworkClient.localPlayer, Is.EqualTo(identity));
+            Assert.That(behaviour.actions, Is.EqualTo(new[] { "Add:first" }));
         }
 
         [Test]

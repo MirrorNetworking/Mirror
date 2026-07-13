@@ -171,6 +171,7 @@ namespace Mirror
         // Queue for deferred SyncCollection Actions during initial spawn / host visibility changes.
         // Actions are queued while the object isn't visible to the local client and invoked once it is.
         internal readonly List<Action> deferredSyncCollectionActions = new List<Action>();
+        internal bool hostVisibilityReplayPending;
 
         internal bool IsHostClientObserved() =>
             NetworkServer.activeHost &&
@@ -181,6 +182,8 @@ namespace Mirror
         internal bool ShouldCaptureHostBaseline() =>
             NetworkServer.activeHost &&
             !IsHostClientObserved();
+
+        internal void MarkHostVisibilityReplayPending() => hostVisibilityReplayPending = true;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         T EnsureInitialHookBaseline<T>(T previous, ref T originalValue, ref bool originalValueSet)
@@ -229,10 +232,17 @@ namespace Mirror
 
         internal void InvokeHostVisibilityDeferredCallbacks()
         {
-            for (int i = 0; i < syncObjects.Count; ++i)
-                syncObjects[i].QueueHostVisibilityReplay();
+            bool replayPending = hostVisibilityReplayPending;
+            hostVisibilityReplayPending = false;
 
-            InvokeSyncVarHostVisibilityHooks();
+            if (replayPending)
+            {
+                for (int i = 0; i < syncObjects.Count; ++i)
+                    syncObjects[i].QueueHostVisibilityReplay();
+
+                InvokeSyncVarHostVisibilityHooks();
+            }
+
             InvokeDeferredSyncCallbacks();
         }
 
@@ -664,8 +674,12 @@ namespace Mirror
                         OnChanged(previous, value);
                         SetSyncVarHookGuard(dirtyBit, false);
                     }
-                    else if (ShouldCaptureHostBaseline() && !originalValueSet)
-                        EnsureInitialHookBaseline(previous, ref originalValue, ref originalValueSet);
+                    else if (ShouldCaptureHostBaseline())
+                    {
+                        if (!originalValueSet)
+                            EnsureInitialHookBaseline(previous, ref originalValue, ref originalValueSet);
+                        MarkHostVisibilityReplayPending();
+                    }
                 }
             }
         }
@@ -710,8 +724,12 @@ namespace Mirror
                         OnChanged(previous, value);
                         SetSyncVarHookGuard(dirtyBit, false);
                     }
-                    else if (ShouldCaptureHostBaseline() && !originalValueSet)
-                        EnsureInitialHookBaseline(previous, ref originalValue, ref originalValueSet);
+                    else if (ShouldCaptureHostBaseline())
+                    {
+                        if (!originalValueSet)
+                            EnsureInitialHookBaseline(previous, ref originalValue, ref originalValueSet);
+                        MarkHostVisibilityReplayPending();
+                    }
                 }
             }
         }
@@ -756,8 +774,12 @@ namespace Mirror
                         OnChanged(previous, value);
                         SetSyncVarHookGuard(dirtyBit, false);
                     }
-                    else if (ShouldCaptureHostBaseline() && !originalValueSet)
-                        EnsureInitialHookBaseline(previous, ref originalValue, ref originalValueSet);
+                    else if (ShouldCaptureHostBaseline())
+                    {
+                        if (!originalValueSet)
+                            EnsureInitialHookBaseline(previous, ref originalValue, ref originalValueSet);
+                        MarkHostVisibilityReplayPending();
+                    }
                 }
             }
         }
@@ -804,8 +826,12 @@ namespace Mirror
                         OnChanged(previous, value);
                         SetSyncVarHookGuard(dirtyBit, false);
                     }
-                    else if (ShouldCaptureHostBaseline() && !originalValueSet)
-                        EnsureInitialHookBaseline(previous, ref originalValue, ref originalValueSet);
+                    else if (ShouldCaptureHostBaseline())
+                    {
+                        if (!originalValueSet)
+                            EnsureInitialHookBaseline(previous, ref originalValue, ref originalValueSet);
+                        MarkHostVisibilityReplayPending();
+                    }
                 }
             }
         }
@@ -1548,6 +1574,10 @@ namespace Mirror
             {
                 syncObject.Reset();
             }
+
+            deferredSyncVarHooks.Clear();
+            deferredSyncCollectionActions.Clear();
+            hostVisibilityReplayPending = false;
         }
 
         internal void ResetSyncObjectCallbacks()

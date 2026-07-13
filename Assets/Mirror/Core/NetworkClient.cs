@@ -1424,6 +1424,9 @@ namespace Mirror
             if (spawned.TryGetValue(message.netId, out NetworkIdentity identity) &&
                 identity != null)
             {
+                foreach (NetworkBehaviour component in identity.NetworkBehaviours)
+                    component.MarkHostVisibilityReplayPending();
+
                 if (aoi != null)
                     aoi.SetHostVisibility(identity, false);
             }
