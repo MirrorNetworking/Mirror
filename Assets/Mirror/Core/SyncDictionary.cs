@@ -392,7 +392,7 @@ namespace Mirror
                     networkBehaviour.syncDirection == SyncDirection.ServerToClient &&
                     !networkBehaviour.IsHostClientObserved())
                 {
-                    networkBehaviour.MarkHostVisibilityReplayPending();
+                    MarkHostVisibilityReplayPending();
                     return;
                 }
 

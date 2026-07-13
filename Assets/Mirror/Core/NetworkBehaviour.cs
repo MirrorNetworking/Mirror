@@ -185,6 +185,12 @@ namespace Mirror
 
         internal void MarkHostVisibilityReplayPending() => hostVisibilityReplayPending = true;
 
+        internal void MarkAllSyncObjectHostVisibilityReplayPending()
+        {
+            for (int i = 0; i < syncObjects.Count; ++i)
+                syncObjects[i].MarkHostVisibilityReplayPending();
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         void MarkSyncVarHostVisibilityReplayPending(ref bool hostVisibilityPending)
         {
@@ -246,7 +252,10 @@ namespace Mirror
             if (replayPending)
             {
                 for (int i = 0; i < syncObjects.Count; ++i)
-                    syncObjects[i].QueueHostVisibilityReplay();
+                {
+                    if (syncObjects[i].ConsumeHostVisibilityReplayPending())
+                        syncObjects[i].QueueHostVisibilityReplay();
+                }
 
                 InvokeSyncVarHostVisibilityHooks();
             }
@@ -1590,6 +1599,7 @@ namespace Mirror
             foreach (SyncObject syncObject in syncObjects)
             {
                 syncObject.Reset();
+                syncObject.ClearHostVisibilityReplayPending();
             }
 
             deferredSyncVarHooks.Clear();

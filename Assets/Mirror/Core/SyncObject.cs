@@ -14,6 +14,7 @@ namespace Mirror
     {
         // Back-reference to owning NetworkBehaviour for accessing deferred queues
         internal NetworkBehaviour networkBehaviour;
+        internal bool hostVisibilityReplayPending;
 
         /// <summary>Used internally to set owner NetworkBehaviour's dirty mask bit when changed.</summary>
         public Action OnDirty;
@@ -52,6 +53,21 @@ namespace Mirror
 
         /// <summary>Queues host-mode first-observation Add replay actions without mutating server state.</summary>
         public virtual void QueueHostVisibilityReplay() {}
+
+        internal void MarkHostVisibilityReplayPending()
+        {
+            hostVisibilityReplayPending = true;
+            networkBehaviour.MarkHostVisibilityReplayPending();
+        }
+
+        internal bool ConsumeHostVisibilityReplayPending()
+        {
+            bool pending = hostVisibilityReplayPending;
+            hostVisibilityReplayPending = false;
+            return pending;
+        }
+
+        internal void ClearHostVisibilityReplayPending() => hostVisibilityReplayPending = false;
 
         /// <summary>
         /// Clears any registered callbacks when a client object is unspawned.

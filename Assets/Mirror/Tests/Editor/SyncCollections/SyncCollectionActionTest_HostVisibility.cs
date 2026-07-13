@@ -28,6 +28,21 @@ namespace Mirror.Tests.SyncCollections
         public void Register() => set.OnAdd += item => actions.Add($"Add:{item}");
     }
 
+    class HostVisibilityMultiCollectionBehaviour : NetworkBehaviour
+    {
+        public readonly SyncList<string> list = new SyncList<string>();
+        public readonly SyncDictionary<string, string> dictionary = new SyncDictionary<string, string>();
+        public readonly SyncHashSet<string> set = new SyncHashSet<string>();
+        public readonly List<string> actions = new List<string>();
+
+        public void Register()
+        {
+            list.OnAdd += index => actions.Add($"List:Add:{list[index]}");
+            dictionary.OnAdd += key => actions.Add($"Dictionary:Add:{key}:{dictionary[key]}");
+            set.OnAdd += item => actions.Add($"Set:Add:{item}");
+        }
+    }
+
     public class SyncCollectionActionTest_HostVisibility : MirrorTest
     {
         DistanceInterestManagement aoi;
@@ -249,6 +264,30 @@ namespace Mirror.Tests.SyncCollections
 
             Assert.That(NetworkClient.localPlayer, Is.EqualTo(identity));
             Assert.That(behaviour.actions, Is.EqualTo(new[] { "Add:first" }));
+        }
+
+        [Test]
+        public void SyncCollections_DoNotReplayImmediatelyObservedActionsBecauseAnotherCollectionIsPending()
+        {
+            CreateNetworked(out GameObject go, out NetworkIdentity identity, out HostVisibilityMultiCollectionBehaviour behaviour);
+            go.transform.position = Vector3.zero;
+            behaviour.Register();
+            NetworkServer.Spawn(go);
+            ProcessMessages();
+
+            behaviour.list.Add("hidden");
+            Assert.That(behaviour.actions, Is.Empty);
+
+            AddLocalPlayerWithoutProcessingMessages(Vector3.zero);
+            AssertObserved(identity, true);
+
+            behaviour.dictionary.Add("key", "visible");
+            behaviour.set.Add("visible");
+            Assert.That(behaviour.actions, Is.EqualTo(new[] { "Dictionary:Add:key:visible", "Set:Add:visible" }));
+
+            ProcessMessages();
+
+            Assert.That(behaviour.actions, Is.EqualTo(new[] { "Dictionary:Add:key:visible", "Set:Add:visible", "List:Add:hidden" }));
         }
 
         [Test]

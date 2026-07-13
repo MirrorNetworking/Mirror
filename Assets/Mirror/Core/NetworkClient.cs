@@ -1427,7 +1427,7 @@ namespace Mirror
                 foreach (NetworkBehaviour component in identity.NetworkBehaviours)
                 {
                     component.MarkAllSyncVarHostVisibilityReplayPending();
-                    component.MarkHostVisibilityReplayPending();
+                    component.MarkAllSyncObjectHostVisibilityReplayPending();
                 }
 
                 if (aoi != null)
