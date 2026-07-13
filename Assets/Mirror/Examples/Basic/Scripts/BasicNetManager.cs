@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 namespace Mirror.Examples.Basic
@@ -12,6 +13,18 @@ namespace Mirror.Examples.Basic
         /// <param name="conn">Connection from client.</param>
         public override void OnServerAddPlayer(NetworkConnectionToClient conn)
         {
+            if (conn is LocalConnectionToClient)
+            {
+                StartCoroutine(DelayedAddPlayer(conn));
+                return;
+            }
+            base.OnServerAddPlayer(conn);
+            Player.ResetPlayerNumbers();
+        }
+
+        IEnumerator DelayedAddPlayer (NetworkConnectionToClient conn)
+        {
+            yield return new WaitForSeconds(5f);
             base.OnServerAddPlayer(conn);
             Player.ResetPlayerNumbers();
         }
