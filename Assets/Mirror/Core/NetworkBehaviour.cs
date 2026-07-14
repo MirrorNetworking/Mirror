@@ -694,7 +694,6 @@ namespace Mirror
                             EnsureInitialHookBaseline(previous, ref originalValue, ref originalValueSet);
                         if (hostVisibilityPending)
                             return;
-                        hostVisibilityPending = false;
                         SetSyncVarHookGuard(dirtyBit, true);
                         OnChanged(previous, value);
                         SetSyncVarHookGuard(dirtyBit, false);
@@ -747,7 +746,6 @@ namespace Mirror
                             EnsureInitialHookBaseline(previous, ref originalValue, ref originalValueSet);
                         if (hostVisibilityPending)
                             return;
-                        hostVisibilityPending = false;
                         SetSyncVarHookGuard(dirtyBit, true);
                         OnChanged(previous, value);
                         SetSyncVarHookGuard(dirtyBit, false);
@@ -800,7 +798,6 @@ namespace Mirror
                             EnsureInitialHookBaseline(previous, ref originalValue, ref originalValueSet);
                         if (hostVisibilityPending)
                             return;
-                        hostVisibilityPending = false;
                         SetSyncVarHookGuard(dirtyBit, true);
                         OnChanged(previous, value);
                         SetSyncVarHookGuard(dirtyBit, false);
@@ -855,7 +852,6 @@ namespace Mirror
                             EnsureInitialHookBaseline(previous, ref originalValue, ref originalValueSet);
                         if (hostVisibilityPending)
                             return;
-                        hostVisibilityPending = false;
                         SetSyncVarHookGuard(dirtyBit, true);
                         OnChanged(previous, value);
                         SetSyncVarHookGuard(dirtyBit, false);
