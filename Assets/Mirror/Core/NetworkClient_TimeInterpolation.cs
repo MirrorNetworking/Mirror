@@ -38,6 +38,10 @@ namespace Mirror
         // to be adjusted in every update instead of when receiving messages.
         internal static double localTimescale = 1;
 
+        // scaled time: derived from single pipeline interpolation.
+        // no separate buffer/EMA needed since network conditions are the same.
+        internal static double localTimelineScaled;
+
         // catchup /////////////////////////////////////////////////////////////
         // we use EMA to average the last second worth of snapshot time diffs.
         // manually averaging the last second worth of values with a for loop
@@ -68,6 +72,7 @@ namespace Mirror
             bufferTimeMultiplier = snapshotSettings.bufferTimeMultiplier;
             localTimeline = 0;
             localTimescale = 1;
+            localTimelineScaled = 0;
             snapshots.Clear();
 
             // initialize EMA with 'emaDuration' seconds worth of history.
@@ -78,17 +83,18 @@ namespace Mirror
         }
 
         // server sends TimeSnapshotMessage every sendInterval.
-        // batching already includes the remoteTimestamp.
-        // we simply insert it on-message here.
-        // => only for reliable channel. unreliable would always arrive earlier.
-        static void OnTimeSnapshotMessage(TimeSnapshotMessage _)
+        // batching already includes the remoteTimestamp (unscaled).
+        // the message also includes scaledTime.
+        // we insert a single snapshot with both times.
+        static void OnTimeSnapshotMessage(TimeSnapshotMessage message)
         {
-            // insert another snapshot for snapshot interpolation.
+            // insert snapshot for snapshot interpolation.
             // before calling OnDeserialize so components can use
-            // NetworkTime.time and NetworkTime.timeStamp.
+            // NetworkTime.time / NetworkTime.unscaledTime.
 
-            // Unity 2019 doesn't have Time.timeAsDouble yet
-            OnTimeSnapshot(new TimeSnapshot(connection.remoteTimeStamp, NetworkTime.localTime));
+            // unscaled time: from batch header (remoteTimeStamp)
+            // scaled time: from message body
+            OnTimeSnapshot(new TimeSnapshot(connection.remoteTimeStamp, NetworkTime.localTime, message.scaledTime));
         }
 
         // see comments at the top of this file
@@ -143,8 +149,13 @@ namespace Mirror
                 // progress local interpolation.
                 // TimeSnapshot doesn't interpolate anything.
                 // this is merely to keep removing older snapshots.
-                SnapshotInterpolation.StepInterpolation(snapshots, localTimeline, out _, out _, out double t);
+                SnapshotInterpolation.StepInterpolation(snapshots, localTimeline, out TimeSnapshot from, out TimeSnapshot to, out double t);
                 // Debug.Log($"NetworkClient SnapshotInterpolation @ {localTimeline:F2} t={t:F2}");
+
+                // derive scaled time from the same interpolation factor.
+                // network conditions are the same for both times,
+                // so we reuse the single pipeline's t.
+                localTimelineScaled = Mathd.LerpUnclamped(from.remoteScaledTime, to.remoteScaledTime, t);
             }
         }
     }

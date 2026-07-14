@@ -44,6 +44,10 @@ namespace Mirror
         // <clienttime, snaps>
         readonly SortedList<double, TimeSnapshot> snapshots = new SortedList<double, TimeSnapshot>();
 
+        // scaled time: derived from single pipeline interpolation.
+        // no separate buffer/EMA needed since network conditions are the same.
+        public double remoteTimelineScaled;
+
         // Snapshot Buffer size limit to avoid ever growing list memory consumption attacks from clients.
         public int snapshotBufferSizeLimit = 64;
 
@@ -121,8 +125,11 @@ namespace Mirror
                 // progress local interpolation.
                 // TimeSnapshot doesn't interpolate anything.
                 // this is merely to keep removing older snapshots.
-                SnapshotInterpolation.StepInterpolation(snapshots, remoteTimeline, out _, out _, out _);
+                SnapshotInterpolation.StepInterpolation(snapshots, remoteTimeline, out TimeSnapshot from, out TimeSnapshot to, out double t);
                 // Debug.Log($"NetworkClient SnapshotInterpolation @ {localTimeline:F2} t={t:F2}");
+
+                // derive scaled time from the same interpolation factor.
+                remoteTimelineScaled = Mathd.LerpUnclamped(from.remoteScaledTime, to.remoteScaledTime, t);
             }
         }
 
