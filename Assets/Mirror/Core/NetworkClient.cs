@@ -1819,13 +1819,9 @@ namespace Mirror
             if (NetworkServer.active) return;
 
             // send time snapshot every sendInterval.
-<<<<<<< HEAD
             bool tickIntervalElapsed = tickInterval > 0 && AccurateInterval.Elapsed(NetworkTime.localTime, tickInterval, ref lastTickTime);
             if (tickIntervalElapsed)
-                Send(new TimeSnapshotMessage(), Channels.Unreliable);
-=======
-            Send(new TimeSnapshotMessage { scaledTime = NetworkTime.localScaledTime }, Channels.Unreliable);
->>>>>>> origin/master
+                Send(new TimeSnapshotMessage { scaledTime = NetworkTime.localScaledTime }, Channels.Unreliable);
 
             // broadcast client state to server
             BroadcastToServer(unreliableBaselineElapsed);
