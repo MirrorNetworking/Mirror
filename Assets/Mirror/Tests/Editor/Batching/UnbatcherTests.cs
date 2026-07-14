@@ -210,5 +210,28 @@ namespace Mirror.Tests.Batching
             Assert.That(reader.ReadByte(), Is.EqualTo(0x06));
             Assert.That(remoteTimeStamp, Is.EqualTo(TimeStamp + 2));
         }
+
+        // size prefix > int.MaxValue should throw, not silently wrap to negative
+        [Test]
+        public void GetNextMessage_SizePrefixOverflow_Throws()
+        {
+            // craft a batch with timestamp + varint size prefix > int.MaxValue
+            NetworkWriter writer = new NetworkWriter();
+            writer.WriteDouble(TimeStamp);
+            Compression.CompressVarUInt(writer, (ulong)int.MaxValue + 1);
+            writer.WriteByte(0xFF);
+            byte[] batch = writer.ToArray();
+
+            unbatcher.AddBatch(new ArraySegment<byte>(batch));
+
+            // should throw due to overflow protection
+            Assert.Throws<InvalidOperationException>(() =>
+            {
+                unbatcher.GetNextMessage(out _, out _);
+            });
+
+            // all batches should be cleared
+            Assert.That(unbatcher.BatchesCount, Is.EqualTo(0));
+        }
     }
 }

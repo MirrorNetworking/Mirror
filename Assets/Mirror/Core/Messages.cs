@@ -9,7 +9,10 @@ namespace Mirror
     // and react to it.
     // => we don't want to insert a snapshot on every batch.
     // => do it exactly every sendInterval on every TimeSnapshotMessage.
-    public struct TimeSnapshotMessage : NetworkMessage {}
+    public struct TimeSnapshotMessage : NetworkMessage
+    {
+        public double scaledTime;
+    }
 
     public struct ReadyMessage : NetworkMessage {}
 
