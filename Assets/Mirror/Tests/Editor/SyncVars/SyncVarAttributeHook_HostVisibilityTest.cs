@@ -219,6 +219,49 @@ namespace Mirror.Tests.SyncVars
         }
 
         [Test]
+        public void Hook_StaysDeferredWhenSameSyncVarChangesAgainBeforeHostSpawnProcessed()
+        {
+            CreateNetworked(out GameObject player, out NetworkIdentity identity, out HostVisibilityHookBehaviour behaviour);
+            player.transform.position = Vector3.zero;
+
+            behaviour.value = 50;
+            Assert.That(behaviour.hookValues, Is.Empty);
+
+            NetworkServer.AddPlayerForConnection(NetworkServer.localConnection, player);
+            Assert.That(NetworkClient.localPlayer, Is.EqualTo(identity));
+
+            behaviour.value = 100;
+            Assert.That(behaviour.hookValues, Is.Empty);
+
+            ProcessMessages();
+
+            Assert.That(behaviour.hookValues, Is.EqualTo(new[] { (42, 100) }));
+        }
+
+        [Test]
+        public void Hook_DoesNotReplayBeforeHostLocalPlayerExists()
+        {
+            NetworkServer.aoi = null;
+            NetworkClient.aoi = null;
+
+            CreateNetworked(out GameObject go, out NetworkIdentity identity, out HostVisibilityHookBehaviour behaviour);
+            go.transform.position = Vector3.zero;
+            NetworkServer.Spawn(go);
+
+            behaviour.value = 100;
+            Assert.That(behaviour.hookValues, Is.Empty);
+
+            ProcessMessages();
+
+            Assert.That(NetworkClient.localPlayer, Is.Null);
+            Assert.That(NetworkServer.localConnection.observing.Contains(identity), Is.True);
+            Assert.That(behaviour.hookValues, Is.Empty);
+
+            AddLocalPlayer(Vector3.zero);
+            Assert.That(behaviour.hookValues, Is.EqualTo(new[] { (42, 100) }));
+        }
+
+        [Test]
         public void Hook_DoesNotReplayImmediatelyObservedSyncVarBecauseAnotherHookIsPending()
         {
             CreateNetworked(out GameObject go, out NetworkIdentity identity, out HostVisibilityMultiHookBehaviour behaviour);

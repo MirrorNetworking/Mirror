@@ -134,11 +134,16 @@ namespace Mirror
             if (shouldFireActions)
             {
                 if (NetworkServer.activeHost &&
-                    networkBehaviour.syncDirection == SyncDirection.ServerToClient &&
-                    !networkBehaviour.IsHostClientObserved())
+                    networkBehaviour.syncDirection == SyncDirection.ServerToClient)
                 {
-                    MarkHostVisibilityReplayPending();
-                    return;
+                    if (!networkBehaviour.IsHostClientObserved())
+                    {
+                        MarkHostVisibilityReplayPending();
+                        return;
+                    }
+
+                    if (hostVisibilityReplayPending)
+                        return;
                 }
 
                 // Defer Actions during initial spawn on pure client to eliminate

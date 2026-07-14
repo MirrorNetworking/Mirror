@@ -246,6 +246,11 @@ namespace Mirror
 
         internal void InvokeHostVisibilityDeferredCallbacks()
         {
+            if (NetworkServer.activeHost &&
+                syncDirection == SyncDirection.ServerToClient &&
+                !IsHostClientObserved())
+                return;
+
             bool replayPending = hostVisibilityReplayPending;
             hostVisibilityReplayPending = false;
 
@@ -687,6 +692,8 @@ namespace Mirror
                     {
                         if (!originalValueSet)
                             EnsureInitialHookBaseline(previous, ref originalValue, ref originalValueSet);
+                        if (hostVisibilityPending)
+                            return;
                         hostVisibilityPending = false;
                         SetSyncVarHookGuard(dirtyBit, true);
                         OnChanged(previous, value);
@@ -738,6 +745,8 @@ namespace Mirror
                     {
                         if (!originalValueSet)
                             EnsureInitialHookBaseline(previous, ref originalValue, ref originalValueSet);
+                        if (hostVisibilityPending)
+                            return;
                         hostVisibilityPending = false;
                         SetSyncVarHookGuard(dirtyBit, true);
                         OnChanged(previous, value);
@@ -789,6 +798,8 @@ namespace Mirror
                     {
                         if (!originalValueSet)
                             EnsureInitialHookBaseline(previous, ref originalValue, ref originalValueSet);
+                        if (hostVisibilityPending)
+                            return;
                         hostVisibilityPending = false;
                         SetSyncVarHookGuard(dirtyBit, true);
                         OnChanged(previous, value);
@@ -842,6 +853,8 @@ namespace Mirror
                     {
                         if (!originalValueSet)
                             EnsureInitialHookBaseline(previous, ref originalValue, ref originalValueSet);
+                        if (hostVisibilityPending)
+                            return;
                         hostVisibilityPending = false;
                         SetSyncVarHookGuard(dirtyBit, true);
                         OnChanged(previous, value);

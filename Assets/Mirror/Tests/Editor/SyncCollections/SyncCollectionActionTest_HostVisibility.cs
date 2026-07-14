@@ -267,6 +267,51 @@ namespace Mirror.Tests.SyncCollections
         }
 
         [Test]
+        public void SyncList_StaysDeferredWhenSameCollectionChangesAgainBeforeHostSpawnProcessed()
+        {
+            CreateNetworked(out GameObject player, out NetworkIdentity identity, out HostVisibilitySyncListBehaviour behaviour);
+            player.transform.position = Vector3.zero;
+            behaviour.Register();
+
+            behaviour.list.Add("first");
+            Assert.That(behaviour.actions, Is.Empty);
+
+            NetworkServer.AddPlayerForConnection(NetworkServer.localConnection, player);
+            Assert.That(NetworkClient.localPlayer, Is.EqualTo(identity));
+
+            behaviour.list.Add("second");
+            Assert.That(behaviour.actions, Is.Empty);
+
+            ProcessMessages();
+
+            Assert.That(behaviour.actions, Is.EqualTo(new[] { "Add:first", "Add:second" }));
+        }
+
+        [Test]
+        public void SyncList_DoesNotReplayBeforeHostLocalPlayerExists()
+        {
+            NetworkServer.aoi = null;
+            NetworkClient.aoi = null;
+
+            CreateNetworked(out GameObject go, out NetworkIdentity identity, out HostVisibilitySyncListBehaviour behaviour);
+            go.transform.position = Vector3.zero;
+            behaviour.Register();
+            NetworkServer.Spawn(go);
+
+            behaviour.list.Add("first");
+            Assert.That(behaviour.actions, Is.Empty);
+
+            ProcessMessages();
+
+            Assert.That(NetworkClient.localPlayer, Is.Null);
+            Assert.That(NetworkServer.localConnection.observing.Contains(identity), Is.True);
+            Assert.That(behaviour.actions, Is.Empty);
+
+            AddLocalPlayer(Vector3.zero);
+            Assert.That(behaviour.actions, Is.EqualTo(new[] { "Add:first" }));
+        }
+
+        [Test]
         public void SyncCollections_DoNotReplayImmediatelyObservedActionsBecauseAnotherCollectionIsPending()
         {
             CreateNetworked(out GameObject go, out NetworkIdentity identity, out HostVisibilityMultiCollectionBehaviour behaviour);
