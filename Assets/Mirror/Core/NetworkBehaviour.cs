@@ -242,7 +242,7 @@ namespace Mirror
         }
 
         protected virtual void InvokeSyncVarHostVisibilityHooks() {}
-        protected internal virtual void MarkAllSyncVarHostVisibilityReplayPending() {}
+        protected internal virtual void MarkAllSyncVarHostVisibilityReplayPending() => MarkHostVisibilityReplayPending();
 
         internal void InvokeHostVisibilityDeferredCallbacks()
         {
