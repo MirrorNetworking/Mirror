@@ -45,15 +45,18 @@ namespace Mirror.Tests.SyncVars
 
     class HostRespawnHookBehaviour : NetworkBehaviour
     {
+        internal const int InitialValue = 42;
+        internal const int SpawnValue = 100;
+
         [SyncVar(hook = nameof(OnValueChanged))]
-        public int value = 42;
+        public int syncedValue = InitialValue;
 
         public readonly List<(int oldValue, int newValue)> hookValues = new List<(int oldValue, int newValue)>();
 
         public override void OnStartServer()
         {
-            if (value == 42)
-                value = 100;
+            if (syncedValue == InitialValue)
+                syncedValue = SpawnValue;
         }
 
         void OnValueChanged(int oldValue, int newValue) => hookValues.Add((oldValue, newValue));
@@ -312,7 +315,7 @@ namespace Mirror.Tests.SyncVars
             NetworkServer.Spawn(go);
             ProcessMessages();
 
-            Assert.That(behaviour.hookValues, Is.EqualTo(new[] { (42, 100) }));
+            Assert.That(behaviour.hookValues, Is.EqualTo(new[] { (HostRespawnHookBehaviour.InitialValue, HostRespawnHookBehaviour.SpawnValue) }));
 
             behaviour.hookValues.Clear();
 
@@ -320,7 +323,7 @@ namespace Mirror.Tests.SyncVars
             NetworkServer.Spawn(go);
             ProcessMessages();
 
-            Assert.That(behaviour.hookValues, Is.EqualTo(new[] { (42, 100) }));
+            Assert.That(behaviour.hookValues, Is.EqualTo(new[] { (HostRespawnHookBehaviour.InitialValue, HostRespawnHookBehaviour.SpawnValue) }));
         }
     }
 }
