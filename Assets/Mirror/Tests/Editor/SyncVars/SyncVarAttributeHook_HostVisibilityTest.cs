@@ -43,6 +43,22 @@ namespace Mirror.Tests.SyncVars
         void OnSecondChanged(int oldValue, int newValue) => hookCalls.Add($"second:{oldValue}->{newValue}");
     }
 
+    class HostRespawnHookBehaviour : NetworkBehaviour
+    {
+        [SyncVar(hook = nameof(OnValueChanged))]
+        public int value = 42;
+
+        public readonly List<(int oldValue, int newValue)> hookValues = new List<(int oldValue, int newValue)>();
+
+        public override void OnStartServer()
+        {
+            if (value == 42)
+                value = 100;
+        }
+
+        void OnValueChanged(int oldValue, int newValue) => hookValues.Add((oldValue, newValue));
+    }
+
     public class SyncVarAttributeHook_HostVisibilityTest : MirrorTest
     {
         DistanceInterestManagement aoi;
@@ -281,6 +297,30 @@ namespace Mirror.Tests.SyncVars
             ProcessMessages();
 
             Assert.That(behaviour.hookCalls, Is.EqualTo(new[] { "second:20->200", "first:10->100" }));
+        }
+
+        [Test]
+        public void Hook_ReplaysWhenHostRespawnsRuntimeObject()
+        {
+            NetworkServer.aoi = null;
+            NetworkClient.aoi = null;
+
+            AddLocalPlayer(Vector3.zero);
+
+            CreateNetworked(out GameObject go, out _, out HostRespawnHookBehaviour behaviour);
+
+            NetworkServer.Spawn(go);
+            ProcessMessages();
+
+            Assert.That(behaviour.hookValues, Is.EqualTo(new[] { (42, 100) }));
+
+            behaviour.hookValues.Clear();
+
+            NetworkServer.UnSpawn(go);
+            NetworkServer.Spawn(go);
+            ProcessMessages();
+
+            Assert.That(behaviour.hookValues, Is.EqualTo(new[] { (42, 100) }));
         }
     }
 }

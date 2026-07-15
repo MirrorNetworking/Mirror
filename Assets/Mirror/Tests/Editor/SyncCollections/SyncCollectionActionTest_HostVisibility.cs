@@ -336,6 +336,34 @@ namespace Mirror.Tests.SyncCollections
         }
 
         [Test]
+        public void SyncCollections_ReplayWhenHostRespawnsRuntimeObject()
+        {
+            NetworkServer.aoi = null;
+            NetworkClient.aoi = null;
+
+            AddLocalPlayer(Vector3.zero);
+
+            CreateNetworked(out GameObject go, out _, out HostVisibilityMultiCollectionBehaviour behaviour);
+            behaviour.Register();
+            behaviour.list.Add("first");
+            behaviour.dictionary.Add("key", "value");
+            behaviour.set.Add("first");
+
+            NetworkServer.Spawn(go);
+            ProcessMessages();
+
+            Assert.That(behaviour.actions, Is.EqualTo(new[] { "List:Add:first", "Dictionary:Add:key:value", "Set:Add:first" }));
+
+            behaviour.actions.Clear();
+
+            NetworkServer.UnSpawn(go);
+            NetworkServer.Spawn(go);
+            ProcessMessages();
+
+            Assert.That(behaviour.actions, Is.EqualTo(new[] { "List:Add:first", "Dictionary:Add:key:value", "Set:Add:first" }));
+        }
+
+        [Test]
         public void SyncDictionary_ActionsDeferAgainAfterLeavingAoi()
         {
             CreateNetworked(out GameObject go, out NetworkIdentity identity, out HostVisibilitySyncDictionaryBehaviour behaviour);
