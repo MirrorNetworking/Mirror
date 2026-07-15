@@ -45,21 +45,21 @@ namespace Mirror.Examples.Basic
         // This is called by the hook of playerNumber SyncVar above
         void PlayerNumberChanged(byte _, byte newPlayerNumber)
         {
-            Debug.Log($"PlayerNumberChanged: {newPlayerNumber} {isServer}", gameObject);
+            //Debug.Log($"PlayerNumberChanged: {newPlayerNumber} {isServer}", gameObject);
             OnPlayerNumberChanged?.Invoke(newPlayerNumber);
         }
 
         // This is called by the hook of playerColor SyncVar above
         void PlayerColorChanged(Color32 _, Color32 newPlayerColor)
         {
-            Debug.Log($"PlayerColorChanged: {newPlayerColor} {isServer}", gameObject);
+            //Debug.Log($"PlayerColorChanged: {newPlayerColor} {isServer}", gameObject);
             OnPlayerColorChanged?.Invoke(newPlayerColor);
         }
 
         // This is called by the hook of playerData SyncVar above
         void PlayerDataChanged(ushort _, ushort newPlayerData)
         {
-            Debug.Log($"PlayerDataChanged: {newPlayerData} {isServer}", gameObject);
+            //Debug.Log($"PlayerDataChanged: {newPlayerData} {isServer}", gameObject);
             OnPlayerDataChanged?.Invoke(newPlayerData);
         }
 
