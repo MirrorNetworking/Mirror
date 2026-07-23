@@ -20,7 +20,7 @@ namespace Mirror.Weaver
         Logger Log;
 
         string HookParameterMessage(string hookName, TypeReference ValueType) =>
-            $"void {hookName}({ValueType} oldValue, {ValueType} newValue)";
+            $"void {hookName}({ValueType} oldValue, {ValueType} newValue), void {hookName}({ValueType} oldValue) or void {hookName}()";
 
         public SyncVarAttributeProcessor(AssemblyDefinition assembly, WeaverTypes weaverTypes, SyncVarAccessLists syncVarAccessLists, Logger Log)
         {
@@ -55,12 +55,49 @@ namespace Mirror.Weaver
             return new FieldDefinition(syncVarHookDelegateFieldName, FieldAttributes.Public, syncVarHookActionDelegateType);
         }
 
+        MethodDefinition CreateHookShim(FieldDefinition syncVar, MethodDefinition hookMethod)
+        {
+            if (hookMethod.Parameters.Count > 1)
+                throw new Exception($"Hook {hookMethod.FullName} has {hookMethod.Parameters.Count} params - can only generate shims for 0 or 1 params");
+
+            MethodAttributes methodAttributes = MethodAttributes.Public | MethodAttributes.HideBySig;
+
+            if (hookMethod.IsStatic)
+                methodAttributes |= MethodAttributes.Static;
+
+            MethodDefinition shim = new MethodDefinition($"_Mirror_HookShim_{syncVar.Name}_{hookMethod.Name}", methodAttributes, hookMethod.Module.TypeSystem.Void);
+
+            shim.Parameters.Add(new ParameterDefinition("oldValue", ParameterAttributes.None, syncVar.FieldType));
+            shim.Parameters.Add(new ParameterDefinition("newValue", ParameterAttributes.None, syncVar.FieldType));
+
+            syncVar.DeclaringType.Methods.Add(shim);
+
+            ILProcessor il = shim.Body.GetILProcessor();
+
+            // for instance hooks: load `this` for the call
+            if (!hookMethod.IsStatic)
+                il.Emit(OpCodes.Ldarg_0);
+
+            if (hookMethod.Parameters.Count == 1) il.Emit(OpCodes.Ldarg_1);
+
+            // call virtual correctly (so overrides still work)
+            il.Emit(hookMethod.IsVirtual ? OpCodes.Callvirt : OpCodes.Call, hookMethod);
+
+            il.Emit(OpCodes.Ret);
+
+            return shim;
+        }
+
         // push hook from GetHookMethod() onto the stack as a new Action<T,T>.
         // allows for reuse without handling static/virtual cases every time.
         // perf warning: it is recommended to use this method only when generating IL to create a new Action<T, T>() in order to store it into a field
         //               avoid using this to emit IL to instantiate a new action instance every single time one is needed for the same method
         public void GenerateNewActionFromHookMethod(FieldDefinition syncVar, ILProcessor worker, MethodDefinition hookMethod)
         {
+            // If hook has 0 or 1 parameters, use a generated shim that matches Action<T,T>
+            if (hookMethod.Parameters.Count < 2)
+                hookMethod = CreateHookShim(syncVar, hookMethod);
+
             // IL_000a: ldarg.0
             // IL_000b: ldftn instance void Mirror.Examples.Tanks.Tank::ExampleHook(int32, int32)
             // IL_0011: newobj instance void class [netstandard]System.Action`2<int32, int32>::.ctor(object, native int)
@@ -127,9 +164,14 @@ namespace Mirror.Weaver
         {
             List<MethodDefinition> methods = td.GetMethods(hookFunctionName);
 
-            List<MethodDefinition> methodsWith2Param = new List<MethodDefinition>(methods.Where(m => m.Parameters.Count == 2));
+            List<MethodDefinition> methodsWithRightParamCount = new List<MethodDefinition>(
+                methods
+                    .Where(m => m.Parameters.Count <= 2)
+                    // Prefer methods with more parameters
+                    .OrderByDescending(m => m.Parameters.Count)
+            );
 
-            if (methodsWith2Param.Count == 0)
+            if (methodsWithRightParamCount.Count == 0)
             {
                 Log.Error($"Could not find hook for '{syncVar.Name}', hook name '{hookFunctionName}'. " +
                     $"Method signature should be {HookParameterMessage(hookFunctionName, syncVar.FieldType)}",
@@ -139,13 +181,9 @@ namespace Mirror.Weaver
                 return null;
             }
 
-            foreach (MethodDefinition method in methodsWith2Param)
-            {
+            foreach (MethodDefinition method in methodsWithRightParamCount)
                 if (MatchesParameters(syncVar, method))
-                {
                     return method;
-                }
-            }
 
             Log.Error($"Wrong type for Parameter in hook for '{syncVar.Name}', hook name '{hookFunctionName}'. " +
                      $"Method signature should be {HookParameterMessage(hookFunctionName, syncVar.FieldType)}",
@@ -157,9 +195,12 @@ namespace Mirror.Weaver
 
         bool MatchesParameters(FieldDefinition syncVar, MethodDefinition method)
         {
-            // matches void onValueChange(T oldValue, T newValue)
-            return method.Parameters[0].ParameterType.FullName == syncVar.FieldType.FullName &&
-                   method.Parameters[1].ParameterType.FullName == syncVar.FieldType.FullName;
+            // matches void onValueChange(T oldValue, T newValue), void onValueChange(T oldValue) or void onValueChange()
+            foreach (var parameter in method.Parameters)
+                if (parameter.ParameterType.FullName != syncVar.FieldType.FullName)
+                    return false;
+
+            return true;
         }
 
         public MethodDefinition GenerateSyncVarGetter(FieldDefinition fd, string originalName, FieldDefinition netFieldId)
