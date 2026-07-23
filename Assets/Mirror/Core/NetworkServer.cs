@@ -36,28 +36,29 @@ namespace Mirror
 
         /// <summary>Server Update frequency, per second. Use around 60Hz for fast paced games like Counter-Strike to minimize latency. Use around 30Hz for games like WoW to minimize computations. Use around 1-10Hz for slow paced games like EVE.</summary>
         // overwritten by NetworkManager (if any)
-        public static int tickRate = 60;
+        public static int tickRate = 30;
 
         // tick rate is in Hz.
         // convert to interval in seconds for convenience where needed.
         //
-        // send interval is 1 / sendRate.
+        // tick interval is 1 / tickRate.
         // but for tests we need a way to set it to exactly 0.
         // 1 / int.max would not be exactly 0, so handel that manually.
-        public static float tickInterval => tickRate < int.MaxValue ? 1f / tickRate : 0; // for 30 Hz, that's 33ms
+        public static float tickInterval => tickRate > 0 ? 1f / tickRate : 0f; // 0 = disabled
+        static double lastTickTime;
 
         // time & value snapshot interpolation are separate.
         // -> time is interpolated globally on NetworkClient / NetworkConnection
         // -> value is interpolated per-component, i.e. NetworkTransform.
         // however, both need to be on the same send interval.
-        public static int sendRate => tickRate;
-        public static float sendInterval => sendRate < int.MaxValue ? 1f / sendRate : 0; // for 30 Hz, that's 33ms
+        public static int sendRate = 30;
+        public static float sendInterval => sendRate > 0 ? 1f / sendRate : 0f; // 0 = disabled
         static double lastSendTime;
 
         // ocassionally send a full reliable state for unreliable components to delta compress against.
         // this only applies to Components with SyncMethod=Unreliable.
         public static int unreliableBaselineRate = 1;
-        public static float unreliableBaselineInterval => unreliableBaselineRate < int.MaxValue ? 1f / unreliableBaselineRate : 0; // for 1 Hz, that's 1000ms
+        public static float unreliableBaselineInterval => unreliableBaselineRate > 0 ? 1f / unreliableBaselineRate : 0f;
         static double lastUnreliableBaselineTime;
 
         // quake sends unreliable messages twice to make up for message drops.
@@ -216,9 +217,10 @@ namespace Mirror
             initialized = true;
 
             // profiling
-            earlyUpdateDuration = new TimeSample(sendRate);
-            lateUpdateDuration = new TimeSample(sendRate);
-            fullUpdateDuration = new TimeSample(sendRate);
+            int profilingSampleSize = Mathf.Max(1, sendRate);
+            earlyUpdateDuration = new TimeSample(profilingSampleSize);
+            lateUpdateDuration = new TimeSample(profilingSampleSize);
+            fullUpdateDuration = new TimeSample(profilingSampleSize);
         }
 
         static void AddTransportHandlers()
@@ -2269,6 +2271,8 @@ namespace Mirror
             connectionsCopy.Clear();
             connections.Values.CopyTo(connectionsCopy);
 
+            bool tickIntervalElapsed = tickInterval > 0 && AccurateInterval.Elapsed(NetworkTime.localTime, tickInterval, ref lastTickTime);
+
             // go through all connections
             foreach (NetworkConnectionToClient connection in connectionsCopy)
             {
@@ -2290,7 +2294,8 @@ namespace Mirror
                     // make sure Broadcast() is only called every sendInterval,
                     // even if targetFrameRate isn't set in host mode (!)
                     // (done via AccurateInterval)
-                    connection.Send(new TimeSnapshotMessage { scaledTime = NetworkTime.localScaledTime }, Channels.Unreliable);
+                    if (tickIntervalElapsed)
+                        connection.Send(new TimeSnapshotMessage { scaledTime = NetworkTime.localScaledTime }, Channels.Unreliable);
 
                     // broadcast world state to this connection
                     BroadcastToConnection(connection, unreliableBaselineElapsed);
@@ -2346,8 +2351,8 @@ namespace Mirror
                 // NetworkTransform, so they can sync on same interval as time
                 // snapshots _but_ not every single tick.
                 // Unity 2019 doesn't have Time.timeAsDouble yet
-                bool sendIntervalElapsed = AccurateInterval.Elapsed(NetworkTime.localTime, sendInterval, ref lastSendTime);
-                bool unreliableBaselineElapsed = AccurateInterval.Elapsed(NetworkTime.localTime, unreliableBaselineInterval, ref lastUnreliableBaselineTime);
+                bool sendIntervalElapsed = sendInterval > 0 && AccurateInterval.Elapsed(NetworkTime.localTime, sendInterval, ref lastSendTime);
+                bool unreliableBaselineElapsed = unreliableBaselineInterval > 0 && AccurateInterval.Elapsed(NetworkTime.localTime, unreliableBaselineInterval, ref lastUnreliableBaselineTime);
                 if (!Application.isPlaying || sendIntervalElapsed)
                     Broadcast(unreliableBaselineElapsed);
             }

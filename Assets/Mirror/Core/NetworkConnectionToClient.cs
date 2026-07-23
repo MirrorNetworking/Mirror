@@ -141,7 +141,7 @@ namespace Mirror
         protected virtual void UpdatePing()
         {
             // localTime (double) instead of Time.time for accuracy over days
-            if (NetworkTime.localTime >= lastPingTime + NetworkTime.PingInterval)
+            if (NetworkTime.PingInterval > 0 && NetworkTime.localTime >= lastPingTime + NetworkTime.PingInterval)
             {
                 // TODO it would be safer for the server to store the last N
                 // messages' timestamp and only send a message number.
