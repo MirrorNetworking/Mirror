@@ -173,6 +173,10 @@ namespace Mirror
         // Actions are queued during deserialization and invoked in OnObjectSpawnFinished.
         internal readonly List<Action> deferredSyncCollectionActions = new List<Action>();
 
+        // Dictionary to store original SyncVar values before host mode initialization
+        // This allows us to provide correct oldValue parameters to hooks during deserialization
+        protected internal Dictionary<ulong, object> hostModeOriginalValues = new Dictionary<ulong, object>();
+
         protected virtual void OnValidate()
         {
             // Skip if Editor is in Play mode
@@ -200,6 +204,20 @@ namespace Mirror
                 Debug.LogError($"{GetType()} on {name} requires a NetworkIdentity. Please add a NetworkIdentity component to {name} or its parents.", this);
             }
 #endif
+        }
+
+        // USED BY WEAVER to capture all original SyncVar values before server initialization in host mode.
+        internal virtual void CaptureHostModeOriginalValues() { }
+
+        // Helper methods for weaver-generated CaptureHostModeOriginalValues
+        protected void ClearHostModeOriginalValues()
+        {
+            hostModeOriginalValues.Clear();
+        }
+
+        protected void StoreHostModeOriginalValue(ulong dirtyBit, object value)
+        {
+            hostModeOriginalValues[dirtyBit] = value;
         }
 
         // USED BY WEAVER to set syncvars in host mode without deadlocking
@@ -287,7 +305,7 @@ namespace Mirror
 
             // Store back-reference to this NetworkBehaviour
             syncObject.networkBehaviour = this;
-            
+
             // add it, remember the index in list (if Count=0, index=0 etc.)
             int index = syncObjects.Count;
             syncObjects.Add(syncObject);
@@ -566,18 +584,21 @@ namespace Mirror
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void GeneratedSyncVarSetter<T>(T value, ref T field, ulong dirtyBit, Action<T, T> OnChanged)
         {
+            //Debug.Log($"SERVER SETTER: {gameObject.name} setting field from '{field}' to '{value}', dirtyBit={dirtyBit}, isServer={isServer}");
+
             if (!SyncVarEqual(value, ref field))
             {
                 T oldValue = field;
                 SetSyncVar(value, ref field, dirtyBit);
 
+                //Debug.Log($"SERVER SETTER: Field changed, dirty bit set. syncVarDirtyBits={syncVarDirtyBits}");
+
                 // call hook (if any)
                 if (OnChanged != null)
                 {
-                    // in host mode, setting a SyncVar calls the hook directly.
-                    // in client-only mode, OnDeserialize would call it.
-                    // we use hook guard to protect against deadlock where hook
-                    // changes syncvar, calling hook again.
+                    // Don't fire in host mode during server-side setting
+                    // Hooks will fire later during client deserialization when AOI is known
+                    // We use hook guard to protect against deadlock where hook changes syncvar, calling hook again.
                     // IMPORTANT: only call hook if object is visible to host client (in NetworkClient.spawned).
                     // This prevents hooks from firing at spawn for objects out of AOI range.
                     if (NetworkServer.activeHost && !GetSyncVarHookGuard(dirtyBit) && NetworkClient.spawned.ContainsKey(netIdentity.netId))
@@ -588,6 +609,10 @@ namespace Mirror
                     }
                 }
             }
+            //else
+            //{
+            //    Debug.Log($"SERVER SETTER: No change, not marking dirty");
+            //}
         }
 
         // GameObject needs custom handling for persistence via netId.
@@ -603,10 +628,9 @@ namespace Mirror
                 // call hook (if any)
                 if (OnChanged != null)
                 {
-                    // in host mode, setting a SyncVar calls the hook directly.
-                    // in client-only mode, OnDeserialize would call it.
-                    // we use hook guard to protect against deadlock where hook
-                    // changes syncvar, calling hook again.
+                    // Don't fire in host mode during server-side setting
+                    // Hooks will fire later during client deserialization when AOI is known
+                    // We use hook guard to protect against deadlock where hook changes syncvar, calling hook again.
                     // IMPORTANT: only call hook if object is visible to host client (in NetworkClient.spawned).
                     // This prevents hooks from firing at spawn for objects out of AOI range.
                     if (NetworkServer.activeHost && !GetSyncVarHookGuard(dirtyBit) && NetworkClient.spawned.ContainsKey(netIdentity.netId))
@@ -632,10 +656,9 @@ namespace Mirror
                 // call hook (if any)
                 if (OnChanged != null)
                 {
-                    // in host mode, setting a SyncVar calls the hook directly.
-                    // in client-only mode, OnDeserialize would call it.
-                    // we use hook guard to protect against deadlock where hook
-                    // changes syncvar, calling hook again.
+                    // Don't fire in host mode during server-side setting
+                    // Hooks will fire later during client deserialization when AOI is known
+                    // We use hook guard to protect against deadlock where hook changes syncvar, calling hook again.
                     // IMPORTANT: only call hook if object is visible to host client (in NetworkClient.spawned).
                     // This prevents hooks from firing at spawn for objects out of AOI range.
                     if (NetworkServer.activeHost && !GetSyncVarHookGuard(dirtyBit) && NetworkClient.spawned.ContainsKey(netIdentity.netId))
@@ -662,10 +685,9 @@ namespace Mirror
                 // call hook (if any)
                 if (OnChanged != null)
                 {
-                    // in host mode, setting a SyncVar calls the hook directly.
-                    // in client-only mode, OnDeserialize would call it.
-                    // we use hook guard to protect against deadlock where hook
-                    // changes syncvar, calling hook again.
+                    // Don't fire in host mode during server-side setting
+                    // Hooks will fire later during client deserialization when AOI is known
+                    // We use hook guard to protect against deadlock where hook changes syncvar, calling hook again.
                     // IMPORTANT: only call hook if object is visible to host client (in NetworkClient.spawned).
                     // This prevents hooks from firing at spawn for objects out of AOI range.
                     if (NetworkServer.activeHost && !GetSyncVarHookGuard(dirtyBit) && NetworkClient.spawned.ContainsKey(netIdentity.netId))
@@ -810,37 +832,60 @@ namespace Mirror
         //          GeneratedSyncVarDeserialize(reader, ref health, null, reader.ReadInt());
         //      }
         //  }
-        public void GeneratedSyncVarDeserialize<T>(ref T field, Action<T, T> OnChanged, T value)
+        public void GeneratedSyncVarDeserialize<T>(ref T field, Action<T, T> OnChanged, T value, ulong dirtyBit)
         {
+            //Debug.Log($"Deserialize called for {gameObject.name}: field={field}, value={value}, dirtyBit={dirtyBit}");
+
             T previous = field;
             field = value;
 
-            // any hook? then call if changed.
-            // in host mode initial spawn, also call hook even if value hasn't changed,
-            // because the field was already set on server but hook wasn't called yet.
             if (OnChanged != null)
             {
                 bool changed = !SyncVarEqual(previous, ref field);
                 bool hostInitialSpawnInHostMode = NetworkServer.activeHost && netIdentity.hostInitialSpawn;
+
+                //Debug.Log($"  changed={changed}, hostInitialSpawn={hostInitialSpawnInHostMode}");
+
                 if (changed || hostInitialSpawnInHostMode)
                 {
-                    // Defer hooks during initial spawn on pure client to eliminate
-                    // cross-object reference race conditions. All objects will be in
-                    // NetworkClient.spawned before any hooks fire.
-                    if (NetworkClient.active && !NetworkServer.active && !NetworkClient.isSpawnFinished)
+                    // Use captured original value for correct old value in host mode
+                    T actualPrevious = previous;
+                    if (hostInitialSpawnInHostMode && hostModeOriginalValues.TryGetValue(dirtyBit, out object original))
                     {
-                        // Capture values in closure for deferred execution
-                        T capturedPrevious = previous;
-                        T capturedNew = field;
-                        deferredSyncVarHooks.Add(() => OnChanged(capturedPrevious, capturedNew));
+                        //Debug.Log($"  Found captured original: {original}");
+                        actualPrevious = (T)original;
+                        changed = !SyncVarEqual(actualPrevious, ref field); // Re-check with correct old value
+                        //Debug.Log($"  After using captured: changed={changed}, actualPrevious={actualPrevious}");
                     }
-                    else
+                    //else if (hostInitialSpawnInHostMode)
+                    //{
+                    //    Debug.Log($"  No captured value found for dirtyBit {dirtyBit}");
+                    //}
+
+                    bool inSpawned = NetworkClient.spawned.ContainsKey(netIdentity.netId);
+                    //Debug.Log($"  Final check: changed={changed}, inSpawned={inSpawned}");
+
+                    // Only fire if actually changed and visible per AOI
+                    if (changed && inSpawned)
                     {
-                        // Normal: invoke immediately (host mode, server, or after spawn finished)
-                        OnChanged(previous, field);
+                        //Debug.Log($"  FIRING HOOK: {actualPrevious} -> {field}");
+                        if (NetworkClient.active && !NetworkServer.active && !NetworkClient.isSpawnFinished)
+                        {
+                            T capturedPrevious = actualPrevious;
+                            T capturedNew = field;
+                            deferredSyncVarHooks.Add(() => OnChanged(capturedPrevious, capturedNew));
+                        }
+                        else
+                        {
+                            OnChanged(actualPrevious, field);
+                        }
                     }
                 }
             }
+            //else
+            //{
+            //    Debug.Log($"  OnChanged is NULL for {gameObject.name}");
+            //}
         }
 
         // move the [SyncVar] generated OnDeserialize C# to avoid much IL.
@@ -888,7 +933,7 @@ namespace Mirror
         //           GeneratedSyncVarDeserialize_GameObject(reader, ref target, OnChangedNB, ref ___targetNetId);
         //       }
         //   }
-        public void GeneratedSyncVarDeserialize_GameObject(ref GameObject field, Action<GameObject, GameObject> OnChanged, NetworkReader reader, ref uint netIdField)
+        public void GeneratedSyncVarDeserialize_GameObject(ref GameObject field, Action<GameObject, GameObject> OnChanged, NetworkReader reader, ref uint netIdField, ulong dirtyBit)
         {
             uint previousNetId = netIdField;
             GameObject previousGameObject = field;
@@ -898,23 +943,35 @@ namespace Mirror
             field = GetSyncVarGameObject(netIdField, ref field);
 
             // any hook? then call if changed.
-            // in host mode initial spawn, also call hook even if value hasn't changed,
-            // because the field was already set on server but hook wasn't called yet.
             if (OnChanged != null)
             {
                 bool changed = !SyncVarEqual(previousNetId, ref netIdField);
                 bool hostInitialSpawnInHostMode = NetworkServer.activeHost && netIdentity.hostInitialSpawn;
+
                 if (changed || hostInitialSpawnInHostMode)
                 {
-                    if (NetworkClient.active && !NetworkServer.active && !NetworkClient.isSpawnFinished)
+                    // Use captured original value for correct old value in host mode
+                    GameObject actualPrevious = previousGameObject;
+                    if (hostInitialSpawnInHostMode && hostModeOriginalValues.TryGetValue(dirtyBit, out object original))
                     {
-                        GameObject capturedPrevious = previousGameObject;
-                        GameObject capturedNew = field;
-                        deferredSyncVarHooks.Add(() => OnChanged(capturedPrevious, capturedNew));
+                        actualPrevious = (GameObject)original;
+                        // Re-check with correct old value by comparing original GameObject to new one
+                        changed = !SyncVarEqual(actualPrevious, ref field);
                     }
-                    else
+
+                    // Only fire if actually changed and visible per AOI
+                    if (changed && NetworkClient.spawned.ContainsKey(netIdentity.netId))
                     {
-                        OnChanged(previousGameObject, field);
+                        if (NetworkClient.active && !NetworkServer.active && !NetworkClient.isSpawnFinished)
+                        {
+                            GameObject capturedPrevious = actualPrevious;
+                            GameObject capturedNew = field;
+                            deferredSyncVarHooks.Add(() => OnChanged(capturedPrevious, capturedNew));
+                        }
+                        else
+                        {
+                            OnChanged(actualPrevious, field);
+                        }
                     }
                 }
             }
@@ -966,7 +1023,7 @@ namespace Mirror
         //           GeneratedSyncVarDeserialize_NetworkIdentity(reader, ref target, OnChangedNI, ref ___targetNetId);
         //       }
         //   }
-        public void GeneratedSyncVarDeserialize_NetworkIdentity(ref NetworkIdentity field, Action<NetworkIdentity, NetworkIdentity> OnChanged, NetworkReader reader, ref uint netIdField)
+        public void GeneratedSyncVarDeserialize_NetworkIdentity(ref NetworkIdentity field, Action<NetworkIdentity, NetworkIdentity> OnChanged, NetworkReader reader, ref uint netIdField, ulong dirtyBit)
         {
             uint previousNetId = netIdField;
             NetworkIdentity previousIdentity = field;
@@ -976,23 +1033,35 @@ namespace Mirror
             field = GetSyncVarNetworkIdentity(netIdField, ref field);
 
             // any hook? then call if changed.
-            // in host mode initial spawn, also call hook even if value hasn't changed,
-            // because the field was already set on server but hook wasn't called yet.
             if (OnChanged != null)
             {
                 bool changed = !SyncVarEqual(previousNetId, ref netIdField);
                 bool hostInitialSpawnInHostMode = NetworkServer.activeHost && netIdentity.hostInitialSpawn;
+
                 if (changed || hostInitialSpawnInHostMode)
                 {
-                    if (NetworkClient.active && !NetworkServer.active && !NetworkClient.isSpawnFinished)
+                    // Use captured original value for correct old value in host mode
+                    NetworkIdentity actualPrevious = previousIdentity;
+                    if (hostInitialSpawnInHostMode && hostModeOriginalValues.TryGetValue(dirtyBit, out object original))
                     {
-                        NetworkIdentity capturedPrevious = previousIdentity;
-                        NetworkIdentity capturedNew = field;
-                        deferredSyncVarHooks.Add(() => OnChanged(capturedPrevious, capturedNew));
+                        actualPrevious = (NetworkIdentity)original;
+                        // Re-check with correct old value by comparing original NetworkIdentity to new one
+                        changed = !SyncVarEqual(actualPrevious, ref field);
                     }
-                    else
+
+                    // Only fire if actually changed and visible per AOI
+                    if (changed && NetworkClient.spawned.ContainsKey(netIdentity.netId))
                     {
-                        OnChanged(previousIdentity, field);
+                        if (NetworkClient.active && !NetworkServer.active && !NetworkClient.isSpawnFinished)
+                        {
+                            NetworkIdentity capturedPrevious = actualPrevious;
+                            NetworkIdentity capturedNew = field;
+                            deferredSyncVarHooks.Add(() => OnChanged(capturedPrevious, capturedNew));
+                        }
+                        else
+                        {
+                            OnChanged(actualPrevious, field);
+                        }
                     }
                 }
             }
@@ -1045,8 +1114,8 @@ namespace Mirror
         //           GeneratedSyncVarDeserialize_NetworkBehaviour(reader, ref target, OnChangedNB, ref ___targetNetId);
         //       }
         //   }
-        public void GeneratedSyncVarDeserialize_NetworkBehaviour<T>(ref T field, Action<T, T> OnChanged, NetworkReader reader, ref NetworkBehaviourSyncVar netIdField)
-            where T : NetworkBehaviour
+        public void GeneratedSyncVarDeserialize_NetworkBehaviour<T>(ref T field, Action<T, T> OnChanged, NetworkReader reader, ref NetworkBehaviourSyncVar netIdField, ulong dirtyBit)
+    where T : NetworkBehaviour
         {
             NetworkBehaviourSyncVar previousNetId = netIdField;
             T previousBehaviour = field;
@@ -1056,23 +1125,35 @@ namespace Mirror
             field = GetSyncVarNetworkBehaviour(netIdField, ref field);
 
             // any hook? then call if changed.
-            // in host mode initial spawn, also call hook even if value hasn't changed,
-            // because the field was already set on server but hook wasn't called yet.
             if (OnChanged != null)
             {
                 bool changed = !SyncVarEqual(previousNetId, ref netIdField);
                 bool hostInitialSpawnInHostMode = NetworkServer.activeHost && netIdentity.hostInitialSpawn;
+
                 if (changed || hostInitialSpawnInHostMode)
                 {
-                    if (NetworkClient.active && !NetworkServer.active && !NetworkClient.isSpawnFinished)
+                    // Use captured original value for correct old value in host mode
+                    T actualPrevious = previousBehaviour;
+                    if (hostInitialSpawnInHostMode && hostModeOriginalValues.TryGetValue(dirtyBit, out object original))
                     {
-                        T capturedPrevious = previousBehaviour;
-                        T capturedNew = field;
-                        deferredSyncVarHooks.Add(() => OnChanged(capturedPrevious, capturedNew));
+                        actualPrevious = (T)original;
+                        // Re-check with correct old value by comparing original NetworkBehaviour to new one
+                        changed = !SyncVarEqual(actualPrevious, ref field);
                     }
-                    else
+
+                    // Only fire if actually changed and visible per AOI
+                    if (changed && NetworkClient.spawned.ContainsKey(netIdentity.netId))
                     {
-                        OnChanged(previousBehaviour, field);
+                        if (NetworkClient.active && !NetworkServer.active && !NetworkClient.isSpawnFinished)
+                        {
+                            T capturedPrevious = actualPrevious;
+                            T capturedNew = field;
+                            deferredSyncVarHooks.Add(() => OnChanged(capturedPrevious, capturedNew));
+                        }
+                        else
+                        {
+                            OnChanged(actualPrevious, field);
+                        }
                     }
                 }
             }
@@ -1224,6 +1305,7 @@ namespace Mirror
         //   note: SyncVar hooks are only called when inital=false
         public virtual void OnSerialize(NetworkWriter writer, bool initialState)
         {
+            //Debug.Log($"OnSerialize called for {gameObject.name}: initialState={initialState}, syncVarDirtyBits={syncVarDirtyBits}");
             SerializeSyncObjects(writer, initialState);
             SerializeSyncVars(writer, initialState);
         }

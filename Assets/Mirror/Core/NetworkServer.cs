@@ -81,6 +81,10 @@ namespace Mirror
         public static readonly Dictionary<uint, NetworkIdentity> spawned =
             new Dictionary<uint, NetworkIdentity>();
 
+        // deferred spawning to allow post-spawn SyncVar modifications
+        // objects in this list will have their spawn messages sent in the next NetworkEarlyUpdate
+        static readonly HashSet<NetworkIdentity> deferredSpawns = new HashSet<NetworkIdentity>();
+
         /// <summary>Single player mode can set listen=false to not accept incoming connections.</summary>
         public static bool listen;
 
@@ -274,6 +278,7 @@ namespace Mirror
             connections.Clear();
             connectionsCopy.Clear();
             handlers.Clear();
+            deferredSpawns.Clear();
 
             // destroy all spawned objects, _then_ set inactive.
             // make sure .active is still true before calling this.
@@ -1802,6 +1807,9 @@ namespace Mirror
                 identity.OnStartServer();
             }
 
+            // defer spawn messages to allow post-spawn SyncVar modifications
+            identity.deferSpawnMessages = true;
+
             // Debug.Log($"SpawnObject instance ID {identity.netId} asset ID {identity.assetId}");
 
             if (aoi)
@@ -2038,6 +2046,13 @@ namespace Mirror
         // both worlds without any worrying now!
         public static void RebuildObservers(NetworkIdentity identity, bool initialize)
         {
+            // if spawn messages are deferred, add to deferred list and skip rebuild
+            if (identity.deferSpawnMessages)
+            {
+                deferredSpawns.Add(identity);
+                return;
+            }
+
             // if there is no interest management system,
             // or if 'force shown' then add all connections
             if (aoi == null || identity.visibility == Visibility.ForceShown)
@@ -2301,6 +2316,21 @@ namespace Mirror
             }
         }
 
+        static void ProcessDeferredSpawns()
+        {
+            // process all deferred spawns
+            foreach (NetworkIdentity identity in deferredSpawns)
+            {
+                if (identity != null)
+                {
+                    // clear the defer flag and rebuild observers to send spawn messages
+                    identity.deferSpawnMessages = false;
+                    RebuildObservers(identity, true);
+                }
+            }
+            deferredSpawns.Clear();
+        }
+
         // update //////////////////////////////////////////////////////////////
         // NetworkEarlyUpdate called before any Update/FixedUpdate
         // (we add this to the UnityEngine in NetworkLoop)
@@ -2312,6 +2342,9 @@ namespace Mirror
                 earlyUpdateDuration.Begin();
                 fullUpdateDuration.Begin();
             }
+
+            // process deferred spawns first to allow post-spawn SyncVar modifications
+            ProcessDeferredSpawns();
 
             // process all incoming messages first before updating the world
             if (Transport.active != null)
