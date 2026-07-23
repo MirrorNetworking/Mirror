@@ -230,6 +230,7 @@ GameObject:
   - component: {fileID: 856494734}
   - component: {fileID: 856494736}
   - component: {fileID: 856494735}
+  - component: {fileID: 856494742}
   m_Layer: 0
   m_Name: Cube
   m_TagString: Untagged
@@ -270,8 +271,8 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
-  updateMethod: 1
   target: {fileID: 856494741}
+  updateMethod: 1
   syncPosition: 1
   syncRotation: 1
   syncScale: 0
@@ -413,12 +414,31 @@ Transform:
   m_GameObject: {fileID: 856494733}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 2, z: -200}
+  m_LocalPosition: {x: -325.78217, y: 11.999975, z: 4.128914}
   m_LocalScale: {x: 4, y: 4, z: 4}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &856494742
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 856494733}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a91a718a70d01b347b75cb768a6f1a92, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncMethod: 0
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+  color:
+    serializedVersion: 2
+    rgba: 4278190080
 --- !u!1 &890531170
 GameObject:
   m_ObjectHideFlags: 0
@@ -882,20 +902,20 @@ MonoBehaviour:
   sendRate: 60
   unreliableBaselineRate: 1
   unreliableRedundancy: 0
-  offlineScene: 
-  onlineScene: 
-  offlineSceneLoadDelay: 0
   transport: {fileID: 2126814504}
   networkAddress: localhost
   maxConnections: 100
   disconnectInactiveConnections: 0
   disconnectInactiveTimeout: 60
+  exceptionsDisconnect: 1
   authenticator: {fileID: 0}
+  offlineScene: 
+  onlineScene: 
+  offlineSceneLoadDelay: 0
   playerPrefab: {fileID: 7197623925735895267, guid: 26433cf84d806564491a56c685a18f82, type: 3}
   autoCreatePlayer: 1
   playerSpawnMethod: 1
   spawnPrefabs: []
-  exceptionsDisconnect: 1
   snapshotSettings:
     bufferTimeMultiplier: 2
     bufferLimit: 32

@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 namespace Mirror.Examples.Basic
