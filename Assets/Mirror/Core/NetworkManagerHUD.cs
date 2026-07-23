@@ -9,12 +9,14 @@ namespace Mirror
     [HelpURL("https://mirror-networking.gitbook.io/docs/components/network-manager-hud")]
     public class NetworkManagerHUD : MonoBehaviour
     {
-        NetworkManager manager;
+        // internal so we can access it during unit tests
+        internal NetworkManager manager;
 
         public int offsetX;
         public int offsetY;
 
-        void Awake()
+        // internal so we can access it during unit tests
+        internal void Awake()
         {
             manager = GetComponent<NetworkManager>();
         }
