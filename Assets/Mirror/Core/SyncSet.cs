@@ -130,9 +130,7 @@ namespace Mirror
                     Operation capturedOp = op;
                     T capturedOld = oldItem;
                     T capturedNew = newItem;
-
-                    networkBehaviour.deferredSyncCollectionActions.Add(() =>
-                        InvokeActions(capturedOp, capturedOld, capturedNew));
+                    AddDeferredOperation(capturedOp, capturedOld, capturedNew);
                 }
                 else
                 {
@@ -140,6 +138,12 @@ namespace Mirror
                     InvokeActions(op, oldItem, newItem);
                 }
             }
+        }
+
+        void AddDeferredOperation(Operation capturedOp, T capturedOld, T capturedNew)
+        {
+            networkBehaviour.deferredSyncCollectionActions.Add(() =>
+                InvokeActions(capturedOp, capturedOld, capturedNew));
         }
 
         void AddOperation(Operation op, bool checkAccess) => AddOperation(op, default, default, checkAccess, true);
