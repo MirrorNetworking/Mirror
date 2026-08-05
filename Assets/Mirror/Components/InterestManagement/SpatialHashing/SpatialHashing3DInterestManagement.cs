@@ -11,19 +11,19 @@ namespace Mirror
     [AddComponentMenu("Network/ Interest Management/ Spatial Hash/Grid Spatial Hash (3D)")]
     public class SpatialHashing3DInterestManagement : InterestManagement
     {
-        [Tooltip("The maximum range that objects will be visible.\nSet to 10-20% larger than camera far clip plane")]
-        public int visRange = 1200;
+        [Tooltip("The maximum range that objects will be visible at.")]
+        public int visRange = 30;
 
         // we use a 9 neighbour grid.
         // so we always see in a distance of 2 grids.
         // for example, our own grid and then one on top / below / left / right.
         //
         // this means that grid resolution needs to be distance / 2.
-        // so for example, for distance = 1200 we see 2 cells = 600 * 2 distance.
+        // so for example, for distance = 30 we see 2 cells = 15 * 2 distance.
         //
         // on first sight, it seems we need distance / 3 (we see left/us/right).
         // but that's not the case.
-        // resolution would be 400, and we only see 1 cell far, so 400+400=800.
+        // resolution would be 10, and we only see 1 cell far, so 10+10=20.
         public int resolution => visRange / 2; // same as XY because if XY is rotated 90 degree for 3D, it's still the same distance
 
         [Tooltip("Rebuild all every 'rebuildInterval' seconds.")]
