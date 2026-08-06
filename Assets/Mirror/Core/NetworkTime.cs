@@ -40,6 +40,13 @@ namespace Mirror
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => Time.unscaledTimeAsDouble;
         }
+
+        /// <summary>Returns double precision scaled clock time _in this system_, unaffected by the network.</summary>
+        public static double localScaledTime
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Time.timeAsDouble;
+        }
 #else
         // need stopwatch for older Unity versions, but it's quite slow.
         // CAREFUL: unlike Time.time, the stopwatch time is not a FRAME time.
@@ -48,9 +55,11 @@ namespace Mirror
         static NetworkTime() => stopwatch.Start();
         static double localFrameTime;
         public static double localTime => localFrameTime;
+        // older Unity doesn't have timeAsDouble, fall back to unscaled
+        public static double localScaledTime => localFrameTime;
 #endif
 
-        /// <summary>The time in seconds since the server started.</summary>
+        /// <summary>The scaled time in seconds since the server started, synced to clients.</summary>
         // via global NetworkClient snapshot interpolated timeline (if client).
         // on server, this is simply Time.timeAsDouble.
         //
@@ -66,12 +75,21 @@ namespace Mirror
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => NetworkServer.active
+                ? localScaledTime
+                : NetworkClient.localTimelineScaled;
+        }
+
+        /// <summary>The unscaled time in seconds since the server started, synced to clients. Not affected by Time.timeScale.</summary>
+        public static double unscaledTime
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => NetworkServer.active
                 ? localTime
                 : NetworkClient.localTimeline;
         }
 
         // prediction //////////////////////////////////////////////////////////
-        // NetworkTime.time is server time, behind by bufferTime.
+        // NetworkTime.unscaledTime is server unscaled time, behind by bufferTime.
         // for prediction, we want server time, ahead by latency.
         // so that client inputs at predictedTime=2 arrive on server at time=2.
         // the more accurate this is, the more closesly will corrections be
@@ -116,7 +134,7 @@ namespace Mirror
         /// <summary>Clock difference in seconds between the client and the server. Always 0 on server.</summary>
         // original implementation used 'client - server' time. keep it this way.
         // TODO obsolete later. people shouldn't worry about this.
-        public static double offset => localTime - time;
+        public static double offset => localTime - unscaledTime;
 
         /// <summary>Round trip time (in seconds) that it takes a message to go client->server->client.</summary>
         public static double rtt => _rtt.Value;

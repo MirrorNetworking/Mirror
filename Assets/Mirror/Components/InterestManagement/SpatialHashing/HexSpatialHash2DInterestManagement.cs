@@ -124,7 +124,7 @@ namespace Mirror
 
         void LateUpdate()
         {
-            if (NetworkTime.time - lastRebuildTime >= rebuildInterval)
+            if (NetworkTime.unscaledTime - lastRebuildTime >= rebuildInterval)
             {
                 // Update positions of all active connections (players) in the network
                 foreach (NetworkConnectionToClient conn in NetworkServer.connections.Values)
@@ -185,7 +185,7 @@ namespace Mirror
                 base.RebuildAll();
 
                 // Update the last rebuild time
-                lastRebuildTime = NetworkTime.time;
+                lastRebuildTime = NetworkTime.unscaledTime;
             }
         }
 

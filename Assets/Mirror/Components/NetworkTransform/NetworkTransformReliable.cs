@@ -144,7 +144,7 @@ namespace Mirror
                 {
                     SnapshotInterpolation.StepInterpolation(
                         clientSnapshots,
-                        NetworkTime.time,
+                        NetworkTime.unscaledTime,
                         out TransformSnapshot from,
                         out TransformSnapshot to,
                         out double t
@@ -164,7 +164,7 @@ namespace Mirror
                         // NetworkClient is responsible for time globally.
                         SnapshotInterpolation.StepInterpolation(
                             clientSnapshots,
-                            NetworkTime.time, // == NetworkClient.localTimeline from snapshot interpolation
+                            NetworkTime.unscaledTime, // == NetworkClient.localTimeline from snapshot interpolation
                             out TransformSnapshot from,
                             out TransformSnapshot to,
                             out double t);

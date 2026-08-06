@@ -1,8 +1,8 @@
-﻿using UnityEngine;
+using UnityEngine;
 
-namespace Mirror.Examples.Common
+namespace Mirror
 {
-    [AddComponentMenu("")]
+    [AddComponentMenu("Network/ Interest Management/ Physics Simulator")]
     public class PhysicsSimulator : MonoBehaviour
     {
         PhysicsScene physicsScene;

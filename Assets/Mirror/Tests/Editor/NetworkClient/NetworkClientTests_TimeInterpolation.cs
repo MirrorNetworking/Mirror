@@ -4,8 +4,9 @@ namespace Mirror.Tests.NetworkClients
 {
     /// <summary>
     /// Tests for the snapshot-interpolation subsystem in NetworkClient_TimeInterpolation.cs.
-    /// Covers InitTimeInterpolation, OnTimeSnapshot, UpdateTimeInterpolation, computed
-    /// properties, and the disconnect-reset path.
+    /// Covers InitTimeInterpolation, OnTimeSnapshot (with both unscaled and scaled time),
+    /// UpdateTimeInterpolation, computed properties, and the disconnect-reset path.
+    /// Scaled time is derived from the same interpolation pipeline as unscaled time.
     /// </summary>
     public class NetworkClientTests_TimeInterpolation : MirrorEditModeTest
     {
@@ -35,6 +36,12 @@ namespace Mirror.Tests.NetworkClients
         public void InitTimeInterpolation_LocalTimelineIsZero()
         {
             Assert.That(NetworkClient.localTimeline, Is.EqualTo(0));
+        }
+
+        [Test]
+        public void InitTimeInterpolation_LocalTimelineScaledIsZero()
+        {
+            Assert.That(NetworkClient.localTimelineScaled, Is.EqualTo(0));
         }
 
         [Test]
@@ -68,13 +75,13 @@ namespace Mirror.Tests.NetworkClients
             Assert.That(NetworkClient.initialBufferTime, Is.EqualTo(expected).Within(1e-9));
         }
 
-        // ── OnTimeSnapshot ────────────────────────────────────────────────────
+        // ── OnTimeSnapshot ───────────────────────────────────────────────────
 
         [Test]
         public void OnTimeSnapshot_AddsSnapshotToBuffer()
         {
             Assert.That(NetworkClient.snapshots.Count, Is.EqualTo(0));
-            NetworkClient.OnTimeSnapshot(new TimeSnapshot(1.0, 0.0));
+            NetworkClient.OnTimeSnapshot(new TimeSnapshot(1.0, 0.0, 1.0));
             Assert.That(NetworkClient.snapshots.Count, Is.EqualTo(1));
         }
 
@@ -84,7 +91,7 @@ namespace Mirror.Tests.NetworkClients
             // InsertAndAdjust sets localTimeline = remoteTime - bufferTime
             // when the buffer is empty (first snapshot).
             Assert.That(NetworkClient.localTimeline, Is.EqualTo(0));
-            NetworkClient.OnTimeSnapshot(new TimeSnapshot(1.0, 0.0));
+            NetworkClient.OnTimeSnapshot(new TimeSnapshot(1.0, 0.0, 1.0));
             // With remoteTime=1.0 and bufferTime = sendInterval*2 ≈ 0.067,
             // localTimeline ≈ 0.933 — definitely not 0.
             Assert.That(NetworkClient.localTimeline, Is.Not.EqualTo(0));
@@ -93,19 +100,19 @@ namespace Mirror.Tests.NetworkClients
         [Test]
         public void OnTimeSnapshot_MultipleDistinctTimestampsGrowBuffer()
         {
-            NetworkClient.OnTimeSnapshot(new TimeSnapshot(1.0, 0.000));
-            NetworkClient.OnTimeSnapshot(new TimeSnapshot(2.0, 0.033));
-            NetworkClient.OnTimeSnapshot(new TimeSnapshot(3.0, 0.066));
+            NetworkClient.OnTimeSnapshot(new TimeSnapshot(1.0, 0.000, 1.0));
+            NetworkClient.OnTimeSnapshot(new TimeSnapshot(2.0, 0.033, 2.0));
+            NetworkClient.OnTimeSnapshot(new TimeSnapshot(3.0, 0.066, 3.0));
             Assert.That(NetworkClient.snapshots.Count, Is.EqualTo(3));
         }
 
         [Test]
         public void OnTimeSnapshot_DuplicateRemoteTimeDoesNotGrowBuffer()
         {
-            NetworkClient.OnTimeSnapshot(new TimeSnapshot(1.0, 0.0));
+            NetworkClient.OnTimeSnapshot(new TimeSnapshot(1.0, 0.0, 1.0));
             int countAfterFirst = NetworkClient.snapshots.Count;
             // InsertIfNotExists returns false for duplicate keys; count must not increase.
-            NetworkClient.OnTimeSnapshot(new TimeSnapshot(1.0, 0.1));
+            NetworkClient.OnTimeSnapshot(new TimeSnapshot(1.0, 0.1, 1.0));
             Assert.That(NetworkClient.snapshots.Count, Is.EqualTo(countAfterFirst));
         }
 
@@ -115,7 +122,7 @@ namespace Mirror.Tests.NetworkClients
             NetworkClient.snapshotSettings.dynamicAdjustment = true;
             // Set an obviously wrong value; the dynamic path must overwrite it.
             NetworkClient.bufferTimeMultiplier = 99.0;
-            NetworkClient.OnTimeSnapshot(new TimeSnapshot(1.0, 0.0));
+            NetworkClient.OnTimeSnapshot(new TimeSnapshot(1.0, 0.0, 1.0));
             Assert.That(NetworkClient.bufferTimeMultiplier, Is.Not.EqualTo(99.0));
         }
 
@@ -124,9 +131,18 @@ namespace Mirror.Tests.NetworkClients
         {
             NetworkClient.snapshotSettings.dynamicAdjustment = false;
             NetworkClient.bufferTimeMultiplier = 99.0;
-            NetworkClient.OnTimeSnapshot(new TimeSnapshot(1.0, 0.0));
+            NetworkClient.OnTimeSnapshot(new TimeSnapshot(1.0, 0.0, 1.0));
             // Static path: the if-block is skipped, so our value is preserved.
             Assert.That(NetworkClient.bufferTimeMultiplier, Is.EqualTo(99.0));
+        }
+
+        [Test]
+        public void OnTimeSnapshot_StoresScaledTimeInSnapshot()
+        {
+            // verify that the scaled time is stored in the snapshot buffer
+            NetworkClient.OnTimeSnapshot(new TimeSnapshot(1.0, 0.0, 42.0));
+            Assert.That(NetworkClient.snapshots.Count, Is.EqualTo(1));
+            Assert.That(NetworkClient.snapshots.Values[0].remoteScaledTime, Is.EqualTo(42.0));
         }
 
         // ── UpdateTimeInterpolation (via NetworkEarlyUpdate) ──────────────────
@@ -143,8 +159,8 @@ namespace Mirror.Tests.NetworkClients
         public void UpdateTimeInterpolation_DoesNotThrowWithSnapshots()
         {
             // Two snapshots ensure StepInterpolation has a valid pair to sample.
-            NetworkClient.OnTimeSnapshot(new TimeSnapshot(1.0, 0.000));
-            NetworkClient.OnTimeSnapshot(new TimeSnapshot(2.0, 0.033));
+            NetworkClient.OnTimeSnapshot(new TimeSnapshot(1.0, 0.000, 1.0));
+            NetworkClient.OnTimeSnapshot(new TimeSnapshot(2.0, 0.033, 2.0));
             Assert.DoesNotThrow(() => NetworkClient.NetworkEarlyUpdate());
         }
 
@@ -153,7 +169,7 @@ namespace Mirror.Tests.NetworkClients
         [Test]
         public void Disconnect_ClearsSnapshotBuffer()
         {
-            NetworkClient.OnTimeSnapshot(new TimeSnapshot(1.0, 0.0));
+            NetworkClient.OnTimeSnapshot(new TimeSnapshot(1.0, 0.0, 1.0));
             Assert.That(NetworkClient.snapshots.Count, Is.GreaterThan(0));
 
             NetworkClient.Disconnect();
@@ -165,7 +181,7 @@ namespace Mirror.Tests.NetworkClients
         [Test]
         public void Disconnect_ResetsLocalTimeline()
         {
-            NetworkClient.OnTimeSnapshot(new TimeSnapshot(1.0, 0.0));
+            NetworkClient.OnTimeSnapshot(new TimeSnapshot(1.0, 0.0, 1.0));
             // localTimeline was initialised to a non-zero value by InsertAndAdjust.
             Assert.That(NetworkClient.localTimeline, Is.Not.EqualTo(0));
 
@@ -173,6 +189,17 @@ namespace Mirror.Tests.NetworkClients
             UpdateTransport();
 
             Assert.That(NetworkClient.localTimeline, Is.EqualTo(0));
+        }
+
+        [Test]
+        public void Disconnect_ResetsLocalTimelineScaled()
+        {
+            NetworkClient.OnTimeSnapshot(new TimeSnapshot(1.0, 0.0, 1.0));
+
+            NetworkClient.Disconnect();
+            UpdateTransport();
+
+            Assert.That(NetworkClient.localTimelineScaled, Is.EqualTo(0));
         }
     }
 }

@@ -282,7 +282,7 @@ namespace Mirror.Transports.Encryption
             Profiler.BeginSample("EncryptionTransport.ServerLateUpdate");
             // Reverse iteration as entries can be removed while updating
             for (int i = serverPendingConnections.Count - 1; i >= 0; i--)
-                serverPendingConnections[i].TickNonReady(NetworkTime.time);
+                serverPendingConnections[i].TickNonReady(NetworkTime.unscaledTime);
             Profiler.EndSample();
         }
     }
