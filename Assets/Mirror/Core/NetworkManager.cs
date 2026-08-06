@@ -50,9 +50,9 @@ namespace Mirror
         public int tickRate = 30;
 
         /// <summary>Ping/Pong frequency in Hz for RTT/prediction updates.</summary>
-        [Tooltip("Ping rate in Hz for RTT/prediction updates.\nSet to 0 to disable ping.\nCan be lower than Send Rate for games not using NetworkTransform.")]
+        [Tooltip("Ping rate in Hz for RTT/prediction updates.\nCan be lower than Send Rate for games not using NetworkTransform.")]
         [Range(1, 60)]
-        public int pingRate = 10;
+        public int pingRate = 2;
 
         /// <summary> </summary>
         [Tooltip("Ocassionally send a full reliable state for unreliable components to delta compress against. This only applies to Components with SyncMethod=Unreliable.")]
@@ -308,6 +308,8 @@ namespace Mirror
         {
             NetworkServer.tickRate = tickRate;
             NetworkServer.sendRate = sendRate;
+
+            NetworkClient.tickRate = tickRate;
             NetworkClient.sendRate = sendRate;
 
             NetworkServer.unreliableBaselineRate = unreliableBaselineRate;
