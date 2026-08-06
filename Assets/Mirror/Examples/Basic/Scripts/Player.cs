@@ -93,7 +93,7 @@ namespace Mirror.Examples.Basic
         {
             byte playerNumber = 0;
             foreach (Player player in playersList)
-                player.playerNumber = playerNumber++;
+                player.playerNumber = ++playerNumber;
         }
 
         // This only runs on the server, called from OnStartServer via InvokeRepeating
