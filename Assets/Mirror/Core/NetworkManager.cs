@@ -50,9 +50,9 @@ namespace Mirror
         public int tickRate = 30;
 
         /// <summary>Ping/Pong frequency in Hz for RTT/prediction updates.</summary>
-        [Tooltip("Ping rate in Hz for RTT/prediction updates.\nCan be lower than Send Rate for games not using NetworkTransform.")]
-        [Range(1, 60)]
-        public int pingRate = 2;
+        [Tooltip("Ping rate in Hz for RTT/prediction updates.\nDefault 0.5 = every 2 seconds")]
+        [Range(0.01f, 10f)]
+        public float pingRate = 0.5f;
 
         /// <summary> </summary>
         [Tooltip("Ocassionally send a full reliable state for unreliable components to delta compress against. This only applies to Components with SyncMethod=Unreliable.")]
