@@ -1881,6 +1881,12 @@ namespace Mirror
             // in host mode, call OnStopClient/OnStopLocalPlayer manually
             if (NetworkClient.active && activeHost)
             {
+                foreach (NetworkBehaviour component in identity.NetworkBehaviours)
+                {
+                    component.MarkAllSyncVarHostVisibilityReplayPending();
+                    component.MarkAllSyncObjectHostVisibilityReplayPending();
+                }
+
                 // fix: #3962 custom unspawn handler for this prefab (for prefab pools etc.)
                 NetworkClient.InvokeUnSpawnHandler(identity.assetId, identity.gameObject);
 
