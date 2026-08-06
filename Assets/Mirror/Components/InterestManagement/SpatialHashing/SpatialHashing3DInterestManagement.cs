@@ -77,7 +77,7 @@ namespace Mirror
             // NOTE: unlike Scene/MatchInterestManagement, this rebuilds ALL
             //       entities every INTERVAL. consider the other approach later.
 
-            // IMPORTANT: refresh grid every update!
+            // Old Notes: refresh grid every update!
             // => newly spawned entities get observers assigned via
             //    OnCheckObservers. this can happen any time and we don't want
             //    them broadcast to old (moved or destroyed) connections.
@@ -85,14 +85,33 @@ namespace Mirror
             //    correct grid position.
             // => note that the actual 'rebuildall' doesn't need to happen all
             //    the time.
-            // NOTE: consider refreshing grid only every 'interval' too. but not
-            //       for now. stability & correctness matter.
+
+            // Updated Notes: refresh grid and RebuildAll every interval.
+            // Real world application would have visRange larger than camera
+            // far clip plane, e.g. 1200, and a player movement speed of ~10m/sec
+            // so they typically won't cross cell boundaries quickly. If users notice
+            // flickering or mis-positioning, they can decrease the interval.
 
             // clear old grid results before we update everyone's position.
             // (this way we get rid of destroyed connections automatically)
             //
             // NOTE: keeps allocated HashSets internally.
             //       clearing & populating every frame works without allocations
+
+            // rebuild all spawned entities' observers every 'interval'
+            // this will call OnRebuildObservers which then returns the
+            // observers at grid[position] for each entity.
+            if (NetworkTime.localTime >= lastRebuildTime + rebuildInterval)
+            {
+                RefreshGrid();
+                RebuildAll();
+                lastRebuildTime = NetworkTime.localTime;
+            }
+        }
+
+        // (internal so we can update from tests)
+        internal void RefreshGrid()
+        {
             grid.ClearNonAlloc();
 
             // put every connection into the grid at it's main player's position
@@ -108,15 +127,6 @@ namespace Mirror
                     // put into grid
                     grid.Add(position, connection);
                 }
-            }
-
-            // rebuild all spawned entities' observers every 'interval'
-            // this will call OnRebuildObservers which then returns the
-            // observers at grid[position] for each entity.
-            if (NetworkTime.localTime >= lastRebuildTime + rebuildInterval)
-            {
-                RebuildAll();
-                lastRebuildTime = NetworkTime.localTime;
             }
         }
 
