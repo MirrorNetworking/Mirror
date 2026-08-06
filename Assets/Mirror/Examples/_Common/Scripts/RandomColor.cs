@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 namespace Mirror.Examples.Common
 {
@@ -13,7 +13,7 @@ namespace Mirror.Examples.Common
         [SyncVar(hook = nameof(SetColor))]
         public Color32 color = Color.black;
 
-        void SetColor(Color32 _, Color32 newColor)
+        void SetColor(Color32 oldColor, Color32 newColor)
         {
             if (cachedMaterial == null) cachedMaterial = GetComponentInChildren<Renderer>().material;
             cachedMaterial.color = newColor;
