@@ -123,6 +123,10 @@ namespace Mirror
         // only set temporarily during OnHostClientSpawn deserialization.
         internal bool hostInitialSpawn;
 
+        // flag to indicate this object's spawn messages should be deferred
+        // until the next frame, allowing user code to set SyncVars after NetworkServer.Spawn()
+        internal bool deferSpawnMessages;
+
         /// <summary>The set of network connections (players) that can see this object.</summary>
         public readonly Dictionary<int, NetworkConnectionToClient> observers =
             new Dictionary<int, NetworkConnectionToClient>();
@@ -345,6 +349,7 @@ namespace Mirror
                 NetworkBehaviour component = NetworkBehaviours[i];
                 component.netIdentity = this;
                 component.ComponentIndex = (byte)i;
+                component.CaptureHostModeOriginalValues();
             }
         }
 
