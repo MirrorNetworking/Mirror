@@ -16,11 +16,11 @@ jobs:
           - 2021.3.45f2
           - 2022.3.62f3
           - 2023.2.22f1
-          - 6000.5.7f1  
+          - 6000.5.7f1
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@v4
 
       # Do Not Enable Caching --- Library needs to be recompiled every time because Weaver
       # Leaving this here for posterity to ensure we never turn this on.
