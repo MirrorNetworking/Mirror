@@ -41,18 +41,18 @@ namespace Mirror
         /// <summary>Send frequency in Hz for network snapshots/messages.</summary>
         [Tooltip("Send rate in Hz for server/client snapshots and messages.")]
         [Range(1, 60)]
-        public int sendRate = 30;
+        public int sendRate = 60;
 
         /// <summary>Server simulation frequency in Hz.</summary>
         [FormerlySerializedAs("serverTickRate")]
         [Tooltip("Tick rate in Hz for server simulation.\nSet this to match Send Rate, or set to 0 if not using NetworkTransform.")]
         [Range (0, 60)]
-        public int tickRate = 30;
+        public int tickRate = 60;
 
         /// <summary>Ping/Pong frequency in Hz for RTT/prediction updates.</summary>
-        [Tooltip("Ping rate in Hz for RTT/prediction updates.\nDefault 0.5 = every 2 seconds")]
+        [Tooltip("Ping rate in Hz for RTT/prediction updates.\nDefault 10 = every 0.1 seconds")]
         [Range(0.01f, 10f)]
-        public float pingRate = 0.5f;
+        public float pingRate = 10f;
 
         /// <summary> </summary>
         [Tooltip("Ocassionally send a full reliable state for unreliable components to delta compress against. This only applies to Components with SyncMethod=Unreliable.")]
