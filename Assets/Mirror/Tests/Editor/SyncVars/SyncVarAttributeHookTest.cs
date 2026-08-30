@@ -16,6 +16,56 @@ namespace Mirror.Tests.SyncVars
             HookCalled.Invoke(oldValue, newValue);
         }
     }
+    class HookBehaviourOneParam : NetworkBehaviour
+    {
+        [SyncVar(hook = nameof(OnValueChanged))]
+        public int value = 0;
+
+        public event Action<int> HookCalled;
+
+        void OnValueChanged(int oldValue)
+        {
+            HookCalled.Invoke(oldValue);
+        }
+    }
+
+    class HookBehaviourNoParams : NetworkBehaviour
+    {
+        [SyncVar(hook = nameof(OnValueChanged))]
+        public int value = 0;
+
+        public event Action HookCalled;
+
+        void OnValueChanged()
+        {
+            HookCalled.Invoke();
+        }
+    }
+
+    class HookBehaviourPrecedence : NetworkBehaviour
+    {
+        [SyncVar(hook = nameof(OnValueChanged))]
+        public int value = 0;
+
+        public event Action<int> HookCalled;
+
+
+        void OnValueChanged(int oldValue)
+        {
+            HookCalled.Invoke(1);
+        }
+
+        void OnValueChanged(int oldValue, int newValue)
+        {
+            HookCalled.Invoke(2);
+        }
+
+        void OnValueChanged()
+        {
+            HookCalled.Invoke(0);
+        }
+
+    }
 
     class GameObjectHookBehaviour : NetworkBehaviour
     {
@@ -245,6 +295,81 @@ namespace Mirror.Tests.SyncVars
             ProcessMessages();
             Assert.That(clientCalled, Is.EqualTo(1));
             Assert.That(serverCalled, Is.EqualTo(0));
+        }
+
+
+
+        [Test]
+        public void HookOneParam_CalledWhenSyncingChangedValued()
+        {
+            CreateNetworkedAndSpawn(
+                out _, out _, out HookBehaviourOneParam serverObject,
+                out _, out _, out HookBehaviourOneParam clientObject);
+
+            const int serverValue = 24;
+
+            // change it on server
+            serverObject.value = serverValue;
+
+            // hook should change it on client
+            int callCount = 0;
+            clientObject.HookCalled += (oldValue) =>
+            {
+                callCount++;
+                Assert.That(oldValue, Is.EqualTo(0));
+            };
+
+            ProcessMessages();
+            Assert.That(callCount, Is.EqualTo(1));
+        }
+
+
+        [Test]
+        public void HookNoParams_CalledWhenSyncingChangedValued()
+        {
+            CreateNetworkedAndSpawn(
+                out _, out _, out HookBehaviourNoParams serverObject,
+                out _, out _, out HookBehaviourNoParams clientObject);
+
+            const int serverValue = 24;
+
+            // change it on server
+            serverObject.value = serverValue;
+
+            // hook should change it on client
+            int callCount = 0;
+            clientObject.HookCalled += () =>
+            {
+                callCount++;
+            };
+
+            ProcessMessages();
+            Assert.That(callCount, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void HookPrecedence_CalledWhenSyncingChangedValued()
+        {
+            CreateNetworkedAndSpawn(
+                out _, out _, out HookBehaviourPrecedence serverObject,
+                out _, out _, out HookBehaviourPrecedence clientObject);
+
+            const int serverValue = 24;
+
+            // change it on server
+            serverObject.value = serverValue;
+
+            // hook should change it on client
+            int callCount = 0;
+            clientObject.HookCalled += (paramCount) =>
+            {
+                callCount++;
+                // method with 2 params has the highest precedence
+                Assert.AreEqual(2, paramCount);
+            };
+
+            ProcessMessages();
+            Assert.That(callCount, Is.EqualTo(1));
         }
 
         [Test]
