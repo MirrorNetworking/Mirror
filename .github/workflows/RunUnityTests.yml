@@ -33,14 +33,7 @@ jobs:
       #    key: Library-${{ matrix.unityVersion }}
 
       - name: Run editor Tests
-        # Pinned to v4.3.2 (rather than the floating @v4) specifically for the
-        # Unity 6000.6.x shared-memory fix: Unity 6.6+ editors request 1GiB of
-        # shared memory and hard-fail with "Insufficient shared memory
-        # available", which surfaced here as a retry-then-fail loop that
-        # looked like a license activation problem. v4.3.2 passes
-        # --shm-size=1025m on the Docker run to fix it, on the same action
-        # architecture this workflow already ran - see
-        # https://github.com/game-ci/unity-test-runner/releases/tag/v4.3.2
+        # Pinned to v4.3.2 for the Unity 6000.6.x shared-memory fix - see PR description
         uses: game-ci/unity-test-runner@v4.3.2
 
         # We can use the same license for all Unity versions
