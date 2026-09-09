@@ -33,8 +33,6 @@ jobs:
       #    key: Library-${{ matrix.unityVersion }}
 
       - name: Run editor Tests
-        # Pinned to v4.3.2: Unity 6000.6.x needs an explicit Docker --shm-size, which
-        # v4.3.2 sets and the floating @v4 didn't at the time this was pinned.
         uses: game-ci/unity-test-runner@v4.3.2
 
         # We can use the same license for all Unity versions
