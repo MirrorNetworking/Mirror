@@ -38,7 +38,6 @@ jobs:
         # We can use the same license for all Unity versions
         # See https://game.ci/docs/github/activation/
         env:
-          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
 
