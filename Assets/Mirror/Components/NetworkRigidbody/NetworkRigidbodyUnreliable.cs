@@ -53,7 +53,7 @@ namespace Mirror
         // would give more jittery movement.
 
         // FixedUpdate for physics
-        void FixedUpdate()
+        protected override void FixedUpdate()
         {
             // who ever has authority moves the Rigidbody with physics.
             // everyone else simply sets it to kinematic.
@@ -95,6 +95,8 @@ namespace Mirror
                 // the authority owner might use it either way.
                 if (!owned) rb.isKinematic = true;
             }
+
+            base.FixedUpdate();
         }
 
         protected override void OnTeleport(Vector3 destination)
