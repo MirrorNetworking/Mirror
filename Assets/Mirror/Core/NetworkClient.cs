@@ -29,9 +29,22 @@ namespace Mirror
         // otherwise it's too easy to accidentally cause interpolation issues if
         // a component sends with client.interval but interpolates with
         // server.interval, etc.
-        public static int sendRate => NetworkServer.sendRate;
-        public static float sendInterval => sendRate < int.MaxValue ? 1f / sendRate : 0; // for 30 Hz, that's 33ms
+        public static int sendRate = 30;
+        public static float sendInterval => sendRate > 0 ? 1f / sendRate : 0f; // 0 = disabled
         static double lastSendTime;
+
+        /// <summary>Client Update frequency, per second. Use around 60Hz for fast paced games like Counter-Strike to minimize latency. Use around 30Hz for games like WoW to minimize computations. Use around 1-10Hz for slow paced games like EVE.</summary>
+        // overwritten by NetworkManager (if any)
+        public static int tickRate = 30;
+
+        // tick rate is in Hz.
+        // convert to interval in seconds for convenience where needed.
+        //
+        // tick interval is 1 / tickRate.
+        // but for tests we need a way to set it to exactly 0.
+        // 1 / int.max would not be exactly 0, so handel that manually.
+        public static float tickInterval => tickRate > 0 ? 1f / tickRate : 0f; // 0 = disabled
+        static double lastTickTime;
 
         // ocassionally send a full reliable state for unreliable components to delta compress against.
         // this only applies to Components with SyncMethod=Unreliable.
@@ -1727,8 +1740,8 @@ namespace Mirror
                 // snapshots _but_ not every single tick.
                 //
                 // Unity 2019 doesn't have Time.timeAsDouble yet
-                bool sendIntervalElapsed = AccurateInterval.Elapsed(NetworkTime.localTime, sendInterval, ref lastSendTime);
-                bool unreliableBaselineElapsed = AccurateInterval.Elapsed(NetworkTime.localTime, unreliableBaselineInterval, ref lastUnreliableBaselineTime);
+                bool sendIntervalElapsed = sendInterval > 0 && AccurateInterval.Elapsed(NetworkTime.localTime, sendInterval, ref lastSendTime);
+                bool unreliableBaselineElapsed = unreliableBaselineInterval > 0 && AccurateInterval.Elapsed(NetworkTime.localTime, unreliableBaselineInterval, ref lastUnreliableBaselineTime);
                 if (!Application.isPlaying || sendIntervalElapsed)
                 {
                     Broadcast(unreliableBaselineElapsed);
@@ -1806,7 +1819,9 @@ namespace Mirror
             if (NetworkServer.active) return;
 
             // send time snapshot every sendInterval.
-            Send(new TimeSnapshotMessage { scaledTime = NetworkTime.localScaledTime }, Channels.Unreliable);
+            bool tickIntervalElapsed = tickInterval > 0 && AccurateInterval.Elapsed(NetworkTime.localTime, tickInterval, ref lastTickTime);
+            if (tickIntervalElapsed)
+                Send(new TimeSnapshotMessage { scaledTime = NetworkTime.localScaledTime }, Channels.Unreliable);
 
             // broadcast client state to server
             BroadcastToServer(unreliableBaselineElapsed);
