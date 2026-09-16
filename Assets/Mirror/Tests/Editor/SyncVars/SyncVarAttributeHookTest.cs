@@ -110,6 +110,7 @@ namespace Mirror.Tests.SyncVars
         }
     }
 
+    [Serializable]
     public struct Proportions
     {
         public byte[] Array;
@@ -142,6 +143,7 @@ namespace Mirror.Tests.SyncVars
 
     // repro for the bug found by David_548219 in discord where setting
     // MyStruct.value would throw invalid IL
+    [Serializable]
     public struct DavidStruct
     {
         public int Value;

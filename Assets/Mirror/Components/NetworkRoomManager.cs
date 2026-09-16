@@ -56,7 +56,7 @@ namespace Mirror
         /// List of players that are in the Room
         /// </summary>
         [FormerlySerializedAs("m_PendingPlayers")]
-        public HashSet<PendingPlayer> pendingPlayers = new HashSet<PendingPlayer>();
+        [System.NonSerialized] public HashSet<PendingPlayer> pendingPlayers = new HashSet<PendingPlayer>();
 
         [Header("Diagnostics")]
         /// <summary>
@@ -71,7 +71,7 @@ namespace Mirror
         /// <para>The slotId on players is global to the game - across all players.</para>
         /// </summary>
         [ReadOnly, Tooltip("List of Room Player objects")]
-        public HashSet<NetworkRoomPlayer> roomSlots = new HashSet<NetworkRoomPlayer>();
+        [System.NonSerialized] public HashSet<NetworkRoomPlayer> roomSlots = new HashSet<NetworkRoomPlayer>();
 
         public bool allPlayersReady
         {

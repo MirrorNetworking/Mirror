@@ -6,6 +6,7 @@ namespace Mirror.Tests.SyncVars
 {
     class MockPlayer : NetworkBehaviour
     {
+        [System.Serializable]
         public struct Guild
         {
             public string name;

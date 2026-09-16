@@ -23,6 +23,7 @@ namespace Mirror.Examples.LagCompensationDemo
         public double bufferTime => server.sendInterval * snapshotSettings.bufferTimeMultiplier;
 
         // <servertime, snaps>
+        [System.NonSerialized]
         public SortedList<double, Snapshot3D> snapshots = new SortedList<double, Snapshot3D>();
 
         // for smooth interpolation, we need to interpolate along server time.

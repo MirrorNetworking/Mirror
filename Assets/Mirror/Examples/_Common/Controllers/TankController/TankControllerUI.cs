@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -18,6 +18,7 @@ namespace Mirror.Examples.Common.Controllers.Tank
             public Text keyTextShoot;
         }
 
+        [Serializable]
         public struct OtherTexts
         {
             public Text keyTextShoot;

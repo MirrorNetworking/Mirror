@@ -10,6 +10,7 @@ using System.Collections.Generic;
 
 namespace Mirror
 {
+    [Serializable]
     public class Unbatcher
     {
         // supporting adding multiple batches before GetNextMessage is called.

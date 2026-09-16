@@ -6,6 +6,7 @@ using UnityEngine;
 namespace Mirror
 {
     /// <summary>Base NetworkConnection class for server-to-client and client-to-server connection.</summary>
+    [Serializable]
     public abstract class NetworkConnection
     {
         public const int LocalConnectionId = 0;
@@ -14,6 +15,7 @@ namespace Mirror
         public bool isAuthenticated;
 
         /// <summary>General purpose object to hold authentication data, character selection, tokens, etc.</summary>
+        [NonSerialized]
         public object authenticationData;
 
         /// <summary>A server connection is ready after joining the game world.</summary>

@@ -7,6 +7,7 @@ using UnityEngine.Networking;
 namespace Edgegap
 {
     // Implements the edgegap lobby api: https://docs.edgegap.com/docs/lobby/functions
+    [Serializable]
     public class LobbyApi
     {
         [Header("Lobby Config")]
