@@ -17,7 +17,7 @@ jobs:
           - 2022.3.62f3
           - 2023.2.22f1
           - 6000.3.23f1
-          - 6000.6.0f1
+          - 6000.6.1f1
 
     steps:
       - name: Checkout repository
@@ -35,7 +35,8 @@ jobs:
       - name: Run editor Tests
         uses: game-ci/unity-test-runner@v4
 
-        # We can use the same license for all Unity versions
+        # For Personal License, we must use the UNITY_EMAIL and UNITY_PASSWORD secrets to activate Unity.
+        # For Professional or Plus license, we must use the UNITY_LICENSE secret to activate Unity.
         # See https://game.ci/docs/github/activation/
         env:
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
