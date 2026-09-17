@@ -494,5 +494,12 @@ namespace Mirror
                 scale = syncData.scale;
             }
         }
+
+        public override void ResetState()
+        {
+            base.ResetState();
+
+            lastSnapshot = default;
+        }
     }
 }
