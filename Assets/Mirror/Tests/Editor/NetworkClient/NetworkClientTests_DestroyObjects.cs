@@ -3,6 +3,11 @@ using UnityEngine;
 
 namespace Mirror.Tests.NetworkClients
 {
+    class NetworkClientDestroyObjectSyncListBehaviour : NetworkBehaviour
+    {
+        public readonly SyncList<string> list = new SyncList<string>();
+    }
+
     public class NetworkClientTests_DestroyObjects : MirrorEditModeTest
     {
         [SetUp]
@@ -46,6 +51,45 @@ namespace Mirror.Tests.NetworkClients
 
             Assert.That(identity.gameObject.activeSelf, Is.False);
             Assert.That(NetworkClient.spawnableObjects.ContainsKey(sceneId), Is.True);
+        }
+
+        [Test]
+        public void OnObjectHide_SceneObjectCanBeShownAgain()
+        {
+            CreateNetworked(out _, out NetworkIdentity identity);
+            const uint netId = 103;
+            const ulong sceneId = 56;
+            identity.netId = netId;
+            identity.sceneId = sceneId;
+            identity.gameObject.SetActive(true);
+            NetworkClient.spawned[netId] = identity;
+            NetworkClient.isSpawnFinished = true;
+
+            NetworkClient.OnObjectHide(new ObjectHideMessage { netId = netId });
+
+            Assert.That(NetworkClient.spawnableObjects.TryGetValue(sceneId, out NetworkIdentity spawnableIdentity), Is.True);
+            Assert.That(spawnableIdentity, Is.SameAs(identity));
+
+            NetworkClient.OnSpawn(new SpawnMessage { netId = netId, sceneId = sceneId });
+
+            Assert.That(identity.gameObject.activeSelf, Is.True);
+            Assert.That(NetworkClient.spawned.TryGetValue(netId, out NetworkIdentity respawnedIdentity), Is.True);
+            Assert.That(respawnedIdentity, Is.SameAs(identity));
+        }
+
+        [Test]
+        public void OnObjectHide_SceneObjectClearsSyncObjectCallbacks()
+        {
+            CreateNetworked(out _, out NetworkIdentity identity, out NetworkClientDestroyObjectSyncListBehaviour behaviour);
+            const uint netId = 104;
+            identity.netId = netId;
+            identity.sceneId = 57;
+            behaviour.list.OnAdd += _ => {};
+            NetworkClient.spawned[netId] = identity;
+
+            NetworkClient.OnObjectHide(new ObjectHideMessage { netId = netId });
+
+            Assert.That(behaviour.list.OnAdd, Is.Null);
         }
 
         [Test]

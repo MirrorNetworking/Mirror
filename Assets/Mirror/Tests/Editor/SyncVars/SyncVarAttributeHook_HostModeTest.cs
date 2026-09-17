@@ -14,6 +14,10 @@ namespace Mirror.Tests.SyncVars
 
             // need host mode!
             ConnectHostClientBlockingAuthenticatedAndReady();
+
+            // Host SyncVar hooks now require a local player / visibility, just
+            // like the deferred remote-client path.
+            CreateNetworkedAndSpawnPlayer(out _, out _, NetworkServer.localConnection);
         }
 
         [TearDown]
