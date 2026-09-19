@@ -134,13 +134,8 @@ namespace Mirror
             //   => that was not intended, but let's keep it as it is so we
             //      don't break anything in host mode. it's way easier than
             //      iterating all identities in a special function in StartHost.
-            if (initialize)
-            {
-                if (!newObservers.Contains(NetworkServer.localConnection))
-                {
-                    SetHostVisibility(identity, false);
-                }
-            }
+            if (initialize && !newObservers.Contains(NetworkServer.localConnection))
+                SetHostVisibility(identity, false);
         }
     }
 }
