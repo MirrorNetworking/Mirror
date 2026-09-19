@@ -17,7 +17,7 @@ jobs:
           - 2022.3.62f3
           - 2023.2.22f1
           - 6000.3.23f1
-          - 6000.6.1f1
+          - 6000.6.2f1
 
     steps:
       - name: Checkout repository
