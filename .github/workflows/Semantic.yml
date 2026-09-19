@@ -41,7 +41,7 @@ jobs:
           npx
           --package semantic-release@25
           --package @semantic-release/exec@7
-          --package conventional-changelog-conventionalcommits@10
+          --package conventional-changelog-conventionalcommits@9
           semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
