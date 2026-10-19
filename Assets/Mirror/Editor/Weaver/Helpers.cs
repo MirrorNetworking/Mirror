@@ -1,7 +1,9 @@
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using Mono.CecilX;
+#if UNITY_6000_0_OR_NEWER
+using UnityEngine;
+#endif
 
 namespace Mirror.Weaver
 {
@@ -10,8 +12,20 @@ namespace Mirror.Weaver
         // This code is taken from SerializationWeaver
         public static string UnityEngineDllDirectoryName()
         {
-            string directoryName = Path.GetDirectoryName(Assembly.GetExecutingAssembly().CodeBase);
-            return directoryName?.Replace(@"file:\", "");
+#if UNITY_6000_0_OR_NEWER
+            // Unity loads many assemblies from streams, so Location/CodeBase are empty.
+            // GetLoadedAssemblyPath() is Unity's mapping back to the original file.
+            string assemblyPath = typeof(UnityEngine.Object).Assembly.GetLoadedAssemblyPath();
+            if (!string.IsNullOrEmpty(assemblyPath))
+                return Path.GetDirectoryName(assemblyPath);
+#endif
+
+            // Fallback used by CompilationFinishedHook for CoreModule
+            string coreModule = UnityEditorInternal.InternalEditorUtility.GetEngineCoreModuleAssemblyPath();
+            if (!string.IsNullOrEmpty(coreModule))
+                return Path.GetDirectoryName(coreModule);
+
+            return null;
         }
 
         public static bool IsEditorAssembly(AssemblyDefinition currentAssembly)
