@@ -123,6 +123,11 @@ namespace Mirror
         // only set temporarily during OnHostClientSpawn deserialization.
         internal bool hostInitialSpawn;
 
+        // flag to indicate a remote client is deserializing an initial spawn.
+        // scene objects may be re-used across hide/show cycles, so hook logic
+        // needs to treat each re-observation like a fresh first observation.
+        internal bool clientInitialSpawnActive;
+
         /// <summary>The set of network connections (players) that can see this object.</summary>
         public readonly Dictionary<int, NetworkConnectionToClient> observers =
             new Dictionary<int, NetworkConnectionToClient>();
@@ -1687,6 +1692,12 @@ namespace Mirror
 
             previousLocalPlayer = null;
             isLocalPlayer = false;
+        }
+
+        internal void ResetSyncObjectCallbacks()
+        {
+            foreach (NetworkBehaviour comp in NetworkBehaviours)
+                comp.ResetSyncObjectCallbacks();
         }
 
         bool hadAuthority;

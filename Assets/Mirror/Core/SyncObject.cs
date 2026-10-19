@@ -14,6 +14,7 @@ namespace Mirror
     {
         // Back-reference to owning NetworkBehaviour for accessing deferred queues
         internal NetworkBehaviour networkBehaviour;
+        internal bool hostVisibilityReplayPending;
 
         /// <summary>Used internally to set owner NetworkBehaviour's dirty mask bit when changed.</summary>
         public Action OnDirty;
@@ -49,6 +50,31 @@ namespace Mirror
 
         /// <summary>Reads the changes made to the object since last sync</summary>
         public abstract void OnDeserializeDelta(NetworkReader reader);
+
+        /// <summary>Queues host-mode first-observation Add replay actions without mutating server state.</summary>
+        public virtual void QueueHostVisibilityReplay() {}
+
+        internal void MarkHostVisibilityReplayPending()
+        {
+            hostVisibilityReplayPending = true;
+            networkBehaviour.MarkHostVisibilityReplayPending();
+        }
+
+        internal bool ConsumeHostVisibilityReplayPending()
+        {
+            bool pending = hostVisibilityReplayPending;
+            hostVisibilityReplayPending = false;
+            return pending;
+        }
+
+        internal void ClearHostVisibilityReplayPending() => hostVisibilityReplayPending = false;
+
+        /// <summary>
+        /// Clears any registered callbacks when a client object is unspawned.
+        /// Reused scene objects keep the same SyncObject instance, so they need
+        /// this reset to re-register handlers cleanly on the next observation.
+        /// </summary>
+        public virtual void ResetCallbacks() {}
 
         /// <summary>Resets the SyncObject so that it can be re-used</summary>
         public abstract void Reset();

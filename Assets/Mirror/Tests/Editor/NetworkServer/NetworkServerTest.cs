@@ -61,6 +61,11 @@ namespace Mirror.Tests.NetworkServers
         }
     }
 
+    public class SyncListCallbackNetworkBehaviour : NetworkBehaviour
+    {
+        public readonly SyncList<string> list = new SyncList<string>();
+    }
+
     [TestFixture]
     public class NetworkServerTest : MirrorEditModeTest
     {
@@ -1134,6 +1139,29 @@ namespace Mirror.Tests.NetworkServers
             // unspawn should reset netid
             NetworkServer.UnSpawn(go);
             Assert.That(identity.netId, Is.Zero);
+        }
+
+        [Test]
+        public void UnSpawn_PreservesSyncObjectCallbacks()
+        {
+            NetworkServer.Listen(1);
+
+            CreateNetworked(out GameObject go, out NetworkIdentity identity, out SyncListCallbackNetworkBehaviour behaviour);
+            identity.sceneId = 43;
+
+            int addCalls = 0;
+            behaviour.list.OnAdd += _ => ++addCalls;
+
+            NetworkServer.Spawn(go);
+            NetworkServer.UnSpawn(go);
+
+            Assert.That(behaviour.list.OnAdd, Is.Not.Null);
+
+            go.SetActive(true);
+            NetworkServer.Spawn(go);
+            behaviour.list.Add("value");
+
+            Assert.That(addCalls, Is.EqualTo(1));
         }
 
         [Test]
