@@ -38,13 +38,13 @@ namespace Mirror
 
         // update //////////////////////////////////////////////////////////////
         // Update applies interpolation
-        void Update()
+        protected virtual void Update()
         {
             if (updateMethod == UpdateMethod.Update)
                 DoUpdate();
         }
 
-        void FixedUpdate()
+        protected virtual void FixedUpdate()
         {
             if (updateMethod == UpdateMethod.FixedUpdate)
                 DoUpdate();
@@ -62,7 +62,7 @@ namespace Mirror
         // use LateUpdate to ensure changes are detected in the same frame.
         // otherwise this may run before user update, delaying detection until next frame.
         // this could cause visible jitter.
-        void LateUpdate()
+        protected virtual void LateUpdate()
         {
             if (updateMethod == UpdateMethod.LateUpdate)
                 DoUpdate();

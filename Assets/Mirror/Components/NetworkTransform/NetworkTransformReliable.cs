@@ -57,13 +57,13 @@ namespace Mirror
         }
 
         // update //////////////////////////////////////////////////////////////
-        void Update()
+        protected virtual void Update()
         {
             if (updateMethod == UpdateMethod.Update)
                 DoUpdate();
         }
 
-        void FixedUpdate()
+        protected virtual void FixedUpdate()
         {
             if (updateMethod == UpdateMethod.FixedUpdate)
                 DoUpdate();
@@ -76,7 +76,7 @@ namespace Mirror
             }
         }
 
-        void LateUpdate()
+        protected virtual void LateUpdate()
         {
             if (updateMethod == UpdateMethod.LateUpdate)
                 DoUpdate();
