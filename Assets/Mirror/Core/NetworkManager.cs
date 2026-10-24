@@ -320,7 +320,28 @@ namespace Mirror
             ConfigureHeadlessFrameRate();
 
             // start listening to network connections
-            NetworkServer.Listen(maxConnections);
+            try
+            {
+                NetworkServer.Listen(maxConnections);
+            }
+            catch
+            {
+                // Listen can throw before active is set. StopServer then returns early,
+                // so roll back only the authentication listener owned by this manager.
+                if (authenticator != null)
+                {
+                    authenticator.OnServerAuthenticated.RemoveListener(OnServerAuthenticated);
+                    try
+                    {
+                        authenticator.OnStopServer();
+                    }
+                    catch (Exception cleanupError)
+                    {
+                        Debug.LogWarning($"Authenticator startup rollback failed: {cleanupError.GetType().Name}");
+                    }
+                }
+                throw;
+            }
 
             // this must be after Listen(), since that registers the default message handlers
             RegisterServerMessages();
