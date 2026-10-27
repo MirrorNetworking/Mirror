@@ -158,7 +158,7 @@ namespace Mirror
         internal static void UpdateClient()
         {
             // localTime (double) instead of Time.time for accuracy over days
-            if (localTime >= lastPingTime + PingInterval)
+            if (PingInterval > 0 && localTime >= lastPingTime + PingInterval)
                 SendPing();
         }
 
