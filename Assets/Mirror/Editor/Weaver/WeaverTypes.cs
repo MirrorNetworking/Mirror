@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using Mono.CecilX;
+using Mono.CecilX.Rocks;
 using UnityEditor;
 using UnityEngine;
 
@@ -33,6 +35,10 @@ namespace Mirror.Weaver
 
         // Action<T,T> for SyncVar Hooks
         public MethodReference ActionT_T;
+
+        public FieldReference hostModeOriginalValuesReference;
+        public MethodReference clearHostModeOriginalValuesReference;
+        public MethodReference storeHostModeOriginalValueReference;
 
         // syncvar
         public MethodReference generatedSyncVarSetter;
@@ -94,6 +100,11 @@ namespace Mirror.Weaver
             NetworkClientConnectionReference = Resolvers.ResolveMethod(NetworkClientType, assembly, Log, "get_connection", ref WeavingFailed);
 
             TypeReference NetworkBehaviourType = Import<NetworkBehaviour>();
+
+            hostModeOriginalValuesReference = Resolvers.ResolveField(NetworkBehaviourType, assembly, Log, "hostModeOriginalValues", ref WeavingFailed);
+
+            clearHostModeOriginalValuesReference = Resolvers.ResolveMethod(NetworkBehaviourType, assembly, Log, "ClearHostModeOriginalValues", ref WeavingFailed);
+            storeHostModeOriginalValueReference = Resolvers.ResolveMethod(NetworkBehaviourType, assembly, Log, "StoreHostModeOriginalValue", ref WeavingFailed);
 
             NetworkBehaviourIsClientReference = Resolvers.ResolveMethod(NetworkBehaviourType, assembly, Log, "get_isClient", ref WeavingFailed);
             NetworkBehaviourIsServerReference = Resolvers.ResolveMethod(NetworkBehaviourType, assembly, Log, "get_isServer", ref WeavingFailed);

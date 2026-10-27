@@ -252,6 +252,63 @@ namespace Mirror.Weaver
             return get;
         }
 
+        // Generates the CaptureHostModeOriginalValues method that captures original SyncVar field values
+        // before OnStartServer runs in host mode. This fixes the issue where SyncVar hooks would fire
+        // with incorrect oldValue parameters (oldValue == newValue) because the server had already
+        // modified the fields before client deserialization occurred.
+        public void GenerateCaptureHostModeOriginalValues(TypeDefinition td, List<FieldDefinition> syncVars, ref bool WeavingFailed)
+        {
+            // Override the empty CaptureHostModeOriginalValues method from NetworkBehaviour base class
+            const string MethodName = "CaptureHostModeOriginalValues";
+
+            MethodDefinition method = new MethodDefinition(MethodName,
+                MethodAttributes.Family | MethodAttributes.Virtual | MethodAttributes.HideBySig | MethodAttributes.ReuseSlot,
+                weaverTypes.Import(typeof(void)));
+
+            ILProcessor worker = method.Body.GetILProcessor();
+
+            // Generate early return if not in host mode: if (!NetworkServer.activeHost) return;
+            // Only capture values in host mode where both server and client are active
+            Instruction returnLabel = worker.Create(OpCodes.Ret);
+            worker.Emit(OpCodes.Call, weaverTypes.NetworkServerGetActive);
+            worker.Emit(OpCodes.Brfalse, returnLabel);
+            worker.Emit(OpCodes.Call, weaverTypes.NetworkClientGetActive);
+            worker.Emit(OpCodes.Brfalse, returnLabel);
+
+            // Call helper method to clear dictionary (no complex IL needed!)
+            worker.Emit(OpCodes.Ldarg_0);
+            worker.Emit(OpCodes.Call, weaverTypes.clearHostModeOriginalValuesReference);
+
+            // Generate capture code for each SyncVar
+            int dirtyBit = syncVarAccessLists.GetSyncVarStart(td.BaseType.FullName);
+            foreach (FieldDefinition syncVar in syncVars)
+            {
+                // Call helper method to store value (no complex IL needed!)
+                worker.Emit(OpCodes.Ldarg_0);                 // this
+                worker.Emit(OpCodes.Ldc_I8, 1L << dirtyBit);  // dirtyBit key
+
+                // Load field value
+                worker.Emit(OpCodes.Ldarg_0);
+                worker.Emit(OpCodes.Ldfld, syncVar);
+
+                // Box if needed
+                if (syncVar.FieldType.IsValueType)
+                {
+                    TypeReference boxType = assembly.MainModule.ImportReference(syncVar.FieldType);
+                    worker.Emit(OpCodes.Box, boxType);
+                }
+
+                // Call helper method
+                worker.Emit(OpCodes.Call, weaverTypes.storeHostModeOriginalValueReference);
+
+
+                dirtyBit += 1;
+            }
+
+            worker.Append(returnLabel);
+            td.Methods.Add(method);
+        }
+
         // for [SyncVar] health, weaver generates
         //
         //   NetworkHealth
