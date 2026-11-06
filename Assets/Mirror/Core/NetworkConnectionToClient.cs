@@ -177,6 +177,14 @@ namespace Mirror
             //    and involuntary disconnects!
         }
 
+        // return any unread batches' pooled writers to the pool.
+        // otherwise disconnecting with a non-empty unbatcher would leak them.
+        public override void Cleanup()
+        {
+            base.Cleanup();
+            unbatcher.Clear();
+        }
+
         internal void AddToObserving(NetworkIdentity netIdentity)
         {
             observing.Add(netIdentity);

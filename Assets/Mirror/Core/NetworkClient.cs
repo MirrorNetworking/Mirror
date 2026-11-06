@@ -195,6 +195,8 @@ namespace Mirror
             // need to do this in Initialize() so it runs for the host as well.
             // fixes host mode scene transition receiving data from previous scene.
             // credits: BigBoxVR
+            // clear first so unread batches' writers return to the pool.
+            unbatcher.Clear();
             unbatcher = new Unbatcher();
 
             // reset time interpolation on every new connect.
@@ -2046,6 +2048,7 @@ namespace Mirror
 
             exceptionsDisconnect = true;
 
+            unbatcher.Clear();
             unbatcher = new Unbatcher();
 
             // clear events. someone might have hooked into them before, but

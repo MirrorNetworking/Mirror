@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Mirror.Tests.Batching;
 using NUnit.Framework;
 using UnityEngine;
 
@@ -318,6 +319,19 @@ namespace Mirror.Tests.NetworkConnections
             connection.Update();
             UpdateTransport();
             Assert.That(clientReceived.Count, Is.EqualTo(0));
+        }
+
+        [Test]
+        public void Cleanup_ClearsUnbatcher()
+        {
+            NetworkConnectionToClient connection = new NetworkConnectionToClient(1);
+            byte[] batch = BatcherTests.MakeBatch(Math.PI, new byte[] {0x01, 0x02});
+            connection.unbatcher.AddBatch(new ArraySegment<byte>(batch));
+            Assert.That(connection.unbatcher.BatchesCount, Is.EqualTo(1));
+
+            // unread batches would leak their pooled writers otherwise
+            connection.Cleanup();
+            Assert.That(connection.unbatcher.BatchesCount, Is.EqualTo(0));
         }
 
         // ---- batching / send --------------------------------------------------------
