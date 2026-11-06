@@ -97,6 +97,17 @@ namespace Mirror
             objects.Clear();
         }
 
+        public override void ResetCallbacks()
+        {
+            OnAdd = null;
+            OnInsert = null;
+            OnSet = null;
+            OnRemove = null;
+            OnClear = null;
+            OnChange = null;
+            Callback = null;
+        }
+
         void AddOperation(Operation op, int itemIndex, T oldItem, T newItem, bool checkAccess, bool shouldApplyChanges)
         {
             if (checkAccess && IsReadOnly)
@@ -120,15 +131,21 @@ namespace Mirror
             bool hostInitialSpawnInHostMode = NetworkServer.activeHost && networkBehaviour.netIdentity.hostInitialSpawn;
             bool shouldFireActions = shouldApplyChanges || hostInitialSpawnInHostMode;
 
-            // IMPORTANT: For ServerToClient mode, only fire Actions if object is visible to host client
-            // This prevents Actions from firing at spawn for objects out of AOI range
-            if (shouldFireActions && NetworkServer.activeHost && networkBehaviour.syncDirection == SyncDirection.ServerToClient)
-            {
-                shouldFireActions = NetworkClient.spawned.ContainsKey(networkBehaviour.netIdentity.netId);
-            }
-
             if (shouldFireActions)
             {
+                if (NetworkServer.activeHost &&
+                    networkBehaviour.syncDirection == SyncDirection.ServerToClient)
+                {
+                    if (!networkBehaviour.IsHostClientObserved())
+                    {
+                        MarkHostVisibilityReplayPending();
+                        return;
+                    }
+
+                    if (hostVisibilityReplayPending)
+                        return;
+                }
+
                 // Defer Actions during initial spawn on pure client to eliminate
                 // cross-object reference race conditions.  All objects will be in
                 // NetworkClient.spawned before any Actions fire.
@@ -247,10 +264,28 @@ namespace Mirror
                 objects.Add(obj);
             }
 
+            QueueHostVisibilityReplay();
+
             // We will need to skip all these changes
             // the next time the list is synchronized
             // because they have already been applied
             changesAhead = (int)reader.ReadUInt();
+        }
+
+        public override void QueueHostVisibilityReplay()
+        {
+            if (!(NetworkServer.activeHost &&
+                  networkBehaviour.syncDirection == SyncDirection.ServerToClient &&
+                  networkBehaviour.netIdentity.hostInitialSpawn))
+                return;
+
+            for (int i = 0; i < objects.Count; i++)
+            {
+                int capturedIndex = i;
+                T capturedValue = objects[i];
+                networkBehaviour.deferredSyncCollectionActions.Add(() =>
+                    InvokeActions(Operation.OP_ADD, capturedIndex, default, capturedValue));
+            }
         }
 
         public override void OnDeserializeDelta(NetworkReader reader)

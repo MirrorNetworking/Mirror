@@ -1095,6 +1095,8 @@ namespace Mirror
         {
             //Debug.Log("NetworkClient.InternalAddPlayer");
 
+            bool hadLocalPlayer = localPlayer != null;
+
             // NOTE: It can be "normal" when changing scenes for the player to be destroyed and recreated.
             // But, the player structures are not cleaned up, we'll just replace the old player
             localPlayer = identity;
@@ -1110,6 +1112,34 @@ namespace Mirror
                 connection.identity = identity;
             }
             else Debug.LogWarning("NetworkClient can't AddPlayer before being ready. Please call NetworkClient.Ready() first. Clients are considered ready after joining the game world.");
+
+            if (NetworkServer.activeHost && !hadLocalPlayer)
+                FlushHostVisibilityDeferredCallbacks();
+        }
+
+        static void FlushHostVisibilityDeferredCallbacks()
+        {
+            if (NetworkServer.localConnection == null || localPlayer == null)
+                return;
+
+            // Hooks may change visibility/ownership, so iterate a snapshot.
+            List<NetworkIdentity> observed = new List<NetworkIdentity>(NetworkServer.localConnection.observing);
+            foreach (NetworkIdentity identity in observed)
+            {
+                if (identity == null || !spawned.ContainsKey(identity.netId))
+                    continue;
+
+                identity.hostInitialSpawn = true;
+                try
+                {
+                    foreach (NetworkBehaviour comp in identity.NetworkBehaviours)
+                        comp.InvokeHostVisibilityDeferredCallbacks();
+                }
+                finally
+                {
+                    identity.hostInitialSpawn = false;
+                }
+            }
         }
 
         /// <summary>Sends AddPlayer message to the server, indicating that we want to join the world.</summary>
@@ -1185,7 +1215,15 @@ namespace Mirror
             {
                 using (NetworkReaderPooled payloadReader = NetworkReaderPool.Get(message.payload))
                 {
-                    identity.DeserializeClient(payloadReader, true);
+                    identity.clientInitialSpawnActive = true;
+                    try
+                    {
+                        identity.DeserializeClient(payloadReader, true);
+                    }
+                    finally
+                    {
+                        identity.clientInitialSpawnActive = false;
+                    }
                 }
             }
 
@@ -1371,18 +1409,7 @@ namespace Mirror
                     // This ensures all objects are in spawned dictionary (cross-references work)
                     // and hooks fire in declaration order, before user OnStartClient logic runs.
                     foreach (NetworkBehaviour comp in identity.NetworkBehaviours)
-                    {
-                        foreach (Action hook in comp.deferredSyncVarHooks)
-                            hook?.Invoke();
-
-                        comp.deferredSyncVarHooks.Clear();
-
-                        // Invoke deferred SyncCollection Actions AFTER SyncVar hooks
-                        foreach (Action action in comp.deferredSyncCollectionActions)
-                            action?.Invoke();
-
-                        comp.deferredSyncCollectionActions.Clear();
-                    }
+                        comp.InvokeDeferredSyncCallbacks();
 
                     BootstrapIdentity(identity);
                 }
@@ -1400,6 +1427,12 @@ namespace Mirror
             if (spawned.TryGetValue(message.netId, out NetworkIdentity identity) &&
                 identity != null)
             {
+                foreach (NetworkBehaviour component in identity.NetworkBehaviours)
+                {
+                    component.MarkAllSyncVarHostVisibilityReplayPending();
+                    component.MarkAllSyncObjectHostVisibilityReplayPending();
+                }
+
                 if (aoi != null)
                     aoi.SetHostVisibility(identity, false);
             }
@@ -1424,28 +1457,21 @@ namespace Mirror
 
                 identity.isOwned = message.isOwner;
 
-                // Ensure SyncVar hooks fire during deserialization for host client initial spawn.
-                // Fields were already set server-side, but hooks haven't fired yet because the
-                // object wasn't in NetworkClient.spawned when setters ran during OnStartServer().
+                // Ensure host-visible SyncVar hooks and SyncCollection Add replays flush now.
+                // Fields were already set server-side, but host callbacks may have been deferred
+                // until the object was actually visible to the host client.
                 identity.hostInitialSpawn = true;
 
-                // Configure flags before deserializing
+                // Configure flags before invoking host-visible callbacks.
                 InitializeIdentityFlags(identity);
 
-                // Deserialize components if any payload.
-                // This will trigger SyncVar hooks via GeneratedSyncVarDeserialize.
-                if (message.payload.Count > 0)
-                {
-                    using (NetworkReaderPooled payloadReader = NetworkReaderPool.Get(message.payload))
-                    {
-                        identity.DeserializeClient(payloadReader, true);
-                    }
-                }
+                foreach (NetworkBehaviour comp in identity.NetworkBehaviours)
+                    comp.InvokeHostVisibilityDeferredCallbacks();
 
-                // Clear flag after deserialization
+                // Clear flag after host-visible callbacks replay.
                 identity.hostInitialSpawn = false;
 
-                // Invoke callbacks after deserializing
+                // Invoke callbacks after host-visible state is ready.
                 InvokeIdentityCallbacks(identity);
             }
         }
@@ -1591,7 +1617,7 @@ namespace Mirror
             // Rpcs often can't be applied if interest management unspawned them
         }
 
-        static void OnObjectHide(ObjectHideMessage message) => DestroyObject(message.netId);
+        internal static void OnObjectHide(ObjectHideMessage message) => DestroyObject(message.netId);
 
         internal static void OnObjectDestroy(ObjectDestroyMessage message) => DestroyObject(message.netId);
 
@@ -1940,6 +1966,7 @@ namespace Mirror
                                 // they always stay in the scene, we don't destroy them.
                                 if (identity.sceneId != 0)
                                 {
+                                    identity.ResetSyncObjectCallbacks();
                                     identity.ResetState();
                                     identity.gameObject.SetActive(false);
                                 }
@@ -1967,6 +1994,8 @@ namespace Mirror
             // Debug.Log($"NetworkClient.OnObjDestroy netId: {netId}");
             if (spawned.TryGetValue(netId, out NetworkIdentity identity) && identity != null)
             {
+                ulong sceneId = identity.sceneId;
+
                 if (identity.isLocalPlayer)
                     identity.OnStopLocalPlayer();
 
@@ -1979,7 +2008,7 @@ namespace Mirror
                     identity.ResetState();
                 }
                 // otherwise fall back to default Destroy
-                else if (identity.sceneId == 0)
+                else if (sceneId == 0)
                 {
                     // don't call reset before destroy so that values are still set in OnDestroy
                     GameObject.Destroy(identity.gameObject);
@@ -1988,9 +2017,10 @@ namespace Mirror
                 else
                 {
                     identity.gameObject.SetActive(false);
-                    spawnableObjects[identity.sceneId] = identity;
                     // reset for scene objects
+                    identity.ResetSyncObjectCallbacks();
                     identity.ResetState();
+                    spawnableObjects[sceneId] = identity;
                 }
 
                 // remove from dictionary no matter how it is unspawned

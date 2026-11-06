@@ -104,6 +104,38 @@ namespace Mirror.Tests.SyncCollections
 
             Assert.That(clientComp.actionsReceived.Count, Is.EqualTo(3), "Total of 3 Actions invoked");
             Assert.That(clientComp.actionsReceived[2], Is.EqualTo("Add:third"));
+
+            // move client player back out of range
+            serverPlayer.transform.position = Vector3.right * (aoi.visRange + 1);
+            NetworkServer.RebuildObservers(serverComp.netIdentity, false);
+            ProcessMessages();
+
+            Assert.That(clientGO.activeSelf, Is.False);
+            Assert.That(NetworkClient.spawned.ContainsKey(serverIdentity.netId), Is.False);
+
+            // add item while hidden
+            serverComp.set.Add("fourth");
+            ProcessMessages();
+
+            Assert.That(clientComp.actionsReceived.Count, Is.EqualTo(3), "Hidden changes should not fire Actions");
+
+            // move back into range and ensure the full current state replays as Add actions again
+            serverPlayer.transform.position = Vector3.zero;
+            NetworkServer.RebuildObservers(serverComp.netIdentity, false);
+            ProcessMessages();
+
+            Assert.That(clientGO.activeSelf, Is.True);
+            Assert.That(NetworkClient.spawned.ContainsKey(serverIdentity.netId), Is.True);
+            Assert.That(clientComp.actionsReceived, Is.EqualTo(new[]
+            {
+                "Add:first",
+                "Add:second",
+                "Add:third",
+                "Add:first",
+                "Add:second",
+                "Add:third",
+                "Add:fourth"
+            }));
         }
     }
 

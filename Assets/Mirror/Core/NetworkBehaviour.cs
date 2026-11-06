@@ -164,14 +164,109 @@ namespace Mirror
         ulong syncVarHookGuard;
 
         // Queue for deferred SyncVar hooks during initial spawn.
-        // Only used on pure client (not host mode) when isSpawnFinished = false.
-        // Hooks are queued during deserialization and invoked in OnObjectSpawnFinished.
+        // Used on pure client when isSpawnFinished = false.
+        // Hooks are queued during deserialization and invoked once the object is visible.
         internal readonly List<Action> deferredSyncVarHooks = new List<Action>();
 
-        // Queue for deferred SyncCollection Actions during initial spawn.  
-        // Only used on pure client (not host mode) when isSpawnFinished = false.
-        // Actions are queued during deserialization and invoked in OnObjectSpawnFinished.
+        // Queue for deferred SyncCollection Actions during initial spawn / host visibility changes.
+        // Actions are queued while the object isn't visible to the local client and invoked once it is.
         internal readonly List<Action> deferredSyncCollectionActions = new List<Action>();
+        internal bool hostVisibilityReplayPending;
+
+        internal bool IsHostClientObserved() =>
+            NetworkServer.activeHost &&
+            NetworkServer.localConnection != null &&
+            NetworkClient.localPlayer != null &&
+            netIdentity.observers.ContainsKey(NetworkServer.localConnection.connectionId);
+
+        internal bool ShouldCaptureHostBaseline() =>
+            NetworkServer.activeHost &&
+            !IsHostClientObserved();
+
+        internal void MarkHostVisibilityReplayPending() => hostVisibilityReplayPending = true;
+
+        internal void MarkAllSyncObjectHostVisibilityReplayPending()
+        {
+            for (int i = 0; i < syncObjects.Count; ++i)
+                syncObjects[i].MarkHostVisibilityReplayPending();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        void MarkSyncVarHostVisibilityReplayPending(ref bool hostVisibilityPending)
+        {
+            hostVisibilityPending = true;
+            hostVisibilityReplayPending = true;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        T EnsureInitialHookBaseline<T>(T previous, ref T originalValue, ref bool originalValueSet)
+        {
+            // Scene objects are re-used across hide/show cycles on remote clients.
+            // Preserve the very first local baseline so each initial spawn replay,
+            // including host re-observation, behaves like a fresh first observation again.
+            if (!originalValueSet)
+            {
+                originalValue = previous;
+                originalValueSet = true;
+            }
+
+            return originalValue;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        void InvokeSyncVarHookAction<T>(Action<T, T> onChanged, T previous, T current)
+        {
+            if (NetworkClient.active && !NetworkClient.activeHost && !NetworkClient.isSpawnFinished)
+            {
+                T capturedPrevious = previous;
+                T capturedNew = current;
+                deferredSyncVarHooks.Add(() => onChanged(capturedPrevious, capturedNew));
+            }
+            else
+            {
+                onChanged(previous, current);
+            }
+        }
+
+        internal void InvokeDeferredSyncCallbacks()
+        {
+            foreach (Action hook in deferredSyncVarHooks)
+                hook?.Invoke();
+
+            deferredSyncVarHooks.Clear();
+
+            foreach (Action action in deferredSyncCollectionActions)
+                action?.Invoke();
+
+            deferredSyncCollectionActions.Clear();
+        }
+
+        protected virtual void InvokeSyncVarHostVisibilityHooks() {}
+        protected internal virtual void MarkAllSyncVarHostVisibilityReplayPending() => MarkHostVisibilityReplayPending();
+
+        internal void InvokeHostVisibilityDeferredCallbacks()
+        {
+            if (NetworkServer.activeHost &&
+                syncDirection == SyncDirection.ServerToClient &&
+                !IsHostClientObserved())
+                return;
+
+            bool replayPending = hostVisibilityReplayPending;
+            hostVisibilityReplayPending = false;
+
+            if (replayPending)
+            {
+                for (int i = 0; i < syncObjects.Count; ++i)
+                {
+                    if (syncObjects[i].ConsumeHostVisibilityReplayPending())
+                        syncObjects[i].QueueHostVisibilityReplay();
+                }
+
+                InvokeSyncVarHostVisibilityHooks();
+            }
+
+            InvokeDeferredSyncCallbacks();
+        }
 
         protected virtual void OnValidate()
         {
@@ -571,20 +666,43 @@ namespace Mirror
                 T oldValue = field;
                 SetSyncVar(value, ref field, dirtyBit);
 
-                // call hook (if any)
                 if (OnChanged != null)
                 {
-                    // in host mode, setting a SyncVar calls the hook directly.
-                    // in client-only mode, OnDeserialize would call it.
-                    // we use hook guard to protect against deadlock where hook
-                    // changes syncvar, calling hook again.
-                    // IMPORTANT: only call hook if object is visible to host client (in NetworkClient.spawned).
-                    // This prevents hooks from firing at spawn for objects out of AOI range.
                     if (NetworkServer.activeHost && !GetSyncVarHookGuard(dirtyBit) && NetworkClient.spawned.ContainsKey(netIdentity.netId))
                     {
                         SetSyncVarHookGuard(dirtyBit, true);
                         OnChanged(oldValue, value);
                         SetSyncVarHookGuard(dirtyBit, false);
+                    }
+                }
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void GeneratedSyncVarSetter_Hook<T>(T value, ref T field, ulong dirtyBit, Action<T, T> OnChanged, ref T originalValue, ref bool originalValueSet, ref bool hostVisibilityPending)
+        {
+            if (!SyncVarEqual(value, ref field))
+            {
+                T previous = field;
+                SetSyncVar(value, ref field, dirtyBit);
+
+                if (OnChanged != null && NetworkServer.activeHost && !GetSyncVarHookGuard(dirtyBit))
+                {
+                    if (IsHostClientObserved())
+                    {
+                        if (!originalValueSet)
+                            EnsureInitialHookBaseline(previous, ref originalValue, ref originalValueSet);
+                        if (hostVisibilityPending)
+                            return;
+                        SetSyncVarHookGuard(dirtyBit, true);
+                        OnChanged(previous, value);
+                        SetSyncVarHookGuard(dirtyBit, false);
+                    }
+                    else if (ShouldCaptureHostBaseline())
+                    {
+                        if (!originalValueSet)
+                            EnsureInitialHookBaseline(previous, ref originalValue, ref originalValueSet);
+                        MarkSyncVarHostVisibilityReplayPending(ref hostVisibilityPending);
                     }
                 }
             }
@@ -600,20 +718,43 @@ namespace Mirror
                 GameObject oldValue = field;
                 SetSyncVarGameObject(value, ref field, dirtyBit, ref netIdField);
 
-                // call hook (if any)
                 if (OnChanged != null)
                 {
-                    // in host mode, setting a SyncVar calls the hook directly.
-                    // in client-only mode, OnDeserialize would call it.
-                    // we use hook guard to protect against deadlock where hook
-                    // changes syncvar, calling hook again.
-                    // IMPORTANT: only call hook if object is visible to host client (in NetworkClient.spawned).
-                    // This prevents hooks from firing at spawn for objects out of AOI range.
                     if (NetworkServer.activeHost && !GetSyncVarHookGuard(dirtyBit) && NetworkClient.spawned.ContainsKey(netIdentity.netId))
                     {
                         SetSyncVarHookGuard(dirtyBit, true);
                         OnChanged(oldValue, value);
                         SetSyncVarHookGuard(dirtyBit, false);
+                    }
+                }
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void GeneratedSyncVarSetter_GameObject_Hook(GameObject value, ref GameObject field, ulong dirtyBit, Action<GameObject, GameObject> OnChanged, ref uint netIdField, ref GameObject originalValue, ref bool originalValueSet, ref bool hostVisibilityPending)
+        {
+            if (!SyncVarGameObjectEqual(value, netIdField))
+            {
+                GameObject previous = field;
+                SetSyncVarGameObject(value, ref field, dirtyBit, ref netIdField);
+
+                if (OnChanged != null && NetworkServer.activeHost && !GetSyncVarHookGuard(dirtyBit))
+                {
+                    if (IsHostClientObserved())
+                    {
+                        if (!originalValueSet)
+                            EnsureInitialHookBaseline(previous, ref originalValue, ref originalValueSet);
+                        if (hostVisibilityPending)
+                            return;
+                        SetSyncVarHookGuard(dirtyBit, true);
+                        OnChanged(previous, value);
+                        SetSyncVarHookGuard(dirtyBit, false);
+                    }
+                    else if (ShouldCaptureHostBaseline())
+                    {
+                        if (!originalValueSet)
+                            EnsureInitialHookBaseline(previous, ref originalValue, ref originalValueSet);
+                        MarkSyncVarHostVisibilityReplayPending(ref hostVisibilityPending);
                     }
                 }
             }
@@ -629,20 +770,43 @@ namespace Mirror
                 NetworkIdentity oldValue = field;
                 SetSyncVarNetworkIdentity(value, ref field, dirtyBit, ref netIdField);
 
-                // call hook (if any)
                 if (OnChanged != null)
                 {
-                    // in host mode, setting a SyncVar calls the hook directly.
-                    // in client-only mode, OnDeserialize would call it.
-                    // we use hook guard to protect against deadlock where hook
-                    // changes syncvar, calling hook again.
-                    // IMPORTANT: only call hook if object is visible to host client (in NetworkClient.spawned).
-                    // This prevents hooks from firing at spawn for objects out of AOI range.
                     if (NetworkServer.activeHost && !GetSyncVarHookGuard(dirtyBit) && NetworkClient.spawned.ContainsKey(netIdentity.netId))
                     {
                         SetSyncVarHookGuard(dirtyBit, true);
                         OnChanged(oldValue, value);
                         SetSyncVarHookGuard(dirtyBit, false);
+                    }
+                }
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void GeneratedSyncVarSetter_NetworkIdentity_Hook(NetworkIdentity value, ref NetworkIdentity field, ulong dirtyBit, Action<NetworkIdentity, NetworkIdentity> OnChanged, ref uint netIdField, ref NetworkIdentity originalValue, ref bool originalValueSet, ref bool hostVisibilityPending)
+        {
+            if (!SyncVarNetworkIdentityEqual(value, netIdField))
+            {
+                NetworkIdentity previous = field;
+                SetSyncVarNetworkIdentity(value, ref field, dirtyBit, ref netIdField);
+
+                if (OnChanged != null && NetworkServer.activeHost && !GetSyncVarHookGuard(dirtyBit))
+                {
+                    if (IsHostClientObserved())
+                    {
+                        if (!originalValueSet)
+                            EnsureInitialHookBaseline(previous, ref originalValue, ref originalValueSet);
+                        if (hostVisibilityPending)
+                            return;
+                        SetSyncVarHookGuard(dirtyBit, true);
+                        OnChanged(previous, value);
+                        SetSyncVarHookGuard(dirtyBit, false);
+                    }
+                    else if (ShouldCaptureHostBaseline())
+                    {
+                        if (!originalValueSet)
+                            EnsureInitialHookBaseline(previous, ref originalValue, ref originalValueSet);
+                        MarkSyncVarHostVisibilityReplayPending(ref hostVisibilityPending);
                     }
                 }
             }
@@ -659,20 +823,44 @@ namespace Mirror
                 T oldValue = field;
                 SetSyncVarNetworkBehaviour(value, ref field, dirtyBit, ref netIdField);
 
-                // call hook (if any)
                 if (OnChanged != null)
                 {
-                    // in host mode, setting a SyncVar calls the hook directly.
-                    // in client-only mode, OnDeserialize would call it.
-                    // we use hook guard to protect against deadlock where hook
-                    // changes syncvar, calling hook again.
-                    // IMPORTANT: only call hook if object is visible to host client (in NetworkClient.spawned).
-                    // This prevents hooks from firing at spawn for objects out of AOI range.
                     if (NetworkServer.activeHost && !GetSyncVarHookGuard(dirtyBit) && NetworkClient.spawned.ContainsKey(netIdentity.netId))
                     {
                         SetSyncVarHookGuard(dirtyBit, true);
                         OnChanged(oldValue, value);
                         SetSyncVarHookGuard(dirtyBit, false);
+                    }
+                }
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void GeneratedSyncVarSetter_NetworkBehaviour_Hook<T>(T value, ref T field, ulong dirtyBit, Action<T, T> OnChanged, ref NetworkBehaviourSyncVar netIdField, ref T originalValue, ref bool originalValueSet, ref bool hostVisibilityPending)
+            where T : NetworkBehaviour
+        {
+            if (!SyncVarNetworkBehaviourEqual(value, netIdField))
+            {
+                T previous = field;
+                SetSyncVarNetworkBehaviour(value, ref field, dirtyBit, ref netIdField);
+
+                if (OnChanged != null && NetworkServer.activeHost && !GetSyncVarHookGuard(dirtyBit))
+                {
+                    if (IsHostClientObserved())
+                    {
+                        if (!originalValueSet)
+                            EnsureInitialHookBaseline(previous, ref originalValue, ref originalValueSet);
+                        if (hostVisibilityPending)
+                            return;
+                        SetSyncVarHookGuard(dirtyBit, true);
+                        OnChanged(previous, value);
+                        SetSyncVarHookGuard(dirtyBit, false);
+                    }
+                    else if (ShouldCaptureHostBaseline())
+                    {
+                        if (!originalValueSet)
+                            EnsureInitialHookBaseline(previous, ref originalValue, ref originalValueSet);
+                        MarkSyncVarHostVisibilityReplayPending(ref hostVisibilityPending);
                     }
                 }
             }
@@ -810,270 +998,231 @@ namespace Mirror
         //          GeneratedSyncVarDeserialize(reader, ref health, null, reader.ReadInt());
         //      }
         //  }
+
         public void GeneratedSyncVarDeserialize<T>(ref T field, Action<T, T> OnChanged, T value)
         {
             T previous = field;
             field = value;
 
-            // any hook? then call if changed.
-            // in host mode initial spawn, also call hook even if value hasn't changed,
-            // because the field was already set on server but hook wasn't called yet.
             if (OnChanged != null)
             {
                 bool changed = !SyncVarEqual(previous, ref field);
                 bool hostInitialSpawnInHostMode = NetworkServer.activeHost && netIdentity.hostInitialSpawn;
                 if (changed || hostInitialSpawnInHostMode)
                 {
-                    // Defer hooks during initial spawn on pure client to eliminate
-                    // cross-object reference race conditions. All objects will be in
-                    // NetworkClient.spawned before any hooks fire.
-                    if (NetworkClient.active && !NetworkServer.active && !NetworkClient.isSpawnFinished)
-                    {
-                        // Capture values in closure for deferred execution
-                        T capturedPrevious = previous;
-                        T capturedNew = field;
-                        deferredSyncVarHooks.Add(() => OnChanged(capturedPrevious, capturedNew));
-                    }
-                    else
-                    {
-                        // Normal: invoke immediately (host mode, server, or after spawn finished)
-                        OnChanged(previous, field);
-                    }
+                    InvokeSyncVarHookAction(OnChanged, previous, field);
                 }
             }
         }
 
-        // move the [SyncVar] generated OnDeserialize C# to avoid much IL.
-        //
-        // before:
-        //   public override void DeserializeSyncVars(NetworkReader reader, bool initialState)
-        //   {
-        //       base.DeserializeSyncVars(reader, initialState);
-        //       if (initialState)
-        //       {
-        //           uint __targetNetId = ___targetNetId;
-        //           GameObject networktarget = Networktarget;
-        //           ___targetNetId = reader.ReadUInt();
-        //           if (!NetworkBehaviour.SyncVarEqual(__targetNetId, ref ___targetNetId))
-        //           {
-        //               OnChangedNB(networktarget, Networktarget);
-        //           }
-        //           return;
-        //       }
-        //       long num = (long)reader.ReadULong();
-        //       if ((num & 1L) != 0L)
-        //       {
-        //           uint __targetNetId2 = ___targetNetId;
-        //           GameObject networktarget2 = Networktarget;
-        //           ___targetNetId = reader.ReadUInt();
-        //           if (!NetworkBehaviour.SyncVarEqual(__targetNetId2, ref ___targetNetId))
-        //           {
-        //               OnChangedNB(networktarget2, Networktarget);
-        //           }
-        //       }
-        //   }
-        //
-        // after:
-        //   public override void DeserializeSyncVars(NetworkReader reader, bool initialState)
-        //   {
-        //       base.DeserializeSyncVars(reader, initialState);
-        //       if (initialState)
-        //       {
-        //           GeneratedSyncVarDeserialize_GameObject(reader, ref target, OnChangedNB, ref ___targetNetId);
-        //           return;
-        //       }
-        //       long num = (long)reader.ReadULong();
-        //       if ((num & 1L) != 0L)
-        //       {
-        //           GeneratedSyncVarDeserialize_GameObject(reader, ref target, OnChangedNB, ref ___targetNetId);
-        //       }
-        //   }
+        public void GeneratedSyncVarHostVisibilityHook<T>(ref T field, Action<T, T> OnChanged, ulong dirtyBit, ref T originalValue, ref bool originalValueSet, ref bool hostVisibilityPending)
+        {
+            if (hostVisibilityPending)
+            {
+                hostVisibilityPending = false;
+
+                if (OnChanged != null &&
+                    originalValueSet &&
+                    !GetSyncVarHookGuard(dirtyBit) &&
+                    !SyncVarEqual(originalValue, ref field))
+                {
+                    SetSyncVarHookGuard(dirtyBit, true);
+                    OnChanged(originalValue, field);
+                    SetSyncVarHookGuard(dirtyBit, false);
+                }
+            }
+        }
+
+        public void GeneratedSyncVarDeserialize_Hook<T>(ref T field, Action<T, T> OnChanged, T value, ulong dirtyBit, ref T originalValue, ref bool originalValueSet)
+        {
+            T previous = field;
+            field = value;
+
+            if (OnChanged != null)
+            {
+                if (NetworkServer.activeHost && netIdentity.hostInitialSpawn)
+                {
+                    if (originalValueSet)
+                    {
+                        if (!SyncVarEqual(originalValue, ref field))
+                        {
+                            SetSyncVarHookGuard(dirtyBit, true);
+                            OnChanged(originalValue, field);
+                            SetSyncVarHookGuard(dirtyBit, false);
+                        }
+
+                    }
+                }
+                else if (NetworkClient.active && !NetworkClient.activeHost && netIdentity.clientInitialSpawnActive)
+                {
+                    T baseline = EnsureInitialHookBaseline(previous, ref originalValue, ref originalValueSet);
+                    if (!SyncVarEqual(baseline, ref field))
+                        InvokeSyncVarHookAction(OnChanged, baseline, field);
+                }
+                else if (!SyncVarEqual(previous, ref field))
+                {
+                    InvokeSyncVarHookAction(OnChanged, previous, field);
+                }
+            }
+        }
+
         public void GeneratedSyncVarDeserialize_GameObject(ref GameObject field, Action<GameObject, GameObject> OnChanged, NetworkReader reader, ref uint netIdField)
         {
             uint previousNetId = netIdField;
             GameObject previousGameObject = field;
             netIdField = reader.ReadUInt();
-
-            // get the new GameObject now that netId field is set
             field = GetSyncVarGameObject(netIdField, ref field);
 
-            // any hook? then call if changed.
-            // in host mode initial spawn, also call hook even if value hasn't changed,
-            // because the field was already set on server but hook wasn't called yet.
             if (OnChanged != null)
             {
                 bool changed = !SyncVarEqual(previousNetId, ref netIdField);
                 bool hostInitialSpawnInHostMode = NetworkServer.activeHost && netIdentity.hostInitialSpawn;
                 if (changed || hostInitialSpawnInHostMode)
                 {
-                    if (NetworkClient.active && !NetworkServer.active && !NetworkClient.isSpawnFinished)
-                    {
-                        GameObject capturedPrevious = previousGameObject;
-                        GameObject capturedNew = field;
-                        deferredSyncVarHooks.Add(() => OnChanged(capturedPrevious, capturedNew));
-                    }
-                    else
-                    {
-                        OnChanged(previousGameObject, field);
-                    }
+                    InvokeSyncVarHookAction(OnChanged, previousGameObject, field);
                 }
             }
         }
 
-        // move the [SyncVar] generated OnDeserialize C# to avoid much IL.
-        //
-        // before:
-        //   public override void DeserializeSyncVars(NetworkReader reader, bool initialState)
-        //   {
-        //       base.DeserializeSyncVars(reader, initialState);
-        //       if (initialState)
-        //       {
-        //           uint __targetNetId = ___targetNetId;
-        //           NetworkIdentity networktarget = Networktarget;
-        //           ___targetNetId = reader.ReadUInt();
-        //           if (!NetworkBehaviour.SyncVarEqual(__targetNetId, ref ___targetNetId))
-        //           {
-        //               OnChangedNI(networktarget, Networktarget);
-        //           }
-        //           return;
-        //       }
-        //       long num = (long)reader.ReadULong();
-        //       if ((num & 1L) != 0L)
-        //       {
-        //           uint __targetNetId2 = ___targetNetId;
-        //           NetworkIdentity networktarget2 = Networktarget;
-        //           ___targetNetId = reader.ReadUInt();
-        //           if (!NetworkBehaviour.SyncVarEqual(__targetNetId2, ref ___targetNetId))
-        //           {
-        //               OnChangedNI(networktarget2, Networktarget);
-        //           }
-        //       }
-        //   }
-        //
-        // after:
-        //
-        //   public override void DeserializeSyncVars(NetworkReader reader, bool initialState)
-        //   {
-        //       base.DeserializeSyncVars(reader, initialState);
-        //       if (initialState)
-        //       {
-        //           GeneratedSyncVarDeserialize_NetworkIdentity(reader, ref target, OnChangedNI, ref ___targetNetId);
-        //           return;
-        //       }
-        //       long num = (long)reader.ReadULong();
-        //       if ((num & 1L) != 0L)
-        //       {
-        //           GeneratedSyncVarDeserialize_NetworkIdentity(reader, ref target, OnChangedNI, ref ___targetNetId);
-        //       }
-        //   }
+        public void GeneratedSyncVarDeserialize_GameObject_Hook(ref GameObject field, Action<GameObject, GameObject> OnChanged, NetworkReader reader, ulong dirtyBit, ref uint netIdField, ref GameObject originalValue, ref bool originalValueSet)
+        {
+            uint previousNetId = netIdField;
+            GameObject previousGameObject = field;
+            netIdField = reader.ReadUInt();
+            field = GetSyncVarGameObject(netIdField, ref field);
+
+            if (OnChanged != null)
+            {
+                if (NetworkServer.activeHost && netIdentity.hostInitialSpawn)
+                {
+                    if (originalValueSet)
+                    {
+                        if (!SyncVarEqual(originalValue, ref field))
+                        {
+                            SetSyncVarHookGuard(dirtyBit, true);
+                            OnChanged(originalValue, field);
+                            SetSyncVarHookGuard(dirtyBit, false);
+                        }
+
+                    }
+                }
+                else if (NetworkClient.active && !NetworkClient.activeHost && netIdentity.clientInitialSpawnActive)
+                {
+                    GameObject baseline = EnsureInitialHookBaseline(previousGameObject, ref originalValue, ref originalValueSet);
+                    if (!SyncVarEqual(baseline, ref field))
+                        InvokeSyncVarHookAction(OnChanged, baseline, field);
+                }
+                else if (!SyncVarEqual(previousNetId, ref netIdField))
+                {
+                    InvokeSyncVarHookAction(OnChanged, previousGameObject, field);
+                }
+            }
+        }
+
         public void GeneratedSyncVarDeserialize_NetworkIdentity(ref NetworkIdentity field, Action<NetworkIdentity, NetworkIdentity> OnChanged, NetworkReader reader, ref uint netIdField)
         {
             uint previousNetId = netIdField;
             NetworkIdentity previousIdentity = field;
             netIdField = reader.ReadUInt();
-
-            // get the new NetworkIdentity now that netId field is set
             field = GetSyncVarNetworkIdentity(netIdField, ref field);
 
-            // any hook? then call if changed.
-            // in host mode initial spawn, also call hook even if value hasn't changed,
-            // because the field was already set on server but hook wasn't called yet.
             if (OnChanged != null)
             {
                 bool changed = !SyncVarEqual(previousNetId, ref netIdField);
                 bool hostInitialSpawnInHostMode = NetworkServer.activeHost && netIdentity.hostInitialSpawn;
                 if (changed || hostInitialSpawnInHostMode)
                 {
-                    if (NetworkClient.active && !NetworkServer.active && !NetworkClient.isSpawnFinished)
-                    {
-                        NetworkIdentity capturedPrevious = previousIdentity;
-                        NetworkIdentity capturedNew = field;
-                        deferredSyncVarHooks.Add(() => OnChanged(capturedPrevious, capturedNew));
-                    }
-                    else
-                    {
-                        OnChanged(previousIdentity, field);
-                    }
+                    InvokeSyncVarHookAction(OnChanged, previousIdentity, field);
                 }
             }
         }
 
-        // move the [SyncVar] generated OnDeserialize C# to avoid much IL.
-        //
-        // before:
-        //
-        //   public override void DeserializeSyncVars(NetworkReader reader, bool initialState)
-        //   {
-        //       base.DeserializeSyncVars(reader, initialState);
-        //       if (initialState)
-        //       {
-        //           NetworkBehaviourSyncVar __targetNetId = ___targetNetId;
-        //           Tank networktarget = Networktarget;
-        //           ___targetNetId = reader.ReadNetworkBehaviourSyncVar();
-        //           if (!NetworkBehaviour.SyncVarEqual(__targetNetId, ref ___targetNetId))
-        //           {
-        //               OnChangedNB(networktarget, Networktarget);
-        //           }
-        //           return;
-        //       }
-        //       long num = (long)reader.ReadULong();
-        //       if ((num & 1L) != 0L)
-        //       {
-        //           NetworkBehaviourSyncVar __targetNetId2 = ___targetNetId;
-        //           Tank networktarget2 = Networktarget;
-        //           ___targetNetId = reader.ReadNetworkBehaviourSyncVar();
-        //           if (!NetworkBehaviour.SyncVarEqual(__targetNetId2, ref ___targetNetId))
-        //           {
-        //               OnChangedNB(networktarget2, Networktarget);
-        //           }
-        //       }
-        //   }
-        //
-        // after:
-        //
-        //   public override void DeserializeSyncVars(NetworkReader reader, bool initialState)
-        //   {
-        //       base.DeserializeSyncVars(reader, initialState);
-        //       if (initialState)
-        //       {
-        //           GeneratedSyncVarDeserialize_NetworkBehaviour(reader, ref target, OnChangedNB, ref ___targetNetId);
-        //           return;
-        //       }
-        //       long num = (long)reader.ReadULong();
-        //       if ((num & 1L) != 0L)
-        //       {
-        //           GeneratedSyncVarDeserialize_NetworkBehaviour(reader, ref target, OnChangedNB, ref ___targetNetId);
-        //       }
-        //   }
+        public void GeneratedSyncVarDeserialize_NetworkIdentity_Hook(ref NetworkIdentity field, Action<NetworkIdentity, NetworkIdentity> OnChanged, NetworkReader reader, ulong dirtyBit, ref uint netIdField, ref NetworkIdentity originalValue, ref bool originalValueSet)
+        {
+            uint previousNetId = netIdField;
+            NetworkIdentity previousIdentity = field;
+            netIdField = reader.ReadUInt();
+            field = GetSyncVarNetworkIdentity(netIdField, ref field);
+
+            if (OnChanged != null)
+            {
+                if (NetworkServer.activeHost && netIdentity.hostInitialSpawn)
+                {
+                    if (originalValueSet)
+                    {
+                        if (!SyncVarEqual(originalValue, ref field))
+                        {
+                            SetSyncVarHookGuard(dirtyBit, true);
+                            OnChanged(originalValue, field);
+                            SetSyncVarHookGuard(dirtyBit, false);
+                        }
+
+                    }
+                }
+                else if (NetworkClient.active && !NetworkClient.activeHost && netIdentity.clientInitialSpawnActive)
+                {
+                    NetworkIdentity baseline = EnsureInitialHookBaseline(previousIdentity, ref originalValue, ref originalValueSet);
+                    if (!SyncVarEqual(baseline, ref field))
+                        InvokeSyncVarHookAction(OnChanged, baseline, field);
+                }
+                else if (!SyncVarEqual(previousNetId, ref netIdField))
+                {
+                    InvokeSyncVarHookAction(OnChanged, previousIdentity, field);
+                }
+            }
+        }
+
         public void GeneratedSyncVarDeserialize_NetworkBehaviour<T>(ref T field, Action<T, T> OnChanged, NetworkReader reader, ref NetworkBehaviourSyncVar netIdField)
             where T : NetworkBehaviour
         {
             NetworkBehaviourSyncVar previousNetId = netIdField;
             T previousBehaviour = field;
             netIdField = reader.ReadNetworkBehaviourSyncVar();
-
-            // get the new NetworkBehaviour now that netId field is set
             field = GetSyncVarNetworkBehaviour(netIdField, ref field);
 
-            // any hook? then call if changed.
-            // in host mode initial spawn, also call hook even if value hasn't changed,
-            // because the field was already set on server but hook wasn't called yet.
             if (OnChanged != null)
             {
                 bool changed = !SyncVarEqual(previousNetId, ref netIdField);
                 bool hostInitialSpawnInHostMode = NetworkServer.activeHost && netIdentity.hostInitialSpawn;
                 if (changed || hostInitialSpawnInHostMode)
                 {
-                    if (NetworkClient.active && !NetworkServer.active && !NetworkClient.isSpawnFinished)
+                    InvokeSyncVarHookAction(OnChanged, previousBehaviour, field);
+                }
+            }
+        }
+
+        public void GeneratedSyncVarDeserialize_NetworkBehaviour_Hook<T>(ref T field, Action<T, T> OnChanged, NetworkReader reader, ulong dirtyBit, ref NetworkBehaviourSyncVar netIdField, ref T originalValue, ref bool originalValueSet)
+            where T : NetworkBehaviour
+        {
+            NetworkBehaviourSyncVar previousNetId = netIdField;
+            T previousBehaviour = field;
+            netIdField = reader.ReadNetworkBehaviourSyncVar();
+            field = GetSyncVarNetworkBehaviour(netIdField, ref field);
+
+            if (OnChanged != null)
+            {
+                if (NetworkServer.activeHost && netIdentity.hostInitialSpawn)
+                {
+                    if (originalValueSet)
                     {
-                        T capturedPrevious = previousBehaviour;
-                        T capturedNew = field;
-                        deferredSyncVarHooks.Add(() => OnChanged(capturedPrevious, capturedNew));
+                        if (!SyncVarEqual(originalValue, ref field))
+                        {
+                            SetSyncVarHookGuard(dirtyBit, true);
+                            OnChanged(originalValue, field);
+                            SetSyncVarHookGuard(dirtyBit, false);
+                        }
+
                     }
-                    else
-                    {
-                        OnChanged(previousBehaviour, field);
-                    }
+                }
+                else if (NetworkClient.active && !NetworkClient.activeHost && netIdentity.clientInitialSpawnActive)
+                {
+                    T baseline = EnsureInitialHookBaseline(previousBehaviour, ref originalValue, ref originalValueSet);
+                    if (!SyncVarEqual(baseline, ref field))
+                        InvokeSyncVarHookAction(OnChanged, baseline, field);
+                }
+                else if (!SyncVarEqual(previousNetId, ref netIdField))
+                {
+                    InvokeSyncVarHookAction(OnChanged, previousBehaviour, field);
                 }
             }
         }
@@ -1459,6 +1608,19 @@ namespace Mirror
             foreach (SyncObject syncObject in syncObjects)
             {
                 syncObject.Reset();
+                syncObject.ClearHostVisibilityReplayPending();
+            }
+
+            deferredSyncVarHooks.Clear();
+            deferredSyncCollectionActions.Clear();
+            hostVisibilityReplayPending = false;
+        }
+
+        internal void ResetSyncObjectCallbacks()
+        {
+            foreach (SyncObject syncObject in syncObjects)
+            {
+                syncObject.ResetCallbacks();
             }
         }
 
