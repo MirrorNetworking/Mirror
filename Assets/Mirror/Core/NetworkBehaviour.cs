@@ -766,6 +766,13 @@ namespace Mirror
             return newNetId == netIdField;
         }
 
+        // Anonymous method instance is instantiated upon entering the method containing it. 
+        // Deferred hooks should only be added in a nested method to avoid allocations when not adding a deferred hook.
+        void AddDeferredSyncVarHook<T>(Action<T, T> hook, T capturedPrevious, T capturedNew)
+        {
+            deferredSyncVarHooks.Add(() => hook(capturedPrevious, capturedNew));
+        }
+
         // move the [SyncVar] generated OnDeserialize C# to avoid much IL.
         //
         // before:
@@ -832,7 +839,7 @@ namespace Mirror
                         // Capture values in closure for deferred execution
                         T capturedPrevious = previous;
                         T capturedNew = field;
-                        deferredSyncVarHooks.Add(() => OnChanged(capturedPrevious, capturedNew));
+                        AddDeferredSyncVarHook(OnChanged, capturedPrevious, capturedNew);
                     }
                     else
                     {
@@ -910,7 +917,7 @@ namespace Mirror
                     {
                         GameObject capturedPrevious = previousGameObject;
                         GameObject capturedNew = field;
-                        deferredSyncVarHooks.Add(() => OnChanged(capturedPrevious, capturedNew));
+                        AddDeferredSyncVarHook(OnChanged, capturedPrevious, capturedNew);
                     }
                     else
                     {
@@ -988,7 +995,7 @@ namespace Mirror
                     {
                         NetworkIdentity capturedPrevious = previousIdentity;
                         NetworkIdentity capturedNew = field;
-                        deferredSyncVarHooks.Add(() => OnChanged(capturedPrevious, capturedNew));
+                        AddDeferredSyncVarHook(OnChanged, capturedPrevious, capturedNew);
                     }
                     else
                     {
@@ -1068,7 +1075,7 @@ namespace Mirror
                     {
                         T capturedPrevious = previousBehaviour;
                         T capturedNew = field;
-                        deferredSyncVarHooks.Add(() => OnChanged(capturedPrevious, capturedNew));
+                        AddDeferredSyncVarHook(OnChanged, capturedPrevious, capturedNew);
                     }
                     else
                     {
