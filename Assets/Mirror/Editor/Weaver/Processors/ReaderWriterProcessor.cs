@@ -12,23 +12,49 @@ namespace Mirror.Weaver
     {
         public static bool Process(AssemblyDefinition CurrentAssembly, IAssemblyResolver resolver, Logger Log, Writers writers, Readers readers, ref bool WeavingFailed)
         {
-            // find NetworkReader/Writer extensions from Mirror.dll first.
-            // and NetworkMessage custom writer/reader extensions.
-            // NOTE: do not include this result in our 'modified' return value,
-            //       otherwise Unity crashes when running tests
-            ProcessMirrorAssemblyClasses(CurrentAssembly, resolver, Log, writers, readers, ref WeavingFailed);
-
-            // process dependencies first, this way weaver can process types of other assemblies properly.
-            // fixes: https://github.com/MirrorNetworking/Mirror/issues/2503
+            // Process in two passes so that custom reader/writer registration
+            // always completes before any NetworkMessage reader/writer is generated.
             //
-            // find NetworkReader/Writer extensions in referenced assemblies
-            IEnumerable<AssemblyDefinition> assemblyReferences = FindProcessTargetAssemblies(CurrentAssembly, resolver)
-                .Where(assembly => assembly != null && assembly != CurrentAssembly);
+            // With a single pass per assembly, a message assembly could be visited
+            // before the assembly that declares a custom reader/writer for one of
+            // the message's field types. The weaver would then generate a fallback
+            // reader/writer for that type and cache it; the later custom registration
+            // is ignored because a generated function is already registered. For a
+            // reference type without public fields the fallback writer only emits the
+            // null-flag byte, silently dropping the value. Registering all custom
+            // readers/writers first makes the result independent of visit order.
+
+            // Mirror.dll is excluded from FindProcessTargetAssemblies, so resolve it
+            // separately and feed it into both passes.
+            AssemblyDefinition mirrorAssembly = ResolveMirrorAssembly(CurrentAssembly, resolver, Log);
+
+            // process dependencies, this way weaver can process types of other assemblies properly.
+            // fixes: https://github.com/MirrorNetworking/Mirror/issues/2503
+            List<AssemblyDefinition> assemblyReferences = FindProcessTargetAssemblies(CurrentAssembly, resolver)
+                .Where(assembly => assembly != null && assembly != CurrentAssembly)
+                .ToList();
+
+            // pass 1: register all declared custom readers/writers.
+            // NOTE: do not include Mirror/referenced results in 'modified',
+            //       otherwise Unity crashes when running tests
+            if (mirrorAssembly != null)
+                RegisterDeclaredReadersWriters(CurrentAssembly, mirrorAssembly, writers, readers);
 
             foreach (AssemblyDefinition referencedAssembly in assemblyReferences)
-                ProcessAssemblyClasses(CurrentAssembly, referencedAssembly, writers, readers, ref WeavingFailed);
+                RegisterDeclaredReadersWriters(CurrentAssembly, referencedAssembly, writers, readers);
 
-            return ProcessAssemblyClasses(CurrentAssembly, CurrentAssembly, writers, readers, ref WeavingFailed);
+            bool modified = RegisterDeclaredReadersWriters(CurrentAssembly, CurrentAssembly, writers, readers);
+
+            // pass 2: generate readers/writers for all NetworkMessages.
+            if (mirrorAssembly != null)
+                GenerateMessageReadersWriters(CurrentAssembly, mirrorAssembly, writers, readers, ref WeavingFailed);
+
+            foreach (AssemblyDefinition referencedAssembly in assemblyReferences)
+                GenerateMessageReadersWriters(CurrentAssembly, referencedAssembly, writers, readers, ref WeavingFailed);
+
+            modified |= GenerateMessageReadersWriters(CurrentAssembly, CurrentAssembly, writers, readers, ref WeavingFailed);
+
+            return modified;
         }
 
         // look for assembly instead of relying on CurrentAssembly.MainModule.
@@ -65,7 +91,10 @@ namespace Mirror.Weaver
             }
         }
 
-        static void ProcessMirrorAssemblyClasses(AssemblyDefinition CurrentAssembly, IAssemblyResolver resolver, Logger Log, Writers writers, Readers readers, ref bool WeavingFailed)
+        // resolve Mirror.dll's AssemblyDefinition. it is skipped by
+        // FindProcessTargetAssemblies, so it has to be resolved separately
+        // and fed into both passes.
+        static AssemblyDefinition ResolveMirrorAssembly(AssemblyDefinition CurrentAssembly, IAssemblyResolver resolver, Logger Log)
         {
             // find Mirror.dll in assembly's references.
             // those are guaranteed to be resolvable and correct.
@@ -78,16 +107,17 @@ namespace Mirror.Weaver
                 // if we only were to resolve one known type like in WeaverTypes,
                 // then we wouldn't need it.
                 AssemblyDefinition mirrorAssembly = resolver.Resolve(mirrorAssemblyReference);
-                if (mirrorAssembly != null)
-                {
-                    ProcessAssemblyClasses(CurrentAssembly, mirrorAssembly, writers, readers, ref WeavingFailed);
-                }
-                else Log.Error($"Failed to resolve {mirrorAssemblyReference}");
+                if (mirrorAssembly == null)
+                    Log.Error($"Failed to resolve {mirrorAssemblyReference}");
+                return mirrorAssembly;
             }
-            else Log.Error("Failed to find Mirror AssemblyNameReference. Can't register Mirror.dll readers/writers.");
+
+            Log.Error("Failed to find Mirror AssemblyNameReference. Can't register Mirror.dll readers/writers.");
+            return null;
         }
 
-        static bool ProcessAssemblyClasses(AssemblyDefinition CurrentAssembly, AssemblyDefinition assembly, Writers writers, Readers readers, ref bool WeavingFailed)
+        // pass 1: register all declared custom reader/writer extension methods in 'assembly'.
+        static bool RegisterDeclaredReadersWriters(AssemblyDefinition CurrentAssembly, AssemblyDefinition assembly, Writers writers, Readers readers)
         {
             bool modified = false;
             foreach (TypeDefinition klass in assembly.MainModule.Types)
@@ -101,7 +131,14 @@ namespace Mirror.Weaver
                     modified |= LoadDeclaredReaders(CurrentAssembly, klass, readers);
                 }
             }
+            return modified;
+        }
 
+        // pass 2: generate readers/writers for all NetworkMessages in 'assembly'.
+        // must run after every custom reader/writer has been registered.
+        static bool GenerateMessageReadersWriters(AssemblyDefinition CurrentAssembly, AssemblyDefinition assembly, Writers writers, Readers readers, ref bool WeavingFailed)
+        {
+            bool modified = false;
             foreach (TypeDefinition klass in assembly.MainModule.Types)
             {
                 // if assembly has any network message then it is modified
