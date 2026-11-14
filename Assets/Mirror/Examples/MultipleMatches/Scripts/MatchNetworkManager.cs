@@ -10,8 +10,6 @@ namespace Mirror.Examples.MultipleMatch
         public GameObject canvas;
         public CanvasController canvasController;
 
-        public static new MatchNetworkManager singleton { get; private set; }
-
         /// <summary>
         /// Runs on both Server and Client
         /// Networking is NOT initialized when this fires
@@ -19,7 +17,6 @@ namespace Mirror.Examples.MultipleMatch
         public override void Awake()
         {
             base.Awake();
-            singleton = this;
             canvasController.InitializeData();
         }
 
@@ -55,16 +52,6 @@ namespace Mirror.Examples.MultipleMatch
         #endregion
 
         #region Client System Callbacks
-
-        /// <summary>
-        /// Called on the client when connected to a server.
-        /// <para>The default implementation of this function sets the client as ready and adds a player. Override the function to dictate what happens when the client connects.</para>
-        /// </summary>
-        public override void OnClientConnect()
-        {
-            base.OnClientConnect();
-            canvasController.OnClientConnect();
-        }
 
         /// <summary>
         /// Called on clients when disconnected from a server.

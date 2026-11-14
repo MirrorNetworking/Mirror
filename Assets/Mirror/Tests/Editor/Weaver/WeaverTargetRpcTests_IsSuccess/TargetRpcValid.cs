@@ -5,6 +5,6 @@ namespace WeaverTargetRpcTests.TargetRpcValid
     class TargetRpcValid : NetworkBehaviour
     {
         [TargetRpc]
-        void TargetRpcWithNetworkConnection(NetworkConnection nc) { }
+        void TargetRpcWithNetworkConnection(NetworkConnectionToClient nc) { }
     }
 }

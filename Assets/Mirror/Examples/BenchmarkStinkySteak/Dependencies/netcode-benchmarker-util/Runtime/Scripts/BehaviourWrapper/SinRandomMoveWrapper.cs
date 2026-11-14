@@ -30,7 +30,7 @@ namespace StinkySteak.NetcodeBenchmark
             _targetPosition = RandomVector3.Get(1f);
         }
 
-        public void NetworkUpdate(Transform transform)
+        public readonly void NetworkUpdate(Transform transform)
         {
             float sin = Mathf.Sin(Time.time * _speed) * _amplitude;
 

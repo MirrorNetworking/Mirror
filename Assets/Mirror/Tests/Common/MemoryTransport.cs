@@ -10,6 +10,7 @@ namespace Mirror.Tests
     public class MemoryTransport : Transport
     {
         public enum EventType { Connected, Data, Disconnected }
+
         public struct Message
         {
             public int connectionId;
@@ -23,10 +24,14 @@ namespace Mirror.Tests
             }
         }
 
-        bool clientConnected;
+        [NonSerialized]
         public Queue<Message> clientIncoming = new Queue<Message>();
-        bool serverActive;
+
+        [NonSerialized]
         public Queue<Message> serverIncoming = new Queue<Message>();
+
+        bool clientConnected;
+        bool serverActive;
 
         public override bool Available() => true;
         // limit max size to something reasonable so pool doesn't allocate
@@ -201,7 +206,7 @@ namespace Mirror.Tests
                     case EventType.Connected:
                         Debug.Log("MemoryTransport Server Message: Connected");
                         // event might be null in tests if no NetworkClient is used.
-                        OnServerConnected?.Invoke(message.connectionId);
+                        OnServerConnectedWithAddress?.Invoke(message.connectionId, "");
                         break;
                     case EventType.Data:
                         Debug.Log($"MemoryTransport Server Message: Data: {BitConverter.ToString(message.data)}");

@@ -9,11 +9,12 @@ namespace Mirror
     [CanEditMultipleObjects]
     public class NetworkBehaviourInspector : Editor
     {
+        Type scriptClass;
         bool syncsAnything;
         SyncObjectCollectionsDrawer syncObjectCollectionsDrawer;
 
         // does this type sync anything? otherwise we don't need to show syncInterval
-        bool SyncsAnything(Type scriptClass)
+        bool SyncsAnything()
         {
             // check for all SyncVar fields, they don't have to be visible
             foreach (FieldInfo field in InspectorHelper.GetAllFields(scriptClass, typeof(NetworkBehaviour)))
@@ -50,11 +51,11 @@ namespace Mirror
             // then Unity temporarily keep using this Inspector causing things to break
             if (!(target is NetworkBehaviour)) { return; }
 
-            Type scriptClass = target.GetType();
+            scriptClass = target.GetType();
 
             syncObjectCollectionsDrawer = new SyncObjectCollectionsDrawer(serializedObject.targetObject);
 
-            syncsAnything = SyncsAnything(scriptClass);
+            syncsAnything = SyncsAnything();
         }
 
         public override void OnInspectorGUI()
@@ -93,6 +94,17 @@ namespace Mirror
             // sync mdoe: only show for ServerToClient components
             if (syncDirection.enumValueIndex == (int)SyncDirection.ServerToClient)
                 EditorGUILayout.PropertyField(serializedObject.FindProperty("syncMode"));
+
+            // sync method: Don't show for NT-based components
+            if (((NetworkBehaviour)serializedObject.targetObject).showSyncMethod())
+            {
+                SerializedProperty syncMethod = serializedObject.FindProperty("syncMethod");
+                EditorGUILayout.PropertyField(syncMethod);
+
+                // Hybrid sync method: show a warning!
+                if (syncMethod.enumValueIndex == (int)SyncMethod.Hybrid)
+                    EditorGUILayout.HelpBox("Beware! Hybrid is experimental!\n- Do not use this in production yet!\n- Doesn't support [SyncVars] yet!\n- You need to use OnDe/Serialize manually!", MessageType.Warning);
+            }
 
             // sync interval
             EditorGUILayout.PropertyField(serializedObject.FindProperty("syncInterval"));

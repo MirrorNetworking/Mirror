@@ -71,11 +71,36 @@ namespace Mirror
             return result;
         }
 
+        // returns
+        //   'true' if scaling was possible within 'long' bounds.
+        //   'false' if clamping was necessary.
+        //   never throws. checking result is optional.
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool ScaleToLong(Quaternion value, float precision, out long x, out long y, out long z, out long w)
+        {
+            // attempt to convert every component.
+            // do not return early if one conversion returned 'false'.
+            // the return value is optional. always attempt to convert all.
+            bool result = true;
+            result &= ScaleToLong(value.x, precision, out x);
+            result &= ScaleToLong(value.y, precision, out y);
+            result &= ScaleToLong(value.z, precision, out z);
+            result &= ScaleToLong(value.w, precision, out w);
+            return result;
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool ScaleToLong(Vector3 value, float precision, out Vector3Long quantized)
         {
             quantized = Vector3Long.zero;
             return ScaleToLong(value, precision, out quantized.x, out quantized.y, out quantized.z);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool ScaleToLong(Quaternion value, float precision, out Vector4Long quantized)
+        {
+            quantized = Vector4Long.zero;
+            return ScaleToLong(value, precision, out quantized.x, out quantized.y, out quantized.z, out quantized.w);
         }
 
         // multiple by precision.
@@ -104,8 +129,23 @@ namespace Mirror
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Quaternion ScaleToFloat(long x, long y, long z, long w, float precision)
+        {
+            Quaternion v;
+            v.x = ScaleToFloat(x, precision);
+            v.y = ScaleToFloat(y, precision);
+            v.z = ScaleToFloat(z, precision);
+            v.w = ScaleToFloat(w, precision);
+            return v;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector3 ScaleToFloat(Vector3Long value, float precision) =>
             ScaleToFloat(value.x, value.y, value.z, precision);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Quaternion ScaleToFloat(Vector4Long value, float precision) =>
+            ScaleToFloat(value.x, value.y, value.z, value.w, precision);
 
         // scale a float within min/max range to an ushort between min/max range
         // note: can also use this for byte range from byte.MinValue to byte.MaxValue

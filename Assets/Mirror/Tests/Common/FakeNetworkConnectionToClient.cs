@@ -9,4 +9,10 @@ namespace Mirror.Tests
         public override void Disconnect() {}
         internal override void Send(ArraySegment<byte> segment, int channelId = 0) {}
     }
+
+    public class FakeNetworkConnectionToServer : NetworkConnectionToServer
+    {
+        public override void Disconnect() {}
+        internal override void Send(ArraySegment<byte> segment, int channelId = 0) {}
+    }
 }

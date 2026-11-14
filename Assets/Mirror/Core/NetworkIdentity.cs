@@ -27,8 +27,27 @@ namespace Mirror
     {
         // IMPORTANT: int tick avoids floating point inaccuracy over days/weeks
         public int tick;
-        public NetworkWriter ownerWriter;
-        public NetworkWriter observersWriter;
+
+        // reliable sync
+        public NetworkWriter ownerWriterReliable;
+        public NetworkWriter observersWriterReliable;
+
+        // unreliable sync
+        public NetworkWriter ownerWriterUnreliableBaseline;
+        public NetworkWriter observersWriterUnreliableBaseline;
+
+        public NetworkWriter ownerWriterUnreliableDelta;
+        public NetworkWriter observersWriterUnreliableDelta;
+
+        public void ResetWriters()
+        {
+            ownerWriterReliable.Position = 0;
+            observersWriterReliable.Position = 0;
+            ownerWriterUnreliableBaseline.Position = 0;
+            observersWriterUnreliableBaseline.Position = 0;
+            ownerWriterUnreliableDelta.Position = 0;
+            observersWriterUnreliableDelta.Position = 0;
+        }
     }
 
     /// <summary>NetworkIdentity identifies objects across the network.</summary>
@@ -69,6 +88,9 @@ namespace Mirror
         //   => fixes https://github.com/vis2k/Mirror/issues/2533
         public bool isServer { get; internal set; }
 
+        /// <summary>Returns true for spawned objects in host mode.</summary>
+        public bool isHost => isServer && isClient;
+
         /// <summary>Return true if this object represents the player on the local machine.</summary>
         //
         // IMPORTANT:
@@ -93,8 +115,13 @@ namespace Mirror
         // for example: main player & pets are owned. monsters & npcs aren't.
         public bool isOwned { get; internal set; }
 
-        // public so NetworkManager can reset it from StopClient.
-        public bool clientStarted;
+        // internal so NetworkManager can reset it from StopClient.
+        internal bool clientStarted;
+
+        // flag to indicate we're deserializing initial spawn in host mode.
+        // used to force SyncVar hooks to fire even if value hasn't changed.
+        // only set temporarily during OnHostClientSpawn deserialization.
+        internal bool hostInitialSpawn;
 
         /// <summary>The set of network connections (players) that can see this object.</summary>
         public readonly Dictionary<int, NetworkConnectionToClient> observers =
@@ -181,7 +208,7 @@ namespace Mirror
                 _connectionToClient?.AddOwnedObject(this);
             }
         }
-        NetworkConnectionToClient _connectionToClient;
+        [NonSerialized] NetworkConnectionToClient _connectionToClient;
 
         // get all NetworkBehaviour components
         public NetworkBehaviour[] NetworkBehaviours { get; private set; }
@@ -197,10 +224,9 @@ namespace Mirror
         // ForceHidden = useful to hide monsters while they respawn etc.
         // ForceShown = useful to have score NetworkIdentities that always broadcast
         //              to everyone etc.
-        //
-        // TODO rename to 'visibility' after removing .visibility some day!
         [Tooltip("Visibility can overwrite interest management. ForceHidden can be useful to hide monsters while they respawn. ForceShown can be useful for score NetworkIdentities that should always broadcast to everyone in the world.")]
-        public Visibility visible = Visibility.Default;
+        [FormerlySerializedAs("visible")]
+        public Visibility visibility = Visibility.Default;
 
         // broadcasting serializes all entities around a player for each player.
         // we don't want to serialize one entity twice in the same tick.
@@ -211,9 +237,22 @@ namespace Mirror
         // => way easier to store them per object
         NetworkIdentitySerialization lastSerialization = new NetworkIdentitySerialization
         {
-            ownerWriter = new NetworkWriter(),
-            observersWriter = new NetworkWriter()
+            ownerWriterReliable = new NetworkWriter(),
+            observersWriterReliable = new NetworkWriter(),
+            ownerWriterUnreliableBaseline = new NetworkWriter(),
+            observersWriterUnreliableBaseline = new NetworkWriter(),
+            ownerWriterUnreliableDelta = new NetworkWriter(),
+            observersWriterUnreliableDelta = new NetworkWriter(),
         };
+
+        // unreliable state sync messages may arrive out of order, or duplicated.
+        // keep latest received timestamp so we don't apply older messages.
+        internal double lastUnreliableStateTime;
+
+        // the last baseline we received for this object.
+        // deltas are based on the baseline, need to make sure we don't apply on an old one.
+        internal byte lastUnreliableBaselineSent;
+        internal byte lastUnreliableBaselineReceived;
 
         // Keep track of all sceneIds to detect scene duplicates
         static readonly Dictionary<ulong, NetworkIdentity> sceneIds =
@@ -283,7 +322,8 @@ namespace Mirror
         public static event ClientAuthorityCallback clientAuthorityCallback;
 
         // hasSpawned should always be false before runtime
-        [SerializeField, HideInInspector] bool hasSpawned;
+        // internal so tests can set it to true to simulate already spawned objects.
+        [SerializeField, HideInInspector] internal bool hasSpawned;
         public bool SpawnedFromInstantiate { get; private set; }
 
         // NetworkBehaviour components are initialized in Awake once.
@@ -380,7 +420,7 @@ namespace Mirror
                 // when opening Mirror from Github for the first time.
                 // (hardcoding this is still better than the annoying error)
                 if (name != "PrefabWithChildrenForClientScene")
-                    Debug.LogError($"'{name}' has another NetworkIdentity component on '{identities[1].name}'. There should only be one NetworkIdentity, and it must be on the root object. Please remove the other one.");
+                    Debug.LogError($"'{name}' has another NetworkIdentity component on '{identities[1].name}'. There should only be one NetworkIdentity, and it must be on the root object. Please remove the other one.", this);
             }
         }
 
@@ -617,7 +657,7 @@ namespace Mirror
         // Note: Unity will Destroy all networked objects on Scene Change, so we
         // have to handle that here silently. That means we cannot have any
         // warning or logging in this method.
-        void OnDestroy()
+        internal void OnDestroy()
         {
             // Objects spawned from Instantiate are not allowed so are destroyed right away
             // we don't want to call NetworkServer.Destroy if this is the case
@@ -671,8 +711,30 @@ namespace Mirror
 
                 // if an identity is still in .spawned, remove it too.
                 // fixes: https://github.com/MirrorNetworking/Mirror/issues/3324
-                NetworkClient.spawned.Remove(netId);
+                //
+                // however, verify that spawned[netId] is this NetworkIdentity
+                // fixes: https://github.com/MirrorNetworking/Mirror/issues/3785
+                // - server: netId=42 walks out of and back into AOI range in same frame
+                // - client frame 1:
+                //     on_destroymsg(42) -> NetworkClient.DestroyObject -> GameObject.Destroy(42) // next frame
+                //     on_spawnmsg(42) -> NetworkClient.SpawnPrefab -> Instantiate(42) -> spawned[42]=new_identity
+                // - client frame 2:
+                //     Unity destroys the old 42
+                //     NetworkIdentity.OnDestroy removes .spawned[42] which is new_identity not old_identity
+                //     new_identity becomes orphaned
+                //
+                // solution: only remove if spawned[netId] is this NetworkIdentity or null
+                if (NetworkClient.spawned.TryGetValue(netId, out NetworkIdentity entry))
+                {
+                    if (entry == this || entry == null)
+                        NetworkClient.spawned.Remove(netId);
+                }
             }
+
+            // workaround for cyclid NI<->NB reference causing memory leaks
+            // after Destroy. [Credits: BigBoxVR/R.S.]
+            // TODO report this to Unity!
+            this.NetworkBehaviours = null;
         }
 
         internal void OnStartServer()
@@ -832,7 +894,7 @@ namespace Mirror
 
         // build dirty mask for server owner & observers (= all dirty components).
         // faster to do it in one iteration instead of iterating separately.
-        (ulong, ulong) ServerDirtyMasks(bool initialState)
+        (ulong, ulong) ServerDirtyMasks_Spawn()
         {
             ulong ownerMask = 0;
             ulong observerMask = 0;
@@ -841,37 +903,142 @@ namespace Mirror
             for (int i = 0; i < components.Length; ++i)
             {
                 NetworkBehaviour component = components[i];
-
-                bool dirty = component.IsDirty();
-                ulong nthBit = (1u << i);
+                ulong nthBit = 1ul << i;
 
                 // owner needs to be considered for both SyncModes, because
                 // Observers mode always includes the Owner.
                 //
-                // for initial, it should always sync owner.
-                // for delta, only for ServerToClient and only if dirty.
-                //     ClientToServer comes from the owner client.
-                if (initialState || (component.syncDirection == SyncDirection.ServerToClient && dirty))
-                    ownerMask |= nthBit;
+                // for spawn message, it should always sync owner.
+                ownerMask |= nthBit;
 
-                // observers need to be considered only in Observers mode
-                //
-                // for initial, it should always sync to observers.
-                // for delta, only if dirty.
-                // SyncDirection is irrelevant, as both are broadcast to
-                // observers which aren't the owner.
-                if (component.syncMode == SyncMode.Observers && (initialState || dirty))
-                    observerMask |= nthBit;
+                // observers need to be considered only in Observers mode,
+                // otherwise they receive no sync data of this component ever.
+                if (component.syncMode == SyncMode.Observers)
+                {
+                    // for spawn message, it should always sync to observers.
+                    // SyncDirection is irrelevant, as both are broadcast to
+                    // observers which aren't the owner.
+                     observerMask |= nthBit;
+                }
             }
 
             return (ownerMask, observerMask);
         }
 
-        // build dirty mask for client.
-        // server always knows initialState, so we don't need it here.
-        ulong ClientDirtyMask()
+        // build dirty mask for server owner & observers (= all dirty components).
+        // faster to do it in one iteration instead of iterating separately.
+        // -> build Reliable and Unreliable masks in one iteration.
+        //    running two loops would be too costly.
+        void ServerDirtyMasks_Broadcast(
+            out ulong ownerMaskReliable, out ulong observerMaskReliable,
+            out ulong ownerMaskUnreliableBaseline, out ulong observerMaskUnreliableBaseline,
+            out ulong ownerMaskUnreliableDelta, out ulong observerMaskUnreliableDelta)
         {
-            ulong mask = 0;
+            // clear
+            ownerMaskReliable              = 0;
+            observerMaskReliable           = 0;
+            ownerMaskUnreliableBaseline    = 0;
+            observerMaskUnreliableBaseline = 0;
+            ownerMaskUnreliableDelta       = 0;
+            observerMaskUnreliableDelta    = 0;
+
+            NetworkBehaviour[] components = NetworkBehaviours;
+            for (int i = 0; i < components.Length; ++i)
+            {
+                NetworkBehaviour component = components[i];
+                ulong nthBit = 1ul << i;
+
+                // RELIABLE COMPONENTS /////////////////////////////////////////
+                if (component.syncMethod == SyncMethod.Reliable)
+                {
+                    // check if this component is dirty
+                    bool dirty = component.IsDirty();
+
+                    // owner needs to be considered for both SyncModes, because
+                    // Observers mode always includes the Owner.
+                    //
+                    // for broadcast, only for ServerToClient and only if dirty.
+                    //     ClientToServer comes from the owner client.
+                    if (component.syncDirection == SyncDirection.ServerToClient && dirty)
+                        ownerMaskReliable |= nthBit;
+
+                    // observers need to be considered only in Observers mode,
+                    // otherwise they receive no sync data of this component ever.
+                    if (component.syncMode == SyncMode.Observers)
+                    {
+                        // for broadcast, only sync to observers if dirty.
+                        // SyncDirection is irrelevant, as both are broadcast to
+                        // observers which aren't the owner.
+                        if (dirty) observerMaskReliable |= nthBit;
+                    }
+                }
+                // UNRELIABLE COMPONENTS ///////////////////////////////////////
+                else if (component.syncMethod == SyncMethod.Hybrid)
+                {
+                    // UNRELIABLE DELTAS ///////////////////////////////////////
+                    {
+                        // check if this component is dirty.
+                        // delta sync runs @ syncInterval.
+                        // this allows for significant bandwidth savings.
+                        bool dirty = component.IsDirty();
+
+                        // owner needs to be considered for both SyncModes, because
+                        // Observers mode always includes the Owner.
+                        //
+                        // for broadcast, only for ServerToClient and only if dirty.
+                        //     ClientToServer comes from the owner client.
+                        if (component.syncDirection == SyncDirection.ServerToClient && dirty)
+                            ownerMaskUnreliableDelta |= nthBit;
+
+                        // observers need to be considered only in Observers mode,
+                        // otherwise they receive no sync data of this component ever.
+                        if (component.syncMode == SyncMode.Observers)
+                        {
+                            // for broadcast, only sync to observers if dirty.
+                            // SyncDirection is irrelevant, as both are broadcast to
+                            // observers which aren't the owner.
+                            if (dirty) observerMaskUnreliableDelta |= nthBit;
+                        }
+                    }
+                    // UNRELIABLE BASELINE /////////////////////////////////////
+                    {
+                        // check if this component is dirty.
+                        // baseline sync runs @ 1 Hz (netmanager configurable).
+                        // only consider dirty bits, ignore syncinterval.
+                        bool dirty = component.IsDirty_BitsOnly();
+
+                        // owner needs to be considered for both SyncModes, because
+                        // Observers mode always includes the Owner.
+                        //
+                        // for broadcast, only for ServerToClient and only if dirty.
+                        //     ClientToServer comes from the owner client.
+                        if (component.syncDirection == SyncDirection.ServerToClient && dirty)
+                            ownerMaskUnreliableBaseline |= nthBit;
+
+                        // observers need to be considered only in Observers mode,
+                        // otherwise they receive no sync data of this component ever.
+                        if (component.syncMode == SyncMode.Observers)
+                        {
+                            // for broadcast, only sync to observers if dirty.
+                            // SyncDirection is irrelevant, as both are broadcast to
+                            // observers which aren't the owner.
+                            if (dirty) observerMaskUnreliableBaseline |= nthBit;
+                        }
+                    }
+                    ////////////////////////////////////////////////////////////
+                }
+            }
+        }
+
+        // build dirty mask for client components.
+        // server always knows initialState, so we don't need it here.
+        // -> build Reliable and Unreliable masks in one iteration.
+        //    running two loops would be too costly.
+        void ClientDirtyMasks(out ulong dirtyMaskReliable, out ulong dirtyMaskUnreliableBaseline, out ulong dirtyMaskUnreliableDelta)
+        {
+            dirtyMaskReliable           = 0;
+            dirtyMaskUnreliableBaseline = 0;
+            dirtyMaskUnreliableDelta    = 0;
 
             NetworkBehaviour[] components = NetworkBehaviours;
             for (int i = 0; i < components.Length; ++i)
@@ -885,15 +1052,33 @@ namespace Mirror
 
                 // on client, only consider owned components with SyncDirection to server
                 NetworkBehaviour component = components[i];
+                ulong nthBit = 1ul << i;
+
                 if (isOwned && component.syncDirection == SyncDirection.ClientToServer)
                 {
-                    // set the n-th bit if dirty
-                    // shifting from small to large numbers is varint-efficient.
-                    if (component.IsDirty()) mask |= (1u << i);
+                    // RELIABLE COMPONENTS /////////////////////////////////////////
+                    if (component.syncMethod == SyncMethod.Reliable)
+                    {
+                        // set the n-th bit if dirty
+                        // shifting from small to large numbers is varint-efficient.
+                        if (component.IsDirty()) dirtyMaskReliable |= nthBit;
+                    }
+                    // UNRELIABLE COMPONENTS ///////////////////////////////////////
+                    else if (component.syncMethod == SyncMethod.Hybrid)
+                    {
+                        // set the n-th bit if dirty
+                        // shifting from small to large numbers is varint-efficient.
+
+                        // baseline sync runs @ 1 Hz (netmanager configurable).
+                        // only consider dirty bits, ignore syncinterval.
+                        if (component.IsDirty_BitsOnly()) dirtyMaskUnreliableBaseline |= nthBit;
+
+                        // delta sync runs @ syncInterval.
+                        // this allows for significant bandwidth savings.
+                        if (component.IsDirty()) dirtyMaskUnreliableDelta |= nthBit;
+                    }
                 }
             }
-
-            return mask;
         }
 
         // check if n-th component is dirty.
@@ -901,15 +1086,13 @@ namespace Mirror
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static bool IsDirty(ulong mask, int index)
         {
-            ulong nthBit = (ulong)(1 << index);
+            ulong nthBit = 1ul << index;
             return (mask & nthBit) != 0;
         }
 
-        // serialize components into writer on the server.
+        // serialize server components, with full state for spawn message.
         // check ownerWritten/observersWritten to know if anything was written
-        // We pass dirtyComponentsMask into this function so that we can check
-        // if any Components are dirty before creating writers
-        internal void SerializeServer(bool initialState, NetworkWriter ownerWriter, NetworkWriter observersWriter)
+        internal void SerializeServer_Spawn(NetworkWriter ownerWriter, NetworkWriter observersWriter)
         {
             // ensure NetworkBehaviours are valid before usage
             ValidateComponents();
@@ -922,7 +1105,7 @@ namespace Mirror
             // instead of writing a 1 byte index per component,
             // we limit components to 64 bits and write one ulong instead.
             // the ulong is also varint compressed for minimum bandwidth.
-            (ulong ownerMask, ulong observerMask) = ServerDirtyMasks(initialState);
+            (ulong ownerMask, ulong observerMask) = ServerDirtyMasks_Spawn();
 
             // if nothing dirty, then don't even write the mask.
             // otherwise, every unchanged object would send a 1 byte dirty mask!
@@ -956,7 +1139,7 @@ namespace Mirror
                         // serialize into helper writer
                         using (NetworkWriterPooled temp = NetworkWriterPool.Get())
                         {
-                            comp.Serialize(temp, initialState);
+                            comp.Serialize(temp, true);
                             ArraySegment<byte> segment = temp.ToArraySegment();
 
                             // copy to owner / observers as needed
@@ -964,25 +1147,151 @@ namespace Mirror
                             if (observersDirty) observersWriter.WriteBytes(segment.Array, segment.Offset, segment.Count);
                         }
 
-                        // clear dirty bits for the components that we serialized.
-                        // do not clear for _all_ components, only the ones that
-                        // were dirty and had their syncInterval elapsed.
-                        //
-                        // we don't want to clear bits before the syncInterval
-                        // was elapsed, as then they wouldn't be synced.
-                        //
-                        // only clear for delta, not for full (spawn messages).
-                        // otherwise if a player joins, we serialize monster,
-                        // and shouldn't clear dirty bits not yet synced to
-                        // other players.
-                        if (!initialState) comp.ClearAllDirtyBits();
+                        // dirty bits indicate 'changed since last delta sync'.
+                        // don't clear then on full sync here, since full sync
+                        // is called whenever a new player spawns and needs the
+                        // full state!
+                        //comp.ClearAllDirtyBits();
                     }
                 }
             }
         }
 
-        // serialize components into writer on the client.
-        internal void SerializeClient(NetworkWriter writer)
+        // serialize server components, with delta state for broadcast messages.
+        // check ownerWritten/observersWritten to know if anything was written
+        //
+        // serialize Reliable and Unreliable components in one iteration.
+        // having two separate functions doing two iterations would be too costly.
+        internal void SerializeServer_Broadcast(
+            NetworkWriter ownerWriterReliable, NetworkWriter observersWriterReliable,
+            NetworkWriter ownerWriterUnreliableBaseline, NetworkWriter observersWriterUnreliableBaseline,
+            NetworkWriter ownerWriterUnreliableDelta, NetworkWriter observersWriterUnreliableDelta,
+            bool unreliableBaseline)
+        {
+            // ensure NetworkBehaviours are valid before usage
+            ValidateComponents();
+            NetworkBehaviour[] components = NetworkBehaviours;
+
+            // check which components are dirty for owner / observers.
+            // this is quite complicated with SyncMode + SyncDirection.
+            // see the function for explanation.
+            //
+            // instead of writing a 1 byte index per component,
+            // we limit components to 64 bits and write one ulong instead.
+            // the ulong is also varint compressed for minimum bandwidth.
+            ServerDirtyMasks_Broadcast(
+                out ulong ownerMaskReliable, out ulong observerMaskReliable,
+                out ulong ownerMaskUnreliableBaseline, out ulong observerMaskUnreliableBaseline,
+                out ulong ownerMaskUnreliableDelta, out ulong observerMaskUnreliableDelta
+            );
+
+            // if nothing dirty, then don't even write the mask.
+            // otherwise, every unchanged object would send a 1 byte dirty mask!
+            if (ownerMaskReliable != 0)      Compression.CompressVarUInt(ownerWriterReliable, ownerMaskReliable);
+            if (observerMaskReliable != 0)   Compression.CompressVarUInt(observersWriterReliable, observerMaskReliable);
+
+            if (ownerMaskUnreliableDelta != 0)    Compression.CompressVarUInt(ownerWriterUnreliableDelta, ownerMaskUnreliableDelta);
+            if (observerMaskUnreliableDelta != 0) Compression.CompressVarUInt(observersWriterUnreliableDelta, observerMaskUnreliableDelta);
+
+            // only write baseline mask when actually sending a baseline.
+            // otherwise an orphaned 1-2 byte mask is written with no data following it.
+            if (unreliableBaseline)
+            {
+                if (ownerMaskUnreliableBaseline != 0) Compression.CompressVarUInt(ownerWriterUnreliableBaseline, ownerMaskUnreliableBaseline);
+                if (observerMaskUnreliableBaseline != 0) Compression.CompressVarUInt(observersWriterUnreliableBaseline, observerMaskUnreliableBaseline);
+            }
+
+            // serialize all components
+            // perf: only iterate if either dirty mask has dirty bits.
+            if ((ownerMaskReliable | observerMaskReliable |
+                 ownerMaskUnreliableBaseline | observerMaskUnreliableBaseline |
+                 ownerMaskUnreliableDelta | observerMaskUnreliableDelta)
+                 != 0)
+            {
+                for (int i = 0; i < components.Length; ++i)
+                {
+                    NetworkBehaviour comp = components[i];
+
+                    // is the component dirty for anyone (owner or observers)?
+                    // may be serialized to owner, observer, both, or neither.
+                    //
+                    // OnSerialize should only be called once.
+                    // this is faster, and it cleaner because it may set
+                    // internal state, counters, logs, etc.
+                    //
+                    // previously we always serialized to owner and then copied
+                    // the serialization to observers. however, since
+                    // SyncDirection it's not guaranteed to be in owner anymore.
+                    // so we need to serialize to temporary writer first.
+                    // and then copy as needed.
+                    bool ownerDirtyReliable               = IsDirty(ownerMaskReliable, i);
+                    bool observersDirtyReliable           = IsDirty(observerMaskReliable, i);
+                    bool ownerDirtyUnreliableBaseline     = IsDirty(ownerMaskUnreliableBaseline, i);
+                    bool observersDirtyUnreliableBaseline = IsDirty(observerMaskUnreliableBaseline, i);
+                    bool ownerDirtyUnreliableDelta        = IsDirty(ownerMaskUnreliableDelta, i);
+                    bool observersDirtyUnreliableDelta    = IsDirty(observerMaskUnreliableDelta, i);
+
+                    // RELIABLE COMPONENTS /////////////////////////////////////
+                    if (ownerDirtyReliable || observersDirtyReliable)
+                    {
+                        // serialize into helper writer
+                        using (NetworkWriterPooled temp = NetworkWriterPool.Get())
+                        {
+                            comp.Serialize(temp, false);
+                            ArraySegment<byte> segment = temp.ToArraySegment();
+
+                            // copy to owner / observers as needed
+                            if (ownerDirtyReliable)     ownerWriterReliable.WriteBytes(segment.Array, segment.Offset, segment.Count);
+                            if (observersDirtyReliable) observersWriterReliable.WriteBytes(segment.Array, segment.Offset, segment.Count);
+                        }
+
+                        // dirty bits indicate 'changed since last delta sync'.
+                        // clear them after a delta sync here.
+                        comp.ClearAllDirtyBits();
+                    }
+                    // UNRELIABLE DELTA ////////////////////////////////////////
+                    // we always send the unreliable delta no matter what
+                    if (ownerDirtyUnreliableDelta || observersDirtyUnreliableDelta)
+                    {
+                        using (NetworkWriterPooled temp = NetworkWriterPool.Get())
+                        {
+                            comp.Serialize(temp, false);
+                            ArraySegment<byte> segment = temp.ToArraySegment();
+
+                            // copy to owner / observers as needed
+                            if (ownerDirtyUnreliableDelta)     ownerWriterUnreliableDelta.WriteBytes(segment.Array, segment.Offset, segment.Count);
+                            if (observersDirtyUnreliableDelta) observersWriterUnreliableDelta.WriteBytes(segment.Array, segment.Offset, segment.Count);
+
+                            // clear sync time to only send delta again after syncInterval.
+                            comp.lastSyncTime = NetworkTime.localTime;
+                        }
+                    }
+                    // UNRELIABLE BASELINE /////////////////////////////////////
+                    // sometimes we need the unreliable baseline
+                    // (we always sync deltas, so no 'else if' here)
+                    if (unreliableBaseline && (ownerDirtyUnreliableBaseline || observersDirtyUnreliableBaseline))
+                    {
+                        using (NetworkWriterPooled temp = NetworkWriterPool.Get())
+                        {
+                            comp.Serialize(temp, true);
+                            ArraySegment<byte> segment = temp.ToArraySegment();
+
+                            // copy to owner / observers as needed
+                            if (ownerDirtyUnreliableBaseline)     ownerWriterUnreliableBaseline.WriteBytes(segment.Array, segment.Offset, segment.Count);
+                            if (observersDirtyUnreliableBaseline) observersWriterUnreliableBaseline.WriteBytes(segment.Array, segment.Offset, segment.Count);
+                        }
+
+                        // for unreliable components, only clear dirty bits after the reliable baseline.
+                        // -> don't clear sync time: that's for delta syncs.
+                        comp.ClearAllDirtyBits(false);
+                    }
+                }
+            }
+        }
+
+        // serialize Reliable and Unreliable components in one iteration.
+        // having two separate functions doing two iterations would be too costly.
+        internal void SerializeClient(NetworkWriter writerReliable, NetworkWriter writerUnreliableBaseline, NetworkWriter writerUnreliableDelta, bool unreliableBaseline)
         {
             // ensure NetworkBehaviours are valid before usage
             ValidateComponents();
@@ -995,7 +1304,7 @@ namespace Mirror
             // instead of writing a 1 byte index per component,
             // we limit components to 64 bits and write one ulong instead.
             // the ulong is also varint compressed for minimum bandwidth.
-            ulong dirtyMask = ClientDirtyMask();
+            ClientDirtyMasks(out ulong dirtyMaskReliable, out ulong dirtyMaskUnreliableBaseline, out ulong dirtyMaskUnreliableDelta);
 
             // varint compresses the mask to 1 byte in most cases.
             // instead of writing an 8 byte ulong.
@@ -1006,25 +1315,28 @@ namespace Mirror
 
             // if nothing dirty, then don't even write the mask.
             // otherwise, every unchanged object would send a 1 byte dirty mask!
-            if (dirtyMask != 0) Compression.CompressVarUInt(writer, dirtyMask);
+            if (dirtyMaskReliable   != 0)         Compression.CompressVarUInt(writerReliable,           dirtyMaskReliable);
+            if (dirtyMaskUnreliableDelta != 0)    Compression.CompressVarUInt(writerUnreliableDelta,    dirtyMaskUnreliableDelta);
+            if (dirtyMaskUnreliableBaseline != 0) Compression.CompressVarUInt(writerUnreliableBaseline, dirtyMaskUnreliableBaseline);
 
             // serialize all components
             // perf: only iterate if dirty mask has dirty bits.
-            if (dirtyMask != 0)
+            if (dirtyMaskReliable != 0 || dirtyMaskUnreliableDelta != 0 || dirtyMaskUnreliableBaseline != 0)
             {
                 // serialize all components
                 for (int i = 0; i < components.Length; ++i)
                 {
                     NetworkBehaviour comp = components[i];
 
+                    // RELIABLE SERIALIZATION //////////////////////////////////
                     // is this component dirty?
                     // reuse the mask instead of calling comp.IsDirty() again here.
-                    if (IsDirty(dirtyMask, i))
+                    if (IsDirty(dirtyMaskReliable, i))
                     // if (isOwned && component.syncDirection == SyncDirection.ClientToServer)
                     {
                         // serialize into writer.
                         // server always knows initialState, we never need to send it
-                        comp.Serialize(writer, false);
+                        comp.Serialize(writerReliable, false);
 
                         // clear dirty bits for the components that we serialized.
                         // do not clear for _all_ components, only the ones that
@@ -1034,13 +1346,38 @@ namespace Mirror
                         // was elapsed, as then they wouldn't be synced.
                         comp.ClearAllDirtyBits();
                     }
+                    // UNRELIABLE DELTA ////////////////////////////////////////
+                    // we always send the unreliable delta no matter what
+                    if (IsDirty(dirtyMaskUnreliableDelta, i))
+                    // if (isOwned && component.syncDirection == SyncDirection.ClientToServer)
+                    {
+                        comp.Serialize(writerUnreliableDelta, false);
+
+                        // clear sync time to only send delta again after syncInterval.
+                        comp.lastSyncTime = NetworkTime.localTime;
+                    }
+                    // UNRELIABLE BASELINE /////////////////////////////////////
+                    // sometimes we need the unreliable baseline
+                    // (we always sync deltas, so no 'else if' here)
+                    if (unreliableBaseline && IsDirty(dirtyMaskUnreliableBaseline, i))
+                    // if (isOwned && component.syncDirection == SyncDirection.ClientToServer)
+                    {
+                        comp.Serialize(writerUnreliableBaseline, true);
+
+                        // for unreliable components, only clear dirty bits after the reliable baseline.
+                        // -> don't clear sync time: that's for delta syncs.
+                        comp.ClearAllDirtyBits(false);
+                    }
+
+                    ////////////////////////////////////////////////////////////
                 }
             }
         }
 
         // deserialize components from the client on the server.
-        // there's no 'initialState'. server always knows the initial state.
-        internal bool DeserializeServer(NetworkReader reader)
+        // for reliable state sync, server always knows the initial state.
+        // for unreliable, we always sync full state so we still need the parameter.
+        internal bool DeserializeServer(NetworkReader reader, bool initialState)
         {
             // ensure NetworkBehaviours are valid before usage
             ValidateComponents();
@@ -1064,7 +1401,7 @@ namespace Mirror
                         // deserialize this component
                         // server always knows the initial state (initial=false)
                         // disconnect if failed, to prevent exploits etc.
-                        if (!comp.Deserialize(reader, false)) return false;
+                        if (!comp.Deserialize(reader, initialState)) return false;
 
                         // server received state from the owner client.
                         // set dirty so it's broadcast to other clients too.
@@ -1108,7 +1445,10 @@ namespace Mirror
         // get cached serialization for this tick (or serialize if none yet).
         // IMPORTANT: int tick avoids floating point inaccuracy over days/weeks.
         // calls SerializeServer, so this function is to be called on server.
-        internal NetworkIdentitySerialization GetServerSerializationAtTick(int tick)
+        //
+        // unreliableBaselineElapsed: indicates that unreliable sync components need a reliable baseline sync this time.
+        //   for reliable components, it just means sync as usual.
+        internal NetworkIdentitySerialization GetServerSerializationAtTick(int tick, bool unreliableBaselineElapsed)
         {
             // only rebuild serialization once per tick. reuse otherwise.
             // except for tests, where Time.frameCount never increases.
@@ -1123,13 +1463,19 @@ namespace Mirror
                )
             {
                 // reset
-                lastSerialization.ownerWriter.Position = 0;
-                lastSerialization.observersWriter.Position = 0;
+                lastSerialization.ResetWriters();
 
-                // serialize
-                SerializeServer(false,
-                                lastSerialization.ownerWriter,
-                                lastSerialization.observersWriter);
+                // serialize both Reliable and Unreliable components in one iteration.
+                // doing each in their own iteration would be too costly.
+                SerializeServer_Broadcast(
+                    lastSerialization.ownerWriterReliable,
+                    lastSerialization.observersWriterReliable,
+                    lastSerialization.ownerWriterUnreliableBaseline,
+                    lastSerialization.observersWriterUnreliableBaseline,
+                    lastSerialization.ownerWriterUnreliableDelta,
+                    lastSerialization.observersWriterUnreliableDelta,
+                    unreliableBaselineElapsed
+                );
 
                 // set tick
                 lastSerialization.tick = tick;
@@ -1189,7 +1535,7 @@ namespace Mirror
         }
 
         // this is used when a connection is destroyed, since the "observers" property is read-only
-        internal void RemoveObserver(NetworkConnection conn)
+        internal void RemoveObserver(NetworkConnectionToClient conn)
         {
             observers.Remove(conn.connectionId);
         }
@@ -1230,6 +1576,19 @@ namespace Mirror
 
             clientAuthorityCallback?.Invoke(conn, this, true);
 
+            // If the connection is already observing the object we need to sync owner data only:
+            if (conn.observing.Contains(this))
+            {
+                foreach (NetworkBehaviour comp in NetworkBehaviours)
+                    if (comp.syncMode == SyncMode.Owner)
+                        comp.SetDirty();
+            }
+            else
+            {
+                // otherwise rebuild so the owner sees their NI without further delays
+                NetworkServer.RebuildObservers(this, false);
+            }
+            
             return true;
         }
 
@@ -1245,6 +1604,18 @@ namespace Mirror
 
             // otherwise set the owner connection
             connectionToClient = conn;
+        }
+
+        // Do not merge with RemoveClientAuthority
+        // This is called from NetworkConnectionToClient::DestroyOwnedObjects
+        // when a player disconnects to quietly remove ownerhip of scene objects
+        internal void RemoveClientOwner()
+        {
+            if (connectionToClient != null)
+            {
+                clientAuthorityCallback?.Invoke(connectionToClient, this, false);
+                connectionToClient = null;
+            }
         }
 
         /// <summary>Removes ownership for an object.</summary>
@@ -1267,9 +1638,8 @@ namespace Mirror
 
             if (connectionToClient != null)
             {
-                clientAuthorityCallback?.Invoke(connectionToClient, this, false);
                 NetworkConnectionToClient previousOwner = connectionToClient;
-                connectionToClient = null;
+                RemoveClientOwner();
                 NetworkServer.SendChangeOwnerMessage(this, previousOwner);
             }
         }
@@ -1290,8 +1660,8 @@ namespace Mirror
         // Marks the identity for future reset, this is because we cant reset
         // the identity during destroy as people might want to be able to read
         // the members inside OnDestroy(), and we have no way of invoking reset
-        // after OnDestroy is called.
-        internal void Reset()
+        // after OnDestroy() is called.
+        internal void ResetState()
         {
             hasSpawned = false;
             clientStarted = false;

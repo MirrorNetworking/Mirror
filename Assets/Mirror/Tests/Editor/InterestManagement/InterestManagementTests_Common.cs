@@ -29,7 +29,7 @@ namespace Mirror.Tests.InterestManagement
 
             // B
             CreateNetworked(out gameObjectB, out identityB);
-            connectionB = new NetworkConnectionToClient(0x0B);
+            connectionB = new NetworkConnectionToClient(0x0B, "");
             connectionB.isAuthenticated = true;
             connectionB.isReady = true;
             connectionB.identity = identityB;

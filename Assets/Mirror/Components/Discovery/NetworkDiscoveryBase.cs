@@ -170,6 +170,8 @@ namespace Mirror.Discovery
                 MulticastLoopback = false
             };
 
+            //Debug.Log($"Discovery: Advertising Server {Dns.GetHostName()}");
+
             // listen for client pings
             _ = ServerListenAsync();
         }
@@ -418,6 +420,7 @@ namespace Mirror.Discovery
 
                     ArraySegment<byte> data = writer.ToArraySegment();
 
+                    //Debug.Log($"Discovery: Sending BroadcastDiscoveryRequest {request}");
                     clientUdpClient.SendAsync(data.Array, data.Count, endPoint);
                 }
                 catch (Exception)

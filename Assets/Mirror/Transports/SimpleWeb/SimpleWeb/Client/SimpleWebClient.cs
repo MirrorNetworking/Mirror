@@ -35,7 +35,11 @@ namespace Mirror.SimpleWeb
 
         public abstract void Connect(Uri serverAddress);
         public abstract void Disconnect();
+#if UNITY_2021_3_OR_NEWER
+        public abstract void Send(ReadOnlySpan<byte> span);
+#else
         public abstract void Send(ArraySegment<byte> segment);
+#endif
 
         public static SimpleWebClient Create(int maxMessageSize, int maxMessagesPerTick, TcpConfig tcpConfig)
         {
@@ -70,12 +74,7 @@ namespace Mirror.SimpleWeb
             int processedCount = 0;
             bool skipEnabled = behaviour == null;
             // check enabled every time in case behaviour was disabled after data
-            while (
-                (skipEnabled || behaviour.enabled) &&
-                processedCount < maxMessagesPerTick &&
-                // Dequeue last
-                receiveQueue.TryDequeue(out Message next)
-                )
+            while ((skipEnabled || behaviour.enabled) && processedCount < maxMessagesPerTick && receiveQueue.TryDequeue(out Message next))
             {
                 processedCount++;
 
@@ -85,8 +84,10 @@ namespace Mirror.SimpleWeb
                         onConnect?.Invoke();
                         break;
                     case EventType.Data:
-                        onData?.Invoke(next.data.ToSegment());
-                        next.data.Release();
+                        using (next.data) // auto release
+                        {
+                            onData?.Invoke(next.data.ToSegment());
+                        }
                         break;
                     case EventType.Disconnected:
                         onDisconnect?.Invoke();
@@ -97,7 +98,8 @@ namespace Mirror.SimpleWeb
                 }
             }
             if (receiveQueue.Count > 0)
-                Log.Warn($"[SWT-SimpleWebClient]: ProcessMessageQueue has {receiveQueue.Count} remaining.");
+                Log.Verbose("[SWT-SimpleWebClient]: ProcessMessageQueue has {0} remaining. skipEnabled {1} behaviour.enabled {2} processedCount {3}\nThis is usually fine for ConcurrentQueue if Transport slips one in on another thread",
+                    receiveQueue.Count, skipEnabled, (behaviour == null ? false : behaviour.enabled), processedCount);
         }
     }
 }

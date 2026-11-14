@@ -56,6 +56,45 @@ namespace Mirror.Tests.Batching
             batcher.AddMessage(new ArraySegment<byte>(message), TimeStamp);
         }
 
+        // test to prevent the following issue from ever happening again:
+        //
+        // - NetworkEarlyUpdate @ t=1 processes transport messages
+        //   - a handler replies by sending a message
+        //     - a new batch is started @ t=1, timestamp is encoded
+        // - NetworkLateUpdate @ t=2 decides it's time to broadcast
+        //   - NetworkTransform sends @ t=2
+        //     - we add to the above batch which already encoded t=1
+        // - Client receives the batch which timestamp t=1
+        //   - NetworkTransform uses remoteTime for interpolation
+        //     remoteTime is the batch timestamp which is t=1
+        //     - the NetworkTransform message is actually t=2
+        // => smooth interpolation would be impossible!
+        //    NT thinks the position was @ t=1 but actually it was @ t=2 !
+        [Test]
+        public void AddMessage_TimestampMismatch()
+        {
+            // add message @ t=1
+            byte[] message1 = {0x01, 0x01};
+            batcher.AddMessage(new ArraySegment<byte>(message1), 1);
+
+            // add message @ t=2
+            byte[] message2 = {0x02, 0x02};
+            batcher.AddMessage(new ArraySegment<byte>(message2), 2);
+
+            // call getbatch: this should only contain the message @ t=1 !
+            // <<tickTimeStamp:8, message>>
+            bool result = batcher.GetBatch(writer);
+            Assert.That(result, Is.EqualTo(true));
+            Assert.That(writer.ToArray().SequenceEqual(MakeBatch(1, message1)));
+
+            // call getbatch: this should now contain the message @ t=2 !
+            // <<tickTimeStamp:8, message>>
+            writer.Position = 0;
+            result = batcher.GetBatch(writer);
+            Assert.That(result, Is.EqualTo(true));
+            Assert.That(writer.ToArray().SequenceEqual(MakeBatch(2, message2)));
+        }
+
         [Test]
         public void MakeNextBatch_OnlyAcceptsFreshWriter()
         {
@@ -283,6 +322,22 @@ namespace Mirror.Tests.Batching
             Assert.That(unbatcher.GetNextMessage(out message, out _), Is.True);
             reader = new NetworkReader(message);
             Assert.That(reader.ReadByte(), Is.EqualTo(3));
+        }
+
+        [Test]
+        public void ClearReturnsToPool()
+        {
+            int previousCount = NetworkWriterPool.Count;
+
+            // add a few messages
+            batcher.AddMessage(new ArraySegment<byte>(new byte[]{0x01}), TimeStamp);
+            batcher.AddMessage(new ArraySegment<byte>(new byte[]{0x02}), TimeStamp);
+            batcher.AddMessage(new ArraySegment<byte>(new byte[]{0x03}), TimeStamp);
+            Assert.That(NetworkWriterPool.Count, Is.LessThan(previousCount));
+
+            // clear
+            batcher.Clear();
+            Assert.That(NetworkWriterPool.Count, Is.EqualTo(previousCount));
         }
     }
 }

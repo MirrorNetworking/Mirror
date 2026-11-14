@@ -23,6 +23,8 @@
 //   * Transports should only process messages while the component is enabled.
 //
 using System;
+using System.Globalization;
+using System.Net;
 using UnityEngine;
 
 namespace Mirror
@@ -35,6 +37,12 @@ namespace Mirror
 
         /// <summary>Is this transport available in the current platform?</summary>
         public abstract bool Available();
+
+        /// <summary>Is this transport encrypted for secure communication?</summary>
+        public virtual bool IsEncrypted => false;
+
+        /// <summary>If encrypted, which cipher is used?</summary>
+        public virtual string EncryptionCipher => "";
 
         // client //////////////////////////////////////////////////////////////
         /// <summary>Called by Transport when the client connected to the server.</summary>
@@ -53,12 +61,20 @@ namespace Mirror
         /// <summary>Called by Transport when the client encountered an error.</summary>
         public Action<TransportError, string> OnClientError;
 
+        /// <summary>Called by Transport when the client encountered an error.</summary>
+        public Action<Exception> OnClientTransportException;
+
         /// <summary>Called by Transport when the client disconnected from the server.</summary>
         public Action OnClientDisconnected;
 
         // server //////////////////////////////////////////////////////////////
-        /// <summary>Called by Transport when a new client connected to the server.</summary>
+
+        // Deprecated 2024-07-20
+        [Obsolete("Use OnServerConnectedWithAddress and pass the remote client address instead")]
         public Action<int> OnServerConnected;
+
+        /// <summary>Called by Transport when a new client connected to the server.</summary>
+        public Action<int, string> OnServerConnectedWithAddress;
 
         /// <summary>Called by Transport when the server received a message from a client.</summary>
         public Action<int, ArraySegment<byte>, int> OnServerDataReceived;
@@ -73,6 +89,10 @@ namespace Mirror
         /// <summary>Called by Transport when a server's connection encountered a problem.</summary>
         /// If a Disconnect will also be raised, raise the Error first.
         public Action<int, TransportError, string> OnServerError;
+
+        /// <summary>Called by Transport when a server's connection encountered a problem.</summary>
+        /// If a Disconnect will also be raised, raise the Error first.
+        public Action<int, Exception> OnServerTransportException;
 
         /// <summary>Called by Transport when a client disconnected from the server.</summary>
         public Action<int> OnServerDisconnected;
@@ -179,6 +199,7 @@ namespace Mirror
         public abstract void Shutdown();
 
         /// <summary>Called by Unity when quitting. Inheriting Transports should call base for proper Shutdown.</summary>
+        // (this can't be in OnDestroy: https://github.com/MirrorNetworking/Mirror/issues/3952)
         public virtual void OnApplicationQuit()
         {
             // stop transport (e.g. to shut down threads)
@@ -186,6 +207,81 @@ namespace Mirror
             //  until we press Start again. so if Transports use threads, we
             //  really want them to end now and not after next start)
             Shutdown();
+        }
+
+        /// <summary>
+        /// Helper method to safely build a URI from a hostname that may contain
+        /// non-ASCII or invalid URI characters. Uses cascading fallback strategy:
+        /// 1. Try IDN-encoding the hostname (for Unicode characters)
+        /// 2. Try using the raw hostname
+        /// 3. Fallback to "localhost" as last resort
+        /// </summary>
+        /// <param name="scheme">URI scheme (e.g., "kcp", "tcp4", "ws")</param>
+        /// <param name="hostname">Hostname to encode (typically from Dns.GetHostName())</param>
+        /// <param name="port">Port number</param>
+        /// <returns>A valid URI (guaranteed to return a valid URI with localhost fallback)</returns>
+        protected static Uri TryBuildValidUri(string scheme, string hostname, int port)
+        {
+            // Only work on non-blank hostname
+            if (!string.IsNullOrWhiteSpace(hostname))
+            {
+                // Try 1: IDN encode Unicode characters to ASCII (punycode)
+                try
+                {
+                    IdnMapping idn = new IdnMapping();
+                    string asciiHostname = idn.GetAscii(hostname);
+                    
+                    UriBuilder builder = new UriBuilder
+                    {
+                        Scheme = scheme,
+                        Host = asciiHostname,
+                        Port = port
+                    };
+                    
+                    // Force URI construction to validate
+                    Uri testUri = builder.Uri;
+                    // Check: host is not empty, port is correct, and no UserInfo corruption
+                    if (!string.IsNullOrEmpty(testUri.Host) && testUri.Port == port && string.IsNullOrEmpty(testUri.UserInfo))
+                    {
+                        return testUri;
+                    }
+                }
+                catch
+                {
+                    // IDN encoding failed, try next approach
+                }
+
+                // Try 2: Use raw hostname (might work for ASCII-compatible names)
+                try
+                {
+                    UriBuilder builder = new UriBuilder
+                    {
+                        Scheme = scheme,
+                        Host = hostname,
+                        Port = port
+                    };
+                    
+                    Uri testUri = builder.Uri;
+                    // Check: host is not empty, port is correct, and no UserInfo corruption
+                    if (!string.IsNullOrEmpty(testUri.Host) && testUri.Port == port && string.IsNullOrEmpty(testUri.UserInfo))
+                    {
+                        return testUri;
+                    }
+                }
+                catch
+                {
+                    // Raw hostname failed, use fallback
+                }
+            }
+
+            // Try 3: Fallback to localhost (always succeeds)
+            UriBuilder fallbackBuilder = new UriBuilder
+            {
+                Scheme = scheme,
+                Host = "localhost",
+                Port = port
+            };
+            return fallbackBuilder.Uri;
         }
     }
 }

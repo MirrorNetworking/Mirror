@@ -6,6 +6,7 @@ namespace Mirror.Tests.SyncVars
 {
     class MockPlayer : NetworkBehaviour
     {
+        [System.Serializable]
         public struct Guild
         {
             public string name;
@@ -404,7 +405,7 @@ namespace Mirror.Tests.SyncVars
             NetworkWriter ownerWriter = new NetworkWriter();
             // not really used in this Test
             NetworkWriter observersWriter = new NetworkWriter();
-            serverIdentity.SerializeServer(true, ownerWriter, observersWriter);
+            serverIdentity.SerializeServer_Spawn(ownerWriter, observersWriter);
 
             // set up a "client" object
             CreateNetworked(out _, out NetworkIdentity clientIdentity, out SyncVarAbstractNetworkBehaviour clientBehaviour);

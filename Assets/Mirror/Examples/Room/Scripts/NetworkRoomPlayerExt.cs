@@ -30,9 +30,11 @@ namespace Mirror.Examples.NetworkRoom
             //Debug.Log($"ReadyStateChanged {newReadyState}");
         }
 
+#if !UNITY_SERVER || UNITY_EDITOR
         public override void OnGUI()
         {
             base.OnGUI();
         }
+#endif
     }
 }

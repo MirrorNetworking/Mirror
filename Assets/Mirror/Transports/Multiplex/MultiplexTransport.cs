@@ -7,7 +7,7 @@ namespace Mirror
 {
     // a transport that can listen to multiple underlying transport at the same time
     [DisallowMultipleComponent]
-    public class MultiplexTransport : Transport
+    public class MultiplexTransport : Transport, PortTransport
     {
         public Transport[] transports;
 
@@ -42,6 +42,45 @@ namespace Mirror
         // next multiplexed id counter. start at 1 because 0 is reserved for host.
         int nextMultiplexedId = 1;
 
+        // prevent log flood from OnGUI or similar per-frame updates
+        bool alreadyWarned;
+
+        public ushort Port
+        {
+            get
+            {
+                foreach (Transport transport in transports)
+                    if (transport.Available() && transport is PortTransport portTransport)
+                        return portTransport.Port;
+
+                return 0;
+            }
+            set
+            {
+                if (Utils.IsHeadless() && !alreadyWarned)
+                {
+                    // prevent log flood from OnGUI or similar per-frame updates
+                    alreadyWarned = true;
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.WriteLine($"[Multiplexer] Server cannot set the same listen port for all transports! Set them directly instead.");
+                    Console.ResetColor();
+                }
+                else
+                {
+                    // We can't set the same port for all transports because
+                    // listen ports have to be different for each transport
+                    // so we just set the first available one.
+                    // This depends on the selected build platform.
+                    foreach (Transport transport in transports)
+                        if (transport.Available() && transport is PortTransport portTransport)
+                        {
+                            portTransport.Port = value;
+                            break;
+                        }
+                }
+            }
+        }
+
         // add to bidirection lookup. returns the multiplexed connectionId.
         public int AddToLookup(int originalConnectionId, int transportIndex)
         {
@@ -59,23 +98,35 @@ namespace Mirror
         {
             // remove from both
             KeyValuePair<int, int> pair = new KeyValuePair<int, int>(originalConnectionId, transportIndex);
-            int multiplexedId = originalToMultiplexedId[pair];
-
-            originalToMultiplexedId.Remove(pair);
-            multiplexedToOriginalId.Remove(multiplexedId);
+            if (originalToMultiplexedId.TryGetValue(pair, out int multiplexedId))
+            {
+                originalToMultiplexedId.Remove(pair);
+                multiplexedToOriginalId.Remove(multiplexedId);
+            }
         }
 
-        public void OriginalId(int multiplexId, out int originalConnectionId, out int transportIndex)
+        public bool OriginalId(int multiplexId, out int originalConnectionId, out int transportIndex)
         {
+            if (!multiplexedToOriginalId.ContainsKey(multiplexId))
+            {
+                originalConnectionId = 0;
+                transportIndex = 0;
+                return false;
+            }
+
             KeyValuePair<int, int> pair = multiplexedToOriginalId[multiplexId];
             originalConnectionId = pair.Key;
             transportIndex       = pair.Value;
+            return true;
         }
 
         public int MultiplexId(int originalConnectionId, int transportIndex)
         {
             KeyValuePair<int, int> pair = new KeyValuePair<int, int>(originalConnectionId, transportIndex);
-            return originalToMultiplexedId[pair];
+            if (originalToMultiplexedId.TryGetValue(pair, out int multiplexedId))
+                return multiplexedId;
+            else
+                return 0;
         }
 
         ////////////////////////////////////////////////////////////////////////
@@ -146,6 +197,7 @@ namespace Mirror
                     transport.OnClientConnected = OnClientConnected;
                     transport.OnClientDataReceived = OnClientDataReceived;
                     transport.OnClientError = OnClientError;
+                    transport.OnClientTransportException = OnClientTransportException;
                     transport.OnClientDisconnected = OnClientDisconnected;
                     transport.ClientConnect(address);
                     return;
@@ -166,6 +218,7 @@ namespace Mirror
                         transport.OnClientConnected = OnClientConnected;
                         transport.OnClientDataReceived = OnClientDataReceived;
                         transport.OnClientError = OnClientError;
+                        transport.OnClientTransportException = OnClientTransportException;
                         transport.OnClientDisconnected = OnClientDisconnected;
                         transport.ClientConnect(uri);
                         return;
@@ -208,17 +261,39 @@ namespace Mirror
                 int transportIndex = i;
                 Transport transport = transports[i];
 
+#pragma warning disable CS0618 // Type or member is obsolete
                 transport.OnServerConnected = (originalConnectionId =>
                 {
                     // invoke Multiplex event with multiplexed connectionId
                     int multiplexedId = AddToLookup(originalConnectionId, transportIndex);
                     OnServerConnected.Invoke(multiplexedId);
                 });
+#pragma warning restore CS0618 // Type or member is obsolete
+
+                transport.OnServerConnectedWithAddress = (originalConnectionId, address) =>
+                {
+                    // invoke Multiplex event with multiplexed connectionId
+                    int multiplexedId = AddToLookup(originalConnectionId, transportIndex);
+                    OnServerConnectedWithAddress.Invoke(multiplexedId, address);
+                };
 
                 transport.OnServerDataReceived = (originalConnectionId, data, channel) =>
                 {
                     // invoke Multiplex event with multiplexed connectionId
                     int multiplexedId = MultiplexId(originalConnectionId, transportIndex);
+                    if (multiplexedId == 0)
+                    {
+                        if (Utils.IsHeadless())
+                        {
+                            Console.ForegroundColor = ConsoleColor.Yellow;
+                            Console.WriteLine($"[Multiplexer] Received data for unknown connectionId={originalConnectionId} on transport={transportIndex}");
+                            Console.ResetColor();
+                        }
+                        else
+                            Debug.LogWarning($"[Multiplexer] Received data for unknown connectionId={originalConnectionId} on transport={transportIndex}");
+              
+                        return;
+                    }
                     OnServerDataReceived.Invoke(multiplexedId, data, channel);
                 };
 
@@ -226,13 +301,46 @@ namespace Mirror
                 {
                     // invoke Multiplex event with multiplexed connectionId
                     int multiplexedId = MultiplexId(originalConnectionId, transportIndex);
+                    if (multiplexedId == 0)
+                    {
+                        if (Utils.IsHeadless())
+                        {
+                            Console.ForegroundColor = ConsoleColor.Red;
+                            Console.WriteLine($"[Multiplexer] Received error for unknown connectionId={originalConnectionId} on transport={transportIndex}");
+                            Console.ResetColor();
+                        }
+                        else
+                            Debug.LogError($"[Multiplexer] Received error for unknown connectionId={originalConnectionId} on transport={transportIndex}");
+                        
+                        return;
+                    }
                     OnServerError.Invoke(multiplexedId, error, reason);
+                };
+
+                transport.OnServerTransportException = (originalConnectionId, exception) =>
+                {
+                    // invoke Multiplex event with multiplexed connectionId
+                    int multiplexedId = MultiplexId(originalConnectionId, transportIndex);
+                    OnServerTransportException.Invoke(multiplexedId, exception);
                 };
 
                 transport.OnServerDisconnected = originalConnectionId =>
                 {
                     // invoke Multiplex event with multiplexed connectionId
                     int multiplexedId = MultiplexId(originalConnectionId, transportIndex);
+                    if (multiplexedId == 0)
+                    {
+                        if (Utils.IsHeadless())
+                        {
+                            Console.ForegroundColor = ConsoleColor.Yellow;
+                            Console.WriteLine($"[Multiplexer] Received disconnect for unknown connectionId={originalConnectionId} on transport={transportIndex}");
+                            Console.ResetColor();
+                        }
+                        else
+                            Debug.LogWarning($"[Multiplexer] Received disconnect for unknown connectionId={originalConnectionId} on transport={transportIndex}");
+                        
+                        return;
+                    }
                     OnServerDisconnected.Invoke(multiplexedId);
                     RemoveFromLookup(originalConnectionId, transportIndex);
                 };
@@ -257,22 +365,24 @@ namespace Mirror
         public override string ServerGetClientAddress(int connectionId)
         {
             // convert multiplexed connectionId to original id & transport index
-            OriginalId(connectionId, out int originalConnectionId, out int transportIndex);
-            return transports[transportIndex].ServerGetClientAddress(originalConnectionId);
+            if (OriginalId(connectionId, out int originalConnectionId, out int transportIndex))
+                return transports[transportIndex].ServerGetClientAddress(originalConnectionId);
+            else
+                return "";
         }
 
         public override void ServerDisconnect(int connectionId)
         {
             // convert multiplexed connectionId to original id & transport index
-            OriginalId(connectionId, out int originalConnectionId, out int transportIndex);
-            transports[transportIndex].ServerDisconnect(originalConnectionId);
+            if (OriginalId(connectionId, out int originalConnectionId, out int transportIndex))
+                transports[transportIndex].ServerDisconnect(originalConnectionId);
         }
 
         public override void ServerSend(int connectionId, ArraySegment<byte> segment, int channelId)
         {
             // convert multiplexed connectionId to original transport + connId
-            OriginalId(connectionId, out int originalConnectionId, out int transportIndex);
-            transports[transportIndex].ServerSend(originalConnectionId, segment, channelId);
+            if (OriginalId(connectionId, out int originalConnectionId, out int transportIndex))
+                transports[transportIndex].ServerSend(originalConnectionId, segment, channelId);
         }
 
         public override void ServerStart()
@@ -288,12 +398,12 @@ namespace Mirror
                     if (Utils.IsHeadless())
                     {
                         Console.ForegroundColor = ConsoleColor.Green;
-                        Console.WriteLine($"Server listening on port {portTransport.Port}");
+                        Console.WriteLine($"[Multiplexer]: Server listening on port {portTransport.Port} with {transport}");
                         Console.ResetColor();
                     }
                     else
                     {
-                        Debug.Log($"Server listening on port {portTransport.Port}");
+                        Debug.Log($"[Multiplexer]: Server listening on port {portTransport.Port} with {transport}");
                     }
                 }
             }

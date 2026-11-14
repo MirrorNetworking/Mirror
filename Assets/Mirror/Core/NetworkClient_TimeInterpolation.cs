@@ -38,9 +38,11 @@ namespace Mirror
         // to be adjusted in every update instead of when receiving messages.
         internal static double localTimescale = 1;
 
+        // scaled time: derived from single pipeline interpolation.
+        // no separate buffer/EMA needed since network conditions are the same.
+        internal static double localTimelineScaled;
+
         // catchup /////////////////////////////////////////////////////////////
-
-
         // we use EMA to average the last second worth of snapshot time diffs.
         // manually averaging the last second worth of values with a for loop
         // would be the same, but a moving average is faster because we only
@@ -48,31 +50,16 @@ namespace Mirror
         static ExponentialMovingAverage driftEma;
 
         // dynamic buffer time adjustment //////////////////////////////////////
-        // dynamically adjusts bufferTimeMultiplier for smooth results.
-        // to understand how this works, try this manually:
-        //
-        // - disable dynamic adjustment
-        // - set jitter = 0.2 (20% is a lot!)
-        // - notice some stuttering
-        // - disable interpolation to see just how much jitter this really is(!)
-        // - enable interpolation again
-        // - manually increase bufferTimeMultiplier to 3-4
-        //   ... the cube slows down (blue) until it's smooth
-        // - with dynamic adjustment enabled, it will set 4 automatically
-        //   ... the cube slows down (blue) until it's smooth as well
-        //
-        // note that 20% jitter is extreme.
-        // for this to be perfectly smooth, set the safety tolerance to '2'.
-        // but realistically this is not necessary, and '1' is enough.
-        [Header("Snapshot Interpolation: Dynamic Adjustment")]
-        [Tooltip("Automatically adjust bufferTimeMultiplier for smooth results.\nSets a low multiplier on stable connections, and a high multiplier on jittery connections.")]
-        public static bool dynamicAdjustment = true;
+        // DEPRECATED 2024-10-08
+        [Obsolete("NeworkClient.dynamicAdjustment was moved to NetworkClient.snapshotSettings.dynamicAdjustment")]
+        public static bool dynamicAdjustment => snapshotSettings.dynamicAdjustment;
+        // DEPRECATED 2024-10-08
+        [Obsolete("NeworkClient.dynamicAdjustmentTolerance was moved to NetworkClient.snapshotSettings.dynamicAdjustmentTolerance")]
+        public static float dynamicAdjustmentTolerance => snapshotSettings.dynamicAdjustmentTolerance;
+        // DEPRECATED 2024-10-08
+        [Obsolete("NeworkClient.dynamicAdjustment was moved to NetworkClient.snapshotSettings.dynamicAdjustment")]
+        public static int deliveryTimeEmaDuration => snapshotSettings.deliveryTimeEmaDuration;
 
-        [Tooltip("Safety buffer that is always added to the dynamic bufferTimeMultiplier adjustment.")]
-        public static float dynamicAdjustmentTolerance = 1; // 1 is realistically just fine, 2 is very very safe even for 20% jitter. can be half a frame too. (see above comments)
-
-        [Tooltip("Dynamic adjustment is computed over n-second exponential moving average standard deviation.")]
-        public static int deliveryTimeEmaDuration = 2;   // 1-2s recommended to capture average delivery time
         static ExponentialMovingAverage deliveryTimeEma; // average delivery time (standard deviation gives average jitter)
 
         // OnValidate: see NetworkClient.cs
@@ -85,6 +72,7 @@ namespace Mirror
             bufferTimeMultiplier = snapshotSettings.bufferTimeMultiplier;
             localTimeline = 0;
             localTimescale = 1;
+            localTimelineScaled = 0;
             snapshots.Clear();
 
             // initialize EMA with 'emaDuration' seconds worth of history.
@@ -95,17 +83,18 @@ namespace Mirror
         }
 
         // server sends TimeSnapshotMessage every sendInterval.
-        // batching already includes the remoteTimestamp.
-        // we simply insert it on-message here.
-        // => only for reliable channel. unreliable would always arrive earlier.
-        static void OnTimeSnapshotMessage(TimeSnapshotMessage _)
+        // batching already includes the remoteTimestamp (unscaled).
+        // the message also includes scaledTime.
+        // we insert a single snapshot with both times.
+        static void OnTimeSnapshotMessage(TimeSnapshotMessage message)
         {
-            // insert another snapshot for snapshot interpolation.
+            // insert snapshot for snapshot interpolation.
             // before calling OnDeserialize so components can use
-            // NetworkTime.time and NetworkTime.timeStamp.
+            // NetworkTime.time / NetworkTime.unscaledTime.
 
-            // Unity 2019 doesn't have Time.timeAsDouble yet
-            OnTimeSnapshot(new TimeSnapshot(connection.remoteTimeStamp, NetworkTime.localTime));
+            // unscaled time: from batch header (remoteTimeStamp)
+            // scaled time: from message body
+            OnTimeSnapshot(new TimeSnapshot(connection.remoteTimeStamp, NetworkTime.localTime, message.scaledTime));
         }
 
         // see comments at the top of this file
@@ -160,8 +149,13 @@ namespace Mirror
                 // progress local interpolation.
                 // TimeSnapshot doesn't interpolate anything.
                 // this is merely to keep removing older snapshots.
-                SnapshotInterpolation.StepInterpolation(snapshots, localTimeline, out _, out _, out double t);
+                SnapshotInterpolation.StepInterpolation(snapshots, localTimeline, out TimeSnapshot from, out TimeSnapshot to, out double t);
                 // Debug.Log($"NetworkClient SnapshotInterpolation @ {localTimeline:F2} t={t:F2}");
+
+                // derive scaled time from the same interpolation factor.
+                // network conditions are the same for both times,
+                // so we reuse the single pipeline's t.
+                localTimelineScaled = Mathd.LerpUnclamped(from.remoteScaledTime, to.remoteScaledTime, t);
             }
         }
     }

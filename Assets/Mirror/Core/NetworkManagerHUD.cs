@@ -19,12 +19,13 @@ namespace Mirror
             manager = GetComponent<NetworkManager>();
         }
 
+#if !UNITY_SERVER || UNITY_EDITOR
         void OnGUI()
         {
             // If this width is changed, also change offsetX in GUIConsole::OnGUI
-            int width = 300;
+            int width = 430;
 
-            GUILayout.BeginArea(new Rect(10 + offsetX, 40 + offsetY, width, 9999));
+            GUILayout.BeginArea(new Rect(10 + offsetX, 10 + offsetY, width, 9999));
 
             if (!NetworkClient.isConnected && !NetworkServer.active)
                 StartButtons();
@@ -54,10 +55,7 @@ namespace Mirror
 #if UNITY_WEBGL
                 // cant be a server in webgl build
                 if (GUILayout.Button("Single Player"))
-                {
-                    NetworkServer.dontListen = true;
                     manager.StartHost();
-                }
 #else
                 // Server + Client
                 if (GUILayout.Button("Host (Server + Client)"))
@@ -88,7 +86,7 @@ namespace Mirror
                 // Server Only
 #if UNITY_WEBGL
                 // cant be a server in webgl build
-                GUILayout.Box("( WebGL cannot be server )");
+                GUILayout.Box("( WebGL cannot be Server Only)");
 #else
                 if (GUILayout.Button("Server Only"))
                     manager.StartServer();
@@ -158,5 +156,6 @@ namespace Mirror
                     manager.StopServer();
             }
         }
+#endif
     }
 }

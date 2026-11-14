@@ -6,20 +6,34 @@ namespace Mirror
 {
     public class SyncSet<T> : SyncObject, ISet<T>
     {
-        public delegate void SyncSetChanged(Operation op, T item);
+        /// <summary>This is called after the item is added. T is the new item.</summary>
+        public Action<T> OnAdd;
+
+        /// <summary>This is called after the item is removed. T is the OLD item</summary>
+        public Action<T> OnRemove;
+
+        /// <summary>This is called BEFORE the data is cleared</summary>
+        public Action OnClear;
+
+        public enum Operation : byte
+        {
+            OP_ADD,
+            OP_REMOVE,
+            OP_CLEAR
+        }
+
+        /// <summary>
+        /// This is called for all changes to the Set.
+        /// <para>For OP_ADD, T is the NEW value of the entry.</para>
+        /// <para>For OP_REMOVE, T is the OLD value of the entry.</para>
+        /// <para>For OP_CLEAR, T is default.</para>
+        /// </summary>
+        public Action<Operation, T> OnChange;
 
         protected readonly ISet<T> objects;
 
         public int Count => objects.Count;
         public bool IsReadOnly => !IsWritable();
-        public event SyncSetChanged Callback;
-
-        public enum Operation : byte
-        {
-            OP_ADD,
-            OP_CLEAR,
-            OP_REMOVE
-        }
 
         struct Change
         {
@@ -56,29 +70,98 @@ namespace Mirror
         // this should be called after a successful sync
         public override void ClearChanges() => changes.Clear();
 
-        void AddOperation(Operation op, T item, bool checkAccess)
+        void AddOperation(Operation op, T oldItem, T newItem, bool checkAccess, bool shouldApplyChanges)
         {
             if (checkAccess && IsReadOnly)
-            {
                 throw new InvalidOperationException("SyncSets can only be modified by the owner.");
+
+            Change change = default;
+            switch (op)
+            {
+                case Operation.OP_ADD:
+                    change = new Change
+                    {
+                        operation = op,
+                        item = newItem
+                    };
+                    break;
+                case Operation.OP_REMOVE:
+                    change = new Change
+                    {
+                        operation = op,
+                        item = oldItem
+                    };
+                    break;
+                case Operation.OP_CLEAR:
+                    change = new Change
+                    {
+                        operation = op,
+                        item = default
+                    };
+                    break;
             }
 
-            Change change = new Change
-            {
-                operation = op,
-                item = item
-            };
-
-            if (IsRecording())
+            // Only record changes if we actually applied data to the collection
+            if (shouldApplyChanges && IsRecording())
             {
                 changes.Add(change);
                 OnDirty?.Invoke();
             }
 
-            Callback?.Invoke(op, item);
+            // Decide whether to fire Actions
+            bool hostInitialSpawnInHostMode = NetworkServer.activeHost && networkBehaviour.netIdentity.hostInitialSpawn;
+            bool shouldFireActions = shouldApplyChanges || hostInitialSpawnInHostMode;
+
+            // IMPORTANT: For ServerToClient mode, only fire Actions if object is visible to host client
+            // This prevents Actions from firing at spawn for objects out of AOI range
+            if (shouldFireActions && NetworkServer.activeHost && networkBehaviour.syncDirection == SyncDirection.ServerToClient)
+            {
+                shouldFireActions = NetworkClient.spawned.ContainsKey(networkBehaviour.netIdentity.netId);
+            }
+
+            if (shouldFireActions)
+            {
+                // Defer Actions during initial spawn on pure client to eliminate
+                // cross-object reference race conditions.  All objects will be in
+                // NetworkClient.spawned before any Actions fire.
+                if (NetworkClient.active && !NetworkServer.active && !NetworkClient.isSpawnFinished)
+                {
+                    // Capture values in closure for deferred execution
+                    Operation capturedOp = op;
+                    T capturedOld = oldItem;
+                    T capturedNew = newItem;
+
+                    networkBehaviour.deferredSyncCollectionActions.Add(() =>
+                        InvokeActions(capturedOp, capturedOld, capturedNew));
+                }
+                else
+                {
+                    // Normal: invoke immediately (host mode, server, or after spawn finished)
+                    InvokeActions(op, oldItem, newItem);
+                }
+            }
         }
 
-        void AddOperation(Operation op, bool checkAccess) => AddOperation(op, default, checkAccess);
+        void AddOperation(Operation op, bool checkAccess) => AddOperation(op, default, default, checkAccess, true);
+
+        void InvokeActions(Operation op, T oldItem, T newItem)
+        {
+            switch (op)
+            {
+                case Operation.OP_ADD:
+                    OnAdd?.Invoke(newItem);
+                    OnChange?.Invoke(op, newItem);
+                    break;
+                case Operation.OP_REMOVE:
+                    OnRemove?.Invoke(oldItem);
+                    OnChange?.Invoke(op, oldItem);
+                    break;
+                case Operation.OP_CLEAR:
+                    OnClear?.Invoke();
+                    OnChange?.Invoke(op, default);
+                    break;
+            }
+        }
 
         public override void OnSerializeAll(NetworkWriter writer)
         {
@@ -86,9 +169,7 @@ namespace Mirror
             writer.WriteUInt((uint)objects.Count);
 
             foreach (T obj in objects)
-            {
                 writer.Write(obj);
-            }
 
             // all changes have been applied already
             // thus the client will need to skip all the pending changes
@@ -112,12 +193,10 @@ namespace Mirror
                     case Operation.OP_ADD:
                         writer.Write(change.item);
                         break;
-
-                    case Operation.OP_CLEAR:
-                        break;
-
                     case Operation.OP_REMOVE:
                         writer.Write(change.item);
+                        break;
+                    case Operation.OP_CLEAR:
                         break;
                 }
             }
@@ -154,45 +233,51 @@ namespace Mirror
                 // apply the operation only if it is a new change
                 // that we have not applied yet
                 bool apply = changesAhead == 0;
-                T item = default;
+                T oldItem = default;
+                T newItem = default;
 
                 switch (operation)
                 {
                     case Operation.OP_ADD:
-                        item = reader.Read<T>();
+                        newItem = reader.Read<T>();
                         if (apply)
                         {
-                            objects.Add(item);
-                            // add dirty + changes.
-                            // ClientToServer needs to set dirty in server OnDeserialize.
-                            // no access check: server OnDeserialize can always
-                            // write, even for ClientToServer (for broadcasting).
-                            AddOperation(Operation.OP_ADD, item, false);
+                            objects.Add(newItem);
                         }
-                        break;
-
-                    case Operation.OP_CLEAR:
-                        if (apply)
-                        {
-                            objects.Clear();
-                            // add dirty + changes.
-                            // ClientToServer needs to set dirty in server OnDeserialize.
-                            // no access check: server OnDeserialize can always
-                            // write, even for ClientToServer (for broadcasting).
-                            AddOperation(Operation.OP_CLEAR, false);
-                        }
+                        // add dirty + changes.
+                        // ClientToServer needs to set dirty in server OnDeserialize.
+                        // no access check: server OnDeserialize can always
+                        // write, even for ClientToServer (for broadcasting).
+                        // ALWAYS call AddOperation - it decides internally whether to fire Actions
+                        AddOperation(Operation.OP_ADD, default, newItem, checkAccess: false, shouldApplyChanges: apply);
                         break;
 
                     case Operation.OP_REMOVE:
-                        item = reader.Read<T>();
+                        oldItem = reader.Read<T>();
                         if (apply)
                         {
-                            objects.Remove(item);
-                            // add dirty + changes.
-                            // ClientToServer needs to set dirty in server OnDeserialize.
-                            // no access check: server OnDeserialize can always
-                            // write, even for ClientToServer (for broadcasting).
-                            AddOperation(Operation.OP_REMOVE, item, false);
+                            objects.Remove(oldItem);
+                        }
+                        // add dirty + changes.
+                        // ClientToServer needs to set dirty in server OnDeserialize.
+                        // no access check: server OnDeserialize can always
+                        // write, even for ClientToServer (for broadcasting).
+                        // ALWAYS call AddOperation - it decides internally whether to fire Actions
+                        AddOperation(Operation.OP_REMOVE, oldItem, default, checkAccess: false, shouldApplyChanges: apply);
+                        break;
+
+                    case Operation.OP_CLEAR:
+                        // add dirty + changes.
+                        // ClientToServer needs to set dirty in server OnDeserialize.
+                        // no access check: server OnDeserialize can always
+                        // write, even for ClientToServer (for broadcasting).
+                        // IMPORTANT:  Call AddOperation BEFORE clearing so users can iterate the set
+                        // in OnClear Action before items are wiped
+                        AddOperation(Operation.OP_CLEAR, default, default, checkAccess: false, shouldApplyChanges: apply);
+                        if (apply)
+                        {
+                            // clear after invoking the Action
+                            objects.Clear();
                         }
                         break;
                 }
@@ -209,7 +294,7 @@ namespace Mirror
         {
             if (objects.Add(item))
             {
-                AddOperation(Operation.OP_ADD, item, true);
+                AddOperation(Operation.OP_ADD, default, item, true, true);
                 return true;
             }
             return false;
@@ -218,15 +303,15 @@ namespace Mirror
         void ICollection<T>.Add(T item)
         {
             if (objects.Add(item))
-            {
-                AddOperation(Operation.OP_ADD, item, true);
-            }
+                AddOperation(Operation.OP_ADD, default, item, true, true);
         }
 
         public void Clear()
         {
-            objects.Clear();
             AddOperation(Operation.OP_CLEAR, true);
+            // clear after invoking the callback so users can iterate the set
+            // and take appropriate action on the items before they are wiped.
+            objects.Clear();
         }
 
         public bool Contains(T item) => objects.Contains(item);
@@ -237,7 +322,7 @@ namespace Mirror
         {
             if (objects.Remove(item))
             {
-                AddOperation(Operation.OP_REMOVE, item, true);
+                AddOperation(Operation.OP_REMOVE, item, default, true, true);
                 return true;
             }
             return false;
@@ -257,17 +342,13 @@ namespace Mirror
 
             // remove every element in other from this
             foreach (T element in other)
-            {
                 Remove(element);
-            }
         }
 
         public void IntersectWith(IEnumerable<T> other)
         {
             if (other is ISet<T> otherSet)
-            {
                 IntersectWithSet(otherSet);
-            }
             else
             {
                 HashSet<T> otherAsSet = new HashSet<T>(other);
@@ -280,12 +361,8 @@ namespace Mirror
             List<T> elements = new List<T>(objects);
 
             foreach (T element in elements)
-            {
                 if (!otherSet.Contains(element))
-                {
                     Remove(element);
-                }
-            }
         }
 
         public bool IsProperSubsetOf(IEnumerable<T> other) => objects.IsProperSubsetOf(other);
@@ -304,38 +381,26 @@ namespace Mirror
         public void SymmetricExceptWith(IEnumerable<T> other)
         {
             if (other == this)
-            {
                 Clear();
-            }
             else
-            {
                 foreach (T element in other)
-                {
                     if (!Remove(element))
-                    {
                         Add(element);
-                    }
-                }
-            }
         }
 
         // custom implementation so we can do our own Clear/Add/Remove for delta
         public void UnionWith(IEnumerable<T> other)
         {
             if (other != this)
-            {
                 foreach (T element in other)
-                {
                     Add(element);
-                }
-            }
         }
     }
 
     public class SyncHashSet<T> : SyncSet<T>
     {
-        public SyncHashSet() : this(EqualityComparer<T>.Default) {}
-        public SyncHashSet(IEqualityComparer<T> comparer) : base(new HashSet<T>(comparer ?? EqualityComparer<T>.Default)) {}
+        public SyncHashSet() : this(EqualityComparer<T>.Default) { }
+        public SyncHashSet(IEqualityComparer<T> comparer) : base(new HashSet<T>(comparer ?? EqualityComparer<T>.Default)) { }
 
         // allocation free enumerator
         public new HashSet<T>.Enumerator GetEnumerator() => ((HashSet<T>)objects).GetEnumerator();
@@ -343,8 +408,8 @@ namespace Mirror
 
     public class SyncSortedSet<T> : SyncSet<T>
     {
-        public SyncSortedSet() : this(Comparer<T>.Default) {}
-        public SyncSortedSet(IComparer<T> comparer) : base(new SortedSet<T>(comparer ?? Comparer<T>.Default)) {}
+        public SyncSortedSet() : this(Comparer<T>.Default) { }
+        public SyncSortedSet(IComparer<T> comparer) : base(new SortedSet<T>(comparer ?? Comparer<T>.Default)) { }
 
         // allocation free enumerator
         public new SortedSet<T>.Enumerator GetEnumerator() => ((SortedSet<T>)objects).GetEnumerator();

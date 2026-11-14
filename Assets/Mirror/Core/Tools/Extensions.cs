@@ -1,7 +1,10 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Net;
 using System.Runtime.CompilerServices;
+// Do not remove using UnityEngine...required for GetStableHashCode logging and certain Unity versions
+using UnityEngine;
 
 namespace Mirror
 {
@@ -30,7 +33,17 @@ namespace Mirror
                     hash *= prime;
                 }
 
-                //UnityEngine.Debug.Log($"Created stable hash {(ushort)hash} for {text}");
+                // Uncomment this code to log message hashes and methods for debugging.
+                // There will be one log message per message hash without flooding duplicates.
+                // User should look in the log of the SENDING side for the offending hash.
+                // try-catch to avoid nonsense weaver errors at design time.
+                //try
+                //{
+                //    // cast the hash to ushort to match what user sees in unknown message id warnings
+                //    Debug.LogFormat(LogType.Log, LogOption.NoStacktrace, null, "Created stable hash {0} for {1}", (ushort)hash, text);
+                //}
+                //catch { }
+
                 return (int)hash;
             }
         }
@@ -52,7 +65,7 @@ namespace Mirror
 
         // previously in DotnetCompatibility.cs
         // leftover from the UNET days. supposedly for windows store?
-        internal static string GetMethodName(this Delegate func)
+        public static string GetMethodName(this Delegate func)
         {
 #if NETFX_CORE
             return func.GetMethodInfo().Name;
@@ -98,5 +111,46 @@ namespace Mirror
             }
         }
 #endif
+
+#if !UNITY_2021_3_OR_NEWER
+        // Some patch versions of Unity 2021.3 and earlier don't have transform.GetPositionAndRotation which we use for performance in some places
+        public static void GetPositionAndRotation(this Transform transform, out Vector3 position, out Quaternion rotation)
+        {
+            position = transform.position;
+            rotation = transform.rotation;
+        }
+
+        public static void SetPositionAndRotation(this Transform transform, Vector3 position, Quaternion rotation)
+        {
+            transform.position = position;
+            transform.rotation = rotation;
+        }
+
+        public static void GetLocalPositionAndRotation(this Transform transform, out Vector3 position, out Quaternion rotation)
+        {
+            position = transform.localPosition;
+            rotation = transform.localRotation;
+        }
+
+        public static void SetLocalPositionAndRotation(this Transform transform, Vector3 position, Quaternion rotation)
+        {
+            transform.localPosition = position;
+            transform.localRotation = rotation;
+        }
+#endif
+
+        // IPEndPoint address only to pretty string.
+        // useful for to get a connection's address for IP bans etc.
+        public static string PrettyAddress(this IPEndPoint endPoint)
+        {
+            if (endPoint == null) return "";
+
+            // Map to IPv4 if "IsIPv4MappedToIPv6" for readability
+            // "::ffff:127.0.0.1" -> "127.0.0.1"
+            return
+                endPoint.Address.IsIPv4MappedToIPv6
+                ? endPoint.Address.MapToIPv4().ToString()
+                : endPoint.Address.ToString();
+        }
     }
 }

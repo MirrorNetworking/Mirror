@@ -1,7 +1,9 @@
 using System;
+using UnityEngine;
 
 namespace Mirror.Tests.EditorBehaviours.NetworkIdentities
 {
+    [AddComponentMenu("")]
     public class StartServerExceptionNetworkBehaviour : NetworkBehaviour
     {
         public int called;
@@ -12,6 +14,7 @@ namespace Mirror.Tests.EditorBehaviours.NetworkIdentities
         }
     }
 
+    [AddComponentMenu("")]
     public class StartClientExceptionNetworkBehaviour : NetworkBehaviour
     {
         public int called;
@@ -22,6 +25,7 @@ namespace Mirror.Tests.EditorBehaviours.NetworkIdentities
         }
     }
 
+    [AddComponentMenu("")]
     public class StartAuthorityExceptionNetworkBehaviour : NetworkBehaviour
     {
         public int called;
@@ -32,6 +36,7 @@ namespace Mirror.Tests.EditorBehaviours.NetworkIdentities
         }
     }
 
+    [AddComponentMenu("")]
     public class StopAuthorityExceptionNetworkBehaviour : NetworkBehaviour
     {
         public int called;
@@ -42,6 +47,7 @@ namespace Mirror.Tests.EditorBehaviours.NetworkIdentities
         }
     }
 
+    [AddComponentMenu("")]
     public class StartLocalPlayerExceptionNetworkBehaviour : NetworkBehaviour
     {
         public int called;
@@ -52,6 +58,7 @@ namespace Mirror.Tests.EditorBehaviours.NetworkIdentities
         }
     }
 
+    [AddComponentMenu("")]
     public class StopClientExceptionNetworkBehaviour : NetworkBehaviour
     {
         public int called;
@@ -62,6 +69,7 @@ namespace Mirror.Tests.EditorBehaviours.NetworkIdentities
         }
     }
 
+    [AddComponentMenu("")]
     public class StopLocalPlayerExceptionNetworkBehaviour : NetworkBehaviour
     {
         public int called;
@@ -72,6 +80,7 @@ namespace Mirror.Tests.EditorBehaviours.NetworkIdentities
         }
     }
 
+    [AddComponentMenu("")]
     public class StopServerExceptionNetworkBehaviour : NetworkBehaviour
     {
         public int called;
@@ -82,6 +91,7 @@ namespace Mirror.Tests.EditorBehaviours.NetworkIdentities
         }
     }
 
+    [AddComponentMenu("")]
     public class SerializeTest1NetworkBehaviour : NetworkBehaviour
     {
         public int value;
@@ -95,6 +105,7 @@ namespace Mirror.Tests.EditorBehaviours.NetworkIdentities
         }
     }
 
+    [AddComponentMenu("")]
     public class SerializeTest2NetworkBehaviour : NetworkBehaviour
     {
         public string value;
@@ -108,6 +119,7 @@ namespace Mirror.Tests.EditorBehaviours.NetworkIdentities
         }
     }
 
+    [AddComponentMenu("")]
     public class SyncVarTest1NetworkBehaviour : NetworkBehaviour
     {
         [SyncVar] public int value;
@@ -117,11 +129,17 @@ namespace Mirror.Tests.EditorBehaviours.NetworkIdentities
         public void SetValue(int n) => value = n;
     }
 
+    [AddComponentMenu("")]
     public class SyncVarTest2NetworkBehaviour : NetworkBehaviour
     {
         [SyncVar] public string value;
+
+        // function to modify the [SyncVar] from other assemblies.
+        // workaround for https://github.com/MirrorNetworking/Mirror/issues/3525
+        public void SetValue(string s) => value = s;
     }
 
+    [AddComponentMenu("")]
     public class SerializeExceptionNetworkBehaviour : NetworkBehaviour
     {
         public override void OnSerialize(NetworkWriter writer, bool initialState)
@@ -134,6 +152,7 @@ namespace Mirror.Tests.EditorBehaviours.NetworkIdentities
         }
     }
 
+    [AddComponentMenu("")]
     public class SerializeMismatchNetworkBehaviour : NetworkBehaviour
     {
         public int value;
@@ -149,6 +168,7 @@ namespace Mirror.Tests.EditorBehaviours.NetworkIdentities
         }
     }
 
+    [AddComponentMenu("")]
     public class IsClientServerCheckComponent : NetworkBehaviour
     {
         // OnStartClient

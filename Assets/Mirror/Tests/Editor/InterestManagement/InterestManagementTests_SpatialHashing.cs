@@ -19,8 +19,10 @@ namespace Mirror.Tests.InterestManagement
             // setup server aoi since InterestManagement Awake isn't called
             NetworkServer.aoi = aoi;
 
-            // rebuild grid once so the two connections are in there
-            aoi.Update();
+            // Force the grid to contain the two connections.
+            // Do not rely on the time-gated Update() path.
+            // NetworkTime.localTime is environment-dependent in Edit Mode tests.
+            aoi.RefreshGrid();
         }
 
         [TearDown]
@@ -39,7 +41,7 @@ namespace Mirror.Tests.InterestManagement
             // A and B are at (0,0,0) so within range!
 
             // force hide A
-            identityA.visible = Visibility.ForceHidden;
+            identityA.visibility = Visibility.ForceHidden;
 
             // rebuild for both
             // initial rebuild while both are within range
@@ -61,7 +63,7 @@ namespace Mirror.Tests.InterestManagement
             identityB.transform.position = Vector3.right * (aoi.visRange + 1);
 
             // force show A
-            identityA.visible = Visibility.ForceShown;
+            identityA.visibility = Visibility.ForceShown;
 
             // update grid now that positions were changed
             aoi.Update();
@@ -117,8 +119,8 @@ namespace Mirror.Tests.InterestManagement
             // A and B are too far from each other
             identityB.transform.position = Vector3.right * (aoi.visRange + 1);
 
-            // update grid now that positions were changed
-            aoi.Update();
+            // Refresh the grid
+            aoi.RefreshGrid();
 
             // rebuild for boths
             NetworkServer.RebuildObservers(identityA, true);
@@ -137,8 +139,8 @@ namespace Mirror.Tests.InterestManagement
             // A and B are too far from each other
             identityB.transform.position = Vector3.right * (aoi.visRange + 1);
 
-            // update grid now that positions were changed
-            aoi.Update();
+            // Refresh the grid
+            aoi.RefreshGrid();
 
             // rebuild for boths
             NetworkServer.RebuildObservers(identityA, false);

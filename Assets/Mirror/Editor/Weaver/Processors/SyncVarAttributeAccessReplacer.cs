@@ -52,7 +52,7 @@ namespace Mirror.Weaver
             // skip static constructor, "MirrorProcessed", "InvokeUserCode_"
             if (md.Name == ".cctor" ||
                 md.Name == NetworkBehaviourProcessor.ProcessedFunctionName ||
-                md.Name.StartsWith(Weaver.InvokeRpcPrefix))
+                md.Name.StartsWith(RemoteCalls.RemoteProcedureCalls.InvokeRpcPrefix))
                 return;
 
             // skip abstract
@@ -94,12 +94,20 @@ namespace Mirror.Weaver
                     // [SyncVar]?
                     if (field.HasCustomAttribute<SyncVarAttribute>())
                     {
+                        // support SyncVars in generic components like Comp<T>: NetworkBehaviour
+                        // https://github.com/MirrorNetworking/Mirror/pull/4093/
+                        if (field.Module == md.Module)
+                        {
+                            ProcessSetInstruction(syncVarAccessLists, md, instr, field);
+                            return iCount;
+                        }
+
                         // ILPostProcessor would need to Process() the assembly's
                         // references before processing this one.
                         // we can not control the order.
                         // instead, Log an error to suggest adding a SetSyncVar(value) function.
                         // this is a very easy solution for a very rare edge case.
-                        Log.Error($"'[SyncVar] {opFieldstRef.Name}' in '{md.Module.Name}' is modified by '{md.FullName}' in '{field.Module.Name}'. Modifying a [SyncVar] from another assembly is not supported. Please add a: 'public void Set{opFieldstRef.Name}(value) {{ this.{opFieldstRef.Name} = value; }}' function in '{opFieldstRef.DeclaringType.Name}' and call this function from '{md.FullName}' instead.");
+                        Log.Error($"'[SyncVar] {opFieldstRef.DeclaringType.Name}.{opFieldstRef.Name}' in '{field.Module.Name}' is modified by '{md.FullName}' in '{md.Module.Name}'. Modifying a [SyncVar] from another assembly is not supported. Please add a: 'public void Set{opFieldstRef.Name}(value) {{ this.{opFieldstRef.Name} = value; }}' method in '{opFieldstRef.DeclaringType.Name}' and call this function from '{md.FullName}' instead.");
                     }
                 }
             }

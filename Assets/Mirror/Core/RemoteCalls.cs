@@ -30,6 +30,8 @@ namespace Mirror.RemoteCalls
     /// <summary>Used to help manage remote calls for NetworkBehaviours</summary>
     public static class RemoteProcedureCalls
     {
+        public const string InvokeRpcPrefix = "InvokeUserCode_";
+
         // one lookup for all remote calls.
         // allows us to easily add more remote call types without duplicating code.
         // note: do not clear those with [RuntimeInitializeOnLoad]
@@ -68,7 +70,7 @@ namespace Mirror.RemoteCalls
         internal static ushort RegisterDelegate(Type componentType, string functionFullName, RemoteCallType remoteCallType, RemoteCallDelegate func, bool cmdRequiresAuthority = true)
         {
             // type+func so Inventory.RpcUse != Equipment.RpcUse
-            ushort hash = (ushort)(functionFullName.GetStableHashCode() & 0xFFFF);
+            ushort hash = functionFullName.GetStableHashCode16();
 
             if (CheckIfDelegateExists(componentType, remoteCallType, func, hash))
                 return hash;
@@ -98,6 +100,17 @@ namespace Mirror.RemoteCalls
         // to clean up tests
         internal static void RemoveDelegate(ushort hash) =>
             remoteCallDelegates.Remove(hash);
+
+        internal static bool GetFunctionMethodName(ushort functionHash, out string methodName)
+        {
+            if (remoteCallDelegates.TryGetValue(functionHash, out Invoker invoker))
+            {
+                methodName = invoker.function.GetMethodName().Replace(InvokeRpcPrefix, "");
+                return true;
+            }
+            methodName = "";
+            return false;
+        }
 
         // note: no need to throw an error if not found.
         // an attacker might just try to call a cmd with an rpc's hash etc.

@@ -43,7 +43,7 @@ RenderSettings:
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
-  serializedVersion: 12
+  serializedVersion: 11
   m_GIWorkflowMode: 1
   m_GISettings:
     serializedVersion: 2
@@ -98,8 +98,7 @@ LightmapSettings:
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
   m_LightingDataAsset: {fileID: 0}
-  m_LightingSettings: {fileID: 4890085278179872738, guid: 1cb229a9b0b434acf9cb6b263057a2a0,
-    type: 2}
+  m_UseShadowmask: 1
 --- !u!196 &4
 NavMeshSettings:
   serializedVersion: 2
@@ -119,8 +118,6 @@ NavMeshSettings:
     manualTileSize: 0
     tileSize: 256
     accuratePlacement: 0
-    maxJobWorkers: 0
-    preserveTilesOutsideBounds: 0
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 23800000, guid: 0bc607fa2e315482ebe98797e844e11f, type: 2}
@@ -195,7 +192,6 @@ Transform:
   m_LocalRotation: {x: 0.27059805, y: 0.6532815, z: -0.27059805, w: 0.6532815}
   m_LocalPosition: {x: -30, y: 25, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -213,7 +209,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   height: 150
+  offsetY: 40
   maxLogCount: 50
+  showInEditor: 0
   hotKey: 293
 --- !u!1001 &250045978
 PrefabInstance:
@@ -321,7 +319,6 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 3
@@ -746,6 +743,7 @@ GameObject:
   - component: {fileID: 1282001519}
   - component: {fileID: 1282001521}
   - component: {fileID: 1282001522}
+  - component: {fileID: 1282001523}
   m_Layer: 0
   m_Name: NetworkManager
   m_TagString: Untagged
@@ -763,7 +761,6 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 2
@@ -794,14 +791,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8aab4c8111b7c411b9b92cf3dbc5bd4e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dontDestroyOnLoad: 1
+  dontDestroyOnLoad: 0
   runInBackground: 1
-  autoStartServerBuild: 1
-  autoConnectClientBuild: 0
+  headlessStartMode: 1
+  editorAutoStart: 0
   sendRate: 120
+  autoStartServerBuild: 0
+  autoConnectClientBuild: 0
   offlineScene: 
   onlineScene: 
-  transport: {fileID: 1282001521}
+  offlineSceneLoadDelay: 0
+  transport: {fileID: 1282001523}
   networkAddress: localhost
   maxConnections: 2
   disconnectInactiveConnections: 0
@@ -814,6 +814,7 @@ MonoBehaviour:
   spawnPrefabs:
   - {fileID: 3429911415116987808, guid: d07e00a439ecd46e79554ec89f65317b, type: 3}
   - {fileID: 3429911415116987808, guid: 0100f0c90700741b496ccbc2fe54c196, type: 3}
+  exceptionsDisconnect: 1
   snapshotSettings:
     bufferTimeMultiplier: 2
     bufferLimit: 32
@@ -825,7 +826,8 @@ MonoBehaviour:
     dynamicAdjustment: 1
     dynamicAdjustmentTolerance: 1
     deliveryTimeEmaDuration: 2
-  connectionQualityInterval: 3
+  evaluationMethod: 0
+  evaluationInterval: 3
   timeInterpolationGui: 1
 --- !u!114 &1282001521
 MonoBehaviour:
@@ -852,7 +854,7 @@ MonoBehaviour:
   MaxRetransmit: 40
   MaximizeSocketBuffers: 1
   ReliableMaxMessageSize: 297433
-  UnreliableMaxMessageSize: 1195
+  UnreliableMaxMessageSize: 1194
   debugLog: 0
   statisticsGUI: 0
   statisticsLog: 0
@@ -872,6 +874,24 @@ MonoBehaviour:
   padding: 2
   width: 180
   height: 25
+--- !u!114 &1282001523
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1282001517}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 96b149f511061407fb54895c057b7736, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  wrap: {fileID: 1282001521}
+  latency: 50
+  jitter: 0.02
+  jitterSpeed: 1
+  unreliableLoss: 2
+  unreliableScramble: 2
 --- !u!1001 &1633978772
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1259,7 +1279,6 @@ Light:
   m_UseColorTemperature: 0
   m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: 0}
   m_UseBoundingSphereOverride: 0
-  m_UseViewFrustumForShadowCasterCull: 1
   m_ShadowRadius: 0
   m_ShadowAngle: 0
 --- !u!4 &2054208276
@@ -1272,7 +1291,6 @@ Transform:
   m_LocalRotation: {x: 0, y: 0.9063079, z: -0.42261827, w: 0}
   m_LocalPosition: {x: 0, y: 10, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 1

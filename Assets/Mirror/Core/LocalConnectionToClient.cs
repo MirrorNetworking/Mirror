@@ -14,8 +14,6 @@ namespace Mirror
 
         public LocalConnectionToClient() : base(LocalConnectionId) {}
 
-        public override string address => "localhost";
-
         internal override void Send(ArraySegment<byte> segment, int channelId = Channels.Reliable)
         {
             // instead of invoking it directly, we enqueue and process next update.

@@ -60,7 +60,11 @@ namespace Mirror
         }
 
         GUIContent title;
-        Styles styles = new Styles();
+
+        // Lazy-init fixes NullReferenceException from Styles.labelStyle accessing EditorStyles.label before unity initialises EditorStyles.s_Current
+        // https://github.com/MirrorNetworking/Mirror/pull/4034
+        Styles _styles;
+        Styles styles => _styles ?? (_styles = new Styles());
 
         public override GUIContent GetPreviewTitle()
         {
@@ -95,10 +99,6 @@ namespace Mirror
             if (identity == null)
                 return;
 
-            if (styles == null)
-                styles = new Styles();
-
-
             // padding
             RectOffset previewPadding = new RectOffset(-5, -5, -5, -5);
             Rect paddedr = previewPadding.Add(r);
@@ -126,7 +126,9 @@ namespace Mirror
             Vector2 maxValueLabelSize = GetMaxNameLabelSize(infos);
 
             Rect labelRect = new Rect(initialX, Y, maxNameLabelSize.x, maxNameLabelSize.y);
-            Rect idLabelRect = new Rect(maxNameLabelSize.x, Y, maxValueLabelSize.x, maxValueLabelSize.y);
+
+            // height needs a +1 to line up nicely
+            Rect idLabelRect = new Rect(maxNameLabelSize.x, Y, maxValueLabelSize.x, maxValueLabelSize.y + 1);
 
             foreach (NetworkIdentityInfo info in infos)
             {

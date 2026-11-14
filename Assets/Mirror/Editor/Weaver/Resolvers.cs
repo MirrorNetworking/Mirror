@@ -42,6 +42,38 @@ namespace Mirror.Weaver
             return null;
         }
 
+        public static FieldReference ResolveField(TypeReference tr, AssemblyDefinition assembly, Logger Log, string name, ref bool WeavingFailed)
+        {
+            if (tr == null)
+            {
+                Log.Error($"Cannot resolve Field {name} without a class");
+                WeavingFailed = true;
+                return null;
+            }
+            FieldReference field = ResolveField(tr, assembly, Log, m => m.Name == name, ref WeavingFailed);
+            if (field == null)
+            {
+                Log.Error($"Field not found with name {name} in type {tr.Name}", tr);
+                WeavingFailed = true;
+            }
+            return field;
+        }
+
+        public static FieldReference ResolveField(TypeReference t, AssemblyDefinition assembly, Logger Log, System.Func<FieldDefinition, bool> predicate, ref bool WeavingFailed)
+        {
+            foreach (FieldDefinition fieldRef in t.Resolve().Fields)
+            {
+                if (predicate(fieldRef))
+                {
+                    return assembly.MainModule.ImportReference(fieldRef);
+                }
+            }
+
+            Log.Error($"Field not found in type {t.Name}", t);
+            WeavingFailed = true;
+            return null;
+        }
+
         public static MethodReference TryResolveMethodInParents(TypeReference tr, AssemblyDefinition assembly, string name)
         {
             if (tr == null)

@@ -26,6 +26,16 @@ namespace Mirror
             Compress(writer, last.z, current.z);
         }
 
+        // delta (usually small), then zigzag varint to support +- changes
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Compress(NetworkWriter writer, Vector4Long last, Vector4Long current)
+        {
+            Compress(writer, last.x, current.x);
+            Compress(writer, last.y, current.y);
+            Compress(writer, last.z, current.z);
+            Compress(writer, last.w, current.w);
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector3Long Decompress(NetworkReader reader, Vector3Long last)
         {
@@ -33,6 +43,16 @@ namespace Mirror
             long y = Decompress(reader, last.y);
             long z = Decompress(reader, last.z);
             return new Vector3Long(x, y, z);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector4Long Decompress(NetworkReader reader, Vector4Long last)
+        {
+            long x = Decompress(reader, last.x);
+            long y = Decompress(reader, last.y);
+            long z = Decompress(reader, last.z);
+            long w = Decompress(reader, last.w);
+            return new Vector4Long(x, y, z, w);
         }
     }
 }

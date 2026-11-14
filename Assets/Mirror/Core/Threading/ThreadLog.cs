@@ -37,6 +37,11 @@ namespace Mirror
         // main thread id
         static int mainThreadId;
 
+        // track Mirror-managed thread IDs
+        // using ConcurrentDictionary as a thread-safe HashSet
+        static readonly ConcurrentDictionary<int, byte> mirrorThreadIds =
+            new ConcurrentDictionary<int, byte>();
+
 #if !UNITY_EDITOR
         // Editor as of Unity 2021 does log threaded messages.
         // only builds don't.
@@ -76,6 +81,10 @@ namespace Mirror
             // as well, causing deadlock.
             if (IsMainThread()) return;
 
+            // only enqueue messages from Mirror-managed threads.
+            // otherwise we would capture logs from user's application threads too.
+            if (!mirrorThreadIds.ContainsKey(Thread.CurrentThread.ManagedThreadId)) return;
+
             // queue for logging from main thread later
             logs.Enqueue(new LogEntry(Thread.CurrentThread.ManagedThreadId, type, message, stackTrace));
         }
@@ -87,23 +96,34 @@ namespace Mirror
             {
                 switch (entry.type)
                 {
+                    // add [Thread#] prefix to make it super obvious where this log message comes from.
+                    // some projects may see unexpected messages that were previously hidden,
+                    // since Unity wouldn't log them without ThreadLog.cs.
                     case LogType.Log:
-                        Debug.Log($"[T{entry.threadId}] {entry.message}\n{entry.stackTrace}");
+                        Debug.Log($"[Thread{entry.threadId}] {entry.message}\n{entry.stackTrace}");
                         break;
                     case LogType.Warning:
-                        Debug.LogWarning($"[T{entry.threadId}] {entry.message}\n{entry.stackTrace}");
+                        Debug.LogWarning($"[Thread{entry.threadId}] {entry.message}\n{entry.stackTrace}");
                         break;
                     case LogType.Error:
-                        Debug.LogError($"[T{entry.threadId}] {entry.message}\n{entry.stackTrace}");
+                        Debug.LogError($"[Thread{entry.threadId}] {entry.message}\n{entry.stackTrace}");
                         break;
                     case LogType.Exception:
-                        Debug.LogError($"[T{entry.threadId}] {entry.message}\n{entry.stackTrace}");
+                        Debug.LogError($"[Thread{entry.threadId}] {entry.message}\n{entry.stackTrace}");
                         break;
                     case LogType.Assert:
-                        Debug.LogAssertion($"[T{entry.threadId}] {entry.message}\n{entry.stackTrace}");
+                        Debug.LogAssertion($"[Thread{entry.threadId}] {entry.message}\n{entry.stackTrace}");
                         break;
                 }
             }
         }
+
+        // called by WorkerThread to register a Mirror-managed thread
+        internal static void RegisterThread(int threadId) =>
+            mirrorThreadIds[threadId] = 0;
+
+        // called by WorkerThread to unregister a Mirror-managed thread
+        internal static void UnregisterThread(int threadId) =>
+            mirrorThreadIds.TryRemove(threadId, out _);
     }
 }

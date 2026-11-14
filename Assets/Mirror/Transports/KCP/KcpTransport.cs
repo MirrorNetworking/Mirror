@@ -2,9 +2,8 @@
 using System;
 using System.Linq;
 using System.Net;
-using UnityEngine;
 using Mirror;
-using Unity.Collections;
+using UnityEngine;
 using UnityEngine.Serialization;
 
 namespace kcp2k
@@ -116,14 +115,14 @@ namespace kcp2k
             client = new KcpClient(
                 () => OnClientConnected.Invoke(),
                 (message, channel) => OnClientDataReceived.Invoke(message, FromKcpChannel(channel)),
-                () => OnClientDisconnected.Invoke(),
-                (error, reason) => OnClientError.Invoke(ToTransportError(error), reason),
+                () => OnClientDisconnected?.Invoke(), // may be null in StopHost(): https://github.com/MirrorNetworking/Mirror/issues/3708
+                (error, reason) => OnClientError?.Invoke(ToTransportError(error), reason), // may be null during shutdown: https://github.com/MirrorNetworking/Mirror/issues/3876
                 config
             );
 
             // server
             server = new KcpServer(
-                (connectionId) => OnServerConnected.Invoke(connectionId),
+                (connectionId, endPoint) => OnServerConnectedWithAddress.Invoke(connectionId, endPoint.PrettyAddress()),
                 (connectionId, message, channel) => OnServerDataReceived.Invoke(connectionId, message, FromKcpChannel(channel)),
                 (connectionId) => OnServerDisconnected.Invoke(connectionId),
                 (connectionId, error, reason) => OnServerError.Invoke(connectionId, ToTransportError(error), reason),
@@ -188,14 +187,7 @@ namespace kcp2k
         public override void ClientLateUpdate() => client.TickOutgoing();
 
         // server
-        public override Uri ServerUri()
-        {
-            UriBuilder builder = new UriBuilder();
-            builder.Scheme = Scheme;
-            builder.Host = Dns.GetHostName();
-            builder.Port = Port;
-            return builder.Uri;
-        }
+        public override Uri ServerUri() => TryBuildValidUri(Scheme, Dns.GetHostName(), Port);
         public override bool ServerActive() => server.IsActive();
         public override void ServerStart() => server.Start(Port);
         public override void ServerSend(int connectionId, ArraySegment<byte> segment, int channelId)
@@ -209,13 +201,7 @@ namespace kcp2k
         public override string ServerGetClientAddress(int connectionId)
         {
             IPEndPoint endPoint = server.GetClientEndPoint(connectionId);
-            return endPoint != null
-                // Map to IPv4 if "IsIPv4MappedToIPv6"
-                // "::ffff:127.0.0.1" -> "127.0.0.1"
-                ? (endPoint.Address.IsIPv4MappedToIPv6
-                ? endPoint.Address.MapToIPv4().ToString()
-                : endPoint.Address.ToString())
-                : "";
+            return endPoint.PrettyAddress();
         }
         public override void ServerStop() => server.Stop();
         public override void ServerEarlyUpdate()
@@ -330,8 +316,8 @@ namespace kcp2k
             GUILayout.EndArea();
         }
 
-// OnGUI allocates even if it does nothing. avoid in release.
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        // OnGUI allocates even if it does nothing. avoid in release.
+#if UNITY_EDITOR || (!UNITY_SERVER && DEBUG)
         protected virtual void OnGUI()
         {
             if (statisticsGUI) OnGUIStatistics();
@@ -366,7 +352,7 @@ namespace kcp2k
             }
         }
 
-        public override string ToString() => $"KCP {port}";
+        public override string ToString() => $"KCP [{port}]";
     }
 }
 //#endif MIRROR <- commented out because MIRROR isn't defined on first import yet

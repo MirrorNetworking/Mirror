@@ -10,6 +10,7 @@ using System.Collections.Generic;
 
 namespace Mirror
 {
+    [Serializable]
     public class Unbatcher
     {
         // supporting adding multiple batches before GetNextMessage is called.
@@ -17,6 +18,23 @@ namespace Mirror
         readonly Queue<NetworkWriterPooled> batches = new Queue<NetworkWriterPooled>();
 
         public int BatchesCount => batches.Count;
+
+        // clear all batches and return writers to pool.
+        // called when a malformed batch is detected or connection disconnects.
+        public void Clear()
+        {
+            while (batches.Count > 0)
+            {
+                NetworkWriterPooled writer = batches.Dequeue();
+                NetworkWriterPool.Return(writer);
+            }
+            // reset reader so it doesn't point to returned batch
+#if UNITY_2021_3_OR_NEWER
+            reader.SetBuffer(Array.Empty<byte>());
+#else
+            reader.SetBuffer(new ArraySegment<byte>(Array.Empty<byte>()));
+#endif
+        }
 
         // NetworkReader is only created once,
         // then pointed to the first batch.
@@ -115,11 +133,27 @@ namespace Mirror
 
             // read the size prefix as varint
             // see Batcher.AddMessage comments for explanation.
-            int size = (int)Compression.DecompressVarUInt(reader);
+            ulong rawSize = Compression.DecompressVarUInt(reader);
 
-            // validate size prefix, in case attackers send malicious data
+            // protect against integer overflow: DecompressVarUInt returns
+            // ulong, casting values > int.MaxValue to int wraps to negative,
+            // which would bypass the reader.Remaining < size check below.
+            if (rawSize > int.MaxValue)
+            {
+                Clear();
+                throw new InvalidOperationException($"GetNextMessage: size prefix {rawSize} exceeds int.MaxValue. All batches cleared.");
+            }
+
+            int size = (int)rawSize;
+
+            // validate size prefix, in case attackers send malicious data.
+            // a size larger than remaining bytes means the batch is malformed.
+            // clear all batches and throw so the caller can disconnect.
             if (reader.Remaining < size)
-                return false;
+            {
+                Clear();
+                throw new InvalidOperationException($"GetNextMessage: malformed batch with message size {size} > remaining {reader.Remaining}. All batches cleared.");
+            }
 
             // return the message of size
             message = reader.ReadBytesSegment(size);

@@ -20,7 +20,7 @@ namespace Mirror.SimpleWeb
                 {
                     int read = stream.Read(outBuffer, outOffset + received, length - received);
                     if (read == 0)
-                        throw new ReadHelperException("returned 0");
+                        throw new ReadHelperException("[SWT-ReadHelper]: Read returned 0");
 
                     received += read;
                 }
@@ -35,7 +35,7 @@ namespace Mirror.SimpleWeb
             }
 
             if (received != length)
-                throw new ReadHelperException("returned not equal to length");
+                throw new ReadHelperException("[SWT-ReadHelper]: received not equal to length");
 
             return outOffset + received;
         }
@@ -60,7 +60,7 @@ namespace Mirror.SimpleWeb
             }
             catch (Exception e)
             {
-                Log.Exception(e);
+                Log.Exception("[SWT-ReadHelper]", e);
                 return false;
             }
         }
@@ -102,12 +102,12 @@ namespace Mirror.SimpleWeb
             }
             catch (IOException e)
             {
-                Log.InfoException(e);
+                Log.InfoException("[SWT-ReadHelper] SafeReadTillMatch", e);
                 return null;
             }
             catch (Exception e)
             {
-                Log.Exception(e);
+                Log.Exception("[SWT-ReadHelper]", e);
                 return null;
             }
         }

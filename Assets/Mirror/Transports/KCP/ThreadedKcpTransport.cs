@@ -3,11 +3,9 @@
 //
 //#if MIRROR <- commented out because MIRROR isn't defined on first import yet
 using System;
-using System.Linq;
 using System.Net;
-using UnityEngine;
 using Mirror;
-using Unity.Collections;
+using UnityEngine;
 using UnityEngine.Serialization;
 
 namespace kcp2k
@@ -67,8 +65,8 @@ namespace kcp2k
         const int MTU = Kcp.MTU_DEF;
 
         // server & client
-        KcpServer server; // USED IN WORKER THREAD. DON'T TOUCH FROM MAIN THREAD!
-        KcpClient client; // USED IN WORKER THREAD. DON'T TOUCH FROM MAIN THREAD!
+        protected KcpServer server; // USED IN WORKER THREAD. DON'T TOUCH FROM MAIN THREAD!
+        protected KcpClient client; // USED IN WORKER THREAD. DON'T TOUCH FROM MAIN THREAD!
 
         // copy MonoBehaviour.enabled for thread safe access
         volatile bool enabledCopy = true;
@@ -177,14 +175,7 @@ namespace kcp2k
         protected override void ThreadedClientLateUpdate() => client.TickOutgoing();
 
         // server thread overrides
-        public override Uri ServerUri()
-        {
-            UriBuilder builder = new UriBuilder();
-            builder.Scheme = Scheme;
-            builder.Host = Dns.GetHostName();
-            builder.Port = Port;
-            return builder.Uri;
-        }
+        public override Uri ServerUri() => TryBuildValidUri(Scheme, Dns.GetHostName(), Port);
         protected override void ThreadedServerStart() => server.Start(Port);
         protected override void ThreadedServerSend(int connectionId, ArraySegment<byte> segment, int channelId)
         {
@@ -284,8 +275,8 @@ namespace kcp2k
             */
         }
 
-// OnGUI allocates even if it does nothing. avoid in release.
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        // OnGUI allocates even if it does nothing. avoid in release.
+#if UNITY_EDITOR || (!UNITY_SERVER && DEBUG)
         protected virtual void OnGUI()
         {
             if (statisticsGUI) OnGUIStatistics();

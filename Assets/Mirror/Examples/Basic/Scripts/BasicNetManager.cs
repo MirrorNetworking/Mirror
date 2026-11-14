@@ -5,18 +5,6 @@ namespace Mirror.Examples.Basic
     [AddComponentMenu("")]
     public class BasicNetManager : NetworkManager
     {
-        public static new BasicNetManager singleton { get; private set; }
-
-        /// <summary>
-        /// Runs on both Server and Client
-        /// Networking is NOT initialized when this fires
-        /// </summary>
-        public override void Awake()
-        {
-            base.Awake();
-            singleton = this;
-        }
-
         /// <summary>
         /// Called on the server when a client adds a new player with NetworkClient.AddPlayer.
         /// <para>The default implementation for this function creates a new player object from the playerPrefab.</para>

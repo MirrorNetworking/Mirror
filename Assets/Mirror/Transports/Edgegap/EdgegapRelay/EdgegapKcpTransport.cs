@@ -10,7 +10,7 @@ using kcp2k;
 
 namespace Edgegap
 {
-    [DisallowMultipleComponent]
+    [HelpURL("https://mirror-networking.gitbook.io/docs/manual/transports/edgegap-transports/edgegap-relay")]
     public class EdgegapKcpTransport : KcpTransport
     {
         [Header("Relay")]
@@ -53,14 +53,14 @@ namespace Edgegap
             client = new EdgegapKcpClient(
                 () => OnClientConnected.Invoke(),
                 (message, channel) => OnClientDataReceived.Invoke(message, FromKcpChannel(channel)),
-                () => OnClientDisconnected.Invoke(),
+                () => OnClientDisconnected?.Invoke(), // may be null in StopHost(): https://github.com/MirrorNetworking/Mirror/issues/3708
                 (error, reason) => OnClientError.Invoke(ToTransportError(error), reason),
                 config
             );
 
             // server
             server = new EdgegapKcpServer(
-                (connectionId) => OnServerConnected.Invoke(connectionId),
+                (connectionId, endPoint) => OnServerConnectedWithAddress.Invoke(connectionId, endPoint.PrettyAddress()),
                 (connectionId, message, channel) => OnServerDataReceived.Invoke(connectionId, message, FromKcpChannel(channel)),
                 (connectionId) => OnServerDisconnected.Invoke(connectionId),
                 (connectionId, error, reason) => OnServerError.Invoke(connectionId, ToTransportError(error), reason),
@@ -144,19 +144,23 @@ namespace Edgegap
             GUILayout.EndArea();
         }
 
-        // base OnGUI only shows in editor & development builds.
-        // here we always show it because we need the sessionid & userid buttons.
-#pragma warning disable CS0109
-        new void OnGUI()
+
+#if UNITY_EDITOR || (!UNITY_SERVER && DEBUG)
+        protected override void OnGUI()
         {
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
             base.OnGUI();
-#endif
             if (relayGUI) OnGUIRelay();
         }
+#elif UNITY_EDITOR || (!UNITY_SERVER && !DEBUG)
+        // base OnGUI only shows in editor & development builds.
+        // here we always show it because we need the sessionid & userid buttons.
+        void OnGUI()
+        {
+            if (relayGUI) OnGUIRelay();
+        }
+#endif
 
         public override string ToString() => "Edgegap Kcp Transport";
     }
-#pragma warning restore CS0109
 }
 //#endif MIRROR <- commented out because MIRROR isn't defined on first import yet

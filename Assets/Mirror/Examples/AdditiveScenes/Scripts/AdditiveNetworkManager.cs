@@ -14,18 +14,6 @@ namespace Mirror.Examples.AdditiveScenes
         [Tooltip("Add all sub-scenes to this list")]
         public string[] subScenes;
 
-        public static new AdditiveNetworkManager singleton { get; private set; }
-
-        /// <summary>
-        /// Runs on both Server and Client
-        /// Networking is NOT initialized when this fires
-        /// </summary>
-        public override void Awake()
-        {
-            base.Awake();
-            singleton = this;
-        }
-
         public override void OnStartServer()
         {
             base.OnStartServer();

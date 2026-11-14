@@ -504,7 +504,7 @@ namespace Mirror.Weaver
             worker.Emit(OpCodes.Ldarg_1);
             // base
             worker.Emit(OpCodes.Ldarg_0);
-            worker.Emit(OpCodes.Call, weaverTypes.NetworkBehaviourDirtyBitsReference);
+            worker.Emit(OpCodes.Ldfld, weaverTypes.NetworkBehaviourDirtyBitsReference);
             MethodReference writeUint64Func = writers.GetWriteFunc(weaverTypes.Import<ulong>(), ref WeavingFailed);
             worker.Emit(OpCodes.Call, writeUint64Func);
 
@@ -524,7 +524,7 @@ namespace Mirror.Weaver
                 // Generates: if ((base.get_syncVarDirtyBits() & 1uL) != 0uL)
                 // base
                 worker.Emit(OpCodes.Ldarg_0);
-                worker.Emit(OpCodes.Call, weaverTypes.NetworkBehaviourDirtyBitsReference);
+                worker.Emit(OpCodes.Ldfld, weaverTypes.NetworkBehaviourDirtyBitsReference);
                 // 8 bytes = long
                 worker.Emit(OpCodes.Ldc_I8, 1L << dirtyBit);
                 worker.Emit(OpCodes.And);

@@ -9,28 +9,21 @@ namespace Mirror
     [HelpURL("https://mirror-networking.gitbook.io/docs/guides/interest-management")]
     public abstract class InterestManagementBase : MonoBehaviour
     {
-        // Configures InterestManagementBase in NetworkServer/Client
-        // Do NOT check for active server or client here.
-        // OnEnable must always set the static aoi references.
-        // make sure to call base.OnEnable when overwriting!
-        // Previously used Awake()
+        // initialize NetworkServer/Client .aoi.
+        // previously we did this in Awake(), but that's called for disabled
+        // components too. if we do it OnEnable(), then it's not set for
+        // disabled components.
         protected virtual void OnEnable()
         {
-            if (NetworkServer.aoi == null)
-            {
-                NetworkServer.aoi = this;
-            }
-            else Debug.LogError($"Only one InterestManagement component allowed. {NetworkServer.aoi.GetType()} has been set up already.");
-
-            if (NetworkClient.aoi == null)
-            {
-                NetworkClient.aoi = this;
-            }
-            else Debug.LogError($"Only one InterestManagement component allowed. {NetworkClient.aoi.GetType()} has been set up already.");
+            // do not check if == null or error if already set.
+            // users may enabled/disable components randomly,
+            // causing this to be called multiple times.
+            NetworkServer.aoi = this;
+            NetworkClient.aoi = this;
         }
 
         [ServerCallback]
-        public virtual void Reset() {}
+        public virtual void ResetState() {}
 
         // Callback used by the visibility system to determine if an observer
         // (player) can see the NetworkIdentity. If this function returns true,
@@ -53,6 +46,35 @@ namespace Mirror
         {
             foreach (Renderer rend in identity.GetComponentsInChildren<Renderer>())
                 rend.enabled = visible;
+
+            // reason to also set lights/audio/terrain/etc.:
+            // Let's say players were holding a flashlight or magic wand with a particle effect. Without this, 
+            // host client would see the light / particles for all players in all subscenes because we don't 
+            // hide lights and particles. Host client would hear ALL audio sources in all subscenes too. We 
+            // hide the renderers, which covers basic objects and UI, but we don't hide anything else that may 
+            // be a child of a networked object. Same idea for cars with lights and sounds in other subscenes 
+            // that host client shouldn't see or hear...host client wouldn't see the car itself, but sees the 
+            // lights moving around and hears all of their engines / horns / etc.
+            foreach (Light light in identity.GetComponentsInChildren<Light>())
+                light.enabled = visible;
+
+            foreach (AudioSource audio in identity.GetComponentsInChildren<AudioSource>())
+                audio.enabled = visible;
+
+            foreach (Canvas canvas in identity.GetComponentsInChildren<Canvas>())
+                canvas.enabled = visible;
+
+            foreach (Terrain terrain in identity.GetComponentsInChildren<Terrain>())
+            {
+                terrain.drawHeightmap = visible;
+                terrain.drawTreesAndFoliage = visible;
+            }
+
+            foreach (ParticleSystem particle in identity.GetComponentsInChildren<ParticleSystem>())
+            {
+                ParticleSystem.EmissionModule emission = particle.emission;
+                emission.enabled = visible;
+            }
         }
 
         /// <summary>Called on the server when a new networked object is spawned.</summary>

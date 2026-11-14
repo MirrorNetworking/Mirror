@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -7,17 +7,7 @@ namespace Mirror.Examples.AdditiveLevels
     [AddComponentMenu("")]
     public class AdditiveLevelsNetworkManager : NetworkManager
     {
-        public static new AdditiveLevelsNetworkManager singleton { get; private set; }
-
-        /// <summary>
-        /// Runs on both Server and Client
-        /// Networking is NOT initialized when this fires
-        /// </summary>
-        public override void Awake()
-        {
-            base.Awake();
-            singleton = this;
-        }
+        public static new AdditiveLevelsNetworkManager singleton => (AdditiveLevelsNetworkManager)NetworkManager.singleton;
 
         [Header("Additive Scenes - First is start scene")]
 

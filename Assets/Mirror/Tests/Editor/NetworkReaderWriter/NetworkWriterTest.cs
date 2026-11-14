@@ -1341,7 +1341,15 @@ namespace Mirror.Tests.NetworkReaderWriter
             Assert.That(readList, Is.Null);
         }
 
-        [Test, Ignore("TODO")]
+        // writer.Write<T> for HashSet only works if it's actually used by weaver somewhere.
+        // so for TestHashSet() to pass, we need to pretend using a HashSet<int> somewhere.
+        class HashSetNetworkBehaviour : NetworkBehaviour
+        {
+            [Command]
+            public void CmdHashSet(HashSet<int> hashSet) {}
+        }
+
+        [Test] // requires HashSetNetworkBehaviour to exits!
         public void TestHashSet()
         {
             HashSet<int> original = new HashSet<int>() { 1, 2, 3, 4, 5 };
@@ -1353,7 +1361,7 @@ namespace Mirror.Tests.NetworkReaderWriter
             Assert.That(readHashSet, Is.EqualTo(original));
         }
 
-        [Test, Ignore("TODO")]
+        [Test] // requires HashSetNetworkBehaviour to exits!
         public void TestNullHashSet()
         {
             NetworkWriter writer = new NetworkWriter();
@@ -1404,7 +1412,8 @@ namespace Mirror.Tests.NetworkReaderWriter
 
             void WriteBadArray()
             {
-                writer.WriteInt(badLength);
+                // Reader/Writer encode null as count=0 and [] as count=1 (+1 offset)
+                writer.WriteVarUInt((uint)(badLength+1)); // Reader/Writer encode size headers as VarInt
                 int[] array = new int[testArraySize] { 1, 2, 3, 4 };
                 for (int i = 0; i < array.Length; i++)
                     writer.Write(array[i]);
@@ -1473,6 +1482,28 @@ namespace Mirror.Tests.NetworkReaderWriter
             EndOfStreamException exception = Assert.Throws<EndOfStreamException>(() =>
             {
                 _ = reader.ReadArray<int>();
+            });
+        }
+
+        [Test]
+        [TestCase(20_000)]
+        [TestCase(int.MaxValue)]
+        [TestCase(int.MaxValue - 1)]
+        public void TestReadHashSet_LengthIsTooBig(int badLength)
+        {
+            // write a VarUInt length that exceeds AllocationLimit.
+            // ReadHashSet uses VarUInt with +1 offset (0=null, so actual length = value-1).
+            NetworkWriter writer = new NetworkWriter();
+            Compression.CompressVarUInt(writer, (ulong)badLength + 1);
+            int[] array = new int[testArraySize] { 1, 2, 3, 4 };
+            for (int i = 0; i < array.Length; i++)
+                writer.Write(array[i]);
+
+            // attempt to read it — should throw due to allocation limit
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+            Assert.Throws<EndOfStreamException>(() =>
+            {
+                _ = reader.ReadHashSet<int>();
             });
         }
 

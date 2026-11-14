@@ -1,4 +1,5 @@
 // base class for networking tests to make things easier.
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
@@ -74,6 +75,18 @@ namespace Mirror.Tests
         {
             go = new GameObject();
             identity = go.AddComponent<NetworkIdentity>();
+            // Awake is only called in play mode.
+            // call manually for initialization.
+            identity.Awake();
+            // track
+            instantiated.Add(go);
+        }
+
+        protected void CreateNetworked(out GameObject go, out NetworkIdentity identity, Action<NetworkIdentity> preAwake)
+        {
+            go = new GameObject();
+            identity = go.AddComponent<NetworkIdentity>();
+            preAwake(identity);
             // Awake is only called in play mode.
             // call manually for initialization.
             identity.Awake();
@@ -269,6 +282,44 @@ namespace Mirror.Tests
             Assert.That(NetworkClient.spawned.ContainsKey(serverIdentity.netId));
         }
 
+        // create GameObject + NetworkIdentity + NetworkBehaviour & SPAWN
+        // => preAwake callbacks can be used to add network behaviours to the NI
+        // => ownerConnection can be NetworkServer.localConnection if needed.
+        // => returns objects from client and from server.
+        //    will be same in host mode.
+        protected void CreateNetworkedAndSpawn(
+            out GameObject serverGO, out NetworkIdentity serverIdentity, Action<NetworkIdentity> serverPreAwake,
+            out GameObject clientGO, out NetworkIdentity clientIdentity, Action<NetworkIdentity> clientPreAwake,
+            NetworkConnectionToClient ownerConnection = null)
+        {
+            // server & client need to be active before spawning
+            Debug.Assert(NetworkClient.active, "NetworkClient needs to be active before spawning.");
+            Debug.Assert(NetworkServer.active, "NetworkServer needs to be active before spawning.");
+
+            // create one on server, one on client
+            // (spawning has to find it on client, it doesn't create it)
+            CreateNetworked(out serverGO, out serverIdentity, serverPreAwake);
+            CreateNetworked(out clientGO, out clientIdentity, clientPreAwake);
+
+            // give both a scene id and register it on client for spawnables
+            clientIdentity.sceneId = serverIdentity.sceneId = (ulong)serverGO.GetHashCode();
+            NetworkClient.spawnableObjects[clientIdentity.sceneId] = clientIdentity;
+
+            // spawn
+            NetworkServer.Spawn(serverGO, ownerConnection);
+            ProcessMessages();
+
+            // double check isServer/isClient. avoids debugging headaches.
+            Assert.That(serverIdentity.isServer, Is.True);
+            Assert.That(clientIdentity.isClient, Is.True);
+
+            // double check that we have authority if we passed an owner connection
+            if (ownerConnection != null)
+                Debug.Assert(clientIdentity.isOwned == true, $"Behaviour Had Wrong Authority when spawned, This means that the test is broken and will give the wrong results");
+
+            // make sure the client really spawned it.
+            Assert.That(NetworkClient.spawned.ContainsKey(serverIdentity.netId));
+        }
         // create GameObject + NetworkIdentity + NetworkBehaviour & SPAWN
         // => ownerConnection can be NetworkServer.localConnection if needed.
         protected void CreateNetworkedAndSpawn<T>(out GameObject go, out NetworkIdentity identity, out T component, NetworkConnectionToClient ownerConnection = null)

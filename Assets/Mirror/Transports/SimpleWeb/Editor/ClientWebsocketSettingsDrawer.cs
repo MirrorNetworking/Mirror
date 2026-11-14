@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Mirror.SimpleWeb.Editor
 {
-#if UNITY_EDITOR
+#if UNITY_EDITOR && UNITY_2022_3_OR_NEWER
     [CustomPropertyDrawer(typeof(ClientWebsocketSettings))]
     public class ClientWebsocketSettingsDrawer : PropertyDrawer
     {

@@ -31,16 +31,56 @@ namespace Mirror.SimpleWeb
         public Thread receiveThread;
         public Thread sendThread;
 
-        public ManualResetEventSlim sendPending = new ManualResetEventSlim(false);
-        public ConcurrentQueue<ArrayBuffer> sendQueue = new ConcurrentQueue<ArrayBuffer>();
+        ManualResetEventSlim sendPending = new ManualResetEventSlim(false);
+        ConcurrentQueue<ArrayBuffer> sendQueue = new ConcurrentQueue<ArrayBuffer>();
 
         public Action<Connection> onDispose;
-        volatile bool hasDisposed;
+        volatile internal bool hasDisposed;
 
-        public Connection(TcpClient client, Action<Connection> onDispose)
+        Action<Connection> onSendQueueFull;
+        readonly int maxSendQueueSize;
+
+        public Connection(TcpClient client, Action<Connection> onDispose, Action<Connection> onSendQueueFull, int maxSendQueueSize)
         {
             this.client = client ?? throw new ArgumentNullException(nameof(client));
             this.onDispose = onDispose;
+            this.onSendQueueFull = onSendQueueFull;
+            this.maxSendQueueSize = maxSendQueueSize;
+        }
+
+        public void QueueSend(ArrayBuffer buffer)
+        {
+            bool queueFull = false;
+            lock (disposedLock)
+            {
+                if (hasDisposed)
+                {
+                    Log.Warn($"[SWT-Connection]: Message sent to id={connId} after it was disposed");
+                    buffer.Release();
+                }
+                else if (sendQueue.Count >= maxSendQueueSize)
+                {
+                    queueFull = true;
+                    buffer.Release();
+                }
+                else
+                {
+                    sendQueue.Enqueue(buffer);
+                    sendPending.Set();
+                }
+            }
+
+            if (queueFull)
+            {
+                Log.Warn($"[SWT-Connection]: Send queue was over {maxSendQueueSize} for {ToString()}, kicking connection.");
+                onSendQueueFull?.Invoke(this);
+                Dispose();
+            }
+        }
+
+        public (ManualResetEventSlim sendPending, ConcurrentQueue<ArrayBuffer> sendQueue) GetSendQueue()
+        {
+            return (sendPending, sendQueue);
         }
 
         /// <summary>
@@ -48,12 +88,12 @@ namespace Mirror.SimpleWeb
         /// </summary>
         public void Dispose()
         {
-            Log.Verbose($"[SWT-Connection]: Dispose {ToString()}");
+            Log.Verbose("[SWT-Connection]: Dispose {0}", ToString());
 
             // check hasDisposed first to stop ThreadInterruptedException on lock
             if (hasDisposed) return;
 
-            Log.Verbose($"[SWT-Connection]: Connection Close: {ToString()}");
+            Log.Info("[SWT-Connection]: Connection Closed: {0}", ToString());
 
             lock (disposedLock)
             {
@@ -61,6 +101,7 @@ namespace Mirror.SimpleWeb
                 if (hasDisposed) return;
 
                 hasDisposed = true;
+                Log.Verbose("[SWT-Connection]: Dispose Connection {0} hasDisposed set true", ToString());
 
                 // stop threads first so they don't try to use disposed objects
                 receiveThread.Interrupt();
@@ -76,7 +117,7 @@ namespace Mirror.SimpleWeb
                 }
                 catch (Exception e)
                 {
-                    Log.Exception(e);
+                    Log.Exception("[SWT-Connection]", e);
                 }
 
                 sendPending.Dispose();
@@ -85,7 +126,7 @@ namespace Mirror.SimpleWeb
                 while (sendQueue.TryDequeue(out ArrayBuffer buffer))
                     buffer.Release();
 
-                onDispose.Invoke(this);
+                onDispose?.Invoke(this);
             }
         }
 

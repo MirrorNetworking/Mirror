@@ -22,6 +22,7 @@ namespace Mirror.Examples.SnapshotInterpolationDemo
         public double bufferTime => server.sendInterval * snapshotSettings.bufferTimeMultiplier;
 
         // <servertime, snaps>
+        [System.NonSerialized]
         public SortedList<double, Snapshot3D> snapshots = new SortedList<double, Snapshot3D>();
 
         // for smooth interpolation, we need to interpolate along server time.
@@ -156,6 +157,7 @@ namespace Mirror.Examples.SnapshotInterpolationDemo
                 render.material.color = defaultColor;
         }
 
+#if !UNITY_SERVER || UNITY_EDITOR
         void OnGUI()
         {
             // display buffer size as number for easier debugging.
@@ -210,6 +212,7 @@ namespace Mirror.Examples.SnapshotInterpolationDemo
             GUILayout.EndHorizontal();
             GUILayout.EndArea();
         }
+#endif
 
         void OnValidate()
         {

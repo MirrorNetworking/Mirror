@@ -8,7 +8,7 @@ namespace Mirror.Weaver
     {
         public static MethodDefinition ProcessRpcInvoke(WeaverTypes weaverTypes, Writers writers, Readers readers, Logger Log, TypeDefinition td, MethodDefinition md, MethodDefinition rpcCallFunc, ref bool WeavingFailed)
         {
-            string rpcName = Weaver.GenerateMethodName(Weaver.InvokeRpcPrefix, md);
+            string rpcName = Weaver.GenerateMethodName(RemoteCalls.RemoteProcedureCalls.InvokeRpcPrefix, md);
 
             MethodDefinition rpc = new MethodDefinition(rpcName, MethodAttributes.Family | MethodAttributes.Static | MethodAttributes.HideBySig,
                                                         weaverTypes.Import(typeof(void)));
@@ -86,7 +86,7 @@ namespace Mirror.Weaver
             // otherwise each GetStableHash call requires O(N) complexity.
             // noticeable for long function names: 
             // https://github.com/MirrorNetworking/Mirror/issues/3375
-            worker.Emit(OpCodes.Ldc_I4, md.FullName.GetStableHashCode());
+            worker.Emit(OpCodes.Ldc_I4, md.FullName.GetStableHashCode16());
             // writer
             worker.Emit(OpCodes.Ldloc_0);
             worker.Emit(OpCodes.Ldc_I4, channel);

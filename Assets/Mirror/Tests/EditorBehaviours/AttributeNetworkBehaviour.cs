@@ -1,5 +1,8 @@
+using UnityEngine;
+
 namespace Mirror.Tests.EditorBehaviours.Attributes
 {
+    [AddComponentMenu("")]
     public class AttributeBehaviour_NetworkBehaviour : NetworkBehaviour
     {
         public static readonly float Expected_float = 2020f;

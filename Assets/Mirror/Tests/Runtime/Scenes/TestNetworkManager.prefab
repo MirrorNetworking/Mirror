@@ -46,11 +46,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   dontDestroyOnLoad: 0
   runInBackground: 0
-  startOnHeadless: 0
-  showDebugMessages: 0
-  serverTickRate: 30
+  headlessStartMode: 1
+  editorAutoStart: 0
+  sendRate: 30
+  autoStartServerBuild: 0
+  autoConnectClientBuild: 0
   offlineScene: 
   onlineScene: 
+  offlineSceneLoadDelay: 0
   transport: {fileID: 2509988586038888270}
   networkAddress: localhost
   maxConnections: 4
@@ -62,6 +65,21 @@ MonoBehaviour:
   autoCreatePlayer: 0
   playerSpawnMethod: 0
   spawnPrefabs: []
+  exceptionsDisconnect: 1
+  snapshotSettings:
+    bufferTimeMultiplier: 2
+    bufferLimit: 32
+    catchupNegativeThreshold: -1
+    catchupPositiveThreshold: 1
+    catchupSpeed: 0.019999999552965164
+    slowdownSpeed: 0.03999999910593033
+    driftEmaDuration: 1
+    dynamicAdjustment: 1
+    dynamicAdjustmentTolerance: 1
+    deliveryTimeEmaDuration: 2
+  evaluationMethod: 0
+  evaluationInterval: 3
+  timeInterpolationGui: 0
 --- !u!114 &2509988586038888270
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -74,41 +92,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6131cf1e8a1c14ef5b5253f86f3fc9c9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  OnClientConnected:
-    m_PersistentCalls:
-      m_Calls: []
-    m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine.CoreModule, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
-  OnClientDataReceived:
-    m_PersistentCalls:
-      m_Calls: []
-    m_TypeName: Mirror.ClientDataReceivedEvent, Mirror, Version=0.0.0.0, Culture=neutral,
-      PublicKeyToken=null
-  OnClientError:
-    m_PersistentCalls:
-      m_Calls: []
-    m_TypeName: Mirror.UnityEventException, Mirror, Version=0.0.0.0, Culture=neutral,
-      PublicKeyToken=null
-  OnClientDisconnected:
-    m_PersistentCalls:
-      m_Calls: []
-    m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine.CoreModule, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
-  OnServerConnected:
-    m_PersistentCalls:
-      m_Calls: []
-    m_TypeName: Mirror.UnityEventInt, Mirror, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-  OnServerDataReceived:
-    m_PersistentCalls:
-      m_Calls: []
-    m_TypeName: Mirror.ServerDataReceivedEvent, Mirror, Version=0.0.0.0, Culture=neutral,
-      PublicKeyToken=null
-  OnServerError:
-    m_PersistentCalls:
-      m_Calls: []
-    m_TypeName: Mirror.UnityEventIntException, Mirror, Version=0.0.0.0, Culture=neutral,
-      PublicKeyToken=null
-  OnServerDisconnected:
-    m_PersistentCalls:
-      m_Calls: []
-    m_TypeName: Mirror.UnityEventInt, Mirror, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null

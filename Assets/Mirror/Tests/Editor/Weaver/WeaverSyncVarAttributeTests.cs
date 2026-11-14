@@ -39,13 +39,6 @@ namespace Mirror.Weaver.Tests
         }
 
         [Test]
-        public void SyncVarsCantBeArray()
-        {
-            HasError("thisShouldntWork has invalid type. Use SyncLists instead of arrays",
-                "System.Int32[] WeaverSyncVarTests.SyncVarsCantBeArray.SyncVarsCantBeArray::thisShouldntWork");
-        }
-
-        [Test]
         public void SyncVarsSyncList()
         {
             // NOTE if this test fails without a warning:

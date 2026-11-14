@@ -50,9 +50,9 @@ namespace Mirror.Examples.AdditiveScenes
 
             if (target != null)
             {
-                transform.LookAt(target.transform.position + Vector3.down);
+                transform.LookAt(new Vector3(target.transform.position.x, 0, target.transform.position.z));
                 rotation = transform.rotation;
-                networkAnimator.SetTrigger("Fire");
+                //networkAnimator.SetTrigger("Shoot");
             }
         }
     }

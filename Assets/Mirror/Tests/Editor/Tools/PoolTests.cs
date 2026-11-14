@@ -35,6 +35,15 @@ namespace Mirror.Tests.Tools
         }
 
         [Test]
+        public void ReturnNull()
+        {
+            // make sure we can't accidentally insert null values into the pool.
+            // debugging this would be hard since it would only show on get().
+            Assert.That(() => pool.Return(null), Throws.ArgumentNullException);
+            Assert.That(pool.Count, Is.EqualTo(0));
+        }
+
+        [Test]
         public void Count()
         {
             Assert.That(pool.Count, Is.EqualTo(0));

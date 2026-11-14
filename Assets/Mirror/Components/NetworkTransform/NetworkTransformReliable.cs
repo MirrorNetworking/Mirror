@@ -8,21 +8,16 @@ namespace Mirror
     [AddComponentMenu("Network/Network Transform (Reliable)")]
     public class NetworkTransformReliable : NetworkTransformBase
     {
-        [Header("Sync Only If Changed")]
-        [Tooltip("When true, changes are not sent unless greater than sensitivity values below.")]
-        public bool onlySyncOnChange = true;
-
         uint sendIntervalCounter = 0;
         double lastSendIntervalTime = double.MinValue;
 
+        [Header("Additional Settings")]
         [Tooltip("If we only sync on change, then we need to correct old snapshots if more time than sendInterval * multiplier has elapsed.\n\nOtherwise the first move will always start interpolating from the last move sequence's time, which will make it stutter when starting every time.")]
         public float onlySyncOnChangeCorrectionMultiplier = 2;
 
         [Header("Rotation")]
         [Tooltip("Sensitivity of changes needed before an updated state is sent over the network")]
         public float rotationSensitivity = 0.01f;
-        [Tooltip("Apply smallest-three quaternion compression. This is lossy, you can disable it if the small rotation inaccuracies are noticeable in your project.")]
-        public bool compressRotation = false;
 
         // delta compression is capable of detecting byte-level changes.
         // if we scale float position to bytes,
@@ -34,6 +29,8 @@ namespace Mirror
         [Tooltip("Position is rounded in order to drastically minimize bandwidth.\n\nFor example, a precision of 0.01 rounds to a centimeter. In other words, sub-centimeter movements aren't synced until they eventually exceeded an actual centimeter.\n\nDepending on how important the object is, a precision of 0.01-0.10 (1-10 cm) is recommended.\n\nFor example, even a 1cm precision combined with delta compression cuts the Benchmark demo's bandwidth in half, compared to sending every tiny change.")]
         [Range(0.00_01f, 1f)]                   // disallow 0 division. 1mm to 1m precision is enough range.
         public float positionPrecision = 0.01f; // 1 cm
+
+        [Tooltip("Scale is rounded in order to drastically minimize bandwidth.\n\nFor example, a precision of 0.01 rounds the multiplier to 1/100th. In other words, sub-1/100th scale changes aren't synced until they eventually exceeded an actual 1/100th change.\n\nDepending on how important the object is, a precision of 0.01-0.1 (1-10 hundredths) is recommended.\n\nFor example, even a 1/100th precision combined with delta compression cuts the Benchmark demo's bandwidth in half, compared to sending every tiny change.")]
         [Range(0.00_01f, 1f)]                   // disallow 0 division. 1mm to 1m precision is enough range.
         public float scalePrecision = 0.01f; // 1 cm
 
@@ -47,20 +44,43 @@ namespace Mirror
         // Used to store last sent snapshots
         protected TransformSnapshot last;
 
-        protected int lastClientCount = 1;
-
-        // update //////////////////////////////////////////////////////////////
-        void Update()
+        // validation //////////////////////////////////////////////////////////
+        // Configure is called from OnValidate and Awake
+        protected override void Configure()
         {
-            // if server then always sync to others.
-            if (isServer) UpdateServer();
-            // 'else if' because host mode shouldn't send anything to server.
-            // it is the server. don't overwrite anything there.
-            else if (isClient) UpdateClient();
+            base.Configure();
+
+            ResetState();
+
+            // force syncMethod to reliable
+            syncMethod = SyncMethod.Reliable;
         }
 
-        void LateUpdate()
+        // update //////////////////////////////////////////////////////////////
+        protected virtual void Update()
         {
+            if (updateMethod == UpdateMethod.Update)
+                DoUpdate();
+        }
+
+        protected virtual void FixedUpdate()
+        {
+            if (updateMethod == UpdateMethod.FixedUpdate)
+                DoUpdate();
+
+            if (pendingSnapshot.HasValue && !IsClientWithAuthority)
+            {
+                // Apply via base method, but in FixedUpdate
+                Apply(pendingSnapshot.Value, pendingSnapshot.Value);
+                pendingSnapshot = null;
+            }
+        }
+
+        protected virtual void LateUpdate()
+        {
+            if (updateMethod == UpdateMethod.LateUpdate)
+                DoUpdate();
+
             // set dirty to trigger OnSerialize. either always, or only if changed.
             // It has to be checked in LateUpdate() for onlySyncOnChange to avoid
             // the possibility of Update() running first before the object's movement
@@ -68,11 +88,20 @@ namespace Mirror
             // instead.
             if (isServer || (IsClientWithAuthority && NetworkClient.ready))
             {
-                if (sendIntervalCounter == sendIntervalMultiplier && (!onlySyncOnChange || Changed(Construct())))
+                if (sendIntervalCounter >= sendIntervalMultiplier && (!onlySyncOnChange || Changed(Construct())))
                     SetDirty();
 
                 CheckLastSendTime();
             }
+        }
+
+        void DoUpdate()
+        {
+            // if server then always sync to others.
+            if (isServer) UpdateServer();
+            // 'else if' because host mode shouldn't send anything to server.
+            // it is the server. don't overwrite anything there.
+            else if (isClient) UpdateClient();
         }
 
         protected virtual void UpdateServer()
@@ -109,27 +138,42 @@ namespace Mirror
 
         protected virtual void UpdateClient()
         {
-            // client authority, and local player (= allowed to move myself)?
-            if (!IsClientWithAuthority)
+            if (updateMethod == UpdateMethod.FixedUpdate)
             {
-                // only while we have snapshots
-                if (clientSnapshots.Count > 0)
+                if (!IsClientWithAuthority && clientSnapshots.Count > 0)
                 {
-                    // step the interpolation without touching time.
-                    // NetworkClient is responsible for time globally.
                     SnapshotInterpolation.StepInterpolation(
                         clientSnapshots,
-                        NetworkTime.time, // == NetworkClient.localTimeline from snapshot interpolation
+                        NetworkTime.unscaledTime,
                         out TransformSnapshot from,
                         out TransformSnapshot to,
-                        out double t);
-
-                    // interpolate & apply
-                    TransformSnapshot computed = TransformSnapshot.Interpolate(from, to, t);
-                    Apply(computed, to);
+                        out double t
+                    );
+                    pendingSnapshot = TransformSnapshot.Interpolate(from, to, t);
                 }
+            }
+            else
+            {
+                // client authority, and local player (= allowed to move myself)?
+                if (!IsClientWithAuthority)
+                {
+                    // only while we have snapshots
+                    if (clientSnapshots.Count > 0)
+                    {
+                        // step the interpolation without touching time.
+                        // NetworkClient is responsible for time globally.
+                        SnapshotInterpolation.StepInterpolation(
+                            clientSnapshots,
+                            NetworkTime.unscaledTime, // == NetworkClient.localTimeline from snapshot interpolation
+                            out TransformSnapshot from,
+                            out TransformSnapshot to,
+                            out double t);
 
-                lastClientCount = clientSnapshots.Count;
+                        // interpolate & apply
+                        TransformSnapshot computed = TransformSnapshot.Interpolate(from, to, t);
+                        Apply(computed, to);
+                    }
+                }
             }
         }
 
@@ -138,7 +182,7 @@ namespace Mirror
             // timeAsDouble not available in older Unity versions.
             if (AccurateInterval.Elapsed(NetworkTime.localTime, NetworkServer.sendInterval, ref lastSendIntervalTime))
             {
-                if (sendIntervalCounter == sendIntervalMultiplier)
+                if (sendIntervalCounter >= sendIntervalMultiplier)
                     sendIntervalCounter = 0;
                 sendIntervalCounter++;
             }
@@ -405,22 +449,49 @@ namespace Mirror
             );
         }
 
+        // modify base OnTeleport to NOT reset lastDe/Serialized,
+        // otherwise delta serialization breaks on teleport.
+        protected override void OnTeleport(Vector3 destination)
+        {
+            // set the new position.
+            // interpolation will automatically continue.
+            target.position = destination;
+
+            // reset interpolation to immediately jump to the new position.
+            // do not call Reset() here, this would cause delta compression to
+            // get out of sync for NetworkTransformReliable because NTReliable's
+            // 'override Reset()' resets lastDe/SerializedPosition:
+            // https://github.com/MirrorNetworking/Mirror/issues/3588
+            // because client's next OnSerialize() will delta compress,
+            // but server's last delta will have been reset, causing offsets.
+            //
+            // instead, simply clear snapshots.
+            base.ResetState(); // ! OVERWRITE ! only call base.ResetState, don't reset deltas!
+        }
+
         // reset state for next session.
         // do not ever call this during a session (i.e. after teleport).
         // calling this will break delta compression.
-        public override void Reset()
+        public override void ResetState()
         {
-            base.Reset();
-
-            // reset delta
-            lastSerializedPosition = Vector3Long.zero;
-            lastDeserializedPosition = Vector3Long.zero;
-
-            lastSerializedScale = Vector3Long.zero;
-            lastDeserializedScale = Vector3Long.zero;
+            base.ResetState();
 
             // reset 'last' for delta too
-            last = new TransformSnapshot(0, 0, Vector3.zero, Quaternion.identity, Vector3.zero);
+            last = new TransformSnapshot(
+                0, 0,
+                GetPosition(),
+                GetRotation(),
+                GetScale()
+            );
+
+            // Initialize delta compression baselines from current transform position.
+            // This prevents false change detection and incorrect delta compression.
+            if (syncPosition) Compression.ScaleToLong(GetPosition(), positionPrecision, out lastSerializedPosition);
+            if (syncScale) Compression.ScaleToLong(GetScale(), scalePrecision, out lastSerializedScale);
+
+            // Also set lastDeserialized to match
+            lastDeserializedPosition = lastSerializedPosition;
+            lastDeserializedScale = lastSerializedScale;
         }
     }
 }

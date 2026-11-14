@@ -74,7 +74,7 @@ namespace Mirror.Tests.SyncCollections
         [Test]
         public void CurlyBracesConstructor()
         {
-            SyncList<int> list = new SyncList<int>{1,2,3};
+            SyncList<int> list = new SyncList<int> { 1, 2, 3 };
             Assert.That(list.Count, Is.EqualTo(3));
         }
 
@@ -97,17 +97,69 @@ namespace Mirror.Tests.SyncCollections
         [Test]
         public void TestClear()
         {
+            bool called = false;
+            clientSyncList.OnChange = (op, index, oldItem) =>
+            {
+                called = true;
+
+                Assert.That(op, Is.EqualTo(SyncList<string>.Operation.OP_CLEAR));
+                Assert.That(clientSyncList.Count, Is.EqualTo(3));
+            };
+            clientSyncList.Callback = (op, index, oldItem, newItem) =>
+            {
+                called = true;
+
+                Assert.That(op, Is.EqualTo(SyncList<string>.Operation.OP_CLEAR));
+                Assert.That(clientSyncList.Count, Is.EqualTo(3));
+            };
+
+            bool actionCalled = false;
+            clientSyncList.OnClear = () =>
+            {
+                actionCalled = true;
+                Assert.That(clientSyncList.Count, Is.EqualTo(3));
+            };
+
             serverSyncList.Clear();
             SerializeDeltaTo(serverSyncList, clientSyncList);
-            Assert.That(clientSyncList, Is.EquivalentTo(new string[] {}));
+            Assert.That(clientSyncList, Is.EquivalentTo(new string[] { }));
+            Assert.That(called, Is.True);
+            Assert.That(actionCalled, Is.True);
         }
 
         [Test]
         public void TestInsert()
         {
+            bool called = false;
+            clientSyncList.OnChange = (op, index, oldItem) =>
+            {
+                called = true;
+
+                Assert.That(op, Is.EqualTo(SyncList<string>.Operation.OP_INSERT));
+                Assert.That(index, Is.EqualTo(0));
+                Assert.That(clientSyncList[index], Is.EqualTo("yay"));
+            };
+            clientSyncList.Callback = (op, index, oldItem, newItem) =>
+            {
+                called = true;
+
+                Assert.That(op, Is.EqualTo(SyncList<string>.Operation.OP_INSERT));
+                Assert.That(index, Is.EqualTo(0));
+                Assert.That(newItem, Is.EqualTo("yay"));
+            };
+
+            bool actionCalled = false;
+            clientSyncList.OnInsert = (index) =>
+            {
+                actionCalled = true;
+                Assert.That(index, Is.EqualTo(0));
+            };
+
             serverSyncList.Insert(0, "yay");
             SerializeDeltaTo(serverSyncList, clientSyncList);
             Assert.That(clientSyncList, Is.EquivalentTo(new[] { "yay", "Hello", "World", "!" }));
+            Assert.That(called, Is.True);
+            Assert.That(actionCalled, Is.True);
         }
 
         [Test]
@@ -121,19 +173,85 @@ namespace Mirror.Tests.SyncCollections
         [Test]
         public void TestSet()
         {
+            bool called = false;
+            clientSyncList.OnChange = (op, index, oldItem) =>
+            {
+                called = true;
+
+                Assert.That(op, Is.EqualTo(SyncList<string>.Operation.OP_SET));
+                Assert.That(index, Is.EqualTo(1));
+                Assert.That(oldItem, Is.EqualTo("World"));
+                Assert.That(clientSyncList[index], Is.EqualTo("yay"));
+            };
+            clientSyncList.Callback = (op, index, oldItem, newItem) =>
+            {
+                called = true;
+
+                Assert.That(op, Is.EqualTo(SyncList<string>.Operation.OP_SET));
+                Assert.That(index, Is.EqualTo(1));
+                Assert.That(oldItem, Is.EqualTo("World"));
+                Assert.That(newItem, Is.EqualTo("yay"));
+            };
+
+            bool actionCalled = false;
+            clientSyncList.OnSet = (index, oldItem) =>
+            {
+                actionCalled = true;
+                Assert.That(index, Is.EqualTo(1));
+                Assert.That(oldItem, Is.EqualTo("World"));
+            };
+
             serverSyncList[1] = "yay";
             SerializeDeltaTo(serverSyncList, clientSyncList);
             Assert.That(clientSyncList[1], Is.EqualTo("yay"));
             Assert.That(clientSyncList, Is.EquivalentTo(new[] { "Hello", "yay", "!" }));
+            Assert.That(called, Is.True);
+            Assert.That(actionCalled, Is.True);
         }
 
         [Test]
         public void TestSetNull()
         {
+            bool called = false;
+            clientSyncList.OnChange = (op, index, oldItem) =>
+            {
+                called = true;
+
+                Assert.That(op, Is.EqualTo(SyncList<string>.Operation.OP_SET));
+                Assert.That(index, Is.EqualTo(1));
+                Assert.That(oldItem, Is.EqualTo("World"));
+                Assert.That(clientSyncList[index], Is.EqualTo(null));
+            };
+            clientSyncList.Callback = (op, index, oldItem, newItem) =>
+            {
+                called = true;
+
+                Assert.That(op, Is.EqualTo(SyncList<string>.Operation.OP_SET));
+                Assert.That(index, Is.EqualTo(1));
+                Assert.That(oldItem, Is.EqualTo("World"));
+                Assert.That(newItem, Is.EqualTo(null));
+            };
+
+            bool actionCalled = false;
+            clientSyncList.OnSet = (index, oldItem) =>
+            {
+                actionCalled = true;
+                Assert.That(index, Is.EqualTo(1));
+                Assert.That(oldItem, Is.EqualTo("World"));
+            };
+
             serverSyncList[1] = null;
             SerializeDeltaTo(serverSyncList, clientSyncList);
             Assert.That(clientSyncList[1], Is.EqualTo(null));
             Assert.That(clientSyncList, Is.EquivalentTo(new[] { "Hello", null, "!" }));
+            Assert.That(called, Is.True);
+            Assert.That(actionCalled, Is.True);
+
+            // clear handlers so we don't get called again
+            clientSyncList.OnChange = null;
+            clientSyncList.Callback = null;
+            clientSyncList.OnSet = null;
+
             serverSyncList[1] = "yay";
             SerializeDeltaTo(serverSyncList, clientSyncList);
             Assert.That(clientSyncList, Is.EquivalentTo(new[] { "Hello", "yay", "!" }));
@@ -142,9 +260,38 @@ namespace Mirror.Tests.SyncCollections
         [Test]
         public void TestRemoveAll()
         {
+            bool called = false;
+            clientSyncList.OnChange = (op, index, oldItem) =>
+            {
+                called = true;
+
+                Assert.That(op, Is.EqualTo(SyncList<string>.Operation.OP_REMOVEAT));
+                Assert.That(index, Is.EqualTo(0));
+                Assert.That(oldItem, Is.Not.EqualTo("!"));
+            };
+            clientSyncList.Callback = (op, index, oldItem, newItem) =>
+            {
+                called = true;
+
+                Assert.That(op, Is.EqualTo(SyncList<string>.Operation.OP_REMOVEAT));
+                Assert.That(index, Is.EqualTo(0));
+                Assert.That(oldItem, Is.Not.EqualTo("!"));
+            };
+
+            bool actionCalled = false;
+            clientSyncList.OnRemove = (index, item) =>
+            {
+                actionCalled = true;
+                Assert.That(index, Is.EqualTo(0));
+                Assert.That(item, Is.Not.EqualTo("!"));
+            };
+
+            // This will remove "Hello" and "World"
             serverSyncList.RemoveAll(entry => entry.Contains("l"));
             SerializeDeltaTo(serverSyncList, clientSyncList);
             Assert.That(clientSyncList, Is.EquivalentTo(new[] { "!" }));
+            Assert.That(called, Is.True);
+            Assert.That(actionCalled, Is.True);
         }
 
         [Test]
@@ -158,17 +305,73 @@ namespace Mirror.Tests.SyncCollections
         [Test]
         public void TestRemoveAt()
         {
+            bool called = false;
+            clientSyncList.OnChange = (op, index, oldItem) =>
+            {
+                called = true;
+
+                Assert.That(op, Is.EqualTo(SyncList<string>.Operation.OP_REMOVEAT));
+                Assert.That(index, Is.EqualTo(1));
+                Assert.That(oldItem, Is.EqualTo("World"));
+            };
+            clientSyncList.Callback = (op, index, oldItem, newItem) =>
+            {
+                called = true;
+
+                Assert.That(op, Is.EqualTo(SyncList<string>.Operation.OP_REMOVEAT));
+                Assert.That(index, Is.EqualTo(1));
+                Assert.That(oldItem, Is.EqualTo("World"));
+            };
+
+            bool actionCalled = false;
+            clientSyncList.OnRemove = (index, oldItem) =>
+            {
+                actionCalled = true;
+                Assert.That(index, Is.EqualTo(1));
+                Assert.That(oldItem, Is.EqualTo("World"));
+            };
+
             serverSyncList.RemoveAt(1);
             SerializeDeltaTo(serverSyncList, clientSyncList);
             Assert.That(clientSyncList, Is.EquivalentTo(new[] { "Hello", "!" }));
+            Assert.That(called, Is.True);
+            Assert.That(actionCalled, Is.True);
         }
 
         [Test]
         public void TestRemove()
         {
+            bool called = false;
+            clientSyncList.OnChange = (op, index, oldItem) =>
+            {
+                called = true;
+
+                Assert.That(op, Is.EqualTo(SyncList<string>.Operation.OP_REMOVEAT));
+                Assert.That(index, Is.EqualTo(1));
+                Assert.That(oldItem, Is.EqualTo("World"));
+            };
+            clientSyncList.Callback = (op, index, oldItem, newItem) =>
+            {
+                called = true;
+
+                Assert.That(op, Is.EqualTo(SyncList<string>.Operation.OP_REMOVEAT));
+                Assert.That(index, Is.EqualTo(1));
+                Assert.That(oldItem, Is.EqualTo("World"));
+            };
+
+            bool actionCalled = false;
+            clientSyncList.OnRemove = (index, oldItem) =>
+            {
+                actionCalled = true;
+                Assert.That(index, Is.EqualTo(1));
+                Assert.That(oldItem, Is.EqualTo("World"));
+            };
+
             serverSyncList.Remove("World");
             SerializeDeltaTo(serverSyncList, clientSyncList);
             Assert.That(clientSyncList, Is.EquivalentTo(new[] { "Hello", "!" }));
+            Assert.That(called, Is.True);
+            Assert.That(actionCalled, Is.True);
         }
 
         [Test]
@@ -276,62 +479,107 @@ namespace Mirror.Tests.SyncCollections
         [Test]
         public void CallbackTest()
         {
-            bool called = false;
-
-            clientSyncList.Callback += (op, index, oldItem, newItem) =>
+            bool actionCalled = false;
+            clientSyncList.OnAdd = (index) =>
             {
-                called = true;
+                actionCalled = true;
+                Assert.That(index, Is.EqualTo(3));
+                Assert.That(clientSyncList[index], Is.EqualTo("yay"));
+            };
 
+            bool changeActionCalled = false;
+            clientSyncList.OnChange = (op, index, newItem) =>
+            {
+                changeActionCalled = true;
                 Assert.That(op, Is.EqualTo(SyncList<string>.Operation.OP_ADD));
                 Assert.That(index, Is.EqualTo(3));
-                Assert.That(oldItem, Is.EqualTo(default(string)));
+                Assert.That(newItem, Is.EqualTo("yay"));
+                Assert.That(clientSyncList[index], Is.EqualTo("yay"));
+            };
+            bool callbackActionCalled = false;
+            clientSyncList.Callback = (op, index, oldItem, newItem) =>
+            {
+                callbackActionCalled = true;
+                Assert.That(op, Is.EqualTo(SyncList<string>.Operation.OP_ADD));
+                Assert.That(index, Is.EqualTo(3));
+                Assert.That(oldItem, Is.Null);
                 Assert.That(newItem, Is.EqualTo("yay"));
             };
 
             serverSyncList.Add("yay");
             SerializeDeltaTo(serverSyncList, clientSyncList);
-
-            Assert.That(called, Is.True);
+            Assert.That(actionCalled, Is.True);
+            Assert.That(changeActionCalled, Is.True);
+            Assert.That(callbackActionCalled, Is.True);
         }
 
         [Test]
         public void CallbackRemoveTest()
         {
-            bool called = false;
-
-            clientSyncList.Callback += (op, index, oldItem, newItem) =>
+            bool actionCalled = false;
+            clientSyncList.OnRemove = (index, oldItem) =>
             {
-                called = true;
-
-                Assert.That(op, Is.EqualTo(SyncList<string>.Operation.OP_REMOVEAT));
+                actionCalled = true;
+                Assert.That(index, Is.EqualTo(1));
                 Assert.That(oldItem, Is.EqualTo("World"));
-                Assert.That(newItem, Is.EqualTo(default(string)));
             };
+
+            bool changeActionCalled = false;
+            clientSyncList.OnChange = (op, index, oldItem) =>
+            {
+                changeActionCalled = true;
+                Assert.That(op, Is.EqualTo(SyncList<string>.Operation.OP_REMOVEAT));
+                Assert.That(index, Is.EqualTo(1));
+            };
+            bool callbackActionCalled = false;
+            clientSyncList.Callback = (op, index, oldItem, newItem) =>
+            {
+                callbackActionCalled = true;
+                Assert.That(op, Is.EqualTo(SyncList<string>.Operation.OP_REMOVEAT));
+                Assert.That(index, Is.EqualTo(1));
+            };
+
             serverSyncList.Remove("World");
             SerializeDeltaTo(serverSyncList, clientSyncList);
-
-            Assert.That(called, Is.True);
+            Assert.That(actionCalled, Is.True);
+            Assert.That(changeActionCalled, Is.True);
+            Assert.That(callbackActionCalled, Is.True);
         }
 
         [Test]
         public void CallbackRemoveAtTest()
         {
-            bool called = false;
-
-            clientSyncList.Callback += (op, index, oldItem, newItem) =>
+            bool actionCalled = false;
+            clientSyncList.OnRemove = (index, oldItem) =>
             {
-                called = true;
+                actionCalled = true;
+                Assert.That(index, Is.EqualTo(1));
+                Assert.That(oldItem, Is.EqualTo("World"));
+            };
 
+            bool changeActionCalled = false;
+            clientSyncList.OnChange = (op, index, oldItem) =>
+            {
+                changeActionCalled = true;
                 Assert.That(op, Is.EqualTo(SyncList<string>.Operation.OP_REMOVEAT));
                 Assert.That(index, Is.EqualTo(1));
                 Assert.That(oldItem, Is.EqualTo("World"));
-                Assert.That(newItem, Is.EqualTo(default(string)));
+            };
+            bool callbackActionCalled = false;
+            clientSyncList.Callback = (op, index, oldItem, newItem) =>
+            {
+                callbackActionCalled = true;
+                Assert.That(op, Is.EqualTo(SyncList<string>.Operation.OP_REMOVEAT));
+                Assert.That(index, Is.EqualTo(1));
+                Assert.That(oldItem, Is.EqualTo("World"));
+                Assert.That(newItem, Is.Null);
             };
 
             serverSyncList.RemoveAt(1);
             SerializeDeltaTo(serverSyncList, clientSyncList);
-
-            Assert.That(called, Is.True);
+            Assert.That(actionCalled, Is.True);
+            Assert.That(changeActionCalled, Is.True);
+            Assert.That(callbackActionCalled, Is.True);
         }
 
         [Test]
@@ -357,15 +605,18 @@ namespace Mirror.Tests.SyncCollections
         {
             // Sync Delta to clear dirty
             Assert.That(serverSyncListDirtyCalled, Is.EqualTo(0));
+            Assert.That(clientSyncListDirtyCalled, Is.EqualTo(0));
             SerializeDeltaTo(serverSyncList, clientSyncList);
 
             // nothing to send
             Assert.That(serverSyncListDirtyCalled, Is.EqualTo(0));
+            Assert.That(clientSyncListDirtyCalled, Is.EqualTo(0));
 
             // something has changed
             serverSyncList.Add("1");
             Assert.That(serverSyncListDirtyCalled, Is.EqualTo(1));
             SerializeDeltaTo(serverSyncList, clientSyncList);
+            Assert.That(clientSyncListDirtyCalled, Is.EqualTo(1));
         }
 
         [Test]

@@ -65,7 +65,7 @@ namespace kcp2k
         // some callbacks need to wrapped with some extra logic
         protected override void OnAuthenticated()
         {
-            Log.Info($"KcpClient: OnConnected");
+            Log.Info($"[KCP] Client: OnConnected");
             connected = true;
             OnConnectedCallback();
         }
@@ -78,7 +78,7 @@ namespace kcp2k
 
         protected override void OnDisconnected()
         {
-            Log.Info($"KcpClient: OnDisconnected");
+            Log.Info($"[KCP] Client: OnDisconnected");
             connected = false;
             socket?.Close();
             socket = null;
@@ -92,7 +92,7 @@ namespace kcp2k
         {
             if (connected)
             {
-                Log.Warning("KcpClient: already connected!");
+                Log.Warning("[KCP] Client: already connected!");
                 return;
             }
 
@@ -110,7 +110,7 @@ namespace kcp2k
             // client doesn't need secure cookie.
             Reset(config);
 
-            Log.Info($"KcpClient: connect to {address}:{port}");
+            Log.Info($"[KCP] Client: connect to {address}:{port}");
 
             // create socket
             remoteEndPoint = new IPEndPoint(addresses[0], port);
@@ -156,7 +156,7 @@ namespace kcp2k
                 // at least log a message for easier debugging.
                 // for example, his can happen when connecting without a server.
                 // see test: ConnectWithoutServer().
-                Log.Info($"KcpClient: looks like the other end has closed the connection. This is fine: {e}");
+                Log.Info($"[KCP] Client.RawReceive: looks like the other end has closed the connection. This is fine: {e}");
                 base.Disconnect();
                 return false;
             }
@@ -166,13 +166,24 @@ namespace kcp2k
         // virtual so it may be modified for relays, etc.
         protected override void RawSend(ArraySegment<byte> data)
         {
+            // only if socket was connected / created yet.
+            // users may call send functions without having connected, causing NRE.
+            if (socket == null) return;
+
             try
             {
                 socket.SendNonBlocking(data);
             }
             catch (SocketException e)
             {
-                Log.Error($"KcpClient: Send failed: {e}");
+                // SendDisconnect() sometimes gets a SocketException with
+                // 'Connection Refused' if the other end already closed.
+                // this is not an 'error', it's expected to happen.
+                // but connections should never just end silently.
+                // at least log a message for easier debugging.
+                Log.Info($"[KCP] Client.RawSend: looks like the other end has closed the connection. This is fine: {e}");
+                // base.Disconnect(); <- don't call this, would deadlock if SendDisconnect() already throws
+
             }
         }
 
@@ -180,24 +191,11 @@ namespace kcp2k
         {
             if (!connected)
             {
-                Log.Warning("KcpClient: can't send because not connected!");
+                Log.Warning("[KCP] Client: can't send because not connected!");
                 return;
             }
 
             SendData(segment, channel);
-        }
-
-        public override void Disconnect()
-        {
-            // only if connected
-            // otherwise we end up in a deadlock because of an open Mirror bug:
-            // https://github.com/vis2k/Mirror/issues/2353
-            if (!connected) return;
-
-            // call Disconnect and let the connection handle it.
-            // DO NOT set it to null yet. it needs to be updated a few more
-            // times first. let the connection handle it!
-            base.Disconnect();
         }
 
         // insert raw IO. usually from socket.Receive.
@@ -217,17 +215,17 @@ namespace kcp2k
             Utils.Decode32U(segment.Array, segment.Offset + 1, out uint messageCookie);
             if (messageCookie == 0)
             {
-                Log.Error($"KcpClient: received message with cookie=0, this should never happen. Server should always include the security cookie.");
+                Log.Error($"[KCP] Client: received message with cookie=0, this should never happen. Server should always include the security cookie.");
             }
 
             if (cookie == 0)
             {
                 cookie = messageCookie;
-                Log.Info($"KcpClient: received initial cookie: {cookie}");
+                Log.Info($"[KCP] Client: received initial cookie: {cookie}");
             }
             else if (cookie != messageCookie)
             {
-                Log.Warning($"KcpClient: dropping message with mismatching cookie: {messageCookie} expected: {cookie}.");
+                Log.Warning($"[KCP] Client: dropping message with mismatching cookie: {messageCookie} expected: {cookie}.");
                 return;
             }
 
@@ -251,7 +249,7 @@ namespace kcp2k
                     // invalid channel indicates random internet noise.
                     // servers may receive random UDP data.
                     // just ignore it, but log for easier debugging.
-                    Log.Warning($"KcpClient: invalid channel header: {channel}, likely internet noise");
+                    Log.Warning($"[KCP] Client: invalid channel header: {channel}, likely internet noise");
                     break;
                 }
             }

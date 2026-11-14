@@ -25,14 +25,14 @@ namespace Mirror
         /// <para>Invoke CmdChangeReadyState method on the client to set this flag.</para>
         /// <para>When all players are ready to begin, the game will start. This should not be set directly, CmdChangeReadyState should be called on the client to set it on the server.</para>
         /// </summary>
-        [Tooltip("Diagnostic flag indicating whether this player is ready for the game to begin")]
+        [ReadOnly, Tooltip("Diagnostic flag indicating whether this player is ready for the game to begin")]
         [SyncVar(hook = nameof(ReadyStateChanged))]
         public bool readyToBegin;
 
         /// <summary>
         /// Diagnostic index of the player, e.g. Player1, Player2, etc.
         /// </summary>
-        [Tooltip("Diagnostic index of the player, e.g. Player1, Player2, etc.")]
+        [ReadOnly, Tooltip("Diagnostic index of the player, e.g. Player1, Player2, etc.")]
         [SyncVar(hook = nameof(IndexChanged))]
         public int index;
 
@@ -123,6 +123,7 @@ namespace Mirror
 
         #endregion
 
+#if !UNITY_SERVER || UNITY_EDITOR
         #region Optional UI
 
         /// <summary>
@@ -191,5 +192,6 @@ namespace Mirror
         }
 
         #endregion
+#endif
     }
 }

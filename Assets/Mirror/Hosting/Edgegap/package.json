@@ -1,0 +1,21 @@
+{
+    "name": "com.edgegap.unity-servers-plugin",
+    "version": "3.0.9",
+    "displayName": "Edgegap Servers Quickstart",
+    "description": "Get started quickly with Edgegap Dedicated Server hosting.",
+    "unity": "2021.3",
+    "unityRelease": "0f1",
+    "documentationUrl": "https://docs.edgegap.com/docs/tools-and-integrations/unity-plugin-guide",
+    "changelogUrl": "https://github.com/edgegap/edgegap-unity-plugin/releases",
+    "licensesUrl": "https://choosealicense.com/licenses/mit/",
+    "dependencies": {
+        "com.unity.nuget.newtonsoft-json": "3.2.1",
+        "com.unity.toolchain.win-x86_64-linux-x86_64": "2.0.6",
+        "com.unity.modules.uielements": "1.0.0"
+    },
+    "author": {
+        "name": "Edgegap Technologies",
+        "email": "contact@edgegap.com",
+        "url": "https://www.edgegap.com"
+    }
+}

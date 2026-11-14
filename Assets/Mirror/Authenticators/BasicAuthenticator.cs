@@ -16,7 +16,7 @@ namespace Mirror.Authenticators
         public string username;
         public string password;
 
-        readonly HashSet<NetworkConnection> connectionsPendingDisconnect = new HashSet<NetworkConnection>();
+        readonly HashSet<NetworkConnectionToClient> connectionsPendingDisconnect = new HashSet<NetworkConnectionToClient>();
 
         #region Messages
 

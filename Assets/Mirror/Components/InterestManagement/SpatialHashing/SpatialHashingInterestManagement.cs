@@ -1,12 +1,14 @@
 // extremely fast spatial hashing interest management based on uMMORPG GridChecker.
 // => 30x faster in initial tests
 // => scales way higher
+// checks on two dimensions only(!), for example: XZ for 3D games or XY for 2D games.
+// this is faster than XYZ checking but doesn't check vertical distance.
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace Mirror
 {
-    [AddComponentMenu("Network/ Interest Management/ Spatial Hash/Spatial Hashing Interest Management")]
+    [AddComponentMenu("Network/ Interest Management/ Spatial Hash/Grid Spatial Hash (2D)")]
     public class SpatialHashingInterestManagement : InterestManagement
     {
         [Tooltip("The maximum range that objects will be visible at.")]
@@ -36,7 +38,7 @@ namespace Mirror
         [Tooltip("Spatial Hashing supports 3D (XZ) and 2D (XY) games.")]
         public CheckMethod checkMethod = CheckMethod.XZ_FOR_3D;
 
-        // debugging
+        [Header("Debug Settings")]
         public bool showSlider;
 
         // the grid
@@ -72,7 +74,7 @@ namespace Mirror
         }
 
         [ServerCallback]
-        public override void Reset()
+        public override void ResetState()
         {
             lastRebuildTime = 0D;
         }
@@ -85,7 +87,7 @@ namespace Mirror
             // NOTE: unlike Scene/MatchInterestManagement, this rebuilds ALL
             //       entities every INTERVAL. consider the other approach later.
 
-            // IMPORTANT: refresh grid every update!
+            // Old Notes: refresh grid every update!
             // => newly spawned entities get observers assigned via
             //    OnCheckObservers. this can happen any time and we don't want
             //    them broadcast to old (moved or destroyed) connections.
@@ -93,14 +95,33 @@ namespace Mirror
             //    correct grid position.
             // => note that the actual 'rebuildall' doesn't need to happen all
             //    the time.
-            // NOTE: consider refreshing grid only every 'interval' too. but not
-            //       for now. stability & correctness matter.
+
+            // Updated Notes: refresh grid and RebuildAll every interval.
+            // Real world application would have visRange larger than camera
+            // far clip plane, e.g. 1200, and a player movement speed of ~10m/sec
+            // so they typically won't cross cell boundaries quickly. If users notice
+            // flickering or mis-positioning, they can decrease the interval.
 
             // clear old grid results before we update everyone's position.
             // (this way we get rid of destroyed connections automatically)
             //
             // NOTE: keeps allocated HashSets internally.
             //       clearing & populating every frame works without allocations
+
+            // rebuild all spawned entities' observers every 'interval'
+            // this will call OnRebuildObservers which then returns the
+            // observers at grid[position] for each entity.
+            if (NetworkTime.localTime >= lastRebuildTime + rebuildInterval)
+            {
+                RefreshGrid();
+                RebuildAll();
+                lastRebuildTime = NetworkTime.localTime;
+            }
+        }
+
+        // (internal so we can update from tests)
+        internal void RefreshGrid()
+        {
             grid.ClearNonAlloc();
 
             // put every connection into the grid at it's main player's position
@@ -117,19 +138,10 @@ namespace Mirror
                     grid.Add(position, connection);
                 }
             }
-
-            // rebuild all spawned entities' observers every 'interval'
-            // this will call OnRebuildObservers which then returns the
-            // observers at grid[position] for each entity.
-            if (NetworkTime.localTime >= lastRebuildTime + rebuildInterval)
-            {
-                RebuildAll();
-                lastRebuildTime = NetworkTime.localTime;
-            }
         }
 
-// OnGUI allocates even if it does nothing. avoid in release.
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || (!UNITY_SERVER && DEBUG)
+        // OnGUI allocates even if it does nothing. avoid in release.
         // slider from dotsnet. it's nice to play around with in the benchmark
         // demo.
         void OnGUI()

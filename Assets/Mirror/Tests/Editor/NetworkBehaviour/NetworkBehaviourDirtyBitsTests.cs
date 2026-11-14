@@ -131,11 +131,11 @@ namespace Mirror.Tests.NetworkBehaviours
 
             // dirty the synclist
             comp.list.Add(42);
-            Assert.That(comp.IsDirty, Is.True);
+            Assert.That(comp.IsDirty(), Is.True);
 
             // clear bits should clear synclist bits too
             comp.ClearAllDirtyBits();
-            Assert.That(comp.IsDirty, Is.False);
+            Assert.That(comp.IsDirty(), Is.False);
         }
 
         // NetworkServer.Broadcast clears all dirty bits in all spawned

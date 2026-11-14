@@ -11,15 +11,17 @@ jobs:
     strategy:
       matrix:
         unityVersion:
-          - 2019.4.40f1
-          - 2020.3.48f1
-          - 2021.3.33f1
-          - 2022.3.14f1
-          - 2023.2.2f1
+          # - 2019.4.40f1
+          - 2020.3.49f1
+          - 2021.3.45f2
+          - 2022.3.62f3
+          - 2023.2.22f1
+          - 6000.3.23f1
+          - 6000.6.2f1
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       # Do Not Enable Caching --- Library needs to be recompiled every time because Weaver
       # Leaving this here for posterity to ensure we never turn this on.
@@ -31,11 +33,14 @@ jobs:
       #    key: Library-${{ matrix.unityVersion }}
 
       - name: Run editor Tests
-        uses: game-ci/unity-test-runner@main
+        uses: game-ci/unity-test-runner@v4
 
-        # We can use the same license for all Unity versions
+        # For Personal License, we must use the UNITY_EMAIL and UNITY_PASSWORD secrets to activate Unity.
+        # For Professional or Plus license, we must use the UNITY_LICENSE secret to activate Unity.
+        # See https://game.ci/docs/github/activation/
         env:
-          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
 
         # testMode is set to editMode (editor tests only) until we fix playmode tests (or eliminate them)
         # `-stackTraceLogType None` speeds up the job and vastly shrinks the log output
@@ -45,15 +50,35 @@ jobs:
           testMode: editmode
           unityVersion: ${{ matrix.unityVersion }}
           customParameters: -stackTraceLogType None
+          coverageOptions:  'generateAdditionalMetrics;generateHtmlReport;generateBadgeReport;assemblyFilters:+Mirror,+Mirror.*'
         
       - name: Archive test results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v7
+        if: always()
         with:
           name: Test Results ${{ matrix.unityVersion }}
           path: artifacts
 
+      - name: Archive coverage results
+        uses: actions/upload-artifact@v7
+        if:  always()
+        with:
+          name: Coverage Results ${{ matrix.unityVersion }}
+          path: CodeCoverage/
+
+      - name: Upload coverage to Codecov
+        if: matrix.unityVersion > '6000.4'
+        uses: codecov/codecov-action@v7
+        with:
+          files: ./CodeCoverage/**/*.xml
+          flags: unittests,unity-${{ matrix.unityVersion }}
+          name: mirror-coverage
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error:  false
+
       - name: Publish test results
         uses: MirrorNetworking/nunit-reporter@master
+        if: always()
         with:
           reportTitle: Test Report ${{ matrix.unityVersion }}
           path: "artifacts/*.xml"

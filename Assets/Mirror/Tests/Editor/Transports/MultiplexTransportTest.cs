@@ -43,30 +43,42 @@ namespace Mirror.Tests.Transports
             int t1_cmax = transport.AddToLookup(int.MaxValue, 1); // should get multiplexId = 6
 
             // MultiplexId -> (OriginalId, TransportIndex) for transport #0
-            transport.OriginalId(t0_c10, out int originalId, out int transportIndex);
-            Assert.That(transportIndex, Is.EqualTo(0));
-            Assert.That(originalId,     Is.EqualTo(10));
+            if (transport.OriginalId(t0_c10, out int originalId, out int transportIndex))
+            {
+                Assert.That(transportIndex, Is.EqualTo(0));
+                Assert.That(originalId, Is.EqualTo(10));
+            }
 
-            transport.OriginalId(t0_c20, out originalId, out transportIndex);
-            Assert.That(transportIndex, Is.EqualTo(0));
-            Assert.That(originalId,     Is.EqualTo(20));
+            if (transport.OriginalId(t0_c20, out originalId, out transportIndex))
+            {
+                Assert.That(transportIndex, Is.EqualTo(0));
+                Assert.That(originalId, Is.EqualTo(20));
+            }
 
-            transport.OriginalId(t0_cmax, out originalId, out transportIndex);
-            Assert.That(transportIndex, Is.EqualTo(0));
-            Assert.That(originalId,     Is.EqualTo(int.MaxValue));
+            if (transport.OriginalId(t0_cmax, out originalId, out transportIndex))
+            {
+                Assert.That(transportIndex, Is.EqualTo(0));
+                Assert.That(originalId, Is.EqualTo(int.MaxValue));
+            }
 
             // MultiplexId -> (OriginalId, TransportIndex) for transport #1
-            transport.OriginalId(t1_c10, out originalId, out transportIndex);
-            Assert.That(transportIndex, Is.EqualTo(1));
-            Assert.That(originalId,     Is.EqualTo(10));
+            if (transport.OriginalId(t1_c10, out originalId, out transportIndex))
+            {
+                Assert.That(transportIndex, Is.EqualTo(1));
+                Assert.That(originalId, Is.EqualTo(10));
+            }
 
-            transport.OriginalId(t1_c50, out originalId, out transportIndex);
-            Assert.That(transportIndex, Is.EqualTo(1));
-            Assert.That(originalId,     Is.EqualTo(50));
+            if (transport.OriginalId(t1_c50, out originalId, out transportIndex))
+            {
+                Assert.That(transportIndex, Is.EqualTo(1));
+                Assert.That(originalId, Is.EqualTo(50));
+            }
 
-            transport.OriginalId(t1_cmax, out originalId, out transportIndex);
-            Assert.That(transportIndex, Is.EqualTo(1));
-            Assert.That(originalId,     Is.EqualTo(int.MaxValue));
+            if (transport.OriginalId(t1_cmax, out originalId, out transportIndex))
+            {
+                Assert.That(transportIndex, Is.EqualTo(1));
+                Assert.That(originalId, Is.EqualTo(int.MaxValue));
+            }
 
             // (OriginalId, TransportIndex) -> MultiplexId for transport #1
             Assert.That(transport.MultiplexId(10, 0), Is.EqualTo(t0_c10));
@@ -226,16 +238,16 @@ namespace Mirror.Tests.Transports
             ArraySegment<byte> segment = new ArraySegment<byte>(data);
 
             // on connect, send a message back
-            void SendMessage(int connectionId)
+            void SendMessage(int connectionId, string remoteClientAddress)
             {
                 transport.ServerSend(connectionId, segment, 5);
             }
 
             // set event and Start to give event to inner
-            transport.OnServerConnected = SendMessage;
+            transport.OnServerConnectedWithAddress = SendMessage;
             transport.ServerStart();
 
-            transport1.OnServerConnected.Invoke(1);
+            transport1.OnServerConnectedWithAddress.Invoke(1, "");
 
             transport1.Received().ServerSend(1, segment, 5);
         }
@@ -248,14 +260,14 @@ namespace Mirror.Tests.Transports
             transport.ServerStart();
             transport.ClientConnect("some.server.com");
 
-            transport.OnServerConnected    = _ => {};
+            transport.OnServerConnectedWithAddress = (connectionId, remoteClientAddress) => {};
             transport.OnServerDisconnected = _ => {};
 
             // connect two connectionIds.
             // one of them very large to prevent
             // https://github.com/vis2k/Mirror/issues/3280
-            transport1.OnServerConnected(10);
-            transport2.OnServerConnected(int.MaxValue);
+            transport1.OnServerConnectedWithAddress(10, "");
+            transport2.OnServerConnectedWithAddress(int.MaxValue, "");
 
             byte[] data = { 1, 2, 3 };
             ArraySegment<byte> segment = new ArraySegment<byte>(data);

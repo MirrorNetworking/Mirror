@@ -18,6 +18,10 @@ using Mirror;
 /// </summary>
 public class #SCRIPTNAME# : NetworkRoomManager
 {
+    // Overrides the base singleton so we don't
+    // have to cast to this type everywhere.
+    public static new #SCRIPTNAME# singleton => (#SCRIPTNAME#)NetworkRoomManager.singleton;
+
     #region Server Callbacks
 
     /// <summary>

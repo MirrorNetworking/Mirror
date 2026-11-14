@@ -6,6 +6,17 @@ namespace Mirror.Examples.Benchmark
     {
         public float speed = 5;
 
+        // naming for easier debugging
+        public override void OnStartClient()
+        {
+            name = $"Player[{netId}|{(isLocalPlayer ? "local" : "remote")}]";
+        }
+
+        public override void OnStartServer()
+        {
+            name = $"Player[{netId}|server]";
+        }
+
         void Update()
         {
             if (!isLocalPlayer) return;

@@ -3,6 +3,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEditor.Callbacks;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Mirror
 {
@@ -11,10 +12,16 @@ namespace Mirror
         [PostProcessScene]
         public static void OnPostProcessScene()
         {
+            Scene lastLoadedScene = SceneManager.GetSceneAt(SceneManager.sceneCount - 1);
+            //Debug.Log($"[Mirror] OnPostProcessScene for scene '{lastLoadedScene.name}'");
+
             // find all NetworkIdentities in all scenes
             // => can't limit it to GetActiveScene() because that wouldn't work
             //    for additive scene loads (the additively loaded scene is never
             //    the active scene)
+            // => Should limit to the last scene loaded per SceneManager.sceneCount index
+            //    so we don't catch instantiated unspawned objects from other scenes
+            //    and only processing a single scene should be faster too.
             // => ignore DontDestroyOnLoad scene! this avoids weird situations
             //    like in NetworkZones when we destroy the local player and
             //    load another scene afterwards, yet the local player is still
@@ -26,6 +33,7 @@ namespace Mirror
                 .Where(identity => identity.gameObject.hideFlags != HideFlags.NotEditable &&
                                    identity.gameObject.hideFlags != HideFlags.HideAndDontSave &&
                                    identity.gameObject.scene.name != "DontDestroyOnLoad" &&
+                                   identity.gameObject.scene == lastLoadedScene &&
                                    !Utils.IsPrefab(identity.gameObject));
 
             foreach (NetworkIdentity identity in identities)
@@ -55,19 +63,28 @@ namespace Mirror
                     else
                     {
                         // there are two cases where sceneId == 0:
-                        // * if we have a prefab open in the prefab scene
-                        // * if an unopened scene needs resaving
-                        // show a proper error message in both cases so the user
-                        // knows what to do.
+                        // if we have a prefab open in the prefab scene
                         string path = identity.gameObject.scene.path;
                         if (string.IsNullOrWhiteSpace(path))
+                        {
+                            // pressing play while in prefab edit mode used to freeze/crash Unity 2019.
+                            // this seems fine now so we don't need to stop the editor anymore.
+#if UNITY_2020_3_OR_NEWER
+                            Debug.LogWarning($"{identity.name} was open in Prefab Edit Mode while launching with Mirror. If this causes issues, please let us know.");
+#else
                             Debug.LogError($"{identity.name} is currently open in Prefab Edit Mode. Please open the actual scene before launching Mirror.");
+                            EditorApplication.isPlaying = false;
+#endif
+                        }
+                        // if an unopened scene needs resaving
                         else
-                            Debug.LogError($"Scene {path} needs to be opened and resaved, because the scene object {identity.name} has no valid sceneId yet.");
+                        {
 
-                        // either way we shouldn't continue. nothing good will
-                        // happen when trying to launch with invalid sceneIds.
-                        EditorApplication.isPlaying = false;
+                            // nothing good will happen when trying to launch with invalid sceneIds.
+                            // show an error and stop playing immediately.
+                            Debug.LogError($"Scene {path} needs to be opened and resaved, because the scene object {identity.name} has no valid sceneId yet.");
+                            EditorApplication.isPlaying = false;
+                        }
                     }
                 }
             }
