@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Mirror.Tests.Batching;
 using NUnit.Framework;
 using UnityEngine;
+using System.Reflection;
 
 namespace Mirror.Tests.NetworkConnections
 {
@@ -137,12 +138,16 @@ namespace Mirror.Tests.NetworkConnections
         [Test]
         public void UpdatePing_SendsPingWhenIntervalElapsed()
         {
-            // PingInterval = -1f ensures localTime >= lastPingTime + (-1) is always true
             float savedPingInterval = NetworkTime.PingInterval;
             try
             {
-                NetworkTime.PingInterval = -1f;
+                NetworkTime.PingInterval = 0.1f;
                 NetworkConnectionToClient connection = new NetworkConnectionToClient(1);
+
+                // force "interval elapsed" deterministically
+                FieldInfo lastPingTimeField = typeof(NetworkConnectionToClient)
+                    .GetField("lastPingTime", BindingFlags.Instance | BindingFlags.NonPublic);
+                lastPingTimeField.SetValue(connection, -1d);
 
                 // Update() calls UpdatePing (fires ping) then flushes the unreliable batcher
                 connection.Update();
