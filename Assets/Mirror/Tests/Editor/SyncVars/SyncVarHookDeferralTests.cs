@@ -107,7 +107,7 @@ namespace Mirror.Tests.SyncVars
         }
 
         [Test]
-        public void HostMode_CrossReferences_HooksFireFromSetter_AndDuringDeserialize()
+        public void HostMode_CrossReferences_HooksFireOnceWhenObjectBecomesVisible()
         {
             // Start in HOST mode (server + client together)
             NetworkServer.Listen(10);
@@ -126,15 +126,19 @@ namespace Mirror.Tests.SyncVars
             comp2.target = identity3;
             comp3.target = comp1.netIdentity;
 
-            // In host mode, hooks fire TWICE:
-            // 1. From setter when value is assigned
-            // 2. From DeserializeClient during OnHostClientSpawn (because hostInitialSpawn=true)
-            Assert.That(comp1.callCount, Is.EqualTo(2),
-                        "Host mode:  Hook should fire from setter immediately");
-            Assert.That(comp2.callCount, Is.EqualTo(2),
-                "Host mode: Hook should fire from setter immediately");
-            Assert.That(comp3.callCount, Is.EqualTo(2),
-                "Host mode:  Hook should fire from setter immediately");
+            // In host mode, setter changes are deferred until the object is
+            // visible to the local host client.
+            Assert.That(comp1.callCount, Is.EqualTo(0));
+            Assert.That(comp2.callCount, Is.EqualTo(0));
+            Assert.That(comp3.callCount, Is.EqualTo(0));
+
+            // Add a local player so the host client can observe the objects.
+            CreateNetworkedAndSpawnPlayer(out _, out _, NetworkServer.localConnection);
+
+            // Once visible, each deferred hook should flush exactly once.
+            Assert.That(comp1.callCount, Is.EqualTo(1));
+            Assert.That(comp2.callCount, Is.EqualTo(1));
+            Assert.That(comp3.callCount, Is.EqualTo(1));
 
             // All targets should be accessible (host mode, everything is local)
             Assert.That(comp1.targetWasInSpawnedWhenHookFired, Is.True,
@@ -144,13 +148,14 @@ namespace Mirror.Tests.SyncVars
             Assert.That(comp3.targetWasInSpawnedWhenHookFired, Is.True,
                 "Host mode: Targets always accessible");
 
-            // Verify no deferred hooks queued (host mode doesn't defer)
+            // Host visibility flushing happens via weaved baseline state, not the
+            // client-only deferredSyncVarHooks list.
             Assert.That(comp1.deferredSyncVarHooks.Count, Is.EqualTo(0),
-                "Host mode should not defer hooks");
+                "Host mode should not queue client-only deferred hooks");
             Assert.That(comp2.deferredSyncVarHooks.Count, Is.EqualTo(0),
-                "Host mode should not defer hooks");
+                "Host mode should not queue client-only deferred hooks");
             Assert.That(comp3.deferredSyncVarHooks.Count, Is.EqualTo(0),
-                "Host mode should not defer hooks");
+                "Host mode should not queue client-only deferred hooks");
         }
 
         [Test]
