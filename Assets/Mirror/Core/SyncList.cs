@@ -139,9 +139,7 @@ namespace Mirror
                     int capturedIndex = itemIndex;
                     T capturedOld = oldItem;
                     T capturedNew = newItem;
-
-                    networkBehaviour.deferredSyncCollectionActions.Add(() =>
-                        InvokeActions(capturedOp, capturedIndex, capturedOld, capturedNew));
+                    AddDeferredOperation(capturedOp, capturedIndex, capturedOld, capturedNew);
                 }
                 else
                 {
@@ -149,6 +147,12 @@ namespace Mirror
                     InvokeActions(op, itemIndex, oldItem, newItem);
                 }
             }
+        }
+
+        void AddDeferredOperation(Operation capturedOp, int capturedIndex, T capturedOld, T capturedNew)
+        {
+            networkBehaviour.deferredSyncCollectionActions.Add(() =>
+                InvokeActions(capturedOp, capturedIndex, capturedOld, capturedNew));
         }
 
         void InvokeActions(Operation op, int itemIndex, T oldItem, T newItem)
