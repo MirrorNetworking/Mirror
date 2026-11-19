@@ -1,6 +1,7 @@
 using System;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.TestTools;
 
 namespace Mirror.Tests.NetworkManagers
 {
@@ -27,6 +28,93 @@ namespace Mirror.Tests.NetworkManagers
 
             Assert.That(manager.mode == NetworkManagerMode.ServerOnly);
             Assert.That(NetworkServer.active, Is.True);
+        }
+
+        public class FailingStartTransport : MemoryTransport
+        {
+            public readonly InvalidOperationException failure = new InvalidOperationException("ServerStart failed");
+
+            public override void ServerStart() => throw failure;
+        }
+
+        public class StartupAuthenticator : NetworkAuthenticator
+        {
+            public int startCalls;
+            public int stopCalls;
+            public bool throwOnStop;
+
+            public override void OnStartServer() => ++startCalls;
+
+            public override void OnStopServer()
+            {
+                ++stopCalls;
+                if (throwOnStop)
+                {
+                    throw new InvalidOperationException("Authenticator cleanup failed");
+                }
+            }
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void FailedListenRemovesOnlyManagerAuthenticationListener(bool host)
+        {
+            FailingStartTransport failingTransport = gameObject.AddComponent<FailingStartTransport>();
+            manager.transport = failingTransport;
+            Transport.active = failingTransport;
+            NetworkServer.listen = true;
+            StartupAuthenticator authenticator = gameObject.AddComponent<StartupAuthenticator>();
+            manager.authenticator = authenticator;
+            int externalCalls = 0;
+            authenticator.OnServerAuthenticated.AddListener(_ => ++externalCalls);
+
+            TestDelegate start = host ? (TestDelegate)manager.StartHost : manager.StartServer;
+            Assert.That(Assert.Throws<InvalidOperationException>(start), Is.SameAs(failingTransport.failure));
+            Assert.That(NetworkServer.active, Is.False);
+
+            // StopServer returns early while inactive, so startup must undo its listener.
+            manager.StopServer();
+            NetworkConnectionToClient connection = new NetworkConnectionToClient(1);
+            authenticator.OnServerAuthenticated.Invoke(connection);
+            Assert.That(connection.isAuthenticated, Is.False);
+            Assert.That(externalCalls, Is.EqualTo(1));
+            Assert.That(authenticator.startCalls, Is.EqualTo(1));
+            Assert.That(authenticator.stopCalls, Is.EqualTo(1));
+
+            // Clean up the failed transport, then retry using the normal transport.
+            NetworkServer.Shutdown();
+            manager.transport = transport;
+            Transport.active = transport;
+            manager.StartServer();
+            authenticator.OnServerAuthenticated.Invoke(connection);
+            Assert.That(connection.isAuthenticated, Is.True);
+            Assert.That(externalCalls, Is.EqualTo(2));
+            manager.StopServer();
+            connection.isAuthenticated = false;
+            authenticator.OnServerAuthenticated.Invoke(connection);
+            Assert.That(connection.isAuthenticated, Is.False);
+            Assert.That(externalCalls, Is.EqualTo(3));
+            Assert.That(authenticator.startCalls, Is.EqualTo(2));
+            Assert.That(authenticator.stopCalls, Is.EqualTo(2));
+        }
+
+        [Test]
+        public void FailedListenPreservesOriginalExceptionWhenAuthenticatorCleanupThrows()
+        {
+            FailingStartTransport failingTransport = gameObject.AddComponent<FailingStartTransport>();
+            manager.transport = failingTransport;
+            Transport.active = failingTransport;
+            NetworkServer.listen = true;
+            StartupAuthenticator authenticator = gameObject.AddComponent<StartupAuthenticator>();
+            manager.authenticator = authenticator;
+            authenticator.throwOnStop = true;
+
+            LogAssert.Expect(LogType.Warning, "Authenticator startup rollback failed: InvalidOperationException");
+            Assert.That(Assert.Throws<InvalidOperationException>(manager.StartServer), Is.SameAs(failingTransport.failure));
+            NetworkConnectionToClient connection = new NetworkConnectionToClient(1);
+            authenticator.OnServerAuthenticated.Invoke(connection);
+            Assert.That(connection.isAuthenticated, Is.False);
+            Assert.That(authenticator.stopCalls, Is.EqualTo(1));
         }
 
         [Test]
